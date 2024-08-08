@@ -27,6 +27,8 @@ public sealed partial class ShellPage : Page
     public ShellPage()
     {
         this.InitializeComponent();
+        NavigationFrame.Navigate(typeof(HomePage));
+        NavigationViewControl.SelectedItem = HomeItem;
     }
 
     private async void NavigationViewControl_SelectionChanged(NavigationView sender, NavigationViewSelectionChangedEventArgs args)

@@ -17,7 +17,7 @@
             ExpandedModeThresholdWidth="1280" Margin="0, 46, 0, 0"
             SelectionChanged="NavigationViewControl_SelectionChanged" PaneTitle="Rebound Hub">
             <NavigationView.MenuItems>
-                <NavigationViewItem Tag="Home" Content="Home">
+                <NavigationViewItem Tag="Home" Content="Home" x:Name="HomeItem">
                     <NavigationViewItem.Icon>
                         <FontIcon FontFamily="{StaticResource SymbolThemeFontFamily}" Glyph=""/>
                     </NavigationViewItem.Icon>
