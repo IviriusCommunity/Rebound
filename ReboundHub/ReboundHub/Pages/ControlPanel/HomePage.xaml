@@ -1,0 +1,152 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Page
+    x:Class="ReboundHub.ReboundHub.Pages.ControlPanel.HomePage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:ReboundHub.ReboundHub.Pages.ControlPanel"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    mc:Ignorable="d">
+
+    <Grid>
+        <ScrollViewer Grid.Row="1" HorizontalContentAlignment="Stretch" Padding="25" MaxWidth="800">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="15"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="50"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="15"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="15"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="15"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="15"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
+                <TextBlock Foreground="{ThemeResource AccentTextFillColorPrimaryBrush}" Text="Adjust your computer's settings" FontSize="22" Grid.ColumnSpan="3"/>
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Grid.Column="2" Spacing="15" VerticalAlignment="Top">
+                    <TextBlock Text="View by:" VerticalAlignment="Center"/>
+                    <ComboBox SelectedIndex="0" VerticalAlignment="Center" SelectionChanged="ComboBox_SelectionChanged">
+                        <ComboBoxItem Content="Category"/>
+                        <ComboBoxItem Content="Navigation"/>
+                    </ComboBox>
+                </StackPanel>
+                <Button Grid.Row="3" Grid.Column="0" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Background="Transparent" BorderBrush="Transparent" HorizontalContentAlignment="Stretch" VerticalContentAlignment="Top">
+                    <Grid>
+                        <Image Source="/Assets/AppIcons/imageres_195.ico" Width="64" Height="64" HorizontalAlignment="Left" VerticalAlignment="Top"/>
+                        <StackPanel Margin="75, 0, 0, 0">
+                            <TextBlock Text="System and Security" FontSize="18" Margin="6, 0, 0, 5"/>
+                            <HyperlinkButton Padding="5, 3, 5, 3" Click="MenuFlyoutItem_Click_1">
+                                <TextBlock Text="Review your computer's status" TextWrapping="WrapWholeWords"/>
+                            </HyperlinkButton>
+                            <HyperlinkButton Padding="5, 3, 5, 3" Click="MenuFlyoutItem_Click_1">
+                                <TextBlock Text="Save backup copies of your files with OneDrive" TextWrapping="WrapWholeWords"/>
+                            </HyperlinkButton>
+                            <HyperlinkButton Padding="5, 3, 5, 3" Click="MenuFlyoutItem_Click_1">
+                                <TextBlock Text="Windows Backup" TextWrapping="WrapWholeWords"/>
+                            </HyperlinkButton>
+                            <HyperlinkButton Padding="5, 3, 5, 3" Click="HyperlinkButton_Click">
+                                <TextBlock Text="Legacy Control Panel" TextWrapping="WrapWholeWords"/>
+                            </HyperlinkButton>
+                        </StackPanel>
+                    </Grid>
+                </Button>
+                <Button Grid.Row="3" Grid.Column="2" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Background="Transparent" BorderBrush="Transparent" HorizontalContentAlignment="Stretch" VerticalContentAlignment="Top">
+                    <Grid>
+                        <Image Source="/Assets/AppIcons/imageres_1029.ico" Width="64" Height="64" HorizontalAlignment="Left" VerticalAlignment="Top"/>
+                        <StackPanel Margin="75, 0, 0, 0">
+                            <TextBlock Text="User Accounts" FontSize="18" Margin="6, 0, 0, 5"/>
+                            <HyperlinkButton Padding="5, 3, 5, 3">
+                                <StackPanel Orientation="Horizontal" Spacing="10">
+                                    <Image Source="/Assets/AppIcons/imageres_78.ico" Width="16" Height="16" HorizontalAlignment="Left" VerticalAlignment="Top"/>
+                                    <TextBlock Text="Change account type" Margin="0, -2, 0, 0" TextWrapping="WrapWholeWords"/>
+                                </StackPanel>
+                            </HyperlinkButton>
+                        </StackPanel>
+                    </Grid>
+                </Button>
+                <Button Grid.Row="5" Grid.Column="0" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Background="Transparent" BorderBrush="Transparent" HorizontalContentAlignment="Stretch" VerticalContentAlignment="Top">
+                    <Grid>
+                        <Image Source="/Assets/AppIcons/imageres_120.ico" Width="64" Height="64" HorizontalAlignment="Left" VerticalAlignment="Top"/>
+                        <StackPanel Margin="75, 0, 0, 0">
+                            <TextBlock Text="Network and Internet" FontSize="18" Margin="6, 0, 0, 5"/>
+                            <HyperlinkButton Padding="5, 3, 5, 3">
+                                <TextBlock Text="View network status and tasks" TextWrapping="WrapWholeWords"/>
+                            </HyperlinkButton>
+                        </StackPanel>
+                    </Grid>
+                </Button>
+                <Button Grid.Row="5" Grid.Column="2" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Background="Transparent" BorderBrush="Transparent" HorizontalContentAlignment="Stretch" VerticalContentAlignment="Top" Click="Button_Click_1">
+                    <Grid>
+                        <Image Source="/Assets/AppIcons/imageres_197.ico" Width="64" Height="64" HorizontalAlignment="Left" VerticalAlignment="Top"/>
+                        <StackPanel Margin="75, 0, 0, 0">
+                            <TextBlock Text="Appearance and Personalization" FontSize="18" Margin="6, 0, 0, 5"/>
+                            <HyperlinkButton Padding="5, 3, 5, 3">
+                                <TextBlock Text="Rebound11" TextWrapping="WrapWholeWords"/>
+                            </HyperlinkButton>
+                        </StackPanel>
+                    </Grid>
+                </Button>
+                <Button Grid.Row="7" Grid.Column="0" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Background="Transparent" BorderBrush="Transparent" HorizontalContentAlignment="Stretch" VerticalContentAlignment="Top">
+                    <Grid>
+                        <Image Source="/Assets/AppIcons/imageres_196.ico" Width="64" Height="64" HorizontalAlignment="Left" VerticalAlignment="Top"/>
+                        <StackPanel Margin="75, 0, 0, 0">
+                            <TextBlock Text="Hardware and Sound" FontSize="18" Margin="6, 0, 0, 5"/>
+                            <HyperlinkButton Padding="5, 3, 5, 3">
+                                <TextBlock Text="View devices and printers" TextWrapping="WrapWholeWords"/>
+                            </HyperlinkButton>
+                            <HyperlinkButton Padding="5, 3, 5, 3">
+                                <TextBlock Text="Add a device" TextWrapping="WrapWholeWords"/>
+                            </HyperlinkButton>
+                            <HyperlinkButton Padding="5, 3, 5, 3">
+                                <TextBlock Text="Adjust commonly used mobility settings" TextWrapping="WrapWholeWords"/>
+                            </HyperlinkButton>
+                        </StackPanel>
+                    </Grid>
+                </Button>
+                <Button Grid.Row="7" Grid.Column="3" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Background="Transparent" BorderBrush="Transparent" HorizontalContentAlignment="Stretch" VerticalContentAlignment="Top">
+                    <Grid>
+                        <Image Source="/Assets/AppIcons/imageres_144.ico" Width="64" Height="64" HorizontalAlignment="Left" VerticalAlignment="Top"/>
+                        <StackPanel Margin="75, 0, 0, 0">
+                            <TextBlock Text="Clock and Region" FontSize="18" Margin="6, 0, 0, 5"/>
+                            <HyperlinkButton Padding="5, 3, 5, 3">
+                                <TextBlock Text="Change date, time, or number formats" TextWrapping="WrapWholeWords"/>
+                            </HyperlinkButton>
+                        </StackPanel>
+                    </Grid>
+                </Button>
+                <Button Grid.Row="9" Grid.Column="0" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Background="Transparent" BorderBrush="Transparent" HorizontalContentAlignment="Stretch" VerticalContentAlignment="Top">
+                    <Grid>
+                        <Image Source="/Assets/AppIcons/imageres_161.ico" Width="64" Height="64" HorizontalAlignment="Left" VerticalAlignment="Top"/>
+                        <StackPanel Margin="75, 0, 0, 0">
+                            <TextBlock Text="Programs" FontSize="18" Margin="6, 0, 0, 5"/>
+                            <HyperlinkButton Padding="5, 3, 5, 3">
+                                <TextBlock Text="Uninstall a program" TextWrapping="WrapWholeWords"/>
+                            </HyperlinkButton>
+                        </StackPanel>
+                    </Grid>
+                </Button>
+                <Button Grid.Row="9" Grid.Column="3" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Background="Transparent" BorderBrush="Transparent" HorizontalContentAlignment="Stretch" VerticalContentAlignment="Top">
+                    <Grid>
+                        <Image Source="/Assets/AppIcons/imageres_86.ico" Width="64" Height="64" HorizontalAlignment="Left" VerticalAlignment="Top"/>
+                        <StackPanel Margin="75, 0, 0, 0">
+                            <TextBlock Text="Accessibility" FontSize="18" Margin="6, 0, 0, 5"/>
+                            <HyperlinkButton Padding="5, 3, 5, 3">
+                                <TextBlock Text="Let Windows suggest settings" TextWrapping="WrapWholeWords"/>
+                            </HyperlinkButton>
+                            <HyperlinkButton Padding="5, 3, 5, 3">
+                                <TextBlock Text="Optimize visual display" TextWrapping="WrapWholeWords"/>
+                            </HyperlinkButton>
+                        </StackPanel>
+                    </Grid>
+                </Button>
+            </Grid>
+        </ScrollViewer>
+    </Grid>
+</Page>

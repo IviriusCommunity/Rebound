@@ -1,0 +1,170 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Page
+    x:Class="ReboundHub.ReboundHub.Pages.ControlPanel.SystemAndSecurity"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:ReboundHub.ReboundHub.Pages.ControlPanel"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:SettingsUI="using:CommunityToolkit.WinUI.Controls"
+    mc:Ignorable="d">
+
+    <Grid>
+        <NavigationView IsSettingsVisible="False" Grid.Row="1" IsBackButtonVisible="Collapsed" PaneTitle="System and Security" SelectionChanged="NavigationView_SelectionChanged">
+            <NavigationView.MenuItems>
+                <NavigationViewItem Content="Security and Maintenance" IsSelected="True">
+                    <NavigationViewItem.Icon>
+                        <FontIcon Glyph=""/>
+                    </NavigationViewItem.Icon>
+                </NavigationViewItem>
+                <NavigationViewItem Content="Windows Defender Firewall">
+                    <NavigationViewItem.Icon>
+                        <ImageIcon Source="/Assets/AppIcons/imageres_195.ico"/>
+                    </NavigationViewItem.Icon>
+                    <NavigationViewItem.MenuItems>
+                        <NavigationViewItem Content="Review your computer's status"/>
+                        <NavigationViewItem>
+                            <TextBlock TextWrapping="WrapWholeWords" Text="Save backup copies of your files with OneDrive"/>
+                        </NavigationViewItem>
+                        <NavigationViewItem Content="Windows Backup"/>
+                    </NavigationViewItem.MenuItems>
+                </NavigationViewItem>
+                <NavigationViewItem Content="System">
+                    <NavigationViewItem.Icon>
+                        <ImageIcon Source="/Assets/AppIcons/imageres_1029.ico"/>
+                    </NavigationViewItem.Icon>
+                    <NavigationViewItem.MenuItems>
+                        <NavigationViewItem Content="Change account type">
+                            <NavigationViewItem.Icon>
+                                <ImageIcon Source="/Assets/AppIcons/imageres_78.ico"/>
+                            </NavigationViewItem.Icon>
+                        </NavigationViewItem>
+                    </NavigationViewItem.MenuItems>
+                </NavigationViewItem>
+                <NavigationViewItem Content="Power Options">
+                    <NavigationViewItem.Icon>
+                        <ImageIcon Source="/Assets/AppIcons/imageres_120.ico"/>
+                    </NavigationViewItem.Icon>
+                    <NavigationViewItem.MenuItems>
+                        <NavigationViewItem Content="View network status and tasks"/>
+                    </NavigationViewItem.MenuItems>
+                </NavigationViewItem>
+                <NavigationViewItem Content="File History" x:Name="AppearanceItem">
+                    <NavigationViewItem.Icon>
+                        <ImageIcon Source="/Assets/AppIcons/imageres_197.ico"/>
+                    </NavigationViewItem.Icon>
+                    <NavigationViewItem.MenuItems>
+                        <NavigationViewItem Content="Rebound 11" x:Name="Re11Item"/>
+                    </NavigationViewItem.MenuItems>
+                </NavigationViewItem>
+                <NavigationViewItem Content="Windows Backup">
+                    <NavigationViewItem.Icon>
+                        <ImageIcon Source="/Assets/AppIcons/imageres_196.ico"/>
+                    </NavigationViewItem.Icon>
+                    <NavigationViewItem.MenuItems>
+                        <NavigationViewItem Content="View devices and printers"/>
+                        <NavigationViewItem Content="Add a device"/>
+                        <NavigationViewItem Content="Adjust commonly used mobility settings"/>
+                    </NavigationViewItem.MenuItems>
+                </NavigationViewItem>
+                <NavigationViewItem Content="BitLocker Drive Encryption">
+                    <NavigationViewItem.Icon>
+                        <ImageIcon Source="/Assets/AppIcons/imageres_144.ico"/>
+                    </NavigationViewItem.Icon>
+                    <NavigationViewItem.MenuItems>
+                        <NavigationViewItem Content="Change date, time, or number formats"/>
+                    </NavigationViewItem.MenuItems>
+                </NavigationViewItem>
+                <NavigationViewItem Content="Storage Spaces">
+                    <NavigationViewItem.Icon>
+                        <ImageIcon Source="/Assets/AppIcons/imageres_161.ico"/>
+                    </NavigationViewItem.Icon>
+                    <NavigationViewItem.MenuItems>
+                        <NavigationViewItem Content="Uninstall a program"/>
+                    </NavigationViewItem.MenuItems>
+                </NavigationViewItem>
+                <NavigationViewItem Content="Work Folders">
+                    <NavigationViewItem.Icon>
+                        <ImageIcon Source="/Assets/AppIcons/imageres_86.ico"/>
+                    </NavigationViewItem.Icon>
+                    <NavigationViewItem.MenuItems>
+                        <NavigationViewItem Content="Let Windows suggest settings"/>
+                        <NavigationViewItem Content="Optimize visual display"/>
+                    </NavigationViewItem.MenuItems>
+                </NavigationViewItem>
+                <NavigationViewItem Content="Windows Tools">
+                    <NavigationViewItem.Icon>
+                        <ImageIcon Source="/Assets/AppIcons/imageres_86.ico"/>
+                    </NavigationViewItem.Icon>
+                    <NavigationViewItem.MenuItems>
+                        <NavigationViewItem Content="Let Windows suggest settings"/>
+                        <NavigationViewItem Content="Optimize visual display"/>
+                    </NavigationViewItem.MenuItems>
+                </NavigationViewItem>
+                <NavigationViewItem Content="Work Folders">
+                    <NavigationViewItem.Icon>
+                        <ImageIcon Source="/Assets/AppIcons/imageres_86.ico"/>
+                    </NavigationViewItem.Icon>
+                    <NavigationViewItem.MenuItems>
+                        <NavigationViewItem Content="Let Windows suggest settings"/>
+                        <NavigationViewItem Content="Optimize visual display"/>
+                    </NavigationViewItem.MenuItems>
+                </NavigationViewItem>
+                <NavigationViewItem Content="Updates">
+                    <NavigationViewItem.Icon>
+                        <ImageIcon Source="/Assets/AppIcons/imageres_86.ico"/>
+                    </NavigationViewItem.Icon>
+                    <NavigationViewItem.MenuItems>
+                        <NavigationViewItem Content="Windows Update"/>
+                        <NavigationViewItem Content="Device manufacturer software updates"/>
+                    </NavigationViewItem.MenuItems>
+                </NavigationViewItem>
+            </NavigationView.MenuItems>
+            <ScrollViewer Grid.Row="1" HorizontalContentAlignment="Stretch" Padding="25" MaxWidth="1000">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="25"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="50"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="15"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="15"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="15"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="15"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
+                    <TextBlock Foreground="{ThemeResource AccentTextFillColorPrimaryBrush}" FontWeight="SemiBold" Text="Security and Maintenance" FontSize="22" Grid.ColumnSpan="3"/>
+                    <StackPanel Grid.Row="3" Grid.ColumnSpan="3" Spacing="5">
+                        <TextBlock Text="Device status" Style="{StaticResource BodyStrongTextBlockStyle}" Margin="3"/>
+                        <InfoBar IsOpen="True" IsClosable="False" x:Name="StatusInfoBar"/>
+                        <TextBlock Text="Malware protection" Style="{StaticResource BodyStrongTextBlockStyle}" Margin="3"/>
+                        <StackPanel x:Name="SecurityBars" Spacing="10"/>
+                        <TextBlock Text="Recommended" Style="{StaticResource BodyStrongTextBlockStyle}" Margin="3"/>
+                        <SettingsUI:SettingsCard IsClickEnabled="True" Header="User Account Control" Description="Change User Account Control Settings." Click="SettingsCard_Click_1">
+                            <SettingsUI:SettingsCard.HeaderIcon>
+                                <FontIcon Glyph=""/>
+                            </SettingsUI:SettingsCard.HeaderIcon>
+                        </SettingsUI:SettingsCard>
+                        <SettingsUI:SettingsCard IsClickEnabled="True" Header="Windows Update">
+                            <SettingsUI:SettingsCard.HeaderIcon>
+                                <FontIcon Glyph=""/>
+                            </SettingsUI:SettingsCard.HeaderIcon>
+                        </SettingsUI:SettingsCard>
+                        <SettingsUI:SettingsCard IsClickEnabled="True" Header="Windows Backup">
+                            <SettingsUI:SettingsCard.HeaderIcon>
+                                <FontIcon Glyph=""/>
+                            </SettingsUI:SettingsCard.HeaderIcon>
+                        </SettingsUI:SettingsCard>
+                    </StackPanel>
+                </Grid>
+            </ScrollViewer>
+        </NavigationView>
+    </Grid>
+</Page>
