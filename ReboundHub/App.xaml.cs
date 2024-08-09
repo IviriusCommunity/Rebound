@@ -16,6 +16,8 @@ using Windows.ApplicationModel;
 using Windows.ApplicationModel.Activation;
 using Windows.Foundation;
 using Windows.Foundation.Collections;
+using Windows.System.UserProfile;
+using WinUIEx;
 
 // To learn more about WinUI, the WinUI project structure,
 // and more about our project templates, see: http://aka.ms/winui-project-info.
@@ -36,6 +38,18 @@ public partial class App : Application
         this.UnhandledException += App_UnhandledException;
     }
 
+    public string GetCurrentRegion()
+    {
+        // Get the current user's geographical region
+        var geoRegion = GlobalizationPreferences.Languages.FirstOrDefault();
+
+        // Optionally, you can use a more specific approach if needed
+        // For example, checking the Region from the locale
+        var region = geoRegion?.Split('-').LastOrDefault();
+
+        return region ?? "Unknown";
+    }
+
     private void App_UnhandledException(object sender, Microsoft.UI.Xaml.UnhandledExceptionEventArgs e)
     {
         // Log or handle the exception
@@ -49,8 +63,29 @@ public partial class App : Application
     /// <param name="args">Details about the launch request and process.</param>
     protected override void OnLaunched(Microsoft.UI.Xaml.LaunchActivatedEventArgs args)
     {
-        m_window = new MainWindow();
-        m_window.Activate();
+        var currentRegion = GetCurrentRegion();
+
+        // List of restricted regions
+        var restrictedRegions = new[] { "RU", "CN" };
+
+        if (restrictedRegions.Contains(currentRegion))
+        {
+            // Show a message or close the app
+            m_window = new RegionBlock();
+            m_window.AppWindow.TitleBar.ExtendsContentIntoTitleBar = true;
+            m_window.AppWindow.TitleBar.PreferredHeightOption = Microsoft.UI.Windowing.TitleBarHeightOption.Collapsed;
+            m_window.SystemBackdrop = new TransparentTintBackdrop();
+            m_window.SetIsMinimizable(false);
+            m_window.SetIsMaximizable(false);
+            m_window.SetIsAlwaysOnTop(true);
+            m_window.Activate();
+            m_window.Maximize();
+        }
+        else
+        {
+            m_window = new MainWindow();
+            m_window.Activate();
+        }
     }
 
     public static Window m_window;

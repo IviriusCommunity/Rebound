@@ -58,6 +58,7 @@
     <None Remove="ReboundHub\Pages\HomePage.xaml" />
     <None Remove="ReboundHub\Pages\Rebound11Page.xaml" />
     <None Remove="ReboundHub\Pages\ShellPage.xaml" />
+    <None Remove="RegionBlock.xaml" />
     <None Remove="UACWindow.xaml" />
   </ItemGroup>
 
@@ -190,5 +191,10 @@
 	</ItemGroup>
 	<ItemGroup>
 	  <PRIResource Remove="Assets\Wallpapers\**" />
+	</ItemGroup>
+	<ItemGroup>
+	  <Page Update="RegionBlock.xaml">
+	    <Generator>MSBuild:Compile</Generator>
+	  </Page>
 	</ItemGroup>
 </Project>
