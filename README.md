@@ -2,7 +2,6 @@
 
 ## Welcome to Rebound Hub! 🛠️
 
-![image](https://github.com/user-attachments/assets/6c7630cd-1197-433e-9cfa-f9098ce78cc8)
 ![image](https://github.com/user-attachments/assets/54368425-00e5-45e3-8eb6-95a6582eb841)
 
 Rebound Hub is the central component of the [**Rebound 11**](https://ivirius.vercel.app/rebound11) project. It serves as the **installer** for Rebound 11, showcases Ivirius' controls and styles, and provides access to the **Rebound Control Panel**. Designed to enhance your Windows experience, Rebound Hub is a key part of making your system **consistent, fluent, and safe for all home users**.
@@ -33,6 +32,16 @@ Rebound Hub is the central component of the [**Rebound 11**](https://ivirius.ver
 - **Installation**: Easy to install and does not require a system restore point.
 - **Functionality**: Replaces essential Win32 applet shortcuts with WinUI 3 apps.
 
+## 🖼️ Screenshots
+
+![image](https://github.com/user-attachments/assets/6c7630cd-1197-433e-9cfa-f9098ce78cc8)
+![image](https://github.com/user-attachments/assets/54368425-00e5-45e3-8eb6-95a6582eb841)
+![image](https://github.com/user-attachments/assets/022db35c-2312-4aca-85b1-40d25e24736e)
+![image](https://github.com/user-attachments/assets/09b3f443-5c1d-4cde-9148-62bd6b8616c7)
+![image](https://github.com/user-attachments/assets/3d214adf-6c3b-4237-8554-3c5d7bb24f57)
+![image](https://github.com/user-attachments/assets/635b7ee2-1caa-41be-8ae6-640ce74e6182)
+![image](https://github.com/user-attachments/assets/18442258-f41b-4f45-aa8a-14bb1444ee33)
+
 ### Modernized Apps
 
 - **Run**
@@ -58,7 +67,7 @@ Rebound Hub is the central component of the [**Rebound 11**](https://ivirius.ver
 
 This project **does not modify Windows**. Instead, it replaces essential Win32 applet shortcuts with modern WinUI 3 apps. 
 
-**Compatibility Note**: This is not Rectify 11 and is not compatible with it. We recommend installing Rebound 11 on an unmodified version of Windows to avoid conflicts.
+**Compatibility Note**: This is not Rectify 11 and is not compatible with it at the moment. We recommend installing Rebound 11 on an unmodified version of Windows to avoid conflicts.
 
 ---
 
