@@ -6,10 +6,437 @@
     xmlns:local="using:ReboundHub.ReboundHub.Pages"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:ToolkitControls="using:CommunityToolkit.WinUI.UI.Controls"
+    xmlns:ivirius="using:Ivirius.UI.Controls"
     mc:Ignorable="d"
     Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
 
     <Grid>
-
+        <Image x:Name="Wallpaper" Stretch="UniformToFill"/>
+        <StackPanel Margin="45">
+            <ToolkitControls:DropShadowPanel BlurRadius="35" Color="#777777">
+                <TextBlock Text="This is Ivirius." Style="{ThemeResource TitleLargeTextBlockStyle}" Foreground="White"/>
+            </ToolkitControls:DropShadowPanel>
+            <ToolkitControls:DropShadowPanel BlurRadius="35" Color="#777777">
+                <TextBlock Text="We made apps and tools for you to have the best experience with Windows 11." Style="{ThemeResource TitleTextBlockStyle}" Foreground="White"/>
+            </ToolkitControls:DropShadowPanel>
+        </StackPanel>
+        <Grid Background="#66FFFFFF" Width="90" Height="80" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="45, 200" CornerRadius="4">
+            <Grid HorizontalAlignment="Center" VerticalAlignment="Bottom" Margin="-2, 0, 0, 3">
+                <ToolkitControls:DropShadowPanel BlurRadius="3" OffsetX="0" OffsetY="1" ShadowOpacity="1" FontWeight="Bold"  Color="#000000">
+                    <TextBlock Text="Recycle Bin" FontSize="14" FontWeight="Light" Foreground="White"/>
+                </ToolkitControls:DropShadowPanel>
+                <ToolkitControls:DropShadowPanel BlurRadius="3" OffsetX="0" ShadowOpacity="1" FontWeight="Bold"  Color="#000000">
+                    <TextBlock Text="Recycle Bin" FontSize="14" FontWeight="Light" Foreground="White"/>
+                </ToolkitControls:DropShadowPanel>
+                <ToolkitControls:DropShadowPanel BlurRadius="3" OffsetX="0" ShadowOpacity="1" FontWeight="Bold"  Color="#000000">
+                    <TextBlock Text="Recycle Bin" FontSize="14" FontWeight="Light" Foreground="White"/>
+                </ToolkitControls:DropShadowPanel>
+            </Grid>
+        </Grid>
+        <Grid Width="90" Height="80" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="45, 300, 0, 100" CornerRadius="4">
+            <Grid HorizontalAlignment="Center" VerticalAlignment="Bottom" Margin="-2, 0, 0, 3">
+                <ToolkitControls:DropShadowPanel BlurRadius="3" OffsetX="0" OffsetY="1" ShadowOpacity="1" FontWeight="Bold"  Color="#000000">
+                    <TextBlock Text="New Folder" FontSize="14" FontWeight="Light" Foreground="White"/>
+                </ToolkitControls:DropShadowPanel>
+                <ToolkitControls:DropShadowPanel BlurRadius="3" OffsetX="0" ShadowOpacity="1" FontWeight="Bold"  Color="#000000">
+                    <TextBlock Text="New Folder" FontSize="14" FontWeight="Light" Foreground="White"/>
+                </ToolkitControls:DropShadowPanel>
+                <ToolkitControls:DropShadowPanel BlurRadius="3" OffsetX="0" ShadowOpacity="1" FontWeight="Bold"  Color="#000000">
+                    <TextBlock Text="New Folder" FontSize="14" FontWeight="Light" Foreground="White"/>
+                </ToolkitControls:DropShadowPanel>
+            </Grid>
+        </Grid>
+        <Grid RequestedTheme="Light" BorderThickness="2" BorderBrush="{ThemeResource AccentFillColorDefaultBrush}" Background="{ThemeResource CardBackgroundFillColorSecondaryBrush}" Width="90" Height="80" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="45, 200" CornerRadius="4">
+            <Grid HorizontalAlignment="Center" VerticalAlignment="Bottom" Margin="-2, 0, 0, 3">
+                <ToolkitControls:DropShadowPanel BlurRadius="15" OffsetX="0" OffsetY="1" ShadowOpacity="1" FontWeight="Bold"  Color="#222222">
+                    <TextBlock Text="Recycle Bin" FontSize="14" FontWeight="SemiBold" Foreground="White"/>
+                </ToolkitControls:DropShadowPanel>
+            </Grid>
+            <CheckBox IsChecked="True" Margin="5, 0, 0, 0" VerticalAlignment="Top"/>
+        </Grid>
+        <Grid Width="90" Height="80" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="45, 300" CornerRadius="4">
+            <Grid HorizontalAlignment="Center" VerticalAlignment="Bottom" Margin="-2, 0, 0, 3">
+                <ToolkitControls:DropShadowPanel BlurRadius="15" OffsetX="0" OffsetY="1" ShadowOpacity="1" FontWeight="Bold"  Color="#222222">
+                    <TextBlock Text="New Folder" FontSize="14" FontWeight="SemiBold" Foreground="White"/>
+                </ToolkitControls:DropShadowPanel>
+            </Grid>
+        </Grid>
+        <Grid Grid.Column="2" HorizontalAlignment="Left" VerticalAlignment="Bottom" Width="475" Height="275" RequestedTheme="Light">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+            <Border Width="30" VerticalAlignment="Stretch" Grid.Column="0" Grid.Row="1">
+                <Border.Background>
+                    <LinearGradientBrush StartPoint="1, 0" EndPoint="0, 0">
+                        <GradientStop Color="#10000000" Offset="0"/>
+                        <GradientStop Color="#00000000" Offset="1"/>
+                    </LinearGradientBrush>
+                </Border.Background>
+            </Border>
+            <Border Width="30" VerticalAlignment="Stretch" Grid.Column="2" Grid.Row="1">
+                <Border.Background>
+                    <LinearGradientBrush StartPoint="0, 0" EndPoint="1, 0">
+                        <GradientStop Color="#10000000" Offset="0"/>
+                        <GradientStop Color="#00000000" Offset="1"/>
+                    </LinearGradientBrush>
+                </Border.Background>
+            </Border>
+            <Border Height="20" VerticalAlignment="Stretch" Grid.Column="1" Grid.Row="0">
+                <Border.Background>
+                    <LinearGradientBrush StartPoint="0, 1" EndPoint="0, 0">
+                        <GradientStop Color="#10000000" Offset="0"/>
+                        <GradientStop Color="#00000000" Offset="1"/>
+                    </LinearGradientBrush>
+                </Border.Background>
+            </Border>
+            <Border Height="50" VerticalAlignment="Stretch" Grid.Column="1" Grid.Row="3">
+                <Border.Background>
+                    <LinearGradientBrush StartPoint="0, 0" EndPoint="0, 1">
+                        <GradientStop Color="#10000000" Offset="0"/>
+                        <GradientStop Color="#00000000" Offset="1"/>
+                    </LinearGradientBrush>
+                </Border.Background>
+            </Border>
+            <Border VerticalAlignment="Stretch" Grid.Column="0" Grid.Row="0">
+                <Border.Background>
+                    <RadialGradientBrush MappingMode="RelativeToBoundingBox" Center="1,1"
+                RadiusX="1"
+                RadiusY="1"
+                GradientOrigin="1,1"
+                SpreadMethod="Pad">
+                        <RadialGradientBrush.GradientStops>
+                            <GradientStop Color="#10000000" Offset="0"/>
+                            <GradientStop Color="#00000000" Offset="1"/>
+                        </RadialGradientBrush.GradientStops>
+                    </RadialGradientBrush>
+                </Border.Background>
+            </Border>
+            <Border VerticalAlignment="Stretch" Grid.Column="2" Grid.Row="0">
+                <Border.Background>
+                    <RadialGradientBrush MappingMode="RelativeToBoundingBox" Center="0,1"
+                RadiusX="1"
+                RadiusY="1"
+                GradientOrigin="0,1"
+                SpreadMethod="Pad">
+                        <RadialGradientBrush.GradientStops>
+                            <GradientStop Color="#10000000" Offset="0"/>
+                            <GradientStop Color="#00000000" Offset="1"/>
+                        </RadialGradientBrush.GradientStops>
+                    </RadialGradientBrush>
+                </Border.Background>
+            </Border>
+            <Border VerticalAlignment="Stretch" Grid.Column="0" Grid.Row="2">
+                <Border.Background>
+                    <RadialGradientBrush MappingMode="RelativeToBoundingBox" Center="1,0"
+                RadiusX="1"
+                RadiusY="1"
+                GradientOrigin="1,0"
+                SpreadMethod="Pad">
+                        <RadialGradientBrush.GradientStops>
+                            <GradientStop Color="#10000000" Offset="0"/>
+                            <GradientStop Color="#00000000" Offset="1"/>
+                        </RadialGradientBrush.GradientStops>
+                    </RadialGradientBrush>
+                </Border.Background>
+            </Border>
+            <Border VerticalAlignment="Stretch" Grid.Column="2" Grid.Row="2">
+                <Border.Background>
+                    <RadialGradientBrush MappingMode="RelativeToBoundingBox" Center="0,0"
+                RadiusX="1"
+                RadiusY="1"
+                GradientOrigin="0,0"
+                SpreadMethod="Pad">
+                        <RadialGradientBrush.GradientStops>
+                            <GradientStop Color="#10000000" Offset="0"/>
+                            <GradientStop Color="#00000000" Offset="1"/>
+                        </RadialGradientBrush.GradientStops>
+                    </RadialGradientBrush>
+                </Border.Background>
+            </Border>
+            <Grid Background="#10000000" Grid.Row="1" Grid.Column="1">
+                <Border BorderBrush="#77777777" BorderThickness="1" CornerRadius="8" Background="#FFFFFF">
+                    <Grid>
+                        <TextBlock Text="From the old and rusty..." Margin="10, 6"/>
+                        <FontIcon Glyph="" FontSize="10" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="10"/>
+                        <Border Background="#F0F0F0" Height="62" VerticalAlignment="Bottom"/>
+                        <StackPanel Spacing="8" Margin="12, 20" Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Bottom">
+                            <Border Background="#FFFFFF" BorderBrush="#0078d4" BorderThickness="1" CornerRadius="4" Width="80" Height="24">
+                                <TextBlock Text="OK" HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="13" FontFamily="Segoe UI"/>
+                            </Border>
+                            <Border Background="#FFFFFF" BorderBrush="#CCCCCC" BorderThickness="1" CornerRadius="4" Width="80" Height="24">
+                                <TextBlock Text="Cancel" HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="13" FontFamily="Segoe UI"/>
+                            </Border>
+                            <Border Background="#FFFFFF" BorderBrush="#CCCCCC" BorderThickness="1" CornerRadius="4" Width="80" Height="24">
+                                <TextBlock Text="Browse..." HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="13" FontFamily="Segoe UI"/>
+                            </Border>
+                        </StackPanel>
+                        <TextBlock Text="Type the name of a program, folder, document, or Internet resource, and Windows will open it for you." FontSize="13" TextWrapping="WrapWholeWords" Margin="80, 40, 15, 15"/>
+                        <TextBlock Text="Open:" FontSize="13" TextWrapping="WrapWholeWords" Margin="15, 97, 15, 15"/>
+                        <Border Background="#FFFFFF" BorderBrush="#0078d4" BorderThickness="1" CornerRadius="1" Margin="80, 10, 15, 0" Height="24">
+                            <Border HorizontalAlignment="Left" VerticalAlignment="Center" Background="#0078d4" Margin="5, 0">
+                                <TextBlock Text="dfrgui" Foreground="#FFFFFF" FontSize="13" FontFamily="Segoe UI"/>
+                            </Border>
+                        </Border>
+                        <FontIcon Glyph="&#xE011;" FontSize="10" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0, 103, 18, 0" Foreground="#555555"/>
+                    </Grid>
+                </Border>
+            </Grid>
+        </Grid>
+        <Grid Grid.Column="2" HorizontalAlignment="Right" VerticalAlignment="Bottom" Width="550" Height="350">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+            <Border Width="30" VerticalAlignment="Stretch" Grid.Column="0" Grid.Row="1">
+                <Border.Background>
+                    <LinearGradientBrush StartPoint="1, 0" EndPoint="0, 0">
+                        <GradientStop Color="#10000000" Offset="0"/>
+                        <GradientStop Color="#00000000" Offset="1"/>
+                    </LinearGradientBrush>
+                </Border.Background>
+            </Border>
+            <Border Width="30" VerticalAlignment="Stretch" Grid.Column="2" Grid.Row="1">
+                <Border.Background>
+                    <LinearGradientBrush StartPoint="0, 0" EndPoint="1, 0">
+                        <GradientStop Color="#10000000" Offset="0"/>
+                        <GradientStop Color="#00000000" Offset="1"/>
+                    </LinearGradientBrush>
+                </Border.Background>
+            </Border>
+            <Border Height="20" VerticalAlignment="Stretch" Grid.Column="1" Grid.Row="0">
+                <Border.Background>
+                    <LinearGradientBrush StartPoint="0, 1" EndPoint="0, 0">
+                        <GradientStop Color="#10000000" Offset="0"/>
+                        <GradientStop Color="#00000000" Offset="1"/>
+                    </LinearGradientBrush>
+                </Border.Background>
+            </Border>
+            <Border Height="50" VerticalAlignment="Stretch" Grid.Column="1" Grid.Row="3">
+                <Border.Background>
+                    <LinearGradientBrush StartPoint="0, 0" EndPoint="0, 1">
+                        <GradientStop Color="#10000000" Offset="0"/>
+                        <GradientStop Color="#00000000" Offset="1"/>
+                    </LinearGradientBrush>
+                </Border.Background>
+            </Border>
+            <Border VerticalAlignment="Stretch" Grid.Column="0" Grid.Row="0">
+                <Border.Background>
+                    <RadialGradientBrush MappingMode="RelativeToBoundingBox" Center="1,1"
+                RadiusX="1"
+                RadiusY="1"
+                GradientOrigin="1,1"
+                SpreadMethod="Pad">
+                        <RadialGradientBrush.GradientStops>
+                            <GradientStop Color="#10000000" Offset="0"/>
+                            <GradientStop Color="#00000000" Offset="1"/>
+                        </RadialGradientBrush.GradientStops>
+                    </RadialGradientBrush>
+                </Border.Background>
+            </Border>
+            <Border VerticalAlignment="Stretch" Grid.Column="2" Grid.Row="0">
+                <Border.Background>
+                    <RadialGradientBrush MappingMode="RelativeToBoundingBox" Center="0,1"
+                RadiusX="1"
+                RadiusY="1"
+                GradientOrigin="0,1"
+                SpreadMethod="Pad">
+                        <RadialGradientBrush.GradientStops>
+                            <GradientStop Color="#10000000" Offset="0"/>
+                            <GradientStop Color="#00000000" Offset="1"/>
+                        </RadialGradientBrush.GradientStops>
+                    </RadialGradientBrush>
+                </Border.Background>
+            </Border>
+            <Border VerticalAlignment="Stretch" Grid.Column="0" Grid.Row="2">
+                <Border.Background>
+                    <RadialGradientBrush MappingMode="RelativeToBoundingBox" Center="1,0"
+                RadiusX="1"
+                RadiusY="1"
+                GradientOrigin="1,0"
+                SpreadMethod="Pad">
+                        <RadialGradientBrush.GradientStops>
+                            <GradientStop Color="#10000000" Offset="0"/>
+                            <GradientStop Color="#00000000" Offset="1"/>
+                        </RadialGradientBrush.GradientStops>
+                    </RadialGradientBrush>
+                </Border.Background>
+            </Border>
+            <Border VerticalAlignment="Stretch" Grid.Column="2" Grid.Row="2">
+                <Border.Background>
+                    <RadialGradientBrush MappingMode="RelativeToBoundingBox" Center="0,0"
+                RadiusX="1"
+                RadiusY="1"
+                GradientOrigin="0,0"
+                SpreadMethod="Pad">
+                        <RadialGradientBrush.GradientStops>
+                            <GradientStop Color="#10000000" Offset="0"/>
+                            <GradientStop Color="#00000000" Offset="1"/>
+                        </RadialGradientBrush.GradientStops>
+                    </RadialGradientBrush>
+                </Border.Background>
+            </Border>
+            <Grid Background="#10000000" Grid.Row="1" Grid.Column="1">
+                <Border BorderBrush="#77777777" BorderThickness="1" CornerRadius="8" Background="{ThemeResource SystemControlChromeLowAcrylicWindowBrush}">
+                    <Grid>
+                        <Border Background="{ThemeResource ApplicationPageBackgroundThemeBrush}" Opacity="0.7" CornerRadius="8"/>
+                        <TextBlock Text="...to the new and improved" Margin="10, 6"/>
+                        <FontIcon Glyph="" FontSize="10" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="10"/>
+                        <Border Background="{ThemeResource SystemControlBackgroundAltMediumLowBrush}" Height="70" VerticalAlignment="Bottom"/>
+                        <StackPanel Spacing="8" Margin="18, 20" Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Bottom">
+                            <Border Background="{ThemeResource AccentFillColorDefaultBrush}" BorderBrush="{ThemeResource AccentControlElevationBorderBrush}" BorderThickness="1" CornerRadius="4" Width="145" Height="32">
+                                <Grid>
+                                    <TextBlock Foreground="{ThemeResource TextOnAccentFillColorPrimaryBrush}" Text="Run" HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="13" FontFamily="Segoe UI" Margin="0, 0, 30, 0"/>
+                                    <FontIcon Glyph="&#xE011;" FontSize="10" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="12" Foreground="{ThemeResource TextOnAccentFillColorPrimaryBrush}"/>
+                                    <Border Background="{ThemeResource TextOnAccentFillColorPrimaryBrush}" Width="1" HorizontalAlignment="Right" Opacity="0.5" Margin="35, 0"/>
+                                </Grid>
+                            </Border>
+                            <Border Background="{ThemeResource ControlFillColorDefault}" BorderBrush="{ThemeResource ControlElevationBorderBrush}" BorderThickness="1" CornerRadius="4" Width="145" Height="32">
+                                <TextBlock Text="Cancel" HorizontalAlignment="Center" VerticalAlignment="Center" FontFamily="Segoe UI"/>
+                            </Border>
+                            <Border Background="{ThemeResource ControlFillColorDefault}" BorderBrush="{ThemeResource ControlElevationBorderBrush}" BorderThickness="1" CornerRadius="4" Width="145" Height="32">
+                                <TextBlock Text="Browse..." HorizontalAlignment="Center" VerticalAlignment="Center" FontFamily="Segoe UI"/>
+                            </Border>
+                        </StackPanel>
+                        <TextBlock Text="Type the name of a program, folder, document, or Internet resource, and Windows will open it for you." TextWrapping="WrapWholeWords" Margin="120, 50, 15, 15"/>
+                        <TextBlock Text="Open:" TextWrapping="WrapWholeWords" Margin="25, 113, 15, 15"/>
+                        <Grid Background="{ThemeResource ControlFillColorInputActive}" BorderBrush="{ThemeResource TextControlElevationBorderBrush}" BorderThickness="1" CornerRadius="4" Margin="120, -30, 25, 0" Height="32">
+                            <Grid HorizontalAlignment="Left" VerticalAlignment="Center" Background="{ThemeResource AccentFillColorSelectedTextBackgroundBrush}" Margin="12, 0">
+                                <TextBlock Text="dfrgui" Foreground="{ThemeResource TextOnAccentFillColorSelectedTextBrush}" FontFamily="Segoe UI"/>
+                            </Grid>
+                            <FontIcon Glyph="&#xE011;" FontSize="10" HorizontalAlignment="Right" VerticalAlignment="Center" Opacity="0.5" Margin="12, 0" Foreground="{ThemeResource TextFillColorPrimaryBrush}"/>
+                        </Grid>
+                        <TextBlock Text="Arguments:" TextWrapping="WrapWholeWords" Margin="25, 153, 15, 15"/>
+                        <Grid Background="{ThemeResource ControlFillColorDefaultBrush}" BorderBrush="{ThemeResource TextControlElevationBorderBrush}" BorderThickness="1" CornerRadius="4" Margin="120, 50, 25, 0" Height="32"/>
+                    </Grid>
+                </Border>
+            </Grid>
+        </Grid>
+        <Grid Grid.Column="2" HorizontalAlignment="Center" Margin="0, 200, 0, 0" VerticalAlignment="Top" Width="550" Height="330">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+            <Border Width="30" VerticalAlignment="Stretch" Grid.Column="0" Grid.Row="1">
+                <Border.Background>
+                    <LinearGradientBrush StartPoint="1, 0" EndPoint="0, 0">
+                        <GradientStop Color="#10000000" Offset="0"/>
+                        <GradientStop Color="#00000000" Offset="1"/>
+                    </LinearGradientBrush>
+                </Border.Background>
+            </Border>
+            <Border Width="30" VerticalAlignment="Stretch" Grid.Column="2" Grid.Row="1">
+                <Border.Background>
+                    <LinearGradientBrush StartPoint="0, 0" EndPoint="1, 0">
+                        <GradientStop Color="#10000000" Offset="0"/>
+                        <GradientStop Color="#00000000" Offset="1"/>
+                    </LinearGradientBrush>
+                </Border.Background>
+            </Border>
+            <Border Height="20" VerticalAlignment="Stretch" Grid.Column="1" Grid.Row="0">
+                <Border.Background>
+                    <LinearGradientBrush StartPoint="0, 1" EndPoint="0, 0">
+                        <GradientStop Color="#10000000" Offset="0"/>
+                        <GradientStop Color="#00000000" Offset="1"/>
+                    </LinearGradientBrush>
+                </Border.Background>
+            </Border>
+            <Border Height="50" VerticalAlignment="Stretch" Grid.Column="1" Grid.Row="3">
+                <Border.Background>
+                    <LinearGradientBrush StartPoint="0, 0" EndPoint="0, 1">
+                        <GradientStop Color="#10000000" Offset="0"/>
+                        <GradientStop Color="#00000000" Offset="1"/>
+                    </LinearGradientBrush>
+                </Border.Background>
+            </Border>
+            <Border VerticalAlignment="Stretch" Grid.Column="0" Grid.Row="0">
+                <Border.Background>
+                    <RadialGradientBrush MappingMode="RelativeToBoundingBox" Center="1,1"
+                RadiusX="1"
+                RadiusY="1"
+                GradientOrigin="1,1"
+                SpreadMethod="Pad">
+                        <RadialGradientBrush.GradientStops>
+                            <GradientStop Color="#10000000" Offset="0"/>
+                            <GradientStop Color="#00000000" Offset="1"/>
+                        </RadialGradientBrush.GradientStops>
+                    </RadialGradientBrush>
+                </Border.Background>
+            </Border>
+            <Border VerticalAlignment="Stretch" Grid.Column="2" Grid.Row="0">
+                <Border.Background>
+                    <RadialGradientBrush MappingMode="RelativeToBoundingBox" Center="0,1"
+                RadiusX="1"
+                RadiusY="1"
+                GradientOrigin="0,1"
+                SpreadMethod="Pad">
+                        <RadialGradientBrush.GradientStops>
+                            <GradientStop Color="#10000000" Offset="0"/>
+                            <GradientStop Color="#00000000" Offset="1"/>
+                        </RadialGradientBrush.GradientStops>
+                    </RadialGradientBrush>
+                </Border.Background>
+            </Border>
+            <Border VerticalAlignment="Stretch" Grid.Column="0" Grid.Row="2">
+                <Border.Background>
+                    <RadialGradientBrush MappingMode="RelativeToBoundingBox" Center="1,0"
+                RadiusX="1"
+                RadiusY="1"
+                GradientOrigin="1,0"
+                SpreadMethod="Pad">
+                        <RadialGradientBrush.GradientStops>
+                            <GradientStop Color="#10000000" Offset="0"/>
+                            <GradientStop Color="#00000000" Offset="1"/>
+                        </RadialGradientBrush.GradientStops>
+                    </RadialGradientBrush>
+                </Border.Background>
+            </Border>
+            <Border VerticalAlignment="Stretch" Grid.Column="2" Grid.Row="2">
+                <Border.Background>
+                    <RadialGradientBrush MappingMode="RelativeToBoundingBox" Center="0,0"
+                RadiusX="1"
+                RadiusY="1"
+                GradientOrigin="0,0"
+                SpreadMethod="Pad">
+                        <RadialGradientBrush.GradientStops>
+                            <GradientStop Color="#10000000" Offset="0"/>
+                            <GradientStop Color="#00000000" Offset="1"/>
+                        </RadialGradientBrush.GradientStops>
+                    </RadialGradientBrush>
+                </Border.Background>
+            </Border>
+            <Grid Background="#10000000" Grid.Row="1" Grid.Column="1">
+                <Border BorderBrush="#77777777" BorderThickness="1" CornerRadius="8">
+                    <Grid Background="{ThemeResource SystemControlChromeLowAcrylicWindowBrush}" CornerRadius="9">
+                        <Border Background="{ThemeResource ApplicationPageBackgroundThemeBrush}" Opacity="0.7" CornerRadius="8"/>
+                        <TextBlock Text="Go to..." Margin="10, 6"/>
+                        <FontIcon Glyph="" FontSize="10" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="10" Opacity="0.5"/>
+                        <StackPanel Margin="25, 45, 25, 25">
+                            <ivirius:CommandLink Title="Rebound 11" Description="Windows 11 but fluent."/>
+                            <ivirius:CommandLink Title="CrimsonUI" Description="UI language inspired by GlowUI."/>
+                        </StackPanel>
+                    </Grid>
+                </Border>
+            </Grid>
+        </Grid>
     </Grid>
 </Page>

@@ -2,13 +2,16 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Runtime.InteropServices.WindowsRuntime;
+using System.Text;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Controls.Primitives;
 using Microsoft.UI.Xaml.Data;
 using Microsoft.UI.Xaml.Input;
 using Microsoft.UI.Xaml.Media;
+using Microsoft.UI.Xaml.Media.Imaging;
 using Microsoft.UI.Xaml.Navigation;
 using Windows.Foundation;
 using Windows.Foundation.Collections;
@@ -25,5 +28,34 @@ public sealed partial class HomePage : Page
     public HomePage()
     {
         this.InitializeComponent();
+        LoadWallpaper();
+    }
+
+    // Constants for SystemParametersInfo function
+    private const int SPI_GETDESKWALLPAPER = 0x0073;
+    private const int MAX_PATH = 260;
+
+    // P/Invoke declaration for SystemParametersInfo function
+    [DllImport("user32.dll", CharSet = CharSet.Auto)]
+    private static extern int SystemParametersInfo(int uAction, int uParam, StringBuilder lpvParam, int fuWinIni);
+
+    // Method to retrieve the current user's wallpaper path
+    private string GetWallpaperPath()
+    {
+        StringBuilder wallpaperPath = new StringBuilder(MAX_PATH);
+        SystemParametersInfo(SPI_GETDESKWALLPAPER, MAX_PATH, wallpaperPath, 0);
+        return wallpaperPath.ToString();
+    }
+
+    public async void LoadWallpaper()
+    {
+        try
+        {
+            Wallpaper.Source = new BitmapImage(new Uri(GetWallpaperPath(), UriKind.RelativeOrAbsolute));
+        }
+        catch
+        {
+            await App.cpanelWin.ShowMessageDialogAsync("You need to run this app as administrator in order to retrieve the wallpaper.");
+        }
     }
 }
