@@ -3,7 +3,9 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Runtime.InteropServices.WindowsRuntime;
+using System.Threading.Tasks;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Controls.Primitives;
@@ -61,7 +63,7 @@ public partial class App : Application
     /// Invoked when the application is launched.
     /// </summary>
     /// <param name="args">Details about the launch request and process.</param>
-    protected override void OnLaunched(Microsoft.UI.Xaml.LaunchActivatedEventArgs args)
+    protected async override void OnLaunched(Microsoft.UI.Xaml.LaunchActivatedEventArgs args)
     {
         var currentRegion = GetCurrentRegion();
 
@@ -83,8 +85,32 @@ public partial class App : Application
         }
         else
         {
-            m_window = new MainWindow();
-            m_window.Activate();
+            if (string.Join(" ", Environment.GetCommandLineArgs().Skip(1)).Contains("CONTROL"))
+            {
+                var win = new ControlPanelWindow();
+                cpanelWin = win;
+                win.Show();
+                win.SetWindowSize(1250, 750);
+                win.CenterOnScreen();
+                await Task.Delay(10);
+                win.BringToFront();
+                m_window = null;
+                return;
+            }
+            if (string.Join(" ", Environment.GetCommandLineArgs().Skip(1)).Contains("UAC"))
+            {
+                var win = new UACWindow();
+                win.Show();
+                await Task.Delay(10);
+                win.BringToFront();
+                m_window = null;
+                return;
+            }
+            else
+            {
+                m_window = new MainWindow();
+                m_window.Activate();
+            }
         }
     }
 
