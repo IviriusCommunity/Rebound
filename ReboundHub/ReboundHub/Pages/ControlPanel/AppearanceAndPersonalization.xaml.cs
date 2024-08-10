@@ -113,19 +113,19 @@ public sealed partial class AppearanceAndPersonalization : Page
 
     private async void NavigationView_SelectionChanged(NavigationView sender, NavigationViewSelectionChangedEventArgs args)
     {
-        if (sender.SelectedItem == TBAndNav)
+        if ((NavigationViewItem)sender.SelectedItem == TBAndNav)
         {
             await Launcher.LaunchUriAsync(new Uri("ms-settings:taskbar"));
         }
-        if (sender.SelectedItem == Access)
+        if ((NavigationViewItem)sender.SelectedItem == Access)
         {
             await Launcher.LaunchUriAsync(new Uri("ms-settings:easeofaccess"));
         }
-        if (sender.SelectedItem == ExpOptions)
+        if ((NavigationViewItem)sender.SelectedItem == ExpOptions)
         {
             OpenFileExplorerOptions();
         }
-        if (sender.SelectedItem == Fonts)
+        if ((NavigationViewItem)sender.SelectedItem == Fonts)
         {
             await Launcher.LaunchUriAsync(new Uri("ms-settings:fonts"));
         }

@@ -11,7 +11,7 @@
     mc:Ignorable="d">
 
     <Grid>
-        <NavigationView IsSettingsVisible="False" Grid.Row="1" IsBackButtonVisible="Collapsed" PaneTitle="Appearance and Personalization">
+        <NavigationView IsSettingsVisible="False" Grid.Row="1" IsBackButtonVisible="Collapsed" PaneTitle="Appearance and Personalization" SelectionChanged="NavigationView_SelectionChanged">
                 <NavigationView.MenuItems>
                 <NavigationViewItem Content="Taskbar and Navigation" x:Name="TBAndNav">
                     <NavigationViewItem.Icon>
