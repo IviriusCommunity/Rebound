@@ -27,7 +27,7 @@ public sealed partial class ShellPage : Page
     public ShellPage()
     {
         this.InitializeComponent();
-        NavigationFrame.Navigate(typeof(HomePage));
+        //NavigationFrame.Navigate(typeof(HomePage));
         NavigationViewControl.SelectedItem = HomeItem;
     }
 
@@ -55,5 +55,10 @@ public sealed partial class ShellPage : Page
             App.m_window = null;
         }
         //NavigationViewControl.Header = (string)(args.SelectedItem as NavigationViewItem).Tag;
+    }
+
+    private void NavigationViewControl_BackRequested(NavigationView sender, NavigationViewBackRequestedEventArgs args)
+    {
+        NavigationFrame.GoBack();
     }
 }
