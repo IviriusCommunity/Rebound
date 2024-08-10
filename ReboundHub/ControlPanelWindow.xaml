@@ -430,7 +430,7 @@
                     <FontIcon Glyph="" FontSize="14"/>
                 </Button>
             </StackPanel>
-            <Border Background="{ThemeResource ControlFillColorDefaultBrush}" BorderBrush="{ThemeResource TextControlElevationBorderBrush}" BorderThickness="1" CornerRadius="4" Height="32" Grid.Column="1" Margin="10, 0, 10, 0">
+            <Border PointerReleased="AddressBar_PointerReleased" Padding="0, 0, 0, 0" x:Name="AddressBar" Background="{ThemeResource ControlFillColorDefaultBrush}" BorderBrush="{ThemeResource TextControlElevationBorderBrush}" BorderThickness="1" CornerRadius="4" Height="32" Grid.Column="1" Margin="10, 0, 10, 0">
                 <StackPanel Orientation="Horizontal">
                     <StackPanel x:Name="ReboundControlPanel" Orientation="Horizontal">
                         <Button Content="Control Panel" Background="Transparent" BorderBrush="Transparent" Padding="8, 3, 8, 5" Height="32" Click="Button_Click"/>
@@ -494,6 +494,7 @@
                     </StackPanel>
                 </StackPanel>
             </Border>
+            <AutoSuggestBox SuggestionChosen="AddressBox_SuggestionChosen" x:FieldModifier="public" Visibility="Collapsed" FontWeight="Bold" Height="32" Grid.Column="1" Margin="10, 0" LostFocus="TextBox_LostFocus" x:Name="AddressBox" TextChanged="AddressBox_TextChanged" KeyUp="AddressBox_KeyUp"/>
             <AutoSuggestBox Grid.Column="3" Width="250" VerticalAlignment="Center" Margin="0, 0, 10, 0" PlaceholderText="Search">
                 <AutoSuggestBox.QueryIcon>
                     <FontIcon Glyph="" FontSize="14"/>

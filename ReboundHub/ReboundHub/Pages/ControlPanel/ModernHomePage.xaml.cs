@@ -69,11 +69,13 @@ public sealed partial class ModernHomePage : Page
     {
         if ((sender as ComboBox).SelectedIndex == 0 && (App.cpanelWin != null))
         {
-            App.cpanelWin.RootFrame.Navigate(typeof(HomePage), null, new Microsoft.UI.Xaml.Media.Animation.DrillInNavigationTransitionInfo());
+            App.cpanelWin.AddressBox.Text = @"Control Panel";
+            App.cpanelWin.NavigateToPath(true);
         }
         if ((sender as ComboBox).SelectedIndex == 1 && (App.cpanelWin != null))
         {
-            App.cpanelWin.RootFrame.Navigate(typeof(ModernHomePage), null, new Microsoft.UI.Xaml.Media.Animation.DrillInNavigationTransitionInfo());
+            App.cpanelWin.AddressBox.Text = @"Control Panel";
+            App.cpanelWin.NavigateToPath();
         }
     }
 
@@ -83,11 +85,13 @@ public sealed partial class ModernHomePage : Page
         {
             if ((NavigationViewItem)sender.SelectedItem == AppearanceItem || (NavigationViewItem)sender.SelectedItem == Re11Item)
             {
-                App.cpanelWin.RootFrame.Navigate(typeof(AppearanceAndPersonalization), null, new Microsoft.UI.Xaml.Media.Animation.DrillInNavigationTransitionInfo());
+                App.cpanelWin.AddressBox.Text = @"Control Panel\Appearance and Personalization";
+                App.cpanelWin.NavigateToPath();
             }
             else if ((string)((NavigationViewItem)sender.SelectedItem).Tag is "SysAndSecurity")
             {
-                App.cpanelWin.RootFrame.Navigate(typeof(SystemAndSecurity), null, new Microsoft.UI.Xaml.Media.Animation.DrillInNavigationTransitionInfo());
+                App.cpanelWin.AddressBox.Text = @"Control Panel\System and Security";
+                App.cpanelWin.NavigateToPath();
             }
         }
         catch (Exception ex)
