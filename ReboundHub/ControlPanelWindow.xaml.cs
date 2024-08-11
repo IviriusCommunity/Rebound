@@ -846,11 +846,8 @@ public sealed partial class ControlPanelWindow : WindowEx
                 }
             case @"Control Panel":
                 {
-                    if (RootFrame.Content is not ModernHomePage or HomePage)
-                    {
-                        if (legacyHomePage == false) App.cpanelWin.RootFrame.Navigate(typeof(ModernHomePage), null, new Microsoft.UI.Xaml.Media.Animation.DrillInNavigationTransitionInfo());
-                        else App.cpanelWin.RootFrame.Navigate(typeof(HomePage), null, new Microsoft.UI.Xaml.Media.Animation.DrillInNavigationTransitionInfo());
-                    }
+                    if (legacyHomePage == false && RootFrame.Content is not ModernHomePage) App.cpanelWin.RootFrame.Navigate(typeof(ModernHomePage), null, new Microsoft.UI.Xaml.Media.Animation.DrillInNavigationTransitionInfo());
+                    else if (legacyHomePage != false && RootFrame.Content is not HomePage) App.cpanelWin.RootFrame.Navigate(typeof(HomePage), null, new Microsoft.UI.Xaml.Media.Animation.DrillInNavigationTransitionInfo());
                     return;
                 }
             default:

@@ -94,7 +94,7 @@ public sealed partial class Rebound11Page : Page
 
     private void Button_Click(object sender, RoutedEventArgs e)
     {
-        var win = new InstallationWindow((bool)FilesCheck.IsChecked, (bool)RunCheck.IsChecked, (bool)DefragCheck.IsChecked);
+        var win = new InstallationWindow((bool)FilesCheck.IsChecked, (bool)RunCheck.IsChecked, (bool)DefragCheck.IsChecked, (bool)WinverCheck.IsChecked, (bool)UACCheck.IsChecked);
         win.Show();
     }
 

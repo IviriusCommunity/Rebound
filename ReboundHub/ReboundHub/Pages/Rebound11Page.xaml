@@ -123,14 +123,14 @@
                                 <CheckBox Content="Control Panel - You cannot disable this option." IsEnabled="False" IsChecked="True"/>
                                 <CheckBox Content="Defragment and Optimize Drives" IsChecked="True" x:Name="DefragCheck"/>
                                 <CheckBox Content="Disk Cleanup [ - ]" IsChecked="True"/>
-                                <CheckBox Content="File Explorer (Files - 3rd party)" IsChecked="True" x:Name="FilesCheck"/>
+                                <CheckBox Content="File Explorer (Files - 3rd party) - You will have to set this app as default after the installation process is finished" IsChecked="True" x:Name="FilesCheck"/>
                                 <CheckBox Content="Malicious Software Removal Tool [ - ]"/>
                                 <CheckBox Content="Memory Diagnostic [ - ]"/>
                                 <CheckBox Content="Mobility Center (All devices) [ - ]" IsChecked="True"/>
                                 <CheckBox Content="On-screen keyboard [ - ]" IsChecked="True"/>
                                 <CheckBox Content="Presentation Settings (All devices) [ - ]" IsChecked="True"/>
                                 <CheckBox Content="Print Management [ - ]"/>
-                                <CheckBox Content="Registry Editor (Registry Editor Valley - 3rd party)" IsChecked="True"/>
+                                <CheckBox Content="Registry Editor (Registry Editor Valley - 3rd party) [ - ]" IsChecked="True"/>
                                 <CheckBox Content="Remote Desktop [ - ]" IsChecked="True"/>
                                 <CheckBox Content="Remove tabcal.exe [ - ]"/>
                                 <CheckBox Content="Run" x:Name="RunCheck" IsChecked="True"/>
@@ -142,10 +142,11 @@
                                 <CheckBox Content="System Restore [ - ]"/>
                                 <CheckBox Content="Task Scheduler [ - ]"/>
                                 <CheckBox Content="TPM Management [ - ]"/>
-                                <CheckBox Content="User Account Control" IsChecked="True"/>
+                                <CheckBox Content="User Account Control settings" IsChecked="True" x:Name="UACCheck"/>
                                 <CheckBox Content="User Account Manager [ - ]"/>
                                 <CheckBox Content="Volume Mixer (sndvol.exe) [ - ]" IsChecked="True"/>
                                 <CheckBox Content="Windows Defender Firewall [ - ]"/>
+                                <CheckBox Content="Winver" x:Name="WinverCheck" IsChecked="True"/>
                                 <RadioButtons Header="WordPad" Margin="0, 15, 0, 0" SelectedIndex="2">
                                     <RadioButton Content="Keep original"/>
                                     <RadioButton Content="Ivirius Text Editor (partial launch support)"/>
@@ -163,7 +164,7 @@
                         </Expander>
                         <StackPanel Margin="0, 10, 0, 0" Spacing="10">
                             <TextBlock Margin="5" Style="{StaticResource SubtitleTextBlockStyle}" Text="Installation"/>
-                            <InfoBar IsOpen="True" IsClosable="False" Severity="Warning" Title="Before you proceed, please read the following disclaimer:" Message="Rebound 11 is not a Windows mod. By clicking &quot;Install&quot;, Rebound 11 will replace shortcuts to system apps and install the required packages and certificates. All changes can be reverted after the installation is finished. Do not shut down your computer or close the installer to prevent damaging your PC. Rebound 11 does not modify Windows and will install standalone WinUI 3 apps to modernize your system instead of replacing system files. Ivirius is not responsible for any damages caused to your computer. The risk of damaging your PC is very low, but as with any software, still existent. Every Win32 app will still be available to use if Rebound 11 does not work properly. No system restore points are required to revert the changes.&#x0a;&#x0a;Do you wish to proceed?" HorizontalAlignment="Stretch"/>
+                            <InfoBar IsOpen="True" IsClosable="False" Severity="Warning" Title="Before you proceed, please read the following disclaimer:" Message="Rebound 11 is not a Windows mod. By clicking &quot;Install&quot;, Rebound 11 will replace shortcuts to system apps and install the required packages and certificates. All changes can be reverted after the installation is finished. Do not shut down your computer or close the installer to prevent damaging your PC. Rebound 11 does not modify Windows and will install standalone WinUI 3 apps to modernize your system instead of replacing system files. Ivirius is not responsible for any damages caused to your computer. The risk of damaging your PC is very low, but as with any software, still existent. Every Win32 app will still be available to use if Rebound 11 does not work properly. No system restore points are required to revert the changes.&#x0a;&#x0a;Rebound Hub will stop explorer.exe and restart it after the installation process is finished. Please save your work before proceeding.&#x0a;&#x0a;Do you wish to proceed?" HorizontalAlignment="Stretch"/>
                             <StackPanel HorizontalAlignment="Right" Orientation="Horizontal" Spacing="10">
                                 <HyperlinkButton Content="Learn more"/>
                                 <Button Style="{StaticResource AccentButtonStyle}" Content="I have read the disclaimer and wish to proceed." Click="Button_Click"/>
