@@ -409,8 +409,8 @@ public sealed partial class MainWindow : WindowEx
                     // Minimize Button
                     if ((x - 7 * Scale() - this.AppWindow.Position.X) >= (this.Bounds.Width * Scale() - minButtonLeftPos) &&
                         (x - 7 * Scale() - this.AppWindow.Position.X) < (this.Bounds.Width * Scale() - maxButtonLeftPos) &&
-                        y * Scale() < this.AppWindow.Position.Y + 46 + additionalHeight &&
-                        y * Scale() >= this.AppWindow.Position.Y + 1)
+                        y < this.AppWindow.Position.Y + 46 * Scale() + additionalHeight * Scale() &&
+                        y >= this.AppWindow.Position.Y + 1 * Scale())
                     {
                         e.Handled = true;
                         e.Result = new IntPtr(8);
@@ -426,8 +426,8 @@ public sealed partial class MainWindow : WindowEx
                     // Maximize Button
                     else if ((x - 7 * Scale() - this.AppWindow.Position.X) >= (this.Bounds.Width * Scale() - maxButtonLeftPos) &&
                              ((x - 7 * Scale() - this.AppWindow.Position.X) < (this.Bounds.Width * Scale() - closeButtonLeftPos)) &&
-                        y * Scale() < this.AppWindow.Position.Y + 46 + additionalHeight &&
-                        y * Scale() >= this.AppWindow.Position.Y + 1)
+                        y < this.AppWindow.Position.Y + 46 * Scale() + additionalHeight * Scale() &&
+                        y >= this.AppWindow.Position.Y + 1 * Scale())
                     {
                         e.Handled = true;
                         e.Result = new IntPtr(9);
@@ -443,8 +443,8 @@ public sealed partial class MainWindow : WindowEx
                     // Close Button
                     else if ((x - 7 * Scale() - this.AppWindow.Position.X) >= (this.Bounds.Width * Scale() - closeButtonLeftPos) &&
                              (x - 7 * Scale() - this.AppWindow.Position.X) < (this.Bounds.Width * Scale()) + 2 &&
-                        y * Scale() < this.AppWindow.Position.Y + 46 + additionalHeight &&
-                        y * Scale() >= this.AppWindow.Position.Y + 1)
+                        y < this.AppWindow.Position.Y + 46 * Scale() + additionalHeight * Scale() &&
+                        y >= this.AppWindow.Position.Y + 1 * Scale())
                     {
                         e.Handled = true;
                         e.Result = new IntPtr(20);
@@ -479,8 +479,8 @@ public sealed partial class MainWindow : WindowEx
                     // Minimize Button
                     if ((x - 7 * Scale() - this.AppWindow.Position.X) >= (this.Bounds.Width * Scale() - minButtonLeftPos) &&
                         (x - 7 * Scale() - this.AppWindow.Position.X) < (this.Bounds.Width * Scale() - maxButtonLeftPos) &&
-                        y * Scale() < this.AppWindow.Position.Y + 46 + additionalHeight &&
-                        y * Scale() >= this.AppWindow.Position.Y + 1)
+                        y < this.AppWindow.Position.Y + 46 * Scale() + additionalHeight * Scale() &&
+                        y >= this.AppWindow.Position.Y + 1 * Scale())
                     {
                         currentCaption = SelectedCaptionButton.Minimize;
                         VisualStateManager.GoToState(Minimize, "Pressed", true);
@@ -491,8 +491,8 @@ public sealed partial class MainWindow : WindowEx
                     // Maximize Button
                     else if ((x - 7 * Scale() - this.AppWindow.Position.X) >= (this.Bounds.Width * Scale() - maxButtonLeftPos) &&
                              ((x - 7 * Scale() - this.AppWindow.Position.X) < (this.Bounds.Width * Scale() - closeButtonLeftPos)) &&
-                        y * Scale() < this.AppWindow.Position.Y + 46 + additionalHeight &&
-                        y * Scale() >= this.AppWindow.Position.Y + 1)
+                        y < this.AppWindow.Position.Y + 46 * Scale() + additionalHeight * Scale() &&
+                        y >= this.AppWindow.Position.Y + 1 * Scale())
                     {
                         currentCaption = SelectedCaptionButton.Maximize;
                         VisualStateManager.GoToState(Minimize, "Normal", true);
@@ -503,8 +503,8 @@ public sealed partial class MainWindow : WindowEx
                     // Close Button
                     else if ((x - 7 * Scale() - this.AppWindow.Position.X) >= (this.Bounds.Width * Scale() - closeButtonLeftPos) &&
                              (x - 7 * Scale() - this.AppWindow.Position.X) < (this.Bounds.Width * Scale()) + 2 &&
-                        y * Scale() < this.AppWindow.Position.Y + 46 + additionalHeight &&
-                        y * Scale() >= this.AppWindow.Position.Y + 1)
+                        y < this.AppWindow.Position.Y + 46 * Scale() + additionalHeight * Scale() &&
+                        y >= this.AppWindow.Position.Y + 1 * Scale())
                     {
                         currentCaption = SelectedCaptionButton.Close;
                         VisualStateManager.GoToState(Minimize, "Normal", true);
@@ -532,8 +532,8 @@ public sealed partial class MainWindow : WindowEx
                     // Minimize Button
                     if ((x - 7 * Scale() - this.AppWindow.Position.X) >= (this.Bounds.Width * Scale() - minButtonLeftPos) &&
                         (x - 7 * Scale() - this.AppWindow.Position.X) < (this.Bounds.Width * Scale() - maxButtonLeftPos) &&
-                        y * Scale() < this.AppWindow.Position.Y + 46 + additionalHeight &&
-                        y * Scale() >= this.AppWindow.Position.Y + 1)
+                        y < this.AppWindow.Position.Y + 46 * Scale() + additionalHeight * Scale() &&
+                        y >= this.AppWindow.Position.Y + 1 * Scale())
                     {
                         if (currentCaption == SelectedCaptionButton.Minimize)
                         {
@@ -547,8 +547,8 @@ public sealed partial class MainWindow : WindowEx
                     // Maximize Button
                     else if ((x - 7 * Scale() - this.AppWindow.Position.X) >= (this.Bounds.Width * Scale() - maxButtonLeftPos) &&
                              ((x - 7 * Scale() - this.AppWindow.Position.X) < (this.Bounds.Width * Scale() - closeButtonLeftPos)) &&
-                        y * Scale() < this.AppWindow.Position.Y + 46 + additionalHeight &&
-                        y * Scale() >= this.AppWindow.Position.Y + 1)
+                        y < this.AppWindow.Position.Y + 46 * Scale() + additionalHeight * Scale() &&
+                        y >= this.AppWindow.Position.Y + 1 * Scale())
                     {
                         if (currentCaption == SelectedCaptionButton.Maximize) RunMaximization();
                     }
@@ -556,8 +556,8 @@ public sealed partial class MainWindow : WindowEx
                     // Close Button
                     else if ((x - 7 * Scale() - this.AppWindow.Position.X) >= (this.Bounds.Width * Scale() - closeButtonLeftPos) &&
                              (x - 7 * Scale() - this.AppWindow.Position.X) < (this.Bounds.Width * Scale()) + 2 &&
-                        y * Scale() < this.AppWindow.Position.Y + 46 + additionalHeight &&
-                        y * Scale() >= this.AppWindow.Position.Y + 1)
+                        y < this.AppWindow.Position.Y + 46 * Scale() + additionalHeight * Scale() &&
+                        y >= this.AppWindow.Position.Y + 1 * Scale())
                     {
                         if (currentCaption == SelectedCaptionButton.Close)
                         {

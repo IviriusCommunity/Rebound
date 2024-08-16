@@ -31,7 +31,7 @@ public sealed partial class UACWindow : WindowEx
     {
         this.InitializeComponent();
         this.IsMaximizable = false;
-        this.SetWindowSize(1000, 700);
+        this.SetWindowSize(750, 500);
         this.CenterOnScreen();
         this.SystemBackdrop = new MicaBackdrop();
         this.SetIcon($"{AppContext.BaseDirectory}\\Assets\\AppIcons\\imageres_78.ico");
@@ -43,7 +43,6 @@ public sealed partial class UACWindow : WindowEx
         {
             UACInfoBar.Title = "Never notify me when:";
             UACBlock.Inlines.Clear();
-            UACBlock.Inlines.Add(new LineBreak());
             UACBlock.Inlines.Add(new Run()
             {
                 Text = "-   Apps try to install software or make changes to my computer"
@@ -53,28 +52,8 @@ public sealed partial class UACWindow : WindowEx
             {
                 Text = "-   I make changes to Windows settings"
             });
-            UACBlock.Inlines.Add(new LineBreak());
-            UACBlock.Inlines.Add(new LineBreak());
-            UACBlock.Inlines.Add(new LineBreak());
-            UACBlock.Inlines.Add(new LineBreak());
-            UACBlock.Inlines.Add(new LineBreak());
-            UACBlock.Inlines.Add(new LineBreak());
-            UACBlock.Inlines.Add(new LineBreak());
-            UACBlock.Inlines.Add(new LineBreak());
-            UACBlock.Inlines.Add(new LineBreak());
-            UACBlock.Inlines.Add(new LineBreak());
-            UACBlock.Inlines.Add(new LineBreak());
-            UACBlock.Inlines.Add(new LineBreak());
-            UACBlock.Inlines.Add(new LineBreak());
-            UACBlock.Inlines.Add(new LineBreak());
-            UACBlock.Inlines.Add(new LineBreak());
-            UACBlock.Inlines.Add(new Run()
-            {
-                Text = "Not recommended.",
-                Foreground = (SolidColorBrush)Application.Current.Resources["SystemFillColorCriticalBrush"]
-            });
-            UACBlock.Inlines.Add(new LineBreak());
-            UACBlock.Inlines.Add(new LineBreak());
+            RecommendedBar.Severity = InfoBarSeverity.Error;
+            RecommendedBar.Title = "Not recommended.";
         }
     }
 
@@ -84,7 +63,6 @@ public sealed partial class UACWindow : WindowEx
         {
             UACInfoBar.Title = "Never notify me when:";
             UACBlock.Inlines.Clear();
-            UACBlock.Inlines.Add(new LineBreak());
             UACBlock.Inlines.Add(new Run()
             {
                 Text = "-   Apps try to install software or make changes to my computer"
@@ -94,102 +72,35 @@ public sealed partial class UACWindow : WindowEx
             {
                 Text = "-   I make changes to Windows settings"
             });
-            UACBlock.Inlines.Add(new LineBreak());
-            UACBlock.Inlines.Add(new LineBreak());
-            UACBlock.Inlines.Add(new LineBreak());
-            UACBlock.Inlines.Add(new LineBreak());
-            UACBlock.Inlines.Add(new LineBreak());
-            UACBlock.Inlines.Add(new LineBreak());
-            UACBlock.Inlines.Add(new LineBreak());
-            UACBlock.Inlines.Add(new LineBreak());
-            UACBlock.Inlines.Add(new LineBreak());
-            UACBlock.Inlines.Add(new LineBreak());
-            UACBlock.Inlines.Add(new LineBreak());
-            UACBlock.Inlines.Add(new LineBreak());
-            UACBlock.Inlines.Add(new LineBreak());
-            UACBlock.Inlines.Add(new LineBreak());
-            UACBlock.Inlines.Add(new LineBreak());
-            UACBlock.Inlines.Add(new Run()
-            {
-                Text = "Not recommended.",
-                Foreground = (SolidColorBrush)Application.Current.Resources["SystemFillColorCriticalBrush"]
-            });
-            UACBlock.Inlines.Add(new LineBreak());
-            UACBlock.Inlines.Add(new LineBreak());
+            RecommendedBar.Severity = InfoBarSeverity.Error;
+            RecommendedBar.Title = "Not recommended.";
         }
         if (UACSlider.Value == 1)
         {
             UACInfoBar.Title = "Notify me only when apps try to make changes to my computer (do not dim my desktop)";
             UACBlock.Inlines.Clear();
-            UACBlock.Inlines.Add(new LineBreak());
             UACBlock.Inlines.Add(new Run()
             {
                 Text = "-   Don't notify me when I make changes to Windows settings"
             });
-            UACBlock.Inlines.Add(new LineBreak());
-            UACBlock.Inlines.Add(new LineBreak());
-            UACBlock.Inlines.Add(new LineBreak());
-            UACBlock.Inlines.Add(new LineBreak());
-            UACBlock.Inlines.Add(new LineBreak());
-            UACBlock.Inlines.Add(new LineBreak());
-            UACBlock.Inlines.Add(new LineBreak());
-            UACBlock.Inlines.Add(new LineBreak());
-            UACBlock.Inlines.Add(new LineBreak());
-            UACBlock.Inlines.Add(new LineBreak());
-            UACBlock.Inlines.Add(new LineBreak());
-            UACBlock.Inlines.Add(new LineBreak());
-            UACBlock.Inlines.Add(new LineBreak());
-            UACBlock.Inlines.Add(new LineBreak());
-            UACBlock.Inlines.Add(new Run()
-            {
-                Text = "Not recommended. Choose this only if it takes a long time to dim the desktop on your computer.",
-                Foreground = (SolidColorBrush)Application.Current.Resources["SystemFillColorCautionBrush"]
-            });
-            UACBlock.Inlines.Add(new LineBreak());
-            UACBlock.Inlines.Add(new LineBreak());
-            UACBlock.Inlines.Add(new LineBreak());
-            UACBlock.Inlines.Add(new LineBreak());
-            UACBlock.Inlines.Add(new LineBreak());
+            RecommendedBar.Severity = InfoBarSeverity.Warning;
+            RecommendedBar.Title = "Not recommended. Choose this only if it takes a long time to dim the desktop on your computer.";
         }
         if (UACSlider.Value == 2)
         {
             UACInfoBar.Title = "Notify me only when apps try to make changes to my computer (default)";
             UACBlock.Inlines.Clear();
-            UACBlock.Inlines.Add(new LineBreak());
             UACBlock.Inlines.Add(new Run()
             {
                 Text = "-   Don't notify me when I make changes to Windows settings"
             });
-            UACBlock.Inlines.Add(new LineBreak());
-            UACBlock.Inlines.Add(new LineBreak());
-            UACBlock.Inlines.Add(new LineBreak());
-            UACBlock.Inlines.Add(new LineBreak());
-            UACBlock.Inlines.Add(new LineBreak());
-            UACBlock.Inlines.Add(new LineBreak());
-            UACBlock.Inlines.Add(new LineBreak());
-            UACBlock.Inlines.Add(new LineBreak());
-            UACBlock.Inlines.Add(new LineBreak());
-            UACBlock.Inlines.Add(new LineBreak());
-            UACBlock.Inlines.Add(new LineBreak());
-            UACBlock.Inlines.Add(new LineBreak());
-            UACBlock.Inlines.Add(new LineBreak());
-            UACBlock.Inlines.Add(new LineBreak());
-            UACBlock.Inlines.Add(new LineBreak());
-            UACBlock.Inlines.Add(new LineBreak());
-            UACBlock.Inlines.Add(new Run()
-            {
-                Text = "Recommended if you use familiar apps and visit familiar websites.",
-                Foreground = (SolidColorBrush)Application.Current.Resources["SystemFillColorSuccessBrush"]
-            });
-            UACBlock.Inlines.Add(new LineBreak());
-            UACBlock.Inlines.Add(new LineBreak());
-            UACBlock.Inlines.Add(new LineBreak());
+            RecommendedBar.Severity = InfoBarSeverity.Success;
+            RecommendedBar.Title = "Recommended if you use familiar apps and visit familiar websites.";
         }
         if (UACSlider.Value == 3)
         {
             UACInfoBar.Title = "Always notify me when:";
             UACBlock.Inlines.Clear();
-            UACBlock.Inlines.Add(new LineBreak());
             UACBlock.Inlines.Add(new Run()
             {
                 Text = "-   Apps try to install software or make changes to my computer"
@@ -199,29 +110,8 @@ public sealed partial class UACWindow : WindowEx
             {
                 Text = "-   I make changes to Windows settings"
             });
-            UACBlock.Inlines.Add(new LineBreak());
-            UACBlock.Inlines.Add(new LineBreak());
-            UACBlock.Inlines.Add(new LineBreak());
-            UACBlock.Inlines.Add(new LineBreak());
-            UACBlock.Inlines.Add(new LineBreak());
-            UACBlock.Inlines.Add(new LineBreak());
-            UACBlock.Inlines.Add(new LineBreak());
-            UACBlock.Inlines.Add(new LineBreak());
-            UACBlock.Inlines.Add(new LineBreak());
-            UACBlock.Inlines.Add(new LineBreak());
-            UACBlock.Inlines.Add(new LineBreak());
-            UACBlock.Inlines.Add(new LineBreak());
-            UACBlock.Inlines.Add(new LineBreak());
-            UACBlock.Inlines.Add(new LineBreak());
-            UACBlock.Inlines.Add(new LineBreak());
-            UACBlock.Inlines.Add(new Run()
-            {
-                Text = "Recommended if you routinely install new software and visit unfamiliar websites.",
-                Foreground = (SolidColorBrush)Application.Current.Resources["SystemFillColorSuccessBrush"]
-            });
-            UACBlock.Inlines.Add(new LineBreak());
-            UACBlock.Inlines.Add(new LineBreak());
-            UACBlock.Inlines.Add(new LineBreak());
+            RecommendedBar.Severity = InfoBarSeverity.Success;
+            RecommendedBar.Title = "Recommended if you routinely install new software and visit unfamiliar websites.";
         }
     }
 

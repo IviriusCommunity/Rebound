@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices.WindowsRuntime;
@@ -27,6 +28,7 @@ public sealed partial class ShellPage : Page
     public ShellPage()
     {
         this.InitializeComponent();
+        Debug.WriteLine(@$"{Environment.GetFolderPath(Environment.SpecialFolder.StartMenu)}\Programs\Rebound 11 Tools");
         //NavigationFrame.Navigate(typeof(HomePage));
         NavigationViewControl.SelectedItem = HomeItem;
     }

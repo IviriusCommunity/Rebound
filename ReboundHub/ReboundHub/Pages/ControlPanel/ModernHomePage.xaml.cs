@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Management;
 using System.Runtime.InteropServices;
 using System.Runtime.InteropServices.WindowsRuntime;
 using System.Text;
@@ -35,6 +36,55 @@ public sealed partial class ModernHomePage : Page
         if (App.cpanelWin != null) App.cpanelWin.SetWindowIcon("Assets\\AppIcons\\rcontrol.ico");
         if (App.cpanelWin != null) App.cpanelWin.Title = "Rebound Control Panel";
         LoadWallpaper();
+        DisplaySystemInformation();
+    }
+
+    private void DisplaySystemInformation()
+    {
+        // Get Current User
+        string currentUser = Environment.UserName;
+
+        // Get PC Name
+        string pcName = Environment.MachineName;
+
+        // Get CPU Name
+        string cpuName = GetCPUName();
+
+        // Get RAM Capacity
+        string ramCapacity = GetRAMCapacity();
+
+        // Displaying the information (Assuming you have TextBlocks in your XAML)
+        CurrentUser.Text = $"Logged in as {currentUser}";
+        PCName.Text = $"{pcName}";
+        CPU.Text = $"CPU: {cpuName}";
+        Memory.Text = $"RAM: {ramCapacity}";
+    }
+
+    private string GetCPUName()
+    {
+        string cpuName = string.Empty;
+        using (var searcher = new ManagementObjectSearcher("select Name from Win32_Processor"))
+        {
+            foreach (var item in searcher.Get())
+            {
+                cpuName = item["Name"].ToString();
+                break;
+            }
+        }
+        return cpuName;
+    }
+
+    private string GetRAMCapacity()
+    {
+        double ramCapacityGB = 0;
+        using (var searcher = new ManagementObjectSearcher("SELECT Capacity FROM Win32_PhysicalMemory"))
+        {
+            foreach (var item in searcher.Get())
+            {
+                ramCapacityGB += Convert.ToDouble(item["Capacity"]) / (1024 * 1024 * 1024);
+            }
+        }
+        return $"{ramCapacityGB} GB";
     }
 
     // Constants for SystemParametersInfo function

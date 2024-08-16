@@ -117,6 +117,7 @@
                     <NavigationViewItem.MenuItems>
                         <NavigationViewItem Content="Windows Update"/>
                         <NavigationViewItem Content="Device manufacturer software updates"/>
+                        <NavigationViewItem Content="Update installed apps (winget upgrade)"/>
                     </NavigationViewItem.MenuItems>
                 </NavigationViewItem>
             </NavigationView.MenuItems>
@@ -146,6 +147,80 @@
                         <InfoBar IsOpen="True" IsClosable="False" x:Name="StatusInfoBar"/>
                         <TextBlock Text="Malware protection" Style="{StaticResource BodyStrongTextBlockStyle}" Margin="3"/>
                         <StackPanel x:Name="SecurityBars" Spacing="10"/>
+                        <TextBlock Text="Update installed apps" Style="{StaticResource BodyStrongTextBlockStyle}" Margin="3"/>
+                        <Expander HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch">
+                            <Expander.Header>
+                                <Grid>
+                                    <TextBlock VerticalAlignment="Center" Text="Available updates"/>
+                                    <StackPanel Orientation="Horizontal" Spacing="8" HorizontalAlignment="Right">
+                                        <Button Content="Get updates"/>
+                                        <Button Content="Update"/>
+                                    </StackPanel>
+                                </Grid>
+                            </Expander.Header>
+                            <ListView HorizontalAlignment="Stretch" SelectionMode="Multiple" IsMultiSelectCheckBoxEnabled="True">
+                                <ListView.Header>
+                                    <CheckBox Content="Select all"/>
+                                </ListView.Header>
+                                <ListViewItem Content="ee"/>
+                                <ListViewItem Content="ee"/>
+                                <ListViewItem Content="ee"/>
+                                <ListViewItem Content="ee"/>
+                                <ListViewItem Content="ee"/>
+                                <ListViewItem Content="ee"/>
+                            </ListView>
+                        </Expander>
+                        <TextBlock Text="Power options" Style="{StaticResource BodyStrongTextBlockStyle}" Margin="3"/>
+                        <Expander HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch">
+                            <Expander.Header>
+                                <Grid>
+                                    <TextBlock VerticalAlignment="Center" Text="Power profile"/>
+                                    <StackPanel Orientation="Horizontal" Spacing="8" HorizontalAlignment="Right">
+                                        <Button Content="Refresh"/>
+                                        <Border Background="{ThemeResource MenuFlyoutSeparatorThemeBrush}" Width="1" Opacity="0.25" Margin="0, 5"/>
+                                        <Button Content="Default"/>
+                                        <Button Content="Efficiency"/>
+                                        <Border Background="{ThemeResource MenuFlyoutSeparatorThemeBrush}" Width="1" Opacity="0.25" Margin="0, 5"/>
+                                        <Button Content="Apply" Style="{ThemeResource AccentButtonStyle}"/>
+                                    </StackPanel>
+                                </Grid>
+                            </Expander.Header>
+                            <StackPanel Spacing="16">
+                                <Grid>
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition/>
+                                        <RowDefinition Height="16"/>
+                                        <RowDefinition/>
+                                        <RowDefinition Height="16"/>
+                                        <RowDefinition/>
+                                    </Grid.RowDefinitions>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="Auto"/>
+                                        <ColumnDefinition Width="16"/>
+                                        <ColumnDefinition/>
+                                        <ColumnDefinition Width="16"/>
+                                        <ColumnDefinition/>
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock Text="Turn off the display:" Grid.Row="2"/>
+                                    <TextBlock Text="Put the computer to sleep:" Grid.Row="4"/>
+                                    <TextBlock Text="On battery" Grid.Column="2"/>
+                                    <TextBlock Text="Plugged in" Grid.Column="4"/>
+                                    <ComboBox SelectedIndex="0" Grid.Row="2" Grid.Column="2" HorizontalAlignment="Stretch">
+                                        <ComboBoxItem Content="Never"/>
+                                    </ComboBox>
+                                    <ComboBox SelectedIndex="0" Grid.Row="4" Grid.Column="2" HorizontalAlignment="Stretch">
+                                        <ComboBoxItem Content="Never"/>
+                                    </ComboBox>
+                                    <ComboBox SelectedIndex="0" Grid.Row="2" Grid.Column="4" HorizontalAlignment="Stretch">
+                                        <ComboBoxItem Content="Never"/>
+                                    </ComboBox>
+                                    <ComboBox SelectedIndex="0" Grid.Row="4" Grid.Column="4" HorizontalAlignment="Stretch">
+                                        <ComboBoxItem Content="Never"/>
+                                    </ComboBox>
+                                </Grid>
+                                <HyperlinkButton Content="Advanced" HorizontalAlignment="Right"/>
+                            </StackPanel>
+                        </Expander>
                         <TextBlock Text="Recommended" Style="{StaticResource BodyStrongTextBlockStyle}" Margin="3"/>
                         <SettingsUI:SettingsCard IsClickEnabled="True" Header="User Account Control" Description="Change User Account Control Settings." Click="SettingsCard_Click_1">
                             <SettingsUI:SettingsCard.HeaderIcon>

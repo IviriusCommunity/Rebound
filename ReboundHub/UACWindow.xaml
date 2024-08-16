@@ -10,7 +10,7 @@
     mc:Ignorable="d">
 
     <Grid>
-        <Grid HorizontalAlignment="Center" Width="750" Margin="25">
+        <Grid HorizontalAlignment="Center" Margin="25">
             <TextBlock Foreground="{ThemeResource AccentTextFillColorPrimaryBrush}" FontWeight="SemiBold" Text="Choose when to be notified about changes to your computer" FontSize="22" Grid.ColumnSpan="3"/>
             <TextBlock Text="User Account Control helps prevent potentially harmful programs from making changes to your computer." Margin="0, 40, 0, 0"/>
             <Grid Margin="35, 100, 35, 100">
@@ -30,8 +30,12 @@
                 <TextBlock Text="Never notify" Grid.Row="4" HorizontalAlignment="Center"/>
                 <Slider Orientation="Vertical" Grid.Row="2" Value="-1" HorizontalAlignment="Center" ValueChanged="UACSlider_ValueChanged" Grid.Column="0" Minimum="0" Maximum="3" x:Name="UACSlider" StepFrequency="1" TickFrequency="1" TickPlacement="Outside" SnapsTo="StepValues"/>
                 <InfoBar Grid.Column="2" IsOpen="True" Grid.RowSpan="5" VerticalAlignment="Stretch" IsClosable="False" Title="Notify me when" x:Name="UACInfoBar">
-                    <TextBlock x:Name="UACBlock" TextWrapping="WrapWholeWords"/>
+                    <Grid>
+                        <TextBlock x:Name="UACBlock" TextWrapping="WrapWholeWords"/>
+                        <Border Height="500" Width="1000"/>
+                    </Grid>
                 </InfoBar>
+                <InfoBar Grid.Column="2" Grid.RowSpan="5" x:Name="RecommendedBar" IsOpen="True" VerticalAlignment="Bottom" IsClosable="False" Margin="10"/>
             </Grid>
         </Grid>
         <Border Grid.ColumnSpan="2" BorderThickness="0,1,0,0" Height="75" Background="{ThemeResource SystemControlBackgroundAltMediumLowBrush}" BorderBrush="#338A8A8A" VerticalAlignment="Bottom"/>

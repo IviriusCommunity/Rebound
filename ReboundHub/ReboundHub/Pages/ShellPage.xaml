@@ -13,7 +13,7 @@
             x:Name="NavigationViewControl"
             Canvas.ZIndex="0"
             IsSettingsVisible="False"
-            ExpandedModeThresholdWidth="1280" Margin="0, 46, 0, 0"
+            ExpandedModeThresholdWidth="1280" Margin="0, 44, 0, 0"
             SelectionChanged="NavigationViewControl_SelectionChanged" PaneTitle="Rebound Hub" IsBackButtonVisible="Collapsed" IsBackEnabled="{Binding CanGoBack, ElementName=NavigationFrame}" BackRequested="NavigationViewControl_BackRequested">
             <NavigationView.MenuItems>
                 <NavigationViewItem Tag="Home" Content="Home" x:Name="HomeItem">

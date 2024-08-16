@@ -122,7 +122,7 @@ public sealed partial class SystemAndSecurity : Page
                 default:
                     {
                         sev2 = InfoBarSeverity.Error;
-                        status = "Needa attention.";
+                        status = "Needs attention.";
                         break;
                     }
             }

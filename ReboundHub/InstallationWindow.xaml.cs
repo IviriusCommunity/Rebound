@@ -118,7 +118,7 @@ public sealed partial class InstallationWindow : WindowEx
 
         // Rebound11 Folder
         totalSteps += 1;
-        totalSubsteps += 5;
+        totalSubsteps += 6;
 
         // Control Panel
         totalSteps += 1;
@@ -156,7 +156,7 @@ public sealed partial class InstallationWindow : WindowEx
         if (UAC == true)
         {
             totalSteps += 1;
-            totalSubsteps += 3;
+            totalSubsteps += 7;
         }
 
         // Initialization
@@ -256,7 +256,7 @@ public sealed partial class InstallationWindow : WindowEx
         }
         await Task.Delay(50);
 
-        // Substep 4: copy wallpapers
+        // Substep 5: copy wallpapers
 
         currentSubstep++;
         Title.Text = $"Installing Rebound 11: " + ((int)(currentSubstep / totalSubsteps * 100)).ToString() + "%";
@@ -274,6 +274,30 @@ public sealed partial class InstallationWindow : WindowEx
         catch
         {
             Subtitle.Text = $"Step {currentStep} of {totalSteps}: Something went wrong. Skipping...";
+        }
+        await Task.Delay(50);
+
+        // Substep 6: create start menu shortcuts folder
+
+        currentSubstep++;
+        Title.Text = $"Installing Rebound 11: " + ((int)(currentSubstep / totalSubsteps * 100)).ToString() + "%";
+        ReboundProgress.Value = InstallProgress.Value = FinishProgress.Value = currentSubstep;
+
+        try
+        {
+            Subtitle.Text = $"Step {currentStep} of {totalSteps}: Creating Rebound 11 Tools folder...";
+            // Path to the Start Menu's Programs directory
+            string startMenuPath = Environment.GetFolderPath(Environment.SpecialFolder.StartMenu);
+            string programsPath = Path.Combine(startMenuPath, "Programs");
+
+            // Folder name you want to create
+            string folderName = "Rebound 11 Tools";
+            string folderPath = Path.Combine(programsPath, folderName);
+            Directory.CreateDirectory(folderPath);
+        }
+        catch
+        {
+            Subtitle.Text = $"Step {currentStep} of {totalSteps}: Rebound 11 Tools folder already exists. Skipping...";
         }
         await Task.Delay(50);
 
@@ -718,6 +742,76 @@ public sealed partial class InstallationWindow : WindowEx
             try
             {
                 File.Copy($"{AppContext.BaseDirectory}\\Rebound11Files\\shcre11\\Change User Account Control settings.lnk", $@"{Environment.GetFolderPath(Environment.SpecialFolder.CommonAdminTools)}\Change User Account Control settings.lnk", true);
+            }
+            catch
+            {
+                Subtitle.Text = $"Step {currentStep} of {totalSteps}: The file already exists. Skipping...";
+            }
+            await Task.Delay(50);
+
+            // Substep 4: delete UAC Settings.lnk
+
+            currentSubstep += 1;
+            Title.Text = $"Installing Rebound 11: " + ((int)(currentSubstep / totalSubsteps * 100)).ToString() + "%";
+            ReboundProgress.Value = InstallProgress.Value = FinishProgress.Value = currentSubstep;
+
+            Subtitle.Text = $"Step {currentStep} of {totalSteps}: Deleting UAC Settings.lnk...";
+            try
+            {
+                File.Delete($@"{Environment.GetFolderPath(Environment.SpecialFolder.StartMenu)}\Programs\Rebound 11 Tools\UAC Settings.lnk");
+            }
+            catch
+            {
+                Subtitle.Text = $"Step {currentStep} of {totalSteps}: The file does not exist. Skipping...";
+            }
+
+            await Task.Delay(50);
+
+            // Substep 5: copy new UAC Settings.lnk
+
+            currentSubstep += 1;
+            Title.Text = $"Installing Rebound 11: " + ((int)(currentSubstep / totalSubsteps * 100)).ToString() + "%";
+            ReboundProgress.Value = InstallProgress.Value = FinishProgress.Value = currentSubstep;
+
+            Subtitle.Text = $"Step {currentStep} of {totalSteps}: Copying new UAC Settings.lnk...";
+            try
+            {
+                File.Copy($"{AppContext.BaseDirectory}\\Rebound11Files\\shcre11\\Change User Account Control settings.lnk", $@"{Environment.GetFolderPath(Environment.SpecialFolder.StartMenu)}\Programs\Rebound 11 Tools\UAC Settings.lnk", true);
+            }
+            catch
+            {
+                Subtitle.Text = $"Step {currentStep} of {totalSteps}: The file already exists. Skipping...";
+            }
+            await Task.Delay(50);
+
+            // Substep 6: delete useraccountcontrolsettings.lnk
+
+            currentSubstep += 1;
+            Title.Text = $"Installing Rebound 11: " + ((int)(currentSubstep / totalSubsteps * 100)).ToString() + "%";
+            ReboundProgress.Value = InstallProgress.Value = FinishProgress.Value = currentSubstep;
+
+            Subtitle.Text = $"Step {currentStep} of {totalSteps}: Deleting useraccountcontrolsettings.lnk...";
+            try
+            {
+                File.Delete($@"{Environment.GetFolderPath(Environment.SpecialFolder.StartMenu)}\Programs\Rebound 11 Tools\useraccountcontrolsettings.lnk");
+            }
+            catch
+            {
+                Subtitle.Text = $"Step {currentStep} of {totalSteps}: The file does not exist. Skipping...";
+            }
+
+            await Task.Delay(50);
+
+            // Substep 7: copy new useraccountcontrolsettings.lnk
+
+            currentSubstep += 1;
+            Title.Text = $"Installing Rebound 11: " + ((int)(currentSubstep / totalSubsteps * 100)).ToString() + "%";
+            ReboundProgress.Value = InstallProgress.Value = FinishProgress.Value = currentSubstep;
+
+            Subtitle.Text = $"Step {currentStep} of {totalSteps}: Copying new useraccountcontrolsettings.lnk...";
+            try
+            {
+                File.Copy($"{AppContext.BaseDirectory}\\Rebound11Files\\shcre11\\Change User Account Control settings.lnk", $@"{Environment.GetFolderPath(Environment.SpecialFolder.StartMenu)}\Programs\Rebound 11 Tools\useraccountcontrolsettings.lnk", true);
             }
             catch
             {
