@@ -1,0 +1,246 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Page
+    x:Class="ReboundHub.ReboundHub.Pages.ControlPanel.WindowsTools"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:ReboundHub.ReboundHub.Pages.ControlPanel"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:toolkit="using:CommunityToolkit.WinUI.UI.Controls"
+    mc:Ignorable="d">
+
+    <Grid>
+        <ScrollViewer>
+            <toolkit:WrapPanel HorizontalSpacing="8" VerticalSpacing="8" HorizontalAlignment="Center">
+                <Button Background="Transparent" BorderBrush="Transparent" Width="350" HorizontalContentAlignment="Stretch">
+                    <Grid>
+                        <Image Source="/Assets/AppIcons/imageres_78.ico" Width="64" HorizontalAlignment="Left"/>
+                        <TextBlock Margin="80, 0, 0, 0" Text="Change User Account Control Settings" FontSize="18" FontWeight="SemiBold" TextWrapping="WrapWholeWords"/>
+                    </Grid>
+                </Button>
+                <Button Background="Transparent" BorderBrush="Transparent" Width="350" HorizontalContentAlignment="Stretch">
+                    <Grid>
+                        <Image Source="/Assets/AppIcons/imageres_78.ico" Width="64" HorizontalAlignment="Left"/>
+                        <TextBlock Margin="80, 0, 0, 0" Text="Character Map" FontSize="18" FontWeight="SemiBold" TextWrapping="WrapWholeWords"/>
+                    </Grid>
+                </Button>
+                <Button Background="Transparent" BorderBrush="Transparent" Width="350" HorizontalContentAlignment="Stretch">
+                    <Grid>
+                        <Image Source="/Assets/AppIcons/imageres_78.ico" Width="64" HorizontalAlignment="Left"/>
+                        <TextBlock Margin="80, 0, 0, 0" Text="Command Prompt" FontSize="18" FontWeight="SemiBold" TextWrapping="WrapWholeWords"/>
+                    </Grid>
+                </Button>
+                <Button Background="Transparent" BorderBrush="Transparent" Width="350" HorizontalContentAlignment="Stretch">
+                    <Grid>
+                        <Image Source="/Assets/AppIcons/imageres_78.ico" Width="64" HorizontalAlignment="Left"/>
+                        <TextBlock Margin="80, 0, 0, 0" Text="Component Services" FontSize="18" FontWeight="SemiBold" TextWrapping="WrapWholeWords"/>
+                    </Grid>
+                </Button>
+                <Button Background="Transparent" BorderBrush="Transparent" Width="350" HorizontalContentAlignment="Stretch">
+                    <Grid>
+                        <Image Source="/Assets/AppIcons/imageres_78.ico" Width="64" HorizontalAlignment="Left"/>
+                        <TextBlock Margin="80, 0, 0, 0" Text="Computer Management" FontSize="18" FontWeight="SemiBold" TextWrapping="WrapWholeWords"/>
+                    </Grid>
+                </Button>
+                <Button Background="Transparent" BorderBrush="Transparent" Width="350" HorizontalContentAlignment="Stretch">
+                    <Grid>
+                        <Image Source="/Assets/AppIcons/rcontrol.ico" Width="64" HorizontalAlignment="Left"/>
+                        <TextBlock Margin="80, 0, 0, 0" Text="Control Panel" FontSize="18" FontWeight="SemiBold" TextWrapping="WrapWholeWords"/>
+                    </Grid>
+                </Button>
+                <Button Background="Transparent" BorderBrush="Transparent" Width="350" HorizontalContentAlignment="Stretch">
+                    <Grid>
+                        <Image Source="/Assets/AppIcons/imageres_78.ico" Width="64" HorizontalAlignment="Left"/>
+                        <TextBlock Margin="80, 0, 0, 0" Text="Defragment and Optimize Drives" FontSize="18" FontWeight="SemiBold" TextWrapping="WrapWholeWords"/>
+                    </Grid>
+                </Button>
+                <Button Background="Transparent" BorderBrush="Transparent" Width="350" HorizontalContentAlignment="Stretch">
+                    <Grid>
+                        <Image Source="/Assets/AppIcons/imageres_78.ico" Width="64" HorizontalAlignment="Left"/>
+                        <TextBlock Margin="80, 0, 0, 0" Text="Disk Cleanup" FontSize="18" FontWeight="SemiBold" TextWrapping="WrapWholeWords"/>
+                    </Grid>
+                </Button>
+                <Button Background="Transparent" BorderBrush="Transparent" Width="350" HorizontalContentAlignment="Stretch">
+                    <Grid>
+                        <Image Source="/Assets/AppIcons/imageres_78.ico" Width="64" HorizontalAlignment="Left"/>
+                        <TextBlock Margin="80, 0, 0, 0" Text="Event Viewer" FontSize="18" FontWeight="SemiBold" TextWrapping="WrapWholeWords"/>
+                    </Grid>
+                </Button>
+                <Button Background="Transparent" BorderBrush="Transparent" Width="350" HorizontalContentAlignment="Stretch">
+                    <Grid>
+                        <Image Source="/Assets/AppIcons/imageres_78.ico" Width="64" HorizontalAlignment="Left"/>
+                        <TextBlock Margin="80, 0, 0, 0" Text="Hyper-V Manager" FontSize="18" FontWeight="SemiBold" TextWrapping="WrapWholeWords"/>
+                    </Grid>
+                </Button>
+                <Button Background="Transparent" BorderBrush="Transparent" Width="350" HorizontalContentAlignment="Stretch">
+                    <Grid>
+                        <Image Source="/Assets/AppIcons/imageres_78.ico" Width="64" HorizontalAlignment="Left"/>
+                        <TextBlock Margin="80, 0, 0, 0" Text="Hyper-V Quick Create" FontSize="18" FontWeight="SemiBold" TextWrapping="WrapWholeWords"/>
+                    </Grid>
+                </Button>
+                <Button Background="Transparent" BorderBrush="Transparent" Width="350" HorizontalContentAlignment="Stretch">
+                    <Grid>
+                        <Image Source="/Assets/AppIcons/imageres_78.ico" Width="64" HorizontalAlignment="Left"/>
+                        <TextBlock Margin="80, 0, 0, 0" Text="iSCSI Initiator" FontSize="18" FontWeight="SemiBold" TextWrapping="WrapWholeWords"/>
+                    </Grid>
+                </Button>
+                <Button Background="Transparent" BorderBrush="Transparent" Width="350" HorizontalContentAlignment="Stretch">
+                    <Grid>
+                        <Image Source="/Assets/AppIcons/imageres_78.ico" Width="64" HorizontalAlignment="Left"/>
+                        <TextBlock Margin="80, 0, 0, 0" Text="Local Security Policy" FontSize="18" FontWeight="SemiBold" TextWrapping="WrapWholeWords"/>
+                    </Grid>
+                </Button>
+                <Button Background="Transparent" BorderBrush="Transparent" Width="350" HorizontalContentAlignment="Stretch">
+                    <Grid>
+                        <Image Source="/Assets/AppIcons/imageres_78.ico" Width="64" HorizontalAlignment="Left"/>
+                        <TextBlock Margin="80, 0, 0, 0" Text="ODBC Data Sources (Legacy)" FontSize="18" FontWeight="SemiBold" TextWrapping="WrapWholeWords"/>
+                    </Grid>
+                </Button>
+                <Button Background="Transparent" BorderBrush="Transparent" Width="350" HorizontalContentAlignment="Stretch">
+                    <Grid>
+                        <Image Source="/Assets/AppIcons/imageres_78.ico" Width="64" HorizontalAlignment="Left"/>
+                        <TextBlock Margin="80, 0, 0, 0" Text="ODBC Data Sources" FontSize="18" FontWeight="SemiBold" TextWrapping="WrapWholeWords"/>
+                    </Grid>
+                </Button>
+                <Button Background="Transparent" BorderBrush="Transparent" Width="350" HorizontalContentAlignment="Stretch">
+                    <Grid>
+                        <Image Source="/Assets/AppIcons/imageres_78.ico" Width="64" HorizontalAlignment="Left"/>
+                        <TextBlock Margin="80, 0, 0, 0" Text="Paint" FontSize="18" FontWeight="SemiBold" TextWrapping="WrapWholeWords"/>
+                    </Grid>
+                </Button>
+                <Button Background="Transparent" BorderBrush="Transparent" Width="350" HorizontalContentAlignment="Stretch">
+                    <Grid>
+                        <Image Source="/Assets/AppIcons/imageres_78.ico" Width="64" HorizontalAlignment="Left"/>
+                        <TextBlock Margin="80, 0, 0, 0" Text="Performance Monitor" FontSize="18" FontWeight="SemiBold" TextWrapping="WrapWholeWords"/>
+                    </Grid>
+                </Button>
+                <Button Background="Transparent" BorderBrush="Transparent" Width="350" HorizontalContentAlignment="Stretch">
+                    <Grid>
+                        <Image Source="/Assets/AppIcons/imageres_78.ico" Width="64" HorizontalAlignment="Left"/>
+                        <TextBlock Margin="80, 0, 0, 0" Text="Power Automate" FontSize="18" FontWeight="SemiBold" TextWrapping="WrapWholeWords"/>
+                    </Grid>
+                </Button>
+                <Button Background="Transparent" BorderBrush="Transparent" Width="350" HorizontalContentAlignment="Stretch">
+                    <Grid>
+                        <Image Source="/Assets/AppIcons/imageres_78.ico" Width="64" HorizontalAlignment="Left"/>
+                        <TextBlock Margin="80, 0, 0, 0" Text="Print Management" FontSize="18" FontWeight="SemiBold" TextWrapping="WrapWholeWords"/>
+                    </Grid>
+                </Button>
+                <Button Background="Transparent" BorderBrush="Transparent" Width="350" HorizontalContentAlignment="Stretch">
+                    <Grid>
+                        <Image Source="/Assets/AppIcons/imageres_78.ico" Width="64" HorizontalAlignment="Left"/>
+                        <TextBlock Margin="80, 0, 0, 0" Text="Recovery Drive" FontSize="18" FontWeight="SemiBold" TextWrapping="WrapWholeWords"/>
+                    </Grid>
+                </Button>
+                <Button Background="Transparent" BorderBrush="Transparent" Width="350" HorizontalContentAlignment="Stretch">
+                    <Grid>
+                        <Image Source="/Assets/AppIcons/imageres_78.ico" Width="64" HorizontalAlignment="Left"/>
+                        <TextBlock Margin="80, 0, 0, 0" Text="Registry Editor" FontSize="18" FontWeight="SemiBold" TextWrapping="WrapWholeWords"/>
+                    </Grid>
+                </Button>
+                <Button Background="Transparent" BorderBrush="Transparent" Width="350" HorizontalContentAlignment="Stretch">
+                    <Grid>
+                        <Image Source="/Assets/AppIcons/imageres_78.ico" Width="64" HorizontalAlignment="Left"/>
+                        <TextBlock Margin="80, 0, 0, 0" Text="Remote Desktop" FontSize="18" FontWeight="SemiBold" TextWrapping="WrapWholeWords"/>
+                    </Grid>
+                </Button>
+                <Button Background="Transparent" BorderBrush="Transparent" Width="350" HorizontalContentAlignment="Stretch">
+                    <Grid>
+                        <Image Source="/Assets/AppIcons/imageres_78.ico" Width="64" HorizontalAlignment="Left"/>
+                        <TextBlock Margin="80, 0, 0, 0" Text="Resource Monitor" FontSize="18" FontWeight="SemiBold" TextWrapping="WrapWholeWords"/>
+                    </Grid>
+                </Button>
+                <Button Background="Transparent" BorderBrush="Transparent" Width="350" HorizontalContentAlignment="Stretch">
+                    <Grid>
+                        <Image Source="/Assets/AppIcons/imageres_78.ico" Width="64" HorizontalAlignment="Left"/>
+                        <TextBlock Margin="80, 0, 0, 0" Text="Run" FontSize="18" FontWeight="SemiBold" TextWrapping="WrapWholeWords"/>
+                    </Grid>
+                </Button>
+                <Button Background="Transparent" BorderBrush="Transparent" Width="350" HorizontalContentAlignment="Stretch">
+                    <Grid>
+                        <Image Source="/Assets/AppIcons/imageres_78.ico" Width="64" HorizontalAlignment="Left"/>
+                        <TextBlock Margin="80, 0, 0, 0" Text="Services" FontSize="18" FontWeight="SemiBold" TextWrapping="WrapWholeWords"/>
+                    </Grid>
+                </Button>
+                <Button Background="Transparent" BorderBrush="Transparent" Width="350" HorizontalContentAlignment="Stretch">
+                    <Grid>
+                        <Image Source="/Assets/AppIcons/imageres_78.ico" Width="64" HorizontalAlignment="Left"/>
+                        <TextBlock Margin="80, 0, 0, 0" Text="Steps Recorder" FontSize="18" FontWeight="SemiBold" TextWrapping="WrapWholeWords"/>
+                    </Grid>
+                </Button>
+                <Button Background="Transparent" BorderBrush="Transparent" Width="350" HorizontalContentAlignment="Stretch">
+                    <Grid>
+                        <Image Source="/Assets/AppIcons/imageres_78.ico" Width="64" HorizontalAlignment="Left"/>
+                        <TextBlock Margin="80, 0, 0, 0" Text="System Configuration" FontSize="18" FontWeight="SemiBold" TextWrapping="WrapWholeWords"/>
+                    </Grid>
+                </Button>
+                <Button Background="Transparent" BorderBrush="Transparent" Width="350" HorizontalContentAlignment="Stretch">
+                    <Grid>
+                        <Image Source="/Assets/AppIcons/imageres_78.ico" Width="64" HorizontalAlignment="Left"/>
+                        <TextBlock Margin="80, 0, 0, 0" Text="System Information" FontSize="18" FontWeight="SemiBold" TextWrapping="WrapWholeWords"/>
+                    </Grid>
+                </Button>
+                <Button Background="Transparent" BorderBrush="Transparent" Width="350" HorizontalContentAlignment="Stretch">
+                    <Grid>
+                        <Image Source="/Assets/AppIcons/imageres_78.ico" Width="64" HorizontalAlignment="Left"/>
+                        <TextBlock Margin="80, 0, 0, 0" Text="Task Manager" FontSize="18" FontWeight="SemiBold" TextWrapping="WrapWholeWords"/>
+                    </Grid>
+                </Button>
+                <Button Background="Transparent" BorderBrush="Transparent" Width="350" HorizontalContentAlignment="Stretch">
+                    <Grid>
+                        <Image Source="/Assets/AppIcons/imageres_78.ico" Width="64" HorizontalAlignment="Left"/>
+                        <TextBlock Margin="80, 0, 0, 0" Text="Task Scheduler" FontSize="18" FontWeight="SemiBold" TextWrapping="WrapWholeWords"/>
+                    </Grid>
+                </Button>
+                <Button Background="Transparent" BorderBrush="Transparent" Width="350" HorizontalContentAlignment="Stretch">
+                    <Grid>
+                        <Image Source="/Assets/AppIcons/imageres_78.ico" Width="64" HorizontalAlignment="Left"/>
+                        <TextBlock Margin="80, 0, 0, 0" Text="Windows Defender" FontSize="18" FontWeight="SemiBold" TextWrapping="WrapWholeWords"/>
+                    </Grid>
+                </Button>
+                <Button Background="Transparent" BorderBrush="Transparent" Width="350" HorizontalContentAlignment="Stretch">
+                    <Grid>
+                        <Image Source="/Assets/AppIcons/imageres_78.ico" Width="64" HorizontalAlignment="Left"/>
+                        <TextBlock Margin="80, 0, 0, 0" Text="Windows Media Player" FontSize="18" FontWeight="SemiBold" TextWrapping="WrapWholeWords"/>
+                    </Grid>
+                </Button>
+                <Button Background="Transparent" BorderBrush="Transparent" Width="350" HorizontalContentAlignment="Stretch">
+                    <Grid>
+                        <Image Source="/Assets/AppIcons/imageres_78.ico" Width="64" HorizontalAlignment="Left"/>
+                        <TextBlock Margin="80, 0, 0, 0" Text="Windows Memory Diagnostic" FontSize="18" FontWeight="SemiBold" TextWrapping="WrapWholeWords"/>
+                    </Grid>
+                </Button>
+                <Button Background="Transparent" BorderBrush="Transparent" Width="350" HorizontalContentAlignment="Stretch">
+                    <Grid>
+                        <Image Source="/Assets/AppIcons/imageres_78.ico" Width="64" HorizontalAlignment="Left"/>
+                        <TextBlock Margin="80, 0, 0, 0" Text="Windows PowerShell" FontSize="18" FontWeight="SemiBold" TextWrapping="WrapWholeWords"/>
+                    </Grid>
+                </Button>
+                <Button Background="Transparent" BorderBrush="Transparent" Width="350" HorizontalContentAlignment="Stretch">
+                    <Grid>
+                        <Image Source="/Assets/AppIcons/imageres_78.ico" Width="64" HorizontalAlignment="Left"/>
+                        <TextBlock Margin="80, 0, 0, 0" Text="Windows PowerShell ISE" FontSize="18" FontWeight="SemiBold" TextWrapping="WrapWholeWords"/>
+                    </Grid>
+                </Button>
+                <Button Background="Transparent" BorderBrush="Transparent" Width="350" HorizontalContentAlignment="Stretch">
+                    <Grid>
+                        <Image Source="/Assets/AppIcons/ReboundHub.ico" Width="64" HorizontalAlignment="Left"/>
+                        <TextBlock Margin="80, 0, 0, 0" Text="Winver" FontSize="18" FontWeight="SemiBold" TextWrapping="WrapWholeWords"/>
+                    </Grid>
+                </Button>
+                <Button Background="Transparent" BorderBrush="Transparent" Width="350" HorizontalContentAlignment="Stretch">
+                    <Grid>
+                        <Image Source="/Assets/AppIcons/imageres_78.ico" Width="64" HorizontalAlignment="Left"/>
+                        <TextBlock Margin="80, 0, 0, 0" Text="Windows Terminal" FontSize="18" FontWeight="SemiBold" TextWrapping="WrapWholeWords"/>
+                    </Grid>
+                </Button>
+                <Button Background="Transparent" BorderBrush="Transparent" Width="350" HorizontalContentAlignment="Stretch">
+                    <Grid>
+                        <Image Source="/Assets/AppIcons/imageres_78.ico" Width="64" HorizontalAlignment="Left"/>
+                        <TextBlock Margin="80, 0, 0, 0" Text="WordPad" FontSize="18" FontWeight="SemiBold" TextWrapping="WrapWholeWords"/>
+                    </Grid>
+                </Button>
+            </toolkit:WrapPanel>
+        </ScrollViewer>
+    </Grid>
+</Page>

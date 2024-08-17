@@ -92,14 +92,10 @@
                         <NavigationViewItem Content="Optimize visual display"/>
                     </NavigationViewItem.MenuItems>
                 </NavigationViewItem>
-                <NavigationViewItem Content="Windows Tools">
+                <NavigationViewItem Content="Windows Tools" x:Name="WinToolsItem">
                     <NavigationViewItem.Icon>
                         <ImageIcon Source="/Assets/AppIcons/imageres_86.ico"/>
                     </NavigationViewItem.Icon>
-                    <NavigationViewItem.MenuItems>
-                        <NavigationViewItem Content="Let Windows suggest settings"/>
-                        <NavigationViewItem Content="Optimize visual display"/>
-                    </NavigationViewItem.MenuItems>
                 </NavigationViewItem>
                 <NavigationViewItem Content="Work Folders">
                     <NavigationViewItem.Icon>

@@ -68,6 +68,7 @@
     <None Remove="ReboundHub\Pages\ControlPanel\HomePage.xaml" />
     <None Remove="ReboundHub\Pages\ControlPanel\ModernHomePage.xaml" />
     <None Remove="ReboundHub\Pages\ControlPanel\SystemAndSecurity.xaml" />
+    <None Remove="ReboundHub\Pages\ControlPanel\WindowsTools.xaml" />
     <None Remove="ReboundHub\Pages\HomePage.xaml" />
     <None Remove="ReboundHub\Pages\Rebound11Page.xaml" />
     <None Remove="ReboundHub\Pages\ShellPage.xaml" />
@@ -215,6 +216,11 @@
 	</ItemGroup>
 	<ItemGroup>
 	  <PRIResource Remove="Assets\Wallpapers\**" />
+	</ItemGroup>
+	<ItemGroup>
+	  <Page Update="ReboundHub\Pages\ControlPanel\WindowsTools.xaml">
+	    <Generator>MSBuild:Compile</Generator>
+	  </Page>
 	</ItemGroup>
 	<ItemGroup>
 	  <Page Update="RegionBlock.xaml">

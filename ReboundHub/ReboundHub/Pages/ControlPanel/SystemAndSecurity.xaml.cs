@@ -344,6 +344,10 @@ public sealed partial class SystemAndSecurity : Page
             {
                 App.cpanelWin.RootFrame.Navigate(typeof(AppearanceAndPersonalization), null, new Microsoft.UI.Xaml.Media.Animation.DrillInNavigationTransitionInfo());
             }
+            if ((NavigationViewItem)sender.SelectedItem == WinToolsItem)
+            {
+                App.cpanelWin.RootFrame.Navigate(typeof(WindowsTools), null, new Microsoft.UI.Xaml.Media.Animation.DrillInNavigationTransitionInfo());
+            }
         }
         catch (Exception ex)
         {
