@@ -61,8 +61,8 @@
                     </Grid.RowDefinitions>
                     <TextBlock Foreground="{ThemeResource AccentTextFillColorPrimaryBrush}" FontWeight="SemiBold" Text="Appearance and Personalization" FontSize="22" Grid.ColumnSpan="3"/>
                     <StackPanel Grid.Row="1" Grid.ColumnSpan="3" Spacing="5">
-                        <TextBlock Text="Rebound 11 Themes" Style="{StaticResource BodyStrongTextBlockStyle}" Margin="3"/>
-                        <Expander IsExpanded="True" Header="Rebound 11 Themes">
+                        <TextBlock Text="Themes" Style="{StaticResource BodyStrongTextBlockStyle}" Margin="3"/>
+                        <Expander HorizontalAlignment="Stretch" IsExpanded="True" Header="Rebound 11 Themes">
                             <Expander.Content>
                                 <Grid Margin="15">
                                     <UI:WrapPanel HorizontalSpacing="10" VerticalSpacing="10">
@@ -165,6 +165,45 @@
                                     </UI:WrapPanel>
                                 </Grid>
                             </Expander.Content>
+                        </Expander>
+                        <TextBlock Text="Tweaks" Style="{StaticResource BodyStrongTextBlockStyle}" Margin="3"/>
+                        <SettingsUI:SettingsCard Header="Classic Full Context Menus" Description="Will not work on Files if you have it installed. Toggling this option will restart Explorer.">
+                            <SettingsUI:SettingsCard.HeaderIcon>
+                                <FontIcon Glyph=""/>
+                            </SettingsUI:SettingsCard.HeaderIcon>
+                            <ToggleSwitch/>
+                        </SettingsUI:SettingsCard>
+                        <SettingsUI:SettingsCard Header="Tablet Taskbar" Description="Enables the tablet taskbar for touchscreen devices. Toggling this option will restart Explorer.">
+                            <SettingsUI:SettingsCard.HeaderIcon>
+                                <FontIcon Glyph=""/>
+                            </SettingsUI:SettingsCard.HeaderIcon>
+                            <ToggleSwitch/>
+                        </SettingsUI:SettingsCard>
+                        <SettingsUI:SettingsCard Header="Remove Windows Spotlight Icon" Description="If you have Windows Spotlight enabled, this option will remove the icon from the desktop.">
+                            <SettingsUI:SettingsCard.HeaderIcon>
+                                <FontIcon Glyph=""/>
+                            </SettingsUI:SettingsCard.HeaderIcon>
+                            <ToggleSwitch/>
+                        </SettingsUI:SettingsCard>
+                        <SettingsUI:SettingsCard Header="Direct Shortcuts" Description="Disable the &quot; - Shortcut&quot; text on new shortcuts.">
+                            <SettingsUI:SettingsCard.HeaderIcon>
+                                <FontIcon Glyph=""/>
+                            </SettingsUI:SettingsCard.HeaderIcon>
+                            <ToggleSwitch/>
+                        </SettingsUI:SettingsCard>
+                        <Expander HorizontalAlignment="Stretch" Header="File Explorer Navigation Pane" HorizontalContentAlignment="Stretch">
+                            <Grid HorizontalAlignment="Stretch">
+                                <StackPanel HorizontalAlignment="Left">
+                                    <CheckBox Content="Home"/>
+                                    <CheckBox Content="OneDrive"/>
+                                    <CheckBox Content="Gallery"/>
+                                    <CheckBox Content="Libraries"/>
+                                    <CheckBox Content="This PC"/>
+                                    <CheckBox Content="Network"/>
+                                    <CheckBox Content="Removable Drives"/>
+                                </StackPanel>
+                                <Button Content="Apply and sign out" HorizontalAlignment="Right" VerticalAlignment="Bottom"/>
+                            </Grid>
                         </Expander>
                     </StackPanel>
                 </Grid>

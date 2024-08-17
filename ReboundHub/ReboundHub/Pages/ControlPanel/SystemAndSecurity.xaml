@@ -217,6 +217,19 @@
                                 <HyperlinkButton Content="Advanced" HorizontalAlignment="Right"/>
                             </StackPanel>
                         </Expander>
+                        <TextBlock Text="Advanced" Style="{StaticResource BodyStrongTextBlockStyle}" Margin="3"/>
+                        <SettingsUI:SettingsCard Header="Disable UWP background tasks" Description="After booting up, Rebound 11 will disable background tasks for apps like Feedback Hub to boost up performance. This option requires Rebound Hub to run at startup.">
+                            <SettingsUI:SettingsCard.HeaderIcon>
+                                <FontIcon Glyph=""/>
+                            </SettingsUI:SettingsCard.HeaderIcon>
+                            <ToggleSwitch/>
+                        </SettingsUI:SettingsCard>
+                        <SettingsUI:SettingsCard Header="Verbose logon messages" Description="Write events on the screen while booting up or shutting down your PC.">
+                            <SettingsUI:SettingsCard.HeaderIcon>
+                                <FontIcon Glyph=""/>
+                            </SettingsUI:SettingsCard.HeaderIcon>
+                            <ToggleSwitch/>
+                        </SettingsUI:SettingsCard>
                         <TextBlock Text="Recommended" Style="{StaticResource BodyStrongTextBlockStyle}" Margin="3"/>
                         <SettingsUI:SettingsCard IsClickEnabled="True" Header="User Account Control" Description="Change User Account Control Settings." Click="SettingsCard_Click_1">
                             <SettingsUI:SettingsCard.HeaderIcon>
