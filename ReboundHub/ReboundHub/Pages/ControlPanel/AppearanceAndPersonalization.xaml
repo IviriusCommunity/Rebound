@@ -191,6 +191,27 @@
                             </SettingsUI:SettingsCard.HeaderIcon>
                             <ToggleSwitch/>
                         </SettingsUI:SettingsCard>
+                        <SettingsUI:SettingsCard Header="Create a special folder on the desktop" Description="These folders don't have a specific functionality.">
+                            <SettingsUI:SettingsCard.HeaderIcon>
+                                <FontIcon Glyph=""/>
+                            </SettingsUI:SettingsCard.HeaderIcon>
+                            <StackPanel Spacing="8" Orientation="Horizontal">
+                                <ComboBox>
+                                    <ComboBoxItem Content="Archive"/>
+                                    <ComboBoxItem Content="Briefcase"/>
+                                    <ComboBoxItem Content="Gray"/>
+                                    <ComboBoxItem Content="Green"/>
+                                    <ComboBoxItem Content="Light Blue"/>
+                                    <ComboBoxItem Content="Lime"/>
+                                    <ComboBoxItem Content="OneDrive"/>
+                                    <ComboBoxItem Content="Orange"/>
+                                    <ComboBoxItem Content="Rebound 11 color scheme"/>
+                                </ComboBox>
+                                <TextBox PlaceholderText="Name"/>
+                                <Button Style="{ThemeResource AccentButtonStyle}" Content="Create"/>
+                            </StackPanel>
+                        </SettingsUI:SettingsCard>
+                        <InfoBar IsOpen="True" IsClosable="False" Severity="Warning" Title="Some folders may revert back to their original icons after uninstalling Rebound 11."/>
                         <Expander HorizontalAlignment="Stretch" Header="File Explorer Navigation Pane" HorizontalContentAlignment="Stretch">
                             <Grid HorizontalAlignment="Stretch">
                                 <StackPanel HorizontalAlignment="Left">

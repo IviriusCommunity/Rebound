@@ -346,7 +346,8 @@ public sealed partial class SystemAndSecurity : Page
             }
             if ((NavigationViewItem)sender.SelectedItem == WinToolsItem)
             {
-                App.cpanelWin.RootFrame.Navigate(typeof(WindowsTools), null, new Microsoft.UI.Xaml.Media.Animation.DrillInNavigationTransitionInfo());
+                App.cpanelWin.AddressBox.Text = @"Control Panel\System and Security\Windows Tools";
+                App.cpanelWin.NavigateToPath();
             }
         }
         catch (Exception ex)

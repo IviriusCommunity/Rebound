@@ -789,6 +789,7 @@ public sealed partial class ControlPanelWindow : WindowEx
     {
         AppearanceAndPersonalization.Visibility = Visibility.Collapsed;
         SystemAndSecurity.Visibility = Visibility.Collapsed;
+        WindowsTools.Visibility = Visibility.Collapsed;
     }
 
     public string CurrentPage()
@@ -802,6 +803,10 @@ public sealed partial class ControlPanelWindow : WindowEx
             case ReboundHub.Pages.ControlPanel.SystemAndSecurity:
                 {
                     return @"Control Panel\System and Security";
+                }
+            case ReboundHub.Pages.ControlPanel.WindowsTools:
+                {
+                    return @"Control Panel\System and Security\Windows Tools";
                 }
             case ModernHomePage:
                 {
@@ -842,6 +847,13 @@ public sealed partial class ControlPanelWindow : WindowEx
                 {
                     if (RootFrame.Content is not ReboundHub.Pages.ControlPanel.SystemAndSecurity) App.cpanelWin.RootFrame.Navigate(typeof(SystemAndSecurity), null, new Microsoft.UI.Xaml.Media.Animation.DrillInNavigationTransitionInfo());
                     SystemAndSecurity.Visibility = Visibility.Visible;
+                    return;
+                }
+            case @"Control Panel\System and Security\Windows Tools":
+                {
+                    if (RootFrame.Content is not ReboundHub.Pages.ControlPanel.WindowsTools) App.cpanelWin.RootFrame.Navigate(typeof(WindowsTools), null, new Microsoft.UI.Xaml.Media.Animation.DrillInNavigationTransitionInfo());
+                    SystemAndSecurity.Visibility = Visibility.Visible;
+                    WindowsTools.Visibility = Visibility.Visible;
                     return;
                 }
             case @"Control Panel":
