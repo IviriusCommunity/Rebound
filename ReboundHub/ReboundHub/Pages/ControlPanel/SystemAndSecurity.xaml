@@ -235,9 +235,8 @@
                                 <FontIcon Glyph=""/>
                             </SettingsUI:SettingsCard.HeaderIcon>
                             <StackPanel Spacing="8" Orientation="Horizontal">
-                                <Button Content="Pin to Start"/>
-                                <Button Content="Pin to Taskbar"/>
-                                <Button Content="Run" Style="{ThemeResource AccentButtonStyle}"/>
+                                <Button Content="Pin to Start" Click="Button_Click_1"/>
+                                <Button Content="Run" Style="{ThemeResource AccentButtonStyle}" Click="Button_Click_3"/>
                             </StackPanel>
                         </SettingsUI:SettingsCard>
                         <TextBlock Text="Recommended" Style="{StaticResource BodyStrongTextBlockStyle}" Margin="3"/>

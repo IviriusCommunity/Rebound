@@ -64,7 +64,7 @@
     <None Remove="Rebound11Files\AppPackages\ReboundRun.msix" />
     <None Remove="Rebound11Files\AppPackages\ReboundWinver.cer" />
     <None Remove="Rebound11Files\AppPackages\ReboundWinver.msix" />
-    <None Remove="Rebound11Files\Executables\Quick Full Computer Cleanup.exe" />
+    <None Remove="Rebound11Files\Executables\QuickFullComputerCleanup.exe" />
     <None Remove="Rebound11Files\Executables\rcontrol.exe" />
     <None Remove="Rebound11Files\Executables\rdfrgui.exe" />
     <None Remove="Rebound11Files\Executables\rrun.exe" />
@@ -74,12 +74,14 @@
     <None Remove="Rebound11Files\Rebound11\desktop2.ini" />
     <None Remove="Rebound11Files\Rebound11\r11foldericon.ico" />
     <None Remove="Rebound11Files\Rebound11\r11imageres.dll" />
+    <None Remove="Rebound11Files\Scripts\CREATERE11TOOLSFOLDER.ps1" />
     <None Remove="Rebound11Files\shcre11\Change User Account Control settings.lnk" />
     <None Remove="Rebound11Files\shcre11\Command Prompt.lnk" />
     <None Remove="Rebound11Files\shcre11\Control Panel.lnk" />
     <None Remove="Rebound11Files\shcre11\dfrgui.lnk" />
     <None Remove="Rebound11Files\shcre11\Notepad.lnk" />
     <None Remove="Rebound11Files\shcre11\Paint.lnk" />
+    <None Remove="Rebound11Files\shcre11\Rebound 11 Quick Full Computer Cleanup.lnk" />
     <None Remove="Rebound11Files\shcre11\ReboundRunStartup.lnk" />
     <None Remove="Rebound11Files\shcre11\Run.lnk" />
     <None Remove="Rebound11Files\shcre11\winver.lnk" />
@@ -114,7 +116,7 @@
     <Content Include="Rebound11Files\AppPackages\ReboundRun.msix" />
     <Content Include="Rebound11Files\AppPackages\ReboundWinver.cer" />
     <Content Include="Rebound11Files\AppPackages\ReboundWinver.msix" />
-    <Content Include="Rebound11Files\Executables\Quick Full Computer Cleanup.exe">
+    <Content Include="Rebound11Files\Executables\QuickFullComputerCleanup.exe">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <Content Include="Rebound11Files\Executables\rcontrol.exe" />
@@ -126,9 +128,11 @@
     <Content Include="Rebound11Files\Rebound11\desktop2.ini" />
     <Content Include="Rebound11Files\Rebound11\r11foldericon.ico" />
     <Content Include="Rebound11Files\Rebound11\r11imageres.dll" />
+    <Content Include="Rebound11Files\Scripts\CREATERE11TOOLSFOLDER.ps1" />
     <Content Include="Rebound11Files\shcre11\Change User Account Control settings.lnk" />
     <Content Include="Rebound11Files\shcre11\Control Panel.lnk" />
     <Content Include="Rebound11Files\shcre11\dfrgui.lnk" />
+    <Content Include="Rebound11Files\shcre11\Rebound 11 Quick Full Computer Cleanup.lnk" />
     <Content Include="Rebound11Files\shcre11\ReboundRunStartup.lnk" />
     <Content Include="Rebound11Files\shcre11\Run.lnk" />
     <Content Include="Rebound11Files\shcre11\winver.lnk" />
@@ -244,6 +248,17 @@
 	</ItemGroup>
 	<ItemGroup>
 	  <PRIResource Remove="Assets\Wallpapers\**" />
+	</ItemGroup>
+	<ItemGroup>
+	  <COMReference Include="IWshRuntimeLibrary">
+	    <WrapperTool>tlbimp</WrapperTool>
+	    <VersionMinor>0</VersionMinor>
+	    <VersionMajor>1</VersionMajor>
+	    <Guid>f935dc20-1cf0-11d0-adb9-00c04fd58a0b</Guid>
+	    <Lcid>0</Lcid>
+	    <Isolated>false</Isolated>
+	    <EmbedInteropTypes>true</EmbedInteropTypes>
+	  </COMReference>
 	</ItemGroup>
 	<ItemGroup>
 	  <Page Update="ReboundHub\Pages\ControlPanel\WindowsTools.xaml">

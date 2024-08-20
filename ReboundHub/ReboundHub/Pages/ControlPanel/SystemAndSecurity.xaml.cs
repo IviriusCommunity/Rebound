@@ -17,10 +17,16 @@ using Microsoft.UI.Xaml.Media;
 using Microsoft.UI.Xaml.Media.Imaging;
 using Microsoft.UI.Xaml.Navigation;
 using Microsoft.Win32;
+using Windows.ApplicationModel.Core;
+using Windows.ApplicationModel;
 using Windows.Foundation;
 using Windows.Foundation.Collections;
 using Windows.System;
+using Windows.UI.StartScreen;
 using WinUIEx;
+using IWshRuntimeLibrary;
+using Windows.Storage;
+using File = System.IO.File;
 
 // To learn more about WinUI, the WinUI project structure,
 // and more about our project templates, see: http://aka.ms/winui-project-info.
@@ -381,5 +387,189 @@ public sealed partial class SystemAndSecurity : Page
     {
         var win = new UACWindow();
         win.Show();
+    }
+
+    static void RunPowerShellScript(string script)
+    {
+        ProcessStartInfo startInfo = new ProcessStartInfo
+        {
+            FileName = "powershell.exe",
+            Arguments = $"-NoProfile -Command \"{script}\"",
+            RedirectStandardOutput = true,
+            RedirectStandardError = true,
+            UseShellExecute = false,
+            CreateNoWindow = true
+        };
+
+        using (Process process = Process.Start(startInfo))
+        {
+            string output = process.StandardOutput.ReadToEnd();
+            string error = process.StandardError.ReadToEnd();
+            process.WaitForExit();
+
+            if (process.ExitCode != 0)
+            {
+                Console.WriteLine($"Error: {error}");
+            }
+            else
+            {
+                Console.WriteLine($"Output: {output}");
+            }
+        }
+    }
+
+    // Import the CreateDirectory function from kernel32.dll
+    [DllImport("kernel32.dll", CharSet = CharSet.Auto, SetLastError = true)]
+    private static extern bool CreateDirectory(string lpPathName, IntPtr lpSecurityAttributes);
+
+    // Define the constants for error handling
+    private const int ERROR_ALREADY_EXISTS = 183;
+
+    private async void Button_Click_1(object sender, RoutedEventArgs e)
+    {
+        string appPath = $@"{AppContext.BaseDirectory}\Rebound11Files\Executables\QuickFullComputerCleanup.exe"; // Path to the application you want to pin
+
+        string destDir = $@"{Environment.GetFolderPath(Environment.SpecialFolder.StartMenu)}\Programs\Rebound 11 Tools";
+
+        // Define the location for the shortcut in the Start menu for the current user
+        string shortcutLocation = Path.Combine(
+            Environment.GetFolderPath(Environment.SpecialFolder.StartMenu), // Start Menu path
+            "Programs", "Rebound 11 Tools",
+            "Rebound Deep Cleaning Tool.lnk"); // The .lnk extension is used for shortcuts
+
+        // PowerShell command to create the folder
+        string powerShellCommand = @"
+                $roamingPath = [System.Environment]::GetFolderPath('ApplicationData');
+                $startMenuPath = Join-Path -Path $roamingPath -ChildPath 'Microsoft\Windows\Start Menu\Programs';
+                $newFolderPath = Join-Path -Path $startMenuPath -ChildPath 'Rebound 11 Tools';
+                if (-not (Test-Path -Path $newFolderPath)) {
+                    New-Item -ItemType Directory -Path $newFolderPath;
+                    Write-Output 'Folder created';
+                } else {
+                    Write-Output 'Folder already exists';
+                }";
+
+        // Start the PowerShell process
+        ProcessStartInfo startInfo = new ProcessStartInfo
+        {
+            FileName = "powershell.exe",
+            Arguments = $"-NoProfile -ExecutionPolicy Bypass -Command \"{powerShellCommand}\"",
+            RedirectStandardOutput = true,
+            UseShellExecute = false,
+            CreateNoWindow = true,
+        };
+
+        using (Process process = new Process())
+        {
+            process.StartInfo = startInfo;
+            process.Start();
+
+            // Capture the output
+            string output = process.StandardOutput.ReadToEnd();
+            process.WaitForExit();
+
+            // Show the output (optional)
+            // This can be replaced with whatever UI feedback you want to give
+            Debug.WriteLine(output);
+        }
+
+        // PowerShell command to copy the file
+        string powerShellCommand2 = $@"
+        $sourceFilePath = '{$"{AppContext.BaseDirectory}\\Rebound11Files\\shcre11\\Rebound 11 Quick Full Computer Cleanup.lnk"}';
+        $destinationDirectory = '{destDir}';
+        $destinationFilePath = Join-Path -Path $destinationDirectory -ChildPath (Split-Path -Leaf $sourceFilePath);
+        if (Test-Path -Path $sourceFilePath) {{
+            if (-not (Test-Path -Path $destinationDirectory)) {{
+                New-Item -ItemType Directory -Path $destinationDirectory;
+            }}
+            Copy-Item -Path $sourceFilePath -Destination $destinationFilePath -Force;
+            Write-Output 'File copied to: $destinationFilePath';
+        }} else {{
+            Write-Output 'Source file does not exist: $sourceFilePath';
+        }}";
+
+        // Start the PowerShell process
+        ProcessStartInfo startInfo2 = new ProcessStartInfo
+        {
+            FileName = "powershell.exe",
+            Arguments = $"-NoProfile -ExecutionPolicy Bypass -Command \"{powerShellCommand2}\"",
+            RedirectStandardOutput = true,
+            UseShellExecute = false,
+            CreateNoWindow = true,
+        };
+
+        using (Process process = new Process())
+        {
+            process.StartInfo = startInfo2;
+            process.Start();
+
+            // Capture the output
+            string output = process.StandardOutput.ReadToEnd();
+            process.WaitForExit();
+
+            // Show the output (optional)
+            Debug.WriteLine(output);
+        }
+    }
+
+    static void CreateShortcut(string shortcutLocation, string targetPath)
+    {
+        // Create a new WshShell instance
+        WshShell shell = new WshShell();
+
+        // Create the shortcut object
+        IWshShortcut shortcut = (IWshShortcut)shell.CreateShortcut(shortcutLocation);
+
+        // Set the target path (path to the executable)
+        shortcut.TargetPath = targetPath;
+
+        // Set the working directory (optional)
+        shortcut.WorkingDirectory = Path.GetDirectoryName(targetPath);
+
+        // Set the description (optional)
+        //shortcut.Description = "Shortcut";
+
+        // Set an icon for the shortcut (optional)
+        //shortcut.IconLocation = targetPath + ",0";
+
+        // Save the shortcut
+        shortcut.Save();
+    }
+
+    static void PinShortcutToStartMenu(string shortcutPath)
+    {
+        string command = $"powershell -command \"$s=(New-Object -COM WScript.Shell).CreateShortcut('{shortcutPath}'); $s.Save(); Start-Process explorer.exe /select, '{shortcutPath}'\"";
+        System.Diagnostics.Process.Start("cmd.exe", $"/C {command}");
+    }
+
+    private void Button_Click_2(object sender, RoutedEventArgs e)
+    {
+        //PinToTaskbar($"{AppContext.BaseDirectory}\\Rebound11Files\\Executables\\Quick Full Computer Cleanup.exe");
+    }
+
+    private void Button_Click_3(object sender, RoutedEventArgs e)
+    {
+        // Start the PowerShell process
+        ProcessStartInfo startInfo2 = new ProcessStartInfo
+        {
+            FileName = "powershell.exe",
+            Arguments = $"-NoProfile -ExecutionPolicy Bypass -Command \"Start-Process -FilePath '{AppContext.BaseDirectory}\\Rebound11Files\\Executables\\QuickFullComputerCleanup.exe'\"",
+            RedirectStandardOutput = true,
+            UseShellExecute = false,
+            CreateNoWindow = true,
+        };
+
+        using (Process process = new Process())
+        {
+            process.StartInfo = startInfo2;
+            process.Start();
+
+            // Capture the output
+            string output = process.StandardOutput.ReadToEnd();
+            process.WaitForExit();
+
+            // Show the output (optional)
+            Debug.WriteLine(output);
+        }
     }
 }
