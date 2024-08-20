@@ -230,6 +230,16 @@
                             </SettingsUI:SettingsCard.HeaderIcon>
                             <ToggleSwitch/>
                         </SettingsUI:SettingsCard>
+                        <SettingsUI:SettingsCard Header="Deep clean your PC" Description="This tool will launch the Rebound 11 versions of Disk Cleanup and Defragment and Optimize Drives, if they are already installed.&#x0a;Both apps will be launched as administrator, delete all cache files, including the downloads folder and recycle bin, and optimize every connected drive.">
+                            <SettingsUI:SettingsCard.HeaderIcon>
+                                <FontIcon Glyph=""/>
+                            </SettingsUI:SettingsCard.HeaderIcon>
+                            <StackPanel Spacing="8" Orientation="Horizontal">
+                                <Button Content="Pin to Start"/>
+                                <Button Content="Pin to Taskbar"/>
+                                <Button Content="Run" Style="{ThemeResource AccentButtonStyle}"/>
+                            </StackPanel>
+                        </SettingsUI:SettingsCard>
                         <TextBlock Text="Recommended" Style="{StaticResource BodyStrongTextBlockStyle}" Margin="3"/>
                         <SettingsUI:SettingsCard IsClickEnabled="True" Header="User Account Control" Description="Change User Account Control Settings." Click="SettingsCard_Click_1">
                             <SettingsUI:SettingsCard.HeaderIcon>

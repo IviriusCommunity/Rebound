@@ -64,6 +64,7 @@
     <None Remove="Rebound11Files\AppPackages\ReboundRun.msix" />
     <None Remove="Rebound11Files\AppPackages\ReboundWinver.cer" />
     <None Remove="Rebound11Files\AppPackages\ReboundWinver.msix" />
+    <None Remove="Rebound11Files\Executables\Quick Full Computer Cleanup.exe" />
     <None Remove="Rebound11Files\Executables\rcontrol.exe" />
     <None Remove="Rebound11Files\Executables\rdfrgui.exe" />
     <None Remove="Rebound11Files\Executables\rrun.exe" />
@@ -113,6 +114,9 @@
     <Content Include="Rebound11Files\AppPackages\ReboundRun.msix" />
     <Content Include="Rebound11Files\AppPackages\ReboundWinver.cer" />
     <Content Include="Rebound11Files\AppPackages\ReboundWinver.msix" />
+    <Content Include="Rebound11Files\Executables\Quick Full Computer Cleanup.exe">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
     <Content Include="Rebound11Files\Executables\rcontrol.exe" />
     <Content Include="Rebound11Files\Executables\rdfrgui.exe" />
     <Content Include="Rebound11Files\Executables\rrun.exe" />
