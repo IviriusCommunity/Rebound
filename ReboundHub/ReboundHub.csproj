@@ -56,6 +56,8 @@
     <None Remove="Assets\AppIcons\RunBox.ico" />
     <None Remove="Assets\AppIcons\Services.png" />
     <None Remove="Assets\AppIcons\TaskScheduler.png" />
+    <None Remove="Assets\Backgrounds\BackgroundDark.png" />
+    <None Remove="Assets\Backgrounds\BackgroundLight.png" />
     <None Remove="ControlPanelWindow.xaml" />
     <None Remove="InstallationWindow.xaml" />
     <None Remove="Rebound11Files\AppPackages\ReboundDefrag.cer" />
@@ -99,6 +101,7 @@
     <None Remove="ReboundHub\Pages\HomePage.xaml" />
     <None Remove="ReboundHub\Pages\Rebound11Page.xaml" />
     <None Remove="ReboundHub\Pages\ShellPage.xaml" />
+    <None Remove="ReboundHub\UserControls\HomePageHeaderImage.xaml" />
     <None Remove="RegionBlock.xaml" />
     <None Remove="UACWindow.xaml" />
   </ItemGroup>
@@ -145,9 +148,11 @@
   </ItemGroup>
 
   <ItemGroup>
+    <PackageReference Include="CommunityToolkit.WinUI.Animations" Version="8.1.240606-rc" />
     <PackageReference Include="CommunityToolkit.WinUI.Controls.SettingsControls" Version="8.1.240606-rc" />
     <PackageReference Include="CommunityToolkit.WinUI.UI.Controls" Version="7.1.2" />
     <PackageReference Include="Ivirius.UI.Controls" Version="0.2.0-prerelease" />
+    <PackageReference Include="Microsoft.Graphics.Win2D" Version="1.2.1-experimental2" />
     <PackageReference Include="Microsoft.Windows.SDK.BuildTools" Version="10.0.26100.1" />
     <PackageReference Include="Microsoft.WindowsAppSDK" Version="1.6.240701003-experimental2" />
     <PackageReference Include="System.Drawing.Common" Version="8.0.7" />
@@ -259,6 +264,11 @@
 	    <Isolated>false</Isolated>
 	    <EmbedInteropTypes>true</EmbedInteropTypes>
 	  </COMReference>
+	</ItemGroup>
+	<ItemGroup>
+	  <Page Update="ReboundHub\UserControls\HomePageHeaderImage.xaml">
+	    <Generator>MSBuild:Compile</Generator>
+	  </Page>
 	</ItemGroup>
 	<ItemGroup>
 	  <Page Update="ReboundHub\Pages\ControlPanel\WindowsTools.xaml">

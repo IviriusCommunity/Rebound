@@ -5,6 +5,7 @@ using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices.WindowsRuntime;
 using System.Security.Principal;
+using System.Threading.Tasks;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Controls.Primitives;
@@ -12,6 +13,7 @@ using Microsoft.UI.Xaml.Data;
 using Microsoft.UI.Xaml.Input;
 using Microsoft.UI.Xaml.Media;
 using Microsoft.UI.Xaml.Navigation;
+using Windows.ApplicationModel.AppExtensions;
 using Windows.Foundation;
 using Windows.Foundation.Collections;
 using Windows.UI;
@@ -29,55 +31,48 @@ public sealed partial class Rebound11Page : Page
     public Rebound11Page()
     {
         this.InitializeComponent();
-        var col = (Color)Application.Current.Resources["SystemAccentColor"];
-        MainGrid.Resources["AccentColor"] = new Color()
-        {
-            A = 0,
-            R = col.R,
-            G = col.G,
-            B = col.B
-        };
-        MainGrid.Resources["TransparentAccentColor"] = new Color()
-        {
-            A = 125,
-            R = col.R,
-            G = col.G,
-            B = col.B
-        };
         if (IsAdmin() == true)
         {
             Admin1.Visibility = Visibility.Collapsed;
-            Admin2.Visibility = Visibility.Collapsed;
-            if (IsReboundInstalled() == true)
+            Admin3.Visibility = Visibility.Collapsed;
+            Admin5.Visibility = Visibility.Collapsed;
+        }
+        if (IsReboundInstalled() == true)
             {
-                ReboundNotInstalledInfoBar.Visibility = Visibility.Collapsed;
-                ReboundInstallInfoBar.Visibility = Visibility.Collapsed;
-                ReboundUninstallInfoBar.Visibility = Visibility.Visible;
+                Rebound11IsInstalledGrid.Visibility = Visibility.Visible;
+                Rebound11IsInstallingGrid.Visibility = Visibility.Collapsed;
+                Rebound11IsNotInstalledGrid.Visibility = Visibility.Collapsed;
+                DetailsPanel.Visibility = Visibility.Collapsed;
             }
             else
             {
-                ReboundNotInstalledInfoBar.Visibility = Visibility.Collapsed;
-                ReboundInstallInfoBar.Visibility = Visibility.Visible;
-                ReboundUninstallInfoBar.Visibility = Visibility.Collapsed;
+                Rebound11IsInstalledGrid.Visibility = Visibility.Collapsed;
+                Rebound11IsInstallingGrid.Visibility = Visibility.Collapsed;
+                Rebound11IsNotInstalledGrid.Visibility = Visibility.Visible;
+                DetailsPanel.Visibility = Visibility.Visible;
             }
-        }
-        else
+        GetWallpaper();
+        if (string.Join(" ", Environment.GetCommandLineArgs().Skip(1)).Contains("INSTALLREBOUND11"))
         {
-            if (IsReboundInstalled() == true)
-            {
-                ReboundNotInstalledInfoBar.Visibility = Visibility.Collapsed;
-                ReboundInstallInfoBar.Visibility = Visibility.Collapsed;
-                ReboundUninstallInfoBar.Visibility = Visibility.Visible;
-            }
-            else
-            {
-                ReboundNotInstalledInfoBar.Visibility = Visibility.Visible;
-                ReboundInstallInfoBar.Visibility = Visibility.Collapsed;
-                ReboundUninstallInfoBar.Visibility = Visibility.Collapsed;
-                InstallRebound.IsEnabled = false;
-                InstallRebound.Content = "You must run Rebound Hub as Administrator to install Rebound 11.";
-            }
+            Rebound11IsInstalledGrid.Visibility = Visibility.Collapsed;
+            Rebound11IsInstallingGrid.Visibility = Visibility.Visible;
+            Rebound11IsNotInstalledGrid.Visibility = Visibility.Collapsed;
+            DetailsPanel.Visibility = Visibility.Visible;
         }
+    }
+
+    public async void GetWallpaper()
+    {
+        if (this.ActualTheme == ElementTheme.Light)
+        {
+            BKGImage.Path = "/Assets/Backgrounds/BackgroundLight.png";
+        }
+        if (this.ActualTheme == ElementTheme.Dark)
+        {
+            BKGImage.Path = "/Assets/Backgrounds/BackgroundDark.png";
+        }
+        await Task.Delay(100);
+        GetWallpaper();
     }
 
     public bool IsAdmin()
@@ -100,6 +95,18 @@ public sealed partial class Rebound11Page : Page
 
     private async void Button_Click_1(object sender, RoutedEventArgs e)
     {
+        var info = new ProcessStartInfo()
+        {
+            FileName = "powershell.exe",
+            UseShellExecute = false,
+            CreateNoWindow = true,
+            Verb = "runas",
+            Arguments = @$"Start-Process ""shell:AppsFolder\d6ef5e04-e9da-4e22-9782-8031af8beae7_yejd587sfa94t!App"" -ArgumentList ""INSTALLREBOUND11"" -Verb RunAs"
+        };
+        var process = Process.Start(info);
 
+        // Wait for the process to exit before proceeding
+        await process.WaitForExitAsync();
+        App.m_window.Close();
     }
 }

@@ -31,6 +31,17 @@ public sealed partial class ShellPage : Page
         Debug.WriteLine(@$"{Environment.GetFolderPath(Environment.SpecialFolder.StartMenu)}\Programs\Rebound 11 Tools");
         //NavigationFrame.Navigate(typeof(HomePage));
         NavigationViewControl.SelectedItem = HomeItem;
+
+        CheckLaunch();
+    }
+
+    public async void CheckLaunch()
+    {
+        await Task.Delay(500);
+        if (string.Join(" ", Environment.GetCommandLineArgs().Skip(1)).Contains("INSTALLREBOUND11"))
+        {
+            NavigationViewControl.SelectedItem = Rebound11Item;
+        }
     }
 
     private async void NavigationViewControl_SelectionChanged(NavigationView sender, NavigationViewSelectionChangedEventArgs args)
