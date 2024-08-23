@@ -104,6 +104,7 @@
     <None Remove="ReboundHub\UserControls\HomePageHeaderImage.xaml" />
     <None Remove="RegionBlock.xaml" />
     <None Remove="UACWindow.xaml" />
+    <None Remove="UninstallationWindow.xaml" />
   </ItemGroup>
 
   <ItemGroup>
@@ -264,6 +265,11 @@
 	    <Isolated>false</Isolated>
 	    <EmbedInteropTypes>true</EmbedInteropTypes>
 	  </COMReference>
+	</ItemGroup>
+	<ItemGroup>
+	  <Page Update="UninstallationWindow.xaml">
+	    <Generator>MSBuild:Compile</Generator>
+	  </Page>
 	</ItemGroup>
 	<ItemGroup>
 	  <Page Update="ReboundHub\UserControls\HomePageHeaderImage.xaml">

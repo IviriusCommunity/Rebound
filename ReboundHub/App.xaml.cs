@@ -106,6 +106,15 @@ public partial class App : Application
                 m_window = null;
                 return;
             }
+            if (string.Join(" ", Environment.GetCommandLineArgs().Skip(1)).Contains("UNINSTALL"))
+            {
+                var win = new UninstallationWindow();
+                win.Show();
+                await Task.Delay(10);
+                win.BringToFront();
+                m_window = null;
+                return;
+            }
             else
             {
                 m_window = new MainWindow();

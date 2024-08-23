@@ -63,16 +63,23 @@ public sealed partial class Rebound11Page : Page
 
     public async void GetWallpaper()
     {
-        if (this.ActualTheme == ElementTheme.Light)
+        try
         {
-            BKGImage.Path = "/Assets/Backgrounds/BackgroundLight.png";
+            if (this.ActualTheme == ElementTheme.Light)
+            {
+                BKGImage.Path = "/Assets/Backgrounds/BackgroundLight.png";
+            }
+            if (this.ActualTheme == ElementTheme.Dark)
+            {
+                BKGImage.Path = "/Assets/Backgrounds/BackgroundDark.png";
+            }
+            await Task.Delay(100);
+            GetWallpaper();
         }
-        if (this.ActualTheme == ElementTheme.Dark)
+        catch
         {
-            BKGImage.Path = "/Assets/Backgrounds/BackgroundDark.png";
+        
         }
-        await Task.Delay(100);
-        GetWallpaper();
     }
 
     public bool IsAdmin()
@@ -102,6 +109,23 @@ public sealed partial class Rebound11Page : Page
             CreateNoWindow = true,
             Verb = "runas",
             Arguments = @$"Start-Process ""shell:AppsFolder\d6ef5e04-e9da-4e22-9782-8031af8beae7_yejd587sfa94t!App"" -ArgumentList ""INSTALLREBOUND11"" -Verb RunAs"
+        };
+        var process = Process.Start(info);
+
+        // Wait for the process to exit before proceeding
+        await process.WaitForExitAsync();
+        App.m_window.Close();
+    }
+
+    private async void Button_Click_2(object sender, RoutedEventArgs e)
+    {
+        var info = new ProcessStartInfo()
+        {
+            FileName = "powershell.exe",
+            UseShellExecute = false,
+            CreateNoWindow = true,
+            Verb = "runas",
+            Arguments = @$"Start-Process ""shell:AppsFolder\d6ef5e04-e9da-4e22-9782-8031af8beae7_yejd587sfa94t!App"" -ArgumentList ""UNINSTALL"" -Verb RunAs"
         };
         var process = Process.Start(info);
 

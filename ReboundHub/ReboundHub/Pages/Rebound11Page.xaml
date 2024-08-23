@@ -194,7 +194,7 @@
                     <TextBlock Text="Rebound 11 is installed." FontWeight="SemiBold" FontSize="20" Margin="110, 20, 0, 0"/>
                     <TextBlock Text="v0.0.1 ALPHA" Opacity="0.5" Margin="110, 45, 0, 0"/>
                     <StackPanel VerticalAlignment="Top" Margin="0, 30, 0, 0" Orientation="Horizontal" Spacing="8" HorizontalAlignment="Right">
-                        <Button HorizontalAlignment="Right">
+                        <Button HorizontalAlignment="Right" Click="Button_Click_2">
                             <StackPanel Spacing="10" Orientation="Horizontal">
                                 <Image Width="16" Source="/Assets/AppIcons/imageres_78.ico" x:Name="Admin5"/>
                                 <TextBlock Text="Uninstall"/>

@@ -649,8 +649,6 @@ public sealed partial class ControlPanelWindow : WindowEx
             this.Maximize();
             RootFrame.Focus(FocusState.Programmatic);
             CheckMaximization();
-            closeWidth = 48;
-            additionalHeight = 6;
             CaptionButtons.Margin = new Thickness(0, 0, 2, 0);
             return;
         }
@@ -659,8 +657,6 @@ public sealed partial class ControlPanelWindow : WindowEx
             this.Restore();
             RootFrame.Focus(FocusState.Programmatic);
             CheckMaximization();
-            closeWidth = 46;
-            additionalHeight = 0;
             CaptionButtons.Margin = new Thickness(0);
             return;
         }
@@ -676,6 +672,8 @@ public sealed partial class ControlPanelWindow : WindowEx
                 MaxResGlyph.Glyph = "";
                 await Task.Delay(10);
                 VisualStateManager.GoToState(CrimsonMaxRes, "Normal", true);
+                closeWidth = 46;
+                additionalHeight = 0;
                 return;
             }
             else if (state == OverlappedPresenterState.Maximized)
@@ -683,6 +681,8 @@ public sealed partial class ControlPanelWindow : WindowEx
                 MaxResGlyph.Glyph = "";
                 await Task.Delay(10);
                 VisualStateManager.GoToState(CrimsonMaxRes, "Normal", true);
+                closeWidth = 48;
+                additionalHeight = 6;
                 return;
             }
         }
