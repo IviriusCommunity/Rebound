@@ -62,15 +62,22 @@
     <None Remove="InstallationWindow.xaml" />
     <None Remove="Rebound11Files\AppPackages\ReboundDefrag.cer" />
     <None Remove="Rebound11Files\AppPackages\ReboundDefrag.msix" />
+    <None Remove="Rebound11Files\AppPackages\ReboundDiskCleanup.cer" />
+    <None Remove="Rebound11Files\AppPackages\ReboundDiskCleanup.msix" />
     <None Remove="Rebound11Files\AppPackages\ReboundRun.cer" />
     <None Remove="Rebound11Files\AppPackages\ReboundRun.msix" />
+    <None Remove="Rebound11Files\AppPackages\ReboundTpm.cer" />
+    <None Remove="Rebound11Files\AppPackages\ReboundTpm.msix" />
     <None Remove="Rebound11Files\AppPackages\ReboundWinver.cer" />
     <None Remove="Rebound11Files\AppPackages\ReboundWinver.msix" />
     <None Remove="Rebound11Files\Executables\QuickFullComputerCleanup.exe" />
+    <None Remove="Rebound11Files\Executables\rcleanmgr.exe" />
     <None Remove="Rebound11Files\Executables\rcontrol.exe" />
     <None Remove="Rebound11Files\Executables\rdfrgui.exe" />
+    <None Remove="Rebound11Files\Executables\rosk.exe" />
     <None Remove="Rebound11Files\Executables\rrun.exe" />
     <None Remove="Rebound11Files\Executables\rrunSTARTUP.exe" />
+    <None Remove="Rebound11Files\Executables\rtpm.exe" />
     <None Remove="Rebound11Files\Executables\ruacsettings.exe" />
     <None Remove="Rebound11Files\Executables\rwinver.exe" />
     <None Remove="Rebound11Files\Rebound11\desktop2.ini" />
@@ -81,17 +88,22 @@
     <None Remove="Rebound11Files\shcre11\Command Prompt.lnk" />
     <None Remove="Rebound11Files\shcre11\Control Panel.lnk" />
     <None Remove="Rebound11Files\shcre11\dfrgui.lnk" />
+    <None Remove="Rebound11Files\shcre11\Disk Cleanup.lnk" />
     <None Remove="Rebound11Files\shcre11\Notepad.lnk" />
+    <None Remove="Rebound11Files\shcre11\On-Screen Keyboard.lnk" />
     <None Remove="Rebound11Files\shcre11\Paint.lnk" />
     <None Remove="Rebound11Files\shcre11\Rebound 11 Quick Full Computer Cleanup.lnk" />
     <None Remove="Rebound11Files\shcre11\ReboundRunStartup.lnk" />
     <None Remove="Rebound11Files\shcre11\Run.lnk" />
+    <None Remove="Rebound11Files\shcre11\tpm.msc.lnk" />
     <None Remove="Rebound11Files\shcre11\winver.lnk" />
     <None Remove="Rebound11Files\shcwin11\Administrative Tools.lnk" />
     <None Remove="Rebound11Files\shcwin11\Command Prompt.lnk" />
     <None Remove="Rebound11Files\shcwin11\Control Panel.lnk" />
     <None Remove="Rebound11Files\shcwin11\desktop.ini" />
     <None Remove="Rebound11Files\shcwin11\dfrgui.lnk" />
+    <None Remove="Rebound11Files\shcwin11\Disk Cleanup.lnk" />
+    <None Remove="Rebound11Files\shcwin11\On-Screen Keyboard.lnk" />
     <None Remove="Rebound11Files\shcwin11\Run.lnk" />
     <None Remove="ReboundHub\Pages\ControlPanel\AppearanceAndPersonalization.xaml" />
     <None Remove="ReboundHub\Pages\ControlPanel\HomePage.xaml" />
@@ -116,17 +128,24 @@
     <Content Include="Assets\Wide310x150Logo.scale-200.png" />
     <Content Include="Rebound11Files\AppPackages\ReboundDefrag.cer" />
     <Content Include="Rebound11Files\AppPackages\ReboundDefrag.msix" />
+    <Content Include="Rebound11Files\AppPackages\ReboundDiskCleanup.cer" />
+    <Content Include="Rebound11Files\AppPackages\ReboundDiskCleanup.msix" />
     <Content Include="Rebound11Files\AppPackages\ReboundRun.cer" />
     <Content Include="Rebound11Files\AppPackages\ReboundRun.msix" />
+    <Content Include="Rebound11Files\AppPackages\ReboundTpm.cer" />
+    <Content Include="Rebound11Files\AppPackages\ReboundTpm.msix" />
     <Content Include="Rebound11Files\AppPackages\ReboundWinver.cer" />
     <Content Include="Rebound11Files\AppPackages\ReboundWinver.msix" />
     <Content Include="Rebound11Files\Executables\QuickFullComputerCleanup.exe">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
+    <Content Include="Rebound11Files\Executables\rcleanmgr.exe" />
     <Content Include="Rebound11Files\Executables\rcontrol.exe" />
     <Content Include="Rebound11Files\Executables\rdfrgui.exe" />
+    <Content Include="Rebound11Files\Executables\rosk.exe" />
     <Content Include="Rebound11Files\Executables\rrun.exe" />
     <Content Include="Rebound11Files\Executables\rrunSTARTUP.exe" />
+    <Content Include="Rebound11Files\Executables\rtpm.exe" />
     <Content Include="Rebound11Files\Executables\ruacsettings.exe" />
     <Content Include="Rebound11Files\Executables\rwinver.exe" />
     <Content Include="Rebound11Files\Rebound11\desktop2.ini" />
@@ -136,20 +155,26 @@
     <Content Include="Rebound11Files\shcre11\Change User Account Control settings.lnk" />
     <Content Include="Rebound11Files\shcre11\Control Panel.lnk" />
     <Content Include="Rebound11Files\shcre11\dfrgui.lnk" />
+    <Content Include="Rebound11Files\shcre11\Disk Cleanup.lnk" />
+    <Content Include="Rebound11Files\shcre11\On-Screen Keyboard.lnk" />
     <Content Include="Rebound11Files\shcre11\Rebound 11 Quick Full Computer Cleanup.lnk" />
     <Content Include="Rebound11Files\shcre11\ReboundRunStartup.lnk" />
     <Content Include="Rebound11Files\shcre11\Run.lnk" />
+    <Content Include="Rebound11Files\shcre11\tpm.msc.lnk" />
     <Content Include="Rebound11Files\shcre11\winver.lnk" />
     <Content Include="Rebound11Files\shcwin11\Administrative Tools.lnk" />
     <Content Include="Rebound11Files\shcwin11\Command Prompt.lnk" />
     <Content Include="Rebound11Files\shcwin11\Control Panel.lnk" />
     <Content Include="Rebound11Files\shcwin11\desktop.ini" />
     <Content Include="Rebound11Files\shcwin11\dfrgui.lnk" />
+    <Content Include="Rebound11Files\shcwin11\Disk Cleanup.lnk" />
+    <Content Include="Rebound11Files\shcwin11\On-Screen Keyboard.lnk" />
     <Content Include="Rebound11Files\shcwin11\Run.lnk" />
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="CommunityToolkit.WinUI.Animations" Version="8.1.240606-rc" />
+    <PackageReference Include="CommunityToolkit.WinUI.Animations" Version="8.1.240821" />
+    <PackageReference Include="CommunityToolkit.WinUI.Behaviors" Version="8.1.240821" />
     <PackageReference Include="CommunityToolkit.WinUI.Controls.SettingsControls" Version="8.1.240606-rc" />
     <PackageReference Include="CommunityToolkit.WinUI.UI.Controls" Version="7.1.2" />
     <PackageReference Include="Ivirius.UI.Controls" Version="0.2.0-prerelease" />

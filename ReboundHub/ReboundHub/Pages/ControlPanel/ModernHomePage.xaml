@@ -29,7 +29,7 @@
                         <NavigationViewItem Content="Windows Backup" Tag="SysAndSecurity"/>
                     </NavigationViewItem.MenuItems>
                 </NavigationViewItem>
-                <NavigationViewItem Content="User Accounts">
+                <NavigationViewItem Content="User Accounts" IsEnabled="False">
                     <NavigationViewItem.Icon>
                         <ImageIcon Source="/Assets/AppIcons/imageres_1029.ico"/>
                     </NavigationViewItem.Icon>
@@ -41,7 +41,7 @@
                         </NavigationViewItem>
                     </NavigationViewItem.MenuItems>
                 </NavigationViewItem>
-                <NavigationViewItem Content="Network and Internet">
+                <NavigationViewItem Content="Network and Internet" IsEnabled="False">
                     <NavigationViewItem.Icon>
                         <ImageIcon Source="/Assets/AppIcons/imageres_120.ico"/>
                     </NavigationViewItem.Icon>
@@ -57,7 +57,7 @@
                         <NavigationViewItem Content="Rebound 11" x:Name="Re11Item"/>
                     </NavigationViewItem.MenuItems>
                 </NavigationViewItem>
-                <NavigationViewItem Content="Hardware and Sound">
+                <NavigationViewItem Content="Hardware and Sound" IsEnabled="False">
                     <NavigationViewItem.Icon>
                         <ImageIcon Source="/Assets/AppIcons/imageres_196.ico"/>
                     </NavigationViewItem.Icon>
@@ -67,7 +67,7 @@
                         <NavigationViewItem Content="Adjust commonly used mobility settings"/>
                     </NavigationViewItem.MenuItems>
                 </NavigationViewItem>
-                <NavigationViewItem Content="Clock and Region">
+                <NavigationViewItem Content="Clock and Region" IsEnabled="False">
                     <NavigationViewItem.Icon>
                         <ImageIcon Source="/Assets/AppIcons/imageres_144.ico"/>
                     </NavigationViewItem.Icon>
@@ -75,7 +75,7 @@
                         <NavigationViewItem Content="Change date, time, or number formats"/>
                     </NavigationViewItem.MenuItems>
                 </NavigationViewItem>
-                <NavigationViewItem Content="Programs">
+                <NavigationViewItem Content="Programs" IsEnabled="False">
                     <NavigationViewItem.Icon>
                         <ImageIcon Source="/Assets/AppIcons/imageres_161.ico"/>
                     </NavigationViewItem.Icon>
@@ -83,7 +83,7 @@
                         <NavigationViewItem Content="Uninstall a program"/>
                     </NavigationViewItem.MenuItems>
                 </NavigationViewItem>
-                <NavigationViewItem Content="Accessibility">
+                <NavigationViewItem Content="Accessibility" IsEnabled="False">
                     <NavigationViewItem.Icon>
                         <ImageIcon Source="/Assets/AppIcons/imageres_86.ico"/>
                     </NavigationViewItem.Icon>
@@ -155,17 +155,17 @@
                     </StackPanel>
                     <StackPanel Grid.Row="5" Grid.ColumnSpan="3" Spacing="5">
                         <TextBlock Text="Home" Style="{StaticResource BodyStrongTextBlockStyle}" Margin="3"/>
-                        <SettingsUI:SettingsCard IsClickEnabled="True" Header="Get started" Description="Learn how to use Windows 11.">
+                        <SettingsUI:SettingsCard IsClickEnabled="True" Header="Get started" Description="Learn how to use Windows 11." IsEnabled="False">
                             <SettingsUI:SettingsCard.HeaderIcon>
                                 <FontIcon Glyph=""/>
                             </SettingsUI:SettingsCard.HeaderIcon>
                         </SettingsUI:SettingsCard>
-                        <SettingsUI:SettingsCard IsClickEnabled="True" Header="Rebound 11" Description="Change settings in Rebound 11.">
+                        <SettingsUI:SettingsCard IsClickEnabled="True" Header="Rebound 11" Description="Change settings in Rebound 11." IsEnabled="False">
                             <SettingsUI:SettingsCard.HeaderIcon>
                                 <FontIcon Glyph=""/>
                             </SettingsUI:SettingsCard.HeaderIcon>
                         </SettingsUI:SettingsCard>
-                        <SettingsUI:SettingsCard IsClickEnabled="True" Header="Settings" Description="Launch the Settings app.">
+                        <SettingsUI:SettingsCard IsClickEnabled="True" Header="Settings" Description="Launch the Settings app." IsEnabled="False">
                             <SettingsUI:SettingsCard.HeaderIcon>
                                 <FontIcon Glyph="&#xE115;"/>
                             </SettingsUI:SettingsCard.HeaderIcon>
@@ -176,7 +176,7 @@
                             </SettingsUI:SettingsCard.HeaderIcon>
                         </SettingsUI:SettingsCard>
                         <TextBlock Text="Recommended" Style="{StaticResource BodyStrongTextBlockStyle}" Margin="3"/>
-                        <SettingsUI:SettingsCard IsClickEnabled="True" Header="Personalization" Description="Open the Personalization section in Settings.">
+                        <SettingsUI:SettingsCard IsClickEnabled="True" Header="Personalization" Description="Open the Personalization section in Settings." IsEnabled="False">
                             <SettingsUI:SettingsCard.HeaderIcon>
                                 <FontIcon Glyph="&#xE771;"/>
                             </SettingsUI:SettingsCard.HeaderIcon>

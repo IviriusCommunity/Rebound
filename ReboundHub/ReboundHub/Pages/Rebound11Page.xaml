@@ -8,7 +8,10 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:ToolkitControls="using:CommunityToolkit.WinUI.UI.Controls"
-    xmlns:SettingsControls="using:CommunityToolkit.WinUI.Controls"
+    xmlns:SettingsControls="using:CommunityToolkit.WinUI.Controls"      
+    xmlns:behaviors="using:CommunityToolkit.WinUI.Behaviors"
+      xmlns:core="using:Microsoft.Xaml.Interactions.Core"
+      xmlns:interactivity="using:Microsoft.Xaml.Interactivity"
     mc:Ignorable="d">
 
     <ScrollViewer>
@@ -172,7 +175,17 @@
                         </Button>
                     </StackPanel>
                 </ScrollViewer>
-
+                <InfoBar Severity="Warning" Title="A new update for Rebound 11 is available!" x:Name="UpdateBar" Margin="0, 0, 0, 25">
+                    <InfoBar.ActionButton>
+                        <Button Content="Download">
+                            <interactivity:Interaction.Behaviors>
+                                <core:EventTriggerBehavior EventName="Click">
+                                    <behaviors:NavigateToUriAction NavigateUri="https://ivirius.vercel.app/rebound11" />
+                                </core:EventTriggerBehavior>
+                            </interactivity:Interaction.Behaviors>
+                        </Button>
+                    </InfoBar.ActionButton>
+                </InfoBar>
                 <Grid x:Name="Rebound11IsInstalledGrid">
                     <FontIcon VerticalAlignment="Top" Glyph="" Width="90" Height="90" FontWeight="Black" FontSize="75" HorizontalAlignment="Left">
                         <FontIcon.Foreground>
@@ -192,7 +205,7 @@
                         <FontIcon Glyph="" FontWeight="ExtraBlack" Foreground="White"/>
                     </Border>
                     <TextBlock Text="Rebound 11 is installed." FontWeight="SemiBold" FontSize="20" Margin="110, 20, 0, 0"/>
-                    <TextBlock Text="v0.0.1 ALPHA" Opacity="0.5" Margin="110, 45, 0, 0"/>
+                    <TextBlock Text="v0.0.2 ALPHA" Opacity="0.5" Margin="110, 45, 0, 0"/>
                     <StackPanel VerticalAlignment="Top" Margin="0, 30, 0, 0" Orientation="Horizontal" Spacing="8" HorizontalAlignment="Right">
                         <Button HorizontalAlignment="Right" Click="Button_Click_2">
                             <StackPanel Spacing="10" Orientation="Horizontal">
@@ -305,12 +318,12 @@
                         <StackPanel Spacing="12">
                             <Expander Header="Common" HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch">
                                 <StackPanel>
-                                    <CheckBox Content="File Explorer (Files - 3rd party) - You will have to set this app as default after the installation process is finished" IsChecked="True" x:Name="FilesCheck"/>
+                                    <CheckBox Content="File Explorer (Files - 3rd party) [ - ] - You will have to set this app as default after the installation process is finished" IsChecked="True" x:Name="FilesCheck"/>
                                     <CheckBox Content="Remote Desktop [ - ]" IsChecked="True"/>
                                     <CheckBox Content="Run" x:Name="RunCheck" IsChecked="True"/>
                                     <CheckBox Content="Steps Recorder [ - ]" IsChecked="True"/>
                                     <CheckBox Content="Winver" x:Name="WinverCheck" IsChecked="True"/>
-                                    <RadioButtons Header="WordPad" Margin="0, 15, 0, 0" SelectedIndex="2">
+                                    <RadioButtons Header="WordPad [ - ]" Margin="0, 15, 0, 0" SelectedIndex="2">
                                         <RadioButton Content="Keep original"/>
                                         <RadioButton Content="Ivirius Text Editor (partial launch support)"/>
                                         <RadioButton Content="Ivirius Text Editor Plus (recommended)"/>
@@ -322,7 +335,7 @@
                                 <StackPanel>
                                     <CheckBox Content="Character Map [ - ]" IsChecked="True"/>
                                     <CheckBox Content="Mobility Center (All devices) [ - ]" IsChecked="True"/>
-                                    <CheckBox Content="On-screen keyboard [ - ]" IsChecked="True"/>
+                                    <CheckBox Content="On-screen keyboard" IsChecked="True" x:Name="OSKCheck"/>
                                     <CheckBox Content="Presentation Settings (All devices) [ - ]" IsChecked="True"/>
                                     <CheckBox Content="Sticky Keys and Filter keys [ - ]" IsChecked="True"/>
                                     <CheckBox Content="Volume Mixer (sndvol.exe) [ - ]" IsChecked="True"/>
@@ -337,7 +350,7 @@
                                     <CheckBox Content="Computer Management [ - ]"/>
                                     <CheckBox Content="Control Panel - You cannot disable this option." IsEnabled="False" IsChecked="True"/>
                                     <CheckBox Content="Defragment and Optimize Drives" IsChecked="True" x:Name="DefragCheck"/>
-                                    <CheckBox Content="Disk Cleanup [ - ]" IsChecked="True"/>
+                                    <CheckBox Content="Disk Cleanup" IsChecked="True" x:Name="DiskCleanupCheck"/>
                                     <CheckBox Content="Malicious Software Removal Tool [ - ]"/>
                                     <CheckBox Content="Memory Diagnostic [ - ]"/>
                                     <CheckBox Content="Print Management [ - ]"/>
@@ -347,7 +360,7 @@
                                     <CheckBox Content="System Information [ - ]" IsChecked="True"/>
                                     <CheckBox Content="System Restore [ - ]"/>
                                     <CheckBox Content="Task Scheduler [ - ]"/>
-                                    <CheckBox Content="TPM Management [ - ]"/>
+                                    <CheckBox Content="TPM Management [ - ]" x:Name="TPMCheck"/>
                                     <CheckBox Content="User Account Control settings" IsChecked="True" x:Name="UACCheck"/>
                                     <CheckBox Content="User Account Manager [ - ]"/>
                                     <CheckBox Content="Windows Defender Firewall [ - ]"/>

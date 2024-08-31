@@ -331,7 +331,7 @@
         <Image x:Name="TitleBarIcon" x:FieldModifier="public" Source="/Assets/AppIcons/ReboundHub.ico" Width="16" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="16, 15"/>
         <StackPanel Margin="45, 15, 140, 0" HorizontalAlignment="Left" VerticalAlignment="Top" Orientation="Horizontal">
             <TextBlock x:Name="WindowTitle" TextTrimming="CharacterEllipsis" x:FieldModifier="public" FontSize="12" FontFamily="Segoe UI" FontWeight="Normal"/>
-            <TextBlock Text="  -  ALPHA v0.0.1 TEST BUILD (CUSTOM TITLE BAR TEST)" TextTrimming="CharacterEllipsis" Opacity="0.5" x:FieldModifier="public" FontSize="12" FontFamily="Segoe UI" FontWeight="Normal" Foreground="{Binding Foreground, ElementName=WindowTitle}"/>
+            <TextBlock Text="  -  ALPHA v0.0.2" TextTrimming="CharacterEllipsis" Opacity="0.5" x:FieldModifier="public" FontSize="12" FontFamily="Segoe UI" FontWeight="Normal" Foreground="{Binding Foreground, ElementName=WindowTitle}"/>
         </StackPanel>
         <StackPanel x:Name="CaptionButtons" Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Top">
             <Button x:Name="Minimize" IsTabStop="False" Height="45" Width="46" Style="{ThemeResource Minimize}">

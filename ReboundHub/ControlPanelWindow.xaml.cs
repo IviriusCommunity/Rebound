@@ -649,7 +649,7 @@ public sealed partial class ControlPanelWindow : WindowEx
             this.Maximize();
             RootFrame.Focus(FocusState.Programmatic);
             CheckMaximization();
-            CaptionButtons.Margin = new Thickness(0, 0, 2, 0);
+            CaptionButtons.Margin = new Thickness(0);
             return;
         }
         else if (state == OverlappedPresenterState.Maximized)
@@ -681,7 +681,7 @@ public sealed partial class ControlPanelWindow : WindowEx
                 MaxResGlyph.Glyph = "";
                 await Task.Delay(10);
                 VisualStateManager.GoToState(CrimsonMaxRes, "Normal", true);
-                closeWidth = 48;
+                closeWidth = 46;
                 additionalHeight = 6;
                 return;
             }
@@ -750,19 +750,19 @@ public sealed partial class ControlPanelWindow : WindowEx
 
     private void Grid_PointerExited(object sender, PointerRoutedEventArgs e)
     {
-        if (this.Content != null)
+        try
         {
-            try
+            if (this.Content != null)
             {
                 if (e.GetCurrentPoint(this.Content).Properties.IsLeftButtonPressed != true)
                 {
                     currentCaption = SelectedCaptionButton.None;
                 }
             }
-            catch
-            {
-            
-            }
+        }
+        catch
+        {
+
         }
     }
 

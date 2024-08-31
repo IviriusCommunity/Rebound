@@ -167,31 +167,31 @@
                             </Expander.Content>
                         </Expander>
                         <TextBlock Text="Tweaks" Style="{StaticResource BodyStrongTextBlockStyle}" Margin="3"/>
-                        <SettingsUI:SettingsCard Header="Classic Full Context Menus" Description="Will not work on Files if you have it installed. Toggling this option will restart Explorer.">
+                        <SettingsUI:SettingsCard IsEnabled="False" Header="Classic Full Context Menus" Description="Will not work on Files if you have it installed. Toggling this option will restart Explorer.">
                             <SettingsUI:SettingsCard.HeaderIcon>
                                 <FontIcon Glyph=""/>
                             </SettingsUI:SettingsCard.HeaderIcon>
                             <ToggleSwitch/>
                         </SettingsUI:SettingsCard>
-                        <SettingsUI:SettingsCard Header="Tablet Taskbar" Description="Enables the tablet taskbar for touchscreen devices. Toggling this option will restart Explorer.">
+                        <SettingsUI:SettingsCard IsEnabled="False" Header="Tablet Taskbar" Description="Enables the tablet taskbar for touchscreen devices. Toggling this option will restart Explorer.">
                             <SettingsUI:SettingsCard.HeaderIcon>
                                 <FontIcon Glyph=""/>
                             </SettingsUI:SettingsCard.HeaderIcon>
                             <ToggleSwitch/>
                         </SettingsUI:SettingsCard>
-                        <SettingsUI:SettingsCard Header="Remove Windows Spotlight Icon" Description="If you have Windows Spotlight enabled, this option will remove the icon from the desktop.">
+                        <SettingsUI:SettingsCard IsEnabled="False" Header="Remove Windows Spotlight Icon" Description="If you have Windows Spotlight enabled, this option will remove the icon from the desktop.">
                             <SettingsUI:SettingsCard.HeaderIcon>
                                 <FontIcon Glyph=""/>
                             </SettingsUI:SettingsCard.HeaderIcon>
                             <ToggleSwitch/>
                         </SettingsUI:SettingsCard>
-                        <SettingsUI:SettingsCard Header="Direct Shortcuts" Description="Disable the &quot; - Shortcut&quot; text on new shortcuts.">
+                        <SettingsUI:SettingsCard IsEnabled="False" Header="Direct Shortcuts" Description="Disable the &quot; - Shortcut&quot; text on new shortcuts.">
                             <SettingsUI:SettingsCard.HeaderIcon>
                                 <FontIcon Glyph=""/>
                             </SettingsUI:SettingsCard.HeaderIcon>
                             <ToggleSwitch/>
                         </SettingsUI:SettingsCard>
-                        <SettingsUI:SettingsCard Header="Create a special folder on the desktop" Description="These folders don't have a specific functionality.">
+                        <SettingsUI:SettingsCard IsEnabled="False" Header="Create a special folder on the desktop" Description="These folders don't have a specific functionality.">
                             <SettingsUI:SettingsCard.HeaderIcon>
                                 <FontIcon Glyph=""/>
                             </SettingsUI:SettingsCard.HeaderIcon>
@@ -212,7 +212,7 @@
                             </StackPanel>
                         </SettingsUI:SettingsCard>
                         <InfoBar IsOpen="True" IsClosable="False" Severity="Warning" Title="Some folders may revert back to their original icons after uninstalling Rebound 11."/>
-                        <Expander HorizontalAlignment="Stretch" Header="File Explorer Navigation Pane" HorizontalContentAlignment="Stretch">
+                        <Expander HorizontalAlignment="Stretch" IsEnabled="False" Header="File Explorer Navigation Pane" HorizontalContentAlignment="Stretch">
                             <Grid HorizontalAlignment="Stretch">
                                 <StackPanel HorizontalAlignment="Left">
                                     <CheckBox Content="Home"/>

@@ -18,6 +18,7 @@ using Microsoft.UI.Xaml.Media;
 using Microsoft.UI.Xaml.Navigation;
 using Windows.Foundation;
 using Windows.Foundation.Collections;
+using Windows.Foundation.Diagnostics;
 using Windows.Storage;
 using Windows.System;
 using Windows.UI.Text;
@@ -35,12 +36,12 @@ namespace ReboundHub;
 /// </summary>
 public sealed partial class InstallationWindow : WindowEx
 {
-    public InstallationWindow(bool Files, bool Run, bool Defrag, bool Winver, bool UAC)
+    public InstallationWindow(bool Files, bool Run, bool Defrag, bool Winver, bool UAC, bool OSK, bool TPM, bool DiskCleanup)
     {
         this.InitializeComponent();
         this.MoveAndResize(0, 0, 0, 0);
 
-        Load(Files, Run, Defrag, Winver, UAC);
+        Load(Files, Run, Defrag, Winver, UAC, OSK, TPM, DiskCleanup);
     }
 
     public static class SystemLock
@@ -105,16 +106,16 @@ public sealed partial class InstallationWindow : WindowEx
 
     DispatcherTimer timer = new DispatcherTimer();
 
-    public async void Load(bool Files, bool Run, bool Defrag, bool Winver, bool UAC)
+    double currentStep = 0;
+    double totalSteps = 0;
+    double currentSubstep = 0;
+    double totalSubsteps = 0;
+
+    public async void Load(bool Files, bool Run, bool Defrag, bool Winver, bool UAC, bool OSK, bool TPM, bool DiskCleanup)
     {
         timer.Interval = new TimeSpan(3);
         timer.Tick += Timer_Tick;
         timer.Start();
-        // Variables
-        double currentStep = 0;
-        double totalSteps = 0;
-        double currentSubstep = 0;
-        double totalSubsteps = 0;
 
         // Rebound11 Folder
         totalSteps += 1;
@@ -135,7 +136,7 @@ public sealed partial class InstallationWindow : WindowEx
         if (Run == true)
         {
             totalSteps += 1;
-            totalSubsteps += 8;
+            totalSubsteps += 9;
         }
 
         // Defrag
@@ -156,7 +157,28 @@ public sealed partial class InstallationWindow : WindowEx
         if (UAC == true)
         {
             totalSteps += 1;
-            totalSubsteps += 7;
+            totalSubsteps += 3;
+        }
+
+        // OSK
+        if (OSK == true)
+        {
+            totalSteps += 1;
+            totalSubsteps += 3;
+        }
+
+        // TPM
+        if (TPM == true)
+        {
+            totalSteps += 1;
+            totalSubsteps += 6;
+        }
+
+        // DiskCleanup
+        if (DiskCleanup == true)
+        {
+            totalSteps += 1;
+            totalSubsteps += 6;
         }
 
         // Initialization
@@ -305,59 +327,14 @@ public sealed partial class InstallationWindow : WindowEx
 
         #region Control Panel
 
-        currentStep += 1;
-
-        // Substep 1: copy rcontrol.exe
-
-        currentSubstep += 1;
-        Title.Text = $"Installing Rebound 11: " + ((int)(currentSubstep / totalSubsteps * 100)).ToString() + "%";
-        ReboundProgress.Value = InstallProgress.Value = FinishProgress.Value = currentSubstep;
-
-        Subtitle.Text = $"Step {currentStep} of {totalSteps}: Copying rcontrol.exe...";
-        try
-        {
-            File.Copy($"{AppContext.BaseDirectory}\\Rebound11Files\\Executables\\rcontrol.exe", $"C:\\Rebound11\\rcontrol.exe");
-        }
-        catch
-        {
-            Subtitle.Text = $"Step {currentStep} of {totalSteps}: The file already exists. Skipping...";
-        }
-        await Task.Delay(50);
-
-        // Substep 2: delete Control Panel.lnk
-
-        currentSubstep += 1;
-        Title.Text = $"Installing Rebound 11: " + ((int)(currentSubstep / totalSubsteps * 100)).ToString() + "%";
-        ReboundProgress.Value = InstallProgress.Value = FinishProgress.Value = currentSubstep;
-
-        Subtitle.Text = $"Step {currentStep} of {totalSteps}: Deleting Control Panel.lnk...";
-        try
-        {
-            File.Delete($@"{Environment.GetFolderPath(Environment.SpecialFolder.StartMenu)}\Programs\System Tools\Control Panel.lnk");
-        }
-        catch
-        {
-            Subtitle.Text = $"Step {currentStep} of {totalSteps}: The file does not exist. Skipping...";
-        }
-
-        await Task.Delay(50);
-
-        // Substep 3: copy new Control Panel.lnk
-
-        currentSubstep += 1;
-        Title.Text = $"Installing Rebound 11: " + ((int)(currentSubstep / totalSubsteps * 100)).ToString() + "%";
-        ReboundProgress.Value = InstallProgress.Value = FinishProgress.Value = currentSubstep;
-
-        Subtitle.Text = $"Step {currentStep} of {totalSteps}: Copying new Control Panel.lnk...";
-        try
-        {
-            File.Copy($"{AppContext.BaseDirectory}\\Rebound11Files\\shcre11\\Control Panel.lnk", $@"{Environment.GetFolderPath(Environment.SpecialFolder.StartMenu)}\Programs\System Tools\Control Panel.lnk", true);
-        }
-        catch
-        {
-            Subtitle.Text = $"Step {currentStep} of {totalSteps}: The file already exists. Skipping...";
-        }
-        await Task.Delay(50);
+        await InstallExeWithShortcut(
+            "Rebound Control Panel",
+            $"{AppContext.BaseDirectory}\\Rebound11Files\\Executables\\rcontrol.exe",
+            $"C:\\Rebound11\\rcontrol.exe",
+            $"{AppContext.BaseDirectory}\\Rebound11Files\\shcre11\\Control Panel.lnk",
+            $@"{Environment.GetFolderPath(Environment.SpecialFolder.StartMenu)}\Programs\System Tools\Control Panel.lnk",
+            "rcontrol",
+            "Control Panel");
 
         InstallText.Opacity = 0.5;
         ReboundText.Opacity = 1;
@@ -369,314 +346,36 @@ public sealed partial class InstallationWindow : WindowEx
 
         if (Defrag == true)
         {
-            currentStep += 1;
-
-            // Substep 1: certificate
-
-            currentSubstep += 1;
-            Title.Text = $"Installing Rebound 11: " + ((int)(currentSubstep / totalSubsteps * 100)).ToString() + "%";
-            ReboundProgress.Value = InstallProgress.Value = FinishProgress.Value = currentSubstep;
-
-            string startupFolderPath = Environment.GetFolderPath(Environment.SpecialFolder.Startup);
-
-            try
-            {
-                // Load the certificate from file
-                X509Certificate2 certificate = new X509Certificate2($"{AppContext.BaseDirectory}\\Rebound11Files\\AppPackages\\ReboundDefrag.cer");
-
-                // Define the store location and name
-                StoreLocation storeLocation = StoreLocation.LocalMachine;
-                StoreName storeName = StoreName.Root;
-
-                // Open the certificate store
-                using (X509Store store = new X509Store(storeName, storeLocation))
-                {
-                    store.Open(OpenFlags.ReadWrite);
-
-                    // Add the certificate to the store
-                    store.Add(certificate);
-
-                    // Close the store
-                    store.Close();
-                }
-
-                // Notify the user of success
-                Subtitle.Text = $"Step {currentStep} of {totalSteps}: Rebound Defragment and Optimize Drives certificate installed.";
-                await Task.Delay(50);
-            }
-            catch (Exception ex)
-            {
-                // Handle exceptions (e.g., file not found, permission issues)
-                Subtitle.Text = $"Step {currentStep} of {totalSteps}: Rebound Defragment and Optimize Drives certificate installation failed.";
-                await Task.Delay(50);
-            }
-
-            // Substep 2: cache package
-
-            currentSubstep += 1;
-            Title.Text = $"Installing Rebound 11: " + ((int)(currentSubstep / totalSubsteps * 100)).ToString() + "%";
-            ReboundProgress.Value = InstallProgress.Value = FinishProgress.Value = currentSubstep;
-
-            string packagePath = $"{AppContext.BaseDirectory}\\Rebound11Files\\AppPackages\\ReboundDefrag.msix";
-
-            File.Copy(packagePath, "C:\\Rebound11\\ReboundDefrag.msix");
-
-            // Setup the process start info
-            var procFolder = new ProcessStartInfo()
-            {
-                FileName = "powershell.exe",
-                Verb = "runas",                 // Run as administrator
-                UseShellExecute = false,
-                CreateNoWindow = true,// Required to redirect output
-                Arguments = $"Add-AppxPackage -Path \"C:\\Rebound11\\ReboundDefrag.msix\"",
-                RedirectStandardOutput = true,
-                RedirectStandardError = true
-            };
-
-            Subtitle.Text = $"Step {currentStep} of {totalSteps}: Installing Rebound Defragment and Optimize Drives...";
-
-            // Start the process
-            var resFolder = Process.Start(procFolder);
-
-            // Read output and errors
-            string output = await resFolder.StandardOutput.ReadToEndAsync();
-            string error = await resFolder.StandardError.ReadToEndAsync();
-
-            // Wait for the process to exit
-            await resFolder.WaitForExitAsync();
-
-            Subtitle.Text = $"Step {currentStep} of {totalSteps}: {(string.IsNullOrEmpty(error) ? "Rebound Defragment and Optimize Drives installed." : $"Rebound Defragment and Optimize Drives installation failed: the package is already installed..")}";
-
-            await Task.Delay(50);
-
-            // Substep 3: delete cached package
-
-            currentSubstep += 1;
-            Title.Text = $"Installing Rebound 11: " + ((int)(currentSubstep / totalSubsteps * 100)).ToString() + "%";
-            ReboundProgress.Value = InstallProgress.Value = FinishProgress.Value = currentSubstep;
-
-            Subtitle.Text = $"Step {currentStep} of {totalSteps}: Cleaning remaining files...";
-            try
-            {
-                File.Delete("C:\\Rebound11\\ReboundDefrag.msix");
-            }
-            catch
-            {
-                Subtitle.Text = $"Step {currentStep} of {totalSteps}: There are no remaining files. Skipping...";
-            }
-            await Task.Delay(50);
-
-            // Substep 4: copy rdfrgui.exe
-
-            currentSubstep += 1;
-            Title.Text = $"Installing Rebound 11: " + ((int)(currentSubstep / totalSubsteps * 100)).ToString() + "%";
-            ReboundProgress.Value = InstallProgress.Value = FinishProgress.Value = currentSubstep;
-
-            Subtitle.Text = $"Step {currentStep} of {totalSteps}: Copying rdfrgui.exe...";
-            try
-            {
-                File.Copy($"{AppContext.BaseDirectory}\\Rebound11Files\\Executables\\rdfrgui.exe", $"C:\\Rebound11\\rdfrgui.exe");
-            }
-            catch
-            {
-                Subtitle.Text = $"Step {currentStep} of {totalSteps}: The file already exists. Skipping...";
-            }
-            await Task.Delay(50);
-
-            // Substep 5: delete dfrgui.lnk
-
-            currentSubstep += 1;
-            Title.Text = $"Installing Rebound 11: " + ((int)(currentSubstep / totalSubsteps * 100)).ToString() + "%";
-            ReboundProgress.Value = InstallProgress.Value = FinishProgress.Value = currentSubstep;
-
-            Subtitle.Text = $"Step {currentStep} of {totalSteps}: Deleting dfrgui.lnk...";
-            try
-            {
-                File.Delete($@"{Environment.GetFolderPath(Environment.SpecialFolder.CommonAdminTools)}\dfrgui.lnk");
-            }
-            catch
-            {
-                Subtitle.Text = $"Step {currentStep} of {totalSteps}: The file does not exist. Skipping...";
-            }
-
-            await Task.Delay(50);
-
-            // Substep 6: copy new dfrgui.lnk
-
-            currentSubstep += 1;
-            Title.Text = $"Installing Rebound 11: " + ((int)(currentSubstep / totalSubsteps * 100)).ToString() + "%";
-            ReboundProgress.Value = InstallProgress.Value = FinishProgress.Value = currentSubstep;
-
-            Subtitle.Text = $"Step {currentStep} of {totalSteps}: Copying new dfrgui.lnk...";
-            try
-            {
-                File.Copy($"{AppContext.BaseDirectory}\\Rebound11Files\\shcre11\\dfrgui.lnk", $@"{Environment.GetFolderPath(Environment.SpecialFolder.CommonAdminTools)}\dfrgui.lnk", true);
-            }
-            catch
-            {
-                Subtitle.Text = $"Step {currentStep} of {totalSteps}: The file already exists. Skipping...";
-            }
-            await Task.Delay(50);
+            await InstallAppPackage(
+                $"{AppContext.BaseDirectory}\\Rebound11Files\\AppPackages\\ReboundDefrag.msix",
+                "C:\\Rebound11\\ReboundDefrag.msix",
+                $"{AppContext.BaseDirectory}\\Rebound11Files\\AppPackages\\ReboundDefrag.cer",
+                "Rebound Defragment and Optimize Drives",
+                $"{AppContext.BaseDirectory}\\Rebound11Files\\Executables\\rdfrgui.exe",
+                $"C:\\Rebound11\\rdfrgui.exe",
+                $"{AppContext.BaseDirectory}\\Rebound11Files\\shcre11\\dfrgui.lnk",
+                $@"{Environment.GetFolderPath(Environment.SpecialFolder.CommonAdminTools)}\dfrgui.lnk",
+                "rdfrgui",
+                "dfrgui");
         }
 
         #endregion Defragment
 
-        #region Regedit
-
-        #endregion Regedit
-
         #region Winver
 
-        if (Defrag == true)
+        if (Winver == true)
         {
-            currentStep += 1;
-
-            // Substep 1: certificate
-
-            currentSubstep += 1;
-            Title.Text = $"Installing Rebound 11: " + ((int)(currentSubstep / totalSubsteps * 100)).ToString() + "%";
-            ReboundProgress.Value = InstallProgress.Value = FinishProgress.Value = currentSubstep;
-
-            string startupFolderPath = Environment.GetFolderPath(Environment.SpecialFolder.Startup);
-
-            try
-            {
-                // Load the certificate from file
-                X509Certificate2 certificate = new X509Certificate2($"{AppContext.BaseDirectory}\\Rebound11Files\\AppPackages\\ReboundWinver.cer");
-
-                // Define the store location and name
-                StoreLocation storeLocation = StoreLocation.LocalMachine;
-                StoreName storeName = StoreName.Root;
-
-                // Open the certificate store
-                using (X509Store store = new X509Store(storeName, storeLocation))
-                {
-                    store.Open(OpenFlags.ReadWrite);
-
-                    // Add the certificate to the store
-                    store.Add(certificate);
-
-                    // Close the store
-                    store.Close();
-                }
-
-                // Notify the user of success
-                Subtitle.Text = $"Step {currentStep} of {totalSteps}: Rebound Winver certificate installed.";
-                await Task.Delay(50);
-            }
-            catch (Exception ex)
-            {
-                // Handle exceptions (e.g., file not found, permission issues)
-                Subtitle.Text = $"Step {currentStep} of {totalSteps}: Rebound Winver certificate installation failed.";
-                await Task.Delay(50);
-            }
-
-            // Substep 2: cache package
-
-            currentSubstep += 1;
-            Title.Text = $"Installing Rebound 11: " + ((int)(currentSubstep / totalSubsteps * 100)).ToString() + "%";
-            ReboundProgress.Value = InstallProgress.Value = FinishProgress.Value = currentSubstep;
-
-            string packagePath = $"{AppContext.BaseDirectory}\\Rebound11Files\\AppPackages\\ReboundWinver.msix";
-
-            File.Copy(packagePath, "C:\\Rebound11\\ReboundWinver.msix");
-
-            // Setup the process start info
-            var procFolder = new ProcessStartInfo()
-            {
-                FileName = "powershell.exe",
-                Verb = "runas",                 // Run as administrator
-                UseShellExecute = false,
-                CreateNoWindow = true,// Required to redirect output
-                Arguments = $"Add-AppxPackage -Path \"C:\\Rebound11\\ReboundWinver.msix\"",
-                RedirectStandardOutput = true,
-                RedirectStandardError = true
-            };
-
-            Subtitle.Text = $"Step {currentStep} of {totalSteps}: Installing Rebound Winver...";
-
-            // Start the process
-            var resFolder = Process.Start(procFolder);
-
-            // Read output and errors
-            string output = await resFolder.StandardOutput.ReadToEndAsync();
-            string error = await resFolder.StandardError.ReadToEndAsync();
-
-            // Wait for the process to exit
-            await resFolder.WaitForExitAsync();
-
-            Subtitle.Text = $"Step {currentStep} of {totalSteps}: {(string.IsNullOrEmpty(error) ? "Rebound Winver installed." : $"Rebound Winver installation failed: the package is already installed..")}";
-
-            await Task.Delay(50);
-
-            // Substep 3: delete cached package
-
-            currentSubstep += 1;
-            Title.Text = $"Installing Rebound 11: " + ((int)(currentSubstep / totalSubsteps * 100)).ToString() + "%";
-            ReboundProgress.Value = InstallProgress.Value = FinishProgress.Value = currentSubstep;
-
-            Subtitle.Text = $"Step {currentStep} of {totalSteps}: Cleaning remaining files...";
-            try
-            {
-                File.Delete("C:\\Rebound11\\ReboundWinver.msix");
-            }
-            catch
-            {
-                Subtitle.Text = $"Step {currentStep} of {totalSteps}: There are no remaining files. Skipping...";
-            }
-            await Task.Delay(50);
-
-            // Substep 4: copy rwinver.exe
-
-            currentSubstep += 1;
-            Title.Text = $"Installing Rebound 11: " + ((int)(currentSubstep / totalSubsteps * 100)).ToString() + "%";
-            ReboundProgress.Value = InstallProgress.Value = FinishProgress.Value = currentSubstep;
-
-            Subtitle.Text = $"Step {currentStep} of {totalSteps}: Copying rwinver.exe...";
-            try
-            {
-                File.Copy($"{AppContext.BaseDirectory}\\Rebound11Files\\Executables\\rwinver.exe", $"C:\\Rebound11\\rwinver.exe");
-            }
-            catch
-            {
-                Subtitle.Text = $"Step {currentStep} of {totalSteps}: The file already exists. Skipping...";
-            }
-            await Task.Delay(50);
-
-            // Substep 5: delete winver.lnk
-
-            currentSubstep += 1;
-            Title.Text = $"Installing Rebound 11: " + ((int)(currentSubstep / totalSubsteps * 100)).ToString() + "%";
-            ReboundProgress.Value = InstallProgress.Value = FinishProgress.Value = currentSubstep;
-
-            Subtitle.Text = $"Step {currentStep} of {totalSteps}: Deleting winver.lnk...";
-            try
-            {
-                File.Delete($@"{Environment.GetFolderPath(Environment.SpecialFolder.CommonAdminTools)}\winver.lnk");
-            }
-            catch
-            {
-                Subtitle.Text = $"Step {currentStep} of {totalSteps}: The file does not exist. Skipping...";
-            }
-
-            await Task.Delay(50);
-
-            // Substep 6: copy new winver.lnk
-
-            currentSubstep += 1;
-            Title.Text = $"Installing Rebound 11: " + ((int)(currentSubstep / totalSubsteps * 100)).ToString() + "%";
-            ReboundProgress.Value = InstallProgress.Value = FinishProgress.Value = currentSubstep;
-
-            Subtitle.Text = $"Step {currentStep} of {totalSteps}: Copying new winver.lnk...";
-            try
-            {
-                File.Copy($"{AppContext.BaseDirectory}\\Rebound11Files\\shcre11\\winver.lnk", $@"{Environment.GetFolderPath(Environment.SpecialFolder.CommonAdminTools)}\winver.lnk", true);
-            }
-            catch
-            {
-                Subtitle.Text = $"Step {currentStep} of {totalSteps}: The file already exists. Skipping...";
-            }
-            await Task.Delay(50);
+            await InstallAppPackage(
+                $"{AppContext.BaseDirectory}\\Rebound11Files\\AppPackages\\ReboundWinver.msix",
+                "C:\\Rebound11\\ReboundWinver.msix",
+                $"{AppContext.BaseDirectory}\\Rebound11Files\\AppPackages\\ReboundWinver.cer",
+                "Rebound Winver",
+                $"{AppContext.BaseDirectory}\\Rebound11Files\\Executables\\rwinver.exe",
+                $"C:\\Rebound11\\rwinver.exe",
+                $"{AppContext.BaseDirectory}\\Rebound11Files\\shcre11\\winver.lnk",
+                $@"{Environment.GetFolderPath(Environment.SpecialFolder.CommonAdminTools)}\winver.lnk",
+                "rwinver",
+                "winver");
         }
 
         #endregion Winver
@@ -695,129 +394,14 @@ public sealed partial class InstallationWindow : WindowEx
 
         if (UAC == true)
         {
-            currentStep += 1;
-
-            // Substep 1: copy ruacsettings.exe
-
-            currentSubstep += 1;
-            Title.Text = $"Installing Rebound 11: " + ((int)(currentSubstep / totalSubsteps * 100)).ToString() + "%";
-            ReboundProgress.Value = InstallProgress.Value = FinishProgress.Value = currentSubstep;
-
-            Subtitle.Text = $"Step {currentStep} of {totalSteps}: Copying ruacsettings.exe...";
-            try
-            {
-                File.Copy($"{AppContext.BaseDirectory}\\Rebound11Files\\Executables\\ruacsettings.exe", $"C:\\Rebound11\\ruacsettings.exe");
-            }
-            catch
-            {
-                Subtitle.Text = $"Step {currentStep} of {totalSteps}: The file already exists. Skipping...";
-            }
-            await Task.Delay(50);
-
-            // Substep 2: delete Change User Account Control settings.lnk
-
-            currentSubstep += 1;
-            Title.Text = $"Installing Rebound 11: " + ((int)(currentSubstep / totalSubsteps * 100)).ToString() + "%";
-            ReboundProgress.Value = InstallProgress.Value = FinishProgress.Value = currentSubstep;
-
-            Subtitle.Text = $"Step {currentStep} of {totalSteps}: Deleting Change User Account Control settings.lnk...";
-            try
-            {
-                File.Delete($@"{Environment.GetFolderPath(Environment.SpecialFolder.CommonAdminTools)}\Change User Account Control settings.lnk");
-            }
-            catch
-            {
-                Subtitle.Text = $"Step {currentStep} of {totalSteps}: The file does not exist. Skipping...";
-            }
-
-            await Task.Delay(50);
-
-            // Substep 3: copy new Change User Account Control settings.lnk
-
-            currentSubstep += 1;
-            Title.Text = $"Installing Rebound 11: " + ((int)(currentSubstep / totalSubsteps * 100)).ToString() + "%";
-            ReboundProgress.Value = InstallProgress.Value = FinishProgress.Value = currentSubstep;
-
-            Subtitle.Text = $"Step {currentStep} of {totalSteps}: Copying new Change User Account Control settings.lnk...";
-            try
-            {
-                File.Copy($"{AppContext.BaseDirectory}\\Rebound11Files\\shcre11\\Change User Account Control settings.lnk", $@"{Environment.GetFolderPath(Environment.SpecialFolder.CommonAdminTools)}\Change User Account Control settings.lnk", true);
-            }
-            catch
-            {
-                Subtitle.Text = $"Step {currentStep} of {totalSteps}: The file already exists. Skipping...";
-            }
-            await Task.Delay(50);
-
-            // Substep 4: delete UAC Settings.lnk
-
-            currentSubstep += 1;
-            Title.Text = $"Installing Rebound 11: " + ((int)(currentSubstep / totalSubsteps * 100)).ToString() + "%";
-            ReboundProgress.Value = InstallProgress.Value = FinishProgress.Value = currentSubstep;
-
-            Subtitle.Text = $"Step {currentStep} of {totalSteps}: Deleting UAC Settings.lnk...";
-            try
-            {
-                File.Delete($@"{Environment.GetFolderPath(Environment.SpecialFolder.StartMenu)}\Programs\Rebound 11 Tools\UAC Settings.lnk");
-            }
-            catch
-            {
-                Subtitle.Text = $"Step {currentStep} of {totalSteps}: The file does not exist. Skipping...";
-            }
-
-            await Task.Delay(50);
-
-            // Substep 5: copy new UAC Settings.lnk
-
-            currentSubstep += 1;
-            Title.Text = $"Installing Rebound 11: " + ((int)(currentSubstep / totalSubsteps * 100)).ToString() + "%";
-            ReboundProgress.Value = InstallProgress.Value = FinishProgress.Value = currentSubstep;
-
-            Subtitle.Text = $"Step {currentStep} of {totalSteps}: Copying new UAC Settings.lnk...";
-            try
-            {
-                File.Copy($"{AppContext.BaseDirectory}\\Rebound11Files\\shcre11\\Change User Account Control settings.lnk", $@"{Environment.GetFolderPath(Environment.SpecialFolder.StartMenu)}\Programs\Rebound 11 Tools\UAC Settings.lnk", true);
-            }
-            catch
-            {
-                Subtitle.Text = $"Step {currentStep} of {totalSteps}: The file already exists. Skipping...";
-            }
-            await Task.Delay(50);
-
-            // Substep 6: delete useraccountcontrolsettings.lnk
-
-            currentSubstep += 1;
-            Title.Text = $"Installing Rebound 11: " + ((int)(currentSubstep / totalSubsteps * 100)).ToString() + "%";
-            ReboundProgress.Value = InstallProgress.Value = FinishProgress.Value = currentSubstep;
-
-            Subtitle.Text = $"Step {currentStep} of {totalSteps}: Deleting useraccountcontrolsettings.lnk...";
-            try
-            {
-                File.Delete($@"{Environment.GetFolderPath(Environment.SpecialFolder.StartMenu)}\Programs\Rebound 11 Tools\useraccountcontrolsettings.lnk");
-            }
-            catch
-            {
-                Subtitle.Text = $"Step {currentStep} of {totalSteps}: The file does not exist. Skipping...";
-            }
-
-            await Task.Delay(50);
-
-            // Substep 7: copy new useraccountcontrolsettings.lnk
-
-            currentSubstep += 1;
-            Title.Text = $"Installing Rebound 11: " + ((int)(currentSubstep / totalSubsteps * 100)).ToString() + "%";
-            ReboundProgress.Value = InstallProgress.Value = FinishProgress.Value = currentSubstep;
-
-            Subtitle.Text = $"Step {currentStep} of {totalSteps}: Copying new useraccountcontrolsettings.lnk...";
-            try
-            {
-                File.Copy($"{AppContext.BaseDirectory}\\Rebound11Files\\shcre11\\Change User Account Control settings.lnk", $@"{Environment.GetFolderPath(Environment.SpecialFolder.StartMenu)}\Programs\Rebound 11 Tools\useraccountcontrolsettings.lnk", true);
-            }
-            catch
-            {
-                Subtitle.Text = $"Step {currentStep} of {totalSteps}: The file already exists. Skipping...";
-            }
-            await Task.Delay(50);
+            await InstallExeWithShortcut(
+                "Change User Account Control settings",
+                $"{AppContext.BaseDirectory}\\Rebound11Files\\Executables\\ruacsettings.exe",
+                $"C:\\Rebound11\\ruacsettings.exe",
+                $"{AppContext.BaseDirectory}\\Rebound11Files\\shcre11\\Change User Account Control settings.lnk",
+                $@"{Environment.GetFolderPath(Environment.SpecialFolder.CommonAdminTools)}\Change User Account Control settings.lnk",
+                "ruacsettings",
+                "Change User Account Control settings");
         }
 
         #endregion UAC
@@ -826,194 +410,85 @@ public sealed partial class InstallationWindow : WindowEx
 
         if (Run == true)
         {
-            currentStep += 1;
-
-            // Substep 1: certificate
-
-            currentSubstep += 1;
-            Title.Text = $"Installing Rebound 11: " + ((int)(currentSubstep / totalSubsteps * 100)).ToString() + "%";
-            ReboundProgress.Value = InstallProgress.Value = FinishProgress.Value = currentSubstep;
+            await InstallAppPackage(
+                $"{AppContext.BaseDirectory}\\Rebound11Files\\AppPackages\\ReboundRun.msix",
+                "C:\\Rebound11\\ReboundRun.msix",
+                $"{AppContext.BaseDirectory}\\Rebound11Files\\AppPackages\\ReboundRun.cer",
+                "Rebound Run",
+                $"{AppContext.BaseDirectory}\\Rebound11Files\\Executables\\rrun.exe",
+                $"C:\\Rebound11\\rrun.exe",
+                $"{AppContext.BaseDirectory}\\Rebound11Files\\shcre11\\Run.lnk",
+                $@"{Environment.GetFolderPath(Environment.SpecialFolder.StartMenu)}\Programs\System Tools\Run.lnk",
+                "rrun",
+                "Run");
 
             string startupFolderPath = Environment.GetFolderPath(Environment.SpecialFolder.Startup);
 
-            try
-            {
-                // Load the certificate from file
-                X509Certificate2 certificate = new X509Certificate2($"{AppContext.BaseDirectory}\\Rebound11Files\\AppPackages\\ReboundRun.cer");
-
-                // Define the store location and name
-                StoreLocation storeLocation = StoreLocation.LocalMachine;
-                StoreName storeName = StoreName.Root;
-
-                // Open the certificate store
-                using (X509Store store = new X509Store(storeName, storeLocation))
-                {
-                    store.Open(OpenFlags.ReadWrite);
-
-                    // Add the certificate to the store
-                    store.Add(certificate);
-
-                    // Close the store
-                    store.Close();
-                }
-
-                // Notify the user of success
-                Subtitle.Text = $"Step {currentStep} of {totalSteps}: Rebound Run certificate installed.";
-                await Task.Delay(50);
-            }
-            catch (Exception ex)
-            {
-                // Handle exceptions (e.g., file not found, permission issues)
-                Subtitle.Text = $"Step {currentStep} of {totalSteps}: Rebound Run certificate installation failed.";
-                await Task.Delay(50);
-            }
-
-            // Substep 2: cache package
-
-            currentSubstep += 1;
-            Title.Text = $"Installing Rebound 11: " + ((int)(currentSubstep / totalSubsteps * 100)).ToString() + "%";
-            ReboundProgress.Value = InstallProgress.Value = FinishProgress.Value = currentSubstep;
-
-            string packagePath = $"{AppContext.BaseDirectory}\\Rebound11Files\\AppPackages\\ReboundRun.msix";
-
-            File.Copy(packagePath, "C:\\Rebound11\\ReboundRun.msix");
-
-            // Setup the process start info
-            var procFolder = new ProcessStartInfo()
-            {
-                FileName = "powershell.exe",
-                Verb = "runas",                 // Run as administrator
-                UseShellExecute = false,
-                CreateNoWindow = true,// Required to redirect output
-                Arguments = $"Add-AppxPackage -Path \"C:\\Rebound11\\ReboundRun.msix\"",
-                RedirectStandardOutput = true,
-                RedirectStandardError = true
-            };
-
-            Subtitle.Text = $"Step {currentStep} of {totalSteps}: Installing Rebound Run...";
-
-            // Start the process
-            var resFolder = Process.Start(procFolder);
-
-            // Read output and errors
-            string output = await resFolder.StandardOutput.ReadToEndAsync();
-            string error = await resFolder.StandardError.ReadToEndAsync();
-
-            // Wait for the process to exit
-            await resFolder.WaitForExitAsync();
-
-            Subtitle.Text = $"Step {currentStep} of {totalSteps}: {(string.IsNullOrEmpty(error) ? "Rebound Run installed." : $"Rebound Run installation failed: the package is already installed..")}";
-
-            await Task.Delay(50);
-
-            // Substep 3: delete cached package
-
-            currentSubstep += 1;
-            Title.Text = $"Installing Rebound 11: " + ((int)(currentSubstep / totalSubsteps * 100)).ToString() + "%";
-            ReboundProgress.Value = InstallProgress.Value = FinishProgress.Value = currentSubstep;
-
-            Subtitle.Text = $"Step {currentStep} of {totalSteps}: Cleaning remaining files...";
-            try
-            {
-                File.Delete("C:\\Rebound11\\ReboundRun.msix");
-            }
-            catch
-            {
-                Subtitle.Text = $"Step {currentStep} of {totalSteps}: There are no remaining files. Skipping...";
-            }
-            await Task.Delay(50);
-
-            // Substep 4: copy rrun.exe
-
-            currentSubstep += 1;
-            Title.Text = $"Installing Rebound 11: " + ((int)(currentSubstep / totalSubsteps * 100)).ToString() + "%";
-            ReboundProgress.Value = InstallProgress.Value = FinishProgress.Value = currentSubstep;
-
-            Subtitle.Text = $"Step {currentStep} of {totalSteps}: Copying rrun.exe...";
-            try
-            {
-                File.Copy($"{AppContext.BaseDirectory}\\Rebound11Files\\Executables\\rrun.exe", $"C:\\Rebound11\\rrun.exe");
-            }
-            catch
-            {
-                Subtitle.Text = $"Step {currentStep} of {totalSteps}: The file already exists. Skipping...";
-            }
-            await Task.Delay(50);
-
-            // Substep 5: copy rrunSTARTUP.exe
-
-            currentSubstep += 1;
-            Title.Text = $"Installing Rebound 11: " + ((int)(currentSubstep / totalSubsteps * 100)).ToString() + "%";
-            ReboundProgress.Value = InstallProgress.Value = FinishProgress.Value = currentSubstep;
-
-            Subtitle.Text = $"Step {currentStep} of {totalSteps}: Copying rrunSTARTUP.exe...";
-            try
-            {
-                File.Copy($"{AppContext.BaseDirectory}\\Rebound11Files\\Executables\\rrunSTARTUP.exe", $"C:\\Rebound11\\rrunSTARTUP.exe");
-            }
-            catch
-            {
-                Subtitle.Text = $"Step {currentStep} of {totalSteps}: The file already exists. Skipping...";
-            }
-            await Task.Delay(50);
-
-            // Substep 6: copy ReboundRunStartup.exe
-
-            currentSubstep += 1;
-            Title.Text = $"Installing Rebound 11: " + ((int)(currentSubstep / totalSubsteps * 100)).ToString() + "%";
-            ReboundProgress.Value = InstallProgress.Value = FinishProgress.Value = currentSubstep;
-
-            Subtitle.Text = $"Step {currentStep} of {totalSteps}: Copying ReboundRunStartup.lnk...";
-            try
-            {
-                File.Copy($"{AppContext.BaseDirectory}\\Rebound11Files\\shcre11\\ReboundRunStartup.lnk", $"{startupFolderPath}\\ReboundRunStartup.lnk");
-            }
-            catch
-            {
-                Subtitle.Text = $"Step {currentStep} of {totalSteps}: The file already exists. Skipping...";
-            }
-            await Task.Delay(50);
-
-            // Substep 7: delete Run.lnk
-
-            currentSubstep += 1;
-            Title.Text = $"Installing Rebound 11: " + ((int)(currentSubstep / totalSubsteps * 100)).ToString() + "%";
-            ReboundProgress.Value = InstallProgress.Value = FinishProgress.Value = currentSubstep;
-
-            Subtitle.Text = $"Step {currentStep} of {totalSteps}: Deleting Run.lnk...";
-            try
-            {
-                File.Delete($@"{Environment.GetFolderPath(Environment.SpecialFolder.StartMenu)}\Programs\System Tools\Run.lnk");
-            }
-            catch
-            {
-                Subtitle.Text = $"Step {currentStep} of {totalSteps}: The file does not exist. Skipping...";
-            }
-
-            await Task.Delay(50);
-
-            // Substep 8: copy new Run.lnk
-
-            currentSubstep += 1;
-            Title.Text = $"Installing Rebound 11: " + ((int)(currentSubstep / totalSubsteps * 100)).ToString() + "%";
-            ReboundProgress.Value = InstallProgress.Value = FinishProgress.Value = currentSubstep;
-
-            Subtitle.Text = $"Step {currentStep} of {totalSteps}: Copying new Run.lnk...";
-            try
-            {
-                File.Copy($"{AppContext.BaseDirectory}\\Rebound11Files\\shcre11\\Run.lnk", $@"{Environment.GetFolderPath(Environment.SpecialFolder.StartMenu)}\Programs\System Tools\Run.lnk", true);
-            }
-            catch
-            {
-                Subtitle.Text = $"Step {currentStep} of {totalSteps}: The file already exists. Skipping...";
-            }
-            await Task.Delay(50);
+            await InstallExeWithShortcut(
+                "Rebound Run Startup Task",
+                $"{AppContext.BaseDirectory}\\Rebound11Files\\Executables\\rrunSTARTUP.exe",
+                $"C:\\Rebound11\\rrunSTARTUP.exe",
+                $"{AppContext.BaseDirectory}\\Rebound11Files\\shcre11\\ReboundRunStartup.lnk",
+                $"{startupFolderPath}\\ReboundRunStartup.lnk",
+                "rrunSTARTUP",
+                "ReboundRunStartup");
         }
 
         #endregion Run
 
-        // CommonAdminTools for dfrgui
-        // Debug.WriteLine($@"STARTMENU {Environment.GetFolderPath(Environment.SpecialFolder.StartMenu)}\Programs\System Tools"); FOR RUN
+        #region DiskCleanup
+
+        if (DiskCleanup == true)
+        {
+            await InstallAppPackage(
+                $"{AppContext.BaseDirectory}\\Rebound11Files\\AppPackages\\ReboundDiskCleanup.msix",
+                "C:\\Rebound11\\ReboundDiskCleanup.msix",
+                $"{AppContext.BaseDirectory}\\Rebound11Files\\AppPackages\\ReboundDiskCleanup.cer",
+                "Rebound Disk Cleanup",
+                $"{AppContext.BaseDirectory}\\Rebound11Files\\Executables\\rcleanmgr.exe",
+                $"C:\\Rebound11\\rcleanmgr.exe",
+                $"{AppContext.BaseDirectory}\\Rebound11Files\\shcre11\\Disk Cleanup.lnk",
+                $@"{Environment.GetFolderPath(Environment.SpecialFolder.CommonAdminTools)}\Disk Cleanup.lnk",
+                "rcleanmgr",
+                "Disk Cleanup");
+        }
+
+        #endregion DiskCleanup
+
+        #region TPM
+
+        if (TPM == true)
+        {
+            await InstallAppPackage(
+                $"{AppContext.BaseDirectory}\\Rebound11Files\\AppPackages\\ReboundTpm.msix",
+                "C:\\Rebound11\\ReboundTpm.msix",
+                $"{AppContext.BaseDirectory}\\Rebound11Files\\AppPackages\\ReboundTpm.cer",
+                "Rebound TPM Management",
+                $"{AppContext.BaseDirectory}\\Rebound11Files\\Executables\\rtpm.exe",
+                $"C:\\Rebound11\\rtpm.exe",
+                $"{AppContext.BaseDirectory}\\Rebound11Files\\shcre11\\tpm.msc.lnk",
+                $@"{Environment.GetFolderPath(Environment.SpecialFolder.CommonAdminTools)}\tpm.msc.lnk",
+                "rtpm",
+                "tpm.msc");
+        }
+
+        #endregion TPM
+
+        #region OSK
+
+        if (OSK == true)
+        {
+            await InstallExeWithShortcut(
+                "UWP On-Screen Keyboard",
+                $"{AppContext.BaseDirectory}\\Rebound11Files\\Executables\\rosk.exe",
+                $"C:\\Rebound11\\rosk.exe",
+                $"{AppContext.BaseDirectory}\\Rebound11Files\\shcre11\\On-Screen Keyboard.lnk",
+                $@"{Environment.GetFolderPath(Environment.SpecialFolder.StartMenu)}\Programs\Accessibility\On-Screen Keyboard.lnk",
+                "rosk",
+                "On-Screen Keyboard");
+        }
+
+        #endregion OSK
 
         currentSubstep = totalSubsteps;
         Title.Text = $"Installing Rebound 11: 100%";
@@ -1044,6 +519,219 @@ public sealed partial class InstallationWindow : WindowEx
         InstallText.Opacity = 0.5;
         ReboundText.Opacity = 0.5;
         FinishText.Opacity = 0.5;
+    }
+
+    public async Task<Task> InstallAppPackage(string packagePath, string cachedPackagePath, string certificatePath, string displayAppName, string exeFile, string exeDestination, string lnkFile, string lnkDestination, string exeDisplayName, string lnkDisplayName)
+    {
+        // 6 SUBSTEPS
+
+        currentStep += 1;
+
+        // Substep 1: certificate
+
+        currentSubstep += 1;
+        Title.Text = $"Installing Rebound 11: " + ((int)(currentSubstep / totalSubsteps * 100)).ToString() + "%";
+        ReboundProgress.Value = InstallProgress.Value = FinishProgress.Value = currentSubstep;
+
+        string startupFolderPath = Environment.GetFolderPath(Environment.SpecialFolder.Startup);
+
+        try
+        {
+            // Load the certificate from file
+            X509Certificate2 certificate = new X509Certificate2(certificatePath);
+
+            // Define the store location and name
+            StoreLocation storeLocation = StoreLocation.LocalMachine;
+            StoreName storeName = StoreName.Root;
+
+            // Open the certificate store
+            using (X509Store store = new X509Store(storeName, storeLocation))
+            {
+                store.Open(OpenFlags.ReadWrite);
+
+                // Add the certificate to the store
+                store.Add(certificate);
+
+                // Close the store
+                store.Close();
+            }
+
+            // Notify the user of success
+            Subtitle.Text = $"Step {currentStep} of {totalSteps}: {displayAppName} certificate installed.";
+            await Task.Delay(50);
+        }
+        catch (Exception ex)
+        {
+            // Handle exceptions (e.g., file not found, permission issues)
+            Subtitle.Text = $"Step {currentStep} of {totalSteps}: {displayAppName} certificate installation failed.";
+            await Task.Delay(50);
+        }
+
+        // Substep 2: cache package
+
+        currentSubstep += 1;
+        Title.Text = $"Installing Rebound 11: " + ((int)(currentSubstep / totalSubsteps * 100)).ToString() + "%";
+        ReboundProgress.Value = InstallProgress.Value = FinishProgress.Value = currentSubstep;
+
+        File.Copy(packagePath, cachedPackagePath);
+
+        // Setup the process start info
+        var procFolder = new ProcessStartInfo()
+        {
+            FileName = "powershell.exe",
+            Verb = "runas",                 // Run as administrator
+            UseShellExecute = false,
+            CreateNoWindow = true,// Required to redirect output
+            Arguments = $"Add-AppxPackage -Path \"{cachedPackagePath}\"",
+            RedirectStandardOutput = true,
+            RedirectStandardError = true
+        };
+
+        Subtitle.Text = $"Step {currentStep} of {totalSteps}: Installing {displayAppName}...";
+
+        // Start the process
+        var resFolder = Process.Start(procFolder);
+
+        // Read output and errors
+        string output = await resFolder.StandardOutput.ReadToEndAsync();
+        string error = await resFolder.StandardError.ReadToEndAsync();
+
+        // Wait for the process to exit
+        await resFolder.WaitForExitAsync();
+
+        Subtitle.Text = $"Step {currentStep} of {totalSteps}: {(string.IsNullOrEmpty(error) ? $"{displayAppName} installed." : $"{displayAppName} installation failed: the package is already installed..")}";
+
+        await Task.Delay(50);
+
+        // Substep 3: delete cached package
+
+        currentSubstep += 1;
+        Title.Text = $"Installing Rebound 11: " + ((int)(currentSubstep / totalSubsteps * 100)).ToString() + "%";
+        ReboundProgress.Value = InstallProgress.Value = FinishProgress.Value = currentSubstep;
+
+        Subtitle.Text = $"Step {currentStep} of {totalSteps}: Cleaning remaining files...";
+        try
+        {
+            File.Delete(cachedPackagePath);
+        }
+        catch
+        {
+            Subtitle.Text = $"Step {currentStep} of {totalSteps}: There are no remaining files. Skipping...";
+        }
+        await Task.Delay(50);
+
+        // Substep 4: copy rwinver.exe
+
+        currentSubstep += 1;
+        Title.Text = $"Installing Rebound 11: " + ((int)(currentSubstep / totalSubsteps * 100)).ToString() + "%";
+        ReboundProgress.Value = InstallProgress.Value = FinishProgress.Value = currentSubstep;
+
+        Subtitle.Text = $"Step {currentStep} of {totalSteps}: Copying {exeDisplayName}.exe...";
+        try
+        {
+            File.Copy(exeFile, exeDestination, true);
+        }
+        catch
+        {
+            Subtitle.Text = $"Step {currentStep} of {totalSteps}: The file already exists. Skipping...";
+        }
+        await Task.Delay(50);
+
+        // Substep 5: delete winver.lnk
+
+        currentSubstep += 1;
+        Title.Text = $"Installing Rebound 11: " + ((int)(currentSubstep / totalSubsteps * 100)).ToString() + "%";
+        ReboundProgress.Value = InstallProgress.Value = FinishProgress.Value = currentSubstep;
+
+        Subtitle.Text = $"Step {currentStep} of {totalSteps}: Deleting {lnkDisplayName}.lnk...";
+        try
+        {
+            File.Delete(lnkDestination);
+        }
+        catch
+        {
+            Subtitle.Text = $"Step {currentStep} of {totalSteps}: The file does not exist. Skipping...";
+        }
+
+        await Task.Delay(50);
+
+        // Substep 6: copy new winver.lnk
+
+        currentSubstep += 1;
+        Title.Text = $"Installing Rebound 11: " + ((int)(currentSubstep / totalSubsteps * 100)).ToString() + "%";
+        ReboundProgress.Value = InstallProgress.Value = FinishProgress.Value = currentSubstep;
+
+        Subtitle.Text = $"Step {currentStep} of {totalSteps}: Copying new {lnkDisplayName}.lnk...";
+        try
+        {
+            File.Copy(lnkFile, lnkDestination, true);
+        }
+        catch
+        {
+            Subtitle.Text = $"Step {currentStep} of {totalSteps}: The file already exists. Skipping...";
+        }
+        await Task.Delay(50);
+        return Task.CompletedTask;
+    }
+
+    public async Task<Task> InstallExeWithShortcut(string displayAppName, string exeFile, string exeDestination, string lnkFile, string lnkDestination, string exeDisplayName, string lnkDisplayName)
+    {
+        // 3 SUBSTEPS
+
+        currentStep += 1;
+
+        // Substep 4: copy rwinver.exe
+
+        currentSubstep += 1;
+        Title.Text = $"Installing Rebound 11: " + ((int)(currentSubstep / totalSubsteps * 100)).ToString() + "%";
+        ReboundProgress.Value = InstallProgress.Value = FinishProgress.Value = currentSubstep;
+
+        Subtitle.Text = $"Step {currentStep} of {totalSteps}: Copying {exeDisplayName}.exe...";
+        try
+        {
+            File.Copy(exeFile, exeDestination, true);
+        }
+        catch
+        {
+            Subtitle.Text = $"Step {currentStep} of {totalSteps}: The file already exists. Skipping...";
+        }
+        await Task.Delay(50);
+
+        // Substep 5: delete winver.lnk
+
+        currentSubstep += 1;
+        Title.Text = $"Installing Rebound 11: " + ((int)(currentSubstep / totalSubsteps * 100)).ToString() + "%";
+        ReboundProgress.Value = InstallProgress.Value = FinishProgress.Value = currentSubstep;
+
+        Subtitle.Text = $"Step {currentStep} of {totalSteps}: Deleting {lnkDisplayName}.lnk...";
+        try
+        {
+            File.Delete(lnkDestination);
+        }
+        catch
+        {
+            Subtitle.Text = $"Step {currentStep} of {totalSteps}: The file does not exist. Skipping...";
+        }
+
+        await Task.Delay(50);
+
+        // Substep 6: copy new winver.lnk
+
+        currentSubstep += 1;
+        Title.Text = $"Installing Rebound 11: " + ((int)(currentSubstep / totalSubsteps * 100)).ToString() + "%";
+        ReboundProgress.Value = InstallProgress.Value = FinishProgress.Value = currentSubstep;
+
+        Subtitle.Text = $"Step {currentStep} of {totalSteps}: Copying new {lnkDisplayName}.lnk...";
+        try
+        {
+            File.Copy(lnkFile, lnkDestination, true);
+        }
+        catch
+        {
+            Subtitle.Text = $"Step {currentStep} of {totalSteps}: The file already exists. Skipping...";
+        }
+        await Task.Delay(50);
+        return Task.CompletedTask;
     }
 
     private void Timer_Tick(object sender, object e)

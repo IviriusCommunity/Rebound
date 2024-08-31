@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Net.Http;
 using System.Runtime.InteropServices.WindowsRuntime;
 using System.Security.Principal;
 using System.Threading.Tasks;
@@ -59,6 +60,7 @@ public sealed partial class Rebound11Page : Page
             Rebound11IsNotInstalledGrid.Visibility = Visibility.Collapsed;
             DetailsPanel.Visibility = Visibility.Visible;
         }
+        CheckForUpdatesAsync();
     }
 
     public async void GetWallpaper()
@@ -96,8 +98,48 @@ public sealed partial class Rebound11Page : Page
 
     private void Button_Click(object sender, RoutedEventArgs e)
     {
-        var win = new InstallationWindow((bool)FilesCheck.IsChecked, (bool)RunCheck.IsChecked, (bool)DefragCheck.IsChecked, (bool)WinverCheck.IsChecked, (bool)UACCheck.IsChecked);
+        var win = new InstallationWindow((bool)FilesCheck.IsChecked, (bool)RunCheck.IsChecked, (bool)DefragCheck.IsChecked, (bool)WinverCheck.IsChecked, (bool)UACCheck.IsChecked, (bool)OSKCheck.IsChecked, (bool)TPMCheck.IsChecked, (bool)DiskCleanupCheck.IsChecked);
         win.Show();
+    }
+
+    private async Task CheckForUpdatesAsync()
+    {
+        // URL of the text file containing the latest version number
+        string versionUrl = "https://ivirius.vercel.app/reboundhubversion.txt";
+
+        // Use HttpClient to fetch the content
+        using HttpClient client = new HttpClient();
+
+        try
+        {
+            // Fetch the version string from the URL
+            string latestVersion = await client.GetStringAsync(versionUrl);
+
+            // Trim any excess whitespace/newlines from the fetched string
+            latestVersion = latestVersion.Trim();
+
+            // Get the current app version
+            string currentVersion = "v0.0.2 ALPHA";
+
+            // Compare versions
+            if (latestVersion == currentVersion)
+            {
+                // The app is up-to-date
+                UpdateBar.IsOpen = false;
+            }
+            else
+            {
+                // A new version is available
+                UpdateBar.IsOpen = true;
+            }
+        }
+        catch (Exception ex)
+        {
+            // Handle any errors that occur during the request
+            UpdateBar.IsOpen = true;
+            UpdateBar.Severity = InfoBarSeverity.Error;
+            UpdateBar.Title = "Something went wrong.";
+        }
     }
 
     private async void Button_Click_1(object sender, RoutedEventArgs e)

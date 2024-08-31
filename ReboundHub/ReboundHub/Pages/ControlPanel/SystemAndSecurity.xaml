@@ -17,7 +17,7 @@
                         <FontIcon Glyph=""/>
                     </NavigationViewItem.Icon>
                 </NavigationViewItem>
-                <NavigationViewItem Content="Windows Defender Firewall">
+                <NavigationViewItem Content="Windows Defender Firewall" IsEnabled="False">
                     <NavigationViewItem.Icon>
                         <ImageIcon Source="/Assets/AppIcons/imageres_195.ico"/>
                     </NavigationViewItem.Icon>
@@ -29,7 +29,7 @@
                         <NavigationViewItem Content="Windows Backup"/>
                     </NavigationViewItem.MenuItems>
                 </NavigationViewItem>
-                <NavigationViewItem Content="System">
+                <NavigationViewItem Content="System" IsEnabled="False">
                     <NavigationViewItem.Icon>
                         <ImageIcon Source="/Assets/AppIcons/imageres_1029.ico"/>
                     </NavigationViewItem.Icon>
@@ -41,7 +41,7 @@
                         </NavigationViewItem>
                     </NavigationViewItem.MenuItems>
                 </NavigationViewItem>
-                <NavigationViewItem Content="Power Options">
+                <NavigationViewItem Content="Power Options" IsEnabled="False">
                     <NavigationViewItem.Icon>
                         <ImageIcon Source="/Assets/AppIcons/imageres_120.ico"/>
                     </NavigationViewItem.Icon>
@@ -49,7 +49,7 @@
                         <NavigationViewItem Content="View network status and tasks"/>
                     </NavigationViewItem.MenuItems>
                 </NavigationViewItem>
-                <NavigationViewItem Content="File History" x:Name="AppearanceItem">
+                <NavigationViewItem Content="File History" x:Name="AppearanceItem" IsEnabled="False">
                     <NavigationViewItem.Icon>
                         <ImageIcon Source="/Assets/AppIcons/imageres_197.ico"/>
                     </NavigationViewItem.Icon>
@@ -57,7 +57,7 @@
                         <NavigationViewItem Content="Rebound 11" x:Name="Re11Item"/>
                     </NavigationViewItem.MenuItems>
                 </NavigationViewItem>
-                <NavigationViewItem Content="Windows Backup">
+                <NavigationViewItem Content="Windows Backup" IsEnabled="False">
                     <NavigationViewItem.Icon>
                         <ImageIcon Source="/Assets/AppIcons/imageres_196.ico"/>
                     </NavigationViewItem.Icon>
@@ -67,7 +67,7 @@
                         <NavigationViewItem Content="Adjust commonly used mobility settings"/>
                     </NavigationViewItem.MenuItems>
                 </NavigationViewItem>
-                <NavigationViewItem Content="BitLocker Drive Encryption">
+                <NavigationViewItem Content="BitLocker Drive Encryption" IsEnabled="False">
                     <NavigationViewItem.Icon>
                         <ImageIcon Source="/Assets/AppIcons/imageres_144.ico"/>
                     </NavigationViewItem.Icon>
@@ -75,7 +75,7 @@
                         <NavigationViewItem Content="Change date, time, or number formats"/>
                     </NavigationViewItem.MenuItems>
                 </NavigationViewItem>
-                <NavigationViewItem Content="Storage Spaces">
+                <NavigationViewItem Content="Storage Spaces" IsEnabled="False">
                     <NavigationViewItem.Icon>
                         <ImageIcon Source="/Assets/AppIcons/imageres_161.ico"/>
                     </NavigationViewItem.Icon>
@@ -83,7 +83,7 @@
                         <NavigationViewItem Content="Uninstall a program"/>
                     </NavigationViewItem.MenuItems>
                 </NavigationViewItem>
-                <NavigationViewItem Content="Work Folders">
+                <NavigationViewItem Content="Work Folders" IsEnabled="False">
                     <NavigationViewItem.Icon>
                         <ImageIcon Source="/Assets/AppIcons/imageres_86.ico"/>
                     </NavigationViewItem.Icon>
@@ -97,7 +97,7 @@
                         <ImageIcon Source="/Assets/AppIcons/imageres_86.ico"/>
                     </NavigationViewItem.Icon>
                 </NavigationViewItem>
-                <NavigationViewItem Content="Work Folders">
+                <NavigationViewItem Content="Work Folders" IsEnabled="False">
                     <NavigationViewItem.Icon>
                         <ImageIcon Source="/Assets/AppIcons/imageres_86.ico"/>
                     </NavigationViewItem.Icon>
@@ -106,7 +106,7 @@
                         <NavigationViewItem Content="Optimize visual display"/>
                     </NavigationViewItem.MenuItems>
                 </NavigationViewItem>
-                <NavigationViewItem Content="Updates">
+                <NavigationViewItem Content="Updates" IsEnabled="False">
                     <NavigationViewItem.Icon>
                         <ImageIcon Source="/Assets/AppIcons/imageres_86.ico"/>
                     </NavigationViewItem.Icon>
@@ -144,7 +144,7 @@
                         <TextBlock Text="Malware protection" Style="{StaticResource BodyStrongTextBlockStyle}" Margin="3"/>
                         <StackPanel x:Name="SecurityBars" Spacing="10"/>
                         <TextBlock Text="Update installed apps" Style="{StaticResource BodyStrongTextBlockStyle}" Margin="3"/>
-                        <Expander HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch">
+                        <Expander HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch" IsEnabled="False">
                             <Expander.Header>
                                 <Grid>
                                     <TextBlock VerticalAlignment="Center" Text="Available updates"/>
@@ -167,7 +167,7 @@
                             </ListView>
                         </Expander>
                         <TextBlock Text="Power options" Style="{StaticResource BodyStrongTextBlockStyle}" Margin="3"/>
-                        <Expander HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch">
+                        <Expander HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch" IsEnabled="False">
                             <Expander.Header>
                                 <Grid>
                                     <TextBlock VerticalAlignment="Center" Text="Power profile"/>
@@ -218,13 +218,13 @@
                             </StackPanel>
                         </Expander>
                         <TextBlock Text="Advanced" Style="{StaticResource BodyStrongTextBlockStyle}" Margin="3"/>
-                        <SettingsUI:SettingsCard Header="Disable UWP background tasks" Description="After booting up, Rebound 11 will disable background tasks for apps like Feedback Hub to boost up performance. This option requires Rebound Hub to run at startup.">
+                        <SettingsUI:SettingsCard Header="Disable UWP background tasks" IsEnabled="False" Description="After booting up, Rebound 11 will disable background tasks for apps like Feedback Hub to boost up performance. This option requires Rebound Hub to run at startup.">
                             <SettingsUI:SettingsCard.HeaderIcon>
                                 <FontIcon Glyph=""/>
                             </SettingsUI:SettingsCard.HeaderIcon>
                             <ToggleSwitch/>
                         </SettingsUI:SettingsCard>
-                        <SettingsUI:SettingsCard Header="Verbose logon messages" Description="Write events on the screen while booting up or shutting down your PC.">
+                        <SettingsUI:SettingsCard Header="Verbose logon messages" IsEnabled="False" Description="Write events on the screen while booting up or shutting down your PC.">
                             <SettingsUI:SettingsCard.HeaderIcon>
                                 <FontIcon Glyph=""/>
                             </SettingsUI:SettingsCard.HeaderIcon>
@@ -245,12 +245,12 @@
                                 <FontIcon Glyph=""/>
                             </SettingsUI:SettingsCard.HeaderIcon>
                         </SettingsUI:SettingsCard>
-                        <SettingsUI:SettingsCard IsClickEnabled="True" Header="Windows Update">
+                        <SettingsUI:SettingsCard IsClickEnabled="True" Header="Windows Update" IsEnabled="False">
                             <SettingsUI:SettingsCard.HeaderIcon>
                                 <FontIcon Glyph=""/>
                             </SettingsUI:SettingsCard.HeaderIcon>
                         </SettingsUI:SettingsCard>
-                        <SettingsUI:SettingsCard IsClickEnabled="True" Header="Windows Backup">
+                        <SettingsUI:SettingsCard IsClickEnabled="True" Header="Windows Backup" IsEnabled="False">
                             <SettingsUI:SettingsCard.HeaderIcon>
                                 <FontIcon Glyph=""/>
                             </SettingsUI:SettingsCard.HeaderIcon>
