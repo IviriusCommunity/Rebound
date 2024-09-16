@@ -58,8 +58,8 @@ Rebound Hub is the central component of the [**Rebound 11**](https://ivirius.ver
 
 ## 🔄 Current Version
 
-- **Version**: `v0.0.1 Alpha`
-- **Release**: `none`
+- **Version**: `v0.0.2 Alpha`
+- **Release**: ``
 
 ---
 
