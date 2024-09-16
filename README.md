@@ -59,7 +59,7 @@ Rebound Hub is the central component of the [**Rebound 11**](https://ivirius.ver
 ## 🔄 Current Version
 
 - **Version**: `v0.0.2 Alpha`
-- **Release**: ``
+- **Release**: `https://github.com/IviriusMain/ReboundHub/releases/tag/Alpha-v0.0.2`
 
 ---
 
