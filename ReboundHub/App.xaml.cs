@@ -40,18 +40,6 @@ public partial class App : Application
         this.UnhandledException += App_UnhandledException;
     }
 
-    public string GetCurrentRegion()
-    {
-        // Get the current user's geographical region
-        var geoRegion = GlobalizationPreferences.Languages.FirstOrDefault();
-
-        // Optionally, you can use a more specific approach if needed
-        // For example, checking the Region from the locale
-        var region = geoRegion?.Split('-').LastOrDefault();
-
-        return region ?? "Unknown";
-    }
-
     private void App_UnhandledException(object sender, Microsoft.UI.Xaml.UnhandledExceptionEventArgs e)
     {
         // Log or handle the exception
@@ -65,61 +53,40 @@ public partial class App : Application
     /// <param name="args">Details about the launch request and process.</param>
     protected async override void OnLaunched(Microsoft.UI.Xaml.LaunchActivatedEventArgs args)
     {
-        var currentRegion = GetCurrentRegion();
-
-        // List of restricted regions
-        var restrictedRegions = new[] { "RU", "CN" };
-
-        if (restrictedRegions.Contains(currentRegion))
+        if (string.Join(" ", Environment.GetCommandLineArgs().Skip(1)).Contains("CONTROL"))
         {
-            // Show a message or close the app
-            m_window = new RegionBlock();
-            m_window.AppWindow.TitleBar.ExtendsContentIntoTitleBar = true;
-            m_window.AppWindow.TitleBar.PreferredHeightOption = Microsoft.UI.Windowing.TitleBarHeightOption.Collapsed;
-            m_window.SystemBackdrop = new TransparentTintBackdrop();
-            m_window.SetIsMinimizable(false);
-            m_window.SetIsMaximizable(false);
-            m_window.SetIsAlwaysOnTop(true);
-            m_window.Activate();
-            m_window.Maximize();
+            var win = new ControlPanelWindow();
+            cpanelWin = win;
+            win.Show();
+            win.SetWindowSize(1250, 750);
+            win.CenterOnScreen();
+            await Task.Delay(10);
+            win.BringToFront();
+            m_window = null;
+            return;
+        }
+        if (string.Join(" ", Environment.GetCommandLineArgs().Skip(1)).Contains("UAC"))
+        {
+            var win = new UACWindow();
+            win.Show();
+            await Task.Delay(10);
+            win.BringToFront();
+            m_window = null;
+            return;
+        }
+        if (string.Join(" ", Environment.GetCommandLineArgs().Skip(1)).Contains("UNINSTALL"))
+        {
+            var win = new UninstallationWindow();
+            win.Show();
+            await Task.Delay(10);
+            win.BringToFront();
+            m_window = null;
+            return;
         }
         else
         {
-            if (string.Join(" ", Environment.GetCommandLineArgs().Skip(1)).Contains("CONTROL"))
-            {
-                var win = new ControlPanelWindow();
-                cpanelWin = win;
-                win.Show();
-                win.SetWindowSize(1250, 750);
-                win.CenterOnScreen();
-                await Task.Delay(10);
-                win.BringToFront();
-                m_window = null;
-                return;
-            }
-            if (string.Join(" ", Environment.GetCommandLineArgs().Skip(1)).Contains("UAC"))
-            {
-                var win = new UACWindow();
-                win.Show();
-                await Task.Delay(10);
-                win.BringToFront();
-                m_window = null;
-                return;
-            }
-            if (string.Join(" ", Environment.GetCommandLineArgs().Skip(1)).Contains("UNINSTALL"))
-            {
-                var win = new UninstallationWindow();
-                win.Show();
-                await Task.Delay(10);
-                win.BringToFront();
-                m_window = null;
-                return;
-            }
-            else
-            {
-                m_window = new MainWindow();
-                m_window.Activate();
-            }
+            m_window = new MainWindow();
+            m_window.Activate();
         }
     }
 
