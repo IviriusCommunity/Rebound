@@ -65,7 +65,7 @@ public partial class App : Application
     /// <param name="args">Details about the launch request and process.</param>
     protected async override void OnLaunched(Microsoft.UI.Xaml.LaunchActivatedEventArgs args)
     {
-        var currentRegion = GetCurrentRegion();
+        /*var currentRegion = GetCurrentRegion();
 
         // List of restricted regions
         var restrictedRegions = new[] { "RU", "CN" };
@@ -84,7 +84,7 @@ public partial class App : Application
             m_window.Maximize();
         }
         else
-        {
+        {*/
             if (string.Join(" ", Environment.GetCommandLineArgs().Skip(1)).Contains("CONTROL"))
             {
                 var win = new ControlPanelWindow();
@@ -120,7 +120,7 @@ public partial class App : Application
                 m_window = new MainWindow();
                 m_window.Activate();
             }
-        }
+        //}
     }
 
     public static Window m_window;
