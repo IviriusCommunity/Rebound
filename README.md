@@ -22,7 +22,8 @@ Rebound Hub is the central component of the [**Rebound 11**](https://ivirius.ver
 2. **Run the Installer**: Follow the on-screen instructions to install Rebound Hub.
 3. **Launch Rebound Hub** to start exploring and installing Rebound 11.
 
-> 🔧 **Note:** Rebound Hub does not modify your Windows system directly. It integrates with your existing setup to offer enhanced functionality and consistency.
+> [!NOTE]
+> Rebound Hub does not modify your Windows system directly. It integrates with your existing setup to offer enhanced functionality and consistency.
 
 # 📃 Projects overview
 
