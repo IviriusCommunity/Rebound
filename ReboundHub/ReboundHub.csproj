@@ -21,6 +21,7 @@
     <None Remove="Assets\AppIcons\DDORes_2102.png" />
     <None Remove="Assets\AppIcons\DDORes_2413.ico" />
     <None Remove="Assets\AppIcons\EventViewer.png" />
+    <None Remove="Assets\AppIcons\FilesLogo.ico" />
     <None Remove="Assets\AppIcons\GitHub_Invertocat_Logo.svg.png" />
     <None Remove="Assets\AppIcons\HyperV.png" />
     <None Remove="Assets\AppIcons\HyperVQC.png" />
@@ -42,6 +43,8 @@
     <None Remove="Assets\AppIcons\imageres_59.png" />
     <None Remove="Assets\AppIcons\imageres_78.ico" />
     <None Remove="Assets\AppIcons\imageres_86.ico" />
+    <None Remove="Assets\AppIcons\Ivr+.png" />
+    <None Remove="Assets\AppIcons\Ivrfree.png" />
     <None Remove="Assets\AppIcons\LocalSecPolicy.png" />
     <None Remove="Assets\AppIcons\logo-winui.png" />
     <None Remove="Assets\AppIcons\ManagementConsole.png" />
@@ -52,7 +55,10 @@
     <None Remove="Assets\AppIcons\rcontrol.png" />
     <None Remove="Assets\AppIcons\rdfrgui.ico" />
     <None Remove="Assets\AppIcons\Rebound logo.png" />
+    <None Remove="Assets\AppIcons\Rebound11Icon.png" />
     <None Remove="Assets\AppIcons\ResourceMonitor.png" />
+    <None Remove="Assets\AppIcons\rosk_130.ico" />
+    <None Remove="Assets\AppIcons\rtpm_130.ico" />
     <None Remove="Assets\AppIcons\RunBox.ico" />
     <None Remove="Assets\AppIcons\Services.png" />
     <None Remove="Assets\AppIcons\TaskScheduler.png" />

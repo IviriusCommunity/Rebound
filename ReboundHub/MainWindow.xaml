@@ -343,9 +343,6 @@
             <Button x:Name="Refresh" IsTabStop="False" Height="45" Width="46" ToolTipService.ToolTip="Refresh" Style="{ThemeResource Minimize}" Foreground="{Binding Foreground, ElementName=Minimize}">
                 <FontIcon Glyph="" FontSize="14"/>
             </Button>
-            <Button x:Name="Docs" IsTabStop="False" Height="45" Width="46" ToolTipService.ToolTip="Docs" Style="{ThemeResource Minimize}" Foreground="{Binding Foreground, ElementName=Minimize}">
-                <FontIcon Glyph="" FontSize="14"/>
-            </Button>
             <Button x:Name="Minimize" IsTabStop="False" Height="45" Width="46" Style="{ThemeResource Minimize}">
                 <FontIcon Glyph="&#xE921;" FontSize="10"/>
             </Button>

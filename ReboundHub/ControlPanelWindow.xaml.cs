@@ -183,6 +183,10 @@ public sealed partial class ControlPanelWindow : WindowEx
         {
 
         }
+        catch
+        {
+        
+        }
     }
 
     RegistryMonitor mon;
