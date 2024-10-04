@@ -2,8 +2,8 @@
 
 ## Welcome to Rebound Hub! 🛠️
 
-![{933A9B60-49DA-4787-AD73-3BDB4E326815}](https://github.com/user-attachments/assets/62748d97-34fd-4798-bca3-2ff8b95e72c4)
-![{19100411-EA98-4F33-893A-C1581D68F4C3}](https://github.com/user-attachments/assets/eaa1fe11-7099-41af-979f-200e26950318)
+![{F3C5CEC7-EBB3-458C-9110-A608B07FE92A}](https://github.com/user-attachments/assets/d87e9fc1-fe1c-461a-a128-6e970b45d9a0)
+![{3C0AA996-8A36-462B-8533-3462FE3ED31A}](https://github.com/user-attachments/assets/b578a82d-6386-46cf-b395-0f98e75fbb8a)
 
 Rebound Hub is the central component of the [**Rebound 11**](https://ivirius.vercel.app/rebound11) project. It serves as the **installer** for Rebound 11, showcases Ivirius' controls and styles, and provides access to the **Rebound Control Panel**. Designed to enhance your Windows experience, Rebound Hub is a key part of making your system **consistent, fluent, and safe for all home users**.
 
