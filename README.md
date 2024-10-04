@@ -22,67 +22,108 @@ Rebound Hub is the central component of the [**Rebound 11**](https://ivirius.ver
 2. **Run the Installer**: Follow the on-screen instructions to install Rebound Hub.
 3. **Launch Rebound Hub** to start exploring and installing Rebound 11.
 
-> 🔧 **Note:** Rebound Hub does not modify your Windows system directly. It integrates with your existing setup to offer enhanced functionality and consistency.
+> [!NOTE]
+> Rebound Hub does not modify your Windows system directly. It integrates with your existing setup to offer enhanced functionality and consistency.
+
+# 📃 Projects overview
 
 ---
 
-## 🔧 Rebound 11 Overview
+# 🌟 Rebound 11: Windows 11 Done Right
 
-- **Purpose**: Rebound 11 is a Windows mod that aims to be **consistent, fluent, safe for all home users**, and maintain **cumulative updates**.
-- **Installation**: Easy to install and does not require a system restore point.
-- **Functionality**: Replaces essential Win32 applet shortcuts with WinUI 3 apps.
+Rebound 11 is a comprehensive enhancement project for Windows 11, designed to bring consistency with WinUI 3 apps without compromising system security or modifying essential system files.
+
+<p align="center">
+  <a href="https://ivirius.vercel.app/rebound11">
+    <img src="https://img.shields.io/badge/Download-Rebound_11_Website-4096ff?style=for-the-badge" alt="Download">
+  </a>
+</p>
+
+## 🤔 General Information
+
+Rebound 11 aims to enhance the Windows 11 experience by making it more cohesive, leveraging the modern UI capabilities of WinUI 3. It offers a range of apps that integrate seamlessly with your system while maintaining compatibility with both Win32 and Microsoft Store applications.
+
+> [!NOTE]
+> Rebound 11 **does not** modify system files or use patchers like SecureUxTheme, making it a safer alternative to other system mods. However, due to its resource-intensive nature, make sure your system meets the minimum requirements for smooth performance.
+
+> [!WARNING]
+> Rebound 11 may use a significant amount of system resources. Please refer to the [minimum requirements](#minimum-requirements) before installation.
+
+---
 
 ## 🖼️ Screenshots
 
-![image](https://github.com/user-attachments/assets/6c7630cd-1197-433e-9cfa-f9098ce78cc8)
-![image](https://github.com/user-attachments/assets/54368425-00e5-45e3-8eb6-95a6582eb841)
-![image](https://github.com/user-attachments/assets/022db35c-2312-4aca-85b1-40d25e24736e)
-![image](https://github.com/user-attachments/assets/09b3f443-5c1d-4cde-9148-62bd6b8616c7)
-![image](https://github.com/user-attachments/assets/3d214adf-6c3b-4237-8554-3c5d7bb24f57)
-![image](https://github.com/user-attachments/assets/635b7ee2-1caa-41be-8ae6-640ce74e6182)
-![image](https://github.com/user-attachments/assets/18442258-f41b-4f45-aa8a-14bb1444ee33)
-
-### Modernized Apps
-
-- **Run**
-- [Defragment and Optimize Drives](https://github.com/FlamebladeOmega/Rebound-Defrag)
-- **Winver**
-- **Control Panel**
-- **Registry Editor** - [Registry Valley](https://github.com/0x5bfa/FluentRegEdit)
-- **Mail** - [Wino Mail](https://github.com/bkaankose/Wino-Mail)
-- **File Explorer** - [Files](https://github.com/files-community/files)
-- **WordPad** - [Ivirius Text Editor (Plus)](https://github.com/IviriusMain/Ivirius-Text-Editor-Plus)
-- **Weather** - [Lively Weather](https://apps.microsoft.com/detail/9pp0mfqfvsc5?hl=en-mt&gl=MT)
+*Coming soon*
 
 ---
 
-## 🔄 Current Version
+## 🛠️ Key Features Comparison
 
-- **Version**: `v0.0.2 Alpha`
-- **Release**: `https://github.com/IviriusMain/ReboundHub/releases/tag/Alpha-v0.0.2`
-
----
-
-## ⚠️ Important Information
-
-This project **does not modify Windows**. Instead, it replaces essential Win32 applet shortcuts with modern WinUI 3 apps. 
-
-**Compatibility Note**: This is not Rectify 11 and is not compatible with it at the moment. We recommend installing Rebound 11 on an unmodified version of Windows to avoid conflicts.
-
----
-
-## 💬 Supported By
-
-Supported by [FireCubeStudios](https://github.com/FireCubeStudios) and others. 
-
-> ⚠️ **Disclaimer**: This project is **powered by the community** and made with WinUI 3. It introduces no system modifications or risks, just pure consistency.
+| **Feature**                  | **Standard Windows Mods** | **Rebound 11**         | **Remarks** |
+|------------------------------|---------------------------|------------------------|-------------|
+| System-wide customization     | ✔️                         | ❌                      | No msstyles modifications (no SecureUxThemePatcher used) |
+| Fully reversible changes      | ❌                         | ✔️                      | No need for system restore points |
+| Compatible with all software  | ❌                         | ✔️                      | Works with both Win32 APIs and Microsoft Store apps |
+| Windows Updates enabled       | ⚠️                         | ✔️                      | Updates are enabled by default, ensuring your system remains secure |
+| Backwards compatibility       | ❌                         | ✔️                      | System apps remain functional even if Rebound 11 malfunctions |
+| Safe for home users           | ❌                         | ✔️                      | While no mod is 100% safe, Rebound 11 is generally safer than most mods |
+| Open source                   | ⚠️                         | ✔️                      | Fully open-source, including dedicated Rebound apps |
+| Additional features over Win32 apps | ⚠️                  | ✔️                      | Rebound 11 apps offer enhanced features compared to legacy Win32 applets |
 
 ---
 
-## 🔗 Links
+## 🎛️ Minimum Requirements
 
-For any issues or contributions, please refer to our [official discord server](https://discord.com/invite/uasSwW5U2B).
+> [!IMPORTANT]
+> Ensure your system meets the following minimum specifications before installing Rebound 11:
+
+| **Component**  | **Minimum Requirement**       |
+|----------------|-------------------------------|
+| **Operating System** | Windows 11 |
+| **Version**    | Build 22000 or higher          |
+| **Processor**  | 2 GHz or faster, 64-bit CPU    |
+| **Memory**     | 4 GB RAM minimum               |
+| **Storage**    | 2 GB of free disk space        |
+| **Graphics**   | DirectX 12 compatible GPU      |
 
 ---
 
-Happy exploring with Rebound Hub! 🎉
+## 💻 Technologies Used
+
+Rebound 11 is developed using the following languages and tools:
+
+![C#](https://img.shields.io/badge/C%23-11DD33?style=flat)
+![C++](https://img.shields.io/badge/C%2B%2B-CC11FF?style=flat)
+![PowerShell](https://img.shields.io/badge/PowerShell-00CCDD?style=flat)
+![XAML](https://img.shields.io/badge/XAML-44AAFF?style=flat)
+![WMI](https://img.shields.io/badge/WMI-FE5F15?style=flat)
+
+---
+
+## 🛡️ Antivirus Compatibility
+
+Rebound 11 has been tested and is compatible with the following security software:
+
+![Windows Security](https://img.shields.io/badge/Windows%20Security-4466FF?style=flat)
+![ESET](https://img.shields.io/badge/ESET-22BBCC?style=flat)
+
+---
+
+## ⚖️ Legal and Safety Information
+
+- Rebound 11 complies with Microsoft's guidelines and does **not** patch system files, ensuring continued compatibility with future Windows updates.
+- **Warning:** While Rebound 11 is safe for most users, as with any system modification, absolute security cannot be guaranteed. Always back up important data before installing new software.
+
+For full terms, refer to the [Rebound 11 EULA](https://ivirius.vercel.app/eula).
+
+---
+
+## 🙋‍♂️ Get Involved
+
+Rebound 11 is an open-source project, and we welcome contributions from developers! If you’re interested in contributing, check out the [Contributing Guidelines](https://ivirius.vercel.app/contributing) on our website.
+
+---
+
+# 🌟 UI Gallery
+
+*Coming soon*
