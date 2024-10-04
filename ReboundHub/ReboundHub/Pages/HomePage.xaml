@@ -176,8 +176,8 @@
                                             <PathIcon.Foreground>
                                                 <LinearGradientBrush StartPoint="0, 0" EndPoint="1, 1">
                                                     <LinearGradientBrush.GradientStops>
-                                                        <GradientStop Offset="0" Color="#EF95FF"/>
-                                                        <GradientStop Offset="1" Color="#AE2FD4"/>
+                                                        <GradientStop Offset="0" Color="#9787FF"/>
+                                                        <GradientStop Offset="1" Color="#7303FA"/>
                                                     </LinearGradientBrush.GradientStops>
                                                 </LinearGradientBrush>
                                             </PathIcon.Foreground>

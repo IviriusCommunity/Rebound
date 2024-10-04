@@ -6,6 +6,7 @@ using System.Linq;
 using System.Runtime.InteropServices;
 using System.Runtime.InteropServices.WindowsRuntime;
 using System.Text;
+using System.Threading.Tasks;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Controls.Primitives;
@@ -52,11 +53,20 @@ public sealed partial class HomePage : Page
     {
         try
         {
-            BKGImage.Path = GetWallpaperPath();
+            if (this.ActualTheme == ElementTheme.Light)
+            {
+                BKGImage.Path = "/Assets/Backgrounds/BackgroundLight.png";
+            }
+            if (this.ActualTheme == ElementTheme.Dark)
+            {
+                BKGImage.Path = "/Assets/Backgrounds/BackgroundDark.png";
+            }
+            await Task.Delay(100);
+            LoadWallpaper();
         }
         catch
         {
-            await App.cpanelWin.ShowMessageDialogAsync("You need to run this app as administrator in order to retrieve the wallpaper.");
+
         }
     }
 }
