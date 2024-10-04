@@ -43,6 +43,7 @@
     <None Remove="Assets\AppIcons\imageres_59.png" />
     <None Remove="Assets\AppIcons\imageres_78.ico" />
     <None Remove="Assets\AppIcons\imageres_86.ico" />
+    <None Remove="Assets\AppIcons\IviriusCommunityIcon.png" />
     <None Remove="Assets\AppIcons\Ivr+.png" />
     <None Remove="Assets\AppIcons\Ivrfree.png" />
     <None Remove="Assets\AppIcons\LocalSecPolicy.png" />

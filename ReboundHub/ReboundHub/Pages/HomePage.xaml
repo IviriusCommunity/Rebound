@@ -20,8 +20,13 @@
                 <Image x:Name="Wallpaper" Stretch="UniformToFill"/>
                 <header:HomePageHeaderImage Opacity="0.8" x:Name="BKGImage" HorizontalAlignment="Stretch" Height="350" VerticalAlignment="Top" MinWidth="100" Path="/Assets/Wallpapers/WallpaperDarkBlue.png"/>
                 <StackPanel Margin="45">
-                    <TextBlock Text="This is Ivirius." Style="{ThemeResource TitleLargeTextBlockStyle}"/>
-                    <TextBlock Text="We made apps and tools for you to have the best experience with Windows 11." TextWrapping="WrapWholeWords" FontSize="18"/>
+                    <Grid>
+                        <Image Source="/Assets/AppIcons/IviriusCommunityIcon.png" Width="100" HorizontalAlignment="Left"/>
+                        <StackPanel Margin="125, 0, 0, 0">
+                            <TextBlock Text="This is Ivirius." Style="{ThemeResource TitleLargeTextBlockStyle}"/>
+                            <TextBlock Text="We made apps and tools for you to have the best experience with Windows 11." TextWrapping="WrapWholeWords" FontSize="18"/>
+                        </StackPanel>
+                    </Grid>
                     <ScrollViewer Margin="0, 45, 0, 25" Padding="0, 0, 0, 15" HorizontalScrollMode="Enabled" HorizontalScrollBarVisibility="Hidden" VerticalScrollMode="Disabled" VerticalScrollBarVisibility="Hidden" CanContentRenderOutsideBounds="True">
                         <StackPanel Orientation="Horizontal" VerticalAlignment="Top" Spacing="15">
                             <StackPanel.Resources>
@@ -176,8 +181,8 @@
                                             <PathIcon.Foreground>
                                                 <LinearGradientBrush StartPoint="0, 0" EndPoint="1, 1">
                                                     <LinearGradientBrush.GradientStops>
-                                                        <GradientStop Offset="0" Color="#9787FF"/>
-                                                        <GradientStop Offset="1" Color="#7303FA"/>
+                                                        <GradientStop Offset="0" Color="#7797FF"/>
+                                                        <GradientStop Offset="1" Color="#6803F6"/>
                                                     </LinearGradientBrush.GradientStops>
                                                 </LinearGradientBrush>
                                             </PathIcon.Foreground>
@@ -202,9 +207,9 @@
                             </Button>
                         </StackPanel>
                     </ScrollViewer>
-                    <TextBlock Text="Rebound 11 apps docs" Style="{ThemeResource SubtitleTextBlockStyle}" Margin="10, 0, 0, 50" FontSize="26"/>
+                    <TextBlock Text="Rebound 11 apps docs" Style="{ThemeResource SubtitleTextBlockStyle}" Margin="10, 0" FontSize="26"/>
                 </StackPanel>
-                <ToolkitControls:WrapPanel Margin="25, 500, 25, 25" HorizontalAlignment="Center" HorizontalSpacing="12" VerticalSpacing="12">
+                <ToolkitControls:WrapPanel Margin="50, 520, 50, 25" HorizontalSpacing="12" VerticalSpacing="12">
                     <Button Padding="8" Width="450" HorizontalContentAlignment="Stretch">
                         <Grid>
                             <Border HorizontalAlignment="Left" VerticalAlignment="Top" Background="{ThemeResource SolidBackgroundFillColorBaseBrush}" BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" CornerRadius="4" BorderThickness="1">
