@@ -100,7 +100,7 @@
 
                                                             <Storyboard>
                                                                 <ObjectAnimationUsingKeyFrames Storyboard.TargetName="ContentPresenter" Storyboard.TargetProperty="Background">
-                                                                    <DiscreteObjectKeyFrame KeyTime="0" Value="{ThemeResource ButtonBackgroundDisabled}" />
+                                                                    <DiscreteObjectKeyFrame KeyTime="0" Value="{ThemeResource SolidBackgroundFillColorBase}" />
                                                                 </ObjectAnimationUsingKeyFrames>
                                                                 <ObjectAnimationUsingKeyFrames Storyboard.TargetName="ContentPresenter" Storyboard.TargetProperty="BorderBrush">
                                                                     <DiscreteObjectKeyFrame KeyTime="0" Value="{ThemeResource ButtonBorderBrushDisabled}" />
@@ -134,14 +134,6 @@
                                 <Image Width="75" Height="75" Source="/Assets/AppIcons/logo-winui.png" HorizontalAlignment="Left"/>
                                 <TextBlock Margin="0, 15, 0, 0" FontSize="20" Text="WinUI 3 apps"/>
                                 <TextBlock Margin="0, 5, 0, 0" FontSize="11" Opacity="0.7" Text="Rebound 11 uses WinUI 3 apps instead of .msstyles files to make Windows 11 truly consistent." TextWrapping="WrapWholeWords"/>
-                                <FontIcon Margin="0, 10, 0, 0" Glyph="" HorizontalAlignment="Right" FontSize="15"/>
-                            </StackPanel>
-                        </Button>
-                        <Button CornerRadius="8" Width="225" Height="225" HorizontalContentAlignment="Stretch">
-                            <StackPanel Margin="10" HorizontalAlignment="Stretch" VerticalAlignment="Top">
-                                <Image Width="75" Height="75" Source="/Assets/AppIcons/CrimsonUIGlyph.png" HorizontalAlignment="Left"/>
-                                <TextBlock Margin="0, 15, 0, 0" FontSize="20" Text="CrimsonUI"/>
-                                <TextBlock Margin="0, 5, 0, 0" FontSize="11" Opacity="0.7" Text="Add a little bit of light to your Windows build using CrimsonUI (applies to all Rebound 11 apps)." TextWrapping="WrapWholeWords"/>
                                 <FontIcon Margin="0, 10, 0, 0" Glyph="" HorizontalAlignment="Right" FontSize="15"/>
                             </StackPanel>
                         </Button>
@@ -205,7 +197,7 @@
                         <FontIcon Glyph="" FontWeight="ExtraBlack" Foreground="White"/>
                     </Border>
                     <TextBlock Text="Rebound 11 is installed." FontWeight="SemiBold" FontSize="20" Margin="110, 20, 0, 0"/>
-                    <TextBlock Text="v0.0.2 ALPHA" Opacity="0.5" Margin="110, 45, 0, 0"/>
+                    <TextBlock Text="v0.0.3 ALPHA" Opacity="0.5" Margin="110, 45, 0, 0"/>
                     <StackPanel VerticalAlignment="Top" Margin="0, 30, 0, 0" Orientation="Horizontal" Spacing="8" HorizontalAlignment="Right">
                         <Button HorizontalAlignment="Right" Click="Button_Click_2">
                             <StackPanel Spacing="10" Orientation="Horizontal">
@@ -221,14 +213,10 @@
                         </Button>
                     </StackPanel>
                     <StackPanel Margin="0, 125, 0, 0" Spacing="8">
-                        <SettingsControls:SettingsCard Header="Update Rebound Hub" Description="Download a newer version of Rebound Hub from our website." IsClickEnabled="True">
+                        <InfoBar Severity="Informational" Title="If you just downloaded a new version of Rebound Hub, please update Rebound 11 as well." IsClosable="False" IsOpen="True"/>
+                        <SettingsControls:SettingsCard Header="Windows Update" IsClickEnabled="True">
                             <SettingsControls:SettingsCard.HeaderIcon>
                                 <FontIcon Glyph=""/>
-                            </SettingsControls:SettingsCard.HeaderIcon>
-                        </SettingsControls:SettingsCard>
-                        <SettingsControls:SettingsCard Header="Control Panel" IsClickEnabled="True">
-                            <SettingsControls:SettingsCard.HeaderIcon>
-                                <PathIcon Margin="0, 0, -1, -5" Data="M -1 2 C -1 1 0 0 1 0 L 12 0 C 13 0 14 1 14 2 L 14 9 C 14 10 13 11 12 11 L 1 11 C 0 11 -1 10 -1 9 Z M 0 9 C 0.006 9.481 0.477 10.016 1 10 L 12 10 C 12.527 10.016 12.998 9.524 13 9 L 13 2 C 12.997 1.513 12.52 0.992 12 1 L 1 1 C 0.499 1 0.002 1.448 0 2 Z M 3.51 1.994 A 1 1 0 0 0 3.531 6.998 A 1 1 0 0 0 3.521 1.994 M 3.5 3 L 3.5 4.5 L 5 4.5 C 5 5.333 4.333 6 3.5 6 C 2.666 6 2 5.333 2 4.5 C 2 3.666 2.666 3 3.5 3 Z M 7 2 L 12 2 L 12 3 L 7 3 M 7 4 L 12 4 L 12 5 L 7 5 M 7 6 L 12 6 L 12 7 L 7 7 M 1 8 L 12 8 L 12 9 L 1 9 M 8 8 L 16 16"/>
                             </SettingsControls:SettingsCard.HeaderIcon>
                         </SettingsControls:SettingsCard>
                         <SettingsControls:SettingsCard Header="Winver" IsClickEnabled="True">
@@ -266,18 +254,6 @@
                             </StackPanel>
                         </Button>
                     </StackPanel>
-                    <StackPanel Margin="0, 125, 0, 0" Spacing="8">
-                        <SettingsControls:SettingsCard Header="Update Rebound Hub" Description="Download a newer version of Rebound Hub from our website." IsClickEnabled="True">
-                            <SettingsControls:SettingsCard.HeaderIcon>
-                                <FontIcon Glyph=""/>
-                            </SettingsControls:SettingsCard.HeaderIcon>
-                        </SettingsControls:SettingsCard>
-                        <SettingsControls:SettingsCard Header="Learn more" IsClickEnabled="True">
-                            <SettingsControls:SettingsCard.HeaderIcon>
-                                <FontIcon Glyph=""/>
-                            </SettingsControls:SettingsCard.HeaderIcon>
-                        </SettingsControls:SettingsCard>
-                    </StackPanel>
                 </Grid>
                 <Grid x:Name="Rebound11IsInstallingGrid">
                     <FontIcon VerticalAlignment="Top" Glyph="" Width="90" Height="90" FontWeight="Black" FontSize="75" HorizontalAlignment="Left">
@@ -295,7 +271,7 @@
                                 <GradientStop Color="#fdbb01" Offset="1"/>
                             </LinearGradientBrush>
                         </Border.Background>
-                        <FontIcon Glyph="" FontSize="35" Foreground="Black" Margin="1, 1, -1, -1"/>
+                        <FontIcon Glyph="" FontSize="35" Foreground="Black" Margin="1, -1, -1, 1"/>
                     </Border>
                     <TextBlock Text="Configure Rebound 11 Installation" FontWeight="SemiBold" FontSize="20" Margin="110, 20, 0, 0"/>
                     <TextBlock Text="Choose the apps you would like to install." Opacity="0.5" Margin="110, 45, 0, 0"/>
@@ -305,25 +281,29 @@
                         </Button>
                     </StackPanel>
                     <StackPanel Margin="0, 125, 0, 0" Spacing="8">
-                        <SettingsControls:SettingsCard Header="Update Rebound Hub" Description="Download a newer version of Rebound Hub from our website." IsClickEnabled="True">
-                            <SettingsControls:SettingsCard.HeaderIcon>
-                                <FontIcon Glyph=""/>
-                            </SettingsControls:SettingsCard.HeaderIcon>
-                        </SettingsControls:SettingsCard>
-                        <SettingsControls:SettingsCard Header="Learn more" IsClickEnabled="True">
-                            <SettingsControls:SettingsCard.HeaderIcon>
-                                <FontIcon Glyph=""/>
-                            </SettingsControls:SettingsCard.HeaderIcon>
-                        </SettingsControls:SettingsCard>
+                        <TextBlock Style="{ThemeResource SubtitleTextBlockStyle}" Text="Installation templates"/>
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="8"/>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="8"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <Button IsEnabled="False" Grid.Column="0" HorizontalAlignment="Stretch" Content="☁️ Lightweight" FontSize="20" Padding="12"/>
+                            <Button IsEnabled="False" Grid.Column="2" HorizontalAlignment="Stretch" Content="✨ Recommended" FontSize="20" Padding="12"/>
+                            <Button IsEnabled="False" Grid.Column="4" HorizontalAlignment="Stretch" Content="⚙️ Full" FontSize="20" Padding="12"/>
+                        </Grid>
+                        <TextBlock Style="{ThemeResource SubtitleTextBlockStyle}" Text="Items"/>
                         <StackPanel Spacing="12">
-                            <Expander Header="Common" HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch">
+                            <Expander Header="Common" IsExpanded="True" HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch">
                                 <StackPanel>
-                                    <CheckBox Content="File Explorer (Files - 3rd party) [ - ] - You will have to set this app as default after the installation process is finished" IsChecked="True" x:Name="FilesCheck"/>
-                                    <CheckBox Content="Remote Desktop [ - ]" IsChecked="True"/>
+                                    <CheckBox IsEnabled="False" Content="File Explorer (Files - 3rd party) - You will have to set this app as default after the installation process is finished" IsChecked="True" x:Name="FilesCheck"/>
+                                    <CheckBox IsEnabled="False" Content="Remote Desktop" IsChecked="True"/>
                                     <CheckBox Content="Run" x:Name="RunCheck" IsChecked="True"/>
-                                    <CheckBox Content="Steps Recorder [ - ]" IsChecked="True"/>
+                                    <CheckBox IsEnabled="False" Content="Steps Recorder" IsChecked="True"/>
                                     <CheckBox Content="Winver" x:Name="WinverCheck" IsChecked="True"/>
-                                    <RadioButtons Header="WordPad [ - ]" Margin="0, 15, 0, 0" SelectedIndex="2">
+                                    <RadioButtons IsEnabled="False" Header="WordPad" Margin="0, 15, 0, 0" SelectedIndex="2">
                                         <RadioButton Content="Keep original"/>
                                         <RadioButton Content="Ivirius Text Editor (partial launch support)"/>
                                         <RadioButton Content="Ivirius Text Editor Plus (recommended)"/>
@@ -333,37 +313,37 @@
                             </Expander>
                             <Expander Header="Productivity" HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch">
                                 <StackPanel>
-                                    <CheckBox Content="Character Map [ - ]" IsChecked="True"/>
-                                    <CheckBox Content="Mobility Center (All devices) [ - ]" IsChecked="True"/>
+                                    <CheckBox IsEnabled="False" Content="Character Map" IsChecked="True"/>
+                                    <CheckBox IsEnabled="False" Content="Mobility Center (All devices)" IsChecked="True"/>
                                     <CheckBox Content="On-screen keyboard" IsChecked="True" x:Name="OSKCheck"/>
-                                    <CheckBox Content="Presentation Settings (All devices) [ - ]" IsChecked="True"/>
-                                    <CheckBox Content="Sticky Keys and Filter keys [ - ]" IsChecked="True"/>
-                                    <CheckBox Content="Volume Mixer (sndvol.exe) [ - ]" IsChecked="True"/>
+                                    <CheckBox IsEnabled="False" Content="Presentation Settings (All devices)" IsChecked="True"/>
+                                    <CheckBox IsEnabled="False" Content="Sticky Keys and Filter keys" IsChecked="True"/>
+                                    <CheckBox IsEnabled="False" Content="Volume Mixer (sndvol.exe)" IsChecked="True"/>
                                 </StackPanel>
                             </Expander>
                             <Expander Header="System Tools" HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch">
                                 <StackPanel>
-                                    <CheckBox Content="Authorization Manager [ - ]"/>
-                                    <CheckBox Content="Certificate Manager [ - ]" IsChecked="True"/>
-                                    <CheckBox Content="Color Management [ - ]"/>
-                                    <CheckBox Content="Component Services [ - ]"/>
-                                    <CheckBox Content="Computer Management [ - ]"/>
+                                    <CheckBox IsEnabled="False" Content="Authorization Manager"/>
+                                    <CheckBox IsEnabled="False" Content="Certificate Manager" IsChecked="True"/>
+                                    <CheckBox IsEnabled="False" Content="Color Management"/>
+                                    <CheckBox IsEnabled="False" Content="Component Services"/>
+                                    <CheckBox IsEnabled="False" Content="Computer Management"/>
                                     <CheckBox Content="Control Panel - You cannot disable this option." IsEnabled="False" IsChecked="True"/>
                                     <CheckBox Content="Defragment and Optimize Drives" IsChecked="True" x:Name="DefragCheck"/>
                                     <CheckBox Content="Disk Cleanup" IsChecked="True" x:Name="DiskCleanupCheck"/>
-                                    <CheckBox Content="Malicious Software Removal Tool [ - ]"/>
-                                    <CheckBox Content="Memory Diagnostic [ - ]"/>
-                                    <CheckBox Content="Print Management [ - ]"/>
-                                    <CheckBox Content="Registry Editor (Registry Editor Valley - 3rd party) [ - ]" IsChecked="True"/>
-                                    <CheckBox Content="Services [ - ]"/>
-                                    <CheckBox Content="System Configuration [ - ]"/>
-                                    <CheckBox Content="System Information [ - ]" IsChecked="True"/>
-                                    <CheckBox Content="System Restore [ - ]"/>
-                                    <CheckBox Content="Task Scheduler [ - ]"/>
-                                    <CheckBox Content="TPM Management [ - ]" x:Name="TPMCheck"/>
+                                    <CheckBox IsEnabled="False" Content="Malicious Software Removal Tool"/>
+                                    <CheckBox IsEnabled="False" Content="Memory Diagnostic"/>
+                                    <CheckBox IsEnabled="False" Content="Print Management"/>
+                                    <CheckBox IsEnabled="False" Content="Registry Editor (Registry Editor Valley - 3rd party)" IsChecked="True"/>
+                                    <CheckBox IsEnabled="False" Content="Services"/>
+                                    <CheckBox IsEnabled="False" Content="System Configuration"/>
+                                    <CheckBox IsEnabled="False" Content="System Information" IsChecked="True"/>
+                                    <CheckBox IsEnabled="False" Content="System Restore"/>
+                                    <CheckBox IsEnabled="False" Content="Task Scheduler"/>
+                                    <CheckBox Content="TPM Management" x:Name="TPMCheck"/>
                                     <CheckBox Content="User Account Control settings" IsChecked="True" x:Name="UACCheck"/>
-                                    <CheckBox Content="User Account Manager [ - ]"/>
-                                    <CheckBox Content="Windows Defender Firewall [ - ]"/>
+                                    <CheckBox IsEnabled="False" Content="User Account Manager"/>
+                                    <CheckBox IsEnabled="False" Content="Windows Defender Firewall"/>
                                 </StackPanel>
                             </Expander>
                             <Expander HorizontalContentAlignment="Left" HorizontalAlignment="Stretch" Header="Additional software">
@@ -371,11 +351,15 @@
                                     <HyperlinkButton Content="Screenbox video player"/>
                                     <HyperlinkButton Content="Lively Weather"/>
                                     <HyperlinkButton Content="Wino Mail"/>
+                                    <HyperlinkButton Content="FluentHub"/>
+                                    <HyperlinkButton Content="SecureFolderFS"/>
+                                    <HyperlinkButton Content="Clipboard Canvas"/>
+                                    <HyperlinkButton Content="StartStrikesBack"/>
                                 </StackPanel>
                             </Expander>
                             <StackPanel Margin="0, 10, 0, 0" Spacing="10">
                                 <TextBlock Margin="5" Style="{StaticResource SubtitleTextBlockStyle}" Text="Installation"/>
-                                <InfoBar IsOpen="True" IsClosable="False" Severity="Warning" Title="Before you proceed, please read the following disclaimer:" Message="Rebound 11 is not a Windows mod. By clicking &quot;Install&quot;, Rebound 11 will replace shortcuts to system apps and install the required packages and certificates. All changes can be reverted after the installation is finished. Do not shut down your computer or close the installer to prevent damaging your PC. Rebound 11 does not modify Windows and will install standalone WinUI 3 apps to modernize your system instead of replacing system files. Ivirius is not responsible for any damages caused to your computer. The risk of damaging your PC is very low, but as with any software, still existent. Every Win32 app will still be available to use if Rebound 11 does not work properly. No system restore points are required to revert the changes.&#x0a;&#x0a;Rebound Hub will stop explorer.exe and restart it after the installation process is finished. Please save your work before proceeding.&#x0a;&#x0a;Do you wish to proceed?" HorizontalAlignment="Stretch"/>
+                                <InfoBar IsOpen="True" IsClosable="False" Severity="Warning" Title="Before you proceed, please read the following disclaimer:" Message="Rebound 11 is not a Windows mod. By clicking &quot;Install&quot;, Rebound 11 will replace shortcuts to system apps and install the required packages and certificates. All changes can be reverted after the installation is finished. Do not shut down your computer or close the installer to prevent damaging your PC. Rebound 11 does not modify Windows and will install standalone WinUI 3 apps to modernize your system instead of replacing system files. Ivirius is not responsible for any damages caused to your computer. The risk of damaging your PC is very low, but as with any software, still existent. Every Win32 app will still be available to use if Rebound 11 does not work properly. No system restore points are required to revert the changes.&#x0a;&#x0a;Rebound Hub will stop explorer.exe and restart it after the installation process is finished. Please save your work before proceeding." HorizontalAlignment="Stretch"/>
                             </StackPanel>
                         </StackPanel>
                     </StackPanel>

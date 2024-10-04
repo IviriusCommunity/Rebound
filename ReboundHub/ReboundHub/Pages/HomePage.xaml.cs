@@ -52,7 +52,7 @@ public sealed partial class HomePage : Page
     {
         try
         {
-            Wallpaper.Source = new BitmapImage(new Uri(GetWallpaperPath(), UriKind.RelativeOrAbsolute));
+            BKGImage.Path = GetWallpaperPath();
         }
         catch
         {

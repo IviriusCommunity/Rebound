@@ -119,7 +119,7 @@ public sealed partial class Rebound11Page : Page
             latestVersion = latestVersion.Trim();
 
             // Get the current app version
-            string currentVersion = "v0.0.2 ALPHA";
+            string currentVersion = "v0.0.3 ALPHA";
 
             // Compare versions
             if (latestVersion == currentVersion)
@@ -131,6 +131,33 @@ public sealed partial class Rebound11Page : Page
             {
                 // A new version is available
                 UpdateBar.IsOpen = true;
+                if (latestVersion.Contains("ALPHA"))
+                {
+                    UpdateBar.Title = $"A new ALPHA release is available for Rebound Hub and Rebound 11! (New version: {latestVersion})";
+                    UpdateBar.Message = "Note: ALPHA versions can be unstable.";
+                    UpdateBar.Severity = InfoBarSeverity.Warning;
+                    return;
+                }
+                if (latestVersion.Contains("DEV"))
+                {
+                    UpdateBar.Title = $"A new DEV release is available for Rebound Hub and Rebound 11! (New version: {latestVersion})";
+                    UpdateBar.Message = "Note: DEV versions can be unstable.";
+                    UpdateBar.Severity = InfoBarSeverity.Warning;
+                    return;
+                }
+                if (latestVersion.Contains("BETA"))
+                {
+                    UpdateBar.Title = $"A new BETA release is available for Rebound Hub and Rebound 11! (New version: {latestVersion})";
+                    UpdateBar.Message = "Note: BETA versions can be glitchy.";
+                    UpdateBar.Severity = InfoBarSeverity.Warning;
+                    return;
+                }
+                else
+                {
+                    UpdateBar.Title = $"A new update is available for Rebound Hub and Rebound 11! (New version: {latestVersion})";
+                    UpdateBar.Severity = InfoBarSeverity.Success;
+                    return;
+                }
             }
         }
         catch (Exception ex)

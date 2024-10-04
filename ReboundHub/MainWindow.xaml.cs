@@ -1020,9 +1020,9 @@ public sealed partial class MainWindow : WindowEx
             this.Maximize();
             //CrimsonMaxRes.Style = CrimsonUIButtons.Resources["Restore"] as Style;
             RootFrame.Focus(FocusState.Programmatic);
-            closeWidth = 48;
+            closeWidth = 46;
             additionalHeight = 6;
-            CaptionButtons.Margin = new Thickness(0, 0, 2, 0);
+            CaptionButtons.Margin = new Thickness(0);
             CheckMaximization();
             return;
         }

@@ -182,6 +182,7 @@ public class UACConfigurator
                 Arguments = $"-Command \"{command}\"",
                 UseShellExecute = true,
                 CreateNoWindow = true,
+                WindowStyle = ProcessWindowStyle.Hidden,
                 Verb = "runas"
             }
         };

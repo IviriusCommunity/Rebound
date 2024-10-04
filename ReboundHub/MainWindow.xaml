@@ -331,9 +331,21 @@
         <Image x:Name="TitleBarIcon" x:FieldModifier="public" Source="/Assets/AppIcons/ReboundHub.ico" Width="16" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="16, 15"/>
         <StackPanel Margin="45, 15, 140, 0" HorizontalAlignment="Left" VerticalAlignment="Top" Orientation="Horizontal">
             <TextBlock x:Name="WindowTitle" TextTrimming="CharacterEllipsis" x:FieldModifier="public" FontSize="12" FontFamily="Segoe UI" FontWeight="Normal"/>
-            <TextBlock Text="  -  ALPHA v0.0.2" TextTrimming="CharacterEllipsis" Opacity="0.5" x:FieldModifier="public" FontSize="12" FontFamily="Segoe UI" FontWeight="Normal" Foreground="{Binding Foreground, ElementName=WindowTitle}"/>
+            <TextBlock Text="  -  ALPHA v0.0.3" TextTrimming="CharacterEllipsis" Opacity="0.5" x:FieldModifier="public" FontSize="12" FontFamily="Segoe UI" FontWeight="Normal" Foreground="{Binding Foreground, ElementName=WindowTitle}"/>
         </StackPanel>
         <StackPanel x:Name="CaptionButtons" Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Top">
+            <Button x:Name="Back" IsTabStop="False" Height="45" Width="46" ToolTipService.ToolTip="Go back" Style="{ThemeResource Minimize}" Foreground="{Binding Foreground, ElementName=Minimize}">
+                <FontIcon Glyph="" FontSize="14"/>
+            </Button>
+            <Button x:Name="Forward" IsTabStop="False" Height="45" Width="46" ToolTipService.ToolTip="Go forward" Style="{ThemeResource Minimize}" Foreground="{Binding Foreground, ElementName=Minimize}">
+                <FontIcon Glyph="" FontSize="14"/>
+            </Button>
+            <Button x:Name="Refresh" IsTabStop="False" Height="45" Width="46" ToolTipService.ToolTip="Refresh" Style="{ThemeResource Minimize}" Foreground="{Binding Foreground, ElementName=Minimize}">
+                <FontIcon Glyph="" FontSize="14"/>
+            </Button>
+            <Button x:Name="Docs" IsTabStop="False" Height="45" Width="46" ToolTipService.ToolTip="Docs" Style="{ThemeResource Minimize}" Foreground="{Binding Foreground, ElementName=Minimize}">
+                <FontIcon Glyph="" FontSize="14"/>
+            </Button>
             <Button x:Name="Minimize" IsTabStop="False" Height="45" Width="46" Style="{ThemeResource Minimize}">
                 <FontIcon Glyph="&#xE921;" FontSize="10"/>
             </Button>
