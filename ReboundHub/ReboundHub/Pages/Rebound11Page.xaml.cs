@@ -17,6 +17,7 @@ using Microsoft.UI.Xaml.Navigation;
 using Windows.ApplicationModel.AppExtensions;
 using Windows.Foundation;
 using Windows.Foundation.Collections;
+using Windows.System;
 using Windows.UI;
 using WinUIEx;
 
@@ -201,5 +202,17 @@ public sealed partial class Rebound11Page : Page
         // Wait for the process to exit before proceeding
         await process.WaitForExitAsync();
         App.m_window.Close();
+    }
+
+    private void SettingsCard_Click(object sender, RoutedEventArgs e)
+    {
+        if (File.Exists("C:\\Rebound11\\rwinver.exe"))
+        {
+            Process.Start("C:\\Rebound11\\rwinver.exe");
+        }
+        else
+        {
+            Process.Start("winver.exe");
+        }
     }
 }

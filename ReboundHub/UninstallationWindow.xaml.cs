@@ -126,7 +126,7 @@ public sealed partial class UninstallationWindow : WindowEx
             "Change User Account Control settings");
 
         await UninstallAppPackage(
-            "8ab98b2f-6dbe-4358-a752-979d011f968d_0.0.4.0_x64__yejd587sfa94t",
+            "8ab98b2f-6dbe-4358-a752-979d011f968d_0.1.0.0_x64__yejd587sfa94t",
             "Rebound Run",
             $@"{AppContext.BaseDirectory}\Rebound11Files\shcwin11\Run.lnk",
             $@"{Environment.GetFolderPath(Environment.SpecialFolder.StartMenu)}\Programs\System Tools\Run.lnk",
@@ -138,14 +138,14 @@ public sealed partial class UninstallationWindow : WindowEx
             "Rebound Run");
 
         await UninstallAppPackage(
-            "54d2a63e-e616-4159-bed6-c776b8a816e1_0.0.2.0_x64__yejd587sfa94t",
+            "54d2a63e-e616-4159-bed6-c776b8a816e1_0.1.0.0_x64__yejd587sfa94t",
             "Rebound Defragment And Optimize Drives",
             $@"{AppContext.BaseDirectory}\Rebound11Files\shcwin11\dfrgui.lnk",
             $@"{Environment.GetFolderPath(Environment.SpecialFolder.CommonAdminTools)}\dfrgui.lnk",
             "Defragment And Optimize Drives");
 
         await UninstallAppPackage(
-            "039b9731-7b33-49de-bb09-5b81d5978d1c_0.0.2.0_x64__yejd587sfa94t",
+            "039b9731-7b33-49de-bb09-5b81d5978d1c_0.0.3.0_x64__yejd587sfa94t",
             "Rebound Winver",
             $@"",
             $@"{Environment.GetFolderPath(Environment.SpecialFolder.CommonAdminTools)}\winver.lnk",
@@ -158,14 +158,14 @@ public sealed partial class UninstallationWindow : WindowEx
             "On-Screen Keyboard");
 
         await UninstallAppPackage(
-            "0b347e39-1da3-4fc7-80c2-dbf3603118f3_1.0.3.0_x64__yejd587sfa94t",
+            "0b347e39-1da3-4fc7-80c2-dbf3603118f3_1.0.4.0_x64__yejd587sfa94t",
             "Rebound TPM Management",
             $@"",
             $@"{Environment.GetFolderPath(Environment.SpecialFolder.CommonAdminTools)}\tpm.msc.lnk",
             "tpm.msc");
 
         await UninstallAppPackage(
-            "e8dfd11c-954d-46a2-b700-9cbc6201f056_1.0.0.0_x64__yejd587sfa94t",
+            "e8dfd11c-954d-46a2-b700-9cbc6201f056_1.0.2.0_x64__yejd587sfa94t",
             "Rebound Disk Cleanup",
             $@"{AppContext.BaseDirectory}\Rebound11Files\shcwin11\Disk Cleanup.lnk",
             $@"{Environment.GetFolderPath(Environment.SpecialFolder.CommonAdminTools)}\Disk Cleanup.lnk",
