@@ -1,0 +1,10 @@
+{
+  "profiles": {
+    "ReboundDefrag (Package)": {
+      "commandName": "MsixPackage"
+    },
+    "ReboundDefrag (Unpackaged)": {
+      "commandName": "Project"
+    }
+  }
+}

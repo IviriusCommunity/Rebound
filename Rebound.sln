@@ -5,6 +5,8 @@ VisualStudioVersion = 17.9.34616.47
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ReboundHub", "ReboundHub\ReboundHub.csproj", "{4C58BAB7-F9D6-48AB-B20D-C8F6413D6E34}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ReboundDefrag", "ReboundDefrag\ReboundDefrag.csproj", "{86C0359D-C08A-4963-9B77-2400F5039232}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|ARM64 = Debug|ARM64
@@ -33,6 +35,24 @@ Global
 		{4C58BAB7-F9D6-48AB-B20D-C8F6413D6E34}.Release|x86.ActiveCfg = Release|x86
 		{4C58BAB7-F9D6-48AB-B20D-C8F6413D6E34}.Release|x86.Build.0 = Release|x86
 		{4C58BAB7-F9D6-48AB-B20D-C8F6413D6E34}.Release|x86.Deploy.0 = Release|x86
+		{86C0359D-C08A-4963-9B77-2400F5039232}.Debug|ARM64.ActiveCfg = Debug|ARM64
+		{86C0359D-C08A-4963-9B77-2400F5039232}.Debug|ARM64.Build.0 = Debug|ARM64
+		{86C0359D-C08A-4963-9B77-2400F5039232}.Debug|ARM64.Deploy.0 = Debug|ARM64
+		{86C0359D-C08A-4963-9B77-2400F5039232}.Debug|x64.ActiveCfg = Debug|x64
+		{86C0359D-C08A-4963-9B77-2400F5039232}.Debug|x64.Build.0 = Debug|x64
+		{86C0359D-C08A-4963-9B77-2400F5039232}.Debug|x64.Deploy.0 = Debug|x64
+		{86C0359D-C08A-4963-9B77-2400F5039232}.Debug|x86.ActiveCfg = Debug|x86
+		{86C0359D-C08A-4963-9B77-2400F5039232}.Debug|x86.Build.0 = Debug|x86
+		{86C0359D-C08A-4963-9B77-2400F5039232}.Debug|x86.Deploy.0 = Debug|x86
+		{86C0359D-C08A-4963-9B77-2400F5039232}.Release|ARM64.ActiveCfg = Release|ARM64
+		{86C0359D-C08A-4963-9B77-2400F5039232}.Release|ARM64.Build.0 = Release|ARM64
+		{86C0359D-C08A-4963-9B77-2400F5039232}.Release|ARM64.Deploy.0 = Release|ARM64
+		{86C0359D-C08A-4963-9B77-2400F5039232}.Release|x64.ActiveCfg = Release|x64
+		{86C0359D-C08A-4963-9B77-2400F5039232}.Release|x64.Build.0 = Release|x64
+		{86C0359D-C08A-4963-9B77-2400F5039232}.Release|x64.Deploy.0 = Release|x64
+		{86C0359D-C08A-4963-9B77-2400F5039232}.Release|x86.ActiveCfg = Release|x86
+		{86C0359D-C08A-4963-9B77-2400F5039232}.Release|x86.Build.0 = Release|x86
+		{86C0359D-C08A-4963-9B77-2400F5039232}.Release|x86.Deploy.0 = Release|x86
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

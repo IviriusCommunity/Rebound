@@ -1,0 +1,98 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net8.0-windows10.0.19041.0</TargetFramework>
+    <TargetPlatformMinVersion>10.0.17763.0</TargetPlatformMinVersion>
+    <RootNamespace>ReboundDefrag</RootNamespace>
+    <ApplicationManifest>app.manifest</ApplicationManifest>
+    <Platforms>x86;x64;ARM64</Platforms>
+    <RuntimeIdentifiers Condition="$([MSBuild]::GetTargetFrameworkVersion('$(TargetFramework)')) &gt;= 8">win-x86;win-x64;win-arm64</RuntimeIdentifiers>
+    <RuntimeIdentifiers Condition="$([MSBuild]::GetTargetFrameworkVersion('$(TargetFramework)')) &lt; 8">win10-x86;win10-x64;win10-arm64</RuntimeIdentifiers>
+    <PublishProfile>win-$(Platform).pubxml</PublishProfile>
+    <UseWinUI>true</UseWinUI>
+    <EnableMsixTooling>true</EnableMsixTooling>
+       <WindowsSdkPackageVersion>10.0.22621.35-preview</WindowsSdkPackageVersion>
+       <GenerateAppInstallerFile>True</GenerateAppInstallerFile>
+       <AppxPackageSigningEnabled>True</AppxPackageSigningEnabled>
+       <AppxPackageSigningTimestampDigestAlgorithm>SHA256</AppxPackageSigningTimestampDigestAlgorithm>
+       <AppxAutoIncrementPackageRevision>False</AppxAutoIncrementPackageRevision>
+       <AppxSymbolPackageEnabled>False</AppxSymbolPackageEnabled>
+       <GenerateTestArtifacts>True</GenerateTestArtifacts>
+       <AppxBundle>Never</AppxBundle>
+       <AppInstallerUri>C:\Users\Lenovo\Desktop\rdfrgui</AppInstallerUri>
+       <HoursBetweenUpdateChecks>0</HoursBetweenUpdateChecks>
+       <ApplicationIcon>ReboundDefrag.ico</ApplicationIcon>
+       <PackageCertificateThumbprint>805D9FAF3E251362A569D694C3D7834BE80FE5B8</PackageCertificateThumbprint>
+  </PropertyGroup>
+  <ItemGroup>
+    <None Remove="Assets\Administrator.png" />
+    <None Remove="Assets\Drive.png" />
+    <None Remove="Assets\DriveFloppy.png" />
+    <None Remove="Assets\DriveOptical.png" />
+    <None Remove="Assets\DriveRemovable.png" />
+    <None Remove="Assets\DriveSystem.png" />
+    <None Remove="Assets\DriveUnknown.png" />
+    <None Remove="Assets\DriveWindows.png" />
+    <None Remove="Assets\ReboundDefrag.ico" />
+    <None Remove="Assets\ReboundDefrag.png" />
+    <None Remove="ScheduledOptimization.xaml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Page Remove="AdminWindow.xaml" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="Assets\SplashScreen.scale-200.png" />
+    <Content Include="Assets\LockScreenLogo.scale-200.png" />
+    <Content Include="Assets\Square150x150Logo.scale-200.png" />
+    <Content Include="Assets\Square44x44Logo.scale-200.png" />
+    <Content Include="Assets\Square44x44Logo.targetsize-24_altform-unplated.png" />
+    <Content Include="Assets\Wide310x150Logo.scale-200.png" />
+    <Content Include="ReboundDefrag.ico" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Cake.Powershell" Version="4.0.0" />
+    <PackageReference Include="HardwareProviders.HDD.Standard" Version="2.0.1" />
+    <PackageReference Include="Microsoft-WindowsAPICodePack-Shell" Version="1.1.5" />
+    <PackageReference Include="Microsoft.Windows.CsWinRT" Version="2.1.0-prerelease.240602.1" />
+    <PackageReference Include="Microsoft.Windows.SDK.BuildTools" Version="10.0.22621.3233" />
+    <PackageReference Include="Microsoft.WindowsAppSDK" Version="1.6.240701003-experimental2" />
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
+    <PackageReference Include="System.Diagnostics.EventLog" Version="9.0.0-preview.6.24327.7" />
+    <PackageReference Include="TaskScheduler" Version="2.11.0" />
+    <PackageReference Include="WinUIEx" Version="2.3.4" />
+    <Manifest Include="$(ApplicationManifest)" />
+  </ItemGroup>
+
+  <!--
+    Defining the "Msix" ProjectCapability here allows the Single-project MSIX Packaging
+    Tools extension to be activated for this project even if the Windows App SDK Nuget
+    package has not yet been restored.
+  -->
+  <ItemGroup Condition="'$(DisableMsixProjectCapabilityAddedByProject)'!='true' and '$(EnableMsixTooling)'=='true'">
+    <ProjectCapability Include="Msix" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Update="Assets\DriveSystem.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <None Update="AdminWindow.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </None>
+    <Page Update="ScheduledOptimization.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+  </ItemGroup>
+
+  <!--
+    Defining the "HasPackageAndPublishMenuAddedByProject" property here allows the Solution
+    Explorer "Package and Publish" context menu entry to be enabled for this project even if
+    the Windows App SDK Nuget package has not yet been restored.
+  -->
+  <PropertyGroup Condition="'$(DisableHasPackageAndPublishMenuAddedByProject)'!='true' and '$(EnableMsixTooling)'=='true'">
+    <HasPackageAndPublishMenu>true</HasPackageAndPublishMenu>
+  </PropertyGroup>
+</Project>
