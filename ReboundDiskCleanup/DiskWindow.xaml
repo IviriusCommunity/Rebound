@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?>
+<winuiex:WindowEx
+    x:Class="ReboundDiskCleanup.DiskWindow"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:ReboundDiskCleanup"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:winuiex="using:WinUIEx"
+    mc:Ignorable="d">
+
+    <Grid VerticalAlignment="Stretch">
+        <StackPanel VerticalAlignment="Top" Orientation="Horizontal" Spacing="4">
+            <MenuBar Margin="5">
+                <MenuBarItem Title="More Options" x:Name="MoreOptions">
+                    <MenuFlyoutItem Text="Defragment and Optimize Drives" Click="MenuFlyoutItem_Click"/>
+                    <MenuFlyoutItem Text="Legacy Disk Cleanup" Click="MenuFlyoutItem_Click_1"/>
+                    <MenuFlyoutItem Text="Uninstall apps" Click="MenuFlyoutItem_Click_2"/>
+                </MenuBarItem>
+            </MenuBar>
+            <Button Content="Clean up system files" Background="Transparent" BorderThickness="0" Click="Button_Click" x:Name="SysFilesButton"/>
+            <Button Content="View Files" Background="Transparent" BorderThickness="0" x:Name="ViewFiles" Click="ViewFiles_Click"/>
+        </StackPanel>
+        <Grid Margin="0, 40, 0, 0">
+            <InfoBar x:Name="Title" Margin="15, 10" VerticalAlignment="Top" IsOpen="True" IsClosable="False" Title="You can use Disk Cleanup to free up to (AMOUNT) of disk space on (C:)."/>
+            <CheckBox Content="Select all" Click="CheckBox_Click" Checked="CheckBox_Checked" Unchecked="CheckBox_Unchecked" x:Name="SelectAllBox" Margin="20, 85" VerticalAlignment="Top" IsChecked="{x:Null}"/>
+            <ListView SelectionChanged="CleanItems_SelectionChanged" Margin="15, 120, 15, 0" Height="190" x:Name="CleanItems" VerticalAlignment="Top" Background="{ThemeResource ControlFillColorDefaultBrush}" BorderBrush="{ThemeResource ControlElevationBorderBrush}" BorderThickness="1" CornerRadius="4">
+                <ListView.ItemTemplate>
+                    <DataTemplate>
+                        <Grid>
+                            <StackPanel Orientation="Horizontal" HorizontalAlignment="Stretch">
+                                <CheckBox Width="25" Margin="0, 0, -90, 0" IsChecked="{Binding IsChecked, Mode=TwoWay}"/>
+                                <Image Source="{Binding ImagePath}" Width="24" Margin="0,0,10,0"/>
+                                <TextBlock Text="{Binding Name}" VerticalAlignment="Center"/>
+                            </StackPanel>
+                            <TextBlock Text="{Binding DisplaySize}" VerticalAlignment="Center" HorizontalAlignment="Right" Opacity="0.5"/>
+                        </Grid>
+                    </DataTemplate>
+                </ListView.ItemTemplate>
+            </ListView>
+            <InfoBar Title="Description" IsOpen="True" IsClosable="False" Margin="15, 320, 15, 85" VerticalContentAlignment="Stretch">
+                <ScrollViewer Margin="0, 0, 15, 15" Height="95">
+                    <TextBlock TextWrapping="WrapWholeWords" x:Name="ItemDetails" HorizontalTextAlignment="Justify" Text="Details about the item." Margin="0, 0, 20, 0"/>
+                </ScrollViewer>
+            </InfoBar>
+            <Border Grid.ColumnSpan="2" BorderThickness="0,1,0,0" Height="75" Background="{ThemeResource SystemControlBackgroundAltMediumLowBrush}" BorderBrush="#338A8A8A" VerticalAlignment="Bottom"/>
+            <Grid VerticalAlignment="Bottom" Margin="20">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition/>
+                    <ColumnDefinition Width="8"/>
+                    <ColumnDefinition/>
+                </Grid.ColumnDefinitions>
+                <Button Content="Clean" Style="{ThemeResource AccentButtonStyle}" HorizontalAlignment="Stretch" Click="Button_Click_1" x:Name="CleanButton"/>
+                <Button Content="Cancel" Grid.Column="2" HorizontalAlignment="Stretch" Click="Button_Click_2" x:Name="CancelButton"/>
+            </Grid>
+        </Grid>
+        <ProgressBar x:Name="Working" Margin="0, 0, 0, 73" VerticalAlignment="Bottom" Background="Transparent"/>
+    </Grid>
+</winuiex:WindowEx>

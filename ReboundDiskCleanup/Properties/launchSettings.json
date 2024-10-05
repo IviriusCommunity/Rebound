@@ -1,0 +1,10 @@
+{
+  "profiles": {
+    "ReboundDiskCleanup (Package)": {
+      "commandName": "MsixPackage"
+    },
+    "ReboundDiskCleanup (Unpackaged)": {
+      "commandName": "Project"
+    }
+  }
+}
