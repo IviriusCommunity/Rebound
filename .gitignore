@@ -3,6 +3,11 @@
 ##
 ## Get latest from https://github.com/github/gitignore/blob/master/VisualStudio.gitignore
 
+# Custom files
+
+/Rebound/Rebound11Files/Executables/Quick Full Computer Cleanup.exe
+/Rebound/Rebound11Files/Executables/QuickFullComputerCleanup.exe
+
 # User-specific files
 *.rsuser
 *.suo
@@ -361,5 +366,3 @@ MigrationBackup/
 
 # Fody - auto-generated XML schema
 FodyWeavers.xsd
-/Rebound/Rebound11Files/Executables/Quick Full Computer Cleanup.exe
-/Rebound/Rebound11Files/Executables/QuickFullComputerCleanup.exe
