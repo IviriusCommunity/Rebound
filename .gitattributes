@@ -57,6 +57,6 @@
 #*.PDF   diff=astextplain
 #*.rtf   diff=astextplain
 #*.RTF   diff=astextplain
-/Rebound11Files/AppPackages/ReboundDefrag.msix filter=lfs diff=lfs merge=lfs -text
-D:/Ivirius[[:space:]]Community/Source[[:space:]]Code/Current[[:space:]]Apps/Rebound[[:space:]]Hub/ReboundHub/Rebound11Files/Executables/QuickFullComputerCleanup.exe filter=lfs diff=lfs merge=lfs -text
+/Rebound11Files/AppPackages/Rebound.Defrag.msix filter=lfs diff=lfs merge=lfs -text
+D:/Ivirius[[:space:]]Community/Source[[:space:]]Code/Current[[:space:]]Apps/Rebound[[:space:]]Hub/Rebound/Rebound11Files/Executables/QuickFullComputerCleanup.exe filter=lfs diff=lfs merge=lfs -text
 *.msix filter=lfs diff=lfs merge=lfs -text

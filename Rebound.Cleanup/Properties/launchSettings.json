@@ -1,0 +1,10 @@
+{
+  "profiles": {
+    "Rebound.Cleanup (Package)": {
+      "commandName": "MsixPackage"
+    },
+    "Rebound.Cleanup (Unpackaged)": {
+      "commandName": "Project"
+    }
+  }
+}

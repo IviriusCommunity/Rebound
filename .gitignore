@@ -361,5 +361,5 @@ MigrationBackup/
 
 # Fody - auto-generated XML schema
 FodyWeavers.xsd
-/ReboundHub/Rebound11Files/Executables/Quick Full Computer Cleanup.exe
-/ReboundHub/Rebound11Files/Executables/QuickFullComputerCleanup.exe
+/Rebound/Rebound11Files/Executables/Quick Full Computer Cleanup.exe
+/Rebound/Rebound11Files/Executables/QuickFullComputerCleanup.exe

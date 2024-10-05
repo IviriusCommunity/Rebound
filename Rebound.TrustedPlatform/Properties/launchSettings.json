@@ -1,0 +1,10 @@
+{
+  "profiles": {
+    "Rebound.TrustedPlatform (Package)": {
+      "commandName": "MsixPackage"
+    },
+    "Rebound.TrustedPlatform (Unpackaged)": {
+      "commandName": "Project"
+    }
+  }
+}

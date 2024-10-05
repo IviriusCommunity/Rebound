@@ -3,19 +3,19 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.9.34616.47
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ReboundHub", "ReboundHub\ReboundHub.csproj", "{4C58BAB7-F9D6-48AB-B20D-C8F6413D6E34}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Rebound", "Rebound\Rebound.csproj", "{4C58BAB7-F9D6-48AB-B20D-C8F6413D6E34}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ReboundDefrag", "ReboundDefrag\ReboundDefrag.csproj", "{86C0359D-C08A-4963-9B77-2400F5039232}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Rebound.Defrag", "Rebound.Defrag\Rebound.Defrag.csproj", "{86C0359D-C08A-4963-9B77-2400F5039232}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ReboundDiskCleanup", "ReboundDiskCleanup\ReboundDiskCleanup.csproj", "{C946D646-4659-4B05-91A2-15FF51D736D5}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Rebound.Cleanup", "Rebound.Cleanup\Rebound.Cleanup.csproj", "{C946D646-4659-4B05-91A2-15FF51D736D5}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ReboundRun", "ReboundRun\ReboundRun.csproj", "{632D4E75-5E9A-4F8E-A80D-F88C5EB8BD66}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Rebound.Run", "Rebound.Run\Rebound.Run.csproj", "{632D4E75-5E9A-4F8E-A80D-F88C5EB8BD66}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ReboundSysInfo", "ReboundSysInfo\ReboundSysInfo.csproj", "{389B26A3-70CA-4200-8CFA-88A131E909E2}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Rebound.SysInfo", "Rebound.SysInfo\Rebound.SysInfo.csproj", "{389B26A3-70CA-4200-8CFA-88A131E909E2}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ReboundTpm", "ReboundTpm\ReboundTpm.csproj", "{27052CF4-EC88-4FCB-8B2C-6D45ABFA7BB6}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Rebound.TrustedPlatform", "Rebound.TrustedPlatform\Rebound.TrustedPlatform.csproj", "{27052CF4-EC88-4FCB-8B2C-6D45ABFA7BB6}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ReboundWinver", "ReboundWinver\ReboundWinver.csproj", "{BF701670-43B6-4621-9564-84215313590C}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Rebound.About", "Rebound.About\Rebound.About.csproj", "{BF701670-43B6-4621-9564-84215313590C}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
