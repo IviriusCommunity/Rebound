@@ -23,6 +23,7 @@
 		<AppInstallerUri>C:/Users/Lenovo/Desktop</AppInstallerUri>
 		<HoursBetweenUpdateChecks>0</HoursBetweenUpdateChecks>
 		<ApplicationIcon>Assets\Rebound.ico</ApplicationIcon>
+		<AssemblyName>Rebound Winver</AssemblyName>
 	</PropertyGroup>
 	<ItemGroup>
 	  <None Remove="Assets\Rebound.ico" />
