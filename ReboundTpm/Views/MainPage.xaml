@@ -1,0 +1,184 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<Page
+    x:Class="ReboundTpm.Views.MainPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:local="using:ReboundTpm"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:wuc="using:WinUICommunity"
+    xmlns:toolkit="using:CommunityToolkit.WinUI.Controls"
+    mc:Ignorable="d">
+    <!-- Additional content below the landing banner -->
+    <Grid Grid.Row="1">
+        <NavigationView IsSettingsVisible="False" PaneTitle="TPM Management">
+            <NavigationView.MenuItems>
+                <NavigationViewItem IsSelected="True" Content="TPM Management on Local Computer">
+                    <NavigationViewItem.Icon>
+                        <FontIcon Glyph=""/>
+                    </NavigationViewItem.Icon>
+                </NavigationViewItem>
+            </NavigationView.MenuItems>
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" MinWidth="150"/>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="250" MinWidth="150" />
+                </Grid.ColumnDefinitions>
+
+                <StackPanel Spacing="20" HorizontalAlignment="Stretch" Margin="20">
+                    <!-- Header -->
+                    <TextBlock Text="TPM Management on Local Computer" 
+                           FontWeight="Bold" 
+                           FontSize="16" />
+                    <Expander Header="Overview" HorizontalAlignment="Stretch" IsExpanded="True">
+                        <TextBlock Text="Windows computers containing a Trusted Platfom Module (TPM) provide enhanced secutity features. This snap-in displays information about the computer's TPM and allows administrators to manage the device." TextWrapping="WrapWholeWords"/>
+                    </Expander>
+                    <InfoBar x:Name="StatusBar" Title="Status: Not Implemented." IsOpen="True" IsClosable="False" Severity="Warning"/>
+                    <Expander HorizontalContentAlignment="Stretch" Header="TPM Manufacturer Information" HorizontalAlignment="Stretch" IsExpanded="True">
+
+                        <!-- Information Grid -->
+                        <Grid>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                                <!-- New Rows for the added properties -->
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                            </Grid.RowDefinitions>
+
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto" />
+                                <ColumnDefinition Width="*" />
+                            </Grid.ColumnDefinitions>
+
+                            <!-- Manufacturer Name -->
+                            <TextBlock Text="Manufacturer Name:" 
+           FontWeight="SemiBold" 
+           FontSize="12" 
+           VerticalAlignment="Center" 
+           Grid.Row="0" 
+           Grid.Column="0" 
+           Margin="0,0,20,0"/>
+                            <TextBlock x:Name="ManufacturerName" 
+           FontSize="12" 
+           VerticalAlignment="Center" 
+           Grid.Row="0" 
+           Grid.Column="1" />
+
+                            <!-- Manufacturer Version -->
+                            <TextBlock Text="Manufacturer Version:" 
+           FontWeight="SemiBold" 
+           FontSize="12" 
+           VerticalAlignment="Center" 
+           Grid.Row="1" 
+           Grid.Column="0" 
+           Margin="0,10,20,0"/>
+                            <TextBlock x:Name="ManufacturerVersion" 
+           FontSize="12" 
+           VerticalAlignment="Center" 
+           Grid.Row="1" 
+           Grid.Column="1" 
+           Margin="0,10,0,0"/>
+
+                            <!-- Specification Version -->
+                            <TextBlock Text="Specification Version:" 
+           FontWeight="SemiBold" 
+           FontSize="12" 
+           VerticalAlignment="Center" 
+           Grid.Row="2" 
+           Grid.Column="0" 
+           Margin="0,10,20,0"/>
+                            <TextBlock  x:Name="SpecificationVersion" 
+           FontSize="12" 
+           VerticalAlignment="Center" 
+           Grid.Row="2" 
+           Grid.Column="1" 
+           Margin="0,10,0,0"/>
+
+
+                            <!-- TPM SubVersion -->
+                            <TextBlock Text="TPM SubVersion:" 
+                               FontWeight="SemiBold" 
+                               FontSize="12" 
+                               VerticalAlignment="Center" 
+                               Grid.Row="3" 
+                               Grid.Column="0" 
+                               Margin="0,10,20,0"/>
+                            <TextBlock  x:Name="TpmSubVersion" 
+                               FontSize="12" 
+                               VerticalAlignment="Center" 
+                               Grid.Row="3" 
+                               Grid.Column="1" 
+                               Margin="0,10,0,0"/>
+
+                            <!-- PC Client Spec Version -->
+                            <TextBlock Text="PC Client Spec Version:" 
+                               FontWeight="SemiBold" 
+                               FontSize="12" 
+                               VerticalAlignment="Center" 
+                               Grid.Row="4" 
+                               Grid.Column="0" 
+                               Margin="0,10,20,0"/>
+                            <TextBlock  x:Name="PcClientSpecVersion" 
+                               FontSize="12" 
+                               VerticalAlignment="Center" 
+                               Grid.Row="4" 
+                               Grid.Column="1" 
+                               Margin="0,10,0,0"/>
+
+                            <!-- PCR Values -->
+                            <TextBlock Text="PCR Values:" 
+                               FontWeight="SemiBold" 
+                               FontSize="12" 
+                               VerticalAlignment="Center" 
+                               Grid.Row="5" 
+                               Grid.Column="0" 
+                               Margin="0,10,20,0"/>
+                            <TextBlock  x:Name="PcrValues" 
+                               FontSize="12" 
+                               VerticalAlignment="Center" 
+                               Grid.Row="5" 
+                               Grid.Column="1" 
+                               Margin="0,10,0,0"/>
+                        </Grid>
+
+                    </Expander>
+                    <!-- Status Section -->
+                    <StackPanel Orientation="Horizontal" Visibility="Collapsed" Margin="0,30,0,10">
+                        <TextBlock Text="Status:" 
+               FontWeight="Bold" 
+               FontSize="14" 
+               VerticalAlignment="Center"/>
+                        <TextBlock  x:Name="Status" 
+               FontSize="14" 
+               Margin="10,0,0,0" 
+               VerticalAlignment="Center"/>
+                    </StackPanel>
+
+
+                </StackPanel>
+                <toolkit:GridSplitter Grid.Column="1" Width="16"/>
+                <Grid Grid.Column="2" Padding="15" Background="{ThemeResource CardBackgroundFillColorDefaultBrush}">
+                    <StackPanel Spacing="20">
+                        <TextBlock Text="Actions" 
+                           FontWeight="Bold" 
+                           FontSize="16" />
+                        <!-- Reset TPM Button -->
+                        <StackPanel Spacing="4">
+                            <HyperlinkButton BorderThickness="0" HorizontalContentAlignment="Left" Click="Button_Click" HorizontalAlignment="Stretch">
+                                Reset TPM
+                            </HyperlinkButton>
+                            <HyperlinkButton BorderThickness="0" HorizontalContentAlignment="Left" Click="HyperlinkButton_Click" HorizontalAlignment="Stretch">
+                                Refresh
+                            </HyperlinkButton>
+                        </StackPanel>
+                    </StackPanel>
+                </Grid>
+            </Grid>
+        </NavigationView>
+    </Grid>
+</Page>
+
