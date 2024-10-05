@@ -15,34 +15,38 @@
             Margin="10"
             wuc:PanelAttach.ChildrenTransitions="Default"
             Spacing="5">
-            <wuc:SettingsCard x:Name="GeneralSetting"
-                              Click="OnSettingCard_Click"
-                              Description="Change the app's settings"
-                              Header="General"
-                              HeaderIcon="{wuc:BitmapIcon Source=Assets/Fluent/settings.png}"
-                              IsClickEnabled="True"
-                              Tag="GeneralSettingPage" />
-            <wuc:SettingsCard x:Name="ThemeSetting"
-                              Click="OnSettingCard_Click"
-                              Description="Customize the appearance of the app. You can change the material, theme, accent, and more options to suit your preference."
-                              Header="Appearance &amp; behavior"
-                              HeaderIcon="{wuc:BitmapIcon Source=Assets/Fluent/theme.png}"
-                              IsClickEnabled="True"
-                              Tag="ThemeSettingPage" />
-            <wuc:SettingsCard x:Name="AppUpdateSetting"
-                              Click="OnSettingCard_Click"
-                              Description="Check for updates"
-                              Header="Updates"
-                              HeaderIcon="{wuc:BitmapIcon Source=Assets/Fluent/update.png}"
-                              IsClickEnabled="True"
-                              Tag="AppUpdateSettingPage" />
-            <wuc:SettingsCard x:Name="AboutSetting"
-                              Click="OnSettingCard_Click"
-                              Description="About Rebound.SysInfo"
-                              Header="About"
-                              HeaderIcon="{wuc:BitmapIcon Source=Assets/Fluent/info.png}"
-                              IsClickEnabled="True"
-                              Tag="AboutUsSettingPage" />
+            <wuc:SettingsCard
+                x:Name="GeneralSetting"
+                Click="OnSettingCard_Click"
+                Description="Change the app's settings"
+                Header="General"
+                HeaderIcon="{wuc:BitmapIcon Source=Assets/Fluent/settings.png}"
+                IsClickEnabled="True"
+                Tag="GeneralSettingPage" />
+            <wuc:SettingsCard
+                x:Name="ThemeSetting"
+                Click="OnSettingCard_Click"
+                Description="Customize the appearance of the app. You can change the material, theme, accent, and more options to suit your preference."
+                Header="Appearance &amp; behavior"
+                HeaderIcon="{wuc:BitmapIcon Source=Assets/Fluent/theme.png}"
+                IsClickEnabled="True"
+                Tag="ThemeSettingPage" />
+            <wuc:SettingsCard
+                x:Name="AppUpdateSetting"
+                Click="OnSettingCard_Click"
+                Description="Check for updates"
+                Header="Updates"
+                HeaderIcon="{wuc:BitmapIcon Source=Assets/Fluent/update.png}"
+                IsClickEnabled="True"
+                Tag="AppUpdateSettingPage" />
+            <wuc:SettingsCard
+                x:Name="AboutSetting"
+                Click="OnSettingCard_Click"
+                Description="About Rebound.SysInfo"
+                Header="About"
+                HeaderIcon="{wuc:BitmapIcon Source=Assets/Fluent/info.png}"
+                IsClickEnabled="True"
+                Tag="AboutUsSettingPage" />
 
         </StackPanel>
     </ScrollView>

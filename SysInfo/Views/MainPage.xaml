@@ -15,21 +15,18 @@
         </Grid.RowDefinitions>
         <wuc:TitleBar
             x:Name="appTitleBar"
+            HorizontalContentAlignment="Left"
             BackButtonClick="appTitleBar_BackButtonClick"
-            PaneButtonClick="appTitleBar_PaneButtonClick"
-            HorizontalContentAlignment="Left">
-        </wuc:TitleBar>
+            PaneButtonClick="appTitleBar_PaneButtonClick" />
         <MenuBar HorizontalAlignment="Left">
             <MenuBarItem Title="File">
                 <MenuBarItem.Items>
-                    <MenuFlyoutItem Text="Open">
-
-                    </MenuFlyoutItem>
+                    <MenuFlyoutItem Text="Open" />
                 </MenuBarItem.Items>
             </MenuBarItem>
-            <MenuBarItem Title="Edit"/>
-            <MenuBarItem Title="View"/>
-            <MenuBarItem Title="Help"/>
+            <MenuBarItem Title="Edit" />
+            <MenuBarItem Title="View" />
+            <MenuBarItem Title="Help" />
         </MenuBar>
         <NavigationView
             x:Name="NavView"
@@ -40,49 +37,37 @@
             <NavigationView.MenuItems>
                 <NavigationViewItem Content="System Summary">
                     <NavigationViewItem.Icon>
-                        <FontIcon Glyph=""/>
+                        <FontIcon Glyph="" />
                     </NavigationViewItem.Icon>
                 </NavigationViewItem>
                 <NavigationViewItem Content="Hardware Resources">
                     <NavigationViewItem.Icon>
-                        <FontIcon Glyph=""/>
+                        <FontIcon Glyph="" />
                     </NavigationViewItem.Icon>
                     <NavigationViewItem.MenuItems>
-                        <NavigationViewItem Content="Conflicts/Sharing">
-
-                        </NavigationViewItem>
-                        <NavigationViewItem Content="DMA">
-
-                        </NavigationViewItem>
-                        <NavigationViewItem Content="Forced Hardware">
-
-                        </NavigationViewItem>
-                        <NavigationViewItem Content="I/O">
-
-                        </NavigationViewItem>
-                        <NavigationViewItem Content="IRQs">
-
-                        </NavigationViewItem>
-                        <NavigationViewItem Content="Memory">
-
-                        </NavigationViewItem>
+                        <NavigationViewItem Content="Conflicts/Sharing" />
+                        <NavigationViewItem Content="DMA" />
+                        <NavigationViewItem Content="Forced Hardware" />
+                        <NavigationViewItem Content="I/O" />
+                        <NavigationViewItem Content="IRQs" />
+                        <NavigationViewItem Content="Memory" />
                     </NavigationViewItem.MenuItems>
                 </NavigationViewItem>
                 <NavigationViewItem Content="Components">
                     <NavigationViewItem.Icon>
-                        <FontIcon Glyph=""/>
+                        <FontIcon Glyph="" />
                     </NavigationViewItem.Icon>
 
                 </NavigationViewItem>
                 <NavigationViewItem Content="Software Environment">
                     <NavigationViewItem.Icon>
-                        <FontIcon Glyph=""/>
+                        <FontIcon Glyph="" />
                     </NavigationViewItem.Icon>
 
                 </NavigationViewItem>
             </NavigationView.MenuItems>
             <NavigationView.Content>
-                <Frame x:Name="NavFrame" Navigated="NavFrame_Navigated"/>
+                <Frame x:Name="NavFrame" Navigated="NavFrame_Navigated" />
             </NavigationView.Content>
         </NavigationView>
     </Grid>
