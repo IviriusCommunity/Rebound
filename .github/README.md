@@ -40,7 +40,7 @@ Thoughtfully designed light mode | Thoughtfully designed dark mode
 
 | **Feature**                  | **Standard Windows Mods** | **Rebound 11**         | **Remarks** |
 |------------------------------|---------------------------|------------------------|-------------|
-| System-wide customization     | ✔️                         | ❌                      | No msstyles modifications (no SecureUxThemePatcher used) |
+| System-wide customization     | ✔️                         | ❌                      | No `msstyles` modifications (no SecureUxThemePatcher used) |
 | Fully reversible changes      | ❌                         | ✔️                      | No need for system restore points |
 | Compatible with all software  | ❌                         | ✔️                      | Works with both Win32 APIs and Microsoft Store apps |
 | Windows Updates enabled       | ⚠️                         | ✔️                      | Updates are enabled by default, ensuring your system remains secure |
