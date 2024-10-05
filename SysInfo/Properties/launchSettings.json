@@ -1,0 +1,10 @@
+{
+  "profiles": {
+    "Rebound.SysInfo (Package)": {
+      "commandName": "MsixPackage"
+    },
+    "Rebound.SysInfo (Unpackaged)": {
+      "commandName": "Project"
+    }
+  }
+}

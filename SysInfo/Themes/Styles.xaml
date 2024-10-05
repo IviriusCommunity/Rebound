@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+    <x:Double x:Key="TitleBarCompactHeight">48</x:Double>
+
+    <Thickness x:Key="ContentPageMargin">40,48,40,0</Thickness>
+
+</ResourceDictionary>

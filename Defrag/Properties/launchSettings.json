@@ -1,0 +1,10 @@
+{
+  "profiles": {
+    "Rebound.Defrag (Package)": {
+      "commandName": "MsixPackage"
+    },
+    "Rebound.Defrag (Unpackaged)": {
+      "commandName": "Project"
+    }
+  }
+}

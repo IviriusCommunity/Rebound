@@ -1,0 +1,31 @@
+﻿{
+  "Groups": [
+    {
+      "UniqueId": "Rebound.SysInfo",
+      "Title": "Rebound.SysInfo",
+      "ImagePath": "ms-appx:///Assets/icon.png",
+      "ImageIconPath": "ms-appx:///Assets/icon.png",
+      "IsSpecialSection": false,
+      "ShowItemsWithoutGroup": true,
+      "IsExpanded": false,
+      "Items": [
+        {
+          "UniqueId": "Rebound.SysInfo.Views.HomeLandingPage",
+          "Title": "Rebound.SysInfo",
+          "Subtitle": "Rebound.SysInfo",
+          "ImagePath": "ms-appx:///Assets/icon.png",
+          "ImageIconPath": "ms-appx:///Assets/icon.png",
+          "HideItem": false
+        },
+        {
+          "UniqueId": "Rebound.SysInfo.Views.SystemInformationPage",
+          "Title": "System information",
+          "Subtitle": "System information",
+          "ImagePath": "ms-appx:///Assets/icon.png",
+          "ImageIconPath": "ms-appx:///Assets/icon.png",
+          "HideItem": false
+        }
+      ]
+    }
+  ]
+}
