@@ -1,15 +1,19 @@
-<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8" ?>
 <Window
     x:Class="Rebound.RegionBlock"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-    xmlns:local="using:Rebound"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:local="using:Rebound"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     mc:Ignorable="d">
 
     <Grid>
-        <Image x:Name="RegionBkg" Stretch="UniformToFill"/>
-        <ContentDialog x:Name="BlockDialog" Title="Unable to open Rebound Hub." Content="This content is not available in your region." CloseButtonText="Close"/>
+        <Image x:Name="RegionBkg" Stretch="UniformToFill" />
+        <ContentDialog
+            x:Name="BlockDialog"
+            Title="Unable to open Rebound Hub."
+            CloseButtonText="Close"
+            Content="This content is not available in your region." />
     </Grid>
 </Window>

@@ -1,229 +1,572 @@
-<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8" ?>
 <Page
     x:Class="Rebound.Rebound.Pages.ControlPanel.AppearanceAndPersonalization"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-    xmlns:local="using:Rebound.Rebound.Pages.ControlPanel"
-    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:SettingsUI="using:CommunityToolkit.WinUI.Controls"
     xmlns:UI="using:CommunityToolkit.WinUI.UI.Controls"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:local="using:Rebound.Rebound.Pages.ControlPanel"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     mc:Ignorable="d">
 
     <Grid>
-        <NavigationView IsSettingsVisible="False" Grid.Row="1" IsBackButtonVisible="Collapsed" PaneTitle="Appearance and Personalization" SelectionChanged="NavigationView_SelectionChanged">
-                <NavigationView.MenuItems>
-                <NavigationViewItem Content="Taskbar and Navigation" x:Name="TBAndNav">
+        <NavigationView
+            Grid.Row="1"
+            IsBackButtonVisible="Collapsed"
+            IsSettingsVisible="False"
+            PaneTitle="Appearance and Personalization"
+            SelectionChanged="NavigationView_SelectionChanged">
+            <NavigationView.MenuItems>
+                <NavigationViewItem x:Name="TBAndNav" Content="Taskbar and Navigation">
                     <NavigationViewItem.Icon>
-                        <FontIcon Glyph="&#xE75B;"/>
+                        <FontIcon Glyph="&#xE75B;" />
                     </NavigationViewItem.Icon>
                 </NavigationViewItem>
-                <NavigationViewItem Content="Accessibility" x:Name="Access">
+                <NavigationViewItem x:Name="Access" Content="Accessibility">
                     <NavigationViewItem.Icon>
-                        <FontIcon Glyph="&#xE776;"/>
+                        <FontIcon Glyph="&#xE776;" />
                     </NavigationViewItem.Icon>
                 </NavigationViewItem>
-                <NavigationViewItem Content="File Explorer Options" x:Name="ExpOptions">
+                <NavigationViewItem x:Name="ExpOptions" Content="File Explorer Options">
                     <NavigationViewItem.Icon>
-                        <FontIcon Glyph="&#xEC50;"/>
+                        <FontIcon Glyph="&#xEC50;" />
                     </NavigationViewItem.Icon>
                 </NavigationViewItem>
-                <NavigationViewItem Content="Fonts" x:Name="Fonts">
+                <NavigationViewItem x:Name="Fonts" Content="Fonts">
                     <NavigationViewItem.Icon>
-                        <FontIcon Glyph="&#xEF60;"/>
+                        <FontIcon Glyph="&#xEF60;" />
                     </NavigationViewItem.Icon>
                 </NavigationViewItem>
-                <NavigationViewItem Content="Rebound 11" IsSelected="True" x:Name="Rebound11Item">
+                <NavigationViewItem
+                    x:Name="Rebound11Item"
+                    Content="Rebound 11"
+                    IsSelected="True">
                     <NavigationViewItem.Icon>
-                        <PathIcon Data="M 0 2 C 0 1 1 0 2 0 L 7 0 L 7 7 L 0 7 M 1 6 L 6 6 L 6 1 L 2 1 C 1.48 0.999 1.005 1.459 1 2 M 8 0 L 13 0 C 14 0 15 1 15 2 L 15 7 L 8 7 M 9 6 L 14 6 L 14 2 C 14.001 1.418 13.52 1 13 1 L 9 1 M 7 8 L 0 8 L 0 13 C 0 14 1 15 2 15 L 7 15 M 6 14 L 2 14 C 1.468 14.006 1.003 13.547 1 13 L 1 9 L 6 9 M 8 8 L 15 8 L 15 13 C 15 14 14 15 13 15 L 8 15 M 9 14 L 13 14 C 13.477 14 13.975 13.556 14 13 L 14 9 L 9 9 M 0 0 L 16 16"/>
+                        <PathIcon Data="M 0 2 C 0 1 1 0 2 0 L 7 0 L 7 7 L 0 7 M 1 6 L 6 6 L 6 1 L 2 1 C 1.48 0.999 1.005 1.459 1 2 M 8 0 L 13 0 C 14 0 15 1 15 2 L 15 7 L 8 7 M 9 6 L 14 6 L 14 2 C 14.001 1.418 13.52 1 13 1 L 9 1 M 7 8 L 0 8 L 0 13 C 0 14 1 15 2 15 L 7 15 M 6 14 L 2 14 C 1.468 14.006 1.003 13.547 1 13 L 1 9 L 6 9 M 8 8 L 15 8 L 15 13 C 15 14 14 15 13 15 L 8 15 M 9 14 L 13 14 C 13.477 14 13.975 13.556 14 13 L 14 9 L 9 9 M 0 0 L 16 16" />
                     </NavigationViewItem.Icon>
                 </NavigationViewItem>
             </NavigationView.MenuItems>
-            <ScrollViewer Grid.Row="1" HorizontalContentAlignment="Stretch" Padding="25" MaxWidth="1000">
+            <ScrollViewer
+                Grid.Row="1"
+                MaxWidth="1000"
+                Padding="25"
+                HorizontalContentAlignment="Stretch">
                 <Grid>
                     <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="Auto"/>
-                        <ColumnDefinition Width="25"/>
-                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="25" />
+                        <ColumnDefinition Width="*" />
                     </Grid.ColumnDefinitions>
                     <Grid.RowDefinitions>
-                        <RowDefinition Height="50"/>
-                        <RowDefinition Height="Auto"/>
-                        <RowDefinition Height="15"/>
-                        <RowDefinition Height="Auto"/>
-                        <RowDefinition Height="15"/>
-                        <RowDefinition Height="Auto"/>
-                        <RowDefinition Height="15"/>
-                        <RowDefinition Height="Auto"/>
-                        <RowDefinition Height="15"/>
-                        <RowDefinition Height="Auto"/>
-                        <RowDefinition Height="*"/>
+                        <RowDefinition Height="50" />
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="15" />
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="15" />
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="15" />
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="15" />
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="*" />
                     </Grid.RowDefinitions>
-                    <TextBlock Foreground="{ThemeResource AccentTextFillColorPrimaryBrush}" FontWeight="SemiBold" Text="Appearance and Personalization" FontSize="22" Grid.ColumnSpan="3"/>
-                    <StackPanel Grid.Row="1" Grid.ColumnSpan="3" Spacing="5">
-                        <TextBlock Text="Themes" Style="{StaticResource BodyStrongTextBlockStyle}" Margin="3"/>
-                        <Expander HorizontalAlignment="Stretch" IsExpanded="True" Header="Rebound 11 Themes">
+                    <TextBlock
+                        Grid.ColumnSpan="3"
+                        FontSize="22"
+                        FontWeight="SemiBold"
+                        Foreground="{ThemeResource AccentTextFillColorPrimaryBrush}"
+                        Text="Appearance and Personalization" />
+                    <StackPanel
+                        Grid.Row="1"
+                        Grid.ColumnSpan="3"
+                        Spacing="5">
+                        <TextBlock
+                            Margin="3"
+                            Style="{StaticResource BodyStrongTextBlockStyle}"
+                            Text="Themes" />
+                        <Expander
+                            HorizontalAlignment="Stretch"
+                            Header="Rebound 11 Themes"
+                            IsExpanded="True">
                             <Expander.Content>
                                 <Grid Margin="15">
                                     <UI:WrapPanel HorizontalSpacing="10" VerticalSpacing="10">
-                                        <Button ToolTipService.ToolTip="Light - Blue" Padding="0" RequestedTheme="Light">
+                                        <Button
+                                            Padding="0"
+                                            RequestedTheme="Light"
+                                            ToolTipService.ToolTip="Light - Blue">
                                             <Grid>
-                                                <Image Source="/Assets/Wallpapers/WallpaperLightBlue.png" Width="250" Height="150" Stretch="UniformToFill"/>
-                                                <Border Background="{ThemeResource AcrylicBackgroundFillColorBaseBrush}" Width="125" Height="100" HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="10" CornerRadius="4"/>
-                                                <StackPanel Width="100" HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="0, 0, 22, 72" Spacing="10">
-                                                    <Border Background="{ThemeResource TextFillColorPrimary}" HorizontalAlignment="Stretch" Height="1"/>
-                                                    <Border Background="{ThemeResource TextFillColorPrimary}" HorizontalAlignment="Stretch" Height="1"/>
-                                                    <Border Background="{ThemeResource TextFillColorPrimary}" Height="1" Width="75" HorizontalAlignment="Left"/>
+                                                <Image
+                                                    Width="250"
+                                                    Height="150"
+                                                    Source="/Assets/Wallpapers/WallpaperLightBlue.png"
+                                                    Stretch="UniformToFill" />
+                                                <Border
+                                                    Width="125"
+                                                    Height="100"
+                                                    Margin="10"
+                                                    HorizontalAlignment="Right"
+                                                    VerticalAlignment="Bottom"
+                                                    Background="{ThemeResource AcrylicBackgroundFillColorBaseBrush}"
+                                                    CornerRadius="4" />
+                                                <StackPanel
+                                                    Width="100"
+                                                    Margin="0,0,22,72"
+                                                    HorizontalAlignment="Right"
+                                                    VerticalAlignment="Bottom"
+                                                    Spacing="10">
+                                                    <Border
+                                                        Height="1"
+                                                        HorizontalAlignment="Stretch"
+                                                        Background="{ThemeResource TextFillColorPrimary}" />
+                                                    <Border
+                                                        Height="1"
+                                                        HorizontalAlignment="Stretch"
+                                                        Background="{ThemeResource TextFillColorPrimary}" />
+                                                    <Border
+                                                        Width="75"
+                                                        Height="1"
+                                                        HorizontalAlignment="Left"
+                                                        Background="{ThemeResource TextFillColorPrimary}" />
                                                 </StackPanel>
-                                                <Border Background="#0066BB" Width="50" Height="15" CornerRadius="4" HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="20"/>
+                                                <Border
+                                                    Width="50"
+                                                    Height="15"
+                                                    Margin="20"
+                                                    HorizontalAlignment="Right"
+                                                    VerticalAlignment="Bottom"
+                                                    Background="#0066BB"
+                                                    CornerRadius="4" />
                                             </Grid>
                                         </Button>
-                                        <Button ToolTipService.ToolTip="Dark - Blue" Padding="0" RequestedTheme="Dark">
+                                        <Button
+                                            Padding="0"
+                                            RequestedTheme="Dark"
+                                            ToolTipService.ToolTip="Dark - Blue">
                                             <Grid>
-                                                <Image Source="/Assets/Wallpapers/WallpaperDarkBlue.png" Width="250" Height="150" Stretch="UniformToFill"/>
-                                                <Border Background="{ThemeResource AcrylicBackgroundFillColorBaseBrush}" Width="125" Height="100" HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="10" CornerRadius="4"/>
-                                                <StackPanel Width="100" HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="0, 0, 22, 72" Spacing="10">
-                                                    <Border Background="{ThemeResource TextFillColorPrimary}" HorizontalAlignment="Stretch" Height="1"/>
-                                                    <Border Background="{ThemeResource TextFillColorPrimary}" HorizontalAlignment="Stretch" Height="1"/>
-                                                    <Border Background="{ThemeResource TextFillColorPrimary}" Height="1" Width="75" HorizontalAlignment="Left"/>
+                                                <Image
+                                                    Width="250"
+                                                    Height="150"
+                                                    Source="/Assets/Wallpapers/WallpaperDarkBlue.png"
+                                                    Stretch="UniformToFill" />
+                                                <Border
+                                                    Width="125"
+                                                    Height="100"
+                                                    Margin="10"
+                                                    HorizontalAlignment="Right"
+                                                    VerticalAlignment="Bottom"
+                                                    Background="{ThemeResource AcrylicBackgroundFillColorBaseBrush}"
+                                                    CornerRadius="4" />
+                                                <StackPanel
+                                                    Width="100"
+                                                    Margin="0,0,22,72"
+                                                    HorizontalAlignment="Right"
+                                                    VerticalAlignment="Bottom"
+                                                    Spacing="10">
+                                                    <Border
+                                                        Height="1"
+                                                        HorizontalAlignment="Stretch"
+                                                        Background="{ThemeResource TextFillColorPrimary}" />
+                                                    <Border
+                                                        Height="1"
+                                                        HorizontalAlignment="Stretch"
+                                                        Background="{ThemeResource TextFillColorPrimary}" />
+                                                    <Border
+                                                        Width="75"
+                                                        Height="1"
+                                                        HorizontalAlignment="Left"
+                                                        Background="{ThemeResource TextFillColorPrimary}" />
                                                 </StackPanel>
-                                                <Border Background="#00BBFF" Width="50" Height="15" CornerRadius="4" HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="20"/>
+                                                <Border
+                                                    Width="50"
+                                                    Height="15"
+                                                    Margin="20"
+                                                    HorizontalAlignment="Right"
+                                                    VerticalAlignment="Bottom"
+                                                    Background="#00BBFF"
+                                                    CornerRadius="4" />
                                             </Grid>
                                         </Button>
-                                        <Button ToolTipService.ToolTip="Light - Cyan" Padding="0" RequestedTheme="Light">
+                                        <Button
+                                            Padding="0"
+                                            RequestedTheme="Light"
+                                            ToolTipService.ToolTip="Light - Cyan">
                                             <Grid>
-                                                <Image Source="/Assets/Wallpapers/WallpaperCyanLight8bit.png" Width="250" Height="150" Stretch="UniformToFill"/>
-                                                <Border Background="{ThemeResource AcrylicBackgroundFillColorBaseBrush}" Width="125" Height="100" HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="10" CornerRadius="4"/>
-                                                <StackPanel Width="100" HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="0, 0, 22, 72" Spacing="10">
-                                                    <Border Background="{ThemeResource TextFillColorPrimary}" HorizontalAlignment="Stretch" Height="1"/>
-                                                    <Border Background="{ThemeResource TextFillColorPrimary}" HorizontalAlignment="Stretch" Height="1"/>
-                                                    <Border Background="{ThemeResource TextFillColorPrimary}" Height="1" Width="75" HorizontalAlignment="Left"/>
+                                                <Image
+                                                    Width="250"
+                                                    Height="150"
+                                                    Source="/Assets/Wallpapers/WallpaperCyanLight8bit.png"
+                                                    Stretch="UniformToFill" />
+                                                <Border
+                                                    Width="125"
+                                                    Height="100"
+                                                    Margin="10"
+                                                    HorizontalAlignment="Right"
+                                                    VerticalAlignment="Bottom"
+                                                    Background="{ThemeResource AcrylicBackgroundFillColorBaseBrush}"
+                                                    CornerRadius="4" />
+                                                <StackPanel
+                                                    Width="100"
+                                                    Margin="0,0,22,72"
+                                                    HorizontalAlignment="Right"
+                                                    VerticalAlignment="Bottom"
+                                                    Spacing="10">
+                                                    <Border
+                                                        Height="1"
+                                                        HorizontalAlignment="Stretch"
+                                                        Background="{ThemeResource TextFillColorPrimary}" />
+                                                    <Border
+                                                        Height="1"
+                                                        HorizontalAlignment="Stretch"
+                                                        Background="{ThemeResource TextFillColorPrimary}" />
+                                                    <Border
+                                                        Width="75"
+                                                        Height="1"
+                                                        HorizontalAlignment="Left"
+                                                        Background="{ThemeResource TextFillColorPrimary}" />
                                                 </StackPanel>
-                                                <Border Background="#007799" Width="50" Height="15" CornerRadius="4" HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="20"/>
+                                                <Border
+                                                    Width="50"
+                                                    Height="15"
+                                                    Margin="20"
+                                                    HorizontalAlignment="Right"
+                                                    VerticalAlignment="Bottom"
+                                                    Background="#007799"
+                                                    CornerRadius="4" />
                                             </Grid>
                                         </Button>
-                                        <Button ToolTipService.ToolTip="Dark - Cyan" Padding="0" RequestedTheme="Dark">
+                                        <Button
+                                            Padding="0"
+                                            RequestedTheme="Dark"
+                                            ToolTipService.ToolTip="Dark - Cyan">
                                             <Grid>
-                                                <Image Source="/Assets/Wallpapers/WallpaperCyanDark8bit.png" Width="250" Height="150" Stretch="UniformToFill"/>
-                                                <Border Background="{ThemeResource AcrylicBackgroundFillColorBaseBrush}" Width="125" Height="100" HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="10" CornerRadius="4"/>
-                                                <StackPanel Width="100" HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="0, 0, 22, 72" Spacing="10">
-                                                    <Border Background="{ThemeResource TextFillColorPrimary}" HorizontalAlignment="Stretch" Height="1"/>
-                                                    <Border Background="{ThemeResource TextFillColorPrimary}" HorizontalAlignment="Stretch" Height="1"/>
-                                                    <Border Background="{ThemeResource TextFillColorPrimary}" Height="1" Width="75" HorizontalAlignment="Left"/>
+                                                <Image
+                                                    Width="250"
+                                                    Height="150"
+                                                    Source="/Assets/Wallpapers/WallpaperCyanDark8bit.png"
+                                                    Stretch="UniformToFill" />
+                                                <Border
+                                                    Width="125"
+                                                    Height="100"
+                                                    Margin="10"
+                                                    HorizontalAlignment="Right"
+                                                    VerticalAlignment="Bottom"
+                                                    Background="{ThemeResource AcrylicBackgroundFillColorBaseBrush}"
+                                                    CornerRadius="4" />
+                                                <StackPanel
+                                                    Width="100"
+                                                    Margin="0,0,22,72"
+                                                    HorizontalAlignment="Right"
+                                                    VerticalAlignment="Bottom"
+                                                    Spacing="10">
+                                                    <Border
+                                                        Height="1"
+                                                        HorizontalAlignment="Stretch"
+                                                        Background="{ThemeResource TextFillColorPrimary}" />
+                                                    <Border
+                                                        Height="1"
+                                                        HorizontalAlignment="Stretch"
+                                                        Background="{ThemeResource TextFillColorPrimary}" />
+                                                    <Border
+                                                        Width="75"
+                                                        Height="1"
+                                                        HorizontalAlignment="Left"
+                                                        Background="{ThemeResource TextFillColorPrimary}" />
                                                 </StackPanel>
-                                                <Border Background="#00DDEE" Width="50" Height="15" CornerRadius="4" HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="20"/>
+                                                <Border
+                                                    Width="50"
+                                                    Height="15"
+                                                    Margin="20"
+                                                    HorizontalAlignment="Right"
+                                                    VerticalAlignment="Bottom"
+                                                    Background="#00DDEE"
+                                                    CornerRadius="4" />
                                             </Grid>
                                         </Button>
-                                        <Button ToolTipService.ToolTip="Light - Purple" Padding="0" RequestedTheme="Light">
+                                        <Button
+                                            Padding="0"
+                                            RequestedTheme="Light"
+                                            ToolTipService.ToolTip="Light - Purple">
                                             <Grid>
-                                                <Image Source="/Assets/Wallpapers/WallpaperLightPurple.png" Width="250" Height="150" Stretch="UniformToFill"/>
-                                                <Border Background="{ThemeResource AcrylicBackgroundFillColorBaseBrush}" Width="125" Height="100" HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="10" CornerRadius="4"/>
-                                                <StackPanel Width="100" HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="0, 0, 22, 72" Spacing="10">
-                                                    <Border Background="{ThemeResource TextFillColorPrimary}" HorizontalAlignment="Stretch" Height="1"/>
-                                                    <Border Background="{ThemeResource TextFillColorPrimary}" HorizontalAlignment="Stretch" Height="1"/>
-                                                    <Border Background="{ThemeResource TextFillColorPrimary}" Height="1" Width="75" HorizontalAlignment="Left"/>
-                    </StackPanel>
-                                                <Border Background="#770099" Width="50" Height="15" CornerRadius="4" HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="20"/>
+                                                <Image
+                                                    Width="250"
+                                                    Height="150"
+                                                    Source="/Assets/Wallpapers/WallpaperLightPurple.png"
+                                                    Stretch="UniformToFill" />
+                                                <Border
+                                                    Width="125"
+                                                    Height="100"
+                                                    Margin="10"
+                                                    HorizontalAlignment="Right"
+                                                    VerticalAlignment="Bottom"
+                                                    Background="{ThemeResource AcrylicBackgroundFillColorBaseBrush}"
+                                                    CornerRadius="4" />
+                                                <StackPanel
+                                                    Width="100"
+                                                    Margin="0,0,22,72"
+                                                    HorizontalAlignment="Right"
+                                                    VerticalAlignment="Bottom"
+                                                    Spacing="10">
+                                                    <Border
+                                                        Height="1"
+                                                        HorizontalAlignment="Stretch"
+                                                        Background="{ThemeResource TextFillColorPrimary}" />
+                                                    <Border
+                                                        Height="1"
+                                                        HorizontalAlignment="Stretch"
+                                                        Background="{ThemeResource TextFillColorPrimary}" />
+                                                    <Border
+                                                        Width="75"
+                                                        Height="1"
+                                                        HorizontalAlignment="Left"
+                                                        Background="{ThemeResource TextFillColorPrimary}" />
+                                                </StackPanel>
+                                                <Border
+                                                    Width="50"
+                                                    Height="15"
+                                                    Margin="20"
+                                                    HorizontalAlignment="Right"
+                                                    VerticalAlignment="Bottom"
+                                                    Background="#770099"
+                                                    CornerRadius="4" />
                                             </Grid>
                                         </Button>
-                                        <Button ToolTipService.ToolTip="Dark - Purple" Padding="0" RequestedTheme="Dark">
+                                        <Button
+                                            Padding="0"
+                                            RequestedTheme="Dark"
+                                            ToolTipService.ToolTip="Dark - Purple">
                                             <Grid>
-                                                <Image Source="/Assets/Wallpapers/WallpaperDarkPurple.png" Width="250" Height="150" Stretch="UniformToFill"/>
-                                                <Border Background="{ThemeResource AcrylicBackgroundFillColorBaseBrush}" Width="125" Height="100" HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="10" CornerRadius="4"/>
-                                                <StackPanel Width="100" HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="0, 0, 22, 72" Spacing="10">
-                                                    <Border Background="{ThemeResource TextFillColorPrimary}" HorizontalAlignment="Stretch" Height="1"/>
-                                                    <Border Background="{ThemeResource TextFillColorPrimary}" HorizontalAlignment="Stretch" Height="1"/>
-                                                    <Border Background="{ThemeResource TextFillColorPrimary}" Height="1" Width="75" HorizontalAlignment="Left"/>
-                            </StackPanel>
-                                                <Border Background="#CC88EE" Width="50" Height="15" CornerRadius="4" HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="20"/>
-                        </Grid>
-                                        </Button>
-                                        <Button ToolTipService.ToolTip="Light - Crimson" Padding="0" RequestedTheme="Light">
-                                            <Grid>
-                                                <Image Source="/Assets/Wallpapers/WallpaperLightCrimson.png" Width="250" Height="150" Stretch="UniformToFill"/>
-                                                <Border Background="{ThemeResource AcrylicBackgroundFillColorBaseBrush}" Width="125" Height="100" HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="10" CornerRadius="4"/>
-                                                <StackPanel Width="100" HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="0, 0, 22, 72" Spacing="10">
-                                                    <Border Background="{ThemeResource TextFillColorPrimary}" HorizontalAlignment="Stretch" Height="1"/>
-                                                    <Border Background="{ThemeResource TextFillColorPrimary}" HorizontalAlignment="Stretch" Height="1"/>
-                                                    <Border Background="{ThemeResource TextFillColorPrimary}" Height="1" Width="75" HorizontalAlignment="Left"/>
+                                                <Image
+                                                    Width="250"
+                                                    Height="150"
+                                                    Source="/Assets/Wallpapers/WallpaperDarkPurple.png"
+                                                    Stretch="UniformToFill" />
+                                                <Border
+                                                    Width="125"
+                                                    Height="100"
+                                                    Margin="10"
+                                                    HorizontalAlignment="Right"
+                                                    VerticalAlignment="Bottom"
+                                                    Background="{ThemeResource AcrylicBackgroundFillColorBaseBrush}"
+                                                    CornerRadius="4" />
+                                                <StackPanel
+                                                    Width="100"
+                                                    Margin="0,0,22,72"
+                                                    HorizontalAlignment="Right"
+                                                    VerticalAlignment="Bottom"
+                                                    Spacing="10">
+                                                    <Border
+                                                        Height="1"
+                                                        HorizontalAlignment="Stretch"
+                                                        Background="{ThemeResource TextFillColorPrimary}" />
+                                                    <Border
+                                                        Height="1"
+                                                        HorizontalAlignment="Stretch"
+                                                        Background="{ThemeResource TextFillColorPrimary}" />
+                                                    <Border
+                                                        Width="75"
+                                                        Height="1"
+                                                        HorizontalAlignment="Left"
+                                                        Background="{ThemeResource TextFillColorPrimary}" />
                                                 </StackPanel>
-                                                <Border Background="#CC2200" Width="50" Height="15" CornerRadius="4" HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="20"/>
-                    </Grid>
+                                                <Border
+                                                    Width="50"
+                                                    Height="15"
+                                                    Margin="20"
+                                                    HorizontalAlignment="Right"
+                                                    VerticalAlignment="Bottom"
+                                                    Background="#CC88EE"
+                                                    CornerRadius="4" />
+                                            </Grid>
                                         </Button>
-                                        <Button ToolTipService.ToolTip="Dark - Crimson" Padding="0" RequestedTheme="Dark">
+                                        <Button
+                                            Padding="0"
+                                            RequestedTheme="Light"
+                                            ToolTipService.ToolTip="Light - Crimson">
                                             <Grid>
-                                                <Image Source="/Assets/Wallpapers/WallpaperDarkCrimson.png" Width="250" Height="150" Stretch="UniformToFill"/>
-                                                <Border Background="{ThemeResource AcrylicBackgroundFillColorBaseBrush}" Width="125" Height="100" HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="10" CornerRadius="4"/>
-                                                <StackPanel Width="100" HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="0, 0, 22, 72" Spacing="10">
-                                                    <Border Background="{ThemeResource TextFillColorPrimary}" HorizontalAlignment="Stretch" Height="1"/>
-                                                    <Border Background="{ThemeResource TextFillColorPrimary}" HorizontalAlignment="Stretch" Height="1"/>
-                                                    <Border Background="{ThemeResource TextFillColorPrimary}" Height="1" Width="75" HorizontalAlignment="Left"/>
-                    </StackPanel>
-                                                <Border Background="#FF6644" Width="50" Height="15" CornerRadius="4" HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="20"/>
+                                                <Image
+                                                    Width="250"
+                                                    Height="150"
+                                                    Source="/Assets/Wallpapers/WallpaperLightCrimson.png"
+                                                    Stretch="UniformToFill" />
+                                                <Border
+                                                    Width="125"
+                                                    Height="100"
+                                                    Margin="10"
+                                                    HorizontalAlignment="Right"
+                                                    VerticalAlignment="Bottom"
+                                                    Background="{ThemeResource AcrylicBackgroundFillColorBaseBrush}"
+                                                    CornerRadius="4" />
+                                                <StackPanel
+                                                    Width="100"
+                                                    Margin="0,0,22,72"
+                                                    HorizontalAlignment="Right"
+                                                    VerticalAlignment="Bottom"
+                                                    Spacing="10">
+                                                    <Border
+                                                        Height="1"
+                                                        HorizontalAlignment="Stretch"
+                                                        Background="{ThemeResource TextFillColorPrimary}" />
+                                                    <Border
+                                                        Height="1"
+                                                        HorizontalAlignment="Stretch"
+                                                        Background="{ThemeResource TextFillColorPrimary}" />
+                                                    <Border
+                                                        Width="75"
+                                                        Height="1"
+                                                        HorizontalAlignment="Left"
+                                                        Background="{ThemeResource TextFillColorPrimary}" />
+                                                </StackPanel>
+                                                <Border
+                                                    Width="50"
+                                                    Height="15"
+                                                    Margin="20"
+                                                    HorizontalAlignment="Right"
+                                                    VerticalAlignment="Bottom"
+                                                    Background="#CC2200"
+                                                    CornerRadius="4" />
+                                            </Grid>
+                                        </Button>
+                                        <Button
+                                            Padding="0"
+                                            RequestedTheme="Dark"
+                                            ToolTipService.ToolTip="Dark - Crimson">
+                                            <Grid>
+                                                <Image
+                                                    Width="250"
+                                                    Height="150"
+                                                    Source="/Assets/Wallpapers/WallpaperDarkCrimson.png"
+                                                    Stretch="UniformToFill" />
+                                                <Border
+                                                    Width="125"
+                                                    Height="100"
+                                                    Margin="10"
+                                                    HorizontalAlignment="Right"
+                                                    VerticalAlignment="Bottom"
+                                                    Background="{ThemeResource AcrylicBackgroundFillColorBaseBrush}"
+                                                    CornerRadius="4" />
+                                                <StackPanel
+                                                    Width="100"
+                                                    Margin="0,0,22,72"
+                                                    HorizontalAlignment="Right"
+                                                    VerticalAlignment="Bottom"
+                                                    Spacing="10">
+                                                    <Border
+                                                        Height="1"
+                                                        HorizontalAlignment="Stretch"
+                                                        Background="{ThemeResource TextFillColorPrimary}" />
+                                                    <Border
+                                                        Height="1"
+                                                        HorizontalAlignment="Stretch"
+                                                        Background="{ThemeResource TextFillColorPrimary}" />
+                                                    <Border
+                                                        Width="75"
+                                                        Height="1"
+                                                        HorizontalAlignment="Left"
+                                                        Background="{ThemeResource TextFillColorPrimary}" />
+                                                </StackPanel>
+                                                <Border
+                                                    Width="50"
+                                                    Height="15"
+                                                    Margin="20"
+                                                    HorizontalAlignment="Right"
+                                                    VerticalAlignment="Bottom"
+                                                    Background="#FF6644"
+                                                    CornerRadius="4" />
                                             </Grid>
                                         </Button>
                                     </UI:WrapPanel>
                                 </Grid>
                             </Expander.Content>
                         </Expander>
-                        <TextBlock Text="Tweaks" Style="{StaticResource BodyStrongTextBlockStyle}" Margin="3"/>
-                        <SettingsUI:SettingsCard IsEnabled="False" Header="Classic Full Context Menus" Description="Will not work on Files if you have it installed. Toggling this option will restart Explorer.">
+                        <TextBlock
+                            Margin="3"
+                            Style="{StaticResource BodyStrongTextBlockStyle}"
+                            Text="Tweaks" />
+                        <SettingsUI:SettingsCard
+                            Description="Will not work on Files if you have it installed. Toggling this option will restart Explorer."
+                            Header="Classic Full Context Menus"
+                            IsEnabled="False">
                             <SettingsUI:SettingsCard.HeaderIcon>
-                                <FontIcon Glyph=""/>
+                                <FontIcon Glyph="" />
                             </SettingsUI:SettingsCard.HeaderIcon>
-                            <ToggleSwitch/>
+                            <ToggleSwitch />
                         </SettingsUI:SettingsCard>
-                        <SettingsUI:SettingsCard IsEnabled="False" Header="Tablet Taskbar" Description="Enables the tablet taskbar for touchscreen devices. Toggling this option will restart Explorer.">
+                        <SettingsUI:SettingsCard
+                            Description="Enables the tablet taskbar for touchscreen devices. Toggling this option will restart Explorer."
+                            Header="Tablet Taskbar"
+                            IsEnabled="False">
                             <SettingsUI:SettingsCard.HeaderIcon>
-                                <FontIcon Glyph=""/>
+                                <FontIcon Glyph="" />
                             </SettingsUI:SettingsCard.HeaderIcon>
-                            <ToggleSwitch/>
+                            <ToggleSwitch />
                         </SettingsUI:SettingsCard>
-                        <SettingsUI:SettingsCard IsEnabled="False" Header="Remove Windows Spotlight Icon" Description="If you have Windows Spotlight enabled, this option will remove the icon from the desktop.">
+                        <SettingsUI:SettingsCard
+                            Description="If you have Windows Spotlight enabled, this option will remove the icon from the desktop."
+                            Header="Remove Windows Spotlight Icon"
+                            IsEnabled="False">
                             <SettingsUI:SettingsCard.HeaderIcon>
-                                <FontIcon Glyph=""/>
+                                <FontIcon Glyph="" />
                             </SettingsUI:SettingsCard.HeaderIcon>
-                            <ToggleSwitch/>
+                            <ToggleSwitch />
                         </SettingsUI:SettingsCard>
-                        <SettingsUI:SettingsCard IsEnabled="False" Header="Direct Shortcuts" Description="Disable the &quot; - Shortcut&quot; text on new shortcuts.">
+                        <SettingsUI:SettingsCard
+                            Description="Disable the &quot; - Shortcut&quot; text on new shortcuts."
+                            Header="Direct Shortcuts"
+                            IsEnabled="False">
                             <SettingsUI:SettingsCard.HeaderIcon>
-                                <FontIcon Glyph=""/>
+                                <FontIcon Glyph="" />
                             </SettingsUI:SettingsCard.HeaderIcon>
-                            <ToggleSwitch/>
+                            <ToggleSwitch />
                         </SettingsUI:SettingsCard>
-                        <SettingsUI:SettingsCard IsEnabled="False" Header="Create a special folder on the desktop" Description="These folders don't have a specific functionality.">
+                        <SettingsUI:SettingsCard
+                            Description="These folders don't have a specific functionality."
+                            Header="Create a special folder on the desktop"
+                            IsEnabled="False">
                             <SettingsUI:SettingsCard.HeaderIcon>
-                                <FontIcon Glyph=""/>
+                                <FontIcon Glyph="" />
                             </SettingsUI:SettingsCard.HeaderIcon>
-                            <StackPanel Spacing="8" Orientation="Horizontal">
+                            <StackPanel Orientation="Horizontal" Spacing="8">
                                 <ComboBox>
-                                    <ComboBoxItem Content="Archive"/>
-                                    <ComboBoxItem Content="Briefcase"/>
-                                    <ComboBoxItem Content="Gray"/>
-                                    <ComboBoxItem Content="Green"/>
-                                    <ComboBoxItem Content="Light Blue"/>
-                                    <ComboBoxItem Content="Lime"/>
-                                    <ComboBoxItem Content="OneDrive"/>
-                                    <ComboBoxItem Content="Orange"/>
-                                    <ComboBoxItem Content="Rebound 11 color scheme"/>
+                                    <ComboBoxItem Content="Archive" />
+                                    <ComboBoxItem Content="Briefcase" />
+                                    <ComboBoxItem Content="Gray" />
+                                    <ComboBoxItem Content="Green" />
+                                    <ComboBoxItem Content="Light Blue" />
+                                    <ComboBoxItem Content="Lime" />
+                                    <ComboBoxItem Content="OneDrive" />
+                                    <ComboBoxItem Content="Orange" />
+                                    <ComboBoxItem Content="Rebound 11 color scheme" />
                                 </ComboBox>
-                                <TextBox PlaceholderText="Name"/>
-                                <Button Style="{ThemeResource AccentButtonStyle}" Content="Create"/>
+                                <TextBox PlaceholderText="Name" />
+                                <Button Content="Create" Style="{ThemeResource AccentButtonStyle}" />
                             </StackPanel>
                         </SettingsUI:SettingsCard>
-                        <InfoBar IsOpen="True" IsClosable="False" Severity="Warning" Title="Some folders may revert back to their original icons after uninstalling Rebound 11."/>
-                        <Expander HorizontalAlignment="Stretch" IsEnabled="False" Header="File Explorer Navigation Pane" HorizontalContentAlignment="Stretch">
+                        <InfoBar
+                            Title="Some folders may revert back to their original icons after uninstalling Rebound 11."
+                            IsClosable="False"
+                            IsOpen="True"
+                            Severity="Warning" />
+                        <Expander
+                            HorizontalAlignment="Stretch"
+                            HorizontalContentAlignment="Stretch"
+                            Header="File Explorer Navigation Pane"
+                            IsEnabled="False">
                             <Grid HorizontalAlignment="Stretch">
                                 <StackPanel HorizontalAlignment="Left">
-                                    <CheckBox Content="Home"/>
-                                    <CheckBox Content="OneDrive"/>
-                                    <CheckBox Content="Gallery"/>
-                                    <CheckBox Content="Libraries"/>
-                                    <CheckBox Content="This PC"/>
-                                    <CheckBox Content="Network"/>
-                                    <CheckBox Content="Removable Drives"/>
+                                    <CheckBox Content="Home" />
+                                    <CheckBox Content="OneDrive" />
+                                    <CheckBox Content="Gallery" />
+                                    <CheckBox Content="Libraries" />
+                                    <CheckBox Content="This PC" />
+                                    <CheckBox Content="Network" />
+                                    <CheckBox Content="Removable Drives" />
                                 </StackPanel>
-                                <Button Content="Apply and sign out" HorizontalAlignment="Right" VerticalAlignment="Bottom"/>
+                                <Button
+                                    HorizontalAlignment="Right"
+                                    VerticalAlignment="Bottom"
+                                    Content="Apply and sign out" />
                             </Grid>
                         </Expander>
                     </StackPanel>

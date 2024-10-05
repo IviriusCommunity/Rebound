@@ -1,258 +1,357 @@
-<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8" ?>
 <Page
     x:Class="Rebound.Rebound.Pages.ControlPanel.SystemAndSecurity"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-    xmlns:local="using:Rebound.Rebound.Pages.ControlPanel"
-    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:SettingsUI="using:CommunityToolkit.WinUI.Controls"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:local="using:Rebound.Rebound.Pages.ControlPanel"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     mc:Ignorable="d">
 
     <Grid>
-        <NavigationView IsSettingsVisible="False" Grid.Row="1" IsBackButtonVisible="Collapsed" PaneTitle="System and Security" SelectionChanged="NavigationView_SelectionChanged">
+        <NavigationView
+            Grid.Row="1"
+            IsBackButtonVisible="Collapsed"
+            IsSettingsVisible="False"
+            PaneTitle="System and Security"
+            SelectionChanged="NavigationView_SelectionChanged">
             <NavigationView.MenuItems>
                 <NavigationViewItem Content="Security and Maintenance" IsSelected="True">
                     <NavigationViewItem.Icon>
-                        <FontIcon Glyph=""/>
+                        <FontIcon Glyph="" />
                     </NavigationViewItem.Icon>
                 </NavigationViewItem>
                 <NavigationViewItem Content="Windows Defender Firewall" IsEnabled="False">
                     <NavigationViewItem.Icon>
-                        <ImageIcon Source="/Assets/AppIcons/imageres_195.ico"/>
+                        <ImageIcon Source="/Assets/AppIcons/imageres_195.ico" />
                     </NavigationViewItem.Icon>
                     <NavigationViewItem.MenuItems>
-                        <NavigationViewItem Content="Review your computer's status"/>
+                        <NavigationViewItem Content="Review your computer's status" />
                         <NavigationViewItem>
-                            <TextBlock TextWrapping="WrapWholeWords" Text="Save backup copies of your files with OneDrive"/>
+                            <TextBlock Text="Save backup copies of your files with OneDrive" TextWrapping="WrapWholeWords" />
                         </NavigationViewItem>
-                        <NavigationViewItem Content="Windows Backup"/>
+                        <NavigationViewItem Content="Windows Backup" />
                     </NavigationViewItem.MenuItems>
                 </NavigationViewItem>
                 <NavigationViewItem Content="System" IsEnabled="False">
                     <NavigationViewItem.Icon>
-                        <ImageIcon Source="/Assets/AppIcons/imageres_1029.ico"/>
+                        <ImageIcon Source="/Assets/AppIcons/imageres_1029.ico" />
                     </NavigationViewItem.Icon>
                     <NavigationViewItem.MenuItems>
                         <NavigationViewItem Content="Change account type">
                             <NavigationViewItem.Icon>
-                                <ImageIcon Source="/Assets/AppIcons/imageres_78.ico"/>
+                                <ImageIcon Source="/Assets/AppIcons/imageres_78.ico" />
                             </NavigationViewItem.Icon>
                         </NavigationViewItem>
                     </NavigationViewItem.MenuItems>
                 </NavigationViewItem>
                 <NavigationViewItem Content="Power Options" IsEnabled="False">
                     <NavigationViewItem.Icon>
-                        <ImageIcon Source="/Assets/AppIcons/imageres_120.ico"/>
+                        <ImageIcon Source="/Assets/AppIcons/imageres_120.ico" />
                     </NavigationViewItem.Icon>
                     <NavigationViewItem.MenuItems>
-                        <NavigationViewItem Content="View network status and tasks"/>
+                        <NavigationViewItem Content="View network status and tasks" />
                     </NavigationViewItem.MenuItems>
                 </NavigationViewItem>
-                <NavigationViewItem Content="File History" x:Name="AppearanceItem" IsEnabled="False">
+                <NavigationViewItem
+                    x:Name="AppearanceItem"
+                    Content="File History"
+                    IsEnabled="False">
                     <NavigationViewItem.Icon>
-                        <ImageIcon Source="/Assets/AppIcons/imageres_197.ico"/>
+                        <ImageIcon Source="/Assets/AppIcons/imageres_197.ico" />
                     </NavigationViewItem.Icon>
                     <NavigationViewItem.MenuItems>
-                        <NavigationViewItem Content="Rebound 11" x:Name="Re11Item"/>
+                        <NavigationViewItem x:Name="Re11Item" Content="Rebound 11" />
                     </NavigationViewItem.MenuItems>
                 </NavigationViewItem>
                 <NavigationViewItem Content="Windows Backup" IsEnabled="False">
                     <NavigationViewItem.Icon>
-                        <ImageIcon Source="/Assets/AppIcons/imageres_196.ico"/>
+                        <ImageIcon Source="/Assets/AppIcons/imageres_196.ico" />
                     </NavigationViewItem.Icon>
                     <NavigationViewItem.MenuItems>
-                        <NavigationViewItem Content="View devices and printers"/>
-                        <NavigationViewItem Content="Add a device"/>
-                        <NavigationViewItem Content="Adjust commonly used mobility settings"/>
+                        <NavigationViewItem Content="View devices and printers" />
+                        <NavigationViewItem Content="Add a device" />
+                        <NavigationViewItem Content="Adjust commonly used mobility settings" />
                     </NavigationViewItem.MenuItems>
                 </NavigationViewItem>
                 <NavigationViewItem Content="BitLocker Drive Encryption" IsEnabled="False">
                     <NavigationViewItem.Icon>
-                        <ImageIcon Source="/Assets/AppIcons/imageres_144.ico"/>
+                        <ImageIcon Source="/Assets/AppIcons/imageres_144.ico" />
                     </NavigationViewItem.Icon>
                     <NavigationViewItem.MenuItems>
-                        <NavigationViewItem Content="Change date, time, or number formats"/>
+                        <NavigationViewItem Content="Change date, time, or number formats" />
                     </NavigationViewItem.MenuItems>
                 </NavigationViewItem>
                 <NavigationViewItem Content="Storage Spaces" IsEnabled="False">
                     <NavigationViewItem.Icon>
-                        <ImageIcon Source="/Assets/AppIcons/imageres_161.ico"/>
+                        <ImageIcon Source="/Assets/AppIcons/imageres_161.ico" />
                     </NavigationViewItem.Icon>
                     <NavigationViewItem.MenuItems>
-                        <NavigationViewItem Content="Uninstall a program"/>
+                        <NavigationViewItem Content="Uninstall a program" />
                     </NavigationViewItem.MenuItems>
                 </NavigationViewItem>
                 <NavigationViewItem Content="Work Folders" IsEnabled="False">
                     <NavigationViewItem.Icon>
-                        <ImageIcon Source="/Assets/AppIcons/imageres_86.ico"/>
+                        <ImageIcon Source="/Assets/AppIcons/imageres_86.ico" />
                     </NavigationViewItem.Icon>
                     <NavigationViewItem.MenuItems>
-                        <NavigationViewItem Content="Let Windows suggest settings"/>
-                        <NavigationViewItem Content="Optimize visual display"/>
+                        <NavigationViewItem Content="Let Windows suggest settings" />
+                        <NavigationViewItem Content="Optimize visual display" />
                     </NavigationViewItem.MenuItems>
                 </NavigationViewItem>
-                <NavigationViewItem Content="Windows Tools" x:Name="WinToolsItem">
+                <NavigationViewItem x:Name="WinToolsItem" Content="Windows Tools">
                     <NavigationViewItem.Icon>
-                        <ImageIcon Source="/Assets/AppIcons/imageres_86.ico"/>
+                        <ImageIcon Source="/Assets/AppIcons/imageres_86.ico" />
                     </NavigationViewItem.Icon>
                 </NavigationViewItem>
                 <NavigationViewItem Content="Work Folders" IsEnabled="False">
                     <NavigationViewItem.Icon>
-                        <ImageIcon Source="/Assets/AppIcons/imageres_86.ico"/>
+                        <ImageIcon Source="/Assets/AppIcons/imageres_86.ico" />
                     </NavigationViewItem.Icon>
                     <NavigationViewItem.MenuItems>
-                        <NavigationViewItem Content="Let Windows suggest settings"/>
-                        <NavigationViewItem Content="Optimize visual display"/>
+                        <NavigationViewItem Content="Let Windows suggest settings" />
+                        <NavigationViewItem Content="Optimize visual display" />
                     </NavigationViewItem.MenuItems>
                 </NavigationViewItem>
                 <NavigationViewItem Content="Updates" IsEnabled="False">
                     <NavigationViewItem.Icon>
-                        <ImageIcon Source="/Assets/AppIcons/imageres_86.ico"/>
+                        <ImageIcon Source="/Assets/AppIcons/imageres_86.ico" />
                     </NavigationViewItem.Icon>
                     <NavigationViewItem.MenuItems>
-                        <NavigationViewItem Content="Windows Update"/>
-                        <NavigationViewItem Content="Device manufacturer software updates"/>
-                        <NavigationViewItem Content="Update installed apps (winget upgrade)"/>
+                        <NavigationViewItem Content="Windows Update" />
+                        <NavigationViewItem Content="Device manufacturer software updates" />
+                        <NavigationViewItem Content="Update installed apps (winget upgrade)" />
                     </NavigationViewItem.MenuItems>
                 </NavigationViewItem>
             </NavigationView.MenuItems>
-            <ScrollViewer Grid.Row="1" HorizontalContentAlignment="Stretch" Padding="25" MaxWidth="1000">
+            <ScrollViewer
+                Grid.Row="1"
+                MaxWidth="1000"
+                Padding="25"
+                HorizontalContentAlignment="Stretch">
                 <Grid>
                     <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="Auto"/>
-                        <ColumnDefinition Width="25"/>
-                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="25" />
+                        <ColumnDefinition Width="*" />
                     </Grid.ColumnDefinitions>
                     <Grid.RowDefinitions>
-                        <RowDefinition Height="50"/>
-                        <RowDefinition Height="Auto"/>
-                        <RowDefinition Height="15"/>
-                        <RowDefinition Height="Auto"/>
-                        <RowDefinition Height="15"/>
-                        <RowDefinition Height="Auto"/>
-                        <RowDefinition Height="15"/>
-                        <RowDefinition Height="Auto"/>
-                        <RowDefinition Height="15"/>
-                        <RowDefinition Height="Auto"/>
-                        <RowDefinition Height="*"/>
+                        <RowDefinition Height="50" />
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="15" />
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="15" />
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="15" />
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="15" />
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="*" />
                     </Grid.RowDefinitions>
-                    <TextBlock Foreground="{ThemeResource AccentTextFillColorPrimaryBrush}" FontWeight="SemiBold" Text="Security and Maintenance" FontSize="22" Grid.ColumnSpan="3"/>
-                    <StackPanel Grid.Row="3" Grid.ColumnSpan="3" Spacing="5">
-                        <TextBlock Text="Device status" Style="{StaticResource BodyStrongTextBlockStyle}" Margin="3"/>
-                        <InfoBar IsOpen="True" IsClosable="False" x:Name="StatusInfoBar"/>
-                        <TextBlock Text="Malware protection" Style="{StaticResource BodyStrongTextBlockStyle}" Margin="3"/>
-                        <StackPanel x:Name="SecurityBars" Spacing="10"/>
-                        <TextBlock Text="Update installed apps" Style="{StaticResource BodyStrongTextBlockStyle}" Margin="3"/>
-                        <Expander HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch" IsEnabled="False">
+                    <TextBlock
+                        Grid.ColumnSpan="3"
+                        FontSize="22"
+                        FontWeight="SemiBold"
+                        Foreground="{ThemeResource AccentTextFillColorPrimaryBrush}"
+                        Text="Security and Maintenance" />
+                    <StackPanel
+                        Grid.Row="3"
+                        Grid.ColumnSpan="3"
+                        Spacing="5">
+                        <TextBlock
+                            Margin="3"
+                            Style="{StaticResource BodyStrongTextBlockStyle}"
+                            Text="Device status" />
+                        <InfoBar
+                            x:Name="StatusInfoBar"
+                            IsClosable="False"
+                            IsOpen="True" />
+                        <TextBlock
+                            Margin="3"
+                            Style="{StaticResource BodyStrongTextBlockStyle}"
+                            Text="Malware protection" />
+                        <StackPanel x:Name="SecurityBars" Spacing="10" />
+                        <TextBlock
+                            Margin="3"
+                            Style="{StaticResource BodyStrongTextBlockStyle}"
+                            Text="Update installed apps" />
+                        <Expander
+                            HorizontalAlignment="Stretch"
+                            HorizontalContentAlignment="Stretch"
+                            IsEnabled="False">
                             <Expander.Header>
                                 <Grid>
-                                    <TextBlock VerticalAlignment="Center" Text="Available updates"/>
-                                    <StackPanel Orientation="Horizontal" Spacing="8" HorizontalAlignment="Right">
-                                        <Button Content="Get updates"/>
-                                        <Button Content="Update"/>
+                                    <TextBlock VerticalAlignment="Center" Text="Available updates" />
+                                    <StackPanel
+                                        HorizontalAlignment="Right"
+                                        Orientation="Horizontal"
+                                        Spacing="8">
+                                        <Button Content="Get updates" />
+                                        <Button Content="Update" />
                                     </StackPanel>
                                 </Grid>
                             </Expander.Header>
-                            <ListView HorizontalAlignment="Stretch" SelectionMode="Multiple" IsMultiSelectCheckBoxEnabled="True">
+                            <ListView
+                                HorizontalAlignment="Stretch"
+                                IsMultiSelectCheckBoxEnabled="True"
+                                SelectionMode="Multiple">
                                 <ListView.Header>
-                                    <CheckBox Content="Select all"/>
+                                    <CheckBox Content="Select all" />
                                 </ListView.Header>
-                                <ListViewItem Content="ee"/>
-                                <ListViewItem Content="ee"/>
-                                <ListViewItem Content="ee"/>
-                                <ListViewItem Content="ee"/>
-                                <ListViewItem Content="ee"/>
-                                <ListViewItem Content="ee"/>
+                                <ListViewItem Content="ee" />
+                                <ListViewItem Content="ee" />
+                                <ListViewItem Content="ee" />
+                                <ListViewItem Content="ee" />
+                                <ListViewItem Content="ee" />
+                                <ListViewItem Content="ee" />
                             </ListView>
                         </Expander>
-                        <TextBlock Text="Power options" Style="{StaticResource BodyStrongTextBlockStyle}" Margin="3"/>
-                        <Expander HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch" IsEnabled="False">
+                        <TextBlock
+                            Margin="3"
+                            Style="{StaticResource BodyStrongTextBlockStyle}"
+                            Text="Power options" />
+                        <Expander
+                            HorizontalAlignment="Stretch"
+                            HorizontalContentAlignment="Stretch"
+                            IsEnabled="False">
                             <Expander.Header>
                                 <Grid>
-                                    <TextBlock VerticalAlignment="Center" Text="Power profile"/>
-                                    <StackPanel Orientation="Horizontal" Spacing="8" HorizontalAlignment="Right">
-                                        <Button Content="Refresh"/>
-                                        <Border Background="{ThemeResource MenuFlyoutSeparatorThemeBrush}" Width="1" Opacity="0.25" Margin="0, 5"/>
-                                        <Button Content="Default"/>
-                                        <Button Content="Efficiency"/>
-                                        <Border Background="{ThemeResource MenuFlyoutSeparatorThemeBrush}" Width="1" Opacity="0.25" Margin="0, 5"/>
-                                        <Button Content="Apply" Style="{ThemeResource AccentButtonStyle}"/>
+                                    <TextBlock VerticalAlignment="Center" Text="Power profile" />
+                                    <StackPanel
+                                        HorizontalAlignment="Right"
+                                        Orientation="Horizontal"
+                                        Spacing="8">
+                                        <Button Content="Refresh" />
+                                        <Border
+                                            Width="1"
+                                            Margin="0,5"
+                                            Background="{ThemeResource MenuFlyoutSeparatorThemeBrush}"
+                                            Opacity="0.25" />
+                                        <Button Content="Default" />
+                                        <Button Content="Efficiency" />
+                                        <Border
+                                            Width="1"
+                                            Margin="0,5"
+                                            Background="{ThemeResource MenuFlyoutSeparatorThemeBrush}"
+                                            Opacity="0.25" />
+                                        <Button Content="Apply" Style="{ThemeResource AccentButtonStyle}" />
                                     </StackPanel>
                                 </Grid>
                             </Expander.Header>
                             <StackPanel Spacing="16">
                                 <Grid>
                                     <Grid.RowDefinitions>
-                                        <RowDefinition/>
-                                        <RowDefinition Height="16"/>
-                                        <RowDefinition/>
-                                        <RowDefinition Height="16"/>
-                                        <RowDefinition/>
+                                        <RowDefinition />
+                                        <RowDefinition Height="16" />
+                                        <RowDefinition />
+                                        <RowDefinition Height="16" />
+                                        <RowDefinition />
                                     </Grid.RowDefinitions>
                                     <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="Auto"/>
-                                        <ColumnDefinition Width="16"/>
-                                        <ColumnDefinition/>
-                                        <ColumnDefinition Width="16"/>
-                                        <ColumnDefinition/>
+                                        <ColumnDefinition Width="Auto" />
+                                        <ColumnDefinition Width="16" />
+                                        <ColumnDefinition />
+                                        <ColumnDefinition Width="16" />
+                                        <ColumnDefinition />
                                     </Grid.ColumnDefinitions>
-                                    <TextBlock Text="Turn off the display:" Grid.Row="2"/>
-                                    <TextBlock Text="Put the computer to sleep:" Grid.Row="4"/>
-                                    <TextBlock Text="On battery" Grid.Column="2"/>
-                                    <TextBlock Text="Plugged in" Grid.Column="4"/>
-                                    <ComboBox SelectedIndex="0" Grid.Row="2" Grid.Column="2" HorizontalAlignment="Stretch">
-                                        <ComboBoxItem Content="Never"/>
+                                    <TextBlock Grid.Row="2" Text="Turn off the display:" />
+                                    <TextBlock Grid.Row="4" Text="Put the computer to sleep:" />
+                                    <TextBlock Grid.Column="2" Text="On battery" />
+                                    <TextBlock Grid.Column="4" Text="Plugged in" />
+                                    <ComboBox
+                                        Grid.Row="2"
+                                        Grid.Column="2"
+                                        HorizontalAlignment="Stretch"
+                                        SelectedIndex="0">
+                                        <ComboBoxItem Content="Never" />
                                     </ComboBox>
-                                    <ComboBox SelectedIndex="0" Grid.Row="4" Grid.Column="2" HorizontalAlignment="Stretch">
-                                        <ComboBoxItem Content="Never"/>
+                                    <ComboBox
+                                        Grid.Row="4"
+                                        Grid.Column="2"
+                                        HorizontalAlignment="Stretch"
+                                        SelectedIndex="0">
+                                        <ComboBoxItem Content="Never" />
                                     </ComboBox>
-                                    <ComboBox SelectedIndex="0" Grid.Row="2" Grid.Column="4" HorizontalAlignment="Stretch">
-                                        <ComboBoxItem Content="Never"/>
+                                    <ComboBox
+                                        Grid.Row="2"
+                                        Grid.Column="4"
+                                        HorizontalAlignment="Stretch"
+                                        SelectedIndex="0">
+                                        <ComboBoxItem Content="Never" />
                                     </ComboBox>
-                                    <ComboBox SelectedIndex="0" Grid.Row="4" Grid.Column="4" HorizontalAlignment="Stretch">
-                                        <ComboBoxItem Content="Never"/>
+                                    <ComboBox
+                                        Grid.Row="4"
+                                        Grid.Column="4"
+                                        HorizontalAlignment="Stretch"
+                                        SelectedIndex="0">
+                                        <ComboBoxItem Content="Never" />
                                     </ComboBox>
                                 </Grid>
-                                <HyperlinkButton Content="Advanced" HorizontalAlignment="Right"/>
+                                <HyperlinkButton HorizontalAlignment="Right" Content="Advanced" />
                             </StackPanel>
                         </Expander>
-                        <TextBlock Text="Advanced" Style="{StaticResource BodyStrongTextBlockStyle}" Margin="3"/>
-                        <SettingsUI:SettingsCard Header="Disable UWP background tasks" IsEnabled="False" Description="After booting up, Rebound 11 will disable background tasks for apps like Feedback Hub to boost up performance. This option requires Rebound Hub to run at startup.">
+                        <TextBlock
+                            Margin="3"
+                            Style="{StaticResource BodyStrongTextBlockStyle}"
+                            Text="Advanced" />
+                        <SettingsUI:SettingsCard
+                            Description="After booting up, Rebound 11 will disable background tasks for apps like Feedback Hub to boost up performance. This option requires Rebound Hub to run at startup."
+                            Header="Disable UWP background tasks"
+                            IsEnabled="False">
                             <SettingsUI:SettingsCard.HeaderIcon>
-                                <FontIcon Glyph=""/>
+                                <FontIcon Glyph="" />
                             </SettingsUI:SettingsCard.HeaderIcon>
-                            <ToggleSwitch/>
+                            <ToggleSwitch />
                         </SettingsUI:SettingsCard>
-                        <SettingsUI:SettingsCard Header="Verbose logon messages" IsEnabled="False" Description="Write events on the screen while booting up or shutting down your PC.">
+                        <SettingsUI:SettingsCard
+                            Description="Write events on the screen while booting up or shutting down your PC."
+                            Header="Verbose logon messages"
+                            IsEnabled="False">
                             <SettingsUI:SettingsCard.HeaderIcon>
-                                <FontIcon Glyph=""/>
+                                <FontIcon Glyph="" />
                             </SettingsUI:SettingsCard.HeaderIcon>
-                            <ToggleSwitch/>
+                            <ToggleSwitch />
                         </SettingsUI:SettingsCard>
-                        <SettingsUI:SettingsCard Header="Deep clean your PC" Description="This tool will launch the Rebound 11 versions of Disk Cleanup and Defragment and Optimize Drives, if they are already installed.&#x0a;Both apps will be launched as administrator, delete all cache files, including the downloads folder and recycle bin, and optimize every connected drive.">
+                        <SettingsUI:SettingsCard Description="This tool will launch the Rebound 11 versions of Disk Cleanup and Defragment and Optimize Drives, if they are already installed.&#x0a;Both apps will be launched as administrator, delete all cache files, including the downloads folder and recycle bin, and optimize every connected drive." Header="Deep clean your PC">
                             <SettingsUI:SettingsCard.HeaderIcon>
-                                <FontIcon Glyph=""/>
+                                <FontIcon Glyph="" />
                             </SettingsUI:SettingsCard.HeaderIcon>
-                            <StackPanel Spacing="8" Orientation="Horizontal">
-                                <Button Content="Pin to Start" Click="Button_Click_1"/>
-                                <Button Content="Run" Style="{ThemeResource AccentButtonStyle}" Click="Button_Click_3"/>
+                            <StackPanel Orientation="Horizontal" Spacing="8">
+                                <Button Click="Button_Click_1" Content="Pin to Start" />
+                                <Button
+                                    Click="Button_Click_3"
+                                    Content="Run"
+                                    Style="{ThemeResource AccentButtonStyle}" />
                             </StackPanel>
                         </SettingsUI:SettingsCard>
-                        <TextBlock Text="Recommended" Style="{StaticResource BodyStrongTextBlockStyle}" Margin="3"/>
-                        <SettingsUI:SettingsCard IsClickEnabled="True" Header="User Account Control" Description="Change User Account Control Settings." Click="SettingsCard_Click_1">
+                        <TextBlock
+                            Margin="3"
+                            Style="{StaticResource BodyStrongTextBlockStyle}"
+                            Text="Recommended" />
+                        <SettingsUI:SettingsCard
+                            Click="SettingsCard_Click_1"
+                            Description="Change User Account Control Settings."
+                            Header="User Account Control"
+                            IsClickEnabled="True">
                             <SettingsUI:SettingsCard.HeaderIcon>
-                                <FontIcon Glyph=""/>
+                                <FontIcon Glyph="" />
                             </SettingsUI:SettingsCard.HeaderIcon>
                         </SettingsUI:SettingsCard>
-                        <SettingsUI:SettingsCard IsClickEnabled="True" Header="Windows Update" IsEnabled="False">
+                        <SettingsUI:SettingsCard
+                            Header="Windows Update"
+                            IsClickEnabled="True"
+                            IsEnabled="False">
                             <SettingsUI:SettingsCard.HeaderIcon>
-                                <FontIcon Glyph=""/>
+                                <FontIcon Glyph="" />
                             </SettingsUI:SettingsCard.HeaderIcon>
                         </SettingsUI:SettingsCard>
-                        <SettingsUI:SettingsCard IsClickEnabled="True" Header="Windows Backup" IsEnabled="False">
+                        <SettingsUI:SettingsCard
+                            Header="Windows Backup"
+                            IsClickEnabled="True"
+                            IsEnabled="False">
                             <SettingsUI:SettingsCard.HeaderIcon>
-                                <FontIcon Glyph=""/>
+                                <FontIcon Glyph="" />
                             </SettingsUI:SettingsCard.HeaderIcon>
                         </SettingsUI:SettingsCard>
                     </StackPanel>
