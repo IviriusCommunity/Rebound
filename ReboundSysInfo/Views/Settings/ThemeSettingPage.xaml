@@ -1,0 +1,53 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<Page
+    x:Class="ReboundSysInfo.Views.ThemeSettingPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:views="using:ReboundSysInfo.Views"
+    xmlns:wuc="using:WinUICommunity"
+    mc:Ignorable="d">
+    <ScrollView Margin="{ThemeResource ContentPageMargin}" VerticalScrollBarVisibility="Auto">
+        <StackPanel
+            Margin="10"
+            wuc:PanelAttach.ChildrenTransitions="Default"
+            Spacing="5">
+
+            <views:BreadcrumbBarUserControl SingleItem="{x:Bind BreadCrumbBarItemText, Mode=OneWay}" />
+
+            <wuc:SettingsCard
+                Description="Select the theme that suits your preference. You can choose from dark, light, or system themes."
+                Header="App theme"
+                HeaderIcon="{wuc:BitmapIcon Source=Assets/Fluent/theme.png}">
+                <ComboBox x:Name="CmbTheme" SelectionChanged="CmbTheme_SelectionChanged">
+                    <ComboBoxItem Content="Light" Tag="Light" />
+                    <ComboBoxItem Content="Dark" Tag="Dark" />
+                    <ComboBoxItem Content="Default" Tag="Default" />
+                </ComboBox>
+            </wuc:SettingsCard>
+            <wuc:SettingsCard
+                Description="Change the appearance of the backdrop material behind your app. You can choose from Mica, Acrylic, or transparent options."
+                Header="Material"
+                HeaderIcon="{wuc:BitmapIcon Source=Assets/Fluent/backdrop.png}">
+                <ComboBox x:Name="CmbBackdrop" SelectionChanged="CmbBackdrop_SelectionChanged">
+                    <ComboBoxItem Content="None" Tag="None" />
+                    <ComboBoxItem Content="Mica" Tag="Mica" />
+                    <ComboBoxItem Content="Mica Alt" Tag="MicaAlt" />
+                    <ComboBoxItem Content="Desktop Acrylic" Tag="DesktopAcrylic" />
+                    <ComboBoxItem Content="Acrylic Base" Tag="AcrylicBase" />
+                    <ComboBoxItem Content="Acrylic Thin" Tag="AcrylicThin" />
+                    <ComboBoxItem Content="Transparent" Tag="Transparent" />
+                </ComboBox>
+            </wuc:SettingsCard>
+            <wuc:SettingsCard
+                ActionIcon="{wuc:BitmapIcon Source=Assets/Fluent/external.png}"
+                Click="OpenWindowsColorSettings"
+                Description="Sync your app’s color with your Windows accent color."
+                Header="Accent color"
+                HeaderIcon="{wuc:BitmapIcon Source=Assets/Fluent/color.png}"
+                IsClickEnabled="True" />
+        </StackPanel>
+    </ScrollView>
+</Page>
+

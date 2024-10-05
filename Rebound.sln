@@ -11,6 +11,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ReboundDiskCleanup", "Rebou
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ReboundRun", "ReboundRun\ReboundRun.csproj", "{632D4E75-5E9A-4F8E-A80D-F88C5EB8BD66}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ReboundSysInfo", "ReboundSysInfo\ReboundSysInfo.csproj", "{389B26A3-70CA-4200-8CFA-88A131E909E2}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|ARM64 = Debug|ARM64
@@ -93,6 +95,24 @@ Global
 		{632D4E75-5E9A-4F8E-A80D-F88C5EB8BD66}.Release|x86.ActiveCfg = Release|x86
 		{632D4E75-5E9A-4F8E-A80D-F88C5EB8BD66}.Release|x86.Build.0 = Release|x86
 		{632D4E75-5E9A-4F8E-A80D-F88C5EB8BD66}.Release|x86.Deploy.0 = Release|x86
+		{389B26A3-70CA-4200-8CFA-88A131E909E2}.Debug|ARM64.ActiveCfg = Debug|ARM64
+		{389B26A3-70CA-4200-8CFA-88A131E909E2}.Debug|ARM64.Build.0 = Debug|ARM64
+		{389B26A3-70CA-4200-8CFA-88A131E909E2}.Debug|ARM64.Deploy.0 = Debug|ARM64
+		{389B26A3-70CA-4200-8CFA-88A131E909E2}.Debug|x64.ActiveCfg = Debug|x64
+		{389B26A3-70CA-4200-8CFA-88A131E909E2}.Debug|x64.Build.0 = Debug|x64
+		{389B26A3-70CA-4200-8CFA-88A131E909E2}.Debug|x64.Deploy.0 = Debug|x64
+		{389B26A3-70CA-4200-8CFA-88A131E909E2}.Debug|x86.ActiveCfg = Debug|x86
+		{389B26A3-70CA-4200-8CFA-88A131E909E2}.Debug|x86.Build.0 = Debug|x86
+		{389B26A3-70CA-4200-8CFA-88A131E909E2}.Debug|x86.Deploy.0 = Debug|x86
+		{389B26A3-70CA-4200-8CFA-88A131E909E2}.Release|ARM64.ActiveCfg = Release|ARM64
+		{389B26A3-70CA-4200-8CFA-88A131E909E2}.Release|ARM64.Build.0 = Release|ARM64
+		{389B26A3-70CA-4200-8CFA-88A131E909E2}.Release|ARM64.Deploy.0 = Release|ARM64
+		{389B26A3-70CA-4200-8CFA-88A131E909E2}.Release|x64.ActiveCfg = Release|x64
+		{389B26A3-70CA-4200-8CFA-88A131E909E2}.Release|x64.Build.0 = Release|x64
+		{389B26A3-70CA-4200-8CFA-88A131E909E2}.Release|x64.Deploy.0 = Release|x64
+		{389B26A3-70CA-4200-8CFA-88A131E909E2}.Release|x86.ActiveCfg = Release|x86
+		{389B26A3-70CA-4200-8CFA-88A131E909E2}.Release|x86.Build.0 = Release|x86
+		{389B26A3-70CA-4200-8CFA-88A131E909E2}.Release|x86.Deploy.0 = Release|x86
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
