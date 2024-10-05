@@ -1,0 +1,10 @@
+{
+  "profiles": {
+    "ReboundWinver (Package)": {
+      "commandName": "MsixPackage"
+    },
+    "ReboundWinver (Unpackaged)": {
+      "commandName": "Project"
+    }
+  }
+}
