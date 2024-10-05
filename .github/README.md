@@ -32,7 +32,9 @@ Rebound 11 aims to enhance the Windows 11 experience by making it more cohesive,
 
 ## 🖼️ Screenshots
 
-*Coming soon*
+Thoughtfully designed light mode | Thoughtfully designed dark mode
+---|---
+![Thoughtfully designed light mode](https://github.com/user-attachments/assets/d87e9fc1-fe1c-461a-a128-6e970b45d9a0)|![Thoughtfully designed dark mode](https://github.com/user-attachments/assets/b578a82d-6386-46cf-b395-0f98e75fbb8a)
 
 ## 🛠️ Key Features Comparison
 
