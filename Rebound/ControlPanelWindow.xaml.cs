@@ -1,26 +1,24 @@
 ﻿using System;
-using Microsoft.UI.Xaml;
-using Microsoft.UI.Xaml.Input;
-using Microsoft.UI.Xaml.Media;
-using WinUIEx;
-using Rebound.Rebound.Pages.ControlPanel;
-using System.Threading.Tasks;
-using Microsoft.UI.Windowing;
-using Windows.Graphics;
-using Microsoft.UI;
+using System.Collections.Generic;
 using System.Runtime.InteropServices;
-using WindowMessageMonitor = WinUIEx.Messaging.WindowMessageMonitor;
-using Microsoft.Win32;
 using System.Threading;
+using System.Threading.Tasks;
 using CommunityToolkit.WinUI.UI.Helpers;
 using Microsoft.Graphics.Display;
-using Color = Windows.UI.Color;
-using Microsoft.UI.Xaml.Media.Imaging;
+using Microsoft.UI;
+using Microsoft.UI.Windowing;
+using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
+using Microsoft.UI.Xaml.Input;
+using Microsoft.UI.Xaml.Media;
+using Microsoft.UI.Xaml.Media.Imaging;
 using Microsoft.UI.Xaml.Navigation;
-using System.Collections.Generic;
-using System.Diagnostics;
+using Microsoft.Win32;
+using Rebound.Rebound.Pages.ControlPanel;
+using Windows.Graphics;
 using Windows.System;
+using WinUIEx;
+using WindowMessageMonitor = WinUIEx.Messaging.WindowMessageMonitor;
 
 #pragma warning disable IDE0044 // Add readonly modifier
 
@@ -87,7 +85,7 @@ public sealed partial class ControlPanelWindow : WindowEx
         }
         catch
         {
-        
+
         }
     }
 
@@ -185,7 +183,7 @@ public sealed partial class ControlPanelWindow : WindowEx
         }
         catch
         {
-        
+
         }
     }
 
@@ -402,7 +400,7 @@ public sealed partial class ControlPanelWindow : WindowEx
         }
         catch
         {
-        
+
         }
     }
 
@@ -453,7 +451,7 @@ public sealed partial class ControlPanelWindow : WindowEx
             case WM_NCHITTEST:
                 {
                     // Minimize Button
-                    if ((x - 7 * Scale() - this.AppWindow.Position.X) >= (this.Bounds.Width * Scale() - minButtonLeftPos) && 
+                    if ((x - 7 * Scale() - this.AppWindow.Position.X) >= (this.Bounds.Width * Scale() - minButtonLeftPos) &&
                         (x - 7 * Scale() - this.AppWindow.Position.X) < (this.Bounds.Width * Scale() - maxButtonLeftPos) &&
                         y < this.AppWindow.Position.Y + 31 * Scale() + additionalHeight * Scale() &&
                         y >= this.AppWindow.Position.Y + 1 * Scale())
@@ -470,7 +468,7 @@ public sealed partial class ControlPanelWindow : WindowEx
                     }
 
                     // Maximize Button
-                    else if ((x - 7 * Scale() - this.AppWindow.Position.X) >= (this.Bounds.Width * Scale() - maxButtonLeftPos) && 
+                    else if ((x - 7 * Scale() - this.AppWindow.Position.X) >= (this.Bounds.Width * Scale() - maxButtonLeftPos) &&
                              ((x - 7 * Scale() - this.AppWindow.Position.X) < (this.Bounds.Width * Scale() - closeButtonLeftPos)) &&
                         y < this.AppWindow.Position.Y + 31 * Scale() + additionalHeight * Scale() &&
                         y >= this.AppWindow.Position.Y + 1 * Scale())

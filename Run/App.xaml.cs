@@ -1,11 +1,11 @@
-﻿using IWshRuntimeLibrary;
-using Microsoft.UI.Xaml;
-using Rebound.Run.Helpers;
-using System;
+﻿using System;
 using System.Diagnostics;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Threading.Tasks;
+using IWshRuntimeLibrary;
+using Microsoft.UI.Xaml;
+using Rebound.Run.Helpers;
 using Windows.System;
 using Windows.UI.Input.Preview.Injection;
 using WinUIEx;
@@ -29,7 +29,10 @@ namespace Rebound.Run
             _singleInstanceApp.Launched += OnSingleInstanceLaunched;
         }
 
-        public static WindowEx? BackgroundWindow { get; set; }
+        public static WindowEx? BackgroundWindow
+        {
+            get; set;
+        }
 
         protected override void OnLaunched(LaunchActivatedEventArgs args)
         {

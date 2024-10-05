@@ -1,21 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Runtime.InteropServices.WindowsRuntime;
-using Microsoft.UI.Xaml;
-using Microsoft.UI.Xaml.Controls;
-using Microsoft.UI.Xaml.Controls.Primitives;
-using Microsoft.UI.Xaml.Data;
-using Microsoft.UI.Xaml.Input;
-using Microsoft.UI.Xaml.Media;
-using Microsoft.UI.Xaml.Navigation;
-using Microsoft.Win32;
+﻿using System.Diagnostics;
 using System.Management;
-using Windows.Foundation;
-using Windows.Foundation.Collections;
-using System.Reflection.Metadata.Ecma335;
-using System.Diagnostics;
+using Microsoft.Win32;
 
 // To learn more about WinUI, the WinUI project structure,
 // and more about our project templates, see: http://aka.ms/winui-project-info.
@@ -46,7 +31,8 @@ public sealed partial class SystemInformationPage : Page
         RAMUtil.Text = GetRAMUtil();
     }
 
-    public static string GetCPUSpecs(string param) {
+    public static string GetCPUSpecs(string param)
+    {
         var cpu =
     new ManagementObjectSearcher("select * from Win32_Processor")
     .Get()
@@ -73,7 +59,8 @@ public sealed partial class SystemInformationPage : Page
             var ProcessorCores = cpu["NumberOfCores"].ToString();
             return ProcessorCores;
         }
-        else if (param == "UtilPercent") {
+        else if (param == "UtilPercent")
+        {
             PerformanceCounter cpuCounter;
             cpuCounter = new PerformanceCounter("Processor", "% Processor Time", "_Total");
             var cpu_util = cpuCounter.NextValue() + "%";
@@ -81,7 +68,8 @@ public sealed partial class SystemInformationPage : Page
             cpu_util = cpuCounter.NextValue() + "%";
             return cpu_util;
         }
-        else {
+        else
+        {
             return "";
         }
     }
@@ -175,17 +163,17 @@ public sealed partial class SystemInformationPage : Page
 
     {
 
-          // The current wallpaper path is stored in the registry at HKEY_CURRENT_USER\\Control Panel\\Desktop\\WallPaper
+        // The current wallpaper path is stored in the registry at HKEY_CURRENT_USER\\Control Panel\\Desktop\\WallPaper
 
-          RegistryKey rkWallPaper = Registry.CurrentUser.OpenSubKey("Control Panel\\Desktop", false);
+        RegistryKey rkWallPaper = Registry.CurrentUser.OpenSubKey("Control Panel\\Desktop", false);
 
-          string WallpaperPath = rkWallPaper.GetValue("WallPaper").ToString();
+        string WallpaperPath = rkWallPaper.GetValue("WallPaper").ToString();
 
-         rkWallPaper.Close();
+        rkWallPaper.Close();
 
-          // Return the current wallpaper path
+        // Return the current wallpaper path
 
-          return WallpaperPath;
+        return WallpaperPath;
 
     }
 }

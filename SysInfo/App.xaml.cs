@@ -1,12 +1,17 @@
 ﻿using WinUIEx;
-using MicaSystemBackdrop = WinUIEx.MicaSystemBackdrop;
 
 namespace Rebound.SysInfo;
 
 public partial class App : Application
 {
-    public IThemeService ThemeService { get; set; }
-    public IJsonNavigationViewService JsonNavigationViewService { get; set; }
+    public IThemeService ThemeService
+    {
+        get; set;
+    }
+    public IJsonNavigationViewService JsonNavigationViewService
+    {
+        get; set;
+    }
     public new static App Current => (App)Application.Current;
     public string AppVersion { get; set; } = AssemblyInfoHelper.GetAssemblyVersion();
     public string AppName { get; set; } = "Rebound.SysInfo";

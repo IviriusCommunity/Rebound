@@ -4,8 +4,14 @@ namespace Rebound.TrustedPlatform.Views;
 
 public sealed partial class MainPage : Page
 {
-    public TpmViewModel ViewModelTpm { get; }
-    public TpmManager TpmManager { get; }  // Old method for original properties
+    public TpmViewModel ViewModelTpm
+    {
+        get;
+    }
+    public TpmManager TpmManager
+    {
+        get;
+    }  // Old method for original properties
 
     public MainPage()
     {

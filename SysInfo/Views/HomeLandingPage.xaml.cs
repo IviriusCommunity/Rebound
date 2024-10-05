@@ -2,7 +2,10 @@
 
 public sealed partial class HomeLandingPage : Page
 {
-    public string AppInfo { get; set; }
+    public string AppInfo
+    {
+        get; set;
+    }
     public HomeLandingPage()
     {
         this.InitializeComponent();

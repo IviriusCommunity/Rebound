@@ -1,11 +1,4 @@
-﻿using Microsoft.UI.Windowing;
-using Microsoft.UI.Xaml;
-using Microsoft.UI.Xaml.Controls;
-using Microsoft.UI.Xaml.Media;
-using Microsoft.Win32.TaskScheduler;
-using Microsoft.WindowsAPICodePack.Taskbar;
-using Rebound.Defrag.Helpers;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Diagnostics.Eventing.Reader;
@@ -15,6 +8,13 @@ using System.Management;
 using System.Security.Principal;
 using System.Text;
 using System.Threading.Tasks;
+using Microsoft.UI.Windowing;
+using Microsoft.UI.Xaml;
+using Microsoft.UI.Xaml.Controls;
+using Microsoft.UI.Xaml.Media;
+using Microsoft.Win32.TaskScheduler;
+using Microsoft.WindowsAPICodePack.Taskbar;
+using Rebound.Defrag.Helpers;
 using Windows.ApplicationModel;
 using Windows.ApplicationModel.Core;
 using Windows.Storage;
@@ -134,10 +134,22 @@ namespace Rebound.Defrag
 
         public class DiskItem : Item
         {
-            public string? DriveLetter { get; set; }
-            public string? MediaType { get; set; }
-            public int ProgressValue { get; set; }
-            public bool IsChecked { get; set; }
+            public string? DriveLetter
+            {
+                get; set;
+            }
+            public string? MediaType
+            {
+                get; set;
+            }
+            public int ProgressValue
+            {
+                get; set;
+            }
+            public bool IsChecked
+            {
+                get; set;
+            }
         }
 
         public bool IsAdministrator()
@@ -855,7 +867,7 @@ Receive-Job -Id $job.Id | ForEach-Object {{ Write-Output $_ }}
                         if (MyListView.SelectedIndex + 1 != j) MyListView.SelectedIndex++;
                         continue;
                     }
-                        var processInfo = new ProcessStartInfo
+                    var processInfo = new ProcessStartInfo
                     {
                         FileName = "powershell.exe",
                         Arguments = $"-ExecutionPolicy Bypass -File \"{scriptPath}\"",  // Use -File to execute the script

@@ -1,6 +1,6 @@
-﻿using Microsoft.UI.Xaml;
-using System;
+﻿using System;
 using System.Linq;
+using Microsoft.UI.Xaml;
 
 namespace Rebound.Defrag
 {

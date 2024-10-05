@@ -3,7 +3,10 @@
 namespace Rebound.SysInfo.Views;
 public sealed partial class ThemeSettingPage : Page
 {
-    public string BreadCrumbBarItemText { get; set; }
+    public string BreadCrumbBarItemText
+    {
+        get; set;
+    }
 
     public ThemeSettingPage()
     {

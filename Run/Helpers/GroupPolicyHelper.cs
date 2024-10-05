@@ -1,5 +1,5 @@
-﻿using Microsoft.Win32;
-using System;
+﻿using System;
+using Microsoft.Win32;
 
 namespace Rebound.Run.Helpers
 {

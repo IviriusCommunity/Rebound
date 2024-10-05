@@ -1,3 +1,9 @@
+using System;
+using System.Collections.Generic;
+using System.Diagnostics;
+using System.IO;
+using System.Linq;
+using System.Threading.Tasks;
 using Microsoft.Graphics.Display;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
@@ -6,12 +12,6 @@ using Microsoft.UI.Xaml.Media;
 using Microsoft.Win32;
 using Rebound.Run.Helpers;
 using Rebound.Run.Languages;
-using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.IO;
-using System.Linq;
-using System.Threading.Tasks;
 using Windows.Storage.Pickers;
 using Windows.System;
 using WinUIEx;
@@ -112,7 +112,7 @@ namespace Rebound.Run
                 return;
             }
 
-            switch(RunBox.Text.ToString().ToLower())
+            switch (RunBox.Text.ToString().ToLower())
             {
                 case "":
                     {
@@ -289,7 +289,7 @@ namespace Rebound.Run
             }
             catch
             {
-                
+
             }
 
             await Task.Delay(50);

@@ -8,10 +8,22 @@ namespace Rebound.Defrag.Helpers
 {
     public class VolumeInfo
     {
-        public string? GUID { get; set; }
-        public string? FileSystem { get; set; }
-        public ulong Size { get; set; }
-        public string? FriendlyName { get; set; }
+        public string? GUID
+        {
+            get; set;
+        }
+        public string? FileSystem
+        {
+            get; set;
+        }
+        public ulong Size
+        {
+            get; set;
+        }
+        public string? FriendlyName
+        {
+            get; set;
+        }
     }
 
     public class SystemVolumes

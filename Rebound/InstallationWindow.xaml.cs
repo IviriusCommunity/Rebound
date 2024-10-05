@@ -1,30 +1,13 @@
 using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
 using System.Diagnostics;
 using System.IO;
-using System.Linq;
 using System.Runtime.InteropServices;
-using System.Runtime.InteropServices.WindowsRuntime;
 using System.Security.Cryptography.X509Certificates;
 using System.Threading.Tasks;
-using Microsoft.UI.Text;
 using Microsoft.UI.Xaml;
-using Microsoft.UI.Xaml.Controls;
-using Microsoft.UI.Xaml.Controls.Primitives;
-using Microsoft.UI.Xaml.Data;
 using Microsoft.UI.Xaml.Input;
-using Microsoft.UI.Xaml.Media;
-using Microsoft.UI.Xaml.Navigation;
-using Windows.Foundation;
-using Windows.Foundation.Collections;
-using Windows.Foundation.Diagnostics;
-using Windows.Storage;
 using Windows.System;
-using Windows.UI.Text;
 using WinUIEx;
-using WinUIEx.Messaging;
-using static System.Runtime.InteropServices.JavaScript.JSType;
 using FileAttributes = System.IO.FileAttributes;
 
 // To learn more about WinUI, the WinUI project structure,

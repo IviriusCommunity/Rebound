@@ -3,7 +3,10 @@
 namespace Rebound.SysInfo.Common;
 public static class LoggerSetup
 {
-    public static ILogger Logger { get; private set; }
+    public static ILogger Logger
+    {
+        get; private set;
+    }
 
     public static void ConfigureLogger()
     {

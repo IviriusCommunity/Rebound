@@ -1,6 +1,4 @@
-﻿using System;
-using System.ComponentModel;
-using System.Threading.Tasks;
+﻿using System.ComponentModel;
 
 public class TpmViewModel : INotifyPropertyChanged
 {

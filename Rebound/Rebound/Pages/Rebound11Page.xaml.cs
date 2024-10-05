@@ -1,24 +1,12 @@
 using System;
-using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Net.Http;
-using System.Runtime.InteropServices.WindowsRuntime;
 using System.Security.Principal;
 using System.Threading.Tasks;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
-using Microsoft.UI.Xaml.Controls.Primitives;
-using Microsoft.UI.Xaml.Data;
-using Microsoft.UI.Xaml.Input;
-using Microsoft.UI.Xaml.Media;
-using Microsoft.UI.Xaml.Navigation;
-using Windows.ApplicationModel.AppExtensions;
-using Windows.Foundation;
-using Windows.Foundation.Collections;
-using Windows.System;
-using Windows.UI;
 using WinUIEx;
 
 // To learn more about WinUI, the WinUI project structure,
@@ -40,19 +28,19 @@ public sealed partial class Rebound11Page : Page
             Admin5.Visibility = Visibility.Collapsed;
         }
         if (IsReboundInstalled() == true)
-            {
-                Rebound11IsInstalledGrid.Visibility = Visibility.Visible;
-                Rebound11IsInstallingGrid.Visibility = Visibility.Collapsed;
-                Rebound11IsNotInstalledGrid.Visibility = Visibility.Collapsed;
-                DetailsPanel.Visibility = Visibility.Collapsed;
-            }
-            else
-            {
-                Rebound11IsInstalledGrid.Visibility = Visibility.Collapsed;
-                Rebound11IsInstallingGrid.Visibility = Visibility.Collapsed;
-                Rebound11IsNotInstalledGrid.Visibility = Visibility.Visible;
-                DetailsPanel.Visibility = Visibility.Visible;
-            }
+        {
+            Rebound11IsInstalledGrid.Visibility = Visibility.Visible;
+            Rebound11IsInstallingGrid.Visibility = Visibility.Collapsed;
+            Rebound11IsNotInstalledGrid.Visibility = Visibility.Collapsed;
+            DetailsPanel.Visibility = Visibility.Collapsed;
+        }
+        else
+        {
+            Rebound11IsInstalledGrid.Visibility = Visibility.Collapsed;
+            Rebound11IsInstallingGrid.Visibility = Visibility.Collapsed;
+            Rebound11IsNotInstalledGrid.Visibility = Visibility.Visible;
+            DetailsPanel.Visibility = Visibility.Visible;
+        }
         GetWallpaper();
         if (string.Join(" ", Environment.GetCommandLineArgs().Skip(1)).Contains("INSTALLREBOUND11"))
         {
@@ -81,7 +69,7 @@ public sealed partial class Rebound11Page : Page
         }
         catch
         {
-        
+
         }
     }
 

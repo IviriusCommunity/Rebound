@@ -3,9 +3,18 @@
 namespace Rebound.SysInfo.Views;
 public sealed partial class AppUpdateSettingPage : Page
 {
-    public string CurrentVersion { get; set; }
-    public string ChangeLog { get; set; }
-    public string BreadCrumbBarItemText { get; set; }
+    public string CurrentVersion
+    {
+        get; set;
+    }
+    public string ChangeLog
+    {
+        get; set;
+    }
+    public string BreadCrumbBarItemText
+    {
+        get; set;
+    }
 
     public AppUpdateSettingPage()
     {

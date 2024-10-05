@@ -1,23 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Diagnostics;
-using System.IO;
 using System.Linq;
-using System.Reflection;
-using System.Runtime.InteropServices.WindowsRuntime;
 using System.Threading.Tasks;
 using Microsoft.UI.Xaml;
-using Microsoft.UI.Xaml.Controls;
-using Microsoft.UI.Xaml.Controls.Primitives;
-using Microsoft.UI.Xaml.Data;
-using Microsoft.UI.Xaml.Input;
-using Microsoft.UI.Xaml.Media;
-using Microsoft.UI.Xaml.Navigation;
-using Microsoft.UI.Xaml.Shapes;
-using Windows.ApplicationModel;
-using Windows.ApplicationModel.Activation;
-using Windows.Foundation;
-using Windows.Foundation.Collections;
 using Windows.System.UserProfile;
 using WinUIEx;
 
@@ -85,41 +70,41 @@ public partial class App : Application
         }
         else
         {*/
-            if (string.Join(" ", Environment.GetCommandLineArgs().Skip(1)).Contains("CONTROL"))
-            {
-                var win = new ControlPanelWindow();
-                cpanelWin = win;
-                win.Show();
-                win.SetWindowSize(1250, 750);
-                win.CenterOnScreen();
-                await Task.Delay(10);
-                win.BringToFront();
-                m_window = null;
-                return;
-            }
-            if (string.Join(" ", Environment.GetCommandLineArgs().Skip(1)).Contains("UAC"))
-            {
-                var win = new UACWindow();
-                win.Show();
-                await Task.Delay(10);
-                win.BringToFront();
-                m_window = null;
-                return;
-            }
-            if (string.Join(" ", Environment.GetCommandLineArgs().Skip(1)).Contains("UNINSTALL"))
-            {
-                var win = new UninstallationWindow();
-                win.Show();
-                await Task.Delay(10);
-                win.BringToFront();
-                m_window = null;
-                return;
-            }
-            else
-            {
-                m_window = new MainWindow();
-                m_window.Activate();
-            }
+        if (string.Join(" ", Environment.GetCommandLineArgs().Skip(1)).Contains("CONTROL"))
+        {
+            var win = new ControlPanelWindow();
+            cpanelWin = win;
+            win.Show();
+            win.SetWindowSize(1250, 750);
+            win.CenterOnScreen();
+            await Task.Delay(10);
+            win.BringToFront();
+            m_window = null;
+            return;
+        }
+        if (string.Join(" ", Environment.GetCommandLineArgs().Skip(1)).Contains("UAC"))
+        {
+            var win = new UACWindow();
+            win.Show();
+            await Task.Delay(10);
+            win.BringToFront();
+            m_window = null;
+            return;
+        }
+        if (string.Join(" ", Environment.GetCommandLineArgs().Skip(1)).Contains("UNINSTALL"))
+        {
+            var win = new UninstallationWindow();
+            win.Show();
+            await Task.Delay(10);
+            win.BringToFront();
+            m_window = null;
+            return;
+        }
+        else
+        {
+            m_window = new MainWindow();
+            m_window.Activate();
+        }
         //}
     }
 

@@ -1,11 +1,11 @@
-using Microsoft.UI.Xaml.Controls;
-using Microsoft.UI.Xaml.Media;
-using Microsoft.Win32.TaskScheduler;
-using Rebound.Defrag.Helpers;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Text;
+using Microsoft.UI.Xaml.Controls;
+using Microsoft.UI.Xaml.Media;
+using Microsoft.Win32.TaskScheduler;
+using Rebound.Defrag.Helpers;
 using WinUIEx;
 using static Rebound.Defrag.MainWindow;
 using Task = System.Threading.Tasks.Task;

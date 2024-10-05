@@ -5,28 +5,14 @@ using System.IO;
 using System.Linq;
 using System.Management;
 using System.Runtime.InteropServices;
-using System.Runtime.InteropServices.WindowsRuntime;
 using System.Text;
-using System.Threading.Tasks;
+using IWshRuntimeLibrary;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
-using Microsoft.UI.Xaml.Controls.Primitives;
-using Microsoft.UI.Xaml.Data;
-using Microsoft.UI.Xaml.Input;
-using Microsoft.UI.Xaml.Media;
-using Microsoft.UI.Xaml.Media.Imaging;
 using Microsoft.UI.Xaml.Navigation;
 using Microsoft.Win32;
-using Windows.ApplicationModel.Core;
-using Windows.ApplicationModel;
-using Windows.Foundation;
-using Windows.Foundation.Collections;
 using Windows.System;
-using Windows.UI.StartScreen;
 using WinUIEx;
-using IWshRuntimeLibrary;
-using Windows.Storage;
-using File = System.IO.File;
 
 // To learn more about WinUI, the WinUI project structure,
 // and more about our project templates, see: http://aka.ms/winui-project-info.

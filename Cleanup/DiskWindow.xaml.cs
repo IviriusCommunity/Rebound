@@ -1,26 +1,14 @@
-using Microsoft.UI.Xaml;
-using Microsoft.UI.Xaml.Controls;
-using Microsoft.UI.Xaml.Controls.Primitives;
-using Microsoft.UI.Xaml.Data;
-using Microsoft.UI.Xaml.Input;
-using Microsoft.UI.Xaml.Media;
-using Microsoft.UI.Xaml.Navigation;
 using System;
 using System.Collections.Generic;
-using System.ComponentModel.Design;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
-using System.Runtime.InteropServices.WindowsRuntime;
 using System.Security.Principal;
 using System.Threading.Tasks;
-using Windows.Foundation;
-using Windows.Foundation.Collections;
-using Windows.Storage;
+using Microsoft.UI.Xaml;
+using Microsoft.UI.Xaml.Controls;
 using Windows.System;
-using Windows.UI.Shell;
-using Windows.UI.WindowManagement;
 using WinUIEx;
 
 // To learn more about WinUI, the WinUI project structure,
@@ -30,13 +18,34 @@ namespace Rebound.Cleanup
 {
     public class CleanItem
     {
-        public string Name { get; set; }
-        public string ImagePath { get; set; }
-        public string ItemPath { get; set; }
-        public string Description { get; set; }
-        public string DisplaySize { get; set; }
-        public long Size { get; set; }
-        public bool IsChecked { get; set; }
+        public string Name
+        {
+            get; set;
+        }
+        public string ImagePath
+        {
+            get; set;
+        }
+        public string ItemPath
+        {
+            get; set;
+        }
+        public string Description
+        {
+            get; set;
+        }
+        public string DisplaySize
+        {
+            get; set;
+        }
+        public long Size
+        {
+            get; set;
+        }
+        public bool IsChecked
+        {
+            get; set;
+        }
     }
 
     /// <summary>
