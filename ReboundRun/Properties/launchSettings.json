@@ -1,0 +1,10 @@
+{
+  "profiles": {
+    "ReboundRun (Package)": {
+      "commandName": "MsixPackage"
+    },
+    "ReboundRun (Unpackaged)": {
+      "commandName": "Project"
+    }
+  }
+}
