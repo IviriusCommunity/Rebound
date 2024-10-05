@@ -22,10 +22,10 @@ public sealed partial class UninstallationWindow : WindowEx
         Load();
     }
 
-    double currentStep = 0;
-    double totalSteps = 0;
-    double currentSubstep = 0;
-    double totalSubsteps = 0;
+    public double currentStep = 0;
+    public double totalSteps = 0;
+    public double currentSubstep = 0;
+    public double totalSubsteps = 0;
 
     public async void Load()
     {

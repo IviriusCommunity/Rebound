@@ -31,7 +31,7 @@ public sealed partial class SystemAndSecurity : Page
         CheckDefenderStatus();
     }
 
-    void CheckDefenderStatus()
+    public void CheckDefenderStatus()
     {
         try
         {
@@ -194,7 +194,7 @@ public sealed partial class SystemAndSecurity : Page
         }
     }
 
-    string DecodeProductState(int productState)
+    public string DecodeProductState(int productState)
     {
         // Define the bit masks
         const int ProductStateMask = 0xF000;
