@@ -15,7 +15,7 @@
 	<mp:PhoneIdentity PhoneProductId="039b9731-7b33-49de-bb09-5b81d5978d1c" PhonePublisherId="00000000-0000-0000-0000-000000000000"/>
 
 	<Properties>
-		<DisplayName>Rebound.About</DisplayName>
+		<DisplayName>About</DisplayName>
 		<PublisherDisplayName>Ivirius Community</PublisherDisplayName>
 		<Logo>Assets\StoreLogo.png</Logo>
 	</Properties>
