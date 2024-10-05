@@ -42,7 +42,7 @@ Rebound 11 is a comprehensive enhancement project for Windows 11, designed to br
 
 ## 🤔 General Information
 
-Rebound 11 aims to enhance the Windows 11 experience by making it more cohesive, leveraging the modern UI capabilities of WinUI 3. It offers a range of apps that integrate seamlessly with your system while maintaining compatibility with both Win32 and Microsoft Store applications.
+Rebound 11 aims to enhance the Windows 11 experience by making it more cohesive, leveraging the modern UI capabilities of WinUI 3 and the Windows App SDK. It offers a range of apps that integrate seamlessly with your system while maintaining compatibility with both Win32 and Microsoft Store applications.
 
 > [!NOTE]
 > Rebound 11 **does not** modify system files or use patchers like SecureUxTheme, making it a safer alternative to other system mods. However, due to its resource-intensive nature, make sure your system meets the minimum requirements for smooth performance.
@@ -66,7 +66,7 @@ Rebound 11 aims to enhance the Windows 11 experience by making it more cohesive,
 | Fully reversible changes      | ❌                         | ✔️                      | No need for system restore points |
 | Compatible with all software  | ❌                         | ✔️                      | Works with both Win32 APIs and Microsoft Store apps |
 | Windows Updates enabled       | ⚠️                         | ✔️                      | Updates are enabled by default, ensuring your system remains secure |
-| Backwards compatibility       | ❌                         | ✔️                      | System apps remain functional even if Rebound 11 malfunctions |
+| Backwards compatibility       | ❌                         | ✔️                      | Win32 system apps remain functional even if Rebound 11 apps malfunction |
 | Safe for home users           | ❌                         | ✔️                      | While no mod is 100% safe, Rebound 11 is generally safer than most mods |
 | Open source                   | ⚠️                         | ✔️                      | Fully open-source, including dedicated Rebound apps |
 | Additional features over Win32 apps | ⚠️                  | ✔️                      | Rebound 11 apps offer enhanced features compared to legacy Win32 applets |
