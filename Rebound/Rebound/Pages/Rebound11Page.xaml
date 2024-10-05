@@ -1,43 +1,67 @@
-<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8" ?>
 <Page
     x:Class="Rebound.Rebound.Pages.Rebound11Page"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-    xmlns:local="using:Rebound.Rebound.Pages"
-    xmlns:header="using:WinUIGallery.Controls"
-    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:SettingsControls="using:CommunityToolkit.WinUI.Controls"
     xmlns:ToolkitControls="using:CommunityToolkit.WinUI.UI.Controls"
-    xmlns:SettingsControls="using:CommunityToolkit.WinUI.Controls"      
     xmlns:behaviors="using:CommunityToolkit.WinUI.Behaviors"
-      xmlns:core="using:Microsoft.Xaml.Interactions.Core"
-      xmlns:interactivity="using:Microsoft.Xaml.Interactivity"
+    xmlns:core="using:Microsoft.Xaml.Interactions.Core"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:header="using:WinUIGallery.Controls"
+    xmlns:interactivity="using:Microsoft.Xaml.Interactivity"
+    xmlns:local="using:Rebound.Rebound.Pages"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     mc:Ignorable="d">
 
     <ScrollViewer>
         <Grid>
-            <header:HomePageHeaderImage Opacity="0.8" x:Name="BKGImage" HorizontalAlignment="Stretch" Height="350" VerticalAlignment="Top" MinWidth="100" Path="/Assets/Wallpapers/WallpaperDarkBlue.png"/>
-            <StackPanel Margin="75, 50, 75, 50">
+            <header:HomePageHeaderImage
+                x:Name="BKGImage"
+                Height="350"
+                MinWidth="100"
+                HorizontalAlignment="Stretch"
+                VerticalAlignment="Top"
+                Opacity="0.8"
+                Path="/Assets/Wallpapers/WallpaperDarkBlue.png" />
+            <StackPanel Margin="75,50,75,50">
                 <Grid>
                     <Path Data="M 0 1 C 0 0.5 0.5 0 1 0 L 7 0 L 7 7 L 0 7 M 1 6 M 8 0 L 14 0 C 14.5 0 15 0.5 15 1 L 15 7 L 8 7 M 9 6 M 7 8 L 0 8 L 0 14 C 0 14.5 0.5 15 1 15 L 7 15 M 6 14 M 8 8 L 15 8 L 15 14 C 15 14.5 14.5 15 14 15 L 8 15 M 9 14 M 0 0 L 16 16">
                         <Path.Fill>
                             <LinearGradientBrush StartPoint="0, 0" EndPoint="1, 1">
                                 <LinearGradientBrush.GradientStops>
-                                    <GradientStop Color="{StaticResource SystemAccentColorLight3}"/>
-                                    <GradientStop Color="{StaticResource SystemAccentColorLight1}" Offset="0.5"/>
-                                    <GradientStop Color="{StaticResource SystemAccentColorDark1}" Offset="1"/>
+                                    <GradientStop Color="{StaticResource SystemAccentColorLight3}" />
+                                    <GradientStop Offset="0.5" Color="{StaticResource SystemAccentColorLight1}" />
+                                    <GradientStop Offset="1" Color="{StaticResource SystemAccentColorDark1}" />
                                 </LinearGradientBrush.GradientStops>
                             </LinearGradientBrush>
                         </Path.Fill>
                         <Path.RenderTransform>
-                            <ScaleTransform ScaleX="6" ScaleY="6"/>
+                            <ScaleTransform ScaleX="6" ScaleY="6" />
                         </Path.RenderTransform>
                     </Path>
-                    <TextBlock Style="{StaticResource TitleLargeTextBlockStyle}" Text="Rebound 11" Margin="115, -5, 0, 0"/>
-                    <TextBlock Text="Windows 11 made consistent. Featuring WinUI 3 apps for your everyday tasks." Margin="115, 55, 0, 0" FontSize="18" TextWrapping="WrapWholeWords"/>
+                    <TextBlock
+                        Margin="115,-5,0,0"
+                        Style="{StaticResource TitleLargeTextBlockStyle}"
+                        Text="Rebound 11" />
+                    <TextBlock
+                        Margin="115,55,0,0"
+                        FontSize="18"
+                        Text="Windows 11 made consistent. Featuring WinUI 3 apps for your everyday tasks."
+                        TextWrapping="WrapWholeWords" />
                 </Grid>
-                <ScrollViewer Margin="0, 45, 0, 25" Padding="0, 0, 0, 15" HorizontalScrollMode="Enabled" HorizontalScrollBarVisibility="Hidden" VerticalScrollMode="Disabled" VerticalScrollBarVisibility="Hidden" CanContentRenderOutsideBounds="True">
-                    <StackPanel Orientation="Horizontal" VerticalAlignment="Top" Spacing="15">
+                <ScrollViewer
+                    Margin="0,45,0,25"
+                    Padding="0,0,0,15"
+                    CanContentRenderOutsideBounds="True"
+                    HorizontalScrollBarVisibility="Hidden"
+                    HorizontalScrollMode="Enabled"
+                    VerticalScrollBarVisibility="Hidden"
+                    VerticalScrollMode="Disabled">
+                    <StackPanel
+                        VerticalAlignment="Top"
+                        Orientation="Horizontal"
+                        Spacing="15">
                         <StackPanel.Resources>
                             <Style TargetType="Button">
                                 <Setter Property="Background" Value="{ThemeResource SystemControlAcrylicElementBrush}" />
@@ -57,7 +81,23 @@
                                 <Setter Property="Template">
                                     <Setter.Value>
                                         <ControlTemplate TargetType="Button">
-                                            <ContentPresenter x:Name="ContentPresenter" Background="{TemplateBinding Background}" Foreground="{TemplateBinding Foreground}" BackgroundSizing="{TemplateBinding BackgroundSizing}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" Content="{TemplateBinding Content}" ContentTemplate="{TemplateBinding ContentTemplate}" ContentTransitions="{TemplateBinding ContentTransitions}" CornerRadius="{TemplateBinding CornerRadius}" Padding="{TemplateBinding Padding}" HorizontalContentAlignment="{TemplateBinding HorizontalContentAlignment}" VerticalContentAlignment="{TemplateBinding VerticalContentAlignment}" AutomationProperties.AccessibilityView="Raw" local:AnimatedIcon.State="Normal" xmlns:local="using:Microsoft.UI.Xaml.Controls">
+                                            <ContentPresenter
+                                                xmlns:local="using:Microsoft.UI.Xaml.Controls"
+                                                x:Name="ContentPresenter"
+                                                Padding="{TemplateBinding Padding}"
+                                                HorizontalContentAlignment="{TemplateBinding HorizontalContentAlignment}"
+                                                VerticalContentAlignment="{TemplateBinding VerticalContentAlignment}"
+                                                local:AnimatedIcon.State="Normal"
+                                                AutomationProperties.AccessibilityView="Raw"
+                                                Background="{TemplateBinding Background}"
+                                                BackgroundSizing="{TemplateBinding BackgroundSizing}"
+                                                BorderBrush="{TemplateBinding BorderBrush}"
+                                                BorderThickness="{TemplateBinding BorderThickness}"
+                                                Content="{TemplateBinding Content}"
+                                                ContentTemplate="{TemplateBinding ContentTemplate}"
+                                                ContentTransitions="{TemplateBinding ContentTransitions}"
+                                                CornerRadius="{TemplateBinding CornerRadius}"
+                                                Foreground="{TemplateBinding Foreground}">
                                                 <ContentPresenter.BackgroundTransition>
                                                     <BrushTransition Duration="0:0:0.083" />
                                                 </ContentPresenter.BackgroundTransition>
@@ -121,63 +161,198 @@
                                 </Setter>
                             </Style>
                         </StackPanel.Resources>
-                        <Button CornerRadius="8" Width="225" Height="225" HorizontalContentAlignment="Stretch">
-                            <StackPanel Margin="10" HorizontalAlignment="Stretch" VerticalAlignment="Top">
-                                <Image Width="75" Height="75" Source="/Assets/AppIcons/imageres_149.ico" HorizontalAlignment="Left"/>
-                                <TextBlock Margin="0, 15, 0, 0" FontSize="20" Text="Get Started"/>
-                                <TextBlock Margin="0, 5, 0, 0" FontSize="11" Opacity="0.7" Text="See a short guide on how to install and use Rebound 11.&#x0a;" TextWrapping="WrapWholeWords"/>
-                                <FontIcon Margin="0, 10, 0, 0" Glyph="" HorizontalAlignment="Right" FontSize="15"/>
+                        <Button
+                            Width="225"
+                            Height="225"
+                            HorizontalContentAlignment="Stretch"
+                            CornerRadius="8">
+                            <StackPanel
+                                Margin="10"
+                                HorizontalAlignment="Stretch"
+                                VerticalAlignment="Top">
+                                <Image
+                                    Width="75"
+                                    Height="75"
+                                    HorizontalAlignment="Left"
+                                    Source="/Assets/AppIcons/imageres_149.ico" />
+                                <TextBlock
+                                    Margin="0,15,0,0"
+                                    FontSize="20"
+                                    Text="Get Started" />
+                                <TextBlock
+                                    Margin="0,5,0,0"
+                                    FontSize="11"
+                                    Opacity="0.7"
+                                    Text="See a short guide on how to install and use Rebound 11.&#x0a;"
+                                    TextWrapping="WrapWholeWords" />
+                                <FontIcon
+                                    Margin="0,10,0,0"
+                                    HorizontalAlignment="Right"
+                                    FontSize="15"
+                                    Glyph="" />
                             </StackPanel>
                             <interactivity:Interaction.Behaviors>
                                 <core:EventTriggerBehavior EventName="Click">
-                                    <behaviors:NavigateToUriAction NavigateUri="https://www.youtube.com/watch?v=tJ8AnfZP4EU"/>
+                                    <behaviors:NavigateToUriAction NavigateUri="https://www.youtube.com/watch?v=tJ8AnfZP4EU" />
                                 </core:EventTriggerBehavior>
                             </interactivity:Interaction.Behaviors>
                         </Button>
-                        <Button CornerRadius="8" Width="225" Height="225" HorizontalContentAlignment="Stretch">
-                            <StackPanel Margin="10" HorizontalAlignment="Stretch" VerticalAlignment="Top">
-                                <Image Width="75" Height="75" Source="/Assets/AppIcons/logo-winui.png" HorizontalAlignment="Left"/>
-                                <TextBlock Margin="0, 15, 0, 0" FontSize="20" Text="WinUI 3 apps"/>
-                                <TextBlock Margin="0, 5, 0, 0" FontSize="11" Opacity="0.7" Text="Rebound 11 uses WinUI 3 apps instead of .msstyles files to make Windows 11 truly consistent." TextWrapping="WrapWholeWords"/>
-                                <FontIcon Opacity="0" Margin="0, 10, 0, 0" Glyph="" HorizontalAlignment="Right" FontSize="15"/>
+                        <Button
+                            Width="225"
+                            Height="225"
+                            HorizontalContentAlignment="Stretch"
+                            CornerRadius="8">
+                            <StackPanel
+                                Margin="10"
+                                HorizontalAlignment="Stretch"
+                                VerticalAlignment="Top">
+                                <Image
+                                    Width="75"
+                                    Height="75"
+                                    HorizontalAlignment="Left"
+                                    Source="/Assets/AppIcons/logo-winui.png" />
+                                <TextBlock
+                                    Margin="0,15,0,0"
+                                    FontSize="20"
+                                    Text="WinUI 3 apps" />
+                                <TextBlock
+                                    Margin="0,5,0,0"
+                                    FontSize="11"
+                                    Opacity="0.7"
+                                    Text="Rebound 11 uses WinUI 3 apps instead of .msstyles files to make Windows 11 truly consistent."
+                                    TextWrapping="WrapWholeWords" />
+                                <FontIcon
+                                    Margin="0,10,0,0"
+                                    HorizontalAlignment="Right"
+                                    FontSize="15"
+                                    Glyph=""
+                                    Opacity="0" />
                             </StackPanel>
                         </Button>
-                        <Button CornerRadius="8" Width="225" Height="225" HorizontalContentAlignment="Stretch">
-                            <StackPanel Margin="10" HorizontalAlignment="Stretch" VerticalAlignment="Top">
-                                <FontIcon Glyph="" Width="75" Height="75" FontSize="60" HorizontalAlignment="Left" Foreground="{ThemeResource AccentFillColorDefaultBrush}"/>
-                                <TextBlock Margin="0, 15, 0, 0" FontSize="20" Text="Windows updates"/>
-                                <TextBlock Margin="0, 5, 0, 0" FontSize="11" Opacity="0.7" Text="Rebound 11 does not block Windows updates.&#x0a;" TextWrapping="WrapWholeWords"/>
-                                <FontIcon Opacity="0" Margin="0, 10, 0, 0" Glyph="" HorizontalAlignment="Right" FontSize="15"/>
+                        <Button
+                            Width="225"
+                            Height="225"
+                            HorizontalContentAlignment="Stretch"
+                            CornerRadius="8">
+                            <StackPanel
+                                Margin="10"
+                                HorizontalAlignment="Stretch"
+                                VerticalAlignment="Top">
+                                <FontIcon
+                                    Width="75"
+                                    Height="75"
+                                    HorizontalAlignment="Left"
+                                    FontSize="60"
+                                    Foreground="{ThemeResource AccentFillColorDefaultBrush}"
+                                    Glyph="" />
+                                <TextBlock
+                                    Margin="0,15,0,0"
+                                    FontSize="20"
+                                    Text="Windows updates" />
+                                <TextBlock
+                                    Margin="0,5,0,0"
+                                    FontSize="11"
+                                    Opacity="0.7"
+                                    Text="Rebound 11 does not block Windows updates.&#x0a;"
+                                    TextWrapping="WrapWholeWords" />
+                                <FontIcon
+                                    Margin="0,10,0,0"
+                                    HorizontalAlignment="Right"
+                                    FontSize="15"
+                                    Glyph=""
+                                    Opacity="0" />
                             </StackPanel>
                         </Button>
-                        <Button CornerRadius="8" Width="225" Height="225" HorizontalContentAlignment="Stretch">
-                            <StackPanel Margin="10" HorizontalAlignment="Stretch" VerticalAlignment="Top">
+                        <Button
+                            Width="225"
+                            Height="225"
+                            HorizontalContentAlignment="Stretch"
+                            CornerRadius="8">
+                            <StackPanel
+                                Margin="10"
+                                HorizontalAlignment="Stretch"
+                                VerticalAlignment="Top">
                                 <Grid>
-                                    <FontIcon Glyph="" Width="75" Height="75" FontSize="60" HorizontalAlignment="Left" Foreground="{ThemeResource AccentFillColorDefaultBrush}"/>
-                                    <TextBlock Text="✨" FontSize="25" HorizontalAlignment="Right" Margin="0, 0, 105, 0"/>
-                                    <TextBlock Text="✨" FontSize="25" HorizontalAlignment="Left" VerticalAlignment="Bottom"/>
+                                    <FontIcon
+                                        Width="75"
+                                        Height="75"
+                                        HorizontalAlignment="Left"
+                                        FontSize="60"
+                                        Foreground="{ThemeResource AccentFillColorDefaultBrush}"
+                                        Glyph="" />
+                                    <TextBlock
+                                        Margin="0,0,105,0"
+                                        HorizontalAlignment="Right"
+                                        FontSize="25"
+                                        Text="✨" />
+                                    <TextBlock
+                                        HorizontalAlignment="Left"
+                                        VerticalAlignment="Bottom"
+                                        FontSize="25"
+                                        Text="✨" />
                                 </Grid>
-                                <TextBlock Margin="0, 15, 0, 0" FontSize="20" Text="Rebound 11 updates"/>
-                                <TextBlock Margin="0, 5, 0, 0" FontSize="11" Opacity="0.7" Text="All Rebound 11 updates are done through the Rebound Hub.&#x0a;" TextWrapping="WrapWholeWords"/>
-                                <FontIcon Opacity="0" Margin="0, 10, 0, 0" Glyph="" HorizontalAlignment="Right" FontSize="15"/>
+                                <TextBlock
+                                    Margin="0,15,0,0"
+                                    FontSize="20"
+                                    Text="Rebound 11 updates" />
+                                <TextBlock
+                                    Margin="0,5,0,0"
+                                    FontSize="11"
+                                    Opacity="0.7"
+                                    Text="All Rebound 11 updates are done through the Rebound Hub.&#x0a;"
+                                    TextWrapping="WrapWholeWords" />
+                                <FontIcon
+                                    Margin="0,10,0,0"
+                                    HorizontalAlignment="Right"
+                                    FontSize="15"
+                                    Glyph=""
+                                    Opacity="0" />
                             </StackPanel>
                         </Button>
-                        <Button CornerRadius="8" Width="225" Height="225" HorizontalContentAlignment="Stretch">
-                            <StackPanel Margin="10" HorizontalAlignment="Stretch" VerticalAlignment="Top">
-                                <BitmapIcon Width="75" Height="75" UriSource="/Assets/AppIcons/GitHub_Invertocat_Logo.svg.png" Foreground="{ThemeResource AccentFillColorDefaultBrush}" HorizontalAlignment="Left"/>
-                                <TextBlock Margin="0, 15, 0, 0" FontSize="20" Text="GitHub"/>
-                                <TextBlock Margin="0, 5, 0, 0" FontSize="11" Opacity="0.7" Text="See the project details on GitHub.&#x0a;&#x0a; " TextWrapping="WrapWholeWords"/>
-                                <FontIcon Margin="0, 10, 0, 0" Glyph="" HorizontalAlignment="Right" FontSize="15"/>
+                        <Button
+                            Width="225"
+                            Height="225"
+                            HorizontalContentAlignment="Stretch"
+                            CornerRadius="8">
+                            <StackPanel
+                                Margin="10"
+                                HorizontalAlignment="Stretch"
+                                VerticalAlignment="Top">
+                                <BitmapIcon
+                                    Width="75"
+                                    Height="75"
+                                    HorizontalAlignment="Left"
+                                    Foreground="{ThemeResource AccentFillColorDefaultBrush}"
+                                    UriSource="/Assets/AppIcons/GitHub_Invertocat_Logo.svg.png" />
+                                <TextBlock
+                                    Margin="0,15,0,0"
+                                    FontSize="20"
+                                    Text="GitHub" />
+                                <TextBlock
+                                    Margin="0,5,0,0"
+                                    FontSize="11"
+                                    Opacity="0.7"
+                                    Text="See the project details on GitHub.&#x0a;&#x0a; "
+                                    TextWrapping="WrapWholeWords" />
+                                <FontIcon
+                                    Margin="0,10,0,0"
+                                    HorizontalAlignment="Right"
+                                    FontSize="15"
+                                    Glyph="" />
                             </StackPanel>
                             <interactivity:Interaction.Behaviors>
                                 <core:EventTriggerBehavior EventName="Click">
-                                    <behaviors:NavigateToUriAction NavigateUri="https://github.com/IviriusMain/Rebound"/>
+                                    <behaviors:NavigateToUriAction NavigateUri="https://github.com/IviriusCommunity/Rebound" />
                                 </core:EventTriggerBehavior>
                             </interactivity:Interaction.Behaviors>
                         </Button>
                     </StackPanel>
                 </ScrollViewer>
-                <InfoBar Severity="Warning" Title="A new update for Rebound 11 is available!" x:Name="UpdateBar" Margin="0, 0, 0, 25">
+                <InfoBar
+                    x:Name="UpdateBar"
+                    Title="A new update for Rebound 11 is available!"
+                    Margin="0,0,0,25"
+                    Severity="Warning">
                     <InfoBar.ActionButton>
                         <Button Content="Download">
                             <interactivity:Interaction.Behaviors>
@@ -189,682 +364,1153 @@
                     </InfoBar.ActionButton>
                 </InfoBar>
                 <Grid x:Name="Rebound11IsInstalledGrid">
-                    <FontIcon VerticalAlignment="Top" Glyph="" Width="90" Height="90" FontWeight="Black" FontSize="75" HorizontalAlignment="Left">
+                    <FontIcon
+                        Width="90"
+                        Height="90"
+                        HorizontalAlignment="Left"
+                        VerticalAlignment="Top"
+                        FontSize="75"
+                        FontWeight="Black"
+                        Glyph="">
                         <FontIcon.Foreground>
                             <LinearGradientBrush>
-                                <GradientStop Color="#1493df"/>
-                                <GradientStop Color="#0669bc" Offset="1"/>
+                                <GradientStop Color="#1493df" />
+                                <GradientStop Offset="1" Color="#0669bc" />
                             </LinearGradientBrush>
                         </FontIcon.Foreground>
                     </FontIcon>
-                    <Border VerticalAlignment="Top" Width="40" CornerRadius="25" Height="40" HorizontalAlignment="Left" Margin="50, 40, 0, 0">
+                    <Border
+                        Width="40"
+                        Height="40"
+                        Margin="50,40,0,0"
+                        HorizontalAlignment="Left"
+                        VerticalAlignment="Top"
+                        CornerRadius="25">
                         <Border.Background>
                             <LinearGradientBrush>
-                                <GradientStop Color="#56b60e"/>
-                                <GradientStop Color="#107c10" Offset="1"/>
+                                <GradientStop Color="#56b60e" />
+                                <GradientStop Offset="1" Color="#107c10" />
                             </LinearGradientBrush>
                         </Border.Background>
-                        <FontIcon Glyph="" FontWeight="ExtraBlack" Foreground="White"/>
+                        <FontIcon
+                            FontWeight="ExtraBlack"
+                            Foreground="White"
+                            Glyph="" />
                     </Border>
-                    <TextBlock Text="Rebound 11 is installed." FontWeight="SemiBold" FontSize="20" Margin="110, 20, 0, 0"/>
-                    <TextBlock Text="v0.0.3 ALPHA" Opacity="0.5" Margin="110, 45, 0, 0"/>
-                    <StackPanel VerticalAlignment="Top" Margin="0, 30, 0, 0" Orientation="Horizontal" Spacing="8" HorizontalAlignment="Right">
+                    <TextBlock
+                        Margin="110,20,0,0"
+                        FontSize="20"
+                        FontWeight="SemiBold"
+                        Text="Rebound 11 is installed." />
+                    <TextBlock
+                        Margin="110,45,0,0"
+                        Opacity="0.5"
+                        Text="v0.0.3 ALPHA" />
+                    <StackPanel
+                        Margin="0,30,0,0"
+                        HorizontalAlignment="Right"
+                        VerticalAlignment="Top"
+                        Orientation="Horizontal"
+                        Spacing="8">
                         <Button HorizontalAlignment="Right" Click="Button_Click_2">
-                            <StackPanel Spacing="10" Orientation="Horizontal">
-                                <Image Width="16" Source="/Assets/AppIcons/imageres_78.ico" x:Name="Admin5"/>
-                                <TextBlock Text="Uninstall"/>
+                            <StackPanel Orientation="Horizontal" Spacing="10">
+                                <Image
+                                    x:Name="Admin5"
+                                    Width="16"
+                                    Source="/Assets/AppIcons/imageres_78.ico" />
+                                <TextBlock Text="Uninstall" />
                             </StackPanel>
                         </Button>
-                        <Button HorizontalAlignment="Right" Style="{ThemeResource AccentButtonStyle}" Click="Button_Click_1">
-                            <StackPanel Spacing="10" Orientation="Horizontal">
-                                <Image Width="16" Source="/Assets/AppIcons/imageres_78.ico" x:Name="Admin1"/>
-                                <TextBlock Text="Patch or Update"/>
+                        <Button
+                            HorizontalAlignment="Right"
+                            Click="Button_Click_1"
+                            Style="{ThemeResource AccentButtonStyle}">
+                            <StackPanel Orientation="Horizontal" Spacing="10">
+                                <Image
+                                    x:Name="Admin1"
+                                    Width="16"
+                                    Source="/Assets/AppIcons/imageres_78.ico" />
+                                <TextBlock Text="Patch or Update" />
                             </StackPanel>
                         </Button>
                     </StackPanel>
-                    <StackPanel Margin="0, 125, 0, 0" Spacing="8">
-                        <InfoBar Severity="Informational" Title="If you just downloaded a new version of Rebound Hub, please update Rebound 11 as well." IsClosable="False" IsOpen="True"/>
+                    <StackPanel Margin="0,125,0,0" Spacing="8">
+                        <InfoBar
+                            Title="If you just downloaded a new version of Rebound Hub, please update Rebound 11 as well."
+                            IsClosable="False"
+                            IsOpen="True"
+                            Severity="Informational" />
                         <SettingsControls:SettingsCard Header="Windows Update" IsClickEnabled="True">
                             <SettingsControls:SettingsCard.HeaderIcon>
-                                <FontIcon Glyph=""/>
+                                <FontIcon Glyph="" />
                             </SettingsControls:SettingsCard.HeaderIcon>
                         </SettingsControls:SettingsCard>
-                        <SettingsControls:SettingsCard Header="Winver" IsClickEnabled="True" Click="SettingsCard_Click">
+                        <SettingsControls:SettingsCard
+                            Click="SettingsCard_Click"
+                            Header="Winver"
+                            IsClickEnabled="True">
                             <SettingsControls:SettingsCard.HeaderIcon>
-                                <FontIcon Glyph=""/>
+                                <FontIcon Glyph="" />
                             </SettingsControls:SettingsCard.HeaderIcon>
                         </SettingsControls:SettingsCard>
                     </StackPanel>
                 </Grid>
                 <Grid x:Name="Rebound11IsNotInstalledGrid">
-                    <FontIcon VerticalAlignment="Top" Glyph="" Width="90" Height="90" FontWeight="Black" FontSize="75" HorizontalAlignment="Left">
+                    <FontIcon
+                        Width="90"
+                        Height="90"
+                        HorizontalAlignment="Left"
+                        VerticalAlignment="Top"
+                        FontSize="75"
+                        FontWeight="Black"
+                        Glyph="">
                         <FontIcon.Foreground>
                             <LinearGradientBrush>
-                                <GradientStop Color="#1493df"/>
-                                <GradientStop Color="#0669bc" Offset="1"/>
+                                <GradientStop Color="#1493df" />
+                                <GradientStop Offset="1" Color="#0669bc" />
                             </LinearGradientBrush>
                         </FontIcon.Foreground>
                     </FontIcon>
-                    <Border VerticalAlignment="Top" Width="40" CornerRadius="25" Height="40" HorizontalAlignment="Left" Margin="50, 40, 0, 0">
+                    <Border
+                        Width="40"
+                        Height="40"
+                        Margin="50,40,0,0"
+                        HorizontalAlignment="Left"
+                        VerticalAlignment="Top"
+                        CornerRadius="25">
                         <Border.Background>
                             <LinearGradientBrush>
-                                <GradientStop Color="#ea6322"/>
-                                <GradientStop Color="#c13408" Offset="1"/>
+                                <GradientStop Color="#ea6322" />
+                                <GradientStop Offset="1" Color="#c13408" />
                             </LinearGradientBrush>
                         </Border.Background>
-                        <FontIcon Glyph="" FontWeight="ExtraBlack" Foreground="White" Margin="1, 1, -1, -1"/>
+                        <FontIcon
+                            Margin="1,1,-1,-1"
+                            FontWeight="ExtraBlack"
+                            Foreground="White"
+                            Glyph="" />
                     </Border>
-                    <TextBlock Text="Rebound 11 is not installed." FontWeight="SemiBold" FontSize="20" Margin="110, 20, 0, 0"/>
-                    <TextBlock Text="You can install Rebound 11 here." Opacity="0.5" Margin="110, 45, 0, 0"/>
-                    <StackPanel VerticalAlignment="Top" Margin="0, 30, 0, 0" Orientation="Horizontal" Spacing="8" HorizontalAlignment="Right">
-                        <Button HorizontalAlignment="Right" Style="{ThemeResource AccentButtonStyle}" Click="Button_Click_1">
-                            <StackPanel Spacing="10" Orientation="Horizontal">
-                                <Image Width="16" Source="/Assets/AppIcons/imageres_78.ico" x:Name="Admin3"/>
-                                <TextBlock Text="Install"/>
+                    <TextBlock
+                        Margin="110,20,0,0"
+                        FontSize="20"
+                        FontWeight="SemiBold"
+                        Text="Rebound 11 is not installed." />
+                    <TextBlock
+                        Margin="110,45,0,0"
+                        Opacity="0.5"
+                        Text="You can install Rebound 11 here." />
+                    <StackPanel
+                        Margin="0,30,0,0"
+                        HorizontalAlignment="Right"
+                        VerticalAlignment="Top"
+                        Orientation="Horizontal"
+                        Spacing="8">
+                        <Button
+                            HorizontalAlignment="Right"
+                            Click="Button_Click_1"
+                            Style="{ThemeResource AccentButtonStyle}">
+                            <StackPanel Orientation="Horizontal" Spacing="10">
+                                <Image
+                                    x:Name="Admin3"
+                                    Width="16"
+                                    Source="/Assets/AppIcons/imageres_78.ico" />
+                                <TextBlock Text="Install" />
                             </StackPanel>
                         </Button>
                     </StackPanel>
                 </Grid>
                 <Grid x:Name="Rebound11IsInstallingGrid">
-                    <FontIcon VerticalAlignment="Top" Glyph="" Width="90" Height="90" FontWeight="Black" FontSize="75" HorizontalAlignment="Left">
+                    <FontIcon
+                        Width="90"
+                        Height="90"
+                        HorizontalAlignment="Left"
+                        VerticalAlignment="Top"
+                        FontSize="75"
+                        FontWeight="Black"
+                        Glyph="">
                         <FontIcon.Foreground>
                             <LinearGradientBrush>
-                                <GradientStop Color="#1493df"/>
-                                <GradientStop Color="#0669bc" Offset="1"/>
+                                <GradientStop Color="#1493df" />
+                                <GradientStop Offset="1" Color="#0669bc" />
                             </LinearGradientBrush>
                         </FontIcon.Foreground>
                     </FontIcon>
-                    <Border VerticalAlignment="Top" Width="40" CornerRadius="25" Height="40" HorizontalAlignment="Left" Margin="50, 40, 0, 0">
+                    <Border
+                        Width="40"
+                        Height="40"
+                        Margin="50,40,0,0"
+                        HorizontalAlignment="Left"
+                        VerticalAlignment="Top"
+                        CornerRadius="25">
                         <Border.Background>
                             <LinearGradientBrush>
-                                <GradientStop Color="#fedc00"/>
-                                <GradientStop Color="#fdbb01" Offset="1"/>
+                                <GradientStop Color="#fedc00" />
+                                <GradientStop Offset="1" Color="#fdbb01" />
                             </LinearGradientBrush>
                         </Border.Background>
-                        <FontIcon Glyph="" FontSize="35" Foreground="Black" Margin="1, -1, -1, 1"/>
+                        <FontIcon
+                            Margin="1,-1,-1,1"
+                            FontSize="35"
+                            Foreground="Black"
+                            Glyph="" />
                     </Border>
-                    <TextBlock Text="Configure Rebound 11 Installation" FontWeight="SemiBold" FontSize="20" Margin="110, 20, 0, 0"/>
-                    <TextBlock Text="Choose the apps you would like to install." Opacity="0.5" Margin="110, 45, 0, 0"/>
-                    <StackPanel VerticalAlignment="Top" Margin="0, 30, 0, 0" Orientation="Horizontal" Spacing="8" HorizontalAlignment="Right">
-                        <Button HorizontalAlignment="Right" Style="{ThemeResource AccentButtonStyle}" Click="Button_Click">
-                            <TextBlock Text="Install Rebound 11"/>
+                    <TextBlock
+                        Margin="110,20,0,0"
+                        FontSize="20"
+                        FontWeight="SemiBold"
+                        Text="Configure Rebound 11 Installation" />
+                    <TextBlock
+                        Margin="110,45,0,0"
+                        Opacity="0.5"
+                        Text="Choose the apps you would like to install." />
+                    <StackPanel
+                        Margin="0,30,0,0"
+                        HorizontalAlignment="Right"
+                        VerticalAlignment="Top"
+                        Orientation="Horizontal"
+                        Spacing="8">
+                        <Button
+                            HorizontalAlignment="Right"
+                            Click="Button_Click"
+                            Style="{ThemeResource AccentButtonStyle}">
+                            <TextBlock Text="Install Rebound 11" />
                         </Button>
                     </StackPanel>
-                    <StackPanel Margin="0, 125, 0, 0" Spacing="8">
-                        <TextBlock Style="{ThemeResource SubtitleTextBlockStyle}" Text="Installation templates"/>
+                    <StackPanel Margin="0,125,0,0" Spacing="8">
+                        <TextBlock Style="{ThemeResource SubtitleTextBlockStyle}" Text="Installation templates" />
                         <Grid>
                             <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="*"/>
-                                <ColumnDefinition Width="8"/>
-                                <ColumnDefinition Width="*"/>
-                                <ColumnDefinition Width="8"/>
-                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="8" />
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="8" />
+                                <ColumnDefinition Width="*" />
                             </Grid.ColumnDefinitions>
-                            <Button IsEnabled="False" Grid.Column="0" HorizontalAlignment="Stretch" Content="☁️ Lightweight" FontSize="20" Padding="12"/>
-                            <Button IsEnabled="False" Grid.Column="2" HorizontalAlignment="Stretch" Content="✨ Recommended" FontSize="20" Padding="12"/>
-                            <Button IsEnabled="False" Grid.Column="4" HorizontalAlignment="Stretch" Content="⚙️ Full" FontSize="20" Padding="12"/>
+                            <Button
+                                Grid.Column="0"
+                                Padding="12"
+                                HorizontalAlignment="Stretch"
+                                Content="☁️ Lightweight"
+                                FontSize="20"
+                                IsEnabled="False" />
+                            <Button
+                                Grid.Column="2"
+                                Padding="12"
+                                HorizontalAlignment="Stretch"
+                                Content="✨ Recommended"
+                                FontSize="20"
+                                IsEnabled="False" />
+                            <Button
+                                Grid.Column="4"
+                                Padding="12"
+                                HorizontalAlignment="Stretch"
+                                Content="⚙️ Full"
+                                FontSize="20"
+                                IsEnabled="False" />
                         </Grid>
-                        <TextBlock Style="{ThemeResource SubtitleTextBlockStyle}" Text="Items"/>
+                        <TextBlock Style="{ThemeResource SubtitleTextBlockStyle}" Text="Items" />
                         <StackPanel Spacing="12">
-                            <Expander Header="Common" IsExpanded="True" HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch">
+                            <Expander
+                                HorizontalAlignment="Stretch"
+                                HorizontalContentAlignment="Stretch"
+                                Header="Common"
+                                IsExpanded="True">
                                 <StackPanel>
-                                    <CheckBox IsEnabled="False" Content="File Explorer (Files - 3rd party) - You will have to set this app as default after the installation process is finished" IsChecked="True" x:Name="FilesCheck"/>
-                                    <CheckBox IsEnabled="False" Content="Remote Desktop" IsChecked="True"/>
-                                    <CheckBox Content="Run" x:Name="RunCheck" IsChecked="True"/>
-                                    <CheckBox IsEnabled="False" Content="Steps Recorder" IsChecked="True"/>
-                                    <CheckBox Content="Winver" x:Name="WinverCheck" IsChecked="True"/>
-                                    <RadioButtons IsEnabled="False" Header="WordPad" Margin="0, 15, 0, 0" SelectedIndex="2">
-                                        <RadioButton Content="Keep original"/>
-                                        <RadioButton Content="Ivirius Text Editor (partial launch support)"/>
-                                        <RadioButton Content="Ivirius Text Editor Plus (recommended)"/>
+                                    <CheckBox
+                                        x:Name="FilesCheck"
+                                        Content="File Explorer (Files - 3rd party) - You will have to set this app as default after the installation process is finished"
+                                        IsChecked="True"
+                                        IsEnabled="False" />
+                                    <CheckBox
+                                        Content="Remote Desktop"
+                                        IsChecked="True"
+                                        IsEnabled="False" />
+                                    <CheckBox
+                                        x:Name="RunCheck"
+                                        Content="Run"
+                                        IsChecked="True" />
+                                    <CheckBox
+                                        Content="Steps Recorder"
+                                        IsChecked="True"
+                                        IsEnabled="False" />
+                                    <CheckBox
+                                        x:Name="WinverCheck"
+                                        Content="Winver"
+                                        IsChecked="True" />
+                                    <RadioButtons
+                                        Margin="0,15,0,0"
+                                        Header="WordPad"
+                                        IsEnabled="False"
+                                        SelectedIndex="2">
+                                        <RadioButton Content="Keep original" />
+                                        <RadioButton Content="Ivirius Text Editor (partial launch support)" />
+                                        <RadioButton Content="Ivirius Text Editor Plus (recommended)" />
                                     </RadioButtons>
-                                    <InfoBar x:Name="ivrpluswarning" Margin="0, 10, 0, 0" IsOpen="True" IsClosable="False" Severity="Warning" Title="You must have a valid copy of Ivirius Text Editor installed on your PC to set it as the default Rebound 11 WordPad replacement. Consider purchasing Ivirius Text Editor Plus and installing this option later if you haven't already." HorizontalAlignment="Stretch"/>
+                                    <InfoBar
+                                        x:Name="ivrpluswarning"
+                                        Title="You must have a valid copy of Ivirius Text Editor installed on your PC to set it as the default Rebound 11 WordPad replacement. Consider purchasing Ivirius Text Editor Plus and installing this option later if you haven't already."
+                                        Margin="0,10,0,0"
+                                        HorizontalAlignment="Stretch"
+                                        IsClosable="False"
+                                        IsOpen="True"
+                                        Severity="Warning" />
                                 </StackPanel>
                             </Expander>
-                            <Expander Header="Productivity" HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch">
+                            <Expander
+                                HorizontalAlignment="Stretch"
+                                HorizontalContentAlignment="Stretch"
+                                Header="Productivity">
                                 <StackPanel>
-                                    <CheckBox IsEnabled="False" Content="Character Map" IsChecked="True"/>
-                                    <CheckBox IsEnabled="False" Content="Mobility Center (All devices)" IsChecked="True"/>
-                                    <CheckBox Content="On-screen keyboard" IsChecked="True" x:Name="OSKCheck"/>
-                                    <CheckBox IsEnabled="False" Content="Presentation Settings (All devices)" IsChecked="True"/>
-                                    <CheckBox IsEnabled="False" Content="Sticky Keys and Filter keys" IsChecked="True"/>
-                                    <CheckBox IsEnabled="False" Content="Volume Mixer (sndvol.exe)" IsChecked="True"/>
+                                    <CheckBox
+                                        Content="Character Map"
+                                        IsChecked="True"
+                                        IsEnabled="False" />
+                                    <CheckBox
+                                        Content="Mobility Center (All devices)"
+                                        IsChecked="True"
+                                        IsEnabled="False" />
+                                    <CheckBox
+                                        x:Name="OSKCheck"
+                                        Content="On-screen keyboard"
+                                        IsChecked="True" />
+                                    <CheckBox
+                                        Content="Presentation Settings (All devices)"
+                                        IsChecked="True"
+                                        IsEnabled="False" />
+                                    <CheckBox
+                                        Content="Sticky Keys and Filter keys"
+                                        IsChecked="True"
+                                        IsEnabled="False" />
+                                    <CheckBox
+                                        Content="Volume Mixer (sndvol.exe)"
+                                        IsChecked="True"
+                                        IsEnabled="False" />
                                 </StackPanel>
                             </Expander>
-                            <Expander Header="System Tools" HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch">
+                            <Expander
+                                HorizontalAlignment="Stretch"
+                                HorizontalContentAlignment="Stretch"
+                                Header="System Tools">
                                 <StackPanel>
-                                    <CheckBox IsEnabled="False" Content="Authorization Manager"/>
-                                    <CheckBox IsEnabled="False" Content="Certificate Manager" IsChecked="True"/>
-                                    <CheckBox IsEnabled="False" Content="Color Management"/>
-                                    <CheckBox IsEnabled="False" Content="Component Services"/>
-                                    <CheckBox IsEnabled="False" Content="Computer Management"/>
-                                    <CheckBox Content="Control Panel - You cannot disable this option." IsEnabled="False" IsChecked="True"/>
-                                    <CheckBox Content="Defragment and Optimize Drives" IsChecked="True" x:Name="DefragCheck"/>
-                                    <CheckBox Content="Disk Cleanup" IsChecked="True" x:Name="DiskCleanupCheck"/>
-                                    <CheckBox IsEnabled="False" Content="Malicious Software Removal Tool"/>
-                                    <CheckBox IsEnabled="False" Content="Memory Diagnostic"/>
-                                    <CheckBox IsEnabled="False" Content="Print Management"/>
-                                    <CheckBox IsEnabled="False" Content="Registry Editor (Registry Editor Valley - 3rd party)" IsChecked="True"/>
-                                    <CheckBox IsEnabled="False" Content="Services"/>
-                                    <CheckBox IsEnabled="False" Content="System Configuration"/>
-                                    <CheckBox IsEnabled="False" Content="System Information" IsChecked="True"/>
-                                    <CheckBox IsEnabled="False" Content="System Restore"/>
-                                    <CheckBox IsEnabled="False" Content="Task Scheduler"/>
-                                    <CheckBox Content="TPM Management" x:Name="TPMCheck"/>
-                                    <CheckBox Content="User Account Control settings" IsChecked="True" x:Name="UACCheck"/>
-                                    <CheckBox IsEnabled="False" Content="User Account Manager"/>
-                                    <CheckBox IsEnabled="False" Content="Windows Defender Firewall"/>
+                                    <CheckBox Content="Authorization Manager" IsEnabled="False" />
+                                    <CheckBox
+                                        Content="Certificate Manager"
+                                        IsChecked="True"
+                                        IsEnabled="False" />
+                                    <CheckBox Content="Color Management" IsEnabled="False" />
+                                    <CheckBox Content="Component Services" IsEnabled="False" />
+                                    <CheckBox Content="Computer Management" IsEnabled="False" />
+                                    <CheckBox
+                                        Content="Control Panel - You cannot disable this option."
+                                        IsChecked="True"
+                                        IsEnabled="False" />
+                                    <CheckBox
+                                        x:Name="DefragCheck"
+                                        Content="Defragment and Optimize Drives"
+                                        IsChecked="True" />
+                                    <CheckBox
+                                        x:Name="DiskCleanupCheck"
+                                        Content="Disk Cleanup"
+                                        IsChecked="True" />
+                                    <CheckBox Content="Malicious Software Removal Tool" IsEnabled="False" />
+                                    <CheckBox Content="Memory Diagnostic" IsEnabled="False" />
+                                    <CheckBox Content="Print Management" IsEnabled="False" />
+                                    <CheckBox
+                                        Content="Registry Editor (Registry Editor Valley - 3rd party)"
+                                        IsChecked="True"
+                                        IsEnabled="False" />
+                                    <CheckBox Content="Services" IsEnabled="False" />
+                                    <CheckBox Content="System Configuration" IsEnabled="False" />
+                                    <CheckBox
+                                        Content="System Information"
+                                        IsChecked="True"
+                                        IsEnabled="False" />
+                                    <CheckBox Content="System Restore" IsEnabled="False" />
+                                    <CheckBox Content="Task Scheduler" IsEnabled="False" />
+                                    <CheckBox x:Name="TPMCheck" Content="TPM Management" />
+                                    <CheckBox
+                                        x:Name="UACCheck"
+                                        Content="User Account Control settings"
+                                        IsChecked="True" />
+                                    <CheckBox Content="User Account Manager" IsEnabled="False" />
+                                    <CheckBox Content="Windows Defender Firewall" IsEnabled="False" />
                                 </StackPanel>
                             </Expander>
-                            <Expander HorizontalContentAlignment="Left" HorizontalAlignment="Stretch" Header="Additional software">
+                            <Expander
+                                HorizontalAlignment="Stretch"
+                                HorizontalContentAlignment="Left"
+                                Header="Additional software">
                                 <StackPanel x:Name="AdditionalSoftwarePanel">
-                                    <HyperlinkButton Content="Screenbox video player"/>
-                                    <HyperlinkButton Content="Lively Weather"/>
-                                    <HyperlinkButton Content="Wino Mail"/>
-                                    <HyperlinkButton Content="FluentHub"/>
-                                    <HyperlinkButton Content="SecureFolderFS"/>
-                                    <HyperlinkButton Content="Clipboard Canvas"/>
-                                    <HyperlinkButton Content="StartStrikesBack"/>
+                                    <HyperlinkButton Content="Screenbox video player" />
+                                    <HyperlinkButton Content="Lively Weather" />
+                                    <HyperlinkButton Content="Wino Mail" />
+                                    <HyperlinkButton Content="FluentHub" />
+                                    <HyperlinkButton Content="SecureFolderFS" />
+                                    <HyperlinkButton Content="Clipboard Canvas" />
+                                    <HyperlinkButton Content="StartStrikesBack" />
                                 </StackPanel>
                             </Expander>
-                            <StackPanel Margin="0, 10, 0, 0" Spacing="10">
-                                <TextBlock Margin="5" Style="{StaticResource SubtitleTextBlockStyle}" Text="Installation"/>
-                                <InfoBar IsOpen="True" IsClosable="False" Severity="Warning" Title="Before you proceed, please read the following disclaimer:" Message="Rebound 11 is not a Windows mod. By clicking &quot;Install&quot;, Rebound 11 will replace shortcuts to system apps and install the required packages and certificates. All changes can be reverted after the installation is finished. Do not shut down your computer or close the installer to prevent damaging your PC. Rebound 11 does not modify Windows and will install standalone WinUI 3 apps to modernize your system instead of replacing system files. Ivirius is not responsible for any damages caused to your computer. The risk of damaging your PC is very low, but as with any software, still existent. Every Win32 app will still be available to use if Rebound 11 does not work properly. No system restore points are required to revert the changes.&#x0a;&#x0a;Rebound Hub will stop explorer.exe and restart it after the installation process is finished. Please save your work before proceeding." HorizontalAlignment="Stretch"/>
+                            <StackPanel Margin="0,10,0,0" Spacing="10">
+                                <TextBlock
+                                    Margin="5"
+                                    Style="{StaticResource SubtitleTextBlockStyle}"
+                                    Text="Installation" />
+                                <InfoBar
+                                    Title="Before you proceed, please read the following disclaimer:"
+                                    HorizontalAlignment="Stretch"
+                                    IsClosable="False"
+                                    IsOpen="True"
+                                    Message="Rebound 11 is not a Windows mod. By clicking &quot;Install&quot;, Rebound 11 will replace shortcuts to system apps and install the required packages and certificates. All changes can be reverted after the installation is finished. Do not shut down your computer or close the installer to prevent damaging your PC. Rebound 11 does not modify Windows and will install standalone WinUI 3 apps to modernize your system instead of replacing system files. Ivirius is not responsible for any damages caused to your computer. The risk of damaging your PC is very low, but as with any software, still existent. Every Win32 app will still be available to use if Rebound 11 does not work properly. No system restore points are required to revert the changes.&#x0a;&#x0a;Rebound Hub will stop explorer.exe and restart it after the installation process is finished. Please save your work before proceeding."
+                                    Severity="Warning" />
                             </StackPanel>
                         </StackPanel>
                     </StackPanel>
                 </Grid>
-                <StackPanel HorizontalAlignment="Stretch" x:Name="DetailsPanel">
-                    <Grid Height="250" Margin="0, 25, 0, 25">
+                <StackPanel x:Name="DetailsPanel" HorizontalAlignment="Stretch">
+                    <Grid Height="250" Margin="0,25,0,25">
                         <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="*"/>
-                            <ColumnDefinition Width="25"/>
-                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="25" />
+                            <ColumnDefinition Width="*" />
                         </Grid.ColumnDefinitions>
                         <StackPanel Grid.Column="0" Spacing="25">
-                            <TextBlock Style="{StaticResource TitleTextBlockStyle}" Text="Fluent, consistent."/>
-                            <TextBlock Text="Rebound 11 replaces the start menu shortcuts of legacy Win32 apps with modern WinUI 3 tools. We made sure to fix as many bugs as we could to make your experience with Rebound 11 the best." TextWrapping="WrapWholeWords"/>
+                            <TextBlock Style="{StaticResource TitleTextBlockStyle}" Text="Fluent, consistent." />
+                            <TextBlock Text="Rebound 11 replaces the start menu shortcuts of legacy Win32 apps with modern WinUI 3 tools. We made sure to fix as many bugs as we could to make your experience with Rebound 11 the best." TextWrapping="WrapWholeWords" />
                         </StackPanel>
                         <Grid Grid.Column="2" VerticalAlignment="Stretch">
                             <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="Auto"/>
-                                <ColumnDefinition Width="*"/>
-                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="Auto" />
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="Auto" />
                             </Grid.ColumnDefinitions>
                             <Grid.RowDefinitions>
-                                <RowDefinition Height="Auto"/>
-                                <RowDefinition Height="*"/>
-                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="*" />
+                                <RowDefinition Height="Auto" />
                             </Grid.RowDefinitions>
-                            <Border Width="30" VerticalAlignment="Stretch" Grid.Column="0" Grid.Row="1">
+                            <Border
+                                Grid.Row="1"
+                                Grid.Column="0"
+                                Width="30"
+                                VerticalAlignment="Stretch">
                                 <Border.Background>
                                     <LinearGradientBrush StartPoint="1, 0" EndPoint="0, 0">
-                                        <GradientStop Color="#10000000" Offset="0"/>
-                                        <GradientStop Color="#00000000" Offset="1"/>
+                                        <GradientStop Offset="0" Color="#10000000" />
+                                        <GradientStop Offset="1" Color="#00000000" />
                                     </LinearGradientBrush>
                                 </Border.Background>
                             </Border>
-                            <Border Width="30" VerticalAlignment="Stretch" Grid.Column="2" Grid.Row="1">
+                            <Border
+                                Grid.Row="1"
+                                Grid.Column="2"
+                                Width="30"
+                                VerticalAlignment="Stretch">
                                 <Border.Background>
                                     <LinearGradientBrush StartPoint="0, 0" EndPoint="1, 0">
-                                        <GradientStop Color="#10000000" Offset="0"/>
-                                        <GradientStop Color="#00000000" Offset="1"/>
+                                        <GradientStop Offset="0" Color="#10000000" />
+                                        <GradientStop Offset="1" Color="#00000000" />
                                     </LinearGradientBrush>
                                 </Border.Background>
                             </Border>
-                            <Border Height="20" VerticalAlignment="Stretch" Grid.Column="1" Grid.Row="0">
+                            <Border
+                                Grid.Row="0"
+                                Grid.Column="1"
+                                Height="20"
+                                VerticalAlignment="Stretch">
                                 <Border.Background>
                                     <LinearGradientBrush StartPoint="0, 1" EndPoint="0, 0">
-                                        <GradientStop Color="#10000000" Offset="0"/>
-                                        <GradientStop Color="#00000000" Offset="1"/>
+                                        <GradientStop Offset="0" Color="#10000000" />
+                                        <GradientStop Offset="1" Color="#00000000" />
                                     </LinearGradientBrush>
                                 </Border.Background>
                             </Border>
-                            <Border Height="50" VerticalAlignment="Stretch" Grid.Column="1" Grid.Row="3">
+                            <Border
+                                Grid.Row="3"
+                                Grid.Column="1"
+                                Height="50"
+                                VerticalAlignment="Stretch">
                                 <Border.Background>
                                     <LinearGradientBrush StartPoint="0, 0" EndPoint="0, 1">
-                                        <GradientStop Color="#10000000" Offset="0"/>
-                                        <GradientStop Color="#00000000" Offset="1"/>
+                                        <GradientStop Offset="0" Color="#10000000" />
+                                        <GradientStop Offset="1" Color="#00000000" />
                                     </LinearGradientBrush>
                                 </Border.Background>
                             </Border>
-                            <Border VerticalAlignment="Stretch" Grid.Column="0" Grid.Row="0">
+                            <Border
+                                Grid.Row="0"
+                                Grid.Column="0"
+                                VerticalAlignment="Stretch">
                                 <Border.Background>
-                                    <RadialGradientBrush MappingMode="RelativeToBoundingBox" Center="1,1"
-                RadiusX="1"
-                RadiusY="1"
-                GradientOrigin="1,1"
-                SpreadMethod="Pad">
+                                    <RadialGradientBrush Center="1,1" GradientOrigin="1,1" MappingMode="RelativeToBoundingBox" RadiusX="1" RadiusY="1" SpreadMethod="Pad">
                                         <RadialGradientBrush.GradientStops>
-                                            <GradientStop Color="#10000000" Offset="0"/>
-                                            <GradientStop Color="#00000000" Offset="1"/>
+                                            <GradientStop Offset="0" Color="#10000000" />
+                                            <GradientStop Offset="1" Color="#00000000" />
                                         </RadialGradientBrush.GradientStops>
                                     </RadialGradientBrush>
                                 </Border.Background>
                             </Border>
-                            <Border VerticalAlignment="Stretch" Grid.Column="2" Grid.Row="0">
+                            <Border
+                                Grid.Row="0"
+                                Grid.Column="2"
+                                VerticalAlignment="Stretch">
                                 <Border.Background>
-                                    <RadialGradientBrush MappingMode="RelativeToBoundingBox" Center="0,1"
-                RadiusX="1"
-                RadiusY="1"
-                GradientOrigin="0,1"
-                SpreadMethod="Pad">
+                                    <RadialGradientBrush Center="0,1" GradientOrigin="0,1" MappingMode="RelativeToBoundingBox" RadiusX="1" RadiusY="1" SpreadMethod="Pad">
                                         <RadialGradientBrush.GradientStops>
-                                            <GradientStop Color="#10000000" Offset="0"/>
-                                            <GradientStop Color="#00000000" Offset="1"/>
+                                            <GradientStop Offset="0" Color="#10000000" />
+                                            <GradientStop Offset="1" Color="#00000000" />
                                         </RadialGradientBrush.GradientStops>
                                     </RadialGradientBrush>
                                 </Border.Background>
                             </Border>
-                            <Border VerticalAlignment="Stretch" Grid.Column="0" Grid.Row="2">
+                            <Border
+                                Grid.Row="2"
+                                Grid.Column="0"
+                                VerticalAlignment="Stretch">
                                 <Border.Background>
-                                    <RadialGradientBrush MappingMode="RelativeToBoundingBox" Center="1,0"
-                RadiusX="1"
-                RadiusY="1"
-                GradientOrigin="1,0"
-                SpreadMethod="Pad">
+                                    <RadialGradientBrush Center="1,0" GradientOrigin="1,0" MappingMode="RelativeToBoundingBox" RadiusX="1" RadiusY="1" SpreadMethod="Pad">
                                         <RadialGradientBrush.GradientStops>
-                                            <GradientStop Color="#10000000" Offset="0"/>
-                                            <GradientStop Color="#00000000" Offset="1"/>
+                                            <GradientStop Offset="0" Color="#10000000" />
+                                            <GradientStop Offset="1" Color="#00000000" />
                                         </RadialGradientBrush.GradientStops>
                                     </RadialGradientBrush>
                                 </Border.Background>
                             </Border>
-                            <Border VerticalAlignment="Stretch" Grid.Column="2" Grid.Row="2">
+                            <Border
+                                Grid.Row="2"
+                                Grid.Column="2"
+                                VerticalAlignment="Stretch">
                                 <Border.Background>
-                                    <RadialGradientBrush MappingMode="RelativeToBoundingBox" Center="0,0"
-                RadiusX="1"
-                RadiusY="1"
-                GradientOrigin="0,0"
-                SpreadMethod="Pad">
+                                    <RadialGradientBrush Center="0,0" GradientOrigin="0,0" MappingMode="RelativeToBoundingBox" RadiusX="1" RadiusY="1" SpreadMethod="Pad">
                                         <RadialGradientBrush.GradientStops>
-                                            <GradientStop Color="#10000000" Offset="0"/>
-                                            <GradientStop Color="#00000000" Offset="1"/>
+                                            <GradientStop Offset="0" Color="#10000000" />
+                                            <GradientStop Offset="1" Color="#00000000" />
                                         </RadialGradientBrush.GradientStops>
                                     </RadialGradientBrush>
                                 </Border.Background>
                             </Border>
-                            <Grid Background="#10000000" Grid.Row="1" Grid.Column="1">
-                                <Border BorderBrush="#77777777" BorderThickness="1" CornerRadius="8" Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
+                            <Grid
+                                Grid.Row="1"
+                                Grid.Column="1"
+                                Background="#10000000">
+                                <Border
+                                    Background="{ThemeResource ApplicationPageBackgroundThemeBrush}"
+                                    BorderBrush="#77777777"
+                                    BorderThickness="1"
+                                    CornerRadius="8">
                                     <Grid>
-                                        <TextBlock Text="Title bar" Margin="10, 6"/>
-                                        <FontIcon Glyph="" FontSize="10" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="10"/>
-                                        <Button Content="WinUI 3" HorizontalAlignment="Center" VerticalAlignment="Bottom" Margin="25"/>
-                                        <Slider Margin="25, 60, 25, 0" VerticalAlignment="Top"/>
+                                        <TextBlock Margin="10,6" Text="Title bar" />
+                                        <FontIcon
+                                            Margin="10"
+                                            HorizontalAlignment="Right"
+                                            VerticalAlignment="Top"
+                                            FontSize="10"
+                                            Glyph="" />
+                                        <Button
+                                            Margin="25"
+                                            HorizontalAlignment="Center"
+                                            VerticalAlignment="Bottom"
+                                            Content="WinUI 3" />
+                                        <Slider Margin="25,60,25,0" VerticalAlignment="Top" />
                                     </Grid>
                                 </Border>
                             </Grid>
                         </Grid>
                     </Grid>
-                    <Grid Height="250" Margin="0, 0, 0, 25">
+                    <Grid Height="250" Margin="0,0,0,25">
                         <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="*"/>
-                            <ColumnDefinition Width="25"/>
-                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="25" />
+                            <ColumnDefinition Width="*" />
                         </Grid.ColumnDefinitions>
                         <StackPanel Grid.Column="0" Spacing="25">
-                            <TextBlock Style="{StaticResource TitleTextBlockStyle}" Text="No visual glitches."/>
-                            <TextBlock Text="Rebound 11 fixes the well-known maximize button hover alignment issue on all modernized apps." TextWrapping="WrapWholeWords"/>
+                            <TextBlock Style="{StaticResource TitleTextBlockStyle}" Text="No visual glitches." />
+                            <TextBlock Text="Rebound 11 fixes the well-known maximize button hover alignment issue on all modernized apps." TextWrapping="WrapWholeWords" />
                         </StackPanel>
-                        <Grid Grid.Column="2" VerticalAlignment="Stretch" RequestedTheme="Light">
+                        <Grid
+                            Grid.Column="2"
+                            VerticalAlignment="Stretch"
+                            RequestedTheme="Light">
                             <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="Auto"/>
-                                <ColumnDefinition Width="*"/>
-                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="Auto" />
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="Auto" />
                             </Grid.ColumnDefinitions>
                             <Grid.RowDefinitions>
-                                <RowDefinition Height="Auto"/>
-                                <RowDefinition Height="*"/>
-                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="*" />
+                                <RowDefinition Height="Auto" />
                             </Grid.RowDefinitions>
-                            <Border Width="30" VerticalAlignment="Stretch" Grid.Column="2" Grid.Row="1">
+                            <Border
+                                Grid.Row="1"
+                                Grid.Column="2"
+                                Width="30"
+                                VerticalAlignment="Stretch">
                                 <Border.Background>
                                     <LinearGradientBrush StartPoint="0, 0" EndPoint="1, 0">
-                                        <GradientStop Color="#10000000" Offset="0"/>
-                                        <GradientStop Color="#00000000" Offset="1"/>
+                                        <GradientStop Offset="0" Color="#10000000" />
+                                        <GradientStop Offset="1" Color="#00000000" />
                                     </LinearGradientBrush>
                                 </Border.Background>
                             </Border>
-                            <Border Height="20" VerticalAlignment="Stretch" Grid.Column="1" Grid.Row="0">
+                            <Border
+                                Grid.Row="0"
+                                Grid.Column="1"
+                                Height="20"
+                                VerticalAlignment="Stretch">
                                 <Border.Background>
                                     <LinearGradientBrush StartPoint="0, 1" EndPoint="0, 0">
-                                        <GradientStop Color="#10000000" Offset="0"/>
-                                        <GradientStop Color="#00000000" Offset="1"/>
+                                        <GradientStop Offset="0" Color="#10000000" />
+                                        <GradientStop Offset="1" Color="#00000000" />
                                     </LinearGradientBrush>
                                 </Border.Background>
                             </Border>
-                            <Border VerticalAlignment="Stretch" Grid.Column="2" Grid.Row="0">
+                            <Border
+                                Grid.Row="0"
+                                Grid.Column="2"
+                                VerticalAlignment="Stretch">
                                 <Border.Background>
-                                    <RadialGradientBrush MappingMode="RelativeToBoundingBox" Center="0,1"
-                RadiusX="1"
-                RadiusY="1"
-                GradientOrigin="0,1"
-                SpreadMethod="Pad">
+                                    <RadialGradientBrush Center="0,1" GradientOrigin="0,1" MappingMode="RelativeToBoundingBox" RadiusX="1" RadiusY="1" SpreadMethod="Pad">
                                         <RadialGradientBrush.GradientStops>
-                                            <GradientStop Color="#10000000" Offset="0"/>
-                                            <GradientStop Color="#00000000" Offset="1"/>
+                                            <GradientStop Offset="0" Color="#10000000" />
+                                            <GradientStop Offset="1" Color="#00000000" />
                                         </RadialGradientBrush.GradientStops>
                                     </RadialGradientBrush>
                                 </Border.Background>
                             </Border>
-                            <Grid Background="#10000000" Grid.Row="1" Grid.Column="1">
-                                <Border BorderBrush="#77777777" BorderThickness="0, 1, 1, 0" CornerRadius="0, 8, 0, 0" Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
+                            <Grid
+                                Grid.Row="1"
+                                Grid.Column="1"
+                                Background="#10000000">
+                                <Border
+                                    Background="{ThemeResource ApplicationPageBackgroundThemeBrush}"
+                                    BorderBrush="#77777777"
+                                    BorderThickness="0,1,1,0"
+                                    CornerRadius="0, 8, 0, 0">
                                     <Grid>
-                                        <Border Width="46" Height="30" Margin="0, 0, 46, 0" Background="#20AAAAAA" HorizontalAlignment="Right" VerticalAlignment="Top"/>
-                                        <FontIcon Glyph="" FontSize="10" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0, 10" Width="46"/>
-                                        <FontIcon Glyph="&#xE922;" FontSize="10" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0, 10, 46, 0" Width="46"/>
-                                        <FontIcon Glyph="&#xE921;" FontSize="10" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0, 10, 92, 0" Width="46"/>
+                                        <Border
+                                            Width="46"
+                                            Height="30"
+                                            Margin="0,0,46,0"
+                                            HorizontalAlignment="Right"
+                                            VerticalAlignment="Top"
+                                            Background="#20AAAAAA" />
+                                        <FontIcon
+                                            Width="46"
+                                            Margin="0,10"
+                                            HorizontalAlignment="Right"
+                                            VerticalAlignment="Top"
+                                            FontSize="10"
+                                            Glyph="" />
+                                        <FontIcon
+                                            Width="46"
+                                            Margin="0,10,46,0"
+                                            HorizontalAlignment="Right"
+                                            VerticalAlignment="Top"
+                                            FontSize="10"
+                                            Glyph="&#xE922;" />
+                                        <FontIcon
+                                            Width="46"
+                                            Margin="0,10,92,0"
+                                            HorizontalAlignment="Right"
+                                            VerticalAlignment="Top"
+                                            FontSize="10"
+                                            Glyph="&#xE921;" />
                                     </Grid>
                                 </Border>
                             </Grid>
                         </Grid>
-                        <Grid Grid.Column="2" VerticalAlignment="Stretch" Margin="0, 50, 50, 0" RequestedTheme="Dark">
+                        <Grid
+                            Grid.Column="2"
+                            Margin="0,50,50,0"
+                            VerticalAlignment="Stretch"
+                            RequestedTheme="Dark">
                             <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="Auto"/>
-                                <ColumnDefinition Width="*"/>
-                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="Auto" />
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="Auto" />
                             </Grid.ColumnDefinitions>
                             <Grid.RowDefinitions>
-                                <RowDefinition Height="Auto"/>
-                                <RowDefinition Height="*"/>
-                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="*" />
+                                <RowDefinition Height="Auto" />
                             </Grid.RowDefinitions>
-                            <Border Width="30" VerticalAlignment="Stretch" Grid.Column="2" Grid.Row="1">
+                            <Border
+                                Grid.Row="1"
+                                Grid.Column="2"
+                                Width="30"
+                                VerticalAlignment="Stretch">
                                 <Border.Background>
                                     <LinearGradientBrush StartPoint="0, 0" EndPoint="1, 0">
-                                        <GradientStop Color="#10000000" Offset="0"/>
-                                        <GradientStop Color="#00000000" Offset="1"/>
+                                        <GradientStop Offset="0" Color="#10000000" />
+                                        <GradientStop Offset="1" Color="#00000000" />
                                     </LinearGradientBrush>
                                 </Border.Background>
                             </Border>
-                            <Border Height="20" VerticalAlignment="Stretch" Grid.Column="1" Grid.Row="0">
+                            <Border
+                                Grid.Row="0"
+                                Grid.Column="1"
+                                Height="20"
+                                VerticalAlignment="Stretch">
                                 <Border.Background>
                                     <LinearGradientBrush StartPoint="0, 1" EndPoint="0, 0">
-                                        <GradientStop Color="#10000000" Offset="0"/>
-                                        <GradientStop Color="#00000000" Offset="1"/>
+                                        <GradientStop Offset="0" Color="#10000000" />
+                                        <GradientStop Offset="1" Color="#00000000" />
                                     </LinearGradientBrush>
                                 </Border.Background>
                             </Border>
-                            <Border VerticalAlignment="Stretch" Grid.Column="2" Grid.Row="0">
+                            <Border
+                                Grid.Row="0"
+                                Grid.Column="2"
+                                VerticalAlignment="Stretch">
                                 <Border.Background>
-                                    <RadialGradientBrush MappingMode="RelativeToBoundingBox" Center="0,1"
-                RadiusX="1"
-                RadiusY="1"
-                GradientOrigin="0,1"
-                SpreadMethod="Pad">
+                                    <RadialGradientBrush Center="0,1" GradientOrigin="0,1" MappingMode="RelativeToBoundingBox" RadiusX="1" RadiusY="1" SpreadMethod="Pad">
                                         <RadialGradientBrush.GradientStops>
-                                            <GradientStop Color="#10000000" Offset="0"/>
-                                            <GradientStop Color="#00000000" Offset="1"/>
+                                            <GradientStop Offset="0" Color="#10000000" />
+                                            <GradientStop Offset="1" Color="#00000000" />
                                         </RadialGradientBrush.GradientStops>
                                     </RadialGradientBrush>
                                 </Border.Background>
                             </Border>
-                            <Grid Background="#10000000" Grid.Row="1" Grid.Column="1">
-                                <Border BorderBrush="#77777777" BorderThickness="0, 1, 1, 0" CornerRadius="0, 8, 0, 0" Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
+                            <Grid
+                                Grid.Row="1"
+                                Grid.Column="1"
+                                Background="#10000000">
+                                <Border
+                                    Background="{ThemeResource ApplicationPageBackgroundThemeBrush}"
+                                    BorderBrush="#77777777"
+                                    BorderThickness="0,1,1,0"
+                                    CornerRadius="0, 8, 0, 0">
                                     <Grid>
-                                        <Border Width="46" Height="30" Margin="0, 0, 46, 0" Background="#20AAAAAA" HorizontalAlignment="Right" VerticalAlignment="Top"/>
-                                        <FontIcon Glyph="" FontSize="10" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0, 10" Width="46"/>
-                                        <FontIcon Glyph="&#xE922;" FontSize="10" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0, 10, 46, 0" Width="46"/>
-                                        <FontIcon Glyph="&#xE921;" FontSize="10" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0, 10, 92, 0" Width="46"/>
+                                        <Border
+                                            Width="46"
+                                            Height="30"
+                                            Margin="0,0,46,0"
+                                            HorizontalAlignment="Right"
+                                            VerticalAlignment="Top"
+                                            Background="#20AAAAAA" />
+                                        <FontIcon
+                                            Width="46"
+                                            Margin="0,10"
+                                            HorizontalAlignment="Right"
+                                            VerticalAlignment="Top"
+                                            FontSize="10"
+                                            Glyph="" />
+                                        <FontIcon
+                                            Width="46"
+                                            Margin="0,10,46,0"
+                                            HorizontalAlignment="Right"
+                                            VerticalAlignment="Top"
+                                            FontSize="10"
+                                            Glyph="&#xE922;" />
+                                        <FontIcon
+                                            Width="46"
+                                            Margin="0,10,92,0"
+                                            HorizontalAlignment="Right"
+                                            VerticalAlignment="Top"
+                                            FontSize="10"
+                                            Glyph="&#xE921;" />
                                     </Grid>
                                 </Border>
                             </Grid>
                         </Grid>
                     </Grid>
-                    <Grid Height="350" Margin="0, 0, 0, 25">
+                    <Grid Height="350" Margin="0,0,0,25">
                         <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="*"/>
-                            <ColumnDefinition Width="25"/>
-                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="25" />
+                            <ColumnDefinition Width="*" />
                         </Grid.ColumnDefinitions>
                         <StackPanel Grid.Column="0" Spacing="25">
-                            <TextBlock Style="{StaticResource TitleTextBlockStyle}" Text="Replacing old UI controls."/>
-                            <TextBlock Text="Rebound 11 replaces old UI controls in the new apps and uses WinUI 3 standard controls." TextWrapping="WrapWholeWords"/>
+                            <TextBlock Style="{StaticResource TitleTextBlockStyle}" Text="Replacing old UI controls." />
+                            <TextBlock Text="Rebound 11 replaces old UI controls in the new apps and uses WinUI 3 standard controls." TextWrapping="WrapWholeWords" />
                         </StackPanel>
                         <Grid Grid.Column="2" VerticalAlignment="Stretch">
                             <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="Auto"/>
-                                <ColumnDefinition Width="*"/>
-                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="Auto" />
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="Auto" />
                             </Grid.ColumnDefinitions>
                             <Grid.RowDefinitions>
-                                <RowDefinition Height="Auto"/>
-                                <RowDefinition Height="*"/>
-                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="*" />
+                                <RowDefinition Height="Auto" />
                             </Grid.RowDefinitions>
-                            <Border Width="30" VerticalAlignment="Stretch" Grid.Column="0" Grid.Row="1">
+                            <Border
+                                Grid.Row="1"
+                                Grid.Column="0"
+                                Width="30"
+                                VerticalAlignment="Stretch">
                                 <Border.Background>
                                     <LinearGradientBrush StartPoint="1, 0" EndPoint="0, 0">
-                                        <GradientStop Color="#10000000" Offset="0"/>
-                                        <GradientStop Color="#00000000" Offset="1"/>
+                                        <GradientStop Offset="0" Color="#10000000" />
+                                        <GradientStop Offset="1" Color="#00000000" />
                                     </LinearGradientBrush>
                                 </Border.Background>
                             </Border>
-                            <Border Width="30" VerticalAlignment="Stretch" Grid.Column="2" Grid.Row="1">
+                            <Border
+                                Grid.Row="1"
+                                Grid.Column="2"
+                                Width="30"
+                                VerticalAlignment="Stretch">
                                 <Border.Background>
                                     <LinearGradientBrush StartPoint="0, 0" EndPoint="1, 0">
-                                        <GradientStop Color="#10000000" Offset="0"/>
-                                        <GradientStop Color="#00000000" Offset="1"/>
+                                        <GradientStop Offset="0" Color="#10000000" />
+                                        <GradientStop Offset="1" Color="#00000000" />
                                     </LinearGradientBrush>
                                 </Border.Background>
                             </Border>
-                            <Border Height="20" VerticalAlignment="Stretch" Grid.Column="1" Grid.Row="0">
+                            <Border
+                                Grid.Row="0"
+                                Grid.Column="1"
+                                Height="20"
+                                VerticalAlignment="Stretch">
                                 <Border.Background>
                                     <LinearGradientBrush StartPoint="0, 1" EndPoint="0, 0">
-                                        <GradientStop Color="#10000000" Offset="0"/>
-                                        <GradientStop Color="#00000000" Offset="1"/>
+                                        <GradientStop Offset="0" Color="#10000000" />
+                                        <GradientStop Offset="1" Color="#00000000" />
                                     </LinearGradientBrush>
                                 </Border.Background>
                             </Border>
-                            <Border Height="50" VerticalAlignment="Stretch" Grid.Column="1" Grid.Row="3">
+                            <Border
+                                Grid.Row="3"
+                                Grid.Column="1"
+                                Height="50"
+                                VerticalAlignment="Stretch">
                                 <Border.Background>
                                     <LinearGradientBrush StartPoint="0, 0" EndPoint="0, 1">
-                                        <GradientStop Color="#10000000" Offset="0"/>
-                                        <GradientStop Color="#00000000" Offset="1"/>
+                                        <GradientStop Offset="0" Color="#10000000" />
+                                        <GradientStop Offset="1" Color="#00000000" />
                                     </LinearGradientBrush>
                                 </Border.Background>
                             </Border>
-                            <Border VerticalAlignment="Stretch" Grid.Column="0" Grid.Row="0">
+                            <Border
+                                Grid.Row="0"
+                                Grid.Column="0"
+                                VerticalAlignment="Stretch">
                                 <Border.Background>
-                                    <RadialGradientBrush MappingMode="RelativeToBoundingBox" Center="1,1"
-                RadiusX="1"
-                RadiusY="1"
-                GradientOrigin="1,1"
-                SpreadMethod="Pad">
+                                    <RadialGradientBrush Center="1,1" GradientOrigin="1,1" MappingMode="RelativeToBoundingBox" RadiusX="1" RadiusY="1" SpreadMethod="Pad">
                                         <RadialGradientBrush.GradientStops>
-                                            <GradientStop Color="#10000000" Offset="0"/>
-                                            <GradientStop Color="#00000000" Offset="1"/>
+                                            <GradientStop Offset="0" Color="#10000000" />
+                                            <GradientStop Offset="1" Color="#00000000" />
                                         </RadialGradientBrush.GradientStops>
                                     </RadialGradientBrush>
                                 </Border.Background>
                             </Border>
-                            <Border VerticalAlignment="Stretch" Grid.Column="2" Grid.Row="0">
+                            <Border
+                                Grid.Row="0"
+                                Grid.Column="2"
+                                VerticalAlignment="Stretch">
                                 <Border.Background>
-                                    <RadialGradientBrush MappingMode="RelativeToBoundingBox" Center="0,1"
-                RadiusX="1"
-                RadiusY="1"
-                GradientOrigin="0,1"
-                SpreadMethod="Pad">
+                                    <RadialGradientBrush Center="0,1" GradientOrigin="0,1" MappingMode="RelativeToBoundingBox" RadiusX="1" RadiusY="1" SpreadMethod="Pad">
                                         <RadialGradientBrush.GradientStops>
-                                            <GradientStop Color="#10000000" Offset="0"/>
-                                            <GradientStop Color="#00000000" Offset="1"/>
+                                            <GradientStop Offset="0" Color="#10000000" />
+                                            <GradientStop Offset="1" Color="#00000000" />
                                         </RadialGradientBrush.GradientStops>
                                     </RadialGradientBrush>
                                 </Border.Background>
                             </Border>
-                            <Border VerticalAlignment="Stretch" Grid.Column="0" Grid.Row="2">
+                            <Border
+                                Grid.Row="2"
+                                Grid.Column="0"
+                                VerticalAlignment="Stretch">
                                 <Border.Background>
-                                    <RadialGradientBrush MappingMode="RelativeToBoundingBox" Center="1,0"
-                RadiusX="1"
-                RadiusY="1"
-                GradientOrigin="1,0"
-                SpreadMethod="Pad">
+                                    <RadialGradientBrush Center="1,0" GradientOrigin="1,0" MappingMode="RelativeToBoundingBox" RadiusX="1" RadiusY="1" SpreadMethod="Pad">
                                         <RadialGradientBrush.GradientStops>
-                                            <GradientStop Color="#10000000" Offset="0"/>
-                                            <GradientStop Color="#00000000" Offset="1"/>
+                                            <GradientStop Offset="0" Color="#10000000" />
+                                            <GradientStop Offset="1" Color="#00000000" />
                                         </RadialGradientBrush.GradientStops>
                                     </RadialGradientBrush>
                                 </Border.Background>
                             </Border>
-                            <Border VerticalAlignment="Stretch" Grid.Column="2" Grid.Row="2">
+                            <Border
+                                Grid.Row="2"
+                                Grid.Column="2"
+                                VerticalAlignment="Stretch">
                                 <Border.Background>
-                                    <RadialGradientBrush MappingMode="RelativeToBoundingBox" Center="0,0"
-                RadiusX="1"
-                RadiusY="1"
-                GradientOrigin="0,0"
-                SpreadMethod="Pad">
+                                    <RadialGradientBrush Center="0,0" GradientOrigin="0,0" MappingMode="RelativeToBoundingBox" RadiusX="1" RadiusY="1" SpreadMethod="Pad">
                                         <RadialGradientBrush.GradientStops>
-                                            <GradientStop Color="#10000000" Offset="0"/>
-                                            <GradientStop Color="#00000000" Offset="1"/>
+                                            <GradientStop Offset="0" Color="#10000000" />
+                                            <GradientStop Offset="1" Color="#00000000" />
                                         </RadialGradientBrush.GradientStops>
                                     </RadialGradientBrush>
                                 </Border.Background>
                             </Border>
-                            <Grid Background="#10000000" Grid.Row="1" Grid.Column="1">
-                                <Border BorderBrush="#77777777" BorderThickness="1" CornerRadius="8" Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
+                            <Grid
+                                Grid.Row="1"
+                                Grid.Column="1"
+                                Background="#10000000">
+                                <Border
+                                    Background="{ThemeResource ApplicationPageBackgroundThemeBrush}"
+                                    BorderBrush="#77777777"
+                                    BorderThickness="1"
+                                    CornerRadius="8">
                                     <Grid>
-                                        <TextBlock Text="Controls" Margin="10, 6"/>
-                                        <FontIcon Glyph="" FontSize="10" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="10"/>
-                                        <Border Background="White" VerticalAlignment="Top" BorderBrush="#abafda" BorderThickness="1" Height="30" Margin="25, 50, 25, 0">
+                                        <TextBlock Margin="10,6" Text="Controls" />
+                                        <FontIcon
+                                            Margin="10"
+                                            HorizontalAlignment="Right"
+                                            VerticalAlignment="Top"
+                                            FontSize="10"
+                                            Glyph="" />
+                                        <Border
+                                            Height="30"
+                                            Margin="25,50,25,0"
+                                            VerticalAlignment="Top"
+                                            Background="White"
+                                            BorderBrush="#abafda"
+                                            BorderThickness="1">
                                             <Grid>
                                                 <Border Width="22" HorizontalAlignment="Left">
                                                     <Border.Background>
                                                         <LinearGradientBrush StartPoint="0, 1" EndPoint="0, 0">
-                                                            <GradientStop Color="#ac0100" Offset="1"/>
-                                                            <GradientStop Color="#dc0100" Offset="0"/>
+                                                            <GradientStop Offset="1" Color="#ac0100" />
+                                                            <GradientStop Offset="0" Color="#dc0100" />
                                                         </LinearGradientBrush>
                                                     </Border.Background>
                                                 </Border>
-                                                <Image Source="/Assets/AppIcons/imageres_105.ico" Width="24" HorizontalAlignment="Left" Margin="25, 0, 0, 0"/>
-                                                <TextBlock Foreground="#003399" FontWeight="Light" Text="Old" FontSize="18" Margin="55, 2, 0, 2"/>
-                                                <TextBlock Foreground="#003399" FontWeight="Light" Text="Win32" FontSize="18" Margin="0, 2, 40, 2" HorizontalAlignment="Right"/>
-                                                <FontIcon Glyph="&#xE011;" FontSize="16" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="10" Foreground="#555555"/>
+                                                <Image
+                                                    Width="24"
+                                                    Margin="25,0,0,0"
+                                                    HorizontalAlignment="Left"
+                                                    Source="/Assets/AppIcons/imageres_105.ico" />
+                                                <TextBlock
+                                                    Margin="55,2,0,2"
+                                                    FontSize="18"
+                                                    FontWeight="Light"
+                                                    Foreground="#003399"
+                                                    Text="Old" />
+                                                <TextBlock
+                                                    Margin="0,2,40,2"
+                                                    HorizontalAlignment="Right"
+                                                    FontSize="18"
+                                                    FontWeight="Light"
+                                                    Foreground="#003399"
+                                                    Text="Win32" />
+                                                <FontIcon
+                                                    Margin="10"
+                                                    HorizontalAlignment="Right"
+                                                    VerticalAlignment="Top"
+                                                    FontSize="16"
+                                                    Foreground="#555555"
+                                                    Glyph="&#xE011;" />
                                             </Grid>
                                         </Border>
-                                        <InfoBar Severity="Error" IsOpen="True" IsClosable="False" Margin="25, 100, 25, 0" Title="New" Message="WinUI" HorizontalContentAlignment="Stretch">
-                                            <Expander HorizontalAlignment="Stretch" Margin="-35, 0, 10, 10" Header="View more"/>
+                                        <InfoBar
+                                            Title="New"
+                                            Margin="25,100,25,0"
+                                            HorizontalContentAlignment="Stretch"
+                                            IsClosable="False"
+                                            IsOpen="True"
+                                            Message="WinUI"
+                                            Severity="Error">
+                                            <Expander
+                                                Margin="-35,0,10,10"
+                                                HorizontalAlignment="Stretch"
+                                                Header="View more" />
                                         </InfoBar>
                                     </Grid>
                                 </Border>
                             </Grid>
                         </Grid>
                     </Grid>
-                    <Grid Height="250" Margin="0, 0, 0, 25">
+                    <Grid Height="250" Margin="0,0,0,25">
                         <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="*"/>
-                            <ColumnDefinition Width="25"/>
-                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="25" />
+                            <ColumnDefinition Width="*" />
                         </Grid.ColumnDefinitions>
                         <StackPanel Grid.Column="0" Spacing="25">
-                            <TextBlock Style="{StaticResource TitleTextBlockStyle}" Text="Make Windows 11 consistent without risks."/>
-                            <TextBlock Text="Modernize Windows 11 with actual WinUI 3 apps, as intended by Microsoft. Rebound 11 keeps Windows updates enabled, does not modify the system, and aims to be as consistent as possible without changing system files." TextWrapping="WrapWholeWords"/>
+                            <TextBlock Style="{StaticResource TitleTextBlockStyle}" Text="Make Windows 11 consistent without risks." />
+                            <TextBlock Text="Modernize Windows 11 with actual WinUI 3 apps, as intended by Microsoft. Rebound 11 keeps Windows updates enabled, does not modify the system, and aims to be as consistent as possible without changing system files." TextWrapping="WrapWholeWords" />
                         </StackPanel>
-                        <Grid Grid.Column="2" VerticalAlignment="Stretch" RequestedTheme="Dark">
+                        <Grid
+                            Grid.Column="2"
+                            VerticalAlignment="Stretch"
+                            RequestedTheme="Dark">
                             <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="Auto"/>
-                                <ColumnDefinition Width="*"/>
-                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="Auto" />
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="Auto" />
                             </Grid.ColumnDefinitions>
                             <Grid.RowDefinitions>
-                                <RowDefinition Height="Auto"/>
-                                <RowDefinition Height="*"/>
-                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="*" />
+                                <RowDefinition Height="Auto" />
                             </Grid.RowDefinitions>
-                            <Border Width="30" VerticalAlignment="Stretch" Grid.Column="2" Grid.Row="1">
+                            <Border
+                                Grid.Row="1"
+                                Grid.Column="2"
+                                Width="30"
+                                VerticalAlignment="Stretch">
                                 <Border.Background>
                                     <LinearGradientBrush StartPoint="0, 0" EndPoint="1, 0">
-                                        <GradientStop Color="#10000000" Offset="0"/>
-                                        <GradientStop Color="#00000000" Offset="1"/>
+                                        <GradientStop Offset="0" Color="#10000000" />
+                                        <GradientStop Offset="1" Color="#00000000" />
                                     </LinearGradientBrush>
                                 </Border.Background>
                             </Border>
-                            <Border Height="20" VerticalAlignment="Stretch" Grid.Column="1" Grid.Row="0">
+                            <Border
+                                Grid.Row="0"
+                                Grid.Column="1"
+                                Height="20"
+                                VerticalAlignment="Stretch">
                                 <Border.Background>
                                     <LinearGradientBrush StartPoint="0, 1" EndPoint="0, 0">
-                                        <GradientStop Color="#10000000" Offset="0"/>
-                                        <GradientStop Color="#00000000" Offset="1"/>
+                                        <GradientStop Offset="0" Color="#10000000" />
+                                        <GradientStop Offset="1" Color="#00000000" />
                                     </LinearGradientBrush>
                                 </Border.Background>
                             </Border>
-                            <Border VerticalAlignment="Stretch" Grid.Column="2" Grid.Row="0">
+                            <Border
+                                Grid.Row="0"
+                                Grid.Column="2"
+                                VerticalAlignment="Stretch">
                                 <Border.Background>
-                                    <RadialGradientBrush MappingMode="RelativeToBoundingBox" Center="0,1"
-                RadiusX="1"
-                RadiusY="1"
-                GradientOrigin="0,1"
-                SpreadMethod="Pad">
+                                    <RadialGradientBrush Center="0,1" GradientOrigin="0,1" MappingMode="RelativeToBoundingBox" RadiusX="1" RadiusY="1" SpreadMethod="Pad">
                                         <RadialGradientBrush.GradientStops>
-                                            <GradientStop Color="#10000000" Offset="0"/>
-                                            <GradientStop Color="#00000000" Offset="1"/>
+                                            <GradientStop Offset="0" Color="#10000000" />
+                                            <GradientStop Offset="1" Color="#00000000" />
                                         </RadialGradientBrush.GradientStops>
                                     </RadialGradientBrush>
                                 </Border.Background>
                             </Border>
-                            <Grid Background="#10000000" Grid.Row="1" Grid.Column="1">
-                                <Border BorderBrush="#77777777" BorderThickness="0, 1, 1, 0" CornerRadius="0, 8, 0, 0" Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
+                            <Grid
+                                Grid.Row="1"
+                                Grid.Column="1"
+                                Background="#10000000">
+                                <Border
+                                    Background="{ThemeResource ApplicationPageBackgroundThemeBrush}"
+                                    BorderBrush="#77777777"
+                                    BorderThickness="0,1,1,0"
+                                    CornerRadius="0, 8, 0, 0">
                                     <Grid>
-                                        <Border Background="Black" Margin="0, 30, 0, 0"/>
-                                        <TextBlock Text="Windows PowerShell" Margin="-20, 6, 0, 0"/>
-                                        <TextBlock FontFamily="Consolas" Foreground="LimeGreen" Text="C:\Windows> Underlying Windows APIs: INTACT" Margin="-20, 35, 0, 0"/>
-                                        <FontIcon Glyph="" FontSize="10" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0, 10" Width="46"/>
-                                        <FontIcon Glyph="&#xE922;" FontSize="10" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0, 10, 46, 0" Width="46"/>
-                                        <FontIcon Glyph="&#xE921;" FontSize="10" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0, 10, 92, 0" Width="46"/>
-                                        <ScrollViewer Margin="0, 30, 0, 0" HorizontalAlignment="Right" VerticalScrollBarVisibility="Visible" VerticalScrollMode="Enabled">
-                                            <Border Height="300"/>
+                                        <Border Margin="0,30,0,0" Background="Black" />
+                                        <TextBlock Margin="-20,6,0,0" Text="Windows PowerShell" />
+                                        <TextBlock
+                                            Margin="-20,35,0,0"
+                                            FontFamily="Consolas"
+                                            Foreground="LimeGreen"
+                                            Text="C:\Windows&gt; Underlying Windows APIs: INTACT" />
+                                        <FontIcon
+                                            Width="46"
+                                            Margin="0,10"
+                                            HorizontalAlignment="Right"
+                                            VerticalAlignment="Top"
+                                            FontSize="10"
+                                            Glyph="" />
+                                        <FontIcon
+                                            Width="46"
+                                            Margin="0,10,46,0"
+                                            HorizontalAlignment="Right"
+                                            VerticalAlignment="Top"
+                                            FontSize="10"
+                                            Glyph="&#xE922;" />
+                                        <FontIcon
+                                            Width="46"
+                                            Margin="0,10,92,0"
+                                            HorizontalAlignment="Right"
+                                            VerticalAlignment="Top"
+                                            FontSize="10"
+                                            Glyph="&#xE921;" />
+                                        <ScrollViewer
+                                            Margin="0,30,0,0"
+                                            HorizontalAlignment="Right"
+                                            VerticalScrollBarVisibility="Visible"
+                                            VerticalScrollMode="Enabled">
+                                            <Border Height="300" />
                                         </ScrollViewer>
                                     </Grid>
                                 </Border>
                             </Grid>
                         </Grid>
-                        <Grid Grid.Column="2" VerticalAlignment="Stretch" Margin="0, 75, 50, 0">
+                        <Grid
+                            Grid.Column="2"
+                            Margin="0,75,50,0"
+                            VerticalAlignment="Stretch">
                             <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="Auto"/>
-                                <ColumnDefinition Width="*"/>
-                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="Auto" />
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="Auto" />
                             </Grid.ColumnDefinitions>
                             <Grid.RowDefinitions>
-                                <RowDefinition Height="Auto"/>
-                                <RowDefinition Height="*"/>
-                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="*" />
+                                <RowDefinition Height="Auto" />
                             </Grid.RowDefinitions>
-                            <Border Width="30" VerticalAlignment="Stretch" Grid.Column="2" Grid.Row="1">
+                            <Border
+                                Grid.Row="1"
+                                Grid.Column="2"
+                                Width="30"
+                                VerticalAlignment="Stretch">
                                 <Border.Background>
                                     <LinearGradientBrush StartPoint="0, 0" EndPoint="1, 0">
-                                        <GradientStop Color="#10000000" Offset="0"/>
-                                        <GradientStop Color="#00000000" Offset="1"/>
+                                        <GradientStop Offset="0" Color="#10000000" />
+                                        <GradientStop Offset="1" Color="#00000000" />
                                     </LinearGradientBrush>
                                 </Border.Background>
                             </Border>
-                            <Border Height="20" VerticalAlignment="Stretch" Grid.Column="1" Grid.Row="0">
+                            <Border
+                                Grid.Row="0"
+                                Grid.Column="1"
+                                Height="20"
+                                VerticalAlignment="Stretch">
                                 <Border.Background>
                                     <LinearGradientBrush StartPoint="0, 1" EndPoint="0, 0">
-                                        <GradientStop Color="#10000000" Offset="0"/>
-                                        <GradientStop Color="#00000000" Offset="1"/>
+                                        <GradientStop Offset="0" Color="#10000000" />
+                                        <GradientStop Offset="1" Color="#00000000" />
                                     </LinearGradientBrush>
                                 </Border.Background>
                             </Border>
-                            <Border VerticalAlignment="Stretch" Grid.Column="2" Grid.Row="0">
+                            <Border
+                                Grid.Row="0"
+                                Grid.Column="2"
+                                VerticalAlignment="Stretch">
                                 <Border.Background>
-                                    <RadialGradientBrush MappingMode="RelativeToBoundingBox" Center="0,1"
-                RadiusX="1"
-                RadiusY="1"
-                GradientOrigin="0,1"
-                SpreadMethod="Pad">
+                                    <RadialGradientBrush Center="0,1" GradientOrigin="0,1" MappingMode="RelativeToBoundingBox" RadiusX="1" RadiusY="1" SpreadMethod="Pad">
                                         <RadialGradientBrush.GradientStops>
-                                            <GradientStop Color="#10000000" Offset="0"/>
-                                            <GradientStop Color="#00000000" Offset="1"/>
+                                            <GradientStop Offset="0" Color="#10000000" />
+                                            <GradientStop Offset="1" Color="#00000000" />
                                         </RadialGradientBrush.GradientStops>
                                     </RadialGradientBrush>
                                 </Border.Background>
                             </Border>
-                            <Grid Background="#10000000" Grid.Row="1" Grid.Column="1">
-                                <Border BorderBrush="#77777777" BorderThickness="0, 1, 1, 0" CornerRadius="0, 8, 0, 0" Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
+                            <Grid
+                                Grid.Row="1"
+                                Grid.Column="1"
+                                Background="#10000000">
+                                <Border
+                                    Background="{ThemeResource ApplicationPageBackgroundThemeBrush}"
+                                    BorderBrush="#77777777"
+                                    BorderThickness="0,1,1,0"
+                                    CornerRadius="0, 8, 0, 0">
                                     <Grid>
-                                        <TextBlock Text="Modernized App" Margin="-20, 6, 0, 0"/>
-                                        <FontIcon Glyph="" FontSize="10" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0, 10" Width="46"/>
-                                        <FontIcon Glyph="&#xE922;" FontSize="10" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0, 10, 46, 0" Width="46"/>
-                                        <FontIcon Glyph="&#xE921;" FontSize="10" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0, 10, 92, 0" Width="46"/>
-                                        <InfoBar IsOpen="True" Margin="10, 40, 10, 0" IsClosable="False" Title="Rebound 11 app"/>
+                                        <TextBlock Margin="-20,6,0,0" Text="Modernized App" />
+                                        <FontIcon
+                                            Width="46"
+                                            Margin="0,10"
+                                            HorizontalAlignment="Right"
+                                            VerticalAlignment="Top"
+                                            FontSize="10"
+                                            Glyph="" />
+                                        <FontIcon
+                                            Width="46"
+                                            Margin="0,10,46,0"
+                                            HorizontalAlignment="Right"
+                                            VerticalAlignment="Top"
+                                            FontSize="10"
+                                            Glyph="&#xE922;" />
+                                        <FontIcon
+                                            Width="46"
+                                            Margin="0,10,92,0"
+                                            HorizontalAlignment="Right"
+                                            VerticalAlignment="Top"
+                                            FontSize="10"
+                                            Glyph="&#xE921;" />
+                                        <InfoBar
+                                            Title="Rebound 11 app"
+                                            Margin="10,40,10,0"
+                                            IsClosable="False"
+                                            IsOpen="True" />
                                     </Grid>
                                 </Border>
                             </Grid>
