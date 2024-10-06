@@ -614,9 +614,9 @@
                                             x:Name="SmallIcon"
                                             Width="9"
                                             Height="9"
-                                            Margin="0, -8, 6, 0"
+                                            Margin="0,-8,6,0"
                                             BorderBrush="{StaticResource TextFillColorPrimaryBrush}"
-                                            BorderThickness="0, 1, 1, 0"
+                                            BorderThickness="0,1,1,0"
                                             CornerRadius="1"
                                             Opacity="0" />
                                     </Grid>
@@ -792,9 +792,9 @@
                                             x:Name="SmallIcon"
                                             Width="9"
                                             Height="9"
-                                            Margin="0, -8, 6, 0"
+                                            Margin="0,-8,6,0"
                                             BorderBrush="{StaticResource TextFillColorPrimaryBrush}"
-                                            BorderThickness="0, 1, 1, 0"
+                                            BorderThickness="0,1,1,0"
                                             CornerRadius="1"
                                             Opacity="1" />
                                     </Grid>
