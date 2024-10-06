@@ -1,4 +1,4 @@
-
+﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.9.34616.47
@@ -20,6 +20,8 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Rebound.Tests", "Tests\Rebound.Tests.csproj", "{FEA248B3-99A2-4AC8-BF50-C261DB4CF2F0}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Rebound.InteractiveDialog", "InteractiveDialog\Rebound.InteractiveDialog.csproj", "{D04E2A2C-C9D1-4243-9347-7AC854399ADE}"
+EndProject
+Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "Rebound.Common", "Rebound.Common\Rebound.Common.shproj", "{661A2E73-6990-4271-B702-BFC5B529094E}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Rebound.Helpers", "Helpers\Rebound.Helpers.csproj", "{18FE94FE-0938-4C36-AC0E-E99F90622293}"
 EndProject
@@ -265,5 +267,9 @@ Global
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {F46D9F10-D75A-4C1E-99F0-14EE79D20EDE}
+	EndGlobalSection
+	GlobalSection(SharedMSBuildProjectFiles) = preSolution
+		Rebound.Common\Rebound.Common.projitems*{4c58bab7-f9d6-48ab-b20d-c8f6413d6e34}*SharedItemsImports = 5
+		Rebound.Common\Rebound.Common.projitems*{661a2e73-6990-4271-b702-bfc5b529094e}*SharedItemsImports = 13
 	EndGlobalSection
 EndGlobal
