@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <OutputType>WinExe</OutputType>
 	  <TargetFramework>net8.0-windows10.0.22621.0</TargetFramework>
@@ -323,5 +323,5 @@
 	    <Generator>MSBuild:Compile</Generator>
 	  </Page>
 	</ItemGroup>
-	<Import Project="..\Rebound.Common\Rebound.Common.projitems" Label="Shared" />
+	<Import Project="..\Common\Rebound.Common.projitems" Label="Shared" />
 </Project>
