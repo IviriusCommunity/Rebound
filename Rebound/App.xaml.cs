@@ -75,7 +75,6 @@ public partial class App : Application
             var win = new ControlPanelWindow();
             cpanelWin = win;
             win.Show();
-            win.SetWindowSize(1250, 750);
             win.CenterOnScreen();
             await Task.Delay(10);
             win.BringToFront();

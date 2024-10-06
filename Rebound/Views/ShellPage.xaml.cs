@@ -48,7 +48,6 @@ public sealed partial class ShellPage : Page
             var win = new ControlPanelWindow();
             App.cpanelWin = win;
             win.Show();
-            win.SetWindowSize(1250, 750);
             win.CenterOnScreen();
             await Task.Delay(10);
             win.BringToFront();

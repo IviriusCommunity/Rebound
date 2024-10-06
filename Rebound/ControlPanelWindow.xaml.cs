@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Threading.Tasks;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
@@ -25,6 +26,7 @@ public sealed partial class ControlPanelWindow : WindowEx
         Title = "Control Panel";
         WindowTitle.Text = Title;
         RootFrame.Navigate(typeof(ModernHomePage));
+        this.SetWindowSize(1250, 750);
 
         Read();
 
@@ -39,14 +41,14 @@ public sealed partial class ControlPanelWindow : WindowEx
         RootFrame.BackStack.Clear();
         RootFrame.ForwardStack.Clear();
 
-        var rects = Display.GetDPIAwareDisplayRect(this);
-        if (rects.Y < 900)
-        {
-            this.SetWindowSize(900, 700);
-        }
-
         TitleBarEx = new TitleBarService(this, AccentStrip, TitleBarIcon, WindowTitle, Close, CrimsonMaxRes, Minimize, MaxResGlyph, WindowContent);
         TitleBarEx.SetWindowIcon("Assets\\AppIcons\\rcontrol.ico");
+
+        var rects = Display.GetDPIAwareDisplayRect(this);
+        if (rects.Height < 900 || rects.Width < 1200)
+        {
+            this.SetWindowSize(rects.Width - 200, rects.Height - 200);
+        }
     }
 
     private async void Read()
