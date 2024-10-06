@@ -94,7 +94,7 @@ public sealed partial class Rebound11Page : Page
     private async Task CheckForUpdatesAsync()
     {
         // URL of the text file containing the latest version number
-        string versionUrl = "https://ivirius.vercel.app/Reboundversion.txt";
+        string versionUrl = "https://ivirius.vercel.app/reboundhubversion.txt";
 
         // Use HttpClient to fetch the content
         using HttpClient client = new HttpClient();
