@@ -34,6 +34,7 @@
 		<PackageIcon>Rebound11Icon.png</PackageIcon>
 		<IncludeSymbols>true</IncludeSymbols>
 		<SymbolPackageFormat>snupkg</SymbolPackageFormat>
+		<Version>0.0.3</Version>
 	</PropertyGroup>
 	<ItemGroup>
 	  <None Remove="Assets\Rebound.ico" />

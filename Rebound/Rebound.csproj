@@ -12,6 +12,7 @@
     <PublishProfile>win-$(Platform).pubxml</PublishProfile>
     <UseWinUI>true</UseWinUI>
     <EnableMsixTooling>true</EnableMsixTooling>
+	<Version>0.0.3</Version>
   </PropertyGroup>
   <ItemGroup>
     <None Remove="Assets\AppIcons\cleanmgr.ico" />
