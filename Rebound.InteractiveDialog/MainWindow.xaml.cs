@@ -37,6 +37,8 @@ public sealed partial class MainWindow : Window
         this.SetIsMinimizable(false);
         this.SetIsMaximizable(false);
         this.SetIsResizable(false);
+        this.SetIsAlwaysOnTop(true);
+
         Window window = this;
         window.ExtendsContentIntoTitleBar = true; // Enable custom titlebar
         window.SetTitleBar(AppTitleBar); // Set titlebar as <Border /> from MainWindow.xaml
