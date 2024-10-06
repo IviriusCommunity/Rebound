@@ -26,7 +26,6 @@ public sealed partial class ControlPanelWindow : WindowEx
         WindowTitle.Text = Title;
         RootFrame.Navigate(typeof(ModernHomePage));
 
-        CheckWindow();
         Read();
 
         AddressBox.Text = "Control Panel";
@@ -115,23 +114,6 @@ public sealed partial class ControlPanelWindow : WindowEx
     {
         AddressBox.Text = @"Control Panel\System and Security";
         NavigateToPath();
-    }
-
-    public async void CheckWindow()
-    {
-        try
-        {
-            if (WindowTitle != null && this != null)
-            {
-                WindowTitle.Text = Title;
-            }
-            await Task.Delay(50);
-            CheckWindow();
-        }
-        catch
-        {
-
-        }
     }
 
     private void WindowEx_Closed(object sender, WindowEventArgs args)
