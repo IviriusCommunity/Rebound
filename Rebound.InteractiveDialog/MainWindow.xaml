@@ -7,4 +7,6 @@
     xmlns:local="using:Rebound.InteractiveDialog"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     Title="Rebound.InteractiveDialog"
-    mc:Ignorable="d" />
+    mc:Ignorable="d">
+    <Grid x:Name="RootGrid" Loaded="RootGrid_Loaded" />
+</Window>
