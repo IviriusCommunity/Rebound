@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8" ?>
+﻿<?xml version="1.0" encoding="utf-8" ?>
 <winuiex:WindowEx
     x:Class="Rebound.TrustedPlatform.MainWindow"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
@@ -288,7 +288,7 @@
                 FontWeight="Normal"
                 Foreground="{Binding Foreground, ElementName=WindowTitle}"
                 Opacity="0.5"
-                Text="  -  BETA v1.0.1"
+                Text=" v0.0.3"
                 TextTrimming="CharacterEllipsis" />
         </StackPanel>
         <StackPanel
