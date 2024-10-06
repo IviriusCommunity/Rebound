@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <OutputType>WinExe</OutputType>
 	  <TargetFramework>net8.0-windows10.0.22621.0</TargetFramework>
@@ -260,7 +260,7 @@
 	  <Resource Remove="Views\HomePage.xaml" />
 	</ItemGroup>
   <ItemGroup>
-	  <None Include="..\.github\README.md" Pack="true" PackagePath="\"/>
+	  <None Include="..\.github\README.md" Pack="true" PackagePath="\" />
   </ItemGroup>
 	<ItemGroup>
 	  <Page Update="UACWindow.xaml">
