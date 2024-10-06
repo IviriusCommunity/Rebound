@@ -112,6 +112,14 @@
     <None Remove="Rebound11Files\shcwin11\Disk Cleanup.lnk" />
     <None Remove="Rebound11Files\shcwin11\On-Screen Keyboard.lnk" />
     <None Remove="Rebound11Files\shcwin11\Run.lnk" />
+    <None Remove="Rebound11Files\Themes\BlueDark.deskthemepack" />
+    <None Remove="Rebound11Files\Themes\BlueLight.deskthemepack" />
+    <None Remove="Rebound11Files\Themes\CrimsonDark.deskthemepack" />
+    <None Remove="Rebound11Files\Themes\CrimsonLight.deskthemepack" />
+    <None Remove="Rebound11Files\Themes\CyanDark.deskthemepack" />
+    <None Remove="Rebound11Files\Themes\CyanLight.deskthemepack" />
+    <None Remove="Rebound11Files\Themes\PurpleDark.deskthemepack" />
+    <None Remove="Rebound11Files\Themes\PurpleLight.deskthemepack" />
     <None Remove="Views\ControlPanel\AppearanceAndPersonalization.xaml" />
     <None Remove="Views\ControlPanel\HomePage.xaml" />
     <None Remove="Views\ControlPanel\ModernHomePage.xaml" />
@@ -177,6 +185,14 @@
     <Content Include="Rebound11Files\shcwin11\Disk Cleanup.lnk" />
     <Content Include="Rebound11Files\shcwin11\On-Screen Keyboard.lnk" />
     <Content Include="Rebound11Files\shcwin11\Run.lnk" />
+    <Content Include="Rebound11Files\Themes\BlueDark.deskthemepack" />
+    <Content Include="Rebound11Files\Themes\BlueLight.deskthemepack" />
+    <Content Include="Rebound11Files\Themes\CrimsonDark.deskthemepack" />
+    <Content Include="Rebound11Files\Themes\CrimsonLight.deskthemepack" />
+    <Content Include="Rebound11Files\Themes\CyanDark.deskthemepack" />
+    <Content Include="Rebound11Files\Themes\CyanLight.deskthemepack" />
+    <Content Include="Rebound11Files\Themes\PurpleDark.deskthemepack" />
+    <Content Include="Rebound11Files\Themes\PurpleLight.deskthemepack" />
   </ItemGroup>
 
   <ItemGroup>
