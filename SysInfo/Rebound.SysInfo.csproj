@@ -40,7 +40,6 @@
   <ItemGroup>
     <Manifest Include="$(ApplicationManifest)" />
     <PackageReference Include="Ivirius.UI.Controls" Version="0.1.1-prerelease" />
-    <PackageReference Include="Microsoft.Web.WebView2" Version="1.0.2646-prerelease" />
     <PackageReference Include="Microsoft.Windows.SDK.BuildTools" Version="10.0.26100.1" />
     <PackageReference Include="Microsoft.WindowsAppSDK" Version="1.6.240701003-experimental2" />
     <PackageReference Include="System.Diagnostics.PerformanceCounter" Version="8.0.0" />
