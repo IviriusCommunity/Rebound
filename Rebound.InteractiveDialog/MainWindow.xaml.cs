@@ -33,7 +33,7 @@ public sealed partial class MainWindow : Window
         GetAppWindowAndPresenter();
         _presenter.IsMaximizable = false;
         _presenter.IsMinimizable = false;
-        this.AppWindow.MoveAndResize(new Windows.Graphics.RectInt32(328, 190, 328, 190));
+        this.AppWindow.MoveAndResize(new Windows.Graphics.RectInt32(328, 198, 328, 198));
         this.SetIsMinimizable(false);
         this.SetIsMaximizable(false);
         this.SetIsResizable(false);
