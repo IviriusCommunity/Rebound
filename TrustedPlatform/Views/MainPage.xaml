@@ -18,7 +18,7 @@
             <NavigationView.MenuItems>
                 <NavigationViewItem Content="TPM Management on Local Computer" IsSelected="True">
                     <NavigationViewItem.Icon>
-                        <FontIcon Glyph="" />
+                        <FontIcon Glyph="&#xE192;" />
                     </NavigationViewItem.Icon>
                 </NavigationViewItem>
             </NavigationView.MenuItems>
