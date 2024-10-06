@@ -101,5 +101,7 @@
     <Copyright>Copyright (c) 2024-present Ivirius Community</Copyright>
     <Description>Windows 11 done right.</Description>
     <PackageIcon>Rebound11Icon.png</PackageIcon>
+    <IncludeSymbols>true</IncludeSymbols>
+    <SymbolPackageFormat>snupkg</SymbolPackageFormat>
   </PropertyGroup>
 </Project>

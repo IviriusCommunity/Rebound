@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
 	  <TargetFramework>net8.0-windows10.0.22621.0</TargetFramework>
 	  <TargetPlatformMinVersion>10.0.17763.0</TargetPlatformMinVersion>
@@ -32,5 +32,7 @@
 		<Copyright>Copyright (c) 2024-present Ivirius Community</Copyright>
 		<Description>Windows 11 done right.</Description>
 		<PackageIcon>Rebound11Icon.png</PackageIcon>
+		<IncludeSymbols>true</IncludeSymbols>
+		<SymbolPackageFormat>snupkg</SymbolPackageFormat>
 	</PropertyGroup>
 </Project>
