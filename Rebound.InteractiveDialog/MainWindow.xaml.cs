@@ -58,7 +58,14 @@ public sealed partial class MainWindow : Window
             Content = "Hello, World!",
             CloseButtonText = "Close"
         };
+
+        dialog.Closed += Dialog_Closed;
+
         await dialog.ShowAsync();
     }
 
+    private void Dialog_Closed(ContentDialog sender, ContentDialogClosedEventArgs args)
+    {
+        Application.Current.Exit();
+    }
 }
