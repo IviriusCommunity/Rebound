@@ -39,7 +39,7 @@
                         HorizontalAlignment="Stretch"
                         Header="Overview"
                         IsExpanded="True">
-                        <TextBlock Text="Windows computers containing a Trusted Platfom Module (TPM) provide enhanced secutity features. This snap-in displays information about the computer's TPM and allows administrators to manage the device." TextWrapping="WrapWholeWords" />
+                        <TextBlock Text="Windows computers containing a Trusted Platform Module (TPM) provide enhanced security features. This snap-in displays information about the computer's TPM and allows administrators to manage the device." TextWrapping="WrapWholeWords" />
                     </Expander>
                     <InfoBar
                         x:Name="StatusBar"
