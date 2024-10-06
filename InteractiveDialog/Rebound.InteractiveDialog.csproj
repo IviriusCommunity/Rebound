@@ -39,6 +39,12 @@
     <ProjectCapability Include="Msix" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="..\Rebound\Assets\AppIcons\Rebound11Icon.png">
+      <Pack>True</Pack>
+      <PackagePath>\</PackagePath>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
     <PackageReference Include="Microsoft.Windows.SDK.BuildTools" Version="10.0.26100.1742" />
     <PackageReference Include="Microsoft.WindowsAppSDK" Version="1.6.240923002" />
     <PackageReference Include="WinUIEx" Version="2.4.2" />
@@ -59,5 +65,31 @@
     <PublishReadyToRun Condition="'$(Configuration)' != 'Debug'">True</PublishReadyToRun>
     <PublishTrimmed Condition="'$(Configuration)' == 'Debug'">False</PublishTrimmed>
     <PublishTrimmed Condition="'$(Configuration)' != 'Debug'">True</PublishTrimmed>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Include="..\Rebound\Assets\AppIcons\Rebound11Icon.png">
+      <Pack>True</Pack>
+      <PackagePath>\</PackagePath>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\.github\README.md" Pack="true" PackagePath="\"/>
+  </ItemGroup>
+
+  <PropertyGroup>
+    <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
+    <Authors>Riverside, ErrorTek, Lamparter</Authors>
+    <PackageProjectUrl>https://ivirius.vercel.app</PackageProjectUrl>
+    <Title>Rebound Dialogs</Title>
+    <PackageId>Riverside.Rebound.InteractiveDialog</PackageId>
+    <Copyright>Copyright (c) 2024-present Ivirius Community</Copyright>
+    <Description>Windows 11 done right.</Description>
+    <PackageIcon>Rebound11Icon.png</PackageIcon>
+    <IncludeSymbols>true</IncludeSymbols>
+    <SymbolPackageFormat>snupkg</SymbolPackageFormat>
+    <Version>0.0.3</Version>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
   </PropertyGroup>
 </Project>

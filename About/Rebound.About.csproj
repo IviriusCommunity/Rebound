@@ -24,9 +24,31 @@
 		<HoursBetweenUpdateChecks>0</HoursBetweenUpdateChecks>
 		<ApplicationIcon>Assets\Rebound.ico</ApplicationIcon>
 		<AssemblyName>Rebound About</AssemblyName>
+		<GeneratePackageOnBuild>True</GeneratePackageOnBuild>
+		<Authors>Riverside, ErrorTek, Lamparter</Authors>
+		<PackageProjectUrl>https://ivirius.vercel.app</PackageProjectUrl>
+		<Title>About Windows</Title>
+		<PackageId>Riverside.Rebound.About</PackageId>
+		<Copyright>Copyright (c) 2024-present Ivirius Community</Copyright>
+		<Description>Windows 11 done right.</Description>
+		<PackageIcon>Rebound11Icon.png</PackageIcon>
+		<IncludeSymbols>true</IncludeSymbols>
+		<SymbolPackageFormat>snupkg</SymbolPackageFormat>
+		<Version>0.0.3</Version>
+		<PackageLicenseExpression>MIT</PackageLicenseExpression>
+		<PackageReadmeFile>README.md</PackageReadmeFile>
 	</PropertyGroup>
 	<ItemGroup>
 	  <None Remove="Assets\Rebound.ico" />
+	</ItemGroup>
+	<ItemGroup>
+		<None Include="..\.github\README.md" Pack="true" PackagePath="\"/>
+	</ItemGroup>
+	<ItemGroup>
+		<None Include="..\Rebound\Assets\AppIcons\Rebound11Icon.png">
+			<Pack>True</Pack>
+			<PackagePath>\</PackagePath>
+		</None>
 	</ItemGroup>
 
 	<ItemGroup>

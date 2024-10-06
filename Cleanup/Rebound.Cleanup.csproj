@@ -78,4 +78,30 @@
   <PropertyGroup Condition="'$(DisableHasPackageAndPublishMenuAddedByProject)'!='true' and '$(EnableMsixTooling)'=='true'">
     <HasPackageAndPublishMenu>true</HasPackageAndPublishMenu>
   </PropertyGroup>
+
+  <ItemGroup>
+    <None Include="..\Rebound\Assets\AppIcons\Rebound11Icon.png">
+      <Pack>True</Pack>
+      <PackagePath>\</PackagePath>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\.github\README.md" Pack="true" PackagePath="\"/>
+  </ItemGroup>
+
+  <PropertyGroup>
+    <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
+    <Authors>Riverside, ErrorTek, Lamparter</Authors>
+    <PackageProjectUrl>https://ivirius.vercel.app</PackageProjectUrl>
+    <Title>Disk Clean-up</Title>
+    <PackageId>Riverside.Rebound.Cleanup</PackageId>
+    <Copyright>Copyright (c) 2024-present Ivirius Community</Copyright>
+    <Description>Windows 11 done right.</Description>
+    <PackageIcon>Rebound11Icon.png</PackageIcon>
+    <IncludeSymbols>true</IncludeSymbols>
+    <SymbolPackageFormat>snupkg</SymbolPackageFormat>
+    <Version>0.0.3</Version>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+  </PropertyGroup>
 </Project>

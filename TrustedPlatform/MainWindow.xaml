@@ -7,7 +7,7 @@
     xmlns:local="using:Rebound.TrustedPlatform"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:winuiex="using:WinUIEx"
-    Title="Trusted Platform Module (TPM) Management on Local Computer"
+    Title="TPM Management"
     Closed="WindowEx_Closed"
     PositionChanged="WindowEx_PositionChanged"
     SizeChanged="WindowEx_SizeChanged"
@@ -288,7 +288,7 @@
                 FontWeight="Normal"
                 Foreground="{Binding Foreground, ElementName=WindowTitle}"
                 Opacity="0.5"
-                Text="  -  BETA v1.0.1"
+                Text=" v0.0.3"
                 TextTrimming="CharacterEllipsis" />
         </StackPanel>
         <StackPanel
