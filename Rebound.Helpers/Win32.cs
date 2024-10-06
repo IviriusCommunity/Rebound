@@ -17,6 +17,19 @@ public static class Win32
     [DllImport("advapi32.dll", SetLastError = true)]
     public static extern int RegNotifyChangeKeyValue(IntPtr hKey, bool bWatchSubtree, uint dwNotifyFilter, IntPtr hEvent, bool fAsynchronous);
 
+    [DllImport("user32.dll")]
+    public static extern IntPtr GetDC(IntPtr hWnd);
+
+    [DllImport("user32.dll")]
+    public static extern int ReleaseDC(IntPtr hWnd, IntPtr hDC);
+
+    [DllImport("gdi32.dll")]
+    public static extern int GetDeviceCaps(IntPtr hdc, int nIndex);
+
+    public const int HORZRES = 8; // Horizontal width of the display
+    public const int VERTRES = 10; // Vertical height of the display
+    public const int LOGPIXELSX = 88; // Logical pixels/inch in X
+
     public static int GET_X_LPARAM(IntPtr lParam)
     {
         return unchecked((short)(long)lParam);

@@ -39,6 +39,8 @@ public sealed partial class ControlPanelWindow : WindowEx
         RootFrame.BackStack.Clear();
         RootFrame.ForwardStack.Clear();
 
+        Display.GetDisplayInformation(this);
+
         TitleBarEx = new TitleBarService(this, AccentStrip, TitleBarIcon, WindowTitle, Close, CrimsonMaxRes, Minimize, MaxResGlyph, WindowContent);
         TitleBarEx.SetWindowIcon("Assets\\AppIcons\\rcontrol.ico");
     }
