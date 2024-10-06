@@ -9,7 +9,6 @@ using Microsoft.UI;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Windowing;
 using Windows.Graphics;
-using System.Diagnostics;
 using Microsoft.UI.Xaml.Input;
 
 namespace Rebound.Helpers;
@@ -120,7 +119,7 @@ public class TitleBarService
         MessageMonitor.WindowMessageReceived -= Event;
         MessageMonitor.WindowMessageReceived += Event;
 
-        await Task.Delay(1000);
+        await Task.Delay(750);
 
         Rehook();
     }
