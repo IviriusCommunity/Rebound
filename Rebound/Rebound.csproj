@@ -228,6 +228,8 @@
 		<AppxBundle>Never</AppxBundle>
 		<AppInstallerUri>C:\Users\Lenovo\Desktop</AppInstallerUri>
 		<HoursBetweenUpdateChecks>0</HoursBetweenUpdateChecks>
+		<AssemblyName>Rebound Hub</AssemblyName>
+		<ApplicationIcon>Assets\AppIcons\Rebound.ico</ApplicationIcon>
 	</PropertyGroup>
 	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x86'">
 	  <Optimize>False</Optimize>
