@@ -189,7 +189,7 @@ public sealed partial class ControlPanelWindow : WindowEx
         }
     }
 
-    public void NavigateToPath(bool legacyHomePage = false)
+    public async void NavigateToPath(bool legacyHomePage = false)
     {
         HideAll();
         RootFrame.Focus(FocusState.Programmatic);
@@ -237,7 +237,16 @@ public sealed partial class ControlPanelWindow : WindowEx
                 }
             default:
                 {
-                    AddressBox.Text = CurrentPage();
+                    try
+                    {
+                        await Launcher.LaunchUriAsync(new Uri(AddressBox.Text));
+                        Close();
+                        return;
+                    }
+                    catch
+                    {
+                        AddressBox.Text = CurrentPage();
+                    }
                     return;
                 }
         }
