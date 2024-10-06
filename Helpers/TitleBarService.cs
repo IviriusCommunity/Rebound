@@ -59,7 +59,26 @@ public class TitleBarService
         Content.PointerExited += PointerExited;
         CurrentWindow.WindowStateChanged += CurrentWindow_WindowStateChanged;
         LoadBounds();
+        CheckWindow();
         Rehook();
+    }
+
+    public async void CheckWindow()
+    {
+        try
+        {
+            if (WindowTitle != null && CurrentWindow != null)
+            {
+                WindowTitle.Text = CurrentWindow.Title;
+            }
+            await Task.Delay(50);
+            CheckFocus();
+            CheckWindow();
+        }
+        catch
+        {
+
+        }
     }
 
     private void CurrentWindow_WindowStateChanged(object sender, WindowState e)
@@ -556,7 +575,6 @@ public class TitleBarService
                 titleBar.SetDragRectangles(rects);
             }
 
-            CheckFocus();
             LoadBounds();
         }
         catch
