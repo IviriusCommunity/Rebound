@@ -19,7 +19,7 @@ namespace Rebound.Rebound.Pages.ControlPanel
         public HomePage()
         {
             this.InitializeComponent();
-            if (App.cpanelWin != null) App.cpanelWin.SetWindowIcon("Assets\\AppIcons\\rcontrol.ico");
+            if (App.cpanelWin != null) App.cpanelWin.TitleBarEx.SetWindowIcon("Assets\\AppIcons\\rcontrol.ico");
             if (App.cpanelWin != null) App.cpanelWin.Title = "Rebound Control Panel";
         }
 

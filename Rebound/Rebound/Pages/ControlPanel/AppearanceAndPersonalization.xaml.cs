@@ -18,7 +18,7 @@ public sealed partial class AppearanceAndPersonalization : Page
     public AppearanceAndPersonalization()
     {
         this.InitializeComponent();
-        if (App.cpanelWin != null) App.cpanelWin.SetWindowIcon("Assets\\AppIcons\\imageres_197.ico");
+        if (App.cpanelWin != null) App.cpanelWin.TitleBarEx.SetWindowIcon("Assets\\AppIcons\\imageres_197.ico");
         //Read();
         if (App.cpanelWin != null) App.cpanelWin.Title = "Appearance and Personalization";
     }

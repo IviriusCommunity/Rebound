@@ -301,6 +301,9 @@
 	  </COMReference>
 	</ItemGroup>
 	<ItemGroup>
+	  <ProjectReference Include="..\Rebound.Helpers\Rebound.Helpers.csproj" />
+	</ItemGroup>
+	<ItemGroup>
 	  <Page Update="UninstallationWindow.xaml">
 	    <Generator>MSBuild:Compile</Generator>
 	  </Page>

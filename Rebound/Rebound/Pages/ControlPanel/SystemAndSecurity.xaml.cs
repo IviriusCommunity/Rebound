@@ -26,7 +26,7 @@ public sealed partial class SystemAndSecurity : Page
     public SystemAndSecurity()
     {
         this.InitializeComponent();
-        if (App.cpanelWin != null) App.cpanelWin.SetWindowIcon("Assets\\AppIcons\\imageres_195.ico");
+        if (App.cpanelWin != null) App.cpanelWin.TitleBarEx.SetWindowIcon("Assets\\AppIcons\\imageres_195.ico");
         if (App.cpanelWin != null) App.cpanelWin.Title = "Security and Maintenance";
         CheckDefenderStatus();
     }

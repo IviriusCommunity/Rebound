@@ -9,13 +9,8 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:winuiex="using:WinUIEx"
     Closed="WindowEx_Closed"
-    PositionChanged="WindowEx_PositionChanged"
-    SizeChanged="WindowEx_SizeChanged"
     mc:Ignorable="d">
-    <Grid
-        PointerExited="Grid_PointerExited"
-        PointerMoved="Grid_PointerMoved"
-        PointerReleased="Grid_PointerReleased">
+    <Grid x:Name="WindowContent">
         <Grid.Resources>
             <MenuFlyout x:Key="Sysmenu" x:Name="Sysmenu">
                 <MenuFlyoutItem />
@@ -629,7 +624,6 @@
                 KeyUp="AddressBox_KeyUp"
                 LostFocus="TextBox_LostFocus"
                 SuggestionChosen="AddressBox_SuggestionChosen"
-                TextChanged="AddressBox_TextChanged"
                 Visibility="Collapsed" />
             <AutoSuggestBox
                 Grid.Column="3"
@@ -699,12 +693,7 @@
                 x:Name="CrimsonMaxRes"
                 Width="46"
                 Height="30"
-                Click="CrimsonMaxRes_Click"
                 IsTabStop="False"
-                PointerEntered="CrimsonMaxRes_PointerEntered"
-                PointerExited="CrimsonMaxRes_PointerExited"
-                PointerMoved="CrimsonMaxRes_PointerMoved"
-                PointerPressed="CrimsonMaxRes_PointerPressed"
                 Style="{ThemeResource MaxRes}">
                 <FontIcon
                     x:Name="MaxResGlyph"
@@ -715,12 +704,7 @@
                 x:Name="Close"
                 Width="46"
                 Height="30"
-                Click="Button_Click_1"
                 IsTabStop="False"
-                PointerEntered="CrimsonMaxRes_PointerEntered"
-                PointerExited="CrimsonMaxRes_PointerExited"
-                PointerMoved="CrimsonMaxRes_PointerMoved"
-                PointerPressed="CrimsonMaxRes_PointerPressed"
                 Style="{ThemeResource Close}">
                 <FontIcon FontSize="10" Glyph="&#xE8BB;" />
             </Button>
