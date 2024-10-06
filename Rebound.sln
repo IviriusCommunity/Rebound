@@ -19,7 +19,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Rebound.About", "About\Rebo
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Rebound.Tests", "Tests\Rebound.Tests.csproj", "{FEA248B3-99A2-4AC8-BF50-C261DB4CF2F0}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Rebound.InteractiveDialog", "Rebound.InteractiveDialog\Rebound.InteractiveDialog.csproj", "{D04E2A2C-C9D1-4243-9347-7AC854399ADE}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Rebound.InteractiveDialog", "InteractiveDialog\Rebound.InteractiveDialog.csproj", "{D04E2A2C-C9D1-4243-9347-7AC854399ADE}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

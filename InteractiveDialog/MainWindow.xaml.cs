@@ -54,9 +54,9 @@ public sealed partial class MainWindow : Window
         var dialog = new ContentDialog()
         {
             XamlRoot = RootGrid.XamlRoot,
-            Title = "Hello",
-            Content = "Hello, World!",
-            CloseButtonText = "Close"
+            Title = "Error",
+            Content = "A fatal runtime error occured.",
+            CloseButtonText = "OK"
         };
 
         dialog.Closed += Dialog_Closed;
