@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 	<PropertyGroup>
 		<OutputType>WinExe</OutputType>
 		<TargetFramework>net8.0-windows10.0.22621.0</TargetFramework>
@@ -78,5 +78,30 @@
   -->
 	<PropertyGroup Condition="'$(DisableHasPackageAndPublishMenuAddedByProject)'!='true' and '$(EnableMsixTooling)'=='true'">
 		<HasPackageAndPublishMenu>true</HasPackageAndPublishMenu>
+	</PropertyGroup>
+
+	<ItemGroup>
+		<None Include="..\Rebound\Assets\AppIcons\Rebound11Icon.png">
+			<Pack>True</Pack>
+			<PackagePath>\</PackagePath>
+		</None>
+	</ItemGroup>
+
+	<ItemGroup>
+		<None Include="..\Rebound\Assets\AppIcons\Rebound11Icon.png">
+			<Pack>True</Pack>
+			<PackagePath>\</PackagePath>
+		</None>
+	</ItemGroup>
+
+	<PropertyGroup>
+		<GeneratePackageOnBuild>True</GeneratePackageOnBuild>
+		<Authors>Riverside, ErrorTek, Lamparter</Authors>
+		<PackageProjectUrl>https://ivirius.vercel.app</PackageProjectUrl>
+		<Title>Run</Title>
+		<PackageId>Riverside.Rebound.Run</PackageId>
+		<Copyright>Copyright (c) 2024-present Ivirius Community</Copyright>
+		<Description>Windows 11 done right.</Description>
+		<PackageIcon>Rebound11Icon.png</PackageIcon>
 	</PropertyGroup>
 </Project>

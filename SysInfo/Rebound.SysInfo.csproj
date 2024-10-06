@@ -75,4 +75,22 @@
   <PropertyGroup Condition="'$(DisableHasPackageAndPublishMenuAddedByProject)'!='true' and '$(EnableMsixTooling)'=='true'">
     <HasPackageAndPublishMenu>true</HasPackageAndPublishMenu>
   </PropertyGroup>
+
+  <ItemGroup>
+    <None Include="..\Rebound\Assets\AppIcons\Rebound11Icon.png">
+      <Pack>True</Pack>
+      <PackagePath>\</PackagePath>
+    </None>
+  </ItemGroup>
+
+  <PropertyGroup>
+    <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
+    <Authors>Riverside, ErrorTek, Lamparter</Authors>
+    <PackageProjectUrl>https://ivirius.vercel.app</PackageProjectUrl>
+    <Title>System Information</Title>
+    <PackageId>Riverside.Rebound.SysInfo</PackageId>
+    <Copyright>Copyright (c) 2024-present Ivirius Community</Copyright>
+    <Description>Windows 11 done right.</Description>
+    <PackageIcon>Rebound11Icon.png</PackageIcon>
+  </PropertyGroup>
 </Project>

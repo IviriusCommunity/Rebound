@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <OutputType>WinExe</OutputType>
 	  <TargetFramework>net8.0-windows10.0.22621.0</TargetFramework>
@@ -194,6 +194,12 @@
 	  <Manifest Include="$(ApplicationManifest)" />
   </ItemGroup>
 
+	<ItemGroup>
+		<None Include="..\Rebound\Assets\AppIcons\Rebound11Icon.png">
+			<Pack>True</Pack>
+			<PackagePath>\</PackagePath>
+		</None>
+	</ItemGroup>
   <!--
     Defining the "Msix" ProjectCapability here allows the Single-project MSIX Packaging
     Tools extension to be activated for this project even if the Windows App SDK Nuget
@@ -225,6 +231,13 @@
 		<HoursBetweenUpdateChecks>0</HoursBetweenUpdateChecks>
 		<AssemblyName>Rebound Hub</AssemblyName>
 		<ApplicationIcon>Assets\AppIcons\Rebound.ico</ApplicationIcon>
+		<GeneratePackageOnBuild>True</GeneratePackageOnBuild>
+		<Authors>Riverside, ErrorTek, Lamparter</Authors>
+		<Title>Rebound Hub</Title>
+		<PackageId>Riverside.Rebound</PackageId>
+		<Copyright>Copyright (c) 2024-present Ivirius Community</Copyright>
+		<PackageTags>rebound, rebound11, windows11, riverside</PackageTags>
+		<PackageIcon>Rebound11Icon.png</PackageIcon>
 	</PropertyGroup>
 	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x86'">
 	  <Optimize>False</Optimize>

@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
 	  <TargetFramework>net8.0-windows10.0.22621.0</TargetFramework>
 	  <TargetPlatformMinVersion>10.0.17763.0</TargetPlatformMinVersion>
@@ -15,4 +15,22 @@
 	  <PackageReference Include="Microsoft.WindowsAppSDK" Version="1.6.240701003-experimental2" />
 	  <PackageReference Include="WinUIEx" Version="2.3.4" />
   </ItemGroup>
+
+	<ItemGroup>
+		<None Include="..\Rebound\Assets\AppIcons\Rebound11Icon.png">
+			<Pack>True</Pack>
+			<PackagePath>\</PackagePath>
+		</None>
+	</ItemGroup>
+
+	<PropertyGroup>
+		<GeneratePackageOnBuild>True</GeneratePackageOnBuild>
+		<Authors>Riverside, ErrorTek, Lamparter</Authors>
+		<PackageProjectUrl>https://ivirius.vercel.app</PackageProjectUrl>
+		<Title>Rebound Helpers</Title>
+		<PackageId>Riverside.Rebound.Helpers</PackageId>
+		<Copyright>Copyright (c) 2024-present Ivirius Community</Copyright>
+		<Description>Windows 11 done right.</Description>
+		<PackageIcon>Rebound11Icon.png</PackageIcon>
+	</PropertyGroup>
 </Project>

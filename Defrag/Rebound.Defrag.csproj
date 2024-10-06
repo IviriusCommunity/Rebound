@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <OutputType>WinExe</OutputType>
     <TargetFramework>net8.0-windows10.0.19041.0</TargetFramework>
@@ -92,7 +92,25 @@
     Explorer "Package and Publish" context menu entry to be enabled for this project even if
     the Windows App SDK Nuget package has not yet been restored.
   -->
+
+  <ItemGroup>
+    <None Include="..\Rebound\Assets\AppIcons\Rebound11Icon.png">
+      <Pack>True</Pack>
+      <PackagePath>\</PackagePath>
+    </None>
+  </ItemGroup>
+
   <PropertyGroup Condition="'$(DisableHasPackageAndPublishMenuAddedByProject)'!='true' and '$(EnableMsixTooling)'=='true'">
     <HasPackageAndPublishMenu>true</HasPackageAndPublishMenu>
+  </PropertyGroup>
+  <PropertyGroup>
+    <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
+    <Authors>Riverside, ErrorTek, Lamparter</Authors>
+    <PackageProjectUrl>https://ivirius.vercel.app</PackageProjectUrl>
+    <Title>Defragment and Optimize Drives</Title>
+    <PackageId>Riverside.Rebound.Defrag</PackageId>
+    <Copyright>Copyright (c) 2024-present Ivirius Community</Copyright>
+    <Description>Windows 11 done right.</Description>
+    <PackageIcon>Rebound11Icon.png</PackageIcon>
   </PropertyGroup>
 </Project>
