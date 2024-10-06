@@ -1,0 +1,27 @@
+name: Install Dependencies
+description: ""
+
+inputs:
+  dotnet-version:
+    description: 'Installs and sets the .NET SDK Version'
+    required: false
+    default: '8.0.x'
+  sdkVersion:
+    description: 'The version of the Windows Sdk'
+    required: false
+    default: '22621'
+
+runs:
+  using: "composite"
+  steps:
+    # Install .NET
+    - name: Setup .NET ${{ inputs.dotnet-version }}
+      uses: actions/setup-dotnet@v3
+      with:
+        dotnet-version: '${{ inputs.dotnet-version }}'
+
+    # Install Windows SDK
+    - name: Install Windows SDK ${{ inputs.sdkVersion }}
+      shell: pwsh
+      if: ${{ runner.os == 'Windows' }}
+      run: .\.github\Install-WindowsSdkISO.ps1 ${{ inputs.sdkVersion }}
