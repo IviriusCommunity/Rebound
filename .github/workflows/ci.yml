@@ -1,0 +1,41 @@
+name: CI
+
+on:
+  push:
+    branches:
+      - main
+      - release/**
+  pull_request:
+    types: [opened, synchronize, reopened]
+    branches:
+      - main
+      - release/**
+
+env:
+  STEP_TIMEOUT_MINUTES: 60
+
+jobs:
+  build:
+    name: Integrate
+    runs-on: windows-latest
+    strategy:
+      matrix:
+        project:
+          - Rebound/Rebound.csproj
+          - About/Rebound.About.csproj
+          # Add more in the future as more projects are added
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install Dependencies
+        timeout-minutes: ${{ fromJSON(env.STEP_TIMEOUT_MINUTES) }}
+        uses: "./.github/steps/install_dependencies"
+      
+      - name: Setup MSBuild
+        uses: microsoft/setup-msbuild@v1.3.1
+
+      - name: Build ${{ matrix.project }}
+        shell: pwsh
+        run: msbuild ${{ matrix.project }} /p:Configuration=Release /r
