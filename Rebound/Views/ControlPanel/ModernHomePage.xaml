@@ -7,6 +7,9 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:local="using:Rebound.Views.ControlPanel"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:interactivity="using:Microsoft.Xaml.Interactivity"
+    xmlns:behaviors="using:CommunityToolkit.WinUI.Behaviors"
+    xmlns:core="using:Microsoft.Xaml.Interactions.Core"
     mc:Ignorable="d">
 
     <Grid>
@@ -26,20 +29,23 @@
                     <NavigationViewItem.Icon>
                         <ImageIcon Source="/Assets/AppIcons/imageres_195.ico" />
                     </NavigationViewItem.Icon>
-                    <NavigationViewItem.MenuItems>
-                        <NavigationViewItem Content="Review your computer's status" Tag="SysAndSecurity" />
-                        <NavigationViewItem Tag="SysAndSecurity">
-                            <TextBlock Text="Save backup copies of your files with OneDrive" TextWrapping="WrapWholeWords" />
-                        </NavigationViewItem>
-                        <NavigationViewItem Content="Windows Backup" Tag="SysAndSecurity" />
-                    </NavigationViewItem.MenuItems>
                 </NavigationViewItem>
-                <NavigationViewItem Content="User Accounts" IsEnabled="False">
+                <NavigationViewItem Content="User Accounts">
                     <NavigationViewItem.Icon>
                         <ImageIcon Source="/Assets/AppIcons/imageres_1029.ico" />
                     </NavigationViewItem.Icon>
                     <NavigationViewItem.MenuItems>
-                        <NavigationViewItem Content="Change account type">
+                        <NavigationViewItem Content="Change account type" IsEnabled="False">
+                            <NavigationViewItem.Icon>
+                                <ImageIcon Source="/Assets/AppIcons/imageres_78.ico" />
+                            </NavigationViewItem.Icon>
+                        </NavigationViewItem>
+                        <NavigationViewItem Content="Remove user accounts" IsEnabled="False">
+                            <NavigationViewItem.Icon>
+                                <ImageIcon Source="/Assets/AppIcons/imageres_78.ico" />
+                            </NavigationViewItem.Icon>
+                        </NavigationViewItem>
+                        <NavigationViewItem Content="Credential manager" IsEnabled="False">
                             <NavigationViewItem.Icon>
                                 <ImageIcon Source="/Assets/AppIcons/imageres_78.ico" />
                             </NavigationViewItem.Icon>
@@ -58,44 +64,157 @@
                     <NavigationViewItem.Icon>
                         <ImageIcon Source="/Assets/AppIcons/imageres_197.ico" />
                     </NavigationViewItem.Icon>
-                    <NavigationViewItem.MenuItems>
-                        <NavigationViewItem x:Name="Re11Item" Content="Rebound 11" />
-                    </NavigationViewItem.MenuItems>
                 </NavigationViewItem>
-                <NavigationViewItem Content="Hardware and Sound" IsEnabled="False">
+                <NavigationViewItem Content="Hardware and Sound">
                     <NavigationViewItem.Icon>
                         <ImageIcon Source="/Assets/AppIcons/imageres_196.ico" />
                     </NavigationViewItem.Icon>
                     <NavigationViewItem.MenuItems>
-                        <NavigationViewItem Content="View devices and printers" />
-                        <NavigationViewItem Content="Add a device" />
-                        <NavigationViewItem Content="Adjust commonly used mobility settings" />
+                        <NavigationViewItem Content="Devices and printers">
+                            <NavigationViewItem.Icon>
+                                <FontIcon Glyph="&#xEB66;"/>
+                            </NavigationViewItem.Icon>
+                            <NavigationViewItem.MenuItems>
+                                <NavigationViewItem Content="Add a device">
+                                    <interactivity:Interaction.Behaviors>
+                                        <core:EventTriggerBehavior EventName="Tapped">
+                                            <behaviors:NavigateToUriAction NavigateUri="ms-settings:connecteddevices" />
+                                        </core:EventTriggerBehavior>
+                                    </interactivity:Interaction.Behaviors>
+                                    <NavigationViewItem.Icon>
+                                        <FontIcon Glyph="&#xE109;"/>
+                                    </NavigationViewItem.Icon>
+                                </NavigationViewItem>
+                                <NavigationViewItem Content="Advanced printer setup">
+                                    <interactivity:Interaction.Behaviors>
+                                        <core:EventTriggerBehavior EventName="Tapped">
+                                            <behaviors:NavigateToUriAction NavigateUri="ms-settings:printers" />
+                                        </core:EventTriggerBehavior>
+                                    </interactivity:Interaction.Behaviors>
+                                    <NavigationViewItem.Icon>
+                                        <FontIcon Glyph="&#xF56D;"/>
+                                    </NavigationViewItem.Icon>
+                                </NavigationViewItem>
+                                <NavigationViewItem Content="Keyboard">
+                                    <interactivity:Interaction.Behaviors>
+                                        <core:EventTriggerBehavior EventName="Tapped">
+                                            <behaviors:NavigateToUriAction NavigateUri="ms-settings:typing" />
+                                        </core:EventTriggerBehavior>
+                                    </interactivity:Interaction.Behaviors>
+                                    <NavigationViewItem.Icon>
+                                        <FontIcon Glyph="&#xE087;"/>
+                                    </NavigationViewItem.Icon>
+                                </NavigationViewItem>
+                                <NavigationViewItem Content="Mouse">
+                                    <interactivity:Interaction.Behaviors>
+                                        <core:EventTriggerBehavior EventName="Tapped">
+                                            <behaviors:NavigateToUriAction NavigateUri="ms-settings:mousetouchpad" />
+                                        </core:EventTriggerBehavior>
+                                    </interactivity:Interaction.Behaviors>
+                                    <NavigationViewItem.Icon>
+                                        <FontIcon Glyph="&#xE962;"/>
+                                    </NavigationViewItem.Icon>
+                                </NavigationViewItem>
+                                <NavigationViewItem Content="Device Manager" IsEnabled="False">
+                                    <NavigationViewItem.Icon>
+                                        <ImageIcon Source="/Assets/AppIcons/imageres_78.ico" />
+                                    </NavigationViewItem.Icon>
+                                </NavigationViewItem>
+                            </NavigationViewItem.MenuItems>
+                        </NavigationViewItem>
+                        <NavigationViewItem Content="Autoplay">
+                            <interactivity:Interaction.Behaviors>
+                                <core:EventTriggerBehavior EventName="Tapped">
+                                    <behaviors:NavigateToUriAction NavigateUri="ms-settings:autoplay" />
+                                </core:EventTriggerBehavior>
+                            </interactivity:Interaction.Behaviors>
+                            <NavigationViewItem.Icon>
+                                <FontIcon Glyph="&#xEC57;"/>
+                            </NavigationViewItem.Icon>
+                        </NavigationViewItem>
+                        <NavigationViewItem Content="Sound">
+                            <interactivity:Interaction.Behaviors>
+                                <core:EventTriggerBehavior EventName="Tapped">
+                                    <behaviors:NavigateToUriAction NavigateUri="ms-settings:sound" />
+                                </core:EventTriggerBehavior>
+                            </interactivity:Interaction.Behaviors>
+                            <NavigationViewItem.Icon>
+                                <FontIcon Glyph="&#xE995;"/>
+                            </NavigationViewItem.Icon>
+                        </NavigationViewItem>
+                        <NavigationViewItem Content="Power options">
+                            <interactivity:Interaction.Behaviors>
+                                <core:EventTriggerBehavior EventName="Tapped">
+                                    <behaviors:NavigateToUriAction NavigateUri="ms-settings:powersleep" />
+                                </core:EventTriggerBehavior>
+                            </interactivity:Interaction.Behaviors>
+                            <NavigationViewItem.Icon>
+                                <FontIcon Glyph="&#xEBA6;"/>
+                            </NavigationViewItem.Icon>
+                        </NavigationViewItem>
+                        <NavigationViewItem Content="Pen and Touch">
+                            <interactivity:Interaction.Behaviors>
+                                <core:EventTriggerBehavior EventName="Tapped">
+                                    <behaviors:NavigateToUriAction NavigateUri="ms-settings:pen" />
+                                </core:EventTriggerBehavior>
+                            </interactivity:Interaction.Behaviors>
+                            <NavigationViewItem.Icon>
+                                <FontIcon Glyph="&#xEDC6;"/>
+                            </NavigationViewItem.Icon>
+                        </NavigationViewItem>
                     </NavigationViewItem.MenuItems>
                 </NavigationViewItem>
-                <NavigationViewItem Content="Clock and Region" IsEnabled="False">
+                <NavigationViewItem Content="Clock and Region">
                     <NavigationViewItem.Icon>
                         <ImageIcon Source="/Assets/AppIcons/imageres_144.ico" />
                     </NavigationViewItem.Icon>
                     <NavigationViewItem.MenuItems>
-                        <NavigationViewItem Content="Change date, time, or number formats" />
+                        <NavigationViewItem Content="Date and time">
+                            <interactivity:Interaction.Behaviors>
+                                <core:EventTriggerBehavior EventName="Tapped">
+                                    <behaviors:NavigateToUriAction NavigateUri="ms-settings:dateandtime" />
+                                </core:EventTriggerBehavior>
+                            </interactivity:Interaction.Behaviors>
+                            <NavigationViewItem.Icon>
+                                <FontIcon Glyph="&#xE121;"/>
+                            </NavigationViewItem.Icon>
+                        </NavigationViewItem>
+                        <NavigationViewItem Content="Region">
+                            <interactivity:Interaction.Behaviors>
+                                <core:EventTriggerBehavior EventName="Tapped">
+                                    <behaviors:NavigateToUriAction NavigateUri="ms-settings:regionformatting" />
+                                </core:EventTriggerBehavior>
+                            </interactivity:Interaction.Behaviors>
+                            <NavigationViewItem.Icon>
+                                <FontIcon Glyph="&#xE128;"/>
+                            </NavigationViewItem.Icon>
+                        </NavigationViewItem>
+                        <NavigationViewItem Content="Advanced" IsEnabled="False">
+                            <NavigationViewItem.Icon>
+                                <FontIcon Glyph="&#xE115;"/>
+                            </NavigationViewItem.Icon>
+                        </NavigationViewItem>
                     </NavigationViewItem.MenuItems>
                 </NavigationViewItem>
-                <NavigationViewItem Content="Programs" IsEnabled="False">
+                <NavigationViewItem Content="Apps and programs">
                     <NavigationViewItem.Icon>
                         <ImageIcon Source="/Assets/AppIcons/imageres_161.ico" />
                     </NavigationViewItem.Icon>
-                    <NavigationViewItem.MenuItems>
-                        <NavigationViewItem Content="Uninstall a program" />
-                    </NavigationViewItem.MenuItems>
+                    <interactivity:Interaction.Behaviors>
+                        <core:EventTriggerBehavior EventName="Tapped">
+                            <behaviors:NavigateToUriAction NavigateUri="ms-settings:appsfeatures" />
+                        </core:EventTriggerBehavior>
+                    </interactivity:Interaction.Behaviors>
                 </NavigationViewItem>
-                <NavigationViewItem Content="Accessibility" IsEnabled="False">
+                <NavigationViewItem Content="Accessibility">
                     <NavigationViewItem.Icon>
                         <ImageIcon Source="/Assets/AppIcons/imageres_86.ico" />
                     </NavigationViewItem.Icon>
-                    <NavigationViewItem.MenuItems>
-                        <NavigationViewItem Content="Let Windows suggest settings" />
-                        <NavigationViewItem Content="Optimize visual display" />
-                    </NavigationViewItem.MenuItems>
+                    <interactivity:Interaction.Behaviors>
+                        <core:EventTriggerBehavior EventName="Tapped">
+                            <behaviors:NavigateToUriAction NavigateUri="ms-settings:easeofaccess" />
+                        </core:EventTriggerBehavior>
+                    </interactivity:Interaction.Behaviors>
                 </NavigationViewItem>
             </NavigationView.MenuItems>
             <ScrollViewer
@@ -110,7 +229,7 @@
                         <ColumnDefinition Width="*" />
                     </Grid.ColumnDefinitions>
                     <Grid.RowDefinitions>
-                        <RowDefinition Height="50" />
+                        <RowDefinition Height="Auto" />
                         <RowDefinition Height="Auto" />
                         <RowDefinition Height="15" />
                         <RowDefinition Height="Auto" />
@@ -127,13 +246,14 @@
                         FontSize="22"
                         FontWeight="SemiBold"
                         Foreground="{ThemeResource AccentTextFillColorPrimaryBrush}"
-                        Text="Adjust your computer's settings" />
+                        Text="Adjust your computer's settings" VerticalAlignment="Center" TextWrapping="WrapWholeWords" Margin="0, 0, 200, 0"/>
                     <StackPanel
                         Grid.Column="2"
                         HorizontalAlignment="Right"
                         VerticalAlignment="Top"
                         Orientation="Horizontal"
-                        Spacing="15">
+                        Spacing="15"
+                        MinHeight="32">
                         <TextBlock VerticalAlignment="Center" Text="View by:" />
                         <ComboBox
                             VerticalAlignment="Center"
@@ -230,31 +350,26 @@
                             Style="{StaticResource BodyStrongTextBlockStyle}"
                             Text="Home" />
                         <SettingsUI:SettingsCard
-                            Description="Learn how to use Windows 11."
-                            Header="Get started"
+                            Description="Launch the Rebound Hub."
+                            Header="Rebound Hub"
                             IsClickEnabled="True"
-                            IsEnabled="False">
+                            Click="SettingsCard_Click_1">
                             <SettingsUI:SettingsCard.HeaderIcon>
-                                <FontIcon Glyph="" />
-                            </SettingsUI:SettingsCard.HeaderIcon>
-                        </SettingsUI:SettingsCard>
-                        <SettingsUI:SettingsCard
-                            Description="Change settings in Rebound 11."
-                            Header="Rebound 11"
-                            IsClickEnabled="True"
-                            IsEnabled="False">
-                            <SettingsUI:SettingsCard.HeaderIcon>
-                                <FontIcon Glyph="" />
+                                <ImageIcon Source="/Assets/AppIcons/Rebound.ico"/>
                             </SettingsUI:SettingsCard.HeaderIcon>
                         </SettingsUI:SettingsCard>
                         <SettingsUI:SettingsCard
                             Description="Launch the Settings app."
                             Header="Settings"
-                            IsClickEnabled="True"
-                            IsEnabled="False">
+                            IsClickEnabled="True">
                             <SettingsUI:SettingsCard.HeaderIcon>
                                 <FontIcon Glyph="&#xE115;" />
                             </SettingsUI:SettingsCard.HeaderIcon>
+                            <interactivity:Interaction.Behaviors>
+                                <core:EventTriggerBehavior EventName="Click">
+                                    <behaviors:NavigateToUriAction NavigateUri="ms-settings:///" />
+                                </core:EventTriggerBehavior>
+                            </interactivity:Interaction.Behaviors>
                         </SettingsUI:SettingsCard>
                         <SettingsUI:SettingsCard
                             Click="SettingsCard_Click"
@@ -265,6 +380,19 @@
                                 <PathIcon Margin="0,0,-2,-4" Data="M -1 2 C -1 1 0 0 1 0 L 12 0 C 13 0 14 1 14 2 L 14 9 C 14 10 13 11 12 11 L 1 11 C 0 11 -1 10 -1 9 Z M 0 9 C 0.006 9.481 0.477 10.016 1 10 L 12 10 C 12.527 10.016 12.998 9.524 13 9 L 13 2 C 12.997 1.513 12.52 0.992 12 1 L 1 1 C 0.499 1 0.002 1.448 0 2 Z M 3.51 1.994 A 1 1 0 0 0 3.531 6.998 A 1 1 0 0 0 3.521 1.994 M 3.5 3 L 3.5 4.5 L 5 4.5 C 5 5.333 4.333 6 3.5 6 C 2.666 6 2 5.333 2 4.5 C 2 3.666 2.666 3 3.5 3 Z M 7 2 L 12 2 L 12 3 L 7 3 M 7 4 L 12 4 L 12 5 L 7 5 M 7 6 L 12 6 L 12 7 L 7 7 M 1 8 L 12 8 L 12 9 L 1 9 M 8 8 L 16 16" />
                             </SettingsUI:SettingsCard.HeaderIcon>
                         </SettingsUI:SettingsCard>
+                        <SettingsUI:SettingsCard
+                            Description="Update your system."
+                            Header="Windows Update"
+                            IsClickEnabled="True">
+                            <SettingsUI:SettingsCard.HeaderIcon>
+                                <FontIcon Glyph="" />
+                            </SettingsUI:SettingsCard.HeaderIcon>
+                            <interactivity:Interaction.Behaviors>
+                                <core:EventTriggerBehavior EventName="Click">
+                                    <behaviors:NavigateToUriAction NavigateUri="ms-settings:windowsupdate" />
+                                </core:EventTriggerBehavior>
+                            </interactivity:Interaction.Behaviors>
+                        </SettingsUI:SettingsCard>
                         <TextBlock
                             Margin="3"
                             Style="{StaticResource BodyStrongTextBlockStyle}"
@@ -272,11 +400,28 @@
                         <SettingsUI:SettingsCard
                             Description="Open the Personalization section in Settings."
                             Header="Personalization"
-                            IsClickEnabled="True"
-                            IsEnabled="False">
+                            IsClickEnabled="True">
                             <SettingsUI:SettingsCard.HeaderIcon>
                                 <FontIcon Glyph="&#xE771;" />
                             </SettingsUI:SettingsCard.HeaderIcon>
+                            <interactivity:Interaction.Behaviors>
+                                <core:EventTriggerBehavior EventName="Click">
+                                    <behaviors:NavigateToUriAction NavigateUri="ms-settings:personalization" />
+                                </core:EventTriggerBehavior>
+                            </interactivity:Interaction.Behaviors>
+                        </SettingsUI:SettingsCard>
+                        <SettingsUI:SettingsCard
+                            Description="View your Windows account."
+                            Header="Windows account"
+                            IsClickEnabled="True">
+                            <SettingsUI:SettingsCard.HeaderIcon>
+                                <FontIcon Glyph="" />
+                            </SettingsUI:SettingsCard.HeaderIcon>
+                            <interactivity:Interaction.Behaviors>
+                                <core:EventTriggerBehavior EventName="Click">
+                                    <behaviors:NavigateToUriAction NavigateUri="ms-settings:yourinfo" />
+                                </core:EventTriggerBehavior>
+                            </interactivity:Interaction.Behaviors>
                         </SettingsUI:SettingsCard>
                     </StackPanel>
                 </Grid>

@@ -6,6 +6,7 @@ using System.Text;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Media.Imaging;
+using Windows.System;
 
 // To learn more about WinUI, the WinUI project structure,
 // and more about our project templates, see: http://aka.ms/winui-project-info.
@@ -115,11 +116,11 @@ public sealed partial class ModernHomePage : Page
         }
     }
 
-    private void NavigationView_SelectionChanged(NavigationView sender, NavigationViewSelectionChangedEventArgs args)
+    private async void NavigationView_SelectionChanged(NavigationView sender, NavigationViewSelectionChangedEventArgs args)
     {
         try
         {
-            if ((NavigationViewItem)sender.SelectedItem == AppearanceItem || (NavigationViewItem)sender.SelectedItem == Re11Item)
+            if ((NavigationViewItem)sender.SelectedItem == AppearanceItem)
             {
                 App.cpanelWin.AddressBox.Text = @"Control Panel\Appearance and Personalization";
                 App.cpanelWin.NavigateToPath();
@@ -128,6 +129,10 @@ public sealed partial class ModernHomePage : Page
             {
                 App.cpanelWin.AddressBox.Text = @"Control Panel\System and Security";
                 App.cpanelWin.NavigateToPath();
+            }
+            else if ((string)((NavigationViewItem)sender.SelectedItem).Tag is "Programs" or "Uninstall a program")
+            {
+                await Launcher.LaunchUriAsync(new Uri("ms-settings:appsfeatures"));
             }
         }
         catch (Exception ex)
@@ -160,5 +165,12 @@ public sealed partial class ModernHomePage : Page
     private void MenuFlyoutItem_Click_1(object sender, RoutedEventArgs e)
     {
         App.cpanelWin.RootFrame.Navigate(typeof(SystemAndSecurity), null, new Microsoft.UI.Xaml.Media.Animation.DrillInNavigationTransitionInfo());
+    }
+
+    private void SettingsCard_Click_1(object sender, RoutedEventArgs e)
+    {
+        App.m_window = new MainWindow();
+        App.m_window.Activate();
+        App.cpanelWin.Close();
     }
 }
