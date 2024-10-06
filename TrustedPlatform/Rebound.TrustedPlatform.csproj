@@ -63,6 +63,7 @@
     <PackageReference Include="CommunityToolkit.WinUI.Helpers" Version="8.0.240109" />
     <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="8.0.0" />
     <PackageReference Include="Microsoft.Graphics.Win2D" Version="1.2.1-experimental2" />
+    <PackageReference Include="Microsoft.Web.WebView2" Version="1.0.2646-prerelease" />
     <PackageReference Include="Microsoft.Windows.CsWinRT" Version="2.1.1" />
     <PackageReference Include="Microsoft.Windows.SDK.BuildTools" Version="10.0.26100.1" />
     <PackageReference Include="Microsoft.WindowsAppSDK" Version="1.6.240701003-experimental2" />
