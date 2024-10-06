@@ -8,5 +8,7 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     Title="Rebound.InteractiveDialog"
     mc:Ignorable="d">
-    <Grid x:Name="RootGrid" Loaded="RootGrid_Loaded" />
+    <Grid x:Name="RootGrid" Loaded="RootGrid_Loaded">
+        <Border x:Name="AppTitleBar" VerticalAlignment="Top" />
+    </Grid>
 </Window>

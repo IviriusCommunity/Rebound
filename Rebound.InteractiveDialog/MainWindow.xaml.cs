@@ -37,6 +37,9 @@ public sealed partial class MainWindow : Window
         this.SetIsMinimizable(false);
         this.SetIsMaximizable(false);
         this.SetIsResizable(false);
+        Window window = this;
+        window.ExtendsContentIntoTitleBar = true; // Enable custom titlebar
+        window.SetTitleBar(AppTitleBar); // Set titlebar as <Border /> from MainWindow.xaml
     }
 
     private async void RootGrid_Loaded(object sender, RoutedEventArgs e)
