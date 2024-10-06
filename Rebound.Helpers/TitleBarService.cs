@@ -299,9 +299,6 @@ public class TitleBarService
                 }
             case WM_NCHITTEST:
                 {
-                    Debug.WriteLine(y);
-                    Debug.WriteLine(yMin);
-
                     // Minimize Button
                     if (IsInRect(x, xMinimizeMin, xMinimizeMax, y, yMin, yMax))
                     {
