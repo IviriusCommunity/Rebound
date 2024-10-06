@@ -1,5 +1,8 @@
 ﻿using System;
 using System.Runtime.InteropServices;
+using System.Threading.Tasks;
+using Microsoft.UI.Xaml;
+using WinUIEx;
 
 #pragma warning disable SYSLIB1054 // Use 'LibraryImportAttribute' instead of 'DllImportAttribute' to generate P/Invoke marshalling code at compile time
 #pragma warning disable CA1401 // P/Invokes should not be visible
@@ -29,6 +32,40 @@ public static class Win32
     public const int HORZRES = 8; // Horizontal width of the display
     public const int VERTRES = 10; // Vertical height of the display
     public const int LOGPIXELSX = 88; // Logical pixels/inch in X
+
+    [DllImport("dwmapi.dll", SetLastError = true)]
+    public static extern int DwmSetWindowAttribute(IntPtr hwnd, int dwAttribute, ref int pvAttribute, int cbAttribute);
+
+    public static void SetDarkMode(WindowEx window, Application app)
+    {
+        var i = 1;
+        if (app.RequestedTheme == ApplicationTheme.Light)
+        {
+            i = 0;
+        }
+        var hWnd = WinRT.Interop.WindowNative.GetWindowHandle(window);
+        _ = DwmSetWindowAttribute(hWnd, 20, ref i, sizeof(int));
+        CheckTheme();
+        async void CheckTheme()
+        {
+            await Task.Delay(100);
+            try
+            {
+                var i = 1;
+                if (app.RequestedTheme == ApplicationTheme.Light)
+                {
+                    i = 0;
+                }
+                var hWnd = WinRT.Interop.WindowNative.GetWindowHandle(window);
+                _ = DwmSetWindowAttribute(hWnd, 20, ref i, sizeof(int));
+                CheckTheme();
+            }
+            catch
+            {
+
+            }
+        }
+    }
 
     public static int GET_X_LPARAM(IntPtr lParam)
     {
