@@ -18,8 +18,8 @@ public sealed partial class MainWindow : Window
     public void GetAppWindowAndPresenter()
     {
         var hWnd = WinRT.Interop.WindowNative.GetWindowHandle(this);
-        WindowId myWndId = Microsoft.UI.Win32Interop.GetWindowIdFromWindow(hWnd);
-        _apw = AppWindow.GetFromWindowId(myWndId);
+        WindowId wndId = Microsoft.UI.Win32Interop.GetWindowIdFromWindow(hWnd);
+        _apw = AppWindow.GetFromWindowId(wndId);
         _presenter = _apw.Presenter as OverlappedPresenter;
     }
 
