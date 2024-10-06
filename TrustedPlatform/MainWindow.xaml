@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8" ?>
+<?xml version="1.0" encoding="utf-8" ?>
 <winuiex:WindowEx
     x:Class="Rebound.TrustedPlatform.MainWindow"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
@@ -7,7 +7,7 @@
     xmlns:local="using:Rebound.TrustedPlatform"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:winuiex="using:WinUIEx"
-    Title="Trusted Platform Module (TPM) Management on Local Computer"
+    Title="TPM Management"
     Closed="WindowEx_Closed"
     PositionChanged="WindowEx_PositionChanged"
     SizeChanged="WindowEx_SizeChanged"
