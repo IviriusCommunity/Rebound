@@ -7,7 +7,7 @@ using Microsoft.UI.Xaml.Input;
 using Microsoft.UI.Xaml.Media;
 using Microsoft.UI.Xaml.Navigation;
 using Rebound.Helpers;
-using Rebound.Pages.ControlPanel;
+using Rebound.Views.ControlPanel;
 using Windows.System;
 using WinUIEx;
 
@@ -146,15 +146,15 @@ public sealed partial class ControlPanelWindow : WindowEx
     {
         switch (RootFrame.Content)
         {
-            case Rebound.Pages.ControlPanel.AppearanceAndPersonalization:
+            case Rebound.Views.ControlPanel.AppearanceAndPersonalization:
                 {
                     return @"Control Panel\Appearance and Personalization";
                 }
-            case Rebound.Pages.ControlPanel.SystemAndSecurity:
+            case Rebound.Views.ControlPanel.SystemAndSecurity:
                 {
                     return @"Control Panel\System and Security";
                 }
-            case Rebound.Pages.ControlPanel.WindowsTools:
+            case Rebound.Views.ControlPanel.WindowsTools:
                 {
                     return @"Control Panel\System and Security\Windows Tools";
                 }
@@ -189,7 +189,7 @@ public sealed partial class ControlPanelWindow : WindowEx
         {
             case @"Control Panel\Appearance and Personalization":
                 {
-                    if (RootFrame.Content is not Rebound.Pages.ControlPanel.AppearanceAndPersonalization)
+                    if (RootFrame.Content is not Rebound.Views.ControlPanel.AppearanceAndPersonalization)
                     {
                         App.cpanelWin.RootFrame.Navigate(typeof(AppearanceAndPersonalization), null, new Microsoft.UI.Xaml.Media.Animation.DrillInNavigationTransitionInfo());
                     }
@@ -198,7 +198,7 @@ public sealed partial class ControlPanelWindow : WindowEx
                 }
             case @"Control Panel\System and Security":
                 {
-                    if (RootFrame.Content is not Rebound.Pages.ControlPanel.SystemAndSecurity)
+                    if (RootFrame.Content is not Rebound.Views.ControlPanel.SystemAndSecurity)
                     {
                         App.cpanelWin.RootFrame.Navigate(typeof(SystemAndSecurity), null, new Microsoft.UI.Xaml.Media.Animation.DrillInNavigationTransitionInfo());
                     }
@@ -207,7 +207,7 @@ public sealed partial class ControlPanelWindow : WindowEx
                 }
             case @"Control Panel\System and Security\Windows Tools":
                 {
-                    if (RootFrame.Content is not Rebound.Pages.ControlPanel.WindowsTools)
+                    if (RootFrame.Content is not Rebound.Views.ControlPanel.WindowsTools)
                     {
                         App.cpanelWin.RootFrame.Navigate(typeof(WindowsTools), null, new Microsoft.UI.Xaml.Media.Animation.DrillInNavigationTransitionInfo());
                     }
