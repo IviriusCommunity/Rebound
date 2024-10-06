@@ -22,6 +22,7 @@ public sealed partial class MainWindow : Window
         _apw = AppWindow.GetFromWindowId(myWndId);
         _presenter = _apw.Presenter as OverlappedPresenter;
     }
+
     public MainWindow()
     {
         this.InitializeComponent();
