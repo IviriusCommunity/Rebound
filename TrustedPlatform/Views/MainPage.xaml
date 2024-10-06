@@ -11,7 +11,10 @@
     mc:Ignorable="d">
     <!--  Additional content below the landing banner  -->
     <Grid Grid.Row="1">
-        <NavigationView IsSettingsVisible="False" PaneTitle="TPM Management">
+        <NavigationView
+            IsPaneOpen="False"
+            IsSettingsVisible="False"
+            PaneTitle="TPM Management">
             <NavigationView.MenuItems>
                 <NavigationViewItem Content="TPM Management on Local Computer" IsSelected="True">
                     <NavigationViewItem.Icon>
