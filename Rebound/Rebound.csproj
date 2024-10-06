@@ -112,14 +112,14 @@
     <None Remove="Rebound11Files\shcwin11\Disk Cleanup.lnk" />
     <None Remove="Rebound11Files\shcwin11\On-Screen Keyboard.lnk" />
     <None Remove="Rebound11Files\shcwin11\Run.lnk" />
-    <None Remove="Pages\ControlPanel\AppearanceAndPersonalization.xaml" />
-    <None Remove="Pages\ControlPanel\HomePage.xaml" />
-    <None Remove="Pages\ControlPanel\ModernHomePage.xaml" />
-    <None Remove="Pages\ControlPanel\SystemAndSecurity.xaml" />
-    <None Remove="Pages\ControlPanel\WindowsTools.xaml" />
-    <None Remove="Pages\HomePage.xaml" />
-    <None Remove="Pages\Rebound11Page.xaml" />
-    <None Remove="Pages\ShellPage.xaml" />
+    <None Remove="Views\ControlPanel\AppearanceAndPersonalization.xaml" />
+    <None Remove="Views\ControlPanel\HomePage.xaml" />
+    <None Remove="Views\ControlPanel\ModernHomePage.xaml" />
+    <None Remove="Views\ControlPanel\SystemAndSecurity.xaml" />
+    <None Remove="Views\ControlPanel\WindowsTools.xaml" />
+    <None Remove="Views\HomePage.xaml" />
+    <None Remove="Views\Rebound11Page.xaml" />
+    <None Remove="Views\ShellPage.xaml" />
     <None Remove="UserControls\HomePageHeaderImage.xaml" />
     <None Remove="RegionBlock.xaml" />
     <None Remove="UACWindow.xaml" />
@@ -236,10 +236,10 @@
 	  <Optimize>False</Optimize>
 	</PropertyGroup>
 	<ItemGroup>
-	  <CustomAdditionalCompileInputs Remove="Pages\HomePage.xaml" />
+	  <CustomAdditionalCompileInputs Remove="Views\HomePage.xaml" />
 	</ItemGroup>
 	<ItemGroup>
-	  <Resource Remove="Pages\HomePage.xaml" />
+	  <Resource Remove="Views\HomePage.xaml" />
 	</ItemGroup>
 	<ItemGroup>
 	  <Page Update="UACWindow.xaml">

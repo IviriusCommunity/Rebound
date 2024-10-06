@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <Page
-    x:Class="Rebound.Pages.ControlPanel.AppearanceAndPersonalization"
+    x:Class="Rebound.Views.ControlPanel.AppearanceAndPersonalization"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:SettingsUI="using:CommunityToolkit.WinUI.Controls"
     xmlns:UI="using:CommunityToolkit.WinUI.UI.Controls"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-    xmlns:local="using:Rebound.Pages.ControlPanel"
+    xmlns:local="using:Rebound.Views.ControlPanel"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     mc:Ignorable="d">
 
