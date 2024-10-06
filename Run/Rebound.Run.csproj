@@ -93,6 +93,9 @@
 			<PackagePath>\</PackagePath>
 		</None>
 	</ItemGroup>
+	<ItemGroup>
+		<None Include="..\.github\README.md" Pack="true" PackagePath="\"/>
+	</ItemGroup>
 
 	<PropertyGroup>
 		<GeneratePackageOnBuild>True</GeneratePackageOnBuild>
@@ -106,5 +109,7 @@
 		<IncludeSymbols>true</IncludeSymbols>
 		<SymbolPackageFormat>snupkg</SymbolPackageFormat>
 		<Version>0.0.3</Version>
+		<PackageLicenseExpression>MIT</PackageLicenseExpression>
+		<PackageReadmeFile>README.md</PackageReadmeFile>
 	</PropertyGroup>
 </Project>

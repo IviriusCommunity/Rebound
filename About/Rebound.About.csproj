@@ -35,11 +35,15 @@
 		<IncludeSymbols>true</IncludeSymbols>
 		<SymbolPackageFormat>snupkg</SymbolPackageFormat>
 		<Version>0.0.3</Version>
+		<PackageLicenseExpression>MIT</PackageLicenseExpression>
+		<PackageReadmeFile>README.md</PackageReadmeFile>
 	</PropertyGroup>
 	<ItemGroup>
 	  <None Remove="Assets\Rebound.ico" />
 	</ItemGroup>
-
+	<ItemGroup>
+		<None Include="..\.github\README.md" Pack="true" PackagePath="\"/>
+	</ItemGroup>
 	<ItemGroup>
 		<None Include="..\Rebound\Assets\AppIcons\Rebound11Icon.png">
 			<Pack>True</Pack>
