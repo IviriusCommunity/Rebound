@@ -1,8 +1,4 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Rebound;
-using System.Threading.Tasks;
-
-namespace Rebound.Tests.Rebound
+﻿namespace Rebound.Tests.Rebound
 {
     [TestClass]
     public class UninstallationWindowTests

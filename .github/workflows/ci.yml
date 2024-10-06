@@ -22,7 +22,6 @@ jobs:
       matrix:
         project:
           - Rebound/Rebound.csproj
-          - About/Rebound.About.csproj
           # Add more in the future as more projects are added
 
     steps:
@@ -38,4 +37,4 @@ jobs:
 
       - name: Build ${{ matrix.project }}
         shell: pwsh
-        run: msbuild ${{ matrix.project }} /p:Configuration=Release /r
+        run: msbuild ${{ matrix.project }} /p:Configuration=Release /p:Runtime=x64 /r

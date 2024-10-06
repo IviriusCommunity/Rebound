@@ -1,11 +1,4 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Rebound.Rebound.Pages.ControlPanel;
-using System.Linq;
-using Windows.ApplicationModel.Core;
-using Microsoft.UI.Xaml.Controls;
-using System.Management;
-
-namespace Rebound.Tests.ControlPanel
+﻿namespace Rebound.Tests.ControlPanel
 {
     [TestClass]
     public class SystemAndSecurityTests
