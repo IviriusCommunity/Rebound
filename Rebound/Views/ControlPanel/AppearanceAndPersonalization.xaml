@@ -8,6 +8,7 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:local="using:Rebound.Views.ControlPanel"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:ui="using:CommunityToolkit.WinUI"
     mc:Ignorable="d">
 
     <Grid>
@@ -90,18 +91,19 @@
                             Header="Rebound 11 Themes"
                             IsExpanded="True">
                             <Expander.Content>
-                                <Grid Margin="15">
-                                    <UI:WrapPanel HorizontalSpacing="10" VerticalSpacing="10">
+                                <Grid>
+                                    <UI:WrapPanel HorizontalSpacing="8" VerticalSpacing="8">
                                         <Button
-                                            Padding="0"
-                                            RequestedTheme="Light"
-                                            ToolTipService.ToolTip="Light - Blue">
-                                            <Grid>
+                                            Padding="8"
+                                            ToolTipService.ToolTip="Light - Blue"
+                                            Tag="BlueLight"
+                                            Click="ApplyThemeClick">
+                                            <Grid RequestedTheme="Light">
                                                 <Image
                                                     Width="250"
                                                     Height="150"
                                                     Source="/Assets/Wallpapers/WallpaperLightBlue.png"
-                                                    Stretch="UniformToFill" />
+                                                    Stretch="UniformToFill"/>
                                                 <Border
                                                     Width="125"
                                                     Height="100"
@@ -141,10 +143,11 @@
                                             </Grid>
                                         </Button>
                                         <Button
-                                            Padding="0"
-                                            RequestedTheme="Dark"
-                                            ToolTipService.ToolTip="Dark - Blue">
-                                            <Grid>
+                                            Padding="8"
+                                            ToolTipService.ToolTip="Dark - Blue"
+                                            Tag="BlueDark"
+                                            Click="ApplyThemeClick">
+                                            <Grid RequestedTheme="Dark">
                                                 <Image
                                                     Width="250"
                                                     Height="150"
@@ -189,10 +192,11 @@
                                             </Grid>
                                         </Button>
                                         <Button
-                                            Padding="0"
-                                            RequestedTheme="Light"
-                                            ToolTipService.ToolTip="Light - Cyan">
-                                            <Grid>
+                                            Padding="8"
+                                            ToolTipService.ToolTip="Light - Cyan"
+                                            Tag="CyanLight"
+                                            Click="ApplyThemeClick">
+                                            <Grid RequestedTheme="Light">
                                                 <Image
                                                     Width="250"
                                                     Height="150"
@@ -237,10 +241,11 @@
                                             </Grid>
                                         </Button>
                                         <Button
-                                            Padding="0"
-                                            RequestedTheme="Dark"
-                                            ToolTipService.ToolTip="Dark - Cyan">
-                                            <Grid>
+                                            Padding="8"
+                                            ToolTipService.ToolTip="Dark - Cyan"
+                                            Tag="CyanDark"
+                                            Click="ApplyThemeClick">
+                                            <Grid RequestedTheme="Dark">
                                                 <Image
                                                     Width="250"
                                                     Height="150"
@@ -285,10 +290,11 @@
                                             </Grid>
                                         </Button>
                                         <Button
-                                            Padding="0"
-                                            RequestedTheme="Light"
-                                            ToolTipService.ToolTip="Light - Purple">
-                                            <Grid>
+                                            Padding="8"
+                                            ToolTipService.ToolTip="Light - Purple"
+                                            Tag="PurpleLight"
+                                            Click="ApplyThemeClick">
+                                            <Grid RequestedTheme="Light">
                                                 <Image
                                                     Width="250"
                                                     Height="150"
@@ -333,10 +339,11 @@
                                             </Grid>
                                         </Button>
                                         <Button
-                                            Padding="0"
-                                            RequestedTheme="Dark"
-                                            ToolTipService.ToolTip="Dark - Purple">
-                                            <Grid>
+                                            Padding="8"
+                                            ToolTipService.ToolTip="Dark - Purple"
+                                            Tag="PurpleDark"
+                                            Click="ApplyThemeClick">
+                                            <Grid RequestedTheme="Dark">
                                                 <Image
                                                     Width="250"
                                                     Height="150"
@@ -381,10 +388,11 @@
                                             </Grid>
                                         </Button>
                                         <Button
-                                            Padding="0"
-                                            RequestedTheme="Light"
-                                            ToolTipService.ToolTip="Light - Crimson">
-                                            <Grid>
+                                            Padding="8"
+                                            ToolTipService.ToolTip="Light - Crimson"
+                                            Tag="CrimsonLight"
+                                            Click="ApplyThemeClick">
+                                            <Grid RequestedTheme="Light">
                                                 <Image
                                                     Width="250"
                                                     Height="150"
@@ -429,10 +437,11 @@
                                             </Grid>
                                         </Button>
                                         <Button
-                                            Padding="0"
-                                            RequestedTheme="Dark"
-                                            ToolTipService.ToolTip="Dark - Crimson">
-                                            <Grid>
+                                            Padding="8"
+                                            ToolTipService.ToolTip="Dark - Crimson"
+                                            Tag="CrimsonDark"
+                                            Click="ApplyThemeClick">
+                                            <Grid RequestedTheme="Dark">
                                                 <Image
                                                     Width="250"
                                                     Height="150"
@@ -573,5 +582,10 @@
                 </Grid>
             </ScrollViewer>
         </NavigationView>
+        <ContentDialog x:Name="PleaseWaitDialog" Title="Please wait">
+            <Grid>
+                <ProgressRing IsIndeterminate="True" Width="50" Height="50" HorizontalAlignment="Center"/>
+            </Grid>
+        </ContentDialog>
     </Grid>
 </Page>

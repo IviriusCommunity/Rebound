@@ -1,9 +1,13 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
+using System.IO;
 using System.Runtime.InteropServices;
+using System.Threading.Tasks;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Navigation;
+using Windows.Storage;
 using Windows.System;
 
 // To learn more about WinUI, the WinUI project structure,
@@ -19,72 +23,36 @@ public sealed partial class AppearanceAndPersonalization : Page
     {
         this.InitializeComponent();
         if (App.cpanelWin != null) App.cpanelWin.TitleBarEx.SetWindowIcon("Assets\\AppIcons\\imageres_197.ico");
-        //Read();
         if (App.cpanelWin != null) App.cpanelWin.Title = "Appearance and Personalization";
     }
 
-    private void BackButton_Click(object sender, RoutedEventArgs e)
+    private async void ApplyThemeClick(object sender, RoutedEventArgs e)
     {
-        if (App.cpanelWin != null)
+        bool exists;
+        try
         {
-            App.cpanelWin.RootFrame.GoBack();
+            exists = Process.GetProcessesByName("SystemSettings")[0] != null;
         }
-    }
-
-    private void ForwardButton_Click(object sender, RoutedEventArgs e)
-    {
-        if (App.cpanelWin != null)
+        catch
         {
-            App.cpanelWin.RootFrame.GoForward();
+            exists = false;
         }
-    }
-
-    private async void UpButton_Click(object sender, RoutedEventArgs e)
-    {
-        if (App.cpanelWin != null)
+        PleaseWaitDialog.ShowAsync();
+        App.cpanelWin.IsAlwaysOnTop = true;
+        var filePath = $"{AppContext.BaseDirectory}\\Rebound11Files\\Themes\\{(sender as FrameworkElement).Tag}.deskthemepack";
+        Process.Start(new ProcessStartInfo()
         {
-            App.cpanelWin.RootFrame.Navigate(typeof(ModernHomePage), null, new Microsoft.UI.Xaml.Media.Animation.SuppressNavigationTransitionInfo());
-        }
-    }
-
-    private void RefreshButton_Click(object sender, RoutedEventArgs e)
-    {
-        if (App.cpanelWin != null)
-        {
-            var oldHistory = App.cpanelWin.RootFrame.ForwardStack;
-            var newList = new List<PageStackEntry>();
-            foreach (var item in oldHistory)
-            {
-                newList.Add(item);
-            }
-            App.cpanelWin.RootFrame.Navigate(typeof(ModernHomePage), null, new Microsoft.UI.Xaml.Media.Animation.SuppressNavigationTransitionInfo());
-            App.cpanelWin.RootFrame.GoBack();
-            App.cpanelWin.RootFrame.ForwardStack.Clear();
-            foreach (var item in newList)
-            {
-                App.cpanelWin.RootFrame.ForwardStack.Add(item);
-            }
-        }
-    }
-
-    private void Button_Click(object sender, RoutedEventArgs e)
-    {
-        if (App.cpanelWin != null)
-        {
-            App.cpanelWin.RootFrame.Navigate(typeof(ModernHomePage), null, new Microsoft.UI.Xaml.Media.Animation.DrillInNavigationTransitionInfo());
-        }
-    }
-
-    private void ComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
-    {
-        if ((sender as ComboBox).SelectedIndex == 0 && (App.cpanelWin != null))
-        {
-            App.cpanelWin.RootFrame.Navigate(typeof(HomePage), null, new Microsoft.UI.Xaml.Media.Animation.DrillInNavigationTransitionInfo());
-        }
-        if ((sender as ComboBox).SelectedIndex == 1 && (App.cpanelWin != null))
-        {
-            App.cpanelWin.RootFrame.Navigate(typeof(ModernHomePage), null, new Microsoft.UI.Xaml.Media.Animation.DrillInNavigationTransitionInfo());
-        }
+            FileName = $"{filePath}",
+            UseShellExecute = true
+        });
+        await Task.Delay(1000);
+        await Task.Delay(800);
+        App.cpanelWin.IsAlwaysOnTop = false;
+        await Task.Delay(600);
+        if (!exists) Process.GetProcessesByName("SystemSettings")[0].Kill();
+        await Task.Delay(200);
+        App.cpanelWin.BringToFront();
+        PleaseWaitDialog.Hide();
     }
 
     private void OpenFileExplorerOptions()
