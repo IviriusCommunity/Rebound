@@ -19,7 +19,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Rebound.About", "About\Rebo
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Rebound.InteractiveDialog", "InteractiveDialog\Rebound.InteractiveDialog.csproj", "{D04E2A2C-C9D1-4243-9347-7AC854399ADE}"
 EndProject
-Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "Rebound.Common", "Rebound.Common\Rebound.Common.shproj", "{661A2E73-6990-4271-B702-BFC5B529094E}"
+Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "Rebound.Common", "Common\Rebound.Common.shproj", "{661A2E73-6990-4271-B702-BFC5B529094E}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Rebound.Helpers", "Helpers\Rebound.Helpers.csproj", "{18FE94FE-0938-4C36-AC0E-E99F90622293}"
 EndProject
