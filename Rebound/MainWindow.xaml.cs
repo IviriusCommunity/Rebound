@@ -12,7 +12,7 @@ using Microsoft.UI.Xaml.Input;
 using Microsoft.UI.Xaml.Media;
 using Microsoft.UI.Xaml.Media.Imaging;
 using Microsoft.Win32;
-using Rebound.Common.Helpers;
+using Rebound.Helpers;
 using Rebound.Views;
 using Windows.Graphics;
 using WinUIEx;
