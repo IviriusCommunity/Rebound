@@ -7,7 +7,7 @@ using Microsoft.UI.Xaml.Input;
 using Microsoft.UI.Xaml.Media;
 using Microsoft.UI.Xaml.Navigation;
 using Rebound.Helpers;
-using Rebound.Rebound.Pages.ControlPanel;
+using Rebound.Pages.ControlPanel;
 using Windows.System;
 using WinUIEx;
 

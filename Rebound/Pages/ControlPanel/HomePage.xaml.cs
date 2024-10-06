@@ -9,7 +9,7 @@ using Windows.System;
 // To learn more about WinUI, the WinUI project structure,
 // and more about our project templates, see: http://aka.ms/winui-project-info.
 
-namespace Rebound.Rebound.Pages.ControlPanel
+namespace Rebound.Pages.ControlPanel
 {
     /// <summary>
     /// An empty page that can be used on its own or navigated to within a Frame.

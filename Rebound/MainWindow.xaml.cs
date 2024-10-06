@@ -13,7 +13,7 @@ using Microsoft.UI.Xaml.Media;
 using Microsoft.UI.Xaml.Media.Imaging;
 using Microsoft.Win32;
 using Rebound.Common.Helpers;
-using Rebound.Rebound.Pages;
+using Rebound.Pages;
 using Windows.Graphics;
 using WinUIEx;
 using WinUIEx.Messaging;

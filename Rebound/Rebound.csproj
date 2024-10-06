@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <OutputType>WinExe</OutputType>
 	  <TargetFramework>net8.0-windows10.0.22621.0</TargetFramework>
@@ -112,15 +112,15 @@
     <None Remove="Rebound11Files\shcwin11\Disk Cleanup.lnk" />
     <None Remove="Rebound11Files\shcwin11\On-Screen Keyboard.lnk" />
     <None Remove="Rebound11Files\shcwin11\Run.lnk" />
-    <None Remove="Rebound\Pages\ControlPanel\AppearanceAndPersonalization.xaml" />
-    <None Remove="Rebound\Pages\ControlPanel\HomePage.xaml" />
-    <None Remove="Rebound\Pages\ControlPanel\ModernHomePage.xaml" />
-    <None Remove="Rebound\Pages\ControlPanel\SystemAndSecurity.xaml" />
-    <None Remove="Rebound\Pages\ControlPanel\WindowsTools.xaml" />
-    <None Remove="Rebound\Pages\HomePage.xaml" />
-    <None Remove="Rebound\Pages\Rebound11Page.xaml" />
-    <None Remove="Rebound\Pages\ShellPage.xaml" />
-    <None Remove="Rebound\UserControls\HomePageHeaderImage.xaml" />
+    <None Remove="Pages\ControlPanel\AppearanceAndPersonalization.xaml" />
+    <None Remove="Pages\ControlPanel\HomePage.xaml" />
+    <None Remove="Pages\ControlPanel\ModernHomePage.xaml" />
+    <None Remove="Pages\ControlPanel\SystemAndSecurity.xaml" />
+    <None Remove="Pages\ControlPanel\WindowsTools.xaml" />
+    <None Remove="Pages\HomePage.xaml" />
+    <None Remove="Pages\Rebound11Page.xaml" />
+    <None Remove="Pages\ShellPage.xaml" />
+    <None Remove="UserControls\HomePageHeaderImage.xaml" />
     <None Remove="RegionBlock.xaml" />
     <None Remove="UACWindow.xaml" />
     <None Remove="UninstallationWindow.xaml" />
@@ -202,11 +202,6 @@
   <ItemGroup Condition="'$(DisableMsixProjectCapabilityAddedByProject)'!='true' and '$(EnableMsixTooling)'=='true'">
     <ProjectCapability Include="Msix" />
   </ItemGroup>
-  <ItemGroup>
-    <Page Update="Rebound\Pages\ShellPage.xaml">
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-  </ItemGroup>
 
   <!--
     Defining the "HasPackageAndPublishMenuAddedByProject" property here allows the Solution
@@ -241,18 +236,13 @@
 	  <Optimize>False</Optimize>
 	</PropertyGroup>
 	<ItemGroup>
-	  <CustomAdditionalCompileInputs Remove="Rebound\Pages\HomePage.xaml" />
+	  <CustomAdditionalCompileInputs Remove="Pages\HomePage.xaml" />
 	</ItemGroup>
 	<ItemGroup>
-	  <Resource Remove="Rebound\Pages\HomePage.xaml" />
+	  <Resource Remove="Pages\HomePage.xaml" />
 	</ItemGroup>
 	<ItemGroup>
 	  <Page Update="UACWindow.xaml">
-	    <Generator>MSBuild:Compile</Generator>
-	  </Page>
-	</ItemGroup>
-	<ItemGroup>
-	  <Page Update="Rebound\Pages\ControlPanel\SystemAndSecurity.xaml">
 	    <Generator>MSBuild:Compile</Generator>
 	  </Page>
 	</ItemGroup>
@@ -262,27 +252,7 @@
 	  </Page>
 	</ItemGroup>
 	<ItemGroup>
-	  <Page Update="Rebound\Pages\Rebound11Page.xaml">
-	    <Generator>MSBuild:Compile</Generator>
-	  </Page>
-	</ItemGroup>
-	<ItemGroup>
-	  <Page Update="Rebound\Pages\ControlPanel\HomePage.xaml">
-	    <Generator>MSBuild:Compile</Generator>
-	  </Page>
-	</ItemGroup>
-	<ItemGroup>
-	  <Page Update="Rebound\Pages\ControlPanel\AppearanceAndPersonalization.xaml">
-	    <Generator>MSBuild:Compile</Generator>
-	  </Page>
-	</ItemGroup>
-	<ItemGroup>
 	  <Page Update="InstallationWindow.xaml">
-	    <Generator>MSBuild:Compile</Generator>
-	  </Page>
-	</ItemGroup>
-	<ItemGroup>
-	  <Page Update="Rebound\Pages\ControlPanel\ModernHomePage.xaml">
 	    <Generator>MSBuild:Compile</Generator>
 	  </Page>
 	</ItemGroup>
@@ -305,16 +275,6 @@
 	</ItemGroup>
 	<ItemGroup>
 	  <Page Update="UninstallationWindow.xaml">
-	    <Generator>MSBuild:Compile</Generator>
-	  </Page>
-	</ItemGroup>
-	<ItemGroup>
-	  <Page Update="Rebound\UserControls\HomePageHeaderImage.xaml">
-	    <Generator>MSBuild:Compile</Generator>
-	  </Page>
-	</ItemGroup>
-	<ItemGroup>
-	  <Page Update="Rebound\Pages\ControlPanel\WindowsTools.xaml">
 	    <Generator>MSBuild:Compile</Generator>
 	  </Page>
 	</ItemGroup>

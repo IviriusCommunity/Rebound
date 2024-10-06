@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <Page
-    x:Class="Rebound.Rebound.Pages.HomePage"
+    x:Class="Rebound.Pages.HomePage"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:ToolkitControls="using:CommunityToolkit.WinUI.UI.Controls"
@@ -10,7 +10,7 @@
     xmlns:header="using:WinUIGallery.Controls"
     xmlns:interactivity="using:Microsoft.Xaml.Interactivity"
     xmlns:ivirius="using:Ivirius.UI.Controls"
-    xmlns:local="using:Rebound.Rebound.Pages"
+    xmlns:local="using:Rebound.Pages"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     mc:Ignorable="d">
 
