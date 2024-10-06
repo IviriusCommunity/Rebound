@@ -3,8 +3,8 @@
 <p align="center">
   <!--<a style="text-decoration:none" href="https://github.com/IviriusCommunity/ReboundHub/actions/workflows/ci.yml">
     <img src="https://github.com/IviriusCommunity/ReboundHub/actions/workflows/ci.yml/badge.svg" alt="CI Status" /></a>-->
-  <a style="text-decoration:none" href="https://dsc.gg/ivirius">
-    <img src="https://img.shields.io/discord/1137161703000375336?label=Discord&color=7289da" alt="Discord" /></a>
+  <!--<a style="text-decoration:none" href="https://dsc.gg/ivirius">
+    <img src="https://img.shields.io/discord/1137161703000375336?label=Discord&color=7289da" alt="Discord" /></a>-->
 </p>
 
 **Windows 11 done right.** Rebound 11 is a comprehensive enhancement project for Windows 11, designed to bring consistency with WinUI 3 apps without compromising system security or modifying essential system files.
