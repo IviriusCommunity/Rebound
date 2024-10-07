@@ -37,4 +37,4 @@ jobs:
 
       - name: Build ${{ matrix.project }}
         shell: pwsh
-        run: msbuild ${{ matrix.project }} /p:Configuration=Release /p:Runtime=x64 /r
+        run: msbuild ${{ matrix.project }} /p:Configuration=Debug;Runtime=x64 /r
