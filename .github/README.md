@@ -75,4 +75,4 @@ Rebound 11 has been tested and is compatible with the following security softwar
 [![Windows Security](https://img.shields.io/badge/Windows%20Security-4466FF?style=flat)](https://www.microsoft.com/windows/comprehensive-security?r=1)
 [![ESET](https://img.shields.io/badge/ESET-22BBCC?style=flat)](https://www.eset.com/)
 
-For full terms, refer to the [Rebound 11 EULA](https://ivirius.vercel.app/eula).
+<!--For full terms, refer to the [Rebound 11 EULA](https://ivirius.vercel.app/eula).-->
