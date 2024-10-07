@@ -1,4 +1,4 @@
-![Rebound Hub](https://github.com/user-attachments/assets/d3a0ac8e-f449-4475-9f51-aae1fdc0492e)
+![Rebound Hub](https://github.com/user-attachments/assets/7d72f5ef-b02a-42bd-a2ba-0096ed446478)
 
 <!--<p align="center">
   <a style="text-decoration:none" href="https://github.com/IviriusCommunity/ReboundHub/actions/workflows/ci.yml">
