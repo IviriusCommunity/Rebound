@@ -51,6 +51,9 @@ public sealed partial class MainWindow : WindowEx
 
         Rehook();
         CheckWindow();
+
+        this.MinHeight = 750;
+        this.MinWidth = 700;
     }
 
     public async void Rehook()
