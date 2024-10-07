@@ -38,4 +38,4 @@ jobs:
 
       - name: Build ${{ matrix.project }}
         shell: pwsh
-        run: msbuild ${{ matrix.project }} /p:Configuration=Debug;Platform=x64 /r
+        run: msbuild ${{ matrix.project }} /p:Configuration=Debug /r
