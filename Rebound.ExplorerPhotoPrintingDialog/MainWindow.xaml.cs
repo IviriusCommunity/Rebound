@@ -1,16 +1,19 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Drawing.Printing;
 using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Runtime.InteropServices.WindowsRuntime;
+using System.Threading.Tasks;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Controls.Primitives;
 using Microsoft.UI.Xaml.Data;
 using Microsoft.UI.Xaml.Input;
 using Microsoft.UI.Xaml.Media;
+using Microsoft.UI.Xaml.Media.Imaging;
 using Microsoft.UI.Xaml.Navigation;
 using Microsoft.UI.Xaml.Printing;
 using Windows.Foundation;
@@ -32,13 +35,34 @@ public sealed partial class MainWindow : Window
         this.InitializeComponent();
     }
 
+    public async Task<byte[]> RenderUIElementToBytes(FrameworkElement element)
+    {
+        // Create a RenderTargetBitmap object
+        RenderTargetBitmap renderTargetBitmap = new RenderTargetBitmap();
+
+        // Render the element
+        await renderTargetBitmap.RenderAsync(element);
+
+        // Get the pixel buffer
+        var pixelBuffer = await renderTargetBitmap.GetPixelsAsync();
+
+        // Convert the pixel buffer to byte array
+        byte[] pixels = pixelBuffer.ToArray();
+
+        // You can now use these bytes to send to the printer
+        return pixels;
+    }
+
     public static string GetFirstPrinterName()
     {
         // Get all available printers
         foreach (string printer in PrinterSettings.InstalledPrinters)
         {
+            if (printer.Contains("EPSON"))
+                return printer;
+            Debug.WriteLine(printer);
             // Return the name of the first available printer
-            return printer;
+            //return printer;
         }
 
         return null; // If no printer is found
@@ -47,7 +71,19 @@ public sealed partial class MainWindow : Window
     private async void myButton_Click(object sender, RoutedEventArgs e)
     {
         myButton.Content = "Clicked";
-        RawPrintingService.SendStringToPrinter(GetFirstPrinterName(), "EEEEEEEEEEEEEEEEEEEE");
+        // Render the element to a byte array
+        byte[] elementBytes = await RenderUIElementToBytes(fff);
+
+        // Allocate memory for the byte array
+        IntPtr pUnmanagedBytes = Marshal.AllocCoTaskMem(elementBytes.Length);
+        Marshal.Copy(elementBytes, 0, pUnmanagedBytes, elementBytes.Length);
+
+        // Send the bytes to the printer
+
+        RawPrintingService.SendStringToPrinter(GetFirstPrinterName(), "Eeeeeeeeeeeeeeeeeee");
+        return;
+        bool result = RawPrintingService.SendBytesToPrinter(GetFirstPrinterName(), pUnmanagedBytes, elementBytes.Length);
+
         /*RegisterPrint();
         try
         {
