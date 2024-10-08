@@ -17,7 +17,7 @@
 ## 🎁 Getting started
 
 > [!WARNING]
-> Rebound 11 may use a significant amount of system resources. Please refer to the [minimum requirements](#minimum-requirements) before installation.
+> Rebound 11 may use a significant amount of system resources. Please refer to the [minimum requirements](#%EF%B8%8F-minimum-requirements) before installation.
 
 1. **Download Rebound Hub** online [on GitHub](https://github.com/IviriusCommunity/ReboundHub/releases/latest) (download `ReboundHubInstaller.exe`).
 2. **Run the Installer**: Follow the on-screen instructions to install Rebound Hub.
