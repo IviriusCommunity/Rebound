@@ -21,9 +21,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Rebound.InteractiveDialog",
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Rebound.Helpers", "Helpers\Rebound.Helpers.csproj", "{18FE94FE-0938-4C36-AC0E-E99F90622293}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Rebound.ExplorerPhotoPrintingDialog", "Rebound.ExplorerPhotoPrintingDialog\Rebound.ExplorerPhotoPrintingDialog.csproj", "{B7BE98BB-3C39-4407-A792-F13A560B81F7}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Rebound.ExplorerPhotoPrintingDialog", "ExplorerPhotoPrintingDialog\Rebound.ExplorerPhotoPrintingDialog.csproj", "{B7BE98BB-3C39-4407-A792-F13A560B81F7}"
 EndProject
-Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "Rebound.Delivery", "Rebound.Delivery\Rebound.Delivery.shproj", "{B6C8C1F3-644E-475F-84C6-214243620014}"
+Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "Rebound.Delivery", "Delivery\Rebound.Delivery.shproj", "{B6C8C1F3-644E-475F-84C6-214243620014}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
