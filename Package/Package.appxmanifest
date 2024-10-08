@@ -8,16 +8,16 @@
   IgnorableNamespaces="uap rescap">
 
   <Identity
-    Name="6e9ac3fd-5005-4d31-b805-3d591862d51e"
-    Publisher="CN=notla"
-    Version="1.0.0.0" />
+    Name="d6ef5e04-e9da-4e22-9782-8031af8beae7"
+    Publisher="CN=Ivirius"
+    Version="0.0.3.0" />
 
-  <mp:PhoneIdentity PhoneProductId="6e9ac3fd-5005-4d31-b805-3d591862d51e" PhonePublisherId="00000000-0000-0000-0000-000000000000"/>
+  <mp:PhoneIdentity PhoneProductId="d6ef5e04-e9da-4e22-9782-8031af8beae7" PhonePublisherId="00000000-0000-0000-0000-000000000000"/>
 
   <Properties>
-    <DisplayName>Rebound.Installer (Package)</DisplayName>
-    <PublisherDisplayName>notla</PublisherDisplayName>
-    <Logo>Images\StoreLogo.png</Logo>
+    <DisplayName>Rebound</DisplayName>
+    <PublisherDisplayName>Lenovo</PublisherDisplayName>
+    <Logo>Assets\StoreLogo.png</Logo>
   </Properties>
 
   <Dependencies>
@@ -30,22 +30,48 @@
   </Resources>
 
   <Applications>
-    <Application Id="App"
-      Executable="$targetnametoken$.exe"
-      EntryPoint="$targetentrypoint$">
+    <Application Id="Hub"
+      Executable="Rebound.exe"
+      EntryPoint="Rebound.App">
       <uap:VisualElements
-        DisplayName="Rebound.Installer (Package)"
-        Description="Rebound.Installer (Package)"
+        DisplayName="Rebound Hub"
+        Description="Rebound Hub"
         BackgroundColor="transparent"
-        Square150x150Logo="Images\Square150x150Logo.png"
-        Square44x44Logo="Images\Square44x44Logo.png">
-        <uap:DefaultTile Wide310x150Logo="Images\Wide310x150Logo.png" />
+        Square150x150Logo="Assets\Square150x150Logo.png"
+        Square44x44Logo="Assets\Square44x44Logo.png">
+        <uap:DefaultTile Wide310x150Logo="Rebound\Assets\Wide310x150Logo.png"  Square71x71Logo="Rebound\Assets\SmallTile.png" Square310x310Logo="Rebound\Assets\LargeTile.png"/>
+        <uap:SplashScreen Image="Assets\SplashScreen.png" />
+      </uap:VisualElements>
+    </Application>
+    <Application Id="Installer"
+      Executable="Rebound.Installer\Rebound.Installer.exe"
+      EntryPoint="Rebound.Installer.Entrypoint">
+      <uap:VisualElements
+        DisplayName="Rebound 11"
+        Description="Rebound 11"
+        BackgroundColor="transparent"
+        Square150x150Logo="Assets\Square150x150Logo.png"
+        Square44x44Logo="Assets\Square44x44Logo.png">
+        <uap:DefaultTile Wide310x150Logo="Images\Wide310x150Logo.png"  Square71x71Logo="Images\SmallTile.png" Square310x310Logo="Images\LargeTile.png"/>
         <uap:SplashScreen Image="Images\SplashScreen.png" />
       </uap:VisualElements>
     </Application>
   </Applications>
 
   <Capabilities>
-    <rescap:Capability Name="runFullTrust" />
+        <rescap:Capability Name="runFullTrust" />
+        <rescap:Capability Name="broadFileSystemAccess" />
+        <rescap:Capability Name="allowElevation" />
+        <!--
+            The unvirtualizedResources capability is used to support file operations in the AppData directory.
+        -->
+        <rescap:Capability Name="unvirtualizedResources" />
+        <!--
+            The packageManagement capability is used to download updates in the sideload version of Files.
+            We only use this capability in the sideload version and remove it when compiling the store vesion in Azure DevOps.
+        -->
+        <rescap:Capability Name="packageManagement" />
+        <uap:Capability Name="removableStorage" />
+        <Capability Name="internetClient" />
   </Capabilities>
 </Package>
