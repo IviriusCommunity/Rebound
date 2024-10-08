@@ -1,8 +1,9 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <OutputType>WinExe</OutputType>
-    <TargetFramework>net8.0-windows10.0.19041.0</TargetFramework>
-    <TargetPlatformMinVersion>10.0.17763.0</TargetPlatformMinVersion>
+	  <TargetFramework>net8.0-windows10.0.22621.0</TargetFramework>
+	  <TargetPlatformMinVersion>10.0.17763.0</TargetPlatformMinVersion>
+	  <WindowsSdkPackageVersion>10.0.22621.35-preview</WindowsSdkPackageVersion>
     <RootNamespace>Rebound.Defrag</RootNamespace>
     <ApplicationManifest>app.manifest</ApplicationManifest>
     <Platforms>x86;x64;ARM64</Platforms>
@@ -11,7 +12,6 @@
     <PublishProfile>win-$(Platform).pubxml</PublishProfile>
     <UseWinUI>true</UseWinUI>
     <EnableMsixTooling>true</EnableMsixTooling>
-       <WindowsSdkPackageVersion>10.0.22621.35-preview</WindowsSdkPackageVersion>
        <GenerateAppInstallerFile>True</GenerateAppInstallerFile>
        <AppxPackageSigningEnabled>True</AppxPackageSigningEnabled>
        <AppxPackageSigningTimestampDigestAlgorithm>SHA256</AppxPackageSigningTimestampDigestAlgorithm>
@@ -55,9 +55,10 @@
     <PackageReference Include="Cake.Powershell" Version="4.0.0" />
     <PackageReference Include="HardwareProviders.HDD.Standard" Version="2.0.1" />
     <PackageReference Include="Microsoft-WindowsAPICodePack-Shell" Version="1.1.5" />
-    <PackageReference Include="Microsoft.Windows.CsWinRT" Version="2.1.5" />
-    <PackageReference Include="Microsoft.Windows.SDK.BuildTools" Version="10.0.22621.3233" />
-    <PackageReference Include="Microsoft.WindowsAppSDK" Version="1.6.240701003-experimental2" />
+	  <PackageReference Include="Microsoft.Windows.CsWinRT" Version="2.1.5" />
+	<PackageReference Include="Microsoft.Web.WebView2" Version="1.0.2646-prerelease" />
+	<PackageReference Include="Microsoft.Windows.SDK.BuildTools" Version="10.0.26100.1742" />
+	<PackageReference Include="Microsoft.WindowsAppSDK" Version="1.6.240701003-experimental2" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
     <PackageReference Include="System.Diagnostics.EventLog" Version="9.0.0-preview.6.24327.7" />
     <PackageReference Include="TaskScheduler" Version="2.11.0" />
@@ -100,7 +101,10 @@
     </None>
   </ItemGroup>
   <ItemGroup>
-    <None Include="..\.github\README.md" Pack="true" PackagePath="\"/>
+    <None Include="..\.github\README.md" Pack="true" PackagePath="\" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Helpers\Rebound.Helpers.csproj" />
   </ItemGroup>
 
   <PropertyGroup Condition="'$(DisableHasPackageAndPublishMenuAddedByProject)'!='true' and '$(EnableMsixTooling)'=='true'">

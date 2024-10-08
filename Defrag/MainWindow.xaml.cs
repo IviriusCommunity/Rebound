@@ -634,40 +634,22 @@ namespace Rebound.Defrag
 
                     MyListView.SelectedIndex = ((List<DiskItem?>)MyListView.ItemsSource).IndexOf(item);
 
-                    string scriptPath = "C:\\Rebound11\\rdfrgui.ps1";
                     string? volume = item?.DriveLetter?.ToString().Remove(1, 2);
                     string arguments = $@"
-$job = Start-Job -ScriptBlock {{
-    $global:OutputLines = @()
-    
-    # Capture all output including verbose messages
-    Optimize-Volume -DriveLetter {volume} -Defrag -Verbose | ForEach-Object {{
-        # Check if it's a progress update
-        if ($_ -like ""*Progress*"") {{
-            Write-Output ""Progress: $_""  # Modify to capture progress as needed
-        }} else {{
-            $global:OutputLines += $_
-            Write-Output $_  # Output normal messages
-        }}
+$global:OutputLines = @()
+
+Optimize-Volume -DriveLetter {volume} {(item.MediaType.Contains("HDD") == true ? "-Defrag" : "-Retrim")} -Verbose | ForEach-Object {{
+    if ($_ -like '*Progress*') {{
+        Write-Output ""Progress: $_""
+    }} else {{
+        $global:OutputLines += $_
+        Write-Output $_
     }}
 }}
 
-while ($job.State -eq 'Running') {{
-    Clear-Host
-    Start-Sleep -Seconds 0.01
-    $output = Receive-Job -Id $job.Id -Keep
-    if ($output) {{
-        Write-Output $output[-1]  # Output the last line
-    }}
-}}
-
-# Final output after the job completes
-Receive-Job -Id $job.Id | ForEach-Object {{ Write-Output $_ }}
+$global:OutputLines
 
 ";
-
-                    // Ensure the script is written before proceeding
-                    await File.WriteAllTextAsync(scriptPath, arguments);
 
                     try
                     {
@@ -680,7 +662,7 @@ Receive-Job -Id $job.Id | ForEach-Object {{ Write-Output $_ }}
                         var processInfo = new ProcessStartInfo
                         {
                             FileName = "powershell.exe",
-                            Arguments = $"-ExecutionPolicy Bypass -File \"{scriptPath}\"",  // Use -File to execute the script
+                            Arguments = $"-ExecutionPolicy Bypass -Command \"{arguments}\"",  // Use -File to execute the script
                             RedirectStandardOutput = true,
                             RedirectStandardError = true,
                             UseShellExecute = false,
@@ -760,7 +742,6 @@ Receive-Job -Id $job.Id | ForEach-Object {{ Write-Output $_ }}
                         updateData = false;
                         Lock(true);
                         LoadSelectedItemInfo(GetStatus());
-                        File.Delete(scriptPath);
                         alreadyUsed.Clear();
                         CurrentProgress.Value = 0;
                         SetProgressState(TaskbarProgressBarState.NoProgress);
@@ -821,40 +802,22 @@ Receive-Job -Id $job.Id | ForEach-Object {{ Write-Output $_ }}
             {
                 Lock(false, "Optimizing...", true);
 
-                string scriptPath = "C:\\Rebound11\\rdfrgui.ps1";
                 string? volume = item.DriveLetter?.ToString().Remove(1, 2);
                 string arguments = $@"
-$job = Start-Job -ScriptBlock {{
-    $global:OutputLines = @()
-    
-    # Capture all output including verbose messages
-    Optimize-Volume -DriveLetter {volume} -Defrag -Verbose | ForEach-Object {{
-        # Check if it's a progress update
-        if ($_ -like ""*Progress*"") {{
-            Write-Output ""Progress: $_""  # Modify to capture progress as needed
-        }} else {{
-            $global:OutputLines += $_
-            Write-Output $_  # Output normal messages
-        }}
+$global:OutputLines = @()
+
+Optimize-Volume -DriveLetter {volume} {(item.MediaType.Contains("HDD") == true ? "-Defrag" : "-Retrim")} -Verbose | ForEach-Object {{
+    if ($_ -like '*Progress*') {{
+        Write-Output ""Progress: $_""
+    }} else {{
+        $global:OutputLines += $_
+        Write-Output $_
     }}
 }}
 
-while ($job.State -eq 'Running') {{
-    Clear-Host
-    Start-Sleep -Seconds 0.01
-    $output = Receive-Job -Id $job.Id -Keep
-    if ($output) {{
-        Write-Output $output[-1]  # Output the last line
-    }}
-}}
-
-# Final output after the job completes
-Receive-Job -Id $job.Id | ForEach-Object {{ Write-Output $_ }}
+$global:OutputLines
 
 ";
-
-                // Ensure the script is written before proceeding
-                await File.WriteAllTextAsync(scriptPath, arguments);
 
                 try
                 {
@@ -870,7 +833,7 @@ Receive-Job -Id $job.Id | ForEach-Object {{ Write-Output $_ }}
                     var processInfo = new ProcessStartInfo
                     {
                         FileName = "powershell.exe",
-                        Arguments = $"-ExecutionPolicy Bypass -File \"{scriptPath}\"",  // Use -File to execute the script
+                        Arguments = $"-ExecutionPolicy Bypass -Command \"{arguments}\"",  // Use -File to execute the script
                         RedirectStandardOutput = true,
                         RedirectStandardError = true,
                         UseShellExecute = false,
@@ -950,7 +913,6 @@ Receive-Job -Id $job.Id | ForEach-Object {{ Write-Output $_ }}
                     updateData = false;
                     Lock(true, "", false);
                     LoadSelectedItemInfo(GetStatus());
-                    File.Delete(scriptPath);
                     alreadyUsed.Clear();
                     CurrentProgress.Value = 0;
                     SetProgressState(TaskbarProgressBarState.NoProgress);
