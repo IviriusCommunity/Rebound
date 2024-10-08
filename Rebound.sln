@@ -21,11 +21,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Rebound.InteractiveDialog",
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Rebound.Helpers", "Helpers\Rebound.Helpers.csproj", "{18FE94FE-0938-4C36-AC0E-E99F90622293}"
 EndProject
-Project("{C7167F0D-BC9F-4E6E-AFE1-012C56B48DB5}") = "Rebound.Package", "Package\Rebound.Package.wapproj", "{4C2C8341-BF75-4BFC-BEB8-AB1EF0746A64}"
-EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Rebound.Installer", "Installer\Rebound.Installer.csproj", "{B6DEFC5E-AC6C-44F8-A336-96C123D046A5}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Rebound.ExplorerPhotoPrintingDialog", "Rebound.ExplorerPhotoPrintingDialog\Rebound.ExplorerPhotoPrintingDialog.csproj", "{B7BE98BB-3C39-4407-A792-F13A560B81F7}"
+EndProject
+Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "Rebound.Delivery", "Rebound.Delivery\Rebound.Delivery.shproj", "{B6C8C1F3-644E-475F-84C6-214243620014}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -247,46 +245,6 @@ Global
 		{18FE94FE-0938-4C36-AC0E-E99F90622293}.Release|x64.Build.0 = Release|Any CPU
 		{18FE94FE-0938-4C36-AC0E-E99F90622293}.Release|x86.ActiveCfg = Release|Any CPU
 		{18FE94FE-0938-4C36-AC0E-E99F90622293}.Release|x86.Build.0 = Release|Any CPU
-		{4C2C8341-BF75-4BFC-BEB8-AB1EF0746A64}.Debug|Any CPU.ActiveCfg = Debug|x64
-		{4C2C8341-BF75-4BFC-BEB8-AB1EF0746A64}.Debug|Any CPU.Build.0 = Debug|x64
-		{4C2C8341-BF75-4BFC-BEB8-AB1EF0746A64}.Debug|Any CPU.Deploy.0 = Debug|x64
-		{4C2C8341-BF75-4BFC-BEB8-AB1EF0746A64}.Debug|ARM64.ActiveCfg = Debug|ARM64
-		{4C2C8341-BF75-4BFC-BEB8-AB1EF0746A64}.Debug|ARM64.Build.0 = Debug|ARM64
-		{4C2C8341-BF75-4BFC-BEB8-AB1EF0746A64}.Debug|ARM64.Deploy.0 = Debug|ARM64
-		{4C2C8341-BF75-4BFC-BEB8-AB1EF0746A64}.Debug|x64.ActiveCfg = Debug|x64
-		{4C2C8341-BF75-4BFC-BEB8-AB1EF0746A64}.Debug|x64.Build.0 = Debug|x64
-		{4C2C8341-BF75-4BFC-BEB8-AB1EF0746A64}.Debug|x64.Deploy.0 = Debug|x64
-		{4C2C8341-BF75-4BFC-BEB8-AB1EF0746A64}.Debug|x86.ActiveCfg = Debug|x86
-		{4C2C8341-BF75-4BFC-BEB8-AB1EF0746A64}.Debug|x86.Build.0 = Debug|x86
-		{4C2C8341-BF75-4BFC-BEB8-AB1EF0746A64}.Debug|x86.Deploy.0 = Debug|x86
-		{4C2C8341-BF75-4BFC-BEB8-AB1EF0746A64}.Release|Any CPU.ActiveCfg = Release|x64
-		{4C2C8341-BF75-4BFC-BEB8-AB1EF0746A64}.Release|Any CPU.Build.0 = Release|x64
-		{4C2C8341-BF75-4BFC-BEB8-AB1EF0746A64}.Release|Any CPU.Deploy.0 = Release|x64
-		{4C2C8341-BF75-4BFC-BEB8-AB1EF0746A64}.Release|ARM64.ActiveCfg = Release|ARM64
-		{4C2C8341-BF75-4BFC-BEB8-AB1EF0746A64}.Release|ARM64.Build.0 = Release|ARM64
-		{4C2C8341-BF75-4BFC-BEB8-AB1EF0746A64}.Release|ARM64.Deploy.0 = Release|ARM64
-		{4C2C8341-BF75-4BFC-BEB8-AB1EF0746A64}.Release|x64.ActiveCfg = Release|x64
-		{4C2C8341-BF75-4BFC-BEB8-AB1EF0746A64}.Release|x64.Build.0 = Release|x64
-		{4C2C8341-BF75-4BFC-BEB8-AB1EF0746A64}.Release|x64.Deploy.0 = Release|x64
-		{4C2C8341-BF75-4BFC-BEB8-AB1EF0746A64}.Release|x86.ActiveCfg = Release|x86
-		{4C2C8341-BF75-4BFC-BEB8-AB1EF0746A64}.Release|x86.Build.0 = Release|x86
-		{4C2C8341-BF75-4BFC-BEB8-AB1EF0746A64}.Release|x86.Deploy.0 = Release|x86
-		{B6DEFC5E-AC6C-44F8-A336-96C123D046A5}.Debug|Any CPU.ActiveCfg = Debug|x64
-		{B6DEFC5E-AC6C-44F8-A336-96C123D046A5}.Debug|Any CPU.Build.0 = Debug|x64
-		{B6DEFC5E-AC6C-44F8-A336-96C123D046A5}.Debug|ARM64.ActiveCfg = Debug|ARM64
-		{B6DEFC5E-AC6C-44F8-A336-96C123D046A5}.Debug|ARM64.Build.0 = Debug|ARM64
-		{B6DEFC5E-AC6C-44F8-A336-96C123D046A5}.Debug|x64.ActiveCfg = Debug|x64
-		{B6DEFC5E-AC6C-44F8-A336-96C123D046A5}.Debug|x64.Build.0 = Debug|x64
-		{B6DEFC5E-AC6C-44F8-A336-96C123D046A5}.Debug|x86.ActiveCfg = Debug|x86
-		{B6DEFC5E-AC6C-44F8-A336-96C123D046A5}.Debug|x86.Build.0 = Debug|x86
-		{B6DEFC5E-AC6C-44F8-A336-96C123D046A5}.Release|Any CPU.ActiveCfg = Release|x64
-		{B6DEFC5E-AC6C-44F8-A336-96C123D046A5}.Release|Any CPU.Build.0 = Release|x64
-		{B6DEFC5E-AC6C-44F8-A336-96C123D046A5}.Release|ARM64.ActiveCfg = Release|ARM64
-		{B6DEFC5E-AC6C-44F8-A336-96C123D046A5}.Release|ARM64.Build.0 = Release|ARM64
-		{B6DEFC5E-AC6C-44F8-A336-96C123D046A5}.Release|x64.ActiveCfg = Release|x64
-		{B6DEFC5E-AC6C-44F8-A336-96C123D046A5}.Release|x64.Build.0 = Release|x64
-		{B6DEFC5E-AC6C-44F8-A336-96C123D046A5}.Release|x86.ActiveCfg = Release|x86
-		{B6DEFC5E-AC6C-44F8-A336-96C123D046A5}.Release|x86.Build.0 = Release|x86
 		{B7BE98BB-3C39-4407-A792-F13A560B81F7}.Debug|Any CPU.ActiveCfg = Debug|x64
 		{B7BE98BB-3C39-4407-A792-F13A560B81F7}.Debug|Any CPU.Build.0 = Debug|x64
 		{B7BE98BB-3C39-4407-A792-F13A560B81F7}.Debug|Any CPU.Deploy.0 = Debug|x64
@@ -317,5 +275,9 @@ Global
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {F46D9F10-D75A-4C1E-99F0-14EE79D20EDE}
+	EndGlobalSection
+	GlobalSection(SharedMSBuildProjectFiles) = preSolution
+		Rebound.Delivery\Rebound.Delivery.projitems*{4c58bab7-f9d6-48ab-b20d-c8f6413d6e34}*SharedItemsImports = 5
+		Rebound.Delivery\Rebound.Delivery.projitems*{b6c8c1f3-644e-475f-84c6-214243620014}*SharedItemsImports = 13
 	EndGlobalSection
 EndGlobal
