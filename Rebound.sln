@@ -3,27 +3,29 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.9.34616.47
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Rebound", "Rebound\Rebound.csproj", "{4C58BAB7-F9D6-48AB-B20D-C8F6413D6E34}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Rebound", "Rebound\Rebound.csproj", "{4C58BAB7-F9D6-48AB-B20D-C8F6413D6E34}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Rebound.Defrag", "Defrag\Rebound.Defrag.csproj", "{86C0359D-C08A-4963-9B77-2400F5039232}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Rebound.Defrag", "Defrag\Rebound.Defrag.csproj", "{86C0359D-C08A-4963-9B77-2400F5039232}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Rebound.Cleanup", "Cleanup\Rebound.Cleanup.csproj", "{C946D646-4659-4B05-91A2-15FF51D736D5}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Rebound.Cleanup", "Cleanup\Rebound.Cleanup.csproj", "{C946D646-4659-4B05-91A2-15FF51D736D5}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Rebound.Run", "Run\Rebound.Run.csproj", "{632D4E75-5E9A-4F8E-A80D-F88C5EB8BD66}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Rebound.Run", "Run\Rebound.Run.csproj", "{632D4E75-5E9A-4F8E-A80D-F88C5EB8BD66}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Rebound.SysInfo", "SysInfo\Rebound.SysInfo.csproj", "{389B26A3-70CA-4200-8CFA-88A131E909E2}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Rebound.SysInfo", "SysInfo\Rebound.SysInfo.csproj", "{389B26A3-70CA-4200-8CFA-88A131E909E2}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Rebound.TrustedPlatform", "TrustedPlatform\Rebound.TrustedPlatform.csproj", "{27052CF4-EC88-4FCB-8B2C-6D45ABFA7BB6}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Rebound.TrustedPlatform", "TrustedPlatform\Rebound.TrustedPlatform.csproj", "{27052CF4-EC88-4FCB-8B2C-6D45ABFA7BB6}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Rebound.About", "About\Rebound.About.csproj", "{BF701670-43B6-4621-9564-84215313590C}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Rebound.About", "About\Rebound.About.csproj", "{BF701670-43B6-4621-9564-84215313590C}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Rebound.InteractiveDialog", "InteractiveDialog\Rebound.InteractiveDialog.csproj", "{D04E2A2C-C9D1-4243-9347-7AC854399ADE}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Rebound.InteractiveDialog", "InteractiveDialog\Rebound.InteractiveDialog.csproj", "{D04E2A2C-C9D1-4243-9347-7AC854399ADE}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Rebound.Helpers", "Helpers\Rebound.Helpers.csproj", "{18FE94FE-0938-4C36-AC0E-E99F90622293}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Rebound.Helpers", "Helpers\Rebound.Helpers.csproj", "{18FE94FE-0938-4C36-AC0E-E99F90622293}"
 EndProject
 Project("{C7167F0D-BC9F-4E6E-AFE1-012C56B48DB5}") = "Rebound.Package", "Package\Rebound.Package.wapproj", "{4C2C8341-BF75-4BFC-BEB8-AB1EF0746A64}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Rebound.Installer", "Installer\Rebound.Installer.csproj", "{B6DEFC5E-AC6C-44F8-A336-96C123D046A5}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Rebound.Installer", "Installer\Rebound.Installer.csproj", "{B6DEFC5E-AC6C-44F8-A336-96C123D046A5}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Rebound.ExplorerPhotoPrintingDialog", "Rebound.ExplorerPhotoPrintingDialog\Rebound.ExplorerPhotoPrintingDialog.csproj", "{B7BE98BB-3C39-4407-A792-F13A560B81F7}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -285,6 +287,30 @@ Global
 		{B6DEFC5E-AC6C-44F8-A336-96C123D046A5}.Release|x64.Build.0 = Release|x64
 		{B6DEFC5E-AC6C-44F8-A336-96C123D046A5}.Release|x86.ActiveCfg = Release|x86
 		{B6DEFC5E-AC6C-44F8-A336-96C123D046A5}.Release|x86.Build.0 = Release|x86
+		{B7BE98BB-3C39-4407-A792-F13A560B81F7}.Debug|Any CPU.ActiveCfg = Debug|x64
+		{B7BE98BB-3C39-4407-A792-F13A560B81F7}.Debug|Any CPU.Build.0 = Debug|x64
+		{B7BE98BB-3C39-4407-A792-F13A560B81F7}.Debug|Any CPU.Deploy.0 = Debug|x64
+		{B7BE98BB-3C39-4407-A792-F13A560B81F7}.Debug|ARM64.ActiveCfg = Debug|ARM64
+		{B7BE98BB-3C39-4407-A792-F13A560B81F7}.Debug|ARM64.Build.0 = Debug|ARM64
+		{B7BE98BB-3C39-4407-A792-F13A560B81F7}.Debug|ARM64.Deploy.0 = Debug|ARM64
+		{B7BE98BB-3C39-4407-A792-F13A560B81F7}.Debug|x64.ActiveCfg = Debug|x64
+		{B7BE98BB-3C39-4407-A792-F13A560B81F7}.Debug|x64.Build.0 = Debug|x64
+		{B7BE98BB-3C39-4407-A792-F13A560B81F7}.Debug|x64.Deploy.0 = Debug|x64
+		{B7BE98BB-3C39-4407-A792-F13A560B81F7}.Debug|x86.ActiveCfg = Debug|x86
+		{B7BE98BB-3C39-4407-A792-F13A560B81F7}.Debug|x86.Build.0 = Debug|x86
+		{B7BE98BB-3C39-4407-A792-F13A560B81F7}.Debug|x86.Deploy.0 = Debug|x86
+		{B7BE98BB-3C39-4407-A792-F13A560B81F7}.Release|Any CPU.ActiveCfg = Release|x64
+		{B7BE98BB-3C39-4407-A792-F13A560B81F7}.Release|Any CPU.Build.0 = Release|x64
+		{B7BE98BB-3C39-4407-A792-F13A560B81F7}.Release|Any CPU.Deploy.0 = Release|x64
+		{B7BE98BB-3C39-4407-A792-F13A560B81F7}.Release|ARM64.ActiveCfg = Release|ARM64
+		{B7BE98BB-3C39-4407-A792-F13A560B81F7}.Release|ARM64.Build.0 = Release|ARM64
+		{B7BE98BB-3C39-4407-A792-F13A560B81F7}.Release|ARM64.Deploy.0 = Release|ARM64
+		{B7BE98BB-3C39-4407-A792-F13A560B81F7}.Release|x64.ActiveCfg = Release|x64
+		{B7BE98BB-3C39-4407-A792-F13A560B81F7}.Release|x64.Build.0 = Release|x64
+		{B7BE98BB-3C39-4407-A792-F13A560B81F7}.Release|x64.Deploy.0 = Release|x64
+		{B7BE98BB-3C39-4407-A792-F13A560B81F7}.Release|x86.ActiveCfg = Release|x86
+		{B7BE98BB-3C39-4407-A792-F13A560B81F7}.Release|x86.Build.0 = Release|x86
+		{B7BE98BB-3C39-4407-A792-F13A560B81F7}.Release|x86.Deploy.0 = Release|x86
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

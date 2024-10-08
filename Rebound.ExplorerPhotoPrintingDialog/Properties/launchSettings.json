@@ -1,0 +1,10 @@
+{
+  "profiles": {
+    "Rebound.ExplorerPhotoPrintingDialog (Package)": {
+      "commandName": "MsixPackage"
+    },
+    "Rebound.ExplorerPhotoPrintingDialog (Unpackaged)": {
+      "commandName": "Project"
+    }
+  }
+}
