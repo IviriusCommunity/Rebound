@@ -320,4 +320,5 @@
 	    <Generator>MSBuild:Compile</Generator>
 	  </Page>
 	</ItemGroup>
+	<Import Project="..\Rebound.Delivery\Rebound.Delivery.projitems" Label="Shared" />
 </Project>
