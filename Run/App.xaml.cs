@@ -5,6 +5,7 @@ using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 using IWshRuntimeLibrary;
 using Microsoft.UI.Xaml;
+using Rebound.Helpers;
 using Rebound.Run.Helpers;
 using Windows.System;
 using Windows.UI.Input.Preview.Injection;

@@ -94,7 +94,10 @@
 		</None>
 	</ItemGroup>
 	<ItemGroup>
-		<None Include="..\.github\README.md" Pack="true" PackagePath="\"/>
+		<None Include="..\.github\README.md" Pack="true" PackagePath="\" />
+	</ItemGroup>
+	<ItemGroup>
+	  <ProjectReference Include="..\Helpers\Rebound.Helpers.csproj" />
 	</ItemGroup>
 
 	<PropertyGroup>

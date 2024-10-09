@@ -111,18 +111,19 @@
     <HasPackageAndPublishMenu>true</HasPackageAndPublishMenu>
   </PropertyGroup>
   <PropertyGroup>
-    <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
+    <GeneratePackageOnBuild>False</GeneratePackageOnBuild>
     <Authors>Riverside, ErrorTek, Lamparter</Authors>
     <PackageProjectUrl>https://ivirius.vercel.app</PackageProjectUrl>
     <Title>Defragment and Optimize Drives</Title>
     <PackageId>Riverside.Rebound.Defrag</PackageId>
     <Copyright>Copyright (c) 2024-present Ivirius Community</Copyright>
-    <Description>Windows 11 done right.</Description>
+    <Description>Modern dfrgui app for Windows 11.</Description>
     <PackageIcon>Rebound11Icon.png</PackageIcon>
     <IncludeSymbols>true</IncludeSymbols>
     <SymbolPackageFormat>snupkg</SymbolPackageFormat>
     <Version>0.0.3</Version>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <PackageReadmeFile>README.md</PackageReadmeFile>
+    <AssemblyName>Rebound Defragment and Optimize Drives</AssemblyName>
   </PropertyGroup>
 </Project>

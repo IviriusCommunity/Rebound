@@ -1,17 +1,52 @@
 ﻿using System;
+using System.Diagnostics;
 using System.Linq;
+using System.Threading.Tasks;
 using Microsoft.UI.Xaml;
+using Rebound.Helpers;
+
+#nullable enable
 
 namespace Rebound.Defrag
 {
     public partial class App : Application
     {
+        private readonly SingleInstanceDesktopApp _singleInstanceApp;
+
         public App()
         {
             this.InitializeComponent();
+
+            _singleInstanceApp = new SingleInstanceDesktopApp("Rebound.Defrag");
+            _singleInstanceApp.Launched += OnSingleInstanceLaunched;
         }
 
-        protected override async void OnLaunched(LaunchActivatedEventArgs args)
+        protected override void OnLaunched(LaunchActivatedEventArgs args)
+        {
+            _singleInstanceApp?.Launch(args.Arguments);
+        }
+
+        private async void OnSingleInstanceLaunched(object? sender, SingleInstanceLaunchEventArgs e)
+        {
+            if (e.IsFirstLaunch)
+            {
+                await LaunchWork();
+            }
+            else
+            {
+                // Get the current process
+                Process currentProcess = Process.GetCurrentProcess();
+
+                // Start a new instance of the application
+                if (currentProcess.MainModule != null) Process.Start(currentProcess.MainModule.FileName);
+
+                // Terminate the current process
+                currentProcess?.Kill();
+                return;
+            }
+        }
+
+        private async Task LaunchWork()
         {
             m_window = new MainWindow();
             m_window.Activate();

@@ -7,7 +7,7 @@ using System.Threading;
 
 #nullable enable
 
-namespace Rebound.Run.Helpers
+namespace Rebound.Helpers
 {
     public class SingleInstanceLaunchEventArgs(string arguments, bool isFirstLaunch) : EventArgs
     {
