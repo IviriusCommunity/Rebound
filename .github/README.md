@@ -19,7 +19,7 @@ _Can be installed via Rebound Hub:_ (optional)
 - **Disk Cleanup**: Easily clean up space by removing unnecessary system files.
 - **About Windows**: A more thoughtfully designed `winver` dialog that allows you to view details about your system and copy them.
 - **TPM**: The best way to manage your Trusted Platform Module chip in a new and redesigned way.
-- 
+
 ---
 
 ## 🎁 Getting started
