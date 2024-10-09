@@ -277,7 +277,7 @@ Global
 		SolutionGuid = {F46D9F10-D75A-4C1E-99F0-14EE79D20EDE}
 	EndGlobalSection
 	GlobalSection(SharedMSBuildProjectFiles) = preSolution
-		Rebound.Delivery\Rebound.Delivery.projitems*{4c58bab7-f9d6-48ab-b20d-c8f6413d6e34}*SharedItemsImports = 5
-		Rebound.Delivery\Rebound.Delivery.projitems*{b6c8c1f3-644e-475f-84c6-214243620014}*SharedItemsImports = 13
+		Delivery\Rebound.Delivery.projitems*{4c58bab7-f9d6-48ab-b20d-c8f6413d6e34}*SharedItemsImports = 5
+		Delivery\Rebound.Delivery.projitems*{b6c8c1f3-644e-475f-84c6-214243620014}*SharedItemsImports = 13
 	EndGlobalSection
 EndGlobal
