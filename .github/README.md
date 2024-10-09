@@ -8,10 +8,18 @@
 </p>-->
 
 **Windows 11 done right.** Rebound 11 is a comprehensive enhancement project for Windows 11, designed to bring consistency with WinUI 3 apps without compromising system security or modifying essential system files.
+
+_Included in Rebound Hub:_
 - **Installer**: Efficiently installs Rebound 11 with a simple setup process.
 - **UI Gallery**: Browse and interact with Ivirius' controls and styles.
 - **Control Panel**: Access the Rebound Control Panel for additional configuration and customization options.
 
+_Can be installed via Rebound Hub:_ (optional)
+- **Defragment and Optimize Drives**: Using the same APIs as the original `dfrgui.exe` app but with a more consistent, appealing style.
+- **Disk Cleanup**: Easily clean up space by removing unnecessary system files.
+- **About Windows**: A more thoughtfully designed `winver` dialog that allows you to view details about your system and copy them.
+- **TPM**: The best way to manage your Trusted Platform Module chip in a new and redesigned way.
+- 
 ---
 
 ## 🎁 Getting started
