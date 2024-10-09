@@ -8,4 +8,13 @@
   <PropertyGroup Label="Configuration">
     <Import_RootNamespace>Rebound.Delivery</Import_RootNamespace>
   </PropertyGroup>
+  <ItemGroup>
+    <Folder Include="$(MSBuildThisFileDirectory)AppRT\" />
+    <Folder Include="$(MSBuildThisFileDirectory)MSBuild\" />
+    <Folder Include="$(MSBuildThisFileDirectory)Shortcuts\" />
+    <Folder Include="$(MSBuildThisFileDirectory)RuntimeBinaries\" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="$(MSBuildThisFileDirectory)README.md" />
+  </ItemGroup>
 </Project>
