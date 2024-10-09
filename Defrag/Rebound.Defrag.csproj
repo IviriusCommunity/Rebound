@@ -52,7 +52,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Cake.Powershell" Version="4.0.0" />
+	  <PackageReference Include="Cake.Powershell" Version="4.0.0" />
     <PackageReference Include="HardwareProviders.HDD.Standard" Version="2.0.1" />
     <PackageReference Include="Microsoft-WindowsAPICodePack-Shell" Version="1.1.5" />
 	  <PackageReference Include="Microsoft.Windows.CsWinRT" Version="2.1.5" />
@@ -61,6 +61,7 @@
 	<PackageReference Include="Microsoft.WindowsAppSDK" Version="1.6.240701003-experimental2" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
     <PackageReference Include="System.Diagnostics.EventLog" Version="9.0.0-preview.6.24327.7" />
+    <PackageReference Include="System.Management" Version="8.0.0" />
     <PackageReference Include="TaskScheduler" Version="2.11.0" />
     <PackageReference Include="WinUIEx" Version="2.3.4" />
     <Manifest Include="$(ApplicationManifest)" />

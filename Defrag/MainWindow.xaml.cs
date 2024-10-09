@@ -7,7 +7,6 @@ using System.Management;
 using System.Security.Principal;
 using System.Text;
 using System.Threading.Tasks;
-using HardwareProviders.HDD;
 using Microsoft.UI.Windowing;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;

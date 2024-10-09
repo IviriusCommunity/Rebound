@@ -32,7 +32,6 @@ public class SystemVolumes
     {
         List<VolumeInfo> volumes = [];
 
-        // WMI query to get all volumes, including GUID paths
         var query = "SELECT * FROM Win32_Volume WHERE DriveLetter IS NULL";
         using (ManagementObjectSearcher searcher = new(query))
         {
