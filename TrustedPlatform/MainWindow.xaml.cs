@@ -2,6 +2,8 @@
 using Rebound.Helpers;
 using WinUIEx;
 
+#nullable enable
+
 namespace Rebound.TrustedPlatform;
 
 public sealed partial class MainWindow : WindowEx
@@ -10,23 +12,23 @@ public sealed partial class MainWindow : WindowEx
 
     public MainWindow()
     {
-        this.InitializeComponent();
-        this.SetWindowSize(1100, 750);
-        this.SystemBackdrop = new MicaBackdrop();
-        this.AppWindow.DefaultTitleBarShouldMatchAppModeTheme = true;
+        this?.InitializeComponent();
+        this?.SetWindowSize(1100, 750);
+        SystemBackdrop = new MicaBackdrop();
+        AppWindow.DefaultTitleBarShouldMatchAppModeTheme = true;
         WindowTitle.Text = Title;
         RootFrame.Navigate(typeof(MainPage));
 
         TitleBarService = new(this, AccentStrip, TitleBarIcon, WindowTitle, Close, CrimsonMaxRes, Minimize, MaxResGlyph, ContentGrid);
         TitleBarService.SetWindowIcon($"Assets\\icon.ico");
 
-        this.MinHeight = 600;
-        this.MinWidth = 500; 
+        MinHeight = 600;
+        MinWidth = 500; 
         
         var rects = Display.GetDPIAwareDisplayRect(this);
         if (rects.Height < 900 || rects.Width < 1200)
         {
-            this.MoveAndResize(25, 25, Width - 150, rects.Height - 250);
+            this?.MoveAndResize(25, 25, Width - 150, rects.Height - 250);
         }
     }
 
