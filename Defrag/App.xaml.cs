@@ -62,7 +62,7 @@ namespace Rebound.Defrag
             {
                 try
                 {
-                    (m_window as MainWindow).OptimizeAll(false, true);
+                    (m_window as MainWindow).OptimizeAll(false, (m_window as MainWindow).AdvancedView.IsOn);
                 }
                 catch (Exception ex)
                 {
@@ -73,7 +73,7 @@ namespace Rebound.Defrag
             {
                 try
                 {
-                    (m_window as MainWindow).OptimizeAll(false, false);
+                    (m_window as MainWindow).OptimizeAll(false, (m_window as MainWindow).AdvancedView.IsOn);
                 }
                 catch (Exception ex)
                 {
