@@ -34,17 +34,14 @@ public partial class App : Application
         }
         else
         {
-            // Get the current process
-            var currentProcess = Process.GetCurrentProcess();
-
-            // Start a new instance of the application
-            if (currentProcess.MainModule != null)
+            if (MainAppWindow != null)
             {
-                Process.Start(currentProcess.MainModule.FileName);
+                _ = ((MainWindow)MainAppWindow).BringToFront();
             }
-
-            // Terminate the current process
-            currentProcess?.Kill();
+            else
+            {
+                await LaunchWork();
+            }
             return;
         }
     }
