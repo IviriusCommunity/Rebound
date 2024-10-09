@@ -1,27 +1,13 @@
-﻿using System.Runtime.InteropServices;
-using CommunityToolkit.WinUI.Helpers;
-using Microsoft.Graphics.Display;
-using Microsoft.UI.Windowing;
-using Microsoft.UI.Xaml;
-using Microsoft.UI.Xaml.Input;
-using Microsoft.UI.Xaml.Media;
-using Microsoft.UI.Xaml.Media.Imaging;
-using Microsoft.Win32;
+﻿using Microsoft.UI.Xaml.Media;
 using Rebound.Helpers;
-using Windows.Graphics;
 using WinUIEx;
-using WindowMessageMonitor = WinUIEx.Messaging.WindowMessageMonitor;
-
-// To learn more about WinUI, the WinUI project structure,
-// and more about our project templates, see: http://aka.ms/winui-project-info.
 
 namespace Rebound.TrustedPlatform;
-/// <summary>
-/// An empty window that can be used on its own or navigated to within a Frame.
-/// </summary>
+
 public sealed partial class MainWindow : WindowEx
 {
     public TitleBarService TitleBarService { get; set; }
+
     public MainWindow()
     {
         this.InitializeComponent();
@@ -46,6 +32,6 @@ public sealed partial class MainWindow : WindowEx
 
     private void WindowEx_Closed(object sender, WindowEventArgs args)
     {
-        App.m_window = null;
+        App.MainAppWindow = null;
     }
 }
