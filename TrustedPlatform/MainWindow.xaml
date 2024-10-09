@@ -9,13 +9,8 @@
     xmlns:winuiex="using:WinUIEx"
     Title="TPM Management"
     Closed="WindowEx_Closed"
-    PositionChanged="WindowEx_PositionChanged"
-    SizeChanged="WindowEx_SizeChanged"
     mc:Ignorable="d">
-    <Grid
-        PointerExited="Grid_PointerExited"
-        PointerMoved="Grid_PointerMoved"
-        PointerReleased="Grid_PointerReleased">
+    <Grid x:Name="ContentGrid">
         <Grid.Resources>
             <MenuFlyout x:Key="Sysmenu" x:Name="Sysmenu">
                 <MenuFlyoutItem />
@@ -253,7 +248,7 @@
         </Grid.Resources>
         <Frame
             x:Name="RootFrame"
-            Margin="0,31,0,0"
+            Margin="0,29,0,0"
             x:FieldModifier="public" />
         <Border
             x:Name="AccentStrip"
@@ -308,12 +303,7 @@
                 x:Name="CrimsonMaxRes"
                 Width="46"
                 Height="30"
-                Click="CrimsonMaxRes_Click"
                 IsTabStop="False"
-                PointerEntered="CrimsonMaxRes_PointerEntered"
-                PointerExited="CrimsonMaxRes_PointerExited"
-                PointerMoved="CrimsonMaxRes_PointerMoved"
-                PointerPressed="CrimsonMaxRes_PointerPressed"
                 Style="{ThemeResource MaxRes}">
                 <FontIcon
                     x:Name="MaxResGlyph"
@@ -324,12 +314,7 @@
                 x:Name="Close"
                 Width="46"
                 Height="30"
-                Click="Button_Click_1"
                 IsTabStop="False"
-                PointerEntered="CrimsonMaxRes_PointerEntered"
-                PointerExited="CrimsonMaxRes_PointerExited"
-                PointerMoved="CrimsonMaxRes_PointerMoved"
-                PointerPressed="CrimsonMaxRes_PointerPressed"
                 Style="{ThemeResource Close}">
                 <FontIcon FontSize="10" Glyph="&#xE8BB;" />
             </Button>

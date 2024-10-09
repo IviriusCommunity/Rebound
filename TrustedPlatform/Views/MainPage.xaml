@@ -7,7 +7,6 @@
     xmlns:local="using:Rebound.TrustedPlatform"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:toolkit="using:CommunityToolkit.WinUI.Controls"
-    xmlns:wuc="using:WinUICommunity"
     mc:Ignorable="d">
     <!--  Additional content below the landing banner  -->
     <Grid Grid.Row="1">
@@ -29,52 +28,53 @@
                     <ColumnDefinition Width="250" MinWidth="150" />
                 </Grid.ColumnDefinitions>
 
-                <StackPanel
+                <ScrollViewer>
+                    <StackPanel
                     Margin="20"
                     HorizontalAlignment="Stretch"
                     Spacing="20">
-                    <!--  Header  -->
-                    <TextBlock
+                        <!--  Header  -->
+                        <TextBlock
                         FontSize="16"
                         FontWeight="Bold"
                         Text="TPM Management on Local Computer" />
-                    <Expander
+                        <Expander
                         HorizontalAlignment="Stretch"
                         Header="Overview"
                         IsExpanded="True">
-                        <TextBlock Text="Windows computers containing a Trusted Platform Module (TPM) to provide enhanced security features. This snap-in displays information about the computer's TPM and allows administrators to manage the device." TextWrapping="WrapWholeWords" />
-                    </Expander>
-                    <InfoBar
+                            <TextBlock Text="Windows computers containing a Trusted Platform Module (TPM) to provide enhanced security features. This snap-in displays information about the computer's TPM and allows administrators to manage the device." TextWrapping="WrapWholeWords" />
+                        </Expander>
+                        <InfoBar
                         x:Name="StatusBar"
                         Title="Status: Not Implemented."
                         IsClosable="False"
                         IsOpen="True"
                         Severity="Warning" />
-                    <Expander
+                        <Expander
                         HorizontalAlignment="Stretch"
                         HorizontalContentAlignment="Stretch"
                         Header="TPM Manufacturer Information"
                         IsExpanded="True">
 
-                        <!--  Information Grid  -->
-                        <Grid>
-                            <Grid.RowDefinitions>
-                                <RowDefinition Height="Auto" />
-                                <RowDefinition Height="Auto" />
-                                <RowDefinition Height="Auto" />
-                                <!--  New Rows for the added properties  -->
-                                <RowDefinition Height="Auto" />
-                                <RowDefinition Height="Auto" />
-                                <RowDefinition Height="Auto" />
-                            </Grid.RowDefinitions>
+                            <!--  Information Grid  -->
+                            <Grid>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto" />
+                                    <RowDefinition Height="Auto" />
+                                    <RowDefinition Height="Auto" />
+                                    <!--  New Rows for the added properties  -->
+                                    <RowDefinition Height="Auto" />
+                                    <RowDefinition Height="Auto" />
+                                    <RowDefinition Height="Auto" />
+                                </Grid.RowDefinitions>
 
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="Auto" />
-                                <ColumnDefinition Width="*" />
-                            </Grid.ColumnDefinitions>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto" />
+                                    <ColumnDefinition Width="*" />
+                                </Grid.ColumnDefinitions>
 
-                            <!--  Manufacturer Name  -->
-                            <TextBlock
+                                <!--  Manufacturer Name  -->
+                                <TextBlock
                                 Grid.Row="0"
                                 Grid.Column="0"
                                 Margin="0,0,20,0"
@@ -82,7 +82,7 @@
                                 FontSize="12"
                                 FontWeight="SemiBold"
                                 Text="Manufacturer Name:" />
-                            <TextBlock
+                                <TextBlock
                                 x:Name="ManufacturerName"
                                 Grid.Row="0"
                                 Grid.Column="1"
@@ -90,8 +90,8 @@
                                 FontSize="12"
                                 TextWrapping="WrapWholeWords" />
 
-                            <!--  Manufacturer Version  -->
-                            <TextBlock
+                                <!--  Manufacturer Version  -->
+                                <TextBlock
                                 Grid.Row="1"
                                 Grid.Column="0"
                                 Margin="0,10,20,0"
@@ -99,7 +99,7 @@
                                 FontSize="12"
                                 FontWeight="SemiBold"
                                 Text="Manufacturer Version:" />
-                            <TextBlock
+                                <TextBlock
                                 x:Name="ManufacturerVersion"
                                 Grid.Row="1"
                                 Grid.Column="1"
@@ -108,8 +108,8 @@
                                 FontSize="12"
                                 TextWrapping="WrapWholeWords" />
 
-                            <!--  Specification Version  -->
-                            <TextBlock
+                                <!--  Specification Version  -->
+                                <TextBlock
                                 Grid.Row="2"
                                 Grid.Column="0"
                                 Margin="0,10,20,0"
@@ -117,7 +117,7 @@
                                 FontSize="12"
                                 FontWeight="SemiBold"
                                 Text="Specification Version:" />
-                            <TextBlock
+                                <TextBlock
                                 x:Name="SpecificationVersion"
                                 Grid.Row="2"
                                 Grid.Column="1"
@@ -127,8 +127,8 @@
                                 TextWrapping="WrapWholeWords" />
 
 
-                            <!--  TPM SubVersion  -->
-                            <TextBlock
+                                <!--  TPM SubVersion  -->
+                                <TextBlock
                                 Grid.Row="3"
                                 Grid.Column="0"
                                 Margin="0,10,20,0"
@@ -136,7 +136,7 @@
                                 FontSize="12"
                                 FontWeight="SemiBold"
                                 Text="TPM SubVersion:" />
-                            <TextBlock
+                                <TextBlock
                                 x:Name="TpmSubVersion"
                                 Grid.Row="3"
                                 Grid.Column="1"
@@ -145,8 +145,8 @@
                                 FontSize="12"
                                 TextWrapping="WrapWholeWords" />
 
-                            <!--  PC Client Spec Version  -->
-                            <TextBlock
+                                <!--  PC Client Spec Version  -->
+                                <TextBlock
                                 Grid.Row="4"
                                 Grid.Column="0"
                                 Margin="0,10,20,0"
@@ -154,7 +154,7 @@
                                 FontSize="12"
                                 FontWeight="SemiBold"
                                 Text="PC Client Spec Version:" />
-                            <TextBlock
+                                <TextBlock
                                 x:Name="PcClientSpecVersion"
                                 Grid.Row="4"
                                 Grid.Column="1"
@@ -163,8 +163,8 @@
                                 FontSize="12"
                                 TextWrapping="WrapWholeWords" />
 
-                            <!--  PCR Values  -->
-                            <TextBlock
+                                <!--  PCR Values  -->
+                                <TextBlock
                                 Grid.Row="5"
                                 Grid.Column="0"
                                 Margin="0,10,20,0"
@@ -172,7 +172,7 @@
                                 FontSize="12"
                                 FontWeight="SemiBold"
                                 Text="PCR Values:" />
-                            <TextBlock
+                                <TextBlock
                                 x:Name="PcrValues"
                                 Grid.Row="5"
                                 Grid.Column="1"
@@ -180,28 +180,29 @@
                                 VerticalAlignment="Center"
                                 FontSize="12"
                                 TextWrapping="WrapWholeWords" />
-                        </Grid>
+                            </Grid>
 
-                    </Expander>
-                    <!--  Status Section  -->
-                    <StackPanel
+                        </Expander>
+                        <!--  Status Section  -->
+                        <StackPanel
                         Margin="0,30,0,10"
                         Orientation="Horizontal"
                         Visibility="Collapsed">
-                        <TextBlock
+                            <TextBlock
                             VerticalAlignment="Center"
                             FontSize="14"
                             FontWeight="Bold"
                             Text="Status:" />
-                        <TextBlock
+                            <TextBlock
                             x:Name="Status"
                             Margin="10,0,0,0"
                             VerticalAlignment="Center"
                             FontSize="14" />
+                        </StackPanel>
+
+
                     </StackPanel>
-
-
-                </StackPanel>
+                </ScrollViewer>
                 <toolkit:GridSplitter Grid.Column="1" Width="16" />
                 <Grid
                     Grid.Column="2"
