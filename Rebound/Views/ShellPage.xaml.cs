@@ -45,7 +45,7 @@ public sealed partial class ShellPage : Page
         }
         if ((string)(args.SelectedItem as NavigationViewItem).Tag == "Control Panel")
         {
-            var win = new ControlPanelWindow();
+            /*var win = new ControlPanelWindow();
             App.cpanelWin = win;
             win.Show();
             win.CenterOnScreen();
@@ -53,7 +53,7 @@ public sealed partial class ShellPage : Page
             win.BringToFront();
             sender.SelectedItem = sender.MenuItems[2];
             App.m_window.Close();
-            App.m_window = null;
+            App.m_window = null;*/
         }
         //NavigationViewControl.Header = (string)(args.SelectedItem as NavigationViewItem).Tag;
     }

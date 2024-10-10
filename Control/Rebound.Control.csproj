@@ -17,6 +17,7 @@
     <Version>0.0.3</Version>
   </PropertyGroup>
   <ItemGroup>
+    <None Remove="UACWindow.xaml" />
     <None Remove="Views\AppearanceAndPersonalization.xaml" />
     <None Remove="Views\HomePage.xaml" />
     <None Remove="Views\ModernHomePage.xaml" />
@@ -57,6 +58,9 @@
     <ProjectReference Include="..\Helpers\Rebound.Helpers.csproj" />
   </ItemGroup>
   <ItemGroup>
+    <Page Update="UACWindow.xaml">
+      <XamlRuntime>$(DefaultXamlRuntime)</XamlRuntime>
+    </Page>
     <Page Update="Views\AppearanceAndPersonalization.xaml">
       <XamlRuntime>$(DefaultXamlRuntime)</XamlRuntime>
     </Page>
@@ -89,6 +93,9 @@
     <PublishReadyToRun Condition="'$(Configuration)' != 'Debug'">True</PublishReadyToRun>
     <PublishTrimmed Condition="'$(Configuration)' == 'Debug'">False</PublishTrimmed>
     <PublishTrimmed Condition="'$(Configuration)' != 'Debug'">True</PublishTrimmed>
+    <PackageCertificateThumbprint>972A4A648E59DCAC76EB74401BDE6677C4E72BEE</PackageCertificateThumbprint>
+    <PackageCertificateKeyFile>Rebound.Control_TemporaryKey.pfx</PackageCertificateKeyFile>
+    <AppxPackageSigningEnabled>True</AppxPackageSigningEnabled>
   </PropertyGroup>
 
   <ItemGroup>

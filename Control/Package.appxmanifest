@@ -8,8 +8,8 @@
   IgnorableNamespaces="uap rescap">
 
   <Identity
-    Name="3afd38c0-ba86-4380-8ed8-ef4c42ba7940"
-    Publisher="CN=notla"
+    Name="Rebound.Control"
+    Publisher="CN=Ivirius Community"
     Version="0.0.3.0" />
 
   <mp:PhoneIdentity PhoneProductId="3afd38c0-ba86-4380-8ed8-ef4c42ba7940" PhonePublisherId="00000000-0000-0000-0000-000000000000"/>
@@ -37,7 +37,7 @@
         DisplayName="Control Panel"
         BackgroundColor="transparent"
         Square150x150Logo="Assets\Square150x150Logo.png"
-        Square44x44Logo="Assets\Square44x44Logo.png" Description="Manage system settings and configuration with ease!">
+        Square44x44Logo="Assets\Square44x44Logo.png" Description="Manage system settings and configuration with ease.">
         <uap:DefaultTile Wide310x150Logo="Assets\Wide310x150Logo.png"  Square71x71Logo="Assets\SmallTile.png" Square310x310Logo="Assets\LargeTile.png"/>
         <uap:SplashScreen Image="Assets\SplashScreen.png" />
       </uap:VisualElements>
@@ -45,6 +45,19 @@
   </Applications>
 
   <Capabilities>
-    <rescap:Capability Name="runFullTrust" />
+	  <rescap:Capability Name="runFullTrust" />
+	  <rescap:Capability Name="broadFileSystemAccess" />
+	  <rescap:Capability Name="allowElevation" />
+	  <!--
+            The unvirtualizedResources capability is used to support file operations in the AppData directory.
+        -->
+	  <rescap:Capability Name="unvirtualizedResources" />
+	  <!--
+            The packageManagement capability is used to download updates in the sideload version of Files.
+            We only use this capability in the sideload version and remove it when compiling the store vesion in Azure DevOps.
+        -->
+	  <rescap:Capability Name="packageManagement" />
+	  <uap:Capability Name="removableStorage" />
+	  <Capability Name="internetClient" />
   </Capabilities>
 </Package>
