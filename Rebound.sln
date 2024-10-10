@@ -25,6 +25,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Rebound.ExplorerPhotoPrinti
 EndProject
 Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "Rebound.Delivery", "Delivery\Rebound.Delivery.shproj", "{B6C8C1F3-644E-475F-84C6-214243620014}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Rebound.Control", "Control\Rebound.Control.csproj", "{8920EBF9-A483-4A5F-9BB3-AA2E3D8F1269}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -269,6 +271,30 @@ Global
 		{B7BE98BB-3C39-4407-A792-F13A560B81F7}.Release|x86.ActiveCfg = Release|x86
 		{B7BE98BB-3C39-4407-A792-F13A560B81F7}.Release|x86.Build.0 = Release|x86
 		{B7BE98BB-3C39-4407-A792-F13A560B81F7}.Release|x86.Deploy.0 = Release|x86
+		{8920EBF9-A483-4A5F-9BB3-AA2E3D8F1269}.Debug|Any CPU.ActiveCfg = Debug|x64
+		{8920EBF9-A483-4A5F-9BB3-AA2E3D8F1269}.Debug|Any CPU.Build.0 = Debug|x64
+		{8920EBF9-A483-4A5F-9BB3-AA2E3D8F1269}.Debug|Any CPU.Deploy.0 = Debug|x64
+		{8920EBF9-A483-4A5F-9BB3-AA2E3D8F1269}.Debug|ARM64.ActiveCfg = Debug|ARM64
+		{8920EBF9-A483-4A5F-9BB3-AA2E3D8F1269}.Debug|ARM64.Build.0 = Debug|ARM64
+		{8920EBF9-A483-4A5F-9BB3-AA2E3D8F1269}.Debug|ARM64.Deploy.0 = Debug|ARM64
+		{8920EBF9-A483-4A5F-9BB3-AA2E3D8F1269}.Debug|x64.ActiveCfg = Debug|x64
+		{8920EBF9-A483-4A5F-9BB3-AA2E3D8F1269}.Debug|x64.Build.0 = Debug|x64
+		{8920EBF9-A483-4A5F-9BB3-AA2E3D8F1269}.Debug|x64.Deploy.0 = Debug|x64
+		{8920EBF9-A483-4A5F-9BB3-AA2E3D8F1269}.Debug|x86.ActiveCfg = Debug|x86
+		{8920EBF9-A483-4A5F-9BB3-AA2E3D8F1269}.Debug|x86.Build.0 = Debug|x86
+		{8920EBF9-A483-4A5F-9BB3-AA2E3D8F1269}.Debug|x86.Deploy.0 = Debug|x86
+		{8920EBF9-A483-4A5F-9BB3-AA2E3D8F1269}.Release|Any CPU.ActiveCfg = Release|x64
+		{8920EBF9-A483-4A5F-9BB3-AA2E3D8F1269}.Release|Any CPU.Build.0 = Release|x64
+		{8920EBF9-A483-4A5F-9BB3-AA2E3D8F1269}.Release|Any CPU.Deploy.0 = Release|x64
+		{8920EBF9-A483-4A5F-9BB3-AA2E3D8F1269}.Release|ARM64.ActiveCfg = Release|ARM64
+		{8920EBF9-A483-4A5F-9BB3-AA2E3D8F1269}.Release|ARM64.Build.0 = Release|ARM64
+		{8920EBF9-A483-4A5F-9BB3-AA2E3D8F1269}.Release|ARM64.Deploy.0 = Release|ARM64
+		{8920EBF9-A483-4A5F-9BB3-AA2E3D8F1269}.Release|x64.ActiveCfg = Release|x64
+		{8920EBF9-A483-4A5F-9BB3-AA2E3D8F1269}.Release|x64.Build.0 = Release|x64
+		{8920EBF9-A483-4A5F-9BB3-AA2E3D8F1269}.Release|x64.Deploy.0 = Release|x64
+		{8920EBF9-A483-4A5F-9BB3-AA2E3D8F1269}.Release|x86.ActiveCfg = Release|x86
+		{8920EBF9-A483-4A5F-9BB3-AA2E3D8F1269}.Release|x86.Build.0 = Release|x86
+		{8920EBF9-A483-4A5F-9BB3-AA2E3D8F1269}.Release|x86.Deploy.0 = Release|x86
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
