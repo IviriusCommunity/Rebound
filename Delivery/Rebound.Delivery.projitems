@@ -10,6 +10,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Folder Include="$(MSBuildThisFileDirectory)MSBuild\" />
+    <Folder Include="$(MSBuildThisFileDirectory)AppRT\Exported\" />
     <Folder Include="$(MSBuildThisFileDirectory)RuntimeBinaries\" />
   </ItemGroup>
   <ItemGroup>
