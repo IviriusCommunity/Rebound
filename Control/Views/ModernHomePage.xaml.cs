@@ -169,7 +169,8 @@ public sealed partial class ModernHomePage : Page
 
     private void SettingsCard_Click_1(object sender, RoutedEventArgs e)
     {
-        // App.m_window = new MainWindow();
+        // TODO: Add this back using UAP protocol
+        //App.m_window = new MainWindow();
         //App.m_window.Activate();
         //App.cpanelWin.Close();
     }
