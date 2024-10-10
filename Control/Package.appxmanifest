@@ -10,13 +10,13 @@
   <Identity
     Name="3afd38c0-ba86-4380-8ed8-ef4c42ba7940"
     Publisher="CN=notla"
-    Version="1.0.0.0" />
+    Version="0.0.3.0" />
 
   <mp:PhoneIdentity PhoneProductId="3afd38c0-ba86-4380-8ed8-ef4c42ba7940" PhonePublisherId="00000000-0000-0000-0000-000000000000"/>
 
   <Properties>
-    <DisplayName>Rebound.Control</DisplayName>
-    <PublisherDisplayName>notla</PublisherDisplayName>
+    <DisplayName>Rebound Control Panel</DisplayName>
+    <PublisherDisplayName>Ivirius Community</PublisherDisplayName>
     <Logo>Assets\StoreLogo.png</Logo>
   </Properties>
 
