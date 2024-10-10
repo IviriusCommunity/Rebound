@@ -6,6 +6,7 @@ using Microsoft.UI.Xaml.Controls.Primitives;
 using Microsoft.UI.Xaml.Documents;
 using Microsoft.UI.Xaml.Media;
 using Microsoft.Win32;
+using Rebound.Control;
 using WinUIEx;
 
 // To learn more about WinUI, the WinUI project structure,
@@ -25,7 +26,7 @@ public sealed partial class UACWindow : WindowEx
         this.CenterOnScreen();
         this.SystemBackdrop = new MicaBackdrop();
         this.SetIcon($"{AppContext.BaseDirectory}\\Assets\\AppIcons\\imageres_78.ico");
-        this.AppWindow.DefaultTitleBarShouldMatchAppModeTheme = true;
+        Helpers.Win32.SetDarkMode(this, App.Current);
         this.Title = "User Account Control Settings";
         this.IsResizable = false;
         UACConfigurator.UpdateUACSlider(UACSlider);
