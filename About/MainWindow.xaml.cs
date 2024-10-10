@@ -101,7 +101,7 @@ namespace Rebound.About
                 {
                     if (key != null)
                     {
-                        // Retrieve build number and revision
+                        // Retrieve current username
                         var owner = key.GetValue("RegisteredOwner", "Unknown") as string;
 
                         return owner;
