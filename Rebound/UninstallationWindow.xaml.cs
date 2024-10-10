@@ -96,7 +96,7 @@ public sealed partial class UninstallationWindow : WindowEx
 
         await ReplaceShortcut(
             "Control Panel",
-            $@"{AppContext.BaseDirectory}\Rebound11Files\shcwin11\Control Panel.lnk",
+            $@"{AppContext.BaseDirectory}\Shortcuts\Included\Control Panel.lnk",
             $@"{Environment.GetFolderPath(Environment.SpecialFolder.StartMenu)}\Programs\System Tools\Control Panel.lnk",
             "Control Panel");
 
@@ -113,7 +113,7 @@ public sealed partial class UninstallationWindow : WindowEx
         await UninstallAppPackage(
             "8ab98b2f-6dbe-4358-a752-979d011f968d_0.1.0.0_x64__yejd587sfa94t",
             "Rebound Run",
-            $@"{AppContext.BaseDirectory}\Rebound11Files\shcwin11\Run.lnk",
+            $@"{AppContext.BaseDirectory}\Shortcuts\Included\Run.lnk",
             $@"{Environment.GetFolderPath(Environment.SpecialFolder.StartMenu)}\Programs\System Tools\Run.lnk",
             "Run");
 
@@ -125,7 +125,7 @@ public sealed partial class UninstallationWindow : WindowEx
         await UninstallAppPackage(
             "54d2a63e-e616-4159-bed6-c776b8a816e1_0.1.0.0_x64__yejd587sfa94t",
             "Rebound Defragment And Optimize Drives",
-            $@"{AppContext.BaseDirectory}\Rebound11Files\shcwin11\dfrgui.lnk",
+            $@"{AppContext.BaseDirectory}\Shortcuts\Included\dfrgui.lnk",
             $@"{Environment.GetFolderPath(Environment.SpecialFolder.CommonAdminTools)}\dfrgui.lnk",
             "Defragment And Optimize Drives");
 
@@ -138,7 +138,7 @@ public sealed partial class UninstallationWindow : WindowEx
 
         await ReplaceShortcut(
             "On-Screen Keyboard",
-            $@"{AppContext.BaseDirectory}\Rebound11Files\shcwin11\On-Screen Keyboard.lnk",
+            $@"{AppContext.BaseDirectory}\Shortcuts\Included\On-Screen Keyboard.lnk",
             $@"{Environment.GetFolderPath(Environment.SpecialFolder.StartMenu)}\Programs\Accessibility\On-Screen Keyboard.lnk",
             "On-Screen Keyboard");
 
@@ -152,7 +152,7 @@ public sealed partial class UninstallationWindow : WindowEx
         await UninstallAppPackage(
             "e8dfd11c-954d-46a2-b700-9cbc6201f056_1.0.2.0_x64__yejd587sfa94t",
             "Rebound Disk Cleanup",
-            $@"{AppContext.BaseDirectory}\Rebound11Files\shcwin11\Disk Cleanup.lnk",
+            $@"{AppContext.BaseDirectory}\Shortcuts\Included\Disk Cleanup.lnk",
             $@"{Environment.GetFolderPath(Environment.SpecialFolder.CommonAdminTools)}\Disk Cleanup.lnk",
             "Disk Cleanup");
 

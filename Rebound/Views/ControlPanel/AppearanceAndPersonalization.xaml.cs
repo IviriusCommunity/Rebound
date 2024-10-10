@@ -39,7 +39,7 @@ public sealed partial class AppearanceAndPersonalization : Page
         }
         PleaseWaitDialog.ShowAsync();
         App.cpanelWin.IsAlwaysOnTop = true;
-        var filePath = $"{AppContext.BaseDirectory}\\Rebound11Files\\Themes\\{(sender as FrameworkElement).Tag}.deskthemepack";
+        var filePath = $"{AppContext.BaseDirectory}\\Themes\\{(sender as FrameworkElement).Tag}.deskthemepack";
         Process.Start(new ProcessStartInfo()
         {
             FileName = $"{filePath}",

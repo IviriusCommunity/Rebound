@@ -216,7 +216,7 @@ public sealed partial class InstallationWindow : WindowEx
         try
         {
             Subtitle.Text = $"Step {currentStep} of {totalSteps}: Copying r11imageres.dll...";
-            File.Copy($@"{AppContext.BaseDirectory}\Rebound11Files\Rebound11\r11imageres.dll", @"C:\Rebound11\r11imageres.dll");
+            File.Copy($@"{AppContext.BaseDirectory}\AppRT\r11imageres.dll", @"C:\Rebound11\r11imageres.dll");
         }
         catch
         {
@@ -233,7 +233,7 @@ public sealed partial class InstallationWindow : WindowEx
         try
         {
             Subtitle.Text = $"Step {currentStep} of {totalSteps}: Copying desktop.ini...";
-            File.Copy($@"{AppContext.BaseDirectory}\Rebound11Files\Rebound11\desktop2.ini", @"C:\Rebound11\desktop.ini", true);
+            File.Copy($@"{AppContext.BaseDirectory}\AppRT\desktop2.ini", @"C:\Rebound11\desktop.ini", true);
             // Set attributes for the file
             File.SetAttributes(@"C:\Rebound11\desktop.ini", FileAttributes.Hidden | FileAttributes.System | FileAttributes.ReadOnly);
             File.SetAttributes(@"C:\Rebound11\", FileAttributes.Directory | FileAttributes.System);
@@ -312,9 +312,9 @@ public sealed partial class InstallationWindow : WindowEx
 
         await InstallExeWithShortcut(
             "Rebound Control Panel",
-            $"{AppContext.BaseDirectory}\\Rebound11Files\\Executables\\rcontrol.exe",
+            $"{AppContext.BaseDirectory}\\Reserved\\rcontrol.exe",
             $"C:\\Rebound11\\rcontrol.exe",
-            $"{AppContext.BaseDirectory}\\Rebound11Files\\shcre11\\Control Panel.lnk",
+            $"{AppContext.BaseDirectory}\\Shortcuts\\Control Panel.lnk",
             $@"{Environment.GetFolderPath(Environment.SpecialFolder.StartMenu)}\Programs\System Tools\Control Panel.lnk",
             "rcontrol",
             "Control Panel");
@@ -330,13 +330,13 @@ public sealed partial class InstallationWindow : WindowEx
         if (Defrag == true)
         {
             await InstallAppPackage(
-                $"{AppContext.BaseDirectory}\\Rebound11Files\\AppPackages\\Rebound.Defrag.msix",
+                $"{AppContext.BaseDirectory}\\Reserved\\Extended\\Rebound.Defrag.msix",
                 "C:\\Rebound11\\Rebound.Defrag.msix",
-                $"{AppContext.BaseDirectory}\\Rebound11Files\\AppPackages\\Rebound.Defrag.cer",
+                $"{AppContext.BaseDirectory}\\Reserved\\Extended\\Rebound.Defrag.cer",
                 "Rebound Defragment and Optimize Drives",
-                $"{AppContext.BaseDirectory}\\Rebound11Files\\Executables\\rdfrgui.exe",
+                $"{AppContext.BaseDirectory}\\Reserved\\rdfrgui.exe",
                 $"C:\\Rebound11\\rdfrgui.exe",
-                $"{AppContext.BaseDirectory}\\Rebound11Files\\shcre11\\dfrgui.lnk",
+                $"{AppContext.BaseDirectory}\\Shortcuts\\dfrgui.lnk",
                 $@"{Environment.GetFolderPath(Environment.SpecialFolder.CommonAdminTools)}\dfrgui.lnk",
                 "rdfrgui",
                 "dfrgui");
@@ -349,13 +349,13 @@ public sealed partial class InstallationWindow : WindowEx
         if (Winver == true)
         {
             await InstallAppPackage(
-                $"{AppContext.BaseDirectory}\\Rebound11Files\\AppPackages\\Rebound.About.msix",
+                $"{AppContext.BaseDirectory}\\Reserved\\Extended\\Rebound.About.msix",
                 "C:\\Rebound11\\Rebound.About.msix",
-                $"{AppContext.BaseDirectory}\\Rebound11Files\\AppPackages\\Rebound.About.cer",
+                $"{AppContext.BaseDirectory}\\Reserved\\Extended\\Rebound.About.cer",
                 "Rebound Winver",
-                $"{AppContext.BaseDirectory}\\Rebound11Files\\Executables\\rwinver.exe",
+                $"{AppContext.BaseDirectory}\\Reserved\\rwinver.exe",
                 $"C:\\Rebound11\\rwinver.exe",
-                $"{AppContext.BaseDirectory}\\Rebound11Files\\shcre11\\winver.lnk",
+                $"{AppContext.BaseDirectory}\\Shortcuts\\winver.lnk",
                 $@"{Environment.GetFolderPath(Environment.SpecialFolder.CommonAdminTools)}\winver.lnk",
                 "rwinver",
                 "winver");
@@ -379,9 +379,9 @@ public sealed partial class InstallationWindow : WindowEx
         {
             await InstallExeWithShortcut(
                 "Change User Account Control settings",
-                $"{AppContext.BaseDirectory}\\Rebound11Files\\Executables\\ruacsettings.exe",
+                $"{AppContext.BaseDirectory}\\Reserved\\ruacsettings.exe",
                 $"C:\\Rebound11\\ruacsettings.exe",
-                $"{AppContext.BaseDirectory}\\Rebound11Files\\shcre11\\Change User Account Control settings.lnk",
+                $"{AppContext.BaseDirectory}\\Shortcuts\\Change User Account Control settings.lnk",
                 $@"{Environment.GetFolderPath(Environment.SpecialFolder.CommonAdminTools)}\Change User Account Control settings.lnk",
                 "ruacsettings",
                 "Change User Account Control settings");
@@ -394,13 +394,13 @@ public sealed partial class InstallationWindow : WindowEx
         if (Run == true)
         {
             await InstallAppPackage(
-                $"{AppContext.BaseDirectory}\\Rebound11Files\\AppPackages\\Rebound.Run.msix",
+                $"{AppContext.BaseDirectory}\\Reserved\\Extended\\Rebound.Run.msix",
                 "C:\\Rebound11\\Rebound.Run.msix",
-                $"{AppContext.BaseDirectory}\\Rebound11Files\\AppPackages\\Rebound.Run.cer",
+                $"{AppContext.BaseDirectory}\\Reserved\\Extended\\Rebound.Run.cer",
                 "Rebound Run",
-                $"{AppContext.BaseDirectory}\\Rebound11Files\\Executables\\rrun.exe",
+                $"{AppContext.BaseDirectory}\\Reserved\\rrun.exe",
                 $"C:\\Rebound11\\rrun.exe",
-                $"{AppContext.BaseDirectory}\\Rebound11Files\\shcre11\\Run.lnk",
+                $"{AppContext.BaseDirectory}\\Shortcuts\\Run.lnk",
                 $@"{Environment.GetFolderPath(Environment.SpecialFolder.StartMenu)}\Programs\System Tools\Run.lnk",
                 "rrun",
                 "Run");
@@ -409,9 +409,9 @@ public sealed partial class InstallationWindow : WindowEx
 
             await InstallExeWithShortcut(
                 "Rebound Run Startup Task",
-                $"{AppContext.BaseDirectory}\\Rebound11Files\\Executables\\rrunSTARTUP.exe",
+                $"{AppContext.BaseDirectory}\\Reserved\\rrunSTARTUP.exe",
                 $"C:\\Rebound11\\rrunSTARTUP.exe",
-                $"{AppContext.BaseDirectory}\\Rebound11Files\\shcre11\\Rebound.RunStartup.lnk",
+                $"{AppContext.BaseDirectory}\\Shortcuts\\Rebound.RunStartup.lnk",
                 $"{startupFolderPath}\\Rebound.RunStartup.lnk",
                 "rrunSTARTUP",
                 "Rebound.RunStartup");
@@ -424,13 +424,13 @@ public sealed partial class InstallationWindow : WindowEx
         if (DiskCleanup == true)
         {
             await InstallAppPackage(
-                $"{AppContext.BaseDirectory}\\Rebound11Files\\AppPackages\\Rebound.Cleanup.msix",
+                $"{AppContext.BaseDirectory}\\Reserved\\Extended\\Rebound.Cleanup.msix",
                 "C:\\Rebound11\\Rebound.Cleanup.msix",
-                $"{AppContext.BaseDirectory}\\Rebound11Files\\AppPackages\\Rebound.Cleanup.cer",
+                $"{AppContext.BaseDirectory}\\Reserved\\Extended\\Rebound.Cleanup.cer",
                 "Rebound Disk Cleanup",
-                $"{AppContext.BaseDirectory}\\Rebound11Files\\Executables\\rcleanmgr.exe",
+                $"{AppContext.BaseDirectory}\\Reserved\\rcleanmgr.exe",
                 $"C:\\Rebound11\\rcleanmgr.exe",
-                $"{AppContext.BaseDirectory}\\Rebound11Files\\shcre11\\Disk Cleanup.lnk",
+                $"{AppContext.BaseDirectory}\\Shortcuts\\Disk Cleanup.lnk",
                 $@"{Environment.GetFolderPath(Environment.SpecialFolder.CommonAdminTools)}\Disk Cleanup.lnk",
                 "rcleanmgr",
                 "Disk Cleanup");
@@ -443,13 +443,13 @@ public sealed partial class InstallationWindow : WindowEx
         if (TPM == true)
         {
             await InstallAppPackage(
-                $"{AppContext.BaseDirectory}\\Rebound11Files\\AppPackages\\Rebound.TrustedPlatform.msix",
+                $"{AppContext.BaseDirectory}\\Reserved\\Extended\\Rebound.TrustedPlatform.msix",
                 "C:\\Rebound11\\Rebound.TrustedPlatform.msix",
-                $"{AppContext.BaseDirectory}\\Rebound11Files\\AppPackages\\Rebound.TrustedPlatform.cer",
+                $"{AppContext.BaseDirectory}\\Reserved\\Extended\\Rebound.TrustedPlatform.cer",
                 "Rebound TPM Management",
-                $"{AppContext.BaseDirectory}\\Rebound11Files\\Executables\\rtpm.exe",
+                $"{AppContext.BaseDirectory}\\Reserved\\rtpm.exe",
                 $"C:\\Rebound11\\rtpm.exe",
-                $"{AppContext.BaseDirectory}\\Rebound11Files\\shcre11\\tpm.msc.lnk",
+                $"{AppContext.BaseDirectory}\\Shortcuts\\tpm.msc.lnk",
                 $@"{Environment.GetFolderPath(Environment.SpecialFolder.CommonAdminTools)}\tpm.msc.lnk",
                 "rtpm",
                 "tpm.msc");
@@ -463,9 +463,9 @@ public sealed partial class InstallationWindow : WindowEx
         {
             await InstallExeWithShortcut(
                 "UWP On-Screen Keyboard",
-                $"{AppContext.BaseDirectory}\\Rebound11Files\\Executables\\rosk.exe",
+                $"{AppContext.BaseDirectory}\\Reserved\\rosk.exe",
                 $"C:\\Rebound11\\rosk.exe",
-                $"{AppContext.BaseDirectory}\\Rebound11Files\\shcre11\\On-Screen Keyboard.lnk",
+                $"{AppContext.BaseDirectory}\\Shortcuts\\On-Screen Keyboard.lnk",
                 $@"{Environment.GetFolderPath(Environment.SpecialFolder.StartMenu)}\Programs\Accessibility\On-Screen Keyboard.lnk",
                 "rosk",
                 "On-Screen Keyboard");

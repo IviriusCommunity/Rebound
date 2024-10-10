@@ -461,7 +461,7 @@ public sealed partial class SystemAndSecurity : Page
 
         // PowerShell command to copy the file
         string powerShellCommand2 = $@"
-        $sourceFilePath = '{$"{AppContext.BaseDirectory}\\Rebound11Files\\shcre11\\Rebound 11 Quick Full Computer Cleanup.lnk"}';
+        $sourceFilePath = '{$"{AppContext.BaseDirectory}\\Shortcuts\\Rebound 11 Quick Full Computer Cleanup.lnk"}';
         $destinationDirectory = '{destDir}';
         $destinationFilePath = Join-Path -Path $destinationDirectory -ChildPath (Split-Path -Leaf $sourceFilePath);
         if (Test-Path -Path $sourceFilePath) {{
@@ -530,7 +530,7 @@ public sealed partial class SystemAndSecurity : Page
 
     private void Button_Click_2(object sender, RoutedEventArgs e)
     {
-        //PinToTaskbar($"{AppContext.BaseDirectory}\\Rebound11Files\\Executables\\Quick Full Computer Cleanup.exe");
+        //PinToTaskbar($"{AppContext.BaseDirectory}\\Reserved\\Quick Full Computer Cleanup.exe");
     }
 
     private void Button_Click_3(object sender, RoutedEventArgs e)
@@ -539,7 +539,7 @@ public sealed partial class SystemAndSecurity : Page
         ProcessStartInfo startInfo2 = new ProcessStartInfo
         {
             FileName = "powershell.exe",
-            Arguments = $"-NoProfile -ExecutionPolicy Bypass -Command \"Start-Process -FilePath '{AppContext.BaseDirectory}\\Rebound11Files\\Executables\\QuickFullComputerCleanup.exe'\"",
+            Arguments = $"-NoProfile -ExecutionPolicy Bypass -Command \"Start-Process -FilePath '{AppContext.BaseDirectory}\\Reserved\\QuickFullComputerCleanup.exe'\"",
             RedirectStandardOutput = true,
             UseShellExecute = false,
             CreateNoWindow = true,

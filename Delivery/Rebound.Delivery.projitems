@@ -9,12 +9,64 @@
     <Import_RootNamespace>Rebound.Delivery</Import_RootNamespace>
   </PropertyGroup>
   <ItemGroup>
-    <Folder Include="$(MSBuildThisFileDirectory)AppRT\" />
     <Folder Include="$(MSBuildThisFileDirectory)MSBuild\" />
-    <Folder Include="$(MSBuildThisFileDirectory)Shortcuts\" />
     <Folder Include="$(MSBuildThisFileDirectory)RuntimeBinaries\" />
   </ItemGroup>
   <ItemGroup>
     <None Include="$(MSBuildThisFileDirectory)README.md" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="$(MSBuildThisFileDirectory)AppRT\desktop2.ini" />
+    <Content Include="$(MSBuildThisFileDirectory)AppRT\r11foldericon.ico" />
+    <Content Include="$(MSBuildThisFileDirectory)AppRT\r11imageres.dll" />
+    <Content Include="$(MSBuildThisFileDirectory)Reserved\Extended\Rebound.About.cer" />
+    <Content Include="$(MSBuildThisFileDirectory)Reserved\Extended\Rebound.About.msix" />
+    <Content Include="$(MSBuildThisFileDirectory)Reserved\Extended\Rebound.Cleanup.cer" />
+    <Content Include="$(MSBuildThisFileDirectory)Reserved\Extended\Rebound.Cleanup.msix" />
+    <Content Include="$(MSBuildThisFileDirectory)Reserved\Extended\Rebound.Defrag.cer" />
+    <Content Include="$(MSBuildThisFileDirectory)Reserved\Extended\Rebound.Defrag.msix" />
+    <Content Include="$(MSBuildThisFileDirectory)Reserved\Extended\Rebound.Run.cer" />
+    <Content Include="$(MSBuildThisFileDirectory)Reserved\Extended\Rebound.Run.msix" />
+    <Content Include="$(MSBuildThisFileDirectory)Reserved\Extended\Rebound.TrustedPlatform.cer" />
+    <Content Include="$(MSBuildThisFileDirectory)Reserved\Extended\Rebound.TrustedPlatform.msix" />
+    <Content Include="$(MSBuildThisFileDirectory)Reserved\QuickFullComputerCleanup.exe">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="$(MSBuildThisFileDirectory)Reserved\rcleanmgr.exe" />
+    <Content Include="$(MSBuildThisFileDirectory)Reserved\rcontrol.exe" />
+    <Content Include="$(MSBuildThisFileDirectory)Reserved\rdfrgui.exe" />
+    <Content Include="$(MSBuildThisFileDirectory)Reserved\rosk.exe" />
+    <Content Include="$(MSBuildThisFileDirectory)Reserved\rrun.exe" />
+    <Content Include="$(MSBuildThisFileDirectory)Reserved\rrunSTARTUP.exe" />
+    <Content Include="$(MSBuildThisFileDirectory)Reserved\rtpm.exe" />
+    <Content Include="$(MSBuildThisFileDirectory)Reserved\ruacsettings.exe" />
+    <Content Include="$(MSBuildThisFileDirectory)Reserved\rwinver.exe" />
+    <Content Include="$(MSBuildThisFileDirectory)Services\Create-ToolsFolder.ps1" />
+    <Content Include="$(MSBuildThisFileDirectory)Shortcuts\Change User Account Control settings.lnk" />
+    <Content Include="$(MSBuildThisFileDirectory)Shortcuts\Control Panel.lnk" />
+    <Content Include="$(MSBuildThisFileDirectory)Shortcuts\dfrgui.lnk" />
+    <Content Include="$(MSBuildThisFileDirectory)Shortcuts\Disk Cleanup.lnk" />
+    <Content Include="$(MSBuildThisFileDirectory)Shortcuts\Included\Administrative Tools.lnk" />
+    <Content Include="$(MSBuildThisFileDirectory)Shortcuts\Included\Command Prompt.lnk" />
+    <Content Include="$(MSBuildThisFileDirectory)Shortcuts\Included\Control Panel.lnk" />
+    <Content Include="$(MSBuildThisFileDirectory)Shortcuts\Included\desktop.ini" />
+    <Content Include="$(MSBuildThisFileDirectory)Shortcuts\Included\dfrgui.lnk" />
+    <Content Include="$(MSBuildThisFileDirectory)Shortcuts\Included\Disk Cleanup.lnk" />
+    <Content Include="$(MSBuildThisFileDirectory)Shortcuts\Included\On-Screen Keyboard.lnk" />
+    <Content Include="$(MSBuildThisFileDirectory)Shortcuts\Included\Run.lnk" />
+    <Content Include="$(MSBuildThisFileDirectory)Shortcuts\On-Screen Keyboard.lnk" />
+    <Content Include="$(MSBuildThisFileDirectory)Shortcuts\Rebound 11 Quick Full Computer Cleanup.lnk" />
+    <Content Include="$(MSBuildThisFileDirectory)Shortcuts\Rebound.RunStartup.lnk" />
+    <Content Include="$(MSBuildThisFileDirectory)Shortcuts\Run.lnk" />
+    <Content Include="$(MSBuildThisFileDirectory)Shortcuts\tpm.msc.lnk" />
+    <Content Include="$(MSBuildThisFileDirectory)Shortcuts\winver.lnk" />
+    <Content Include="$(MSBuildThisFileDirectory)Themes\BlueDark.deskthemepack" />
+    <Content Include="$(MSBuildThisFileDirectory)Themes\BlueLight.deskthemepack" />
+    <Content Include="$(MSBuildThisFileDirectory)Themes\CrimsonDark.deskthemepack" />
+    <Content Include="$(MSBuildThisFileDirectory)Themes\CrimsonLight.deskthemepack" />
+    <Content Include="$(MSBuildThisFileDirectory)Themes\CyanDark.deskthemepack" />
+    <Content Include="$(MSBuildThisFileDirectory)Themes\CyanLight.deskthemepack" />
+    <Content Include="$(MSBuildThisFileDirectory)Themes\PurpleDark.deskthemepack" />
+    <Content Include="$(MSBuildThisFileDirectory)Themes\PurpleLight.deskthemepack" />
   </ItemGroup>
 </Project>
