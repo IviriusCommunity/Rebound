@@ -36,7 +36,7 @@ public sealed partial class MainWindow : WindowEx
         SystemBackdrop = new MicaBackdrop();
 
         // Set the window title
-        Title = "Optimize Drives - Beta v0.1.0";
+        Title = "Optimize Drives";
 
         // Window customization
         IsMaximizable = false;
@@ -261,25 +261,25 @@ public sealed partial class MainWindow : WindowEx
                 if (daysPassed == 0)
                 {
                     //return $"OK (Last optimized: today)";
-                    return $"OK";
+                    return $"OK (optimized today)";
                 }
 
                 if (daysPassed == 1)
                 {
                     //return $"OK (Last optimized: yesterday)";
-                    return $"OK";
+                    return $"OK (1 day since the last optimization)";
                 }
 
                 if (daysPassed < 50)
                 {
                     //return $"OK (Last optimized: {daysPassed} days ago)";
-                    return $"OK";
+                    return $"OK ({daysPassed} days since the last optimization)";
                 }
 
                 if (daysPassed >= 50)
                 {
                     //return $"Needs optimization (Last optimized: {daysPassed} days ago)";
-                    return $"Needs optimization";
+                    return $"Needs optimization ({daysPassed} days since the last optimization)";
                 }
 
                 else
