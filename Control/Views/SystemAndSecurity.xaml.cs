@@ -7,6 +7,7 @@ using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Rebound.Control.ViewModels;
 using WinUIEx;
+using File = System.IO.File;
 
 namespace Rebound.Control.Views;
 
@@ -138,18 +139,10 @@ Complex password: {(isPasswordComplex == true ? "Yes" : "No")}";
 
     private async void Button_Click_1(object sender, RoutedEventArgs e)
     {
-        string appPath = $@"{AppContext.BaseDirectory}\Rebound11Files\Executables\QuickFullComputerCleanup.exe"; // Path to the application you want to pin
-
-        string destDir = $@"{Environment.GetFolderPath(Environment.SpecialFolder.StartMenu)}\Programs\Rebound 11 Tools";
-
-        // Define the location for the shortcut in the Start menu for the current user
-        string shortcutLocation = Path.Combine(
-            Environment.GetFolderPath(Environment.SpecialFolder.StartMenu), // Start Menu path
-            "Programs", "Rebound 11 Tools",
-            "Rebound Deep Cleaning Tool.lnk"); // The .lnk extension is used for shortcuts
+        var destDir = $@"{Environment.GetFolderPath(Environment.SpecialFolder.StartMenu)}\Programs\Rebound 11 Tools";
 
         // PowerShell command to create the folder
-        string powerShellCommand = @"
+        var powerShellCommand = @"
                 $roamingPath = [System.Environment]::GetFolderPath('ApplicationData');
                 $startMenuPath = Join-Path -Path $roamingPath -ChildPath 'Microsoft\Windows\Start Menu\Programs';
                 $newFolderPath = Join-Path -Path $startMenuPath -ChildPath 'Rebound 11 Tools';
@@ -161,7 +154,7 @@ Complex password: {(isPasswordComplex == true ? "Yes" : "No")}";
                 }";
 
         // Start the PowerShell process
-        ProcessStartInfo startInfo = new ProcessStartInfo
+        var startInfo = new ProcessStartInfo
         {
             FileName = "powershell.exe",
             Arguments = $"-NoProfile -ExecutionPolicy Bypass -Command \"{powerShellCommand}\"",
@@ -170,22 +163,29 @@ Complex password: {(isPasswordComplex == true ? "Yes" : "No")}";
             CreateNoWindow = true,
         };
 
-        using (Process process = new Process())
+        using (var process = new Process())
         {
             process.StartInfo = startInfo;
             process.Start();
 
             // Capture the output
-            string output = process.StandardOutput.ReadToEnd();
+            var output = process.StandardOutput.ReadToEnd();
             process.WaitForExit();
-
-            // Show the output (optional)
-            // This can be replaced with whatever UI feedback you want to give
-            Debug.WriteLine(output);
         }
 
+        await InstallExeWithShortcut(
+            "Rebound 11 Quick Full Computer Cleanup",
+            $"{AppContext.BaseDirectory}\\Reserved\\QuickFullComputerCleanup.exe",
+            @"C:\Rebound11\QuickFullComputerCleanup.exe",
+            $"{AppContext.BaseDirectory}\\Shortcuts\\Rebound 11 Quick Full Computer Cleanup.lnk",
+            $"{Environment.GetFolderPath(Environment.SpecialFolder.StartMenu)}\\Programs\\Rebound 11 Tools\\Rebound 11 Quick Full Computer Cleanup.lnk",
+            "Rebound 11 Quick Full Computer Cleanup",
+            "Rebound 11 Quick Full Computer Cleanup.lnk");
+
+        Debug.WriteLine(Environment.GetFolderPath(Environment.SpecialFolder.StartMenu));
+
         // PowerShell command to copy the file
-        string powerShellCommand2 = $@"
+        /*var powerShellCommand2 = $@"
         $sourceFilePath = '{$"{AppContext.BaseDirectory}\\Shortcuts\\Rebound 11 Quick Full Computer Cleanup.lnk"}';
         $destinationDirectory = '{destDir}';
         $destinationFilePath = Join-Path -Path $destinationDirectory -ChildPath (Split-Path -Leaf $sourceFilePath);
@@ -200,7 +200,7 @@ Complex password: {(isPasswordComplex == true ? "Yes" : "No")}";
         }}";
 
         // Start the PowerShell process
-        ProcessStartInfo startInfo2 = new ProcessStartInfo
+        var startInfo2 = new ProcessStartInfo
         {
             FileName = "powershell.exe",
             Arguments = $"-NoProfile -ExecutionPolicy Bypass -Command \"{powerShellCommand2}\"",
@@ -209,78 +209,57 @@ Complex password: {(isPasswordComplex == true ? "Yes" : "No")}";
             CreateNoWindow = true,
         };
 
-        using (Process process = new Process())
+        using (var process = new Process())
         {
             process.StartInfo = startInfo2;
             process.Start();
 
             // Capture the output
-            string output = process.StandardOutput.ReadToEnd();
+            var output = process.StandardOutput.ReadToEnd();
             process.WaitForExit();
-
-            // Show the output (optional)
-            Debug.WriteLine(output);
-        }
+        }*/
     }
 
-    static void CreateShortcut(string shortcutLocation, string targetPath)
+    public static void RunPowerShellCommand(string shortcutLocation, string targetPath)
     {
-        // Create a new WshShell instance
-        WshShell shell = new WshShell();
 
-        // Create the shortcut object
-        IWshShortcut shortcut = (IWshShortcut)shell.CreateShortcut(shortcutLocation);
-
-        // Set the target path (path to the executable)
-        shortcut.TargetPath = targetPath;
-
-        // Set the working directory (optional)
-        shortcut.WorkingDirectory = Path.GetDirectoryName(targetPath);
-
-        // Set the description (optional)
-        //shortcut.Description = "Shortcut";
-
-        // Set an icon for the shortcut (optional)
-        //shortcut.IconLocation = targetPath + ",0";
-
-        // Save the shortcut
-        shortcut.Save();
-    }
-
-    static void PinShortcutToStartMenu(string shortcutPath)
-    {
-        string command = $"powershell -command \"$s=(New-Object -COM WScript.Shell).CreateShortcut('{shortcutPath}'); $s.Save(); Start-Process explorer.exe /select, '{shortcutPath}'\"";
-        System.Diagnostics.Process.Start("cmd.exe", $"/C {command}");
     }
 
     private void Button_Click_3(object sender, RoutedEventArgs e)
     {
-        // Start the PowerShell process
-        ProcessStartInfo startInfo2 = new ProcessStartInfo
+        if (File.Exists(@"C:\Rebound11\QuickFullComputerCleanup.exe"))
         {
-            FileName = "powershell.exe",
-            Arguments = $"-NoProfile -ExecutionPolicy Bypass -Command \"Start-Process -FilePath '{AppContext.BaseDirectory}\\Reserved\\QuickFullComputerCleanup.exe'\"",
-            RedirectStandardOutput = true,
-            UseShellExecute = false,
-            CreateNoWindow = true,
-        };
-
-        using (Process process = new Process())
-        {
-            process.StartInfo = startInfo2;
-            process.Start();
-
-            // Capture the output
-            string output = process.StandardOutput.ReadToEnd();
-            process.WaitForExit();
-
-            // Show the output (optional)
-            Debug.WriteLine(output);
+            Process.Start(@"C:\Rebound11\QuickFullComputerCleanup.exe");
         }
     }
 
     private void Expander_Expanding(Expander sender, ExpanderExpandingEventArgs args)
     {
         GetCurrentSecurityIndex();
+    }
+
+    public async Task<Task> InstallExeWithShortcut(string displayAppName, string exeFile, string exeDestination, string lnkFile, string lnkDestination, string exeDisplayName, string lnkDisplayName)
+    {
+        try
+        {
+            File.Copy(exeFile, exeDestination, true);
+        }
+        catch
+        {
+
+        }
+        await Task.Delay(50);
+
+        try
+        {
+            File.Copy(lnkFile, lnkDestination, true);
+        }
+        catch
+        {
+
+        }
+
+        await Task.Delay(50);
+        return Task.CompletedTask;
     }
 }

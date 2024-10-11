@@ -20,8 +20,8 @@ public sealed partial class ModernHomePage : Page
     public ModernHomePage()
     {
         this.InitializeComponent();
-        if (App.cpanelWin != null) App.cpanelWin.TitleBarEx.SetWindowIcon("Assets\\AppIcons\\rcontrol.ico");
-        if (App.cpanelWin != null) App.cpanelWin.Title = "Rebound Control Panel";
+        if (App.cpanelWin != null) App.cpanelWin.TitleBarEx.SetWindowIcon("AppRT\\Products\\Associated\\rcontrol.ico");
+        if (App.cpanelWin != null) App.cpanelWin.Title = "Control Panel";
         LoadWallpaper();
         DisplaySystemInformation();
     }

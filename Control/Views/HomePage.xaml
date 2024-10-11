@@ -104,7 +104,7 @@
                             Height="64"
                             HorizontalAlignment="Left"
                             VerticalAlignment="Top"
-                            Source="ms-appx:///AppRT/Exported/imageres_1029.ico" />
+                            Source="/Assets/AppIcons/imageres_1029.ico" />
                         <StackPanel Margin="75,0,0,0">
                             <TextBlock
                                 Margin="6,0,0,5"
@@ -117,7 +117,7 @@
                                         Height="16"
                                         HorizontalAlignment="Left"
                                         VerticalAlignment="Top"
-                                        Source="ms-appx:///AppRT/Exported/imageres_78.ico" />
+                                        Source="/Assets/AppIcons/imageres_78.ico" />
                                     <TextBlock
                                         Margin="0,-2,0,0"
                                         Text="Change account type"
