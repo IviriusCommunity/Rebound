@@ -10,7 +10,6 @@
   </PropertyGroup>
   <ItemGroup>
     <Folder Include="$(MSBuildThisFileDirectory)MSBuild\" />
-    <Folder Include="$(MSBuildThisFileDirectory)AppRT\Exported\" />
     <Folder Include="$(MSBuildThisFileDirectory)RuntimeBinaries\" />
   </ItemGroup>
   <ItemGroup>
@@ -18,6 +17,27 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="$(MSBuildThisFileDirectory)AppRT\desktop2.ini" />
+    <Content Include="$(MSBuildThisFileDirectory)AppRT\Exported\DDORes_2001.png" />
+    <Content Include="$(MSBuildThisFileDirectory)AppRT\Exported\DDORes_2102.png" />
+    <Content Include="$(MSBuildThisFileDirectory)AppRT\Exported\DDORes_2413.ico" />
+    <Content Include="$(MSBuildThisFileDirectory)AppRT\Exported\imageres_1029.ico" />
+    <Content Include="$(MSBuildThisFileDirectory)AppRT\Exported\imageres_105.ico" />
+    <Content Include="$(MSBuildThisFileDirectory)AppRT\Exported\imageres_120.ico" />
+    <Content Include="$(MSBuildThisFileDirectory)AppRT\Exported\imageres_144.ico" />
+    <Content Include="$(MSBuildThisFileDirectory)AppRT\Exported\imageres_149.ico" />
+    <Content Include="$(MSBuildThisFileDirectory)AppRT\Exported\imageres_15.png" />
+    <Content Include="$(MSBuildThisFileDirectory)AppRT\Exported\imageres_161.ico" />
+    <Content Include="$(MSBuildThisFileDirectory)AppRT\Exported\imageres_195.ico" />
+    <Content Include="$(MSBuildThisFileDirectory)AppRT\Exported\imageres_196.ico" />
+    <Content Include="$(MSBuildThisFileDirectory)AppRT\Exported\imageres_197.ico" />
+    <Content Include="$(MSBuildThisFileDirectory)AppRT\Exported\imageres_25.ico" />
+    <Content Include="$(MSBuildThisFileDirectory)AppRT\Exported\imageres_32.ico" />
+    <Content Include="$(MSBuildThisFileDirectory)AppRT\Exported\imageres_34.ico" />
+    <Content Include="$(MSBuildThisFileDirectory)AppRT\Exported\imageres_5323.ico" />
+    <Content Include="$(MSBuildThisFileDirectory)AppRT\Exported\imageres_5372.png" />
+    <Content Include="$(MSBuildThisFileDirectory)AppRT\Exported\imageres_59.png" />
+    <Content Include="$(MSBuildThisFileDirectory)AppRT\Exported\imageres_78.ico" />
+    <Content Include="$(MSBuildThisFileDirectory)AppRT\Exported\imageres_86.ico" />
     <Content Include="$(MSBuildThisFileDirectory)AppRT\r11foldericon.ico" />
     <Content Include="$(MSBuildThisFileDirectory)AppRT\r11imageres.dll" />
     <Content Include="$(MSBuildThisFileDirectory)Reserved\Extended\Rebound.About.cer" />
