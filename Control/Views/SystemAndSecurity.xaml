@@ -159,27 +159,29 @@
                         Grid.Row="3"
                         Grid.ColumnSpan="3"
                         Spacing="5">
-                        <TextBlock
-                            Margin="3"
-                            Style="{StaticResource BodyStrongTextBlockStyle}"
-                            Text="Device status" />
-                        <InfoBar
+                        <InfoBar IsOpen="True" IsClosable="False" Title="View a summary of your computer's security features">
+                            <Expander Expanding="Expander_Expanding" HorizontalContentAlignment="Stretch" HorizontalAlignment="Stretch" Header="Security Index" Margin="-38, 0, 8, 8">
+                                <StackPanel HorizontalAlignment="Stretch">
+                                    <InfoBar
                             x:Name="StatusInfoBar"
                             IsClosable="False"
-                            IsOpen="True" />
-                        <TextBlock
+                            IsOpen="True" 
+                                        Title="Please wait..."/>
+                                    <TextBlock
                             Margin="3"
                             Style="{StaticResource BodyStrongTextBlockStyle}"
-                            Text="Malware protection" />
-                        <StackPanel x:Name="SecurityBars" Spacing="10" />
+                            Text="Installed antivirus apps" />
+                                    <StackPanel x:Name="SecurityBars" Spacing="10" />
+                                </StackPanel>
+                            </Expander>
+                        </InfoBar>
                         <TextBlock
                             Margin="3"
                             Style="{StaticResource BodyStrongTextBlockStyle}"
                             Text="Update installed apps" />
                         <Expander
                             HorizontalAlignment="Stretch"
-                            HorizontalContentAlignment="Stretch"
-                            IsEnabled="False">
+                            HorizontalContentAlignment="Stretch">
                             <Expander.Header>
                                 <Grid>
                                     <TextBlock VerticalAlignment="Center" Text="Available updates" />
@@ -206,90 +208,6 @@
                                 <ListViewItem Content="ee" />
                                 <ListViewItem Content="ee" />
                             </ListView>
-                        </Expander>
-                        <TextBlock
-                            Margin="3"
-                            Style="{StaticResource BodyStrongTextBlockStyle}"
-                            Text="Power options" />
-                        <Expander
-                            HorizontalAlignment="Stretch"
-                            HorizontalContentAlignment="Stretch"
-                            IsEnabled="False">
-                            <Expander.Header>
-                                <Grid>
-                                    <TextBlock VerticalAlignment="Center" Text="Power profile" />
-                                    <StackPanel
-                                        HorizontalAlignment="Right"
-                                        Orientation="Horizontal"
-                                        Spacing="8">
-                                        <Button Content="Refresh" />
-                                        <Border
-                                            Width="1"
-                                            Margin="0,5"
-                                            Background="{ThemeResource MenuFlyoutSeparatorThemeBrush}"
-                                            Opacity="0.25" />
-                                        <Button Content="Default" />
-                                        <Button Content="Efficiency" />
-                                        <Border
-                                            Width="1"
-                                            Margin="0,5"
-                                            Background="{ThemeResource MenuFlyoutSeparatorThemeBrush}"
-                                            Opacity="0.25" />
-                                        <Button Content="Apply" Style="{ThemeResource AccentButtonStyle}" />
-                                    </StackPanel>
-                                </Grid>
-                            </Expander.Header>
-                            <StackPanel Spacing="16">
-                                <Grid>
-                                    <Grid.RowDefinitions>
-                                        <RowDefinition />
-                                        <RowDefinition Height="16" />
-                                        <RowDefinition />
-                                        <RowDefinition Height="16" />
-                                        <RowDefinition />
-                                    </Grid.RowDefinitions>
-                                    <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="Auto" />
-                                        <ColumnDefinition Width="16" />
-                                        <ColumnDefinition />
-                                        <ColumnDefinition Width="16" />
-                                        <ColumnDefinition />
-                                    </Grid.ColumnDefinitions>
-                                    <TextBlock Grid.Row="2" Text="Turn off the display:" />
-                                    <TextBlock Grid.Row="4" Text="Put the computer to sleep:" />
-                                    <TextBlock Grid.Column="2" Text="On battery" />
-                                    <TextBlock Grid.Column="4" Text="Plugged in" />
-                                    <ComboBox
-                                        Grid.Row="2"
-                                        Grid.Column="2"
-                                        HorizontalAlignment="Stretch"
-                                        SelectedIndex="0">
-                                        <ComboBoxItem Content="Never" />
-                                    </ComboBox>
-                                    <ComboBox
-                                        Grid.Row="4"
-                                        Grid.Column="2"
-                                        HorizontalAlignment="Stretch"
-                                        SelectedIndex="0">
-                                        <ComboBoxItem Content="Never" />
-                                    </ComboBox>
-                                    <ComboBox
-                                        Grid.Row="2"
-                                        Grid.Column="4"
-                                        HorizontalAlignment="Stretch"
-                                        SelectedIndex="0">
-                                        <ComboBoxItem Content="Never" />
-                                    </ComboBox>
-                                    <ComboBox
-                                        Grid.Row="4"
-                                        Grid.Column="4"
-                                        HorizontalAlignment="Stretch"
-                                        SelectedIndex="0">
-                                        <ComboBoxItem Content="Never" />
-                                    </ComboBox>
-                                </Grid>
-                                <HyperlinkButton HorizontalAlignment="Right" Content="Advanced" />
-                            </StackPanel>
                         </Expander>
                         <TextBlock
                             Margin="3"
