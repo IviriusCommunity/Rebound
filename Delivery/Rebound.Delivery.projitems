@@ -40,6 +40,14 @@
     <Content Include="$(MSBuildThisFileDirectory)AppRT\Exported\imageres_86.ico" />
     <Content Include="$(MSBuildThisFileDirectory)AppRT\r11foldericon.ico" />
     <Content Include="$(MSBuildThisFileDirectory)AppRT\r11imageres.dll" />
+    <Content Include="$(MSBuildThisFileDirectory)AppRT\Wallpapers\WallpaperCyanDark8bit.png" />
+    <Content Include="$(MSBuildThisFileDirectory)AppRT\Wallpapers\WallpaperCyanLight8bit.png" />
+    <Content Include="$(MSBuildThisFileDirectory)AppRT\Wallpapers\WallpaperDarkBlue.png" />
+    <Content Include="$(MSBuildThisFileDirectory)AppRT\Wallpapers\WallpaperDarkCrimson.png" />
+    <Content Include="$(MSBuildThisFileDirectory)AppRT\Wallpapers\WallpaperDarkPurple.png" />
+    <Content Include="$(MSBuildThisFileDirectory)AppRT\Wallpapers\WallpaperLightBlue.png" />
+    <Content Include="$(MSBuildThisFileDirectory)AppRT\Wallpapers\WallpaperLightCrimson.png" />
+    <Content Include="$(MSBuildThisFileDirectory)AppRT\Wallpapers\WallpaperLightPurple.png" />
     <Content Include="$(MSBuildThisFileDirectory)Reserved\Extended\Rebound.About.cer" />
     <Content Include="$(MSBuildThisFileDirectory)Reserved\Extended\Rebound.About.msix" />
     <Content Include="$(MSBuildThisFileDirectory)Reserved\Extended\Rebound.Cleanup.cer" />
