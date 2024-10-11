@@ -174,7 +174,7 @@
                                     Width="75"
                                     Height="75"
                                     HorizontalAlignment="Left"
-                                    Source="/Assets/AppIcons/imageres_149.ico" />
+                                    Source="ms-appx:///AppRT/Exported/imageres_149.ico" />
                                 <TextBlock
                                     Margin="0,15,0,0"
                                     FontSize="20"
@@ -417,7 +417,7 @@
                                 <Image
                                     x:Name="Admin5"
                                     Width="16"
-                                    Source="/Assets/AppIcons/imageres_78.ico" />
+                                    Source="ms-appx:///AppRT/Exported/imageres_78.ico" />
                                 <TextBlock Text="Uninstall" />
                             </StackPanel>
                         </Button>
@@ -429,7 +429,7 @@
                                 <Image
                                     x:Name="Admin1"
                                     Width="16"
-                                    Source="/Assets/AppIcons/imageres_78.ico" />
+                                    Source="ms-appx:///AppRT/Exported/imageres_78.ico" />
                                 <TextBlock Text="Patch or Update" />
                             </StackPanel>
                         </Button>
@@ -513,7 +513,7 @@
                                 <Image
                                     x:Name="Admin3"
                                     Width="16"
-                                    Source="/Assets/AppIcons/imageres_78.ico" />
+                                    Source="ms-appx:///AppRT/Exported/imageres_78.ico" />
                                 <TextBlock Text="Install" />
                             </StackPanel>
                         </Button>
@@ -1272,7 +1272,7 @@
                                                     Width="24"
                                                     Margin="25,0,0,0"
                                                     HorizontalAlignment="Left"
-                                                    Source="/Assets/AppIcons/imageres_105.ico" />
+                                                    Source="ms-appx:///AppRT/Exported/imageres_105.ico" />
                                                 <TextBlock
                                                     Margin="55,2,0,2"
                                                     FontSize="18"
