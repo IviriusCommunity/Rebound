@@ -64,8 +64,8 @@
     <Content Include="$(MSBuildThisFileDirectory)AppRT\Products\Monitor.ico" />
     <Content Include="$(MSBuildThisFileDirectory)AppRT\Products\ODBC.png" />
     <Content Include="$(MSBuildThisFileDirectory)AppRT\Products\PCUnit.png" />
-    <Content Include="$(MSBuildThisFileDirectory)AppRT\Products\Rebound logo.png" />
-    <Content Include="$(MSBuildThisFileDirectory)AppRT\Products\Rebound11Icon.png" />
+    <Content Include="$(MSBuildThisFileDirectory)AppRT\Products\Rebound.png" />
+    <Content Include="$(MSBuildThisFileDirectory)AppRT\Products\Rebound11.png" />
     <Content Include="$(MSBuildThisFileDirectory)AppRT\Products\ResourceMonitor.png" />
     <Content Include="$(MSBuildThisFileDirectory)AppRT\Products\Services.png" />
     <Content Include="$(MSBuildThisFileDirectory)AppRT\Products\TaskScheduler.png" />
