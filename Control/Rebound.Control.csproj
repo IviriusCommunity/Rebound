@@ -32,6 +32,7 @@
     <Content Include="Assets\Square44x44Logo.scale-200.png" />
     <Content Include="Assets\Square44x44Logo.targetsize-24_altform-unplated.png" />
     <Content Include="Assets\Wide310x150Logo.scale-200.png" />
+    <Content Include="rcontrol.ico" />
   </ItemGroup>
 
   <ItemGroup>
@@ -97,6 +98,8 @@
     <PackageCertificateKeyFile>Rebound.Control_TemporaryKey.pfx</PackageCertificateKeyFile>
     <AppxPackageSigningEnabled>True</AppxPackageSigningEnabled>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <AssemblyName>Rebound Control Panel</AssemblyName>
+    <ApplicationIcon>rcontrol.ico</ApplicationIcon>
   </PropertyGroup>
 
   <ItemGroup>
