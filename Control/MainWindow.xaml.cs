@@ -44,7 +44,7 @@ public sealed partial class MainWindow : WindowEx
         RootFrame.ForwardStack.Clear();
 
         TitleBarEx = new TitleBarService(this, AccentStrip, TitleBarIcon, WindowTitle, Close, CrimsonMaxRes, Minimize, MaxResGlyph, WindowContent);
-        TitleBarEx.SetWindowIcon("Assets\\AppIcons\\rcontrol.ico");
+        TitleBarEx.SetWindowIcon("AppRT\\Products\\Associated\\rcontrol.ico");
 
         var rects = Display.GetDPIAwareDisplayRect(this);
         if (rects.Height < 900 || rects.Width < 1200)
