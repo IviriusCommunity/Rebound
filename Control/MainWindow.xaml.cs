@@ -28,6 +28,7 @@ public sealed partial class MainWindow : WindowEx
         Title = "Control Panel";
         WindowTitle.Text = Title;
         RootFrame.Navigate(typeof(ModernHomePage));
+        this.CenterOnScreen();
         this.SetWindowSize(1250, 750);
 
         Read();

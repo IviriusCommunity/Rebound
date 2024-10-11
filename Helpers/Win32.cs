@@ -51,14 +51,17 @@ public static class Win32
             await Task.Delay(100);
             try
             {
-                var i = 1;
-                if (app.RequestedTheme == ApplicationTheme.Light)
+                if (app != null)
                 {
-                    i = 0;
+                    var i = 1;
+                    if (app.RequestedTheme == ApplicationTheme.Light)
+                    {
+                        i = 0;
+                    }
+                    var hWnd = WinRT.Interop.WindowNative.GetWindowHandle(window);
+                    _ = DwmSetWindowAttribute(hWnd, 20, ref i, sizeof(int));
+                    CheckTheme();
                 }
-                var hWnd = WinRT.Interop.WindowNative.GetWindowHandle(window);
-                _ = DwmSetWindowAttribute(hWnd, 20, ref i, sizeof(int));
-                CheckTheme();
             }
             catch
             {
