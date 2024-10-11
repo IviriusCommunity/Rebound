@@ -15,7 +15,7 @@ public sealed partial class SystemAndSecurity : Page
     public SystemAndSecurity()
     {
         this?.InitializeComponent();
-        App.cpanelWin?.TitleBarEx.SetWindowIcon("Assets\\AppIcons\\imageres_195.ico");
+        App.cpanelWin?.TitleBarEx.SetWindowIcon("AppRT\\Exported\\imageres_195.ico");
         if (App.cpanelWin is not null)
         {
             App.cpanelWin.Title = "System and Security";
