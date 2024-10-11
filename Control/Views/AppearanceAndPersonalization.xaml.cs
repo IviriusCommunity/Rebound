@@ -1,29 +1,25 @@
 using System;
-using System.Collections.Generic;
 using System.Diagnostics;
-using System.IO;
 using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
-using Microsoft.UI.Xaml.Navigation;
-using Windows.Storage;
 using Windows.System;
 
-// To learn more about WinUI, the WinUI project structure,
-// and more about our project templates, see: http://aka.ms/winui-project-info.
+#pragma warning disable SYSLIB1054 // Use 'LibraryImportAttribute' instead of 'DllImportAttribute' to generate P/Invoke marshalling code at compile time
 
 namespace Rebound.Control.Views;
-/// <summary>
-/// An empty page that can be used on its own or navigated to within a Frame.
-/// </summary>
+
 public sealed partial class AppearanceAndPersonalization : Page
 {
     public AppearanceAndPersonalization()
     {
-        this.InitializeComponent();
-        if (App.cpanelWin != null) App.cpanelWin.TitleBarEx.SetWindowIcon("Assets\\AppIcons\\imageres_197.ico");
-        if (App.cpanelWin != null) App.cpanelWin.Title = "Appearance and Personalization";
+        this?.InitializeComponent();
+        App.cpanelWin?.TitleBarEx.SetWindowIcon("Assets\\AppIcons\\imageres_197.ico");
+        if (App.cpanelWin != null)
+        {
+            App.cpanelWin.Title = "Appearance and Personalization";
+        }
     }
 
     private async void ApplyThemeClick(object sender, RoutedEventArgs e)
@@ -37,9 +33,9 @@ public sealed partial class AppearanceAndPersonalization : Page
         {
             exists = false;
         }
-        PleaseWaitDialog.ShowAsync();
+        _ = PleaseWaitDialog.ShowAsync();
         App.cpanelWin.IsAlwaysOnTop = true;
-        var filePath = $"{AppContext.BaseDirectory}\\Themes\\{(sender as FrameworkElement).Tag}.deskthemepack";
+        var filePath = $"{AppContext.BaseDirectory}\\Themes\\{((FrameworkElement)sender).Tag}.deskthemepack";
         Process.Start(new ProcessStartInfo()
         {
             FileName = $"{filePath}",
@@ -49,13 +45,16 @@ public sealed partial class AppearanceAndPersonalization : Page
         await Task.Delay(800);
         App.cpanelWin.IsAlwaysOnTop = false;
         await Task.Delay(600);
-        if (!exists) Process.GetProcessesByName("SystemSettings")[0].Kill();
+        if (!exists)
+        {
+            Process.GetProcessesByName("SystemSettings")[0].Kill();
+        }
         await Task.Delay(200);
         App.cpanelWin.BringToFront();
         PleaseWaitDialog.Hide();
     }
 
-    private void OpenFileExplorerOptions()
+    private static void OpenFileExplorerOptions()
     {
         // Constants for ShellExecute
         const int SW_SHOWNORMAL = 1;
@@ -64,8 +63,8 @@ public sealed partial class AppearanceAndPersonalization : Page
         ShellExecute(IntPtr.Zero, "open", "control.exe", "/name Microsoft.FolderOptions", null, SW_SHOWNORMAL);
     }
 
-    [DllImport("shell32.dll", CharSet = CharSet.Auto, SetLastError = true)]
-    private static extern IntPtr ShellExecute(IntPtr hWnd, string lpOperation, string lpFile, string lpParameters, string lpDirectory, int nShowCmd);
+    [DllImport("shell32.dll", CharSet = CharSet.Unicode, SetLastError = true)]
+    private static extern IntPtr ShellExecute(IntPtr hWnd, string lpOperation, string lpFile, string lpParameters, string? lpDirectory, int nShowCmd);
 
     private async void NavigationView_SelectionChanged(NavigationView sender, NavigationViewSelectionChangedEventArgs args)
     {
