@@ -16,6 +16,8 @@
     <None Include="$(MSBuildThisFileDirectory)README.md" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="$(MSBuildThisFileDirectory)AppRT\Branding\BackgroundDark.png" />
+    <Content Include="$(MSBuildThisFileDirectory)AppRT\Branding\BackgroundLight.png" />
     <Content Include="$(MSBuildThisFileDirectory)AppRT\desktop2.ini" />
     <Content Include="$(MSBuildThisFileDirectory)AppRT\Exported\DDORes_2001.png" />
     <Content Include="$(MSBuildThisFileDirectory)AppRT\Exported\DDORes_2102.png" />
