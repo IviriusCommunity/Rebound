@@ -257,7 +257,7 @@ public sealed partial class MainWindow : WindowEx
                 if (RegNotifyChangeKeyValue(_hKey, true, REG_NOTIFY_CHANGE_NAME | REG_NOTIFY_CHANGE_ATTRIBUTES | REG_NOTIFY_CHANGE_LAST_SET | REG_NOTIFY_CHANGE_SECURITY, _changeEvent.SafeWaitHandle.DangerousGetHandle(), true) == 0)
                 {
                     // Handle registry change
-                    if (App.m_window != null) (App.m_window as MainWindow).CheckFocus();
+                    if (App.MainAppWindow != null) (App.MainAppWindow as MainWindow).CheckFocus();
                     _changeEvent.WaitOne();
                 }
             }

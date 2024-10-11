@@ -66,19 +66,12 @@
     <None Remove="Assets\AppIcons\TaskScheduler.png" />
     <None Remove="Assets\Backgrounds\BackgroundDark.png" />
     <None Remove="Assets\Backgrounds\BackgroundLight.png" />
-    <None Remove="ControlPanelWindow.xaml" />
     <None Remove="InstallationWindow.xaml" />
-    <None Remove="Views\ControlPanel\AppearanceAndPersonalization.xaml" />
-    <None Remove="Views\ControlPanel\HomePage.xaml" />
-    <None Remove="Views\ControlPanel\ModernHomePage.xaml" />
-    <None Remove="Views\ControlPanel\SystemAndSecurity.xaml" />
-    <None Remove="Views\ControlPanel\WindowsTools.xaml" />
     <None Remove="Views\HomePage.xaml" />
     <None Remove="Views\Rebound11Page.xaml" />
     <None Remove="Views\ShellPage.xaml" />
     <None Remove="UserControls\HomePageHeaderImage.xaml" />
     <None Remove="RegionBlock.xaml" />
-    <None Remove="UACWindow.xaml" />
     <None Remove="UninstallationWindow.xaml" />
   </ItemGroup>
 
@@ -173,16 +166,6 @@
   <ItemGroup>
 	  <None Include="..\.github\README.md" Pack="true" PackagePath="\" />
   </ItemGroup>
-	<ItemGroup>
-	  <Page Update="UACWindow.xaml">
-	    <Generator>MSBuild:Compile</Generator>
-	  </Page>
-	</ItemGroup>
-	<ItemGroup>
-	  <Page Update="ControlPanelWindow.xaml">
-	    <Generator>MSBuild:Compile</Generator>
-	  </Page>
-	</ItemGroup>
 	<ItemGroup>
 	  <Page Update="InstallationWindow.xaml">
 	    <Generator>MSBuild:Compile</Generator>

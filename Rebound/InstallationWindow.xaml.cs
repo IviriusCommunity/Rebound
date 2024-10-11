@@ -476,7 +476,7 @@ public sealed partial class InstallationWindow : WindowEx
         currentSubstep = totalSubsteps;
         Title.Text = $"Installing Rebound 11: 100%";
         Subtitle.Text = $"Closing Rebound Hub...";
-        App.m_window.Close();
+        App.MainAppWindow.Close();
         ReboundProgress.Minimum = 0;
         ReboundProgress.Maximum = 1;
         InstallProgress.Minimum = 0;

@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Media.Imaging;
 using WinRT.Interop;
+using WinUIEx;
 
 // To learn more about WinUI, the WinUI project structure,
 // and more about our project templates, see: http://aka.ms/winui-project-info.
@@ -18,6 +19,14 @@ public sealed partial class RegionBlock : Window
     public RegionBlock()
     {
         this.InitializeComponent();
+        AppWindow.TitleBar.ExtendsContentIntoTitleBar = true;
+        AppWindow.TitleBar.PreferredHeightOption = Microsoft.UI.Windowing.TitleBarHeightOption.Collapsed;
+        SystemBackdrop = new TransparentTintBackdrop();
+        this.SetIsMinimizable(false);
+        this.SetIsMaximizable(false);
+        this.SetIsAlwaysOnTop(true);
+        Activate();
+        this.Maximize();
         Load();
     }
 

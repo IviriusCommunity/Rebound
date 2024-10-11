@@ -172,7 +172,7 @@ public sealed partial class Rebound11Page : Page
 
         // Wait for the process to exit before proceeding
         await process.WaitForExitAsync();
-        App.m_window.Close();
+        App.MainAppWindow.Close();
     }
 
     private async void Button_Click_2(object sender, RoutedEventArgs e)
@@ -189,7 +189,7 @@ public sealed partial class Rebound11Page : Page
 
         // Wait for the process to exit before proceeding
         await process.WaitForExitAsync();
-        App.m_window.Close();
+        App.MainAppWindow.Close();
     }
 
     private void SettingsCard_Click(object sender, RoutedEventArgs e)
