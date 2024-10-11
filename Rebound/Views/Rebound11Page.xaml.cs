@@ -26,6 +26,7 @@ public sealed partial class Rebound11Page : Page
             Admin1.Visibility = Visibility.Collapsed;
             Admin3.Visibility = Visibility.Collapsed;
             Admin5.Visibility = Visibility.Collapsed;
+            Admin6.Visibility = Visibility.Collapsed;
         }
         if (IsReboundInstalled() == true)
         {
@@ -202,5 +203,22 @@ public sealed partial class Rebound11Page : Page
         {
             Process.Start("winver.exe");
         }
+    }
+
+    private async void Button_Click_3(object sender, RoutedEventArgs e)
+    {
+        var info = new ProcessStartInfo()
+        {
+            FileName = "powershell.exe",
+            UseShellExecute = false,
+            CreateNoWindow = true,
+            Verb = "runas",
+            Arguments = @$"Start-Process ""shell:AppsFolder\d6ef5e04-e9da-4e22-9782-8031af8beae7_yejd587sfa94t!App"" -ArgumentList ""UNINSTALLFULL"" -Verb RunAs"
+        };
+        var process = Process.Start(info);
+
+        // Wait for the process to exit before proceeding
+        await process.WaitForExitAsync();
+        App.MainAppWindow.Close();
     }
 }

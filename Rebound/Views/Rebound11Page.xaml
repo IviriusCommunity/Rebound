@@ -412,13 +412,22 @@
                         VerticalAlignment="Top"
                         Orientation="Horizontal"
                         Spacing="8">
-                        <Button HorizontalAlignment="Right" Click="Button_Click_2">
+                        <Button HorizontalAlignment="Right" Click="Button_Click_2" ToolTipService.ToolTip="Uninstall Rebound 11 apps and files.">
                             <StackPanel Orientation="Horizontal" Spacing="10">
                                 <Image
                                     x:Name="Admin5"
                                     Width="16"
                                     Source="ms-appx:///AppRT/Exported/imageres_78.ico" />
                                 <TextBlock Text="Uninstall" />
+                            </StackPanel>
+                        </Button>
+                        <Button HorizontalAlignment="Right" Click="Button_Click_3" ToolTipService.ToolTip="Uninstall Rebound 11 apps, files, and associated apps (for example: Files App).">
+                            <StackPanel Orientation="Horizontal" Spacing="10">
+                                <Image
+                                    x:Name="Admin6"
+                                    Width="16"
+                                    Source="ms-appx:///AppRT/Exported/imageres_78.ico" />
+                                <TextBlock Text="Full Uninstall" />
                             </StackPanel>
                         </Button>
                         <Button
@@ -618,9 +627,12 @@
                                 <StackPanel>
                                     <CheckBox
                                         x:Name="FilesCheck"
-                                        Content="File Explorer (Files - 3rd party) - You will have to set this app as default after the installation process is finished"
+                                        Content="File Explorer (Files - 3rd party)"
                                         IsChecked="True"
                                         IsEnabled="False" />
+                                    <InfoBar Title="Files will not be uninstalled by Rebound Hub and you will have to uninstall it manually." IsClosable="False" Margin="0, 8">
+                                        
+                                    </InfoBar>
                                     <CheckBox
                                         Content="Remote Desktop"
                                         IsChecked="True"
