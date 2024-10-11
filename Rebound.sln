@@ -304,6 +304,7 @@ Global
 	EndGlobalSection
 	GlobalSection(SharedMSBuildProjectFiles) = preSolution
 		Delivery\Rebound.Delivery.projitems*{4c58bab7-f9d6-48ab-b20d-c8f6413d6e34}*SharedItemsImports = 5
+		Delivery\Rebound.Delivery.projitems*{8920ebf9-a483-4a5f-9bb3-aa2e3d8f1269}*SharedItemsImports = 5
 		Delivery\Rebound.Delivery.projitems*{b6c8c1f3-644e-475f-84c6-214243620014}*SharedItemsImports = 13
 	EndGlobalSection
 EndGlobal

@@ -102,4 +102,6 @@
       <EmbedInteropTypes>true</EmbedInteropTypes>
     </COMReference>
   </ItemGroup>
+
+  <Import Project="..\Delivery\Rebound.Delivery.projitems" Label="Shared" />
 </Project>
