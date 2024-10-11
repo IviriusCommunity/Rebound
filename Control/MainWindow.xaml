@@ -652,7 +652,7 @@
             HorizontalAlignment="Left"
             VerticalAlignment="Top"
             x:FieldModifier="public"
-            Source="/Assets/AppIcons/rcontrol.ico" />
+            Source="ms-appx:///AppRT/Exported/rcontrol.ico" />
         <StackPanel
             Margin="29,7,140,0"
             HorizontalAlignment="Left"

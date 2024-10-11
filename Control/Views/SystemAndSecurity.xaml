@@ -24,7 +24,7 @@
                 </NavigationViewItem>
                 <NavigationViewItem Content="Windows Defender Firewall" IsEnabled="False">
                     <NavigationViewItem.Icon>
-                        <ImageIcon Source="/Assets/AppIcons/imageres_195.ico" />
+                        <ImageIcon Source="ms-appx:///AppRT/Exported/imageres_195.ico" />
                     </NavigationViewItem.Icon>
                     <NavigationViewItem.MenuItems>
                         <NavigationViewItem Content="Review your computer's status" />
@@ -36,19 +36,19 @@
                 </NavigationViewItem>
                 <NavigationViewItem Content="System" IsEnabled="False">
                     <NavigationViewItem.Icon>
-                        <ImageIcon Source="/Assets/AppIcons/imageres_1029.ico" />
+                        <ImageIcon Source="ms-appx:///AppRT/Exported/imageres_1029.ico" />
                     </NavigationViewItem.Icon>
                     <NavigationViewItem.MenuItems>
                         <NavigationViewItem Content="Change account type">
                             <NavigationViewItem.Icon>
-                                <ImageIcon Source="/Assets/AppIcons/imageres_78.ico" />
+                                <ImageIcon Source="ms-appx:///AppRT/Exported/imageres_78.ico" />
                             </NavigationViewItem.Icon>
                         </NavigationViewItem>
                     </NavigationViewItem.MenuItems>
                 </NavigationViewItem>
                 <NavigationViewItem Content="Power Options" IsEnabled="False">
                     <NavigationViewItem.Icon>
-                        <ImageIcon Source="/Assets/AppIcons/imageres_120.ico" />
+                        <ImageIcon Source="ms-appx:///AppRT/Exported/imageres_120.ico" />
                     </NavigationViewItem.Icon>
                     <NavigationViewItem.MenuItems>
                         <NavigationViewItem Content="View network status and tasks" />
@@ -59,7 +59,7 @@
                     Content="File History"
                     IsEnabled="False">
                     <NavigationViewItem.Icon>
-                        <ImageIcon Source="/Assets/AppIcons/imageres_197.ico" />
+                        <ImageIcon Source="ms-appx:///AppRT/Exported/imageres_197.ico" />
                     </NavigationViewItem.Icon>
                     <NavigationViewItem.MenuItems>
                         <NavigationViewItem x:Name="Re11Item" Content="Rebound 11" />
@@ -67,7 +67,7 @@
                 </NavigationViewItem>
                 <NavigationViewItem Content="Windows Backup" IsEnabled="False">
                     <NavigationViewItem.Icon>
-                        <ImageIcon Source="/Assets/AppIcons/imageres_196.ico" />
+                        <ImageIcon Source="ms-appx:///AppRT/Exported/imageres_196.ico" />
                     </NavigationViewItem.Icon>
                     <NavigationViewItem.MenuItems>
                         <NavigationViewItem Content="View devices and printers" />
@@ -77,7 +77,7 @@
                 </NavigationViewItem>
                 <NavigationViewItem Content="BitLocker Drive Encryption" IsEnabled="False">
                     <NavigationViewItem.Icon>
-                        <ImageIcon Source="/Assets/AppIcons/imageres_144.ico" />
+                        <ImageIcon Source="ms-appx:///AppRT/Exported/imageres_144.ico" />
                     </NavigationViewItem.Icon>
                     <NavigationViewItem.MenuItems>
                         <NavigationViewItem Content="Change date, time, or number formats" />
@@ -85,7 +85,7 @@
                 </NavigationViewItem>
                 <NavigationViewItem Content="Storage Spaces" IsEnabled="False">
                     <NavigationViewItem.Icon>
-                        <ImageIcon Source="/Assets/AppIcons/imageres_161.ico" />
+                        <ImageIcon Source="ms-appx:///AppRT/Exported/imageres_161.ico" />
                     </NavigationViewItem.Icon>
                     <NavigationViewItem.MenuItems>
                         <NavigationViewItem Content="Uninstall a program" />
@@ -93,7 +93,7 @@
                 </NavigationViewItem>
                 <NavigationViewItem Content="Work Folders" IsEnabled="False">
                     <NavigationViewItem.Icon>
-                        <ImageIcon Source="/Assets/AppIcons/imageres_86.ico" />
+                        <ImageIcon Source="ms-appx:///AppRT/Exported/imageres_86.ico" />
                     </NavigationViewItem.Icon>
                     <NavigationViewItem.MenuItems>
                         <NavigationViewItem Content="Let Windows suggest settings" />
@@ -102,12 +102,12 @@
                 </NavigationViewItem>
                 <NavigationViewItem x:Name="WinToolsItem" Content="Windows Tools">
                     <NavigationViewItem.Icon>
-                        <ImageIcon Source="/Assets/AppIcons/imageres_86.ico" />
+                        <ImageIcon Source="ms-appx:///AppRT/Exported/imageres_86.ico" />
                     </NavigationViewItem.Icon>
                 </NavigationViewItem>
                 <NavigationViewItem Content="Work Folders" IsEnabled="False">
                     <NavigationViewItem.Icon>
-                        <ImageIcon Source="/Assets/AppIcons/imageres_86.ico" />
+                        <ImageIcon Source="ms-appx:///AppRT/Exported/imageres_86.ico" />
                     </NavigationViewItem.Icon>
                     <NavigationViewItem.MenuItems>
                         <NavigationViewItem Content="Let Windows suggest settings" />
@@ -116,7 +116,7 @@
                 </NavigationViewItem>
                 <NavigationViewItem Content="Updates" IsEnabled="False">
                     <NavigationViewItem.Icon>
-                        <ImageIcon Source="/Assets/AppIcons/imageres_86.ico" />
+                        <ImageIcon Source="ms-appx:///AppRT/Exported/imageres_86.ico" />
                     </NavigationViewItem.Icon>
                     <NavigationViewItem.MenuItems>
                         <NavigationViewItem Content="Windows Update" />

@@ -42,7 +42,7 @@
                                     Width="24"
                                     Margin="80,32,0,0"
                                     HorizontalAlignment="Left"
-                                    Source="/Assets/AppIcons/imageres_78.ico"
+                                    Source="ms-appx:///AppRT/Exported/imageres_78.ico"
                                     Visibility="{Binding AdminVisibility}" />
                                 <Border
                                     Margin="0,0,-30,0"
@@ -65,7 +65,7 @@
                                         <AppBarButton Label="Open file location" />
                                         <AppBarButton Label="Run as Administrator">
                                             <AppBarButton.Icon>
-                                                <ImageIcon Source="/Assets/AppIcons/imageres_78.ico" />
+                                                <ImageIcon Source="ms-appx:///AppRT/Exported/imageres_78.ico" />
                                             </AppBarButton.Icon>
                                         </AppBarButton>
                                         <AppBarButton Label="Run Legacy" />
