@@ -96,6 +96,7 @@
     <PackageCertificateThumbprint>972A4A648E59DCAC76EB74401BDE6677C4E72BEE</PackageCertificateThumbprint>
     <PackageCertificateKeyFile>Rebound.Control_TemporaryKey.pfx</PackageCertificateKeyFile>
     <AppxPackageSigningEnabled>True</AppxPackageSigningEnabled>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
 
   <ItemGroup>

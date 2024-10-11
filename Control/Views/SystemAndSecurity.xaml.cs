@@ -1,48 +1,33 @@
 using System;
-using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
-using System.Linq;
-using System.Management;
-using System.Runtime.InteropServices;
-using System.Text;
 using System.Threading.Tasks;
 using IWshRuntimeLibrary;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
-using Microsoft.UI.Xaml.Navigation;
-using Microsoft.Win32;
 using Rebound.Control.ViewModels;
-using Windows.System;
 using WinUIEx;
 
-// To learn more about WinUI, the WinUI project structure,
-// and more about our project templates, see: http://aka.ms/winui-project-info.
-
 namespace Rebound.Control.Views;
-/// <summary>
-/// An empty page that can be used on its own or navigated to within a Frame.
-/// </summary>
+
 public sealed partial class SystemAndSecurity : Page
 {
     public SystemAndSecurity()
     {
-        this.InitializeComponent();
-        if (App.cpanelWin != null) App.cpanelWin.TitleBarEx.SetWindowIcon("Assets\\AppIcons\\imageres_195.ico");
-        if (App.cpanelWin != null) App.cpanelWin.Title = "System and Security";
-        //GetCurrentSecurityIndex();
+        this?.InitializeComponent();
+        App.cpanelWin?.TitleBarEx.SetWindowIcon("Assets\\AppIcons\\imageres_195.ico");
+        if (App.cpanelWin is not null)
+        {
+            App.cpanelWin.Title = "System and Security";
+        }
     }
-
-
 
     public async void GetCurrentSecurityIndex()
     {
+        _ = PleaseWaitDialog.ShowAsync();
+
         await Task.Delay(1000);
-            await UpdateSecurityInformation();
-        /*DispatcherQueue.TryEnqueue(async () =>
-        {
-            await UpdateSecurityInformation();
-        });*/
+        await UpdateSecurityInformation();
     }
 
     public async Task UpdateSecurityInformation()
@@ -52,15 +37,15 @@ public sealed partial class SystemAndSecurity : Page
         var updatesPending = await SystemAndSecurityModel.AreUpdatesPending();
         var driveEncrypted = await SystemAndSecurityModel.IsDriveEncrypted("C");
         var isPasswordComplex = await SystemAndSecurityModel.IsPasswordComplex();
-        double securityIndex =
+        var securityIndex =
             uac * 1 +      // 10% of total
             (defenderStatus == true ? 1 : 0) * 5 + // 50% of total
             (updatesPending == false ? 1 : 0) * 2.5 + // 25% of total
             (driveEncrypted == true ? 1 : 0) * 1 + // 10% of total
             (isPasswordComplex == true ? 1 : 0) * 0.5; // 5% of total
 
-        var sev2 = InfoBarSeverity.Informational;
-        string status = string.Empty;
+        string status;
+        InfoBarSeverity sev2;
 
         switch (securityIndex)
         {
@@ -118,86 +103,8 @@ Antivirus: {(defenderStatus == true ? "Enabled" : "Disabled")}
 Pending updates: {(updatesPending == true ? "Yes" : "No")}
 Encrypted drive (C:): {(driveEncrypted == true ? "Yes" : "No")}
 Complex password: {(isPasswordComplex == true ? "Yes" : "No")}";
-    }
 
-
-
-    // Constants for SystemParametersInfo function
-    private const int SPI_GETDESKWALLPAPER = 0x0073;
-    private const int MAX_PATH = 260;
-
-    // P/Invoke declaration for SystemParametersInfo function
-    [DllImport("user32.dll", CharSet = CharSet.Auto)]
-    private static extern int SystemParametersInfo(int uAction, int uParam, StringBuilder lpvParam, int fuWinIni);
-
-    // Method to retrieve the current user's wallpaper path
-    private string GetWallpaperPath()
-    {
-        StringBuilder wallpaperPath = new StringBuilder(MAX_PATH);
-        SystemParametersInfo(SPI_GETDESKWALLPAPER, MAX_PATH, wallpaperPath, 0);
-        return wallpaperPath.ToString();
-    }
-
-    private void BackButton_Click(object sender, RoutedEventArgs e)
-    {
-        if (App.cpanelWin != null)
-        {
-            App.cpanelWin.RootFrame.GoBack();
-        }
-    }
-
-    private void ForwardButton_Click(object sender, RoutedEventArgs e)
-    {
-        if (App.cpanelWin != null)
-        {
-            App.cpanelWin.RootFrame.GoForward();
-        }
-    }
-
-    private async void UpButton_Click(object sender, RoutedEventArgs e)
-    {
-        await Launcher.LaunchUriAsync(new Uri(Environment.GetFolderPath(Environment.SpecialFolder.Desktop)));
-        App.cpanelWin.Close();
-    }
-
-    private void RefreshButton_Click(object sender, RoutedEventArgs e)
-    {
-        if (App.cpanelWin != null)
-        {
-            var oldHistory = App.cpanelWin.RootFrame.ForwardStack;
-            var newList = new List<PageStackEntry>();
-            foreach (var item in oldHistory)
-            {
-                newList.Add(item);
-            }
-            App.cpanelWin.RootFrame.Navigate(typeof(HomePage), null, new Microsoft.UI.Xaml.Media.Animation.SuppressNavigationTransitionInfo());
-            App.cpanelWin.RootFrame.GoBack();
-            App.cpanelWin.RootFrame.ForwardStack.Clear();
-            foreach (var item in newList)
-            {
-                App.cpanelWin.RootFrame.ForwardStack.Add(item);
-            }
-        }
-    }
-
-    private void Button_Click(object sender, RoutedEventArgs e)
-    {
-        if (App.cpanelWin != null)
-        {
-            App.cpanelWin.RootFrame.Navigate(typeof(ModernHomePage), null, new Microsoft.UI.Xaml.Media.Animation.DrillInNavigationTransitionInfo());
-        }
-    }
-
-    private void ComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
-    {
-        if ((sender as ComboBox).SelectedIndex == 0 && (App.cpanelWin != null))
-        {
-            App.cpanelWin.RootFrame.Navigate(typeof(HomePage), null, new Microsoft.UI.Xaml.Media.Animation.DrillInNavigationTransitionInfo());
-        }
-        if ((sender as ComboBox).SelectedIndex == 1 && (App.cpanelWin != null))
-        {
-            App.cpanelWin.RootFrame.Navigate(typeof(ModernHomePage), null, new Microsoft.UI.Xaml.Media.Animation.DrillInNavigationTransitionInfo());
-        }
+        PleaseWaitDialog.Hide();
     }
 
     private void NavigationView_SelectionChanged(NavigationView sender, NavigationViewSelectionChangedEventArgs args)
@@ -216,73 +123,18 @@ Complex password: {(isPasswordComplex == true ? "Yes" : "No")}";
         }
         catch (Exception ex)
         {
-            if (App.cpanelWin != null) App.cpanelWin.Title = ex.Message;
+            if (App.cpanelWin is not null)
+            {
+                App.cpanelWin.Title = ex.Message;
+            }
         }
-    }
-
-    private void MenuFlyoutItem_Click(object sender, RoutedEventArgs e)
-    {
-        App.cpanelWin.RootFrame.Navigate(typeof(AppearanceAndPersonalization), null, new Microsoft.UI.Xaml.Media.Animation.DrillInNavigationTransitionInfo());
-    }
-
-    private void SettingsCard_Click(object sender, RoutedEventArgs e)
-    {
-        var info = new ProcessStartInfo()
-        {
-            FileName = "powershell.exe",
-            Arguments = "Start-Process -FilePath \"C:\\Windows\\System32\\control.exe\"",
-            Verb = "runas",
-            UseShellExecute = false,
-            CreateNoWindow = true
-        };
-
-        var process = Process.Start(info);
-
-        App.cpanelWin.Close();
     }
 
     private void SettingsCard_Click_1(object sender, RoutedEventArgs e)
     {
-        // TODO: Add this back
         var win = new UACWindow();
         win.Show();
     }
-
-    static void RunPowerShellScript(string script)
-    {
-        ProcessStartInfo startInfo = new ProcessStartInfo
-        {
-            FileName = "powershell.exe",
-            Arguments = $"-NoProfile -Command \"{script}\"",
-            RedirectStandardOutput = true,
-            RedirectStandardError = true,
-            UseShellExecute = false,
-            CreateNoWindow = true
-        };
-
-        using (Process process = Process.Start(startInfo))
-        {
-            string output = process.StandardOutput.ReadToEnd();
-            string error = process.StandardError.ReadToEnd();
-            process.WaitForExit();
-
-            if (process.ExitCode != 0)
-            {
-                Console.WriteLine($"Error: {error}");
-            }
-            else
-            {
-                Console.WriteLine($"Output: {output}");
-            }
-        }
-    }
-
-    // Import the CreateDirectory function from kernel32.dll
-    [DllImport("kernel32.dll", CharSet = CharSet.Auto, SetLastError = true)]
-    private static extern bool CreateDirectory(string lpPathName, IntPtr lpSecurityAttributes);
-
-    // Define the constants for error handling
-    private const int ERROR_ALREADY_EXISTS = 183;
 
     private async void Button_Click_1(object sender, RoutedEventArgs e)
     {
@@ -399,11 +251,6 @@ Complex password: {(isPasswordComplex == true ? "Yes" : "No")}";
     {
         string command = $"powershell -command \"$s=(New-Object -COM WScript.Shell).CreateShortcut('{shortcutPath}'); $s.Save(); Start-Process explorer.exe /select, '{shortcutPath}'\"";
         System.Diagnostics.Process.Start("cmd.exe", $"/C {command}");
-    }
-
-    private void Button_Click_2(object sender, RoutedEventArgs e)
-    {
-        //PinToTaskbar($"{AppContext.BaseDirectory}\\Reserved\\Quick Full Computer Cleanup.exe");
     }
 
     private void Button_Click_3(object sender, RoutedEventArgs e)

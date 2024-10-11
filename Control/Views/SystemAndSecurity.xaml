@@ -162,6 +162,10 @@
                         <InfoBar IsOpen="True" IsClosable="False" Title="View a summary of your computer's security features">
                             <Expander Expanding="Expander_Expanding" HorizontalContentAlignment="Stretch" HorizontalAlignment="Stretch" Header="Security Index" Margin="-38, 0, 8, 8">
                                 <StackPanel HorizontalAlignment="Stretch">
+                                    <TextBlock
+                            Margin="3"
+                            Style="{StaticResource BodyStrongTextBlockStyle}"
+                            Text="Security summary" />
                                     <InfoBar
                             x:Name="StatusInfoBar"
                             IsClosable="False"
@@ -276,5 +280,14 @@
                 </Grid>
             </ScrollViewer>
         </NavigationView>
+        <ContentDialog x:Name="PleaseWaitDialog" Title="Please wait">
+            <Grid>
+                <ProgressRing
+                    Width="50"
+                    Height="50"
+                    HorizontalAlignment="Center"
+                    IsIndeterminate="True" />
+            </Grid>
+        </ContentDialog>
     </Grid>
 </Page>
