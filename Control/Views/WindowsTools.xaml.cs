@@ -47,28 +47,28 @@ public sealed partial class WindowsTools : Page
     {
         new ProgramItem()
         {
-            Icon = "/Assets/AppIcons/imageres_15.png",
+            Icon = "ms-appx:///AppRT/Exported/imageres_15.png",
             Name = "Calculator",
             AdminVisibility = Visibility.Collapsed,
             SpecialTag = "PRODUCTIVITY",
         },
         new ProgramItem()
         {
-            Icon = "/Assets/AppIcons/imageres_15.png",
+            Icon = "ms-appx:///AppRT/Exported/imageres_15.png",
             Name = "Character Map",
             AdminVisibility = Visibility.Collapsed,
             SpecialTag = "PRODUCTIVITY",
         },
         new ProgramItem()
         {
-            Icon = "/Assets/AppIcons/imageres_15.png",
+            Icon = "ms-appx:///AppRT/Exported/imageres_15.png",
             Name = "Clock",
             AdminVisibility = Visibility.Collapsed,
             SpecialTag = "PRODUCTIVITY",
         },
         new ProgramItem()
         {
-            Icon = "/Assets/AppIcons/imageres_5323.ico",
+            Icon = "ms-appx:///AppRT/Exported/imageres_5323.ico",
             Name = "Command Prompt",
             IsEnabled = true,
             AdminVisibility = Visibility.Collapsed,
@@ -76,21 +76,21 @@ public sealed partial class WindowsTools : Page
         },
         new ProgramItem()
         {
-            Icon = "/Assets/AppIcons/imageres_15.png",
+            Icon = "ms-appx:///AppRT/Exported/imageres_15.png",
             Name = "Component Services",
             AdminVisibility = Visibility.Collapsed,
             SpecialTag = "SYSTEM",
         },
         new ProgramItem()
         {
-            Icon = "/Assets/AppIcons/CompManagement.png",
+            Icon = "ms-appx:///AppRT/Exported/CompManagement.png",
             Name = "Computer Management",
             AdminVisibility = Visibility.Collapsed,
             SpecialTag = "SYSTEM",
         },
         new ProgramItem()
         {
-            Icon = "/Assets/AppIcons/rcontrol.ico",
+            Icon = "ms-appx:///AppRT/Exported/rcontrol.ico",
             Name = "Control Panel",
             Path = @"C:\Rebound11\rcontrol.exe",
             IsEnabled = true,
@@ -99,7 +99,7 @@ public sealed partial class WindowsTools : Page
         },
         new ProgramItem()
         {
-            Icon = "/Assets/AppIcons/rdfrgui.ico",
+            Icon = "ms-appx:///AppRT/Exported/rdfrgui.ico",
             Name = "Defragment and Optimize Drives",
             IsEnabled = true,
             AdminVisibility = Visibility.Collapsed,
@@ -107,14 +107,14 @@ public sealed partial class WindowsTools : Page
         },
         new ProgramItem()
         {
-            Icon = "/Assets/AppIcons/imageres_15.png",
+            Icon = "ms-appx:///AppRT/Exported/imageres_15.png",
             Name = "Dev Home (Preview)",
             AdminVisibility = Visibility.Collapsed,
             SpecialTag = "DEVELOPMENT",
         },
         new ProgramItem()
         {
-            Icon = "/Assets/AppIcons/cleanmgr.ico",
+            Icon = "ms-appx:///AppRT/Exported/cleanmgr.ico",
             Name = "Disk Cleanup",
             IsEnabled = true,
             AdminVisibility = Visibility.Collapsed,
@@ -122,35 +122,35 @@ public sealed partial class WindowsTools : Page
         },
         new ProgramItem()
         {
-            Icon = "/Assets/AppIcons/EventViewer.png",
+            Icon = "ms-appx:///AppRT/Exported/EventViewer.png",
             Name = "Event Viewer",
             AdminVisibility = Visibility.Collapsed,
             SpecialTag = "SYSTEM",
         },
         new ProgramItem()
         {
-            Icon = "/Assets/AppIcons/HyperV.png",
+            Icon = "ms-appx:///AppRT/Exported/HyperV.png",
             Name = "Hyper-V Manager",
             AdminVisibility = Visibility.Visible,
             SpecialTag = "VIRTUALIZATION",
         },
         new ProgramItem()
         {
-            Icon = "/Assets/AppIcons/HyperVQC.png",
+            Icon = "ms-appx:///AppRT/Exported/HyperVQC.png",
             Name = "Hyper-V Quick Create",
             AdminVisibility = Visibility.Visible,
             SpecialTag = "VIRTUALIZATION",
         },
         new ProgramItem()
         {
-            Icon = "/Assets/AppIcons/imageres_25.ico",
+            Icon = "ms-appx:///AppRT/Exported/imageres_25.ico",
             Name = "iSCSI Initiator",
             AdminVisibility = Visibility.Visible,
             SpecialTag = "SYSTEM",
         },
         new ProgramItem()
         {
-            Icon = "/Assets/AppIcons/LocalSecPolicy.png",
+            Icon = "ms-appx:///AppRT/Exported/LocalSecPolicy.png",
             Name = "Local Security Policy",
             AdminVisibility = Visibility.Collapsed,
             SpecialTag = "SYSTEM",

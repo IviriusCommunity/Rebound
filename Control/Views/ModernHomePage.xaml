@@ -27,34 +27,34 @@
                 </NavigationViewItem>
                 <NavigationViewItem Content="System and Security" Tag="SysAndSecurity">
                     <NavigationViewItem.Icon>
-                        <ImageIcon Source="/Assets/AppIcons/imageres_195.ico" />
+                        <ImageIcon Source="ms-appx:///AppRT/Exported/imageres_195.ico" />
                     </NavigationViewItem.Icon>
                 </NavigationViewItem>
                 <NavigationViewItem Content="User Accounts">
                     <NavigationViewItem.Icon>
-                        <ImageIcon Source="/Assets/AppIcons/imageres_1029.ico" />
+                        <ImageIcon Source="ms-appx:///AppRT/Exported/imageres_1029.ico" />
                     </NavigationViewItem.Icon>
                     <NavigationViewItem.MenuItems>
                         <NavigationViewItem Content="Change account type" IsEnabled="False">
                             <NavigationViewItem.Icon>
-                                <ImageIcon Source="/Assets/AppIcons/imageres_78.ico" />
+                                <ImageIcon Source="ms-appx:///AppRT/Exported/imageres_78.ico" />
                             </NavigationViewItem.Icon>
                         </NavigationViewItem>
                         <NavigationViewItem Content="Remove user accounts" IsEnabled="False">
                             <NavigationViewItem.Icon>
-                                <ImageIcon Source="/Assets/AppIcons/imageres_78.ico" />
+                                <ImageIcon Source="ms-appx:///AppRT/Exported/imageres_78.ico" />
                             </NavigationViewItem.Icon>
                         </NavigationViewItem>
                         <NavigationViewItem Content="Credential manager" IsEnabled="False">
                             <NavigationViewItem.Icon>
-                                <ImageIcon Source="/Assets/AppIcons/imageres_78.ico" />
+                                <ImageIcon Source="ms-appx:///AppRT/Exported/imageres_78.ico" />
                             </NavigationViewItem.Icon>
                         </NavigationViewItem>
                     </NavigationViewItem.MenuItems>
                 </NavigationViewItem>
                 <NavigationViewItem Content="Network and Internet" IsEnabled="False">
                     <NavigationViewItem.Icon>
-                        <ImageIcon Source="/Assets/AppIcons/imageres_120.ico" />
+                        <ImageIcon Source="ms-appx:///AppRT/Exported/imageres_120.ico" />
                     </NavigationViewItem.Icon>
                     <NavigationViewItem.MenuItems>
                         <NavigationViewItem Content="View network status and tasks" />
@@ -62,12 +62,12 @@
                 </NavigationViewItem>
                 <NavigationViewItem x:Name="AppearanceItem" Content="Appearance and Personalization">
                     <NavigationViewItem.Icon>
-                        <ImageIcon Source="/Assets/AppIcons/imageres_197.ico" />
+                        <ImageIcon Source="ms-appx:///AppRT/Exported/imageres_197.ico" />
                     </NavigationViewItem.Icon>
                 </NavigationViewItem>
                 <NavigationViewItem Content="Hardware and Sound">
                     <NavigationViewItem.Icon>
-                        <ImageIcon Source="/Assets/AppIcons/imageres_196.ico" />
+                        <ImageIcon Source="ms-appx:///AppRT/Exported/imageres_196.ico" />
                     </NavigationViewItem.Icon>
                     <NavigationViewItem.MenuItems>
                         <NavigationViewItem Content="Devices and printers">
@@ -117,7 +117,7 @@
                                 </NavigationViewItem>
                                 <NavigationViewItem Content="Device Manager" IsEnabled="False">
                                     <NavigationViewItem.Icon>
-                                        <ImageIcon Source="/Assets/AppIcons/imageres_78.ico" />
+                                        <ImageIcon Source="ms-appx:///AppRT/Exported/imageres_78.ico" />
                                     </NavigationViewItem.Icon>
                                 </NavigationViewItem>
                             </NavigationViewItem.MenuItems>
@@ -166,7 +166,7 @@
                 </NavigationViewItem>
                 <NavigationViewItem Content="Clock and Region">
                     <NavigationViewItem.Icon>
-                        <ImageIcon Source="/Assets/AppIcons/imageres_144.ico" />
+                        <ImageIcon Source="ms-appx:///AppRT/Exported/imageres_144.ico" />
                     </NavigationViewItem.Icon>
                     <NavigationViewItem.MenuItems>
                         <NavigationViewItem Content="Date and time">
@@ -198,7 +198,7 @@
                 </NavigationViewItem>
                 <NavigationViewItem Content="Apps and programs">
                     <NavigationViewItem.Icon>
-                        <ImageIcon Source="/Assets/AppIcons/imageres_161.ico" />
+                        <ImageIcon Source="ms-appx:///AppRT/Exported/imageres_161.ico" />
                     </NavigationViewItem.Icon>
                     <interactivity:Interaction.Behaviors>
                         <core:EventTriggerBehavior EventName="Tapped">
@@ -208,7 +208,7 @@
                 </NavigationViewItem>
                 <NavigationViewItem Content="Accessibility">
                     <NavigationViewItem.Icon>
-                        <ImageIcon Source="/Assets/AppIcons/imageres_86.ico" />
+                        <ImageIcon Source="ms-appx:///AppRT/Exported/imageres_86.ico" />
                     </NavigationViewItem.Icon>
                     <interactivity:Interaction.Behaviors>
                         <core:EventTriggerBehavior EventName="Tapped">
@@ -275,7 +275,7 @@
                             Height="128"
                             Margin="9"
                             VerticalAlignment="Top"
-                            Source="/Assets/AppIcons/Monitor.ico"
+                            Source="ms-appx:///AppRT/Exported/Monitor.ico"
                             Stretch="Uniform" />
                         <Grid HorizontalAlignment="Center">
                             <Grid.RowDefinitions>
@@ -358,7 +358,7 @@
                             Header="Rebound Hub"
                             IsClickEnabled="True">
                             <SettingsUI:SettingsCard.HeaderIcon>
-                                <ImageIcon Source="/Assets/AppIcons/Rebound.ico" />
+                                <ImageIcon Source="ms-appx:///AppRT/Exported/Rebound.ico" />
                             </SettingsUI:SettingsCard.HeaderIcon>
                         </SettingsUI:SettingsCard>
                         <SettingsUI:SettingsCard

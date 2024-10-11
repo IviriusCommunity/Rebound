@@ -96,7 +96,7 @@
                 Click="Button_Click_1"
                 Style="{ThemeResource AccentButtonStyle}">
                 <StackPanel Orientation="Horizontal" Spacing="10">
-                    <Image Width="16" Source="/Assets/AppIcons/imageres_78.ico" />
+                    <Image Width="16" Source="ms-appx:///AppRT/Exported/imageres_78.ico" />
                     <TextBlock Text="Apply" />
                 </StackPanel>
             </Button>
