@@ -160,6 +160,11 @@ public sealed partial class WindowsTools : Page
     public WindowsTools()
     {
         this.InitializeComponent();
+        App.ControlPanelWindow?.TitleBarEx.SetWindowIcon("AppRT\\Exported\\imageres_114.ico");
+        if (App.ControlPanelWindow is not null)
+        {
+            App.ControlPanelWindow.Title = "Windows Tools";
+        }
         ItemsGrid.ItemsSource = items;
     }
 }

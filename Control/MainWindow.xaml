@@ -8,6 +8,9 @@
     xmlns:local="using:Rebound.Control"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:winuiex="using:WinUIEx"
+    xmlns:behaviors="using:CommunityToolkit.WinUI.Behaviors"
+    xmlns:core="using:Microsoft.Xaml.Interactions.Core"
+    xmlns:interactivity="using:Microsoft.Xaml.Interactivity"
     Closed="WindowEx_Closed"
     mc:Ignorable="d">
     <Grid x:Name="WindowContent">
@@ -529,16 +532,55 @@
                             <FontIcon FontSize="11" Glyph="" />
                             <Button.Flyout>
                                 <MenuFlyout Placement="Bottom">
-                                    <MenuFlyoutItem Text="All Items" />
+                                    <MenuFlyoutItem Text="All Items" IsEnabled="False" />
                                     <MenuFlyoutSeparator />
-                                    <MenuFlyoutItem Text="Accessibility" />
+                                    <MenuFlyoutItem Text="Accessibility">
+                                        <interactivity:Interaction.Behaviors>
+                                            <core:EventTriggerBehavior EventName="Click">
+                                                <behaviors:NavigateToUriAction NavigateUri="ms-settings:easeofaccess" />
+                                            </core:EventTriggerBehavior>
+                                        </interactivity:Interaction.Behaviors>
+                                    </MenuFlyoutItem>
                                     <MenuFlyoutItem Click="MenuFlyoutItem_Click" Text="Appearance and Personalization" />
-                                    <MenuFlyoutItem Text="Clock and Region" />
-                                    <MenuFlyoutItem Text="Hardware and Sound" />
-                                    <MenuFlyoutItem Text="Network and Internet" />
-                                    <MenuFlyoutItem Text="Programs" />
+                                    <MenuFlyoutSubItem Text="Clock and Region">
+                                        <MenuFlyoutItem Text="Date and time">
+                                            <interactivity:Interaction.Behaviors>
+                                                <core:EventTriggerBehavior EventName="Click">
+                                                    <behaviors:NavigateToUriAction NavigateUri="ms-settings:dateandtime" />
+                                                </core:EventTriggerBehavior>
+                                            </interactivity:Interaction.Behaviors>
+                                        </MenuFlyoutItem>
+                                        <MenuFlyoutItem Text="Language and region">
+                                            <interactivity:Interaction.Behaviors>
+                                                <core:EventTriggerBehavior EventName="Click">
+                                                    <behaviors:NavigateToUriAction NavigateUri="ms-settings:regionlanguage" />
+                                                </core:EventTriggerBehavior>
+                                            </interactivity:Interaction.Behaviors>
+                                        </MenuFlyoutItem>
+                                    </MenuFlyoutSubItem>
+                                    <MenuFlyoutItem Text="Hardware and Sound">
+                                        <interactivity:Interaction.Behaviors>
+                                            <core:EventTriggerBehavior EventName="Click">
+                                                <behaviors:NavigateToUriAction NavigateUri="ms-settings:bluetooth" />
+                                            </core:EventTriggerBehavior>
+                                        </interactivity:Interaction.Behaviors>
+                                    </MenuFlyoutItem>
+                                    <MenuFlyoutItem Text="Network and Internet">
+                                        <interactivity:Interaction.Behaviors>
+                                            <core:EventTriggerBehavior EventName="Click">
+                                                <behaviors:NavigateToUriAction NavigateUri="ms-settings:network" />
+                                            </core:EventTriggerBehavior>
+                                        </interactivity:Interaction.Behaviors>
+                                    </MenuFlyoutItem>
+                                    <MenuFlyoutItem Text="Programs">
+                                        <interactivity:Interaction.Behaviors>
+                                            <core:EventTriggerBehavior EventName="Click">
+                                                <behaviors:NavigateToUriAction NavigateUri="ms-settings:appsfeatures" />
+                                            </core:EventTriggerBehavior>
+                                        </interactivity:Interaction.Behaviors>
+                                    </MenuFlyoutItem>
                                     <MenuFlyoutItem Click="MenuFlyoutItem_Click_1" Text="System and Security" />
-                                    <MenuFlyoutItem Text="User Accounts" />
+                                    <MenuFlyoutItem Text="User Accounts" IsEnabled="False" />
                                 </MenuFlyout>
                             </Button.Flyout>
                         </Button>
@@ -559,16 +601,28 @@
                             <FontIcon FontSize="11" Glyph="" />
                             <Button.Flyout>
                                 <MenuFlyout Placement="Bottom">
-                                    <MenuFlyoutItem Text="All Items" />
-                                    <MenuFlyoutSeparator />
-                                    <MenuFlyoutItem Text="Accessibility" />
-                                    <MenuFlyoutItem Click="MenuFlyoutItem_Click" Text="Appearance and Personalization" />
-                                    <MenuFlyoutItem Text="Clock and Region" />
-                                    <MenuFlyoutItem Text="Hardware and Sound" />
-                                    <MenuFlyoutItem Text="Network and Internet" />
-                                    <MenuFlyoutItem Text="Programs" />
-                                    <MenuFlyoutItem Click="MenuFlyoutItem_Click_1" Text="System and Security" />
-                                    <MenuFlyoutItem Text="User Accounts" />
+                                    <MenuFlyoutItem Text="Taskbar and Navigation">
+                                        <interactivity:Interaction.Behaviors>
+                                            <core:EventTriggerBehavior EventName="Click">
+                                                <behaviors:NavigateToUriAction NavigateUri="ms-settings:taskbar" />
+                                            </core:EventTriggerBehavior>
+                                        </interactivity:Interaction.Behaviors>
+                                    </MenuFlyoutItem>
+                                    <MenuFlyoutItem Text="Accessibility">
+                                        <interactivity:Interaction.Behaviors>
+                                            <core:EventTriggerBehavior EventName="Click">
+                                                <behaviors:NavigateToUriAction NavigateUri="ms-settings:easeofaccess" />
+                                            </core:EventTriggerBehavior>
+                                        </interactivity:Interaction.Behaviors>
+                                    </MenuFlyoutItem>
+                                    <MenuFlyoutItem Text="File Explorer Options" Click="MenuFlyoutItem_Click_2"/>
+                                    <MenuFlyoutItem Text="Fonts">
+                                        <interactivity:Interaction.Behaviors>
+                                            <core:EventTriggerBehavior EventName="Click">
+                                                <behaviors:NavigateToUriAction NavigateUri="ms-settings:fonts" />
+                                            </core:EventTriggerBehavior>
+                                        </interactivity:Interaction.Behaviors>
+                                    </MenuFlyoutItem>
                                 </MenuFlyout>
                             </Button.Flyout>
                         </Button>
@@ -589,16 +643,53 @@
                             <FontIcon FontSize="11" Glyph="" />
                             <Button.Flyout>
                                 <MenuFlyout Placement="Bottom">
-                                    <MenuFlyoutItem Text="All Items" />
-                                    <MenuFlyoutSeparator />
-                                    <MenuFlyoutItem Text="Accessibility" />
-                                    <MenuFlyoutItem Click="MenuFlyoutItem_Click" Text="Appearance and Personalization" />
-                                    <MenuFlyoutItem Text="Clock and Region" />
-                                    <MenuFlyoutItem Text="Hardware and Sound" />
-                                    <MenuFlyoutItem Text="Network and Internet" />
-                                    <MenuFlyoutItem Text="Programs" />
-                                    <MenuFlyoutItem Click="MenuFlyoutItem_Click_1" Text="System and Security" />
-                                    <MenuFlyoutItem Text="User Accounts" />
+                                    <MenuFlyoutItem Text="Security and Maintenance"/>
+                                    <MenuFlyoutItem Text="Windows Defender Firewall" IsEnabled="False">
+                                        <interactivity:Interaction.Behaviors>
+                                            <core:EventTriggerBehavior EventName="Click">
+                                                <behaviors:NavigateToUriAction NavigateUri="ms-settings:firewall" />
+                                            </core:EventTriggerBehavior>
+                                        </interactivity:Interaction.Behaviors>
+                                    </MenuFlyoutItem>
+                                    <MenuFlyoutItem Text="System">
+                                        <interactivity:Interaction.Behaviors>
+                                            <core:EventTriggerBehavior EventName="Click">
+                                                <behaviors:NavigateToUriAction NavigateUri="ms-settings:system" />
+                                            </core:EventTriggerBehavior>
+                                        </interactivity:Interaction.Behaviors>
+                                    </MenuFlyoutItem>
+                                    <MenuFlyoutItem Text="Power Options">
+                                        <interactivity:Interaction.Behaviors>
+                                            <core:EventTriggerBehavior EventName="Click">
+                                                <behaviors:NavigateToUriAction NavigateUri="ms-settings:powersleep" />
+                                            </core:EventTriggerBehavior>
+                                        </interactivity:Interaction.Behaviors>
+                                    </MenuFlyoutItem>
+                                    <MenuFlyoutItem Text="File History" IsEnabled="False" />
+                                    <MenuFlyoutItem Text="Windows Backup">
+                                        <interactivity:Interaction.Behaviors>
+                                            <core:EventTriggerBehavior EventName="Click">
+                                                <behaviors:NavigateToUriAction NavigateUri="ms-settings:backup" />
+                                            </core:EventTriggerBehavior>
+                                        </interactivity:Interaction.Behaviors>
+                                    </MenuFlyoutItem>
+                                    <MenuFlyoutItem Text="BitLocker Drive Encryption" IsEnabled="False" />
+                                    <MenuFlyoutItem Text="Storage Spaces">
+                                        <interactivity:Interaction.Behaviors>
+                                            <core:EventTriggerBehavior EventName="Click">
+                                                <behaviors:NavigateToUriAction NavigateUri="ms-settings:storagepolicies" />
+                                            </core:EventTriggerBehavior>
+                                        </interactivity:Interaction.Behaviors>
+                                    </MenuFlyoutItem>
+                                    <MenuFlyoutItem Text="Work Folders (Deprecated)" IsEnabled="False" />
+                                    <MenuFlyoutItem Text="Windows Tools" Click="MenuFlyoutItem_Click_3"/>
+                                    <MenuFlyoutItem Text="Updates">
+                                        <interactivity:Interaction.Behaviors>
+                                            <core:EventTriggerBehavior EventName="Click">
+                                                <behaviors:NavigateToUriAction NavigateUri="ms-settings:windowsupdate" />
+                                            </core:EventTriggerBehavior>
+                                        </interactivity:Interaction.Behaviors>
+                                    </MenuFlyoutItem>
                                 </MenuFlyout>
                             </Button.Flyout>
                         </Button>

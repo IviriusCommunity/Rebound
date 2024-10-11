@@ -13,6 +13,7 @@
     <Folder Include="$(MSBuildThisFileDirectory)RuntimeBinaries\" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="$(MSBuildThisFileDirectory)AppRT\Exported\imageres_114.ico" />
     <Content Include="$(MSBuildThisFileDirectory)AppRT\Registry\SetFilesAsDefault.reg" />
     <Content Include="$(MSBuildThisFileDirectory)AppRT\Registry\UnsetFilesAsDefault.reg" />
     <None Include="$(MSBuildThisFileDirectory)README.md" />

@@ -112,10 +112,6 @@ Complex password: {(isPasswordComplex == true ? "Yes" : "No")}";
     {
         try
         {
-            if ((NavigationViewItem)sender.SelectedItem == AppearanceItem || (NavigationViewItem)sender.SelectedItem == Re11Item)
-            {
-                App.ControlPanelWindow.RootFrame.Navigate(typeof(AppearanceAndPersonalization), null, new Microsoft.UI.Xaml.Media.Animation.DrillInNavigationTransitionInfo());
-            }
             if ((NavigationViewItem)sender.SelectedItem == WinToolsItem)
             {
                 App.ControlPanelWindow.AddressBox.Text = @"Control Panel\System and Security\Windows Tools";
@@ -261,5 +257,10 @@ Complex password: {(isPasswordComplex == true ? "Yes" : "No")}";
 
         await Task.Delay(50);
         return Task.CompletedTask;
+    }
+
+    private void Button_Click(object sender, RoutedEventArgs e)
+    {
+
     }
 }

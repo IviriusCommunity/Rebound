@@ -63,6 +63,15 @@ public partial class App : Application
             MainAppWindow = null;
             return;
         }*/
+        if (string.Join(" ", Environment.GetCommandLineArgs().Skip(1)).Contains("SFC"))
+        {
+            var win = new UninstallationWindow(true);
+            win.Show();
+            await Task.Delay(10);
+            win.BringToFront();
+            MainAppWindow = null;
+            return;
+        }
         if (string.Join(" ", Environment.GetCommandLineArgs().Skip(1)).Contains("UNINSTALLFULL"))
         {
             var win = new UninstallationWindow(true);

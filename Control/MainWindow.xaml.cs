@@ -1,5 +1,7 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
+using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
@@ -291,6 +293,24 @@ public sealed partial class MainWindow : WindowEx
     private async void AddressBox_SuggestionChosen(AutoSuggestBox sender, AutoSuggestBoxSuggestionChosenEventArgs args)
     {
         await Task.Delay(10);
+        NavigateToPath();
+    }
+
+    [DllImport("shell32.dll", CharSet = CharSet.Unicode, SetLastError = true)]
+    private static extern IntPtr ShellExecute(IntPtr hWnd, string lpOperation, string lpFile, string lpParameters, string? lpDirectory, int nShowCmd);
+
+    private void MenuFlyoutItem_Click_2(object sender, RoutedEventArgs e)
+    {
+        // Constants for ShellExecute
+        const int SW_SHOWNORMAL = 1;
+
+        // Call ShellExecute to open the File Explorer Options dialog
+        ShellExecute(IntPtr.Zero, "open", "control.exe", "/name Microsoft.FolderOptions", null, SW_SHOWNORMAL);
+    }
+
+    private void MenuFlyoutItem_Click_3(object sender, RoutedEventArgs e)
+    {
+        AddressBox.Text = CPL_WINDOWS_TOOLS;
         NavigateToPath();
     }
 }

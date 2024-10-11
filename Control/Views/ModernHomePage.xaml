@@ -52,13 +52,15 @@
                         </NavigationViewItem>
                     </NavigationViewItem.MenuItems>
                 </NavigationViewItem>
-                <NavigationViewItem Content="Network and Internet" IsEnabled="False">
+                <NavigationViewItem Content="Network and Internet">
                     <NavigationViewItem.Icon>
                         <ImageIcon Source="ms-appx:///AppRT/Exported/imageres_120.ico" />
                     </NavigationViewItem.Icon>
-                    <NavigationViewItem.MenuItems>
-                        <NavigationViewItem Content="View network status and tasks" />
-                    </NavigationViewItem.MenuItems>
+                    <interactivity:Interaction.Behaviors>
+                        <core:EventTriggerBehavior EventName="Tapped">
+                            <behaviors:NavigateToUriAction NavigateUri="ms-settings:network" />
+                        </core:EventTriggerBehavior>
+                    </interactivity:Interaction.Behaviors>
                 </NavigationViewItem>
                 <NavigationViewItem x:Name="AppearanceItem" Content="Appearance and Personalization">
                     <NavigationViewItem.Icon>

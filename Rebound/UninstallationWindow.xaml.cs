@@ -17,13 +17,6 @@ public sealed partial class UninstallationWindow : WindowEx
     public const int SUBSTEPS_FOLDER = 1;
     public const int SUBSTEPS_REG = 1;
 
-    public const string FILES_APP = "49306atecsolution.FilesUWP_et10x9a9vyk8t";
-    public const string DEFRAG = "54d2a63e-e616-4159-bed6-c776b8a816e1_yejd587sfa94t";
-    public const string RUN = "8ab98b2f-6dbe-4358-a752-979d011f968d_yejd587sfa94t";
-    public const string WINVER = "039b9731-7b33-49de-bb09-5b81d5978d1c_yejd587sfa94t";
-    public const string TPM = "0b347e39-1da3-4fc7-80c2-dbf3603118f3_yejd587sfa94t";
-    public const string DISK_CLEANUP = "e8dfd11c-954d-46a2-b700-9cbc6201f056_yejd587sfa94t";
-
     public UninstallationWindow(bool deleteAll)
     {
         this?.InitializeComponent();
@@ -86,7 +79,7 @@ public sealed partial class UninstallationWindow : WindowEx
             "Change User Account Control settings");
 
         await UninstallAppPackage(
-            RUN,
+            InstallationWindowModel.RUN,
             "Rebound Run",
             $@"{AppContext.BaseDirectory}\Shortcuts\Included\Run.lnk",
             $@"{Environment.GetFolderPath(Environment.SpecialFolder.StartMenu)}\Programs\System Tools\Run.lnk",
@@ -97,14 +90,14 @@ public sealed partial class UninstallationWindow : WindowEx
             "Rebound Run Startup");
 
         await UninstallAppPackage(
-            DEFRAG,
+            InstallationWindowModel.DEFRAG,
             "Rebound Defragment And Optimize Drives",
             $@"{AppContext.BaseDirectory}\Shortcuts\Included\dfrgui.lnk",
             $@"{Environment.GetFolderPath(Environment.SpecialFolder.CommonAdminTools)}\dfrgui.lnk",
             "Defragment And Optimize Drives");
 
         await UninstallAppPackage(
-            WINVER,
+            InstallationWindowModel.WINVER,
             "Rebound Winver",
             $@"",
             $@"{Environment.GetFolderPath(Environment.SpecialFolder.CommonAdminTools)}\winver.lnk",
@@ -116,14 +109,14 @@ public sealed partial class UninstallationWindow : WindowEx
             "On-Screen Keyboard");
 
         await UninstallAppPackage(
-            TPM,
+            InstallationWindowModel.TPM,
             "Rebound TPM Management",
             $@"",
             $@"{Environment.GetFolderPath(Environment.SpecialFolder.CommonAdminTools)}\tpm.msc.lnk",
             "tpm.msc");
 
         await UninstallAppPackage(
-            DISK_CLEANUP,
+            InstallationWindowModel.DISK_CLEANUP,
             "Rebound Disk Cleanup",
             $@"{AppContext.BaseDirectory}\Shortcuts\Included\Disk Cleanup.lnk",
             $@"{Environment.GetFolderPath(Environment.SpecialFolder.CommonAdminTools)}\Disk Cleanup.lnk",
