@@ -398,36 +398,6 @@
             VerticalAlignment="Top"
             Orientation="Horizontal">
             <Button
-                x:Name="Back"
-                Width="46"
-                Height="45"
-                Foreground="{Binding Foreground, ElementName=Minimize}"
-                IsEnabled="False"
-                Style="{ThemeResource Minimize}"
-                ToolTipService.ToolTip="Go back">
-                <FontIcon FontSize="14" Glyph="" />
-            </Button>
-            <Button
-                x:Name="Forward"
-                Width="46"
-                Height="45"
-                Foreground="{Binding Foreground, ElementName=Minimize}"
-                IsEnabled="False"
-                Style="{ThemeResource Minimize}"
-                ToolTipService.ToolTip="Go forward">
-                <FontIcon FontSize="14" Glyph="" />
-            </Button>
-            <Button
-                x:Name="Refresh"
-                Width="46"
-                Height="45"
-                Foreground="{Binding Foreground, ElementName=Minimize}"
-                IsEnabled="False"
-                Style="{ThemeResource Minimize}"
-                ToolTipService.ToolTip="Refresh">
-                <FontIcon FontSize="14" Glyph="" />
-            </Button>
-            <Button
                 x:Name="Minimize"
                 Width="46"
                 Height="45"
