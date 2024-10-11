@@ -102,7 +102,7 @@
                                                 <Image
                                                     Width="250"
                                                     Height="150"
-                                                    Source="/Assets/Wallpapers/WallpaperLightBlue.png"
+                                                    Source="ms-appx:///AppRT/Wallpapers/WallpaperLightBlue.png"
                                                     Stretch="UniformToFill" />
                                                 <Border
                                                     Width="125"
@@ -151,7 +151,7 @@
                                                 <Image
                                                     Width="250"
                                                     Height="150"
-                                                    Source="/Assets/Wallpapers/WallpaperDarkBlue.png"
+                                                    Source="ms-appx:///AppRT/Wallpapers/WallpaperDarkBlue.png"
                                                     Stretch="UniformToFill" />
                                                 <Border
                                                     Width="125"
@@ -200,7 +200,7 @@
                                                 <Image
                                                     Width="250"
                                                     Height="150"
-                                                    Source="/Assets/Wallpapers/WallpaperCyanLight8bit.png"
+                                                    Source="ms-appx:///AppRT/Wallpapers/WallpaperCyanLight8bit.png"
                                                     Stretch="UniformToFill" />
                                                 <Border
                                                     Width="125"
@@ -249,7 +249,7 @@
                                                 <Image
                                                     Width="250"
                                                     Height="150"
-                                                    Source="/Assets/Wallpapers/WallpaperCyanDark8bit.png"
+                                                    Source="ms-appx:///AppRT/Wallpapers/WallpaperCyanDark8bit.png"
                                                     Stretch="UniformToFill" />
                                                 <Border
                                                     Width="125"
@@ -298,7 +298,7 @@
                                                 <Image
                                                     Width="250"
                                                     Height="150"
-                                                    Source="/Assets/Wallpapers/WallpaperLightPurple.png"
+                                                    Source="ms-appx:///AppRT/Wallpapers/WallpaperLightPurple.png"
                                                     Stretch="UniformToFill" />
                                                 <Border
                                                     Width="125"
@@ -347,7 +347,7 @@
                                                 <Image
                                                     Width="250"
                                                     Height="150"
-                                                    Source="/Assets/Wallpapers/WallpaperDarkPurple.png"
+                                                    Source="ms-appx:///AppRT/Wallpapers/WallpaperDarkPurple.png"
                                                     Stretch="UniformToFill" />
                                                 <Border
                                                     Width="125"
@@ -396,7 +396,7 @@
                                                 <Image
                                                     Width="250"
                                                     Height="150"
-                                                    Source="/Assets/Wallpapers/WallpaperLightCrimson.png"
+                                                    Source="ms-appx:///AppRT/Wallpapers/WallpaperLightCrimson.png"
                                                     Stretch="UniformToFill" />
                                                 <Border
                                                     Width="125"
@@ -445,7 +445,7 @@
                                                 <Image
                                                     Width="250"
                                                     Height="150"
-                                                    Source="/Assets/Wallpapers/WallpaperDarkCrimson.png"
+                                                    Source="ms-appx:///AppRT/Wallpapers/WallpaperDarkCrimson.png"
                                                     Stretch="UniformToFill" />
                                                 <Border
                                                     Width="125"
