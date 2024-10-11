@@ -20,8 +20,8 @@ public sealed partial class ModernHomePage : Page
     public ModernHomePage()
     {
         this.InitializeComponent();
-        if (App.cpanelWin != null) App.cpanelWin.TitleBarEx.SetWindowIcon("AppRT\\Products\\Associated\\rcontrol.ico");
-        if (App.cpanelWin != null) App.cpanelWin.Title = "Control Panel";
+        if (App.ControlPanelWindow != null) App.ControlPanelWindow.TitleBarEx.SetWindowIcon("AppRT\\Products\\Associated\\rcontrol.ico");
+        if (App.ControlPanelWindow != null) App.ControlPanelWindow.Title = "Control Panel";
         LoadWallpaper();
         DisplaySystemInformation();
     }
@@ -98,21 +98,21 @@ public sealed partial class ModernHomePage : Page
         }
         catch
         {
-            await App.cpanelWin.ShowMessageDialogAsync("You need to run this app as administrator in order to retrieve the wallpaper.");
+            await App.ControlPanelWindow.ShowMessageDialogAsync("You need to run this app as administrator in order to retrieve the wallpaper.");
         }
     }
 
     private void ComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
     {
-        if ((sender as ComboBox).SelectedIndex == 0 && (App.cpanelWin != null))
+        if ((sender as ComboBox).SelectedIndex == 0 && (App.ControlPanelWindow != null))
         {
-            App.cpanelWin.AddressBox.Text = @"Control Panel";
-            App.cpanelWin.NavigateToPath(true);
+            App.ControlPanelWindow.AddressBox.Text = @"Control Panel";
+            App.ControlPanelWindow.NavigateToPath(true);
         }
-        if ((sender as ComboBox).SelectedIndex == 1 && (App.cpanelWin != null))
+        if ((sender as ComboBox).SelectedIndex == 1 && (App.ControlPanelWindow != null))
         {
-            App.cpanelWin.AddressBox.Text = @"Control Panel";
-            App.cpanelWin.NavigateToPath();
+            App.ControlPanelWindow.AddressBox.Text = @"Control Panel";
+            App.ControlPanelWindow.NavigateToPath();
         }
     }
 
@@ -122,13 +122,13 @@ public sealed partial class ModernHomePage : Page
         {
             if ((NavigationViewItem)sender.SelectedItem == AppearanceItem)
             {
-                App.cpanelWin.AddressBox.Text = @"Control Panel\Appearance and Personalization";
-                App.cpanelWin.NavigateToPath();
+                App.ControlPanelWindow.AddressBox.Text = @"Control Panel\Appearance and Personalization";
+                App.ControlPanelWindow.NavigateToPath();
             }
             else if ((string)((NavigationViewItem)sender.SelectedItem).Tag is "SysAndSecurity")
             {
-                App.cpanelWin.AddressBox.Text = @"Control Panel\System and Security";
-                App.cpanelWin.NavigateToPath();
+                App.ControlPanelWindow.AddressBox.Text = @"Control Panel\System and Security";
+                App.ControlPanelWindow.NavigateToPath();
             }
             else if ((string)((NavigationViewItem)sender.SelectedItem).Tag is "Programs" or "Uninstall a program")
             {
@@ -137,13 +137,13 @@ public sealed partial class ModernHomePage : Page
         }
         catch (Exception ex)
         {
-            if (App.cpanelWin != null) App.cpanelWin.Title = ex.Message;
+            if (App.ControlPanelWindow != null) App.ControlPanelWindow.Title = ex.Message;
         }
     }
 
     private void MenuFlyoutItem_Click(object sender, RoutedEventArgs e)
     {
-        App.cpanelWin.RootFrame.Navigate(typeof(AppearanceAndPersonalization), null, new Microsoft.UI.Xaml.Media.Animation.DrillInNavigationTransitionInfo());
+        App.ControlPanelWindow.RootFrame.Navigate(typeof(AppearanceAndPersonalization), null, new Microsoft.UI.Xaml.Media.Animation.DrillInNavigationTransitionInfo());
     }
 
     private void SettingsCard_Click(object sender, RoutedEventArgs e)
@@ -159,12 +159,12 @@ public sealed partial class ModernHomePage : Page
 
         var process = Process.Start(info);
 
-        App.cpanelWin.Close();
+        App.ControlPanelWindow.Close();
     }
 
     private void MenuFlyoutItem_Click_1(object sender, RoutedEventArgs e)
     {
-        App.cpanelWin.RootFrame.Navigate(typeof(SystemAndSecurity), null, new Microsoft.UI.Xaml.Media.Animation.DrillInNavigationTransitionInfo());
+        App.ControlPanelWindow.RootFrame.Navigate(typeof(SystemAndSecurity), null, new Microsoft.UI.Xaml.Media.Animation.DrillInNavigationTransitionInfo());
     }
 
     private void SettingsCard_Click_1(object sender, RoutedEventArgs e)

@@ -15,10 +15,10 @@ public sealed partial class AppearanceAndPersonalization : Page
     public AppearanceAndPersonalization()
     {
         this?.InitializeComponent();
-        App.cpanelWin?.TitleBarEx.SetWindowIcon("AppRT\\Exported\\imageres_197.ico");
-        if (App.cpanelWin != null)
+        App.ControlPanelWindow?.TitleBarEx.SetWindowIcon("AppRT\\Exported\\imageres_197.ico");
+        if (App.ControlPanelWindow != null)
         {
-            App.cpanelWin.Title = "Appearance and Personalization";
+            App.ControlPanelWindow.Title = "Appearance and Personalization";
         }
     }
 
@@ -34,7 +34,7 @@ public sealed partial class AppearanceAndPersonalization : Page
             exists = false;
         }
         _ = PleaseWaitDialog.ShowAsync();
-        App.cpanelWin.IsAlwaysOnTop = true;
+        App.ControlPanelWindow.IsAlwaysOnTop = true;
         var filePath = $"{AppContext.BaseDirectory}\\Themes\\{((FrameworkElement)sender).Tag}.deskthemepack";
         Process.Start(new ProcessStartInfo()
         {
@@ -43,14 +43,14 @@ public sealed partial class AppearanceAndPersonalization : Page
         });
         await Task.Delay(1000);
         await Task.Delay(800);
-        App.cpanelWin.IsAlwaysOnTop = false;
+        App.ControlPanelWindow.IsAlwaysOnTop = false;
         await Task.Delay(600);
         if (!exists)
         {
             Process.GetProcessesByName("SystemSettings")[0].Kill();
         }
         await Task.Delay(200);
-        App.cpanelWin.BringToFront();
+        App.ControlPanelWindow.BringToFront();
         PleaseWaitDialog.Hide();
     }
 

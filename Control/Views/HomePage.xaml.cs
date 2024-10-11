@@ -19,69 +19,69 @@ namespace Rebound.Control.Views
         public HomePage()
         {
             this.InitializeComponent();
-            if (App.cpanelWin != null) App.cpanelWin.TitleBarEx.SetWindowIcon("Assets\\AppIcons\\rcontrol.ico");
-            if (App.cpanelWin != null) App.cpanelWin.Title = "Rebound Control Panel";
+            if (App.ControlPanelWindow != null) App.ControlPanelWindow.TitleBarEx.SetWindowIcon("Assets\\AppIcons\\rcontrol.ico");
+            if (App.ControlPanelWindow != null) App.ControlPanelWindow.Title = "Rebound Control Panel";
         }
 
         private void BackButton_Click(object sender, RoutedEventArgs e)
         {
-            if (App.cpanelWin != null)
+            if (App.ControlPanelWindow != null)
             {
-                App.cpanelWin.RootFrame.GoBack();
+                App.ControlPanelWindow.RootFrame.GoBack();
             }
         }
 
         private void ForwardButton_Click(object sender, RoutedEventArgs e)
         {
-            if (App.cpanelWin != null)
+            if (App.ControlPanelWindow != null)
             {
-                App.cpanelWin.RootFrame.GoForward();
+                App.ControlPanelWindow.RootFrame.GoForward();
             }
         }
 
         private async void UpButton_Click(object sender, RoutedEventArgs e)
         {
             await Launcher.LaunchUriAsync(new Uri(Environment.GetFolderPath(Environment.SpecialFolder.Desktop)));
-            App.cpanelWin.Close();
+            App.ControlPanelWindow.Close();
         }
 
         private void RefreshButton_Click(object sender, RoutedEventArgs e)
         {
-            if (App.cpanelWin != null)
+            if (App.ControlPanelWindow != null)
             {
-                var oldHistory = App.cpanelWin.RootFrame.ForwardStack;
+                var oldHistory = App.ControlPanelWindow.RootFrame.ForwardStack;
                 var newList = new List<PageStackEntry>();
                 foreach (var item in oldHistory)
                 {
                     newList.Add(item);
                 }
-                App.cpanelWin.RootFrame.Navigate(typeof(HomePage), null, new Microsoft.UI.Xaml.Media.Animation.SuppressNavigationTransitionInfo());
-                App.cpanelWin.RootFrame.GoBack();
-                App.cpanelWin.RootFrame.ForwardStack.Clear();
+                App.ControlPanelWindow.RootFrame.Navigate(typeof(HomePage), null, new Microsoft.UI.Xaml.Media.Animation.SuppressNavigationTransitionInfo());
+                App.ControlPanelWindow.RootFrame.GoBack();
+                App.ControlPanelWindow.RootFrame.ForwardStack.Clear();
                 foreach (var item in newList)
                 {
-                    App.cpanelWin.RootFrame.ForwardStack.Add(item);
+                    App.ControlPanelWindow.RootFrame.ForwardStack.Add(item);
                 }
             }
         }
 
         private void Button_Click(object sender, RoutedEventArgs e)
         {
-            if (App.cpanelWin != null)
+            if (App.ControlPanelWindow != null)
             {
-                App.cpanelWin.RootFrame.Navigate(typeof(HomePage), null, new Microsoft.UI.Xaml.Media.Animation.DrillInNavigationTransitionInfo());
+                App.ControlPanelWindow.RootFrame.Navigate(typeof(HomePage), null, new Microsoft.UI.Xaml.Media.Animation.DrillInNavigationTransitionInfo());
             }
         }
 
         private void ComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            if ((sender as ComboBox).SelectedIndex == 0 && (App.cpanelWin != null))
+            if ((sender as ComboBox).SelectedIndex == 0 && (App.ControlPanelWindow != null))
             {
-                App.cpanelWin.RootFrame.Navigate(typeof(HomePage), null, new Microsoft.UI.Xaml.Media.Animation.DrillInNavigationTransitionInfo());
+                App.ControlPanelWindow.RootFrame.Navigate(typeof(HomePage), null, new Microsoft.UI.Xaml.Media.Animation.DrillInNavigationTransitionInfo());
             }
-            if ((sender as ComboBox).SelectedIndex == 1 && (App.cpanelWin != null))
+            if ((sender as ComboBox).SelectedIndex == 1 && (App.ControlPanelWindow != null))
             {
-                App.cpanelWin.RootFrame.Navigate(typeof(ModernHomePage), null, new Microsoft.UI.Xaml.Media.Animation.DrillInNavigationTransitionInfo());
+                App.ControlPanelWindow.RootFrame.Navigate(typeof(ModernHomePage), null, new Microsoft.UI.Xaml.Media.Animation.DrillInNavigationTransitionInfo());
             }
         }
 
@@ -98,22 +98,22 @@ namespace Rebound.Control.Views
 
             var process = Process.Start(info);
 
-            App.cpanelWin.Close();
+            App.ControlPanelWindow.Close();
         }
 
         private void MenuFlyoutItem_Click(object sender, RoutedEventArgs e)
         {
-            App.cpanelWin.RootFrame.Navigate(typeof(AppearanceAndPersonalization), null, new Microsoft.UI.Xaml.Media.Animation.DrillInNavigationTransitionInfo());
+            App.ControlPanelWindow.RootFrame.Navigate(typeof(AppearanceAndPersonalization), null, new Microsoft.UI.Xaml.Media.Animation.DrillInNavigationTransitionInfo());
         }
 
         private void Button_Click_1(object sender, RoutedEventArgs e)
         {
-            App.cpanelWin.RootFrame.Navigate(typeof(AppearanceAndPersonalization), null, new Microsoft.UI.Xaml.Media.Animation.DrillInNavigationTransitionInfo());
+            App.ControlPanelWindow.RootFrame.Navigate(typeof(AppearanceAndPersonalization), null, new Microsoft.UI.Xaml.Media.Animation.DrillInNavigationTransitionInfo());
         }
 
         private void MenuFlyoutItem_Click_1(object sender, RoutedEventArgs e)
         {
-            App.cpanelWin.RootFrame.Navigate(typeof(SystemAndSecurity), null, new Microsoft.UI.Xaml.Media.Animation.DrillInNavigationTransitionInfo());
+            App.ControlPanelWindow.RootFrame.Navigate(typeof(SystemAndSecurity), null, new Microsoft.UI.Xaml.Media.Animation.DrillInNavigationTransitionInfo());
         }
     }
 }

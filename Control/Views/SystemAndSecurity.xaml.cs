@@ -16,10 +16,10 @@ public sealed partial class SystemAndSecurity : Page
     public SystemAndSecurity()
     {
         this?.InitializeComponent();
-        App.cpanelWin?.TitleBarEx.SetWindowIcon("AppRT\\Exported\\imageres_195.ico");
-        if (App.cpanelWin is not null)
+        App.ControlPanelWindow?.TitleBarEx.SetWindowIcon("AppRT\\Exported\\imageres_195.ico");
+        if (App.ControlPanelWindow is not null)
         {
-            App.cpanelWin.Title = "System and Security";
+            App.ControlPanelWindow.Title = "System and Security";
         }
     }
 
@@ -114,19 +114,19 @@ Complex password: {(isPasswordComplex == true ? "Yes" : "No")}";
         {
             if ((NavigationViewItem)sender.SelectedItem == AppearanceItem || (NavigationViewItem)sender.SelectedItem == Re11Item)
             {
-                App.cpanelWin.RootFrame.Navigate(typeof(AppearanceAndPersonalization), null, new Microsoft.UI.Xaml.Media.Animation.DrillInNavigationTransitionInfo());
+                App.ControlPanelWindow.RootFrame.Navigate(typeof(AppearanceAndPersonalization), null, new Microsoft.UI.Xaml.Media.Animation.DrillInNavigationTransitionInfo());
             }
             if ((NavigationViewItem)sender.SelectedItem == WinToolsItem)
             {
-                App.cpanelWin.AddressBox.Text = @"Control Panel\System and Security\Windows Tools";
-                App.cpanelWin.NavigateToPath();
+                App.ControlPanelWindow.AddressBox.Text = @"Control Panel\System and Security\Windows Tools";
+                App.ControlPanelWindow.NavigateToPath();
             }
         }
         catch (Exception ex)
         {
-            if (App.cpanelWin is not null)
+            if (App.ControlPanelWindow is not null)
             {
-                App.cpanelWin.Title = ex.Message;
+                App.ControlPanelWindow.Title = ex.Message;
             }
         }
     }

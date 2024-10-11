@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Threading.Tasks;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
@@ -9,22 +8,24 @@ using Microsoft.UI.Xaml.Media;
 using Microsoft.UI.Xaml.Navigation;
 using Rebound.Control.Views;
 using Rebound.Helpers;
-using Rebound.Control.Views;
 using Windows.System;
-using Rebound.Control;
 using WinUIEx;
 
 namespace Rebound.Control;
 
 public sealed partial class MainWindow : WindowEx
 {
+    public const string CPL_HOME = @"Control Panel";
+    public const string CPL_APPEARANCE_AND_PERSONALIZATION = @"Control Panel\Appearance and Personalization";
+    public const string CPL_SYSTEM_AND_SECURITY = @"Control Panel\System and Security";
+    public const string CPL_WINDOWS_TOOLS = @"Control Panel\System and Security\Windows Tools";
+
     public TitleBarService TitleBarEx;
 
     public MainWindow()
     {
         InitializeComponent();
         SystemBackdrop = new MicaBackdrop();
-        //AppWindow.DefaultTitleBarShouldMatchAppModeTheme = true;
         Title = "Control Panel";
         WindowTitle.Text = Title;
         RootFrame.Navigate(typeof(ModernHomePage));
@@ -36,9 +37,10 @@ public sealed partial class MainWindow : WindowEx
         AddressBox.Text = "Control Panel";
         AddressBox.ItemsSource = new List<string>()
         {
-            @"Control Panel",
-            @"Control Panel\Appearance and Personalization",
-            @"Control Panel\System and Security",
+            CPL_HOME,
+            CPL_APPEARANCE_AND_PERSONALIZATION,
+            CPL_SYSTEM_AND_SECURITY,
+            CPL_WINDOWS_TOOLS
         };
         NavigateToPath();
         RootFrame.BackStack.Clear();
@@ -86,8 +88,39 @@ public sealed partial class MainWindow : WindowEx
 
     private async void UpButton_Click(object sender, RoutedEventArgs e)
     {
-        await Launcher.LaunchUriAsync(new Uri(Environment.GetFolderPath(Environment.SpecialFolder.Desktop)));
-        App.cpanelWin.Close();
+        switch (CurrentPage())
+        {
+            case CPL_HOME:
+                {
+                    await Launcher.LaunchUriAsync(new Uri(Environment.GetFolderPath(Environment.SpecialFolder.Desktop)));
+                    App.ControlPanelWindow?.Close();
+                    break;
+                }
+            case CPL_APPEARANCE_AND_PERSONALIZATION:
+                {
+                    AddressBox.Text = CPL_HOME;
+                    NavigateToPath();
+                    break;
+                }
+            case CPL_SYSTEM_AND_SECURITY:
+                {
+                    AddressBox.Text = CPL_HOME;
+                    NavigateToPath();
+                    break;
+                }
+            case CPL_WINDOWS_TOOLS:
+                {
+                    AddressBox.Text = CPL_SYSTEM_AND_SECURITY;
+                    NavigateToPath();
+                    break;
+                }
+            default:
+                {
+                    await Launcher.LaunchUriAsync(new Uri(Environment.GetFolderPath(Environment.SpecialFolder.Desktop)));
+                    App.ControlPanelWindow?.Close();
+                    break;
+                }
+        }
     }
 
     private void RefreshButton_Click(object sender, RoutedEventArgs e)
@@ -111,25 +144,25 @@ public sealed partial class MainWindow : WindowEx
 
     private void Button_Click(object sender, RoutedEventArgs e)
     {
-        AddressBox.Text = @"Control Panel";
+        AddressBox.Text = CPL_HOME;
         NavigateToPath();
     }
 
     private void MenuFlyoutItem_Click(object sender, RoutedEventArgs e)
     {
-        AddressBox.Text = @"Control Panel\Appearance and Personalization";
+        AddressBox.Text = CPL_APPEARANCE_AND_PERSONALIZATION;
         NavigateToPath();
     }
 
     private void MenuFlyoutItem_Click_1(object sender, RoutedEventArgs e)
     {
-        AddressBox.Text = @"Control Panel\System and Security";
+        AddressBox.Text = CPL_SYSTEM_AND_SECURITY;
         NavigateToPath();
     }
 
     private void WindowEx_Closed(object sender, WindowEventArgs args)
     {
-        App.cpanelWin = null;
+        App.ControlPanelWindow = null;
     }
 
     private void TextBox_LostFocus(object sender, RoutedEventArgs e)
@@ -157,29 +190,29 @@ public sealed partial class MainWindow : WindowEx
     {
         switch (RootFrame.Content)
         {
-            case Rebound.Control.Views.AppearanceAndPersonalization:
+            case Views.AppearanceAndPersonalization:
                 {
-                    return @"Control Panel\Appearance and Personalization";
+                    return CPL_APPEARANCE_AND_PERSONALIZATION;
                 }
-            case Rebound.Control.Views.SystemAndSecurity:
+            case Views.SystemAndSecurity:
                 {
-                    return @"Control Panel\System and Security";
+                    return CPL_SYSTEM_AND_SECURITY;
                 }
-            case Rebound.Control.Views.WindowsTools:
+            case Views.WindowsTools:
                 {
-                    return @"Control Panel\System and Security\Windows Tools";
+                    return CPL_WINDOWS_TOOLS;
                 }
             case ModernHomePage:
                 {
-                    return @"Control Panel";
+                    return CPL_HOME;
                 }
             case HomePage:
                 {
-                    return @"Control Panel";
+                    return CPL_HOME;
                 }
             default:
                 {
-                    return @"Control Panel";
+                    return CPL_HOME;
                 }
         }
     }
@@ -198,43 +231,43 @@ public sealed partial class MainWindow : WindowEx
         RootFrame.Focus(FocusState.Programmatic);
         switch (AddressBox.Text)
         {
-            case @"Control Panel\Appearance and Personalization":
+            case CPL_APPEARANCE_AND_PERSONALIZATION:
                 {
-                    if (RootFrame.Content is not Rebound.Control.Views.AppearanceAndPersonalization)
+                    if (RootFrame.Content is not Views.AppearanceAndPersonalization)
                     {
-                        App.cpanelWin.RootFrame.Navigate(typeof(AppearanceAndPersonalization), null, new Microsoft.UI.Xaml.Media.Animation.DrillInNavigationTransitionInfo());
+                        App.ControlPanelWindow?.RootFrame.Navigate(typeof(AppearanceAndPersonalization), null, new Microsoft.UI.Xaml.Media.Animation.DrillInNavigationTransitionInfo());
                     }
                     AppearanceAndPersonalization.Visibility = Visibility.Visible;
                     return;
                 }
-            case @"Control Panel\System and Security":
+            case CPL_SYSTEM_AND_SECURITY:
                 {
-                    if (RootFrame.Content is not Rebound.Control.Views.SystemAndSecurity)
+                    if (RootFrame.Content is not Views.SystemAndSecurity)
                     {
-                        App.cpanelWin.RootFrame.Navigate(typeof(SystemAndSecurity), null, new Microsoft.UI.Xaml.Media.Animation.DrillInNavigationTransitionInfo());
+                        App.ControlPanelWindow?.RootFrame.Navigate(typeof(SystemAndSecurity), null, new Microsoft.UI.Xaml.Media.Animation.DrillInNavigationTransitionInfo());
                     }
                     SystemAndSecurity.Visibility = Visibility.Visible;
                     return;
                 }
-            case @"Control Panel\System and Security\Windows Tools":
+            case CPL_WINDOWS_TOOLS:
                 {
-                    if (RootFrame.Content is not Rebound.Control.Views.WindowsTools)
+                    if (RootFrame.Content is not Views.WindowsTools)
                     {
-                        App.cpanelWin.RootFrame.Navigate(typeof(WindowsTools), null, new Microsoft.UI.Xaml.Media.Animation.DrillInNavigationTransitionInfo());
+                        App.ControlPanelWindow?.RootFrame.Navigate(typeof(WindowsTools), null, new Microsoft.UI.Xaml.Media.Animation.DrillInNavigationTransitionInfo());
                     }
                     SystemAndSecurity.Visibility = Visibility.Visible;
                     WindowsTools.Visibility = Visibility.Visible;
                     return;
                 }
-            case @"Control Panel":
+            case CPL_HOME:
                 {
                     if (legacyHomePage == false && RootFrame.Content is not ModernHomePage)
                     {
-                        App.cpanelWin.RootFrame.Navigate(typeof(ModernHomePage), null, new Microsoft.UI.Xaml.Media.Animation.DrillInNavigationTransitionInfo());
+                        App.ControlPanelWindow?.RootFrame.Navigate(typeof(ModernHomePage), null, new Microsoft.UI.Xaml.Media.Animation.DrillInNavigationTransitionInfo());
                     }
                     else if (legacyHomePage != false && RootFrame.Content is not HomePage)
                     {
-                        App.cpanelWin.RootFrame.Navigate(typeof(HomePage), null, new Microsoft.UI.Xaml.Media.Animation.DrillInNavigationTransitionInfo());
+                        App.ControlPanelWindow?.RootFrame.Navigate(typeof(HomePage), null, new Microsoft.UI.Xaml.Media.Animation.DrillInNavigationTransitionInfo());
                     }
                     return;
                 }

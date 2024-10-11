@@ -261,7 +261,8 @@
                         <ComboBox
                             VerticalAlignment="Center"
                             SelectedIndex="1"
-                            SelectionChanged="ComboBox_SelectionChanged">
+                            SelectionChanged="ComboBox_SelectionChanged"
+                            IsEnabled="False">
                             <ComboBoxItem Content="Category" />
                             <ComboBoxItem Content="Navigation" />
                         </ComboBox>
@@ -275,7 +276,7 @@
                             Height="128"
                             Margin="9"
                             VerticalAlignment="Top"
-                            Source="ms-appx:///AppRT/Exported/Monitor.ico"
+                            Source="ms-appx:///AppRT/Products/Monitor.ico"
                             Stretch="Uniform" />
                         <Grid HorizontalAlignment="Center">
                             <Grid.RowDefinitions>
@@ -358,7 +359,7 @@
                             Header="Rebound Hub"
                             IsClickEnabled="True">
                             <SettingsUI:SettingsCard.HeaderIcon>
-                                <ImageIcon Source="ms-appx:///AppRT/Exported/Rebound.ico" />
+                                <ImageIcon Source="ms-appx:///AppRT/Products/Associated/Rebound.ico" />
                             </SettingsUI:SettingsCard.HeaderIcon>
                         </SettingsUI:SettingsCard>
                         <SettingsUI:SettingsCard

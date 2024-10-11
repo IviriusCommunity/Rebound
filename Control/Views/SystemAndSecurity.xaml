@@ -185,7 +185,8 @@
                             Text="Update installed apps" />
                         <Expander
                             HorizontalAlignment="Stretch"
-                            HorizontalContentAlignment="Stretch">
+                            HorizontalContentAlignment="Stretch"
+                            IsEnabled="False">
                             <Expander.Header>
                                 <Grid>
                                     <TextBlock VerticalAlignment="Center" Text="Available updates" />
