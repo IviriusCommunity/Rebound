@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <OutputType>WinExe</OutputType>
 	  <TargetFramework>net8.0-windows10.0.22621.0</TargetFramework>
@@ -113,6 +113,10 @@
   <ItemGroup Condition="'$(DisableMsixProjectCapabilityAddedByProject)'!='true' and '$(EnableMsixTooling)'=='true'">
     <ProjectCapability Include="Msix" />
   </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <WebView2EnableCsWinRTProjection>False</WebView2EnableCsWinRTProjection>
+    <WebView2LoaderPreference>Static</WebView2LoaderPreference>
+  </PropertyGroup>
 
   <!--
     Defining the "HasPackageAndPublishMenuAddedByProject" property here allows the Solution
