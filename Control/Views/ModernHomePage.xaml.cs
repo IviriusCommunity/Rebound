@@ -167,11 +167,9 @@ public sealed partial class ModernHomePage : Page
         App.ControlPanelWindow.RootFrame.Navigate(typeof(SystemAndSecurity), null, new Microsoft.UI.Xaml.Media.Animation.DrillInNavigationTransitionInfo());
     }
 
-    private void SettingsCard_Click_1(object sender, RoutedEventArgs e)
+    private void ReboundHubSettingsCard_Click(object sender, RoutedEventArgs e)
     {
-        // TODO: Add this back using UAP protocol
-        //App.m_window = new MainWindow();
-        //App.m_window.Activate();
-        //App.cpanelWin.Close();
+        Process.Start(new ProcessStartInfo("rebound:") { UseShellExecute = true });
+        App.ControlPanelWindow.Close();
     }
 }

@@ -356,7 +356,7 @@
                             Style="{StaticResource BodyStrongTextBlockStyle}"
                             Text="Home" />
                         <SettingsUI:SettingsCard
-                            Click="SettingsCard_Click_1"
+                            Click="ReboundHubSettingsCard_Click"
                             Description="Launch the Rebound Hub."
                             Header="Rebound Hub"
                             IsClickEnabled="True">
