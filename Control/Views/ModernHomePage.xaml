@@ -22,7 +22,7 @@
             <NavigationView.MenuItems>
                 <NavigationViewItem Content="Home" IsSelected="True">
                     <NavigationViewItem.Icon>
-                        <FontIcon Glyph="" />
+                        <FontIcon Glyph="&#xE80F;" />
                     </NavigationViewItem.Icon>
                 </NavigationViewItem>
                 <NavigationViewItem Content="System and Security" Tag="SysAndSecurity">
@@ -262,9 +262,9 @@
                         <TextBlock VerticalAlignment="Center" Text="View by:" />
                         <ComboBox
                             VerticalAlignment="Center"
+                            IsEnabled="False"
                             SelectedIndex="1"
-                            SelectionChanged="ComboBox_SelectionChanged"
-                            IsEnabled="False">
+                            SelectionChanged="ComboBox_SelectionChanged">
                             <ComboBoxItem Content="Category" />
                             <ComboBoxItem Content="Navigation" />
                         </ComboBox>
