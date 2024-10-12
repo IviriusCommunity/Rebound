@@ -125,7 +125,7 @@ public sealed partial class UninstallationWindow : WindowEx
         if (deleteAll == true)
         {
             await UninstallAppPackageWithoutLink(
-                FILES_APP,
+                InstallationWindowModel.FILES_APP,
                 "Files App",
                 "Files.exe");
             await ApplyRegFile(
