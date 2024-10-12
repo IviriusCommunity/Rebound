@@ -43,18 +43,12 @@ public partial class App : Application
 
     public async Task LaunchWork()
     {
-        /*if (string.Join(" ", Environment.GetCommandLineArgs().Skip(1)).Contains("CONTROL"))
+        if (string.Join(" ", Environment.GetCommandLineArgs().Skip(1)).Contains("CONTROL"))
         {
-            var win = new ControlPanelWindow();
-            ControlPanelWindow = win;
-            win.Show();
-            win.CenterOnScreen();
-            await Task.Delay(10);
-            win.BringToFront();
-            MainAppWindow = null;
-            return;
+            Process.Start(new ProcessStartInfo("control:") { UseShellExecute = true });
+            MainAppWindow.Close();
         }
-        if (string.Join(" ", Environment.GetCommandLineArgs().Skip(1)).Contains("UAC"))
+        /*if (string.Join(" ", Environment.GetCommandLineArgs().Skip(1)).Contains("UAC"))
         {
             var win = new UACWindow();
             win.Show();
