@@ -2,6 +2,7 @@ using System;
 using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
+using ABI.System;
 using Microsoft.UI.Xaml.Controls;
 using WinUIEx;
 
@@ -45,15 +46,9 @@ public sealed partial class ShellPage : Page
         }
         if ((string)(args.SelectedItem as NavigationViewItem).Tag == "Control Panel")
         {
-            /*var win = new ControlPanelWindow();
-            App.cpanelWin = win;
-            win.Show();
-            win.CenterOnScreen();
-            await Task.Delay(10);
-            win.BringToFront();
+            Process.Start(new ProcessStartInfo("control:") { UseShellExecute = true });
             sender.SelectedItem = sender.MenuItems[2];
-            App.m_window.Close();
-            App.m_window = null;*/
+            App.MainAppWindow.Close();
         }
         //NavigationViewControl.Header = (string)(args.SelectedItem as NavigationViewItem).Tag;
     }

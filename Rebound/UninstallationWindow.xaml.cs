@@ -3,31 +3,33 @@ using System.Diagnostics;
 using System.IO;
 using System.Threading.Tasks;
 using Microsoft.UI.Xaml;
+using Rebound.WindowModels;
 using WinUIEx;
-using static Rebound.InstallationWindow;
-
-// To learn more about WinUI, the WinUI project structure,
-// and more about our project templates, see: http://aka.ms/winui-project-info.
 
 namespace Rebound;
-/// <summary>
-/// An empty window that can be used on its own or navigated to within a Frame.
-/// </summary>
+
 public sealed partial class UninstallationWindow : WindowEx
 {
-    public UninstallationWindow()
+    public const int SUBSTEPS_APP_PACKAGE_NO_LINK = 2;
+    public const int SUBSTEPS_REPLACE_SHORTCUT = 1;
+    public const int SUBSTEPS_DELETE_SHORTCUT = 1;
+    public const int SUBSTEPS_APP_PACKAGE = 2;
+    public const int SUBSTEPS_FOLDER = 1;
+    public const int SUBSTEPS_REG = 1;
+
+    public UninstallationWindow(bool deleteAll)
     {
-        this.InitializeComponent();
+        this?.InitializeComponent();
         this.MoveAndResize(0, 0, 0, 0);
-        Load();
+        Load(deleteAll);
     }
 
-    public double currentStep = 0;
-    public double totalSteps = 0;
-    public double currentSubstep = 0;
-    public double totalSubsteps = 0;
+    public double CurrentStep = 0;
+    public double TotalSteps = 0;
+    public double CurrentSubstep = 0;
+    public double TotalSubsteps = 0;
 
-    public async void Load()
+    public async void Load(bool deleteAll)
     {
         this.SetIsAlwaysOnTop(true);
         this.SetWindowPresenter(Microsoft.UI.Windowing.AppWindowPresenterKind.FullScreen);
@@ -36,132 +38,108 @@ public sealed partial class UninstallationWindow : WindowEx
 
         await Task.Delay(1000);
 
-        timer.Interval = new TimeSpan(3);
-        timer.Tick += Timer_Tick;
-        timer.Start();
+        Timer.Interval = new TimeSpan(3);
+        Timer.Tick += Timer_Tick;
+        Timer.Start();
 
-        totalSteps = 11;
-        totalSubsteps = 21;
-
-        ReboundProgress.Maximum = totalSubsteps;
-
-        currentStep++;
-        currentSubstep++;
-
-        Title.Text = $"Uninstalling Rebound 11: " + ((int)(currentSubstep / totalSubsteps * 100)).ToString() + "%";
-        Subtitle.Text = $"Deleting C:\\Rebound11...";
-
-        if (Directory.Exists("C:\\Rebound11") == true)
+        TotalSteps = 11;
+        TotalSubsteps = 
+            SUBSTEPS_FOLDER +                  // Rebound 11 Folder
+            SUBSTEPS_REPLACE_SHORTCUT +        // Control Panel
+            SUBSTEPS_FOLDER +                  // Rebound 11 Tools
+            SUBSTEPS_DELETE_SHORTCUT +         // UAC Settings
+            SUBSTEPS_APP_PACKAGE +             // Run
+            SUBSTEPS_DELETE_SHORTCUT +         // Rebound Run Startup
+            SUBSTEPS_APP_PACKAGE +             // Defrag
+            SUBSTEPS_APP_PACKAGE +             // Winver
+            SUBSTEPS_REPLACE_SHORTCUT +        // OSK
+            SUBSTEPS_APP_PACKAGE +             // TPM
+            SUBSTEPS_APP_PACKAGE;              // Disk Cleanup
+        if (deleteAll == true)
         {
-            try
-            {
-                // Define the directory path
-                string directoryPath = @"C:\Rebound11";
-
-                // Define the PowerShell command to delete the directory
-                string powershellCommand = $@"
-        if (Test-Path '{directoryPath}') {{
-            Remove-Item -Path '{directoryPath}' -Recurse -Force
-            Write-Output 'The directory `{directoryPath}` and all its contents have been deleted.'
-        }} else {{
-            Write-Output 'The directory `{directoryPath}` does not exist.'
-        }}";
-
-                // Create a process to run PowerShell
-                using (Process process = new Process())
-                {
-                    process.StartInfo.FileName = "powershell.exe";
-                    process.StartInfo.Arguments = $"-NoProfile -Command \"{powershellCommand}\"";
-                    process.StartInfo.RedirectStandardOutput = true;
-                    process.StartInfo.RedirectStandardError = true;
-                    process.StartInfo.UseShellExecute = false;
-                    process.StartInfo.CreateNoWindow = true;
-
-                    // Start the process
-                    process.Start();
-
-                    // Read the output and error
-                    string output = process.StandardOutput.ReadToEnd();
-                    string error = process.StandardError.ReadToEnd();
-
-                    // Wait for the process to exit
-                    process.WaitForExit();
-                }
-            }
-            catch
-            {
-
-            }
+            TotalSteps += 2;
+            TotalSubsteps +=
+                SUBSTEPS_APP_PACKAGE_NO_LINK + // Files App
+                SUBSTEPS_REG;                  // Files App Registry Modification
         }
 
+        ReboundProgress.Maximum = TotalSubsteps;
+
+        await RemoveFolder(@"C:\Rebound11");
+
         await ReplaceShortcut(
-            "Control Panel",
             $@"{AppContext.BaseDirectory}\Shortcuts\Included\Control Panel.lnk",
             $@"{Environment.GetFolderPath(Environment.SpecialFolder.StartMenu)}\Programs\System Tools\Control Panel.lnk",
             "Control Panel");
 
-        await DeleteShortcut(
-            "Rebound 11 Quick Full Computer Cleanup",
-            $@"{Environment.GetFolderPath(Environment.SpecialFolder.StartMenu)}\Programs\Rebound 11 Tools\Rebound 11 Quick Full Computer Cleanup.lnk",
-            "Rebound 11 Quick Full Computer Cleanup");
+        await RemoveFolder($@"{Environment.GetFolderPath(Environment.SpecialFolder.StartMenu)}\Programs\Rebound 11 Tools");
 
         await DeleteShortcut(
-            "Change User Account Control settings",
             $@"{Environment.GetFolderPath(Environment.SpecialFolder.StartMenu)}\Programs\Administrative Tools\Change User Account Control settings.lnk",
             "Change User Account Control settings");
 
         await UninstallAppPackage(
-            "8ab98b2f-6dbe-4358-a752-979d011f968d_0.1.0.0_x64__yejd587sfa94t",
+            InstallationWindowModel.RUN,
             "Rebound Run",
             $@"{AppContext.BaseDirectory}\Shortcuts\Included\Run.lnk",
             $@"{Environment.GetFolderPath(Environment.SpecialFolder.StartMenu)}\Programs\System Tools\Run.lnk",
             "Run");
 
         await DeleteShortcut(
-            "Rebound Run",
-            $@"{Environment.GetFolderPath(Environment.SpecialFolder.StartMenu)}\Programs\Startup\Rebound.RunStartup.lnk",
-            "Rebound Run");
+            $@"{Environment.GetFolderPath(Environment.SpecialFolder.StartMenu)}\Programs\Startup\ReboundRunStartup.lnk",
+            "Rebound Run Startup");
 
         await UninstallAppPackage(
-            "54d2a63e-e616-4159-bed6-c776b8a816e1_0.1.0.0_x64__yejd587sfa94t",
+            InstallationWindowModel.DEFRAG,
             "Rebound Defragment And Optimize Drives",
             $@"{AppContext.BaseDirectory}\Shortcuts\Included\dfrgui.lnk",
             $@"{Environment.GetFolderPath(Environment.SpecialFolder.CommonAdminTools)}\dfrgui.lnk",
             "Defragment And Optimize Drives");
 
         await UninstallAppPackage(
-            "039b9731-7b33-49de-bb09-5b81d5978d1c_0.0.3.0_x64__yejd587sfa94t",
+            InstallationWindowModel.WINVER,
             "Rebound Winver",
             $@"",
             $@"{Environment.GetFolderPath(Environment.SpecialFolder.CommonAdminTools)}\winver.lnk",
             "winver");
 
         await ReplaceShortcut(
-            "On-Screen Keyboard",
             $@"{AppContext.BaseDirectory}\Shortcuts\Included\On-Screen Keyboard.lnk",
             $@"{Environment.GetFolderPath(Environment.SpecialFolder.StartMenu)}\Programs\Accessibility\On-Screen Keyboard.lnk",
             "On-Screen Keyboard");
 
         await UninstallAppPackage(
-            "0b347e39-1da3-4fc7-80c2-dbf3603118f3_1.0.4.0_x64__yejd587sfa94t",
+            InstallationWindowModel.TPM,
             "Rebound TPM Management",
             $@"",
             $@"{Environment.GetFolderPath(Environment.SpecialFolder.CommonAdminTools)}\tpm.msc.lnk",
             "tpm.msc");
 
         await UninstallAppPackage(
-            "e8dfd11c-954d-46a2-b700-9cbc6201f056_1.0.2.0_x64__yejd587sfa94t",
+            InstallationWindowModel.DISK_CLEANUP,
             "Rebound Disk Cleanup",
             $@"{AppContext.BaseDirectory}\Shortcuts\Included\Disk Cleanup.lnk",
             $@"{Environment.GetFolderPath(Environment.SpecialFolder.CommonAdminTools)}\Disk Cleanup.lnk",
             "Disk Cleanup");
 
-        currentSubstep = totalSubsteps;
+        if (deleteAll == true)
+        {
+            await UninstallAppPackageWithoutLink(
+                InstallationWindowModel.FILES_APP,
+                "Files App",
+                "Files.exe");
+            await ApplyRegFile(
+                $@"{AppContext.BaseDirectory}\AppRT\Registry\UnsetFilesAsDefault.reg",
+                "Unset Files as Default");
+
+        }
+
+        CurrentSubstep = TotalSubsteps;
         Title.Text = $"Uninstalling Rebound 11: 100%";
         Subtitle.Text = $"Closing Rebound Hub...";
         ReboundProgress.Minimum = 0;
         ReboundProgress.Maximum = 1;
-        ReboundProgress.Value = totalSubsteps;
+        ReboundProgress.Value = TotalSubsteps;
 
         await Task.Delay(1000);
 
@@ -172,146 +150,307 @@ public sealed partial class UninstallationWindow : WindowEx
         Description.Visibility = Visibility.Collapsed;
         Buttons.Visibility = Visibility.Visible;
         ProgressBars.Visibility = Visibility.Collapsed;
-        ReboundProgress.Value = totalSubsteps + 10;
+        ReboundProgress.Value = TotalSubsteps + 10;
+    }
+
+    public void UpdateProgress(string title)
+    {
+        CurrentSubstep++;
+        Title.Text = title;
+        ReboundProgress.Value = CurrentSubstep;
+    }
+
+    public async Task<Task> RemoveFolder(string directoryPath)
+    {
+        CurrentStep++;
+
+        UpdateProgress($"Uninstalling Rebound 11: " + ((int)(CurrentSubstep / TotalSubsteps * 100)).ToString() + "%");
+
+        if (Directory.Exists(directoryPath) == true)
+        {
+            try
+            {
+                // Define the PowerShell command to delete the directory
+                var powershellCommand = $@"
+        if (Test-Path '{directoryPath}') {{
+            Remove-Item -Path '{directoryPath}' -Recurse -Force
+            Write-Output 'The directory `{directoryPath}` and all its contents have been deleted.'
+        }} else {{
+            Write-Output 'The directory `{directoryPath}` does not exist.'
+        }}";
+
+                // Create a process to run PowerShell
+                using var process = new Process();
+                process.StartInfo.FileName = "powershell.exe";
+                process.StartInfo.Arguments = $"-NoProfile -Command \"{powershellCommand}\"";
+                process.StartInfo.RedirectStandardOutput = true;
+                process.StartInfo.RedirectStandardError = true;
+                process.StartInfo.UseShellExecute = false;
+                process.StartInfo.CreateNoWindow = true;
+
+                // Start the process
+                process.Start();
+
+                // Read the output and error
+                var output = process.StandardOutput.ReadToEnd();
+                var error = process.StandardError.ReadToEnd();
+
+                // Wait for the process to exit
+                process.WaitForExit();
+            }
+            catch
+            {
+
+            }
+        }
+
+        Subtitle.Text = $@"Deleting C:\Rebound11...";
+
+        await Task.Delay(50);
+
+        return Task.CompletedTask;
     }
 
     public async Task<Task> UninstallAppPackage(string packageFamilyName, string displayAppName, string lnkFile, string lnkDestination, string lnkDisplayName)
     {
-        // 3 SUBSTEPS
+        CurrentStep++;
 
-        currentStep += 1;
+        // Substep 1: delete package
 
-        string startupFolderPath = Environment.GetFolderPath(Environment.SpecialFolder.Startup);
+        UpdateProgress($"Uninstalling Rebound 11: " + ((int)(CurrentSubstep / TotalSubsteps * 100)).ToString() + "%");
 
-        // Substep 1: cache package
-
-        currentSubstep += 1;
-        Title.Text = $"Uninstalling Rebound 11: " + ((int)(currentSubstep / totalSubsteps * 100)).ToString() + "%";
-        ReboundProgress.Value = currentSubstep;
-
-        // Setup the process start info
-        var procFolder = new ProcessStartInfo()
-        {
-            FileName = "powershell.exe",
-            Verb = "runas",                 // Run as administrator
-            UseShellExecute = false,
-            CreateNoWindow = true,// Required to redirect output
-            Arguments = $"Remove-AppxPackage -Package \"{packageFamilyName}\"",
-            RedirectStandardOutput = true,
-            RedirectStandardError = true
-        };
-
-        Subtitle.Text = $"Step {currentStep} of {totalSteps}: Uninstalling {displayAppName}...";
-
-        // Start the process
-        var resFolder = Process.Start(procFolder);
-
-        // Read output and errors
-        string output = await resFolder.StandardOutput.ReadToEndAsync();
-        string error = await resFolder.StandardError.ReadToEndAsync();
-
-        // Wait for the process to exit
-        await resFolder.WaitForExitAsync();
-
-        Subtitle.Text = $"Step {currentStep} of {totalSteps}: {(string.IsNullOrEmpty(error) ? $"{displayAppName} uninstalled." : $"{displayAppName} uninstallation failed: the package does not exist..")}";
-
-        await Task.Delay(50);
-
-        // Substep 2: delete winver.lnk
-
-        currentSubstep += 1;
-        Title.Text = $"Uninstalling Rebound 11: " + ((int)(currentSubstep / totalSubsteps * 100)).ToString() + "%";
-        ReboundProgress.Value = currentSubstep;
-
-        Subtitle.Text = $"Step {currentStep} of {totalSteps}: Deleting {lnkDisplayName}.lnk...";
         try
         {
-            File.Delete(lnkDestination);
+            // Prepare the PowerShell command to remove the package by family name
+            var command = $@"
+                $package = Get-AppxPackage | Where-Object {{ $_.PackageFamilyName -eq '{packageFamilyName}' }};
+                if ($package) {{
+                    Remove-AppxPackage -Package $package.PackageFullName;
+                    Write-Host 'Package removed: ' + $package.PackageFullName;
+                }} else {{
+                    Write-Host 'No package found with the given PackageFamilyName.';
+                }}
+            ";
+
+            // Execute the command using PowerShell via Process
+            var process = new Process
+            {
+                StartInfo = new ProcessStartInfo
+                {
+                    FileName = "powershell.exe",
+                    Arguments = $"-NoProfile -ExecutionPolicy Bypass -Command \"{command}\"",
+                    RedirectStandardOutput = true,
+                    RedirectStandardError = true,
+                    UseShellExecute = false,
+                    CreateNoWindow = true
+                }
+            };
+
+            // Start the process
+            process.Start();
+
+            var error = process.StandardError.ReadToEnd();
+
+            Subtitle.Text = $"Step {CurrentStep} of {TotalSteps}: {(string.IsNullOrEmpty(error) ? $"{displayAppName} uninstalled." : $"{displayAppName} uninstallation failed: the package does not exist.")}";
+
+            process.WaitForExit();
         }
         catch
         {
-            Subtitle.Text = $"Step {currentStep} of {totalSteps}: The file does not exist. Skipping...";
+            Subtitle.Text = $"Step {CurrentStep} of {TotalSteps}: Something went wrong. Skipping...";
         }
 
         await Task.Delay(50);
 
-        // Substep 3: copy new winver.lnk
+        // Substep 2: copy new LNK file
 
-        currentSubstep += 1;
-        Title.Text = $"Uninstalling Rebound 11: " + ((int)(currentSubstep / totalSubsteps * 100)).ToString() + "%";
-        ReboundProgress.Value = currentSubstep;
+        UpdateProgress($"Uninstalling Rebound 11: " + ((int)(CurrentSubstep / TotalSubsteps * 100)).ToString() + "%");
 
-        Subtitle.Text = $"Step {currentStep} of {totalSteps}: Copying new {lnkDisplayName}.lnk...";
+        Subtitle.Text = $"Step {CurrentStep} of {TotalSteps}: Copying new {lnkDisplayName}.lnk...";
         try
         {
             File.Copy(lnkFile, lnkDestination, true);
         }
         catch
         {
-            Subtitle.Text = $"Step {currentStep} of {totalSteps}: The file already exists. Skipping...";
+            Subtitle.Text = $"Step {CurrentStep} of {TotalSteps}: The file already exists. Skipping...";
         }
+
         await Task.Delay(50);
+
         return Task.CompletedTask;
     }
 
-    public async Task<Task> DeleteShortcut(string displayAppName, string lnkDestination, string lnkDisplayName)
+    public async Task<Task> UninstallAppPackageWithoutLink(string packageFamilyName, string displayAppName, string taskName)
     {
-        // 1 SUBSTEP
+        CurrentStep++;
 
-        currentStep += 1;
+        // Substep 1: end task
 
-        // Substep 5: delete winver.lnk
+        UpdateProgress($"Installing Rebound 11: " + ((int)(CurrentSubstep / TotalSubsteps * 100)).ToString() + "%");
 
-        currentSubstep += 1;
-        Title.Text = $"Uninstalling Rebound 11: " + ((int)(currentSubstep / totalSubsteps * 100)).ToString() + "%";
-        ReboundProgress.Value = currentSubstep;
+        Subtitle.Text = $"Step {CurrentStep} of {TotalSteps}: Ending task {taskName}...";
+        try
+        {
+            TaskManager.StopTask(taskName);
+        }
+        catch
+        {
+            Subtitle.Text = $"Step {CurrentStep} of {TotalSteps}: Something went wrong. Skipping...";
+        }
 
-        Subtitle.Text = $"Step {currentStep} of {totalSteps}: Deleting {lnkDisplayName}.lnk...";
+        await Task.Delay(50);
+
+        // Substep 2: delete package
+
+        UpdateProgress($"Uninstalling Rebound 11: " + ((int)(CurrentSubstep / TotalSubsteps * 100)).ToString() + "%");
+
+        try
+        {
+            // Prepare the PowerShell command to remove the package by family name
+            var command = $@"
+                $package = Get-AppxPackage | Where-Object {{ $_.PackageFamilyName -eq '{packageFamilyName}' }};
+                if ($package) {{
+                    Remove-AppxPackage -Package $package.PackageFullName;
+                    Write-Host 'Package removed: ' + $package.PackageFullName;
+                }} else {{
+                    Write-Host 'No package found with the given PackageFamilyName.';
+                }}
+            ";
+
+            // Execute the command using PowerShell via Process
+            var process = new Process
+            {
+                StartInfo = new ProcessStartInfo
+                {
+                    FileName = "powershell.exe",
+                    Arguments = $"-NoProfile -ExecutionPolicy Bypass -Command \"{command}\"",
+                    RedirectStandardOutput = true,
+                    RedirectStandardError = true,
+                    UseShellExecute = false,
+                    CreateNoWindow = true
+                }
+            };
+
+            // Start the process
+            process.Start();
+
+            var error = process.StandardError.ReadToEnd();
+
+            Subtitle.Text = $"Step {CurrentStep} of {TotalSteps}: {(string.IsNullOrEmpty(error) ? $"{displayAppName} uninstalled." : $"{displayAppName} uninstallation failed: the package does not exist.")}";
+
+            process.WaitForExit();
+        }
+        catch
+        {
+            Subtitle.Text = $"Step {CurrentStep} of {TotalSteps}: Something went wrong. Skipping...";
+        }
+
+        await Task.Delay(50);
+
+        return Task.CompletedTask;
+    }
+
+    public async Task<Task> DeleteShortcut(string lnkDestination, string lnkDisplayName)
+    {
+        CurrentStep++;
+
+        // Substep 1: delete LNK file
+
+        UpdateProgress($"Uninstalling Rebound 11: " + ((int)(CurrentSubstep / TotalSubsteps * 100)).ToString() + "%");
+
+        Subtitle.Text = $"Step {CurrentStep} of {TotalSteps}: Deleting {lnkDisplayName}.lnk...";
         try
         {
             File.Delete(lnkDestination);
         }
         catch
         {
-            Subtitle.Text = $"Step {currentStep} of {totalSteps}: The file does not exist. Skipping...";
+            Subtitle.Text = $"Step {CurrentStep} of {TotalSteps}: The file does not exist. Skipping...";
         }
 
         await Task.Delay(50);
+
         return Task.CompletedTask;
     }
 
-    public async Task<Task> ReplaceShortcut(string displayAppName, string lnkFile, string lnkDestination, string lnkDisplayName)
+    public async Task<Task> ReplaceShortcut(string lnkFile, string lnkDestination, string lnkDisplayName)
     {
-        // 1 SUBSTEP
+        CurrentStep++;
 
-        currentStep += 1;
+        // Substep 1: replace LNK file
 
-        // Substep 5: delete winver.lnk
+        UpdateProgress($"Uninstalling Rebound 11: " + ((int)(CurrentSubstep / TotalSubsteps * 100)).ToString() + "%");
 
-        currentSubstep += 1;
-        Title.Text = $"Uninstalling Rebound 11: " + ((int)(currentSubstep / totalSubsteps * 100)).ToString() + "%";
-        ReboundProgress.Value = currentSubstep;
-
-        Subtitle.Text = $"Step {currentStep} of {totalSteps}: Deleting {lnkDisplayName}.lnk...";
+        Subtitle.Text = $"Step {CurrentStep} of {TotalSteps}: Replacing {lnkDisplayName}.lnk...";
         try
         {
             File.Copy(lnkFile, lnkDestination, true);
         }
         catch
         {
-            Subtitle.Text = $"Step {currentStep} of {totalSteps}: The file does not exist. Skipping...";
+            Subtitle.Text = $"Step {CurrentStep} of {TotalSteps}: Something went wrong. Skipping...";
         }
 
         await Task.Delay(50);
+
+        return Task.CompletedTask;
+    }
+
+    public async Task<Task> ApplyRegFile(string regFilePath, string regDisplayName)
+    {
+        CurrentStep++;
+
+        // Substep 1: end task
+
+        UpdateProgress($"Installing Rebound 11: " + ((int)(CurrentSubstep / TotalSubsteps * 100)).ToString() + "%");
+
+        Subtitle.Text = $@"Step {CurrentStep} of {TotalSteps}: Installing registry key ""{regDisplayName}.reg""...";
+
+        // Ensure the .reg file exists
+        if (File.Exists(regFilePath))
+        {
+            // Prepare the process to run regedit silently
+            var process = new Process
+            {
+                StartInfo = new ProcessStartInfo
+                {
+                    FileName = "regedit.exe",
+                    Arguments = $"/s \"{regFilePath}\"", // /s makes it silent (no prompts)
+                    RedirectStandardOutput = false, // No output needed
+                    RedirectStandardError = false,  // No error redirect needed
+                    UseShellExecute = true,         // Use the shell to execute the command
+                    CreateNoWindow = true           // No window shown
+                }
+            };
+
+            // Start the process
+            try
+            {
+                process.Start();
+                process.WaitForExit();  // Optionally wait for the process to finish
+            }
+            catch
+            {
+                Subtitle.Text = $"Step {CurrentStep} of {TotalSteps}: Something went wrong. Skipping...";
+            }
+        }
+        else
+        {
+            Subtitle.Text = $"Step {CurrentStep} of {TotalSteps}: File does not exist. Skipping...";
+        }
+
+        await Task.Delay(50);
+
         return Task.CompletedTask;
     }
 
     private void Timer_Tick(object sender, object e)
     {
-        ExplorerManager.StopExplorer();
+        TaskManager.StopTask("explorer.exe");
     }
 
-    DispatcherTimer timer = new DispatcherTimer();
+    private readonly DispatcherTimer Timer = new();
 
     private async void Button_Click(object sender, RoutedEventArgs e)
     {
@@ -323,15 +462,15 @@ public sealed partial class UninstallationWindow : WindowEx
 
         await Task.Delay(3000);
 
-        timer.Stop();
-        ExplorerManager.StartExplorer();
-        RestartPC();
+        Timer.Stop();
+        TaskManager.StartTask("explorer.exe");
+        InstallationWindowModel.RestartPC();
     }
 
     private async void Button_Click_1(object sender, RoutedEventArgs e)
     {
-        timer.Stop();
-        ExplorerManager.StartExplorer();
+        Timer.Stop();
+        TaskManager.StartTask("explorer.exe");
         Ring.Visibility = Visibility.Visible;
         Title.Text = "Restarting Explorer...";
         Subtitle.Visibility = Visibility.Collapsed;

@@ -22,7 +22,7 @@
             <NavigationView.MenuItems>
                 <NavigationViewItem Content="Home" IsSelected="True">
                     <NavigationViewItem.Icon>
-                        <FontIcon Glyph="" />
+                        <FontIcon Glyph="&#xE80F;" />
                     </NavigationViewItem.Icon>
                 </NavigationViewItem>
                 <NavigationViewItem Content="System and Security" Tag="SysAndSecurity">
@@ -52,13 +52,15 @@
                         </NavigationViewItem>
                     </NavigationViewItem.MenuItems>
                 </NavigationViewItem>
-                <NavigationViewItem Content="Network and Internet" IsEnabled="False">
+                <NavigationViewItem Content="Network and Internet">
                     <NavigationViewItem.Icon>
                         <ImageIcon Source="ms-appx:///AppRT/Exported/imageres_120.ico" />
                     </NavigationViewItem.Icon>
-                    <NavigationViewItem.MenuItems>
-                        <NavigationViewItem Content="View network status and tasks" />
-                    </NavigationViewItem.MenuItems>
+                    <interactivity:Interaction.Behaviors>
+                        <core:EventTriggerBehavior EventName="Tapped">
+                            <behaviors:NavigateToUriAction NavigateUri="ms-settings:network" />
+                        </core:EventTriggerBehavior>
+                    </interactivity:Interaction.Behaviors>
                 </NavigationViewItem>
                 <NavigationViewItem x:Name="AppearanceItem" Content="Appearance and Personalization">
                     <NavigationViewItem.Icon>
@@ -260,9 +262,9 @@
                         <TextBlock VerticalAlignment="Center" Text="View by:" />
                         <ComboBox
                             VerticalAlignment="Center"
+                            IsEnabled="False"
                             SelectedIndex="1"
-                            SelectionChanged="ComboBox_SelectionChanged"
-                            IsEnabled="False">
+                            SelectionChanged="ComboBox_SelectionChanged">
                             <ComboBoxItem Content="Category" />
                             <ComboBoxItem Content="Navigation" />
                         </ComboBox>
@@ -354,7 +356,7 @@
                             Style="{StaticResource BodyStrongTextBlockStyle}"
                             Text="Home" />
                         <SettingsUI:SettingsCard
-                            Click="SettingsCard_Click_1"
+                            Click="ReboundHubSettingsCard_Click"
                             Description="Launch the Rebound Hub."
                             Header="Rebound Hub"
                             IsClickEnabled="True">

@@ -11,15 +11,19 @@
 
     <Grid>
         <ScrollViewer>
-            <GridView
+            <Grid>
+                <InfoBar IsOpen="True" Margin="12, 0" IsClosable="False" Severity="Warning" Title="This page is not finished yet.">
+
+                </InfoBar>
+                <GridView
                 x:Name="ItemsGrid"
-                Margin="0,10,0,0"
+                Margin="0,50,0,0"
                 HorizontalAlignment="Center"
                 SelectionMode="Multiple"
                 SingleSelectionFollowsFocus="True">
-                <GridView.ItemTemplate>
-                    <DataTemplate>
-                        <GridViewItem
+                    <GridView.ItemTemplate>
+                        <DataTemplate>
+                            <GridViewItem
                             Width="375"
                             Margin="4"
                             Padding="5,5,35,5"
@@ -27,24 +31,24 @@
                             Background="Transparent"
                             BorderBrush="Transparent"
                             IsEnabled="{Binding IsEnabled}">
-                            <Grid>
-                                <Image
+                                <Grid>
+                                    <Image
                                     Width="64"
                                     HorizontalAlignment="Left"
                                     Source="{Binding Icon}" />
-                                <TextBlock
+                                    <TextBlock
                                     Margin="80,0,0,0"
                                     FontSize="18"
                                     FontWeight="SemiBold"
                                     Text="{Binding Name}"
                                     TextWrapping="WrapWholeWords" />
-                                <Image
+                                    <Image
                                     Width="24"
                                     Margin="80,32,0,0"
                                     HorizontalAlignment="Left"
                                     Source="ms-appx:///AppRT/Exported/imageres_78.ico"
                                     Visibility="{Binding AdminVisibility}" />
-                                <Border
+                                    <Border
                                     Margin="0,0,-30,0"
                                     Padding="12,5"
                                     HorizontalAlignment="Right"
@@ -52,30 +56,31 @@
                                     Background="{ThemeResource LayerOnMicaBaseAltFillColorSecondaryBrush}"
                                     CornerRadius="14"
                                     Visibility="{Binding TagVisibility}">
-                                    <TextBlock
+                                        <TextBlock
                                         FontWeight="Bold"
                                         Opacity="0.5"
                                         Text="{Binding SpecialTag}" />
-                                </Border>
-                            </Grid>
-                            <GridViewItem.ContextFlyout>
-                                <CommandBarFlyout>
-                                    <CommandBarFlyout.SecondaryCommands>
-                                        <AppBarButton Label="Open" />
-                                        <AppBarButton Label="Open file location" />
-                                        <AppBarButton Label="Run as Administrator">
-                                            <AppBarButton.Icon>
-                                                <ImageIcon Source="ms-appx:///AppRT/Exported/imageres_78.ico" />
-                                            </AppBarButton.Icon>
-                                        </AppBarButton>
-                                        <AppBarButton Label="Run Legacy" />
-                                    </CommandBarFlyout.SecondaryCommands>
-                                </CommandBarFlyout>
-                            </GridViewItem.ContextFlyout>
-                        </GridViewItem>
-                    </DataTemplate>
-                </GridView.ItemTemplate>
-            </GridView>
+                                    </Border>
+                                </Grid>
+                                <GridViewItem.ContextFlyout>
+                                    <CommandBarFlyout>
+                                        <CommandBarFlyout.SecondaryCommands>
+                                            <AppBarButton Label="Open" />
+                                            <AppBarButton Label="Open file location" />
+                                            <AppBarButton Label="Run as Administrator">
+                                                <AppBarButton.Icon>
+                                                    <ImageIcon Source="ms-appx:///AppRT/Exported/imageres_78.ico" />
+                                                </AppBarButton.Icon>
+                                            </AppBarButton>
+                                            <AppBarButton Label="Run Legacy" />
+                                        </CommandBarFlyout.SecondaryCommands>
+                                    </CommandBarFlyout>
+                                </GridViewItem.ContextFlyout>
+                            </GridViewItem>
+                        </DataTemplate>
+                    </GridView.ItemTemplate>
+                </GridView>
+            </Grid>
         </ScrollViewer>
     </Grid>
 </Page>

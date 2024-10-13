@@ -7,6 +7,9 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:local="using:Rebound.Control.Views"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:behaviors="using:CommunityToolkit.WinUI.Behaviors"
+    xmlns:core="using:Microsoft.Xaml.Interactions.Core"
+    xmlns:interactivity="using:Microsoft.Xaml.Interactivity"
     mc:Ignorable="d">
 
     <Grid>
@@ -24,7 +27,7 @@
                 </NavigationViewItem>
                 <NavigationViewItem Content="Windows Defender Firewall" IsEnabled="False">
                     <NavigationViewItem.Icon>
-                        <ImageIcon Source="ms-appx:///AppRT/Exported/imageres_195.ico" />
+                        <FontIcon Glyph="&#xF552;" />
                     </NavigationViewItem.Icon>
                     <NavigationViewItem.MenuItems>
                         <NavigationViewItem Content="Review your computer's status" />
@@ -34,94 +37,145 @@
                         <NavigationViewItem Content="Windows Backup" />
                     </NavigationViewItem.MenuItems>
                 </NavigationViewItem>
-                <NavigationViewItem Content="System" IsEnabled="False">
+                <NavigationViewItem Content="System">
                     <NavigationViewItem.Icon>
-                        <ImageIcon Source="ms-appx:///AppRT/Exported/imageres_1029.ico" />
+                        <FontIcon Glyph="&#xE770;" />
                     </NavigationViewItem.Icon>
                     <NavigationViewItem.MenuItems>
-                        <NavigationViewItem Content="Change account type">
+                        <NavigationViewItem Content="Change system settings">
+                            <NavigationViewItem.Icon>
+                                <FontIcon Glyph="&#xE115;" />
+                            </NavigationViewItem.Icon>
+                            <interactivity:Interaction.Behaviors>
+                                <core:EventTriggerBehavior EventName="Tapped">
+                                    <behaviors:NavigateToUriAction NavigateUri="ms-settings:system" />
+                                </core:EventTriggerBehavior>
+                            </interactivity:Interaction.Behaviors>
+                        </NavigationViewItem>
+                        <NavigationViewItem Content="About this PC">
+                            <NavigationViewItem.Icon>
+                                <FontIcon Glyph="&#xE946;" />
+                            </NavigationViewItem.Icon>
+                            <interactivity:Interaction.Behaviors>
+                                <core:EventTriggerBehavior EventName="Tapped">
+                                    <behaviors:NavigateToUriAction NavigateUri="ms-settings:about" />
+                                </core:EventTriggerBehavior>
+                            </interactivity:Interaction.Behaviors>
+                        </NavigationViewItem>
+                        <NavigationViewItem Content="Change account type" IsEnabled="False">
                             <NavigationViewItem.Icon>
                                 <ImageIcon Source="ms-appx:///AppRT/Exported/imageres_78.ico" />
                             </NavigationViewItem.Icon>
                         </NavigationViewItem>
                     </NavigationViewItem.MenuItems>
                 </NavigationViewItem>
-                <NavigationViewItem Content="Power Options" IsEnabled="False">
+                <NavigationViewItem Content="Power Options">
                     <NavigationViewItem.Icon>
-                        <ImageIcon Source="ms-appx:///AppRT/Exported/imageres_120.ico" />
+                        <FontIcon Glyph="&#xEBAA;" />
                     </NavigationViewItem.Icon>
-                    <NavigationViewItem.MenuItems>
-                        <NavigationViewItem Content="View network status and tasks" />
-                    </NavigationViewItem.MenuItems>
+                    <interactivity:Interaction.Behaviors>
+                        <core:EventTriggerBehavior EventName="Tapped">
+                            <behaviors:NavigateToUriAction NavigateUri="ms-settings:powersleep" />
+                        </core:EventTriggerBehavior>
+                    </interactivity:Interaction.Behaviors>
                 </NavigationViewItem>
                 <NavigationViewItem
                     x:Name="AppearanceItem"
                     Content="File History"
                     IsEnabled="False">
                     <NavigationViewItem.Icon>
-                        <ImageIcon Source="ms-appx:///AppRT/Exported/imageres_197.ico" />
+                        <FontIcon Glyph="&#xE81C;" />
                     </NavigationViewItem.Icon>
-                    <NavigationViewItem.MenuItems>
-                        <NavigationViewItem x:Name="Re11Item" Content="Rebound 11" />
-                    </NavigationViewItem.MenuItems>
                 </NavigationViewItem>
-                <NavigationViewItem Content="Windows Backup" IsEnabled="False">
+                <NavigationViewItem Content="Windows Backup">
                     <NavigationViewItem.Icon>
-                        <ImageIcon Source="ms-appx:///AppRT/Exported/imageres_196.ico" />
+                        <FontIcon Glyph="&#xEBC4;" />
                     </NavigationViewItem.Icon>
                     <NavigationViewItem.MenuItems>
-                        <NavigationViewItem Content="View devices and printers" />
-                        <NavigationViewItem Content="Add a device" />
-                        <NavigationViewItem Content="Adjust commonly used mobility settings" />
+                        <NavigationViewItem Content="Windows Backup App">
+                            <NavigationViewItem.Icon>
+                                <FontIcon Glyph="&#xE753;" />
+                            </NavigationViewItem.Icon>
+                            <interactivity:Interaction.Behaviors>
+                                <core:EventTriggerBehavior EventName="Tapped">
+                                    <behaviors:NavigateToUriAction NavigateUri="ms-windowsbackup:" />
+                                </core:EventTriggerBehavior>
+                            </interactivity:Interaction.Behaviors>
+                        </NavigationViewItem>
+                        <NavigationViewItem Content="Windows Backup (Settings)">
+                            <NavigationViewItem.Icon>
+                                <FontIcon Glyph="&#xE115;" />
+                            </NavigationViewItem.Icon>
+                            <interactivity:Interaction.Behaviors>
+                                <core:EventTriggerBehavior EventName="Tapped">
+                                    <behaviors:NavigateToUriAction NavigateUri="ms-settings:backup" />
+                                </core:EventTriggerBehavior>
+                            </interactivity:Interaction.Behaviors>
+                        </NavigationViewItem>
+                        <NavigationViewItem Content="Back up your PC (Windows 7)" IsEnabled="False">
+                            <NavigationViewItem.Icon>
+                                <FontIcon Glyph="&#xECAA;" />
+                            </NavigationViewItem.Icon>
+                        </NavigationViewItem>
                     </NavigationViewItem.MenuItems>
                 </NavigationViewItem>
                 <NavigationViewItem Content="BitLocker Drive Encryption" IsEnabled="False">
                     <NavigationViewItem.Icon>
-                        <ImageIcon Source="ms-appx:///AppRT/Exported/imageres_144.ico" />
+                        <FontIcon Glyph="&#xE8D7;" />
                     </NavigationViewItem.Icon>
-                    <NavigationViewItem.MenuItems>
-                        <NavigationViewItem Content="Change date, time, or number formats" />
-                    </NavigationViewItem.MenuItems>
                 </NavigationViewItem>
-                <NavigationViewItem Content="Storage Spaces" IsEnabled="False">
+                <NavigationViewItem Content="Storage Spaces">
                     <NavigationViewItem.Icon>
-                        <ImageIcon Source="ms-appx:///AppRT/Exported/imageres_161.ico" />
+                        <FontIcon Glyph="&#xEDA2;" />
                     </NavigationViewItem.Icon>
-                    <NavigationViewItem.MenuItems>
-                        <NavigationViewItem Content="Uninstall a program" />
-                    </NavigationViewItem.MenuItems>
+                    <interactivity:Interaction.Behaviors>
+                        <core:EventTriggerBehavior EventName="Tapped">
+                            <behaviors:NavigateToUriAction NavigateUri="ms-settings:storagepolicies" />
+                        </core:EventTriggerBehavior>
+                    </interactivity:Interaction.Behaviors>
                 </NavigationViewItem>
-                <NavigationViewItem Content="Work Folders" IsEnabled="False">
+                <NavigationViewItem Content="Work Folders (Deprecated)" IsEnabled="False">
                     <NavigationViewItem.Icon>
-                        <ImageIcon Source="ms-appx:///AppRT/Exported/imageres_86.ico" />
+                        <FontIcon Glyph="&#xED43;" />
                     </NavigationViewItem.Icon>
-                    <NavigationViewItem.MenuItems>
-                        <NavigationViewItem Content="Let Windows suggest settings" />
-                        <NavigationViewItem Content="Optimize visual display" />
-                    </NavigationViewItem.MenuItems>
                 </NavigationViewItem>
                 <NavigationViewItem x:Name="WinToolsItem" Content="Windows Tools">
                     <NavigationViewItem.Icon>
-                        <ImageIcon Source="ms-appx:///AppRT/Exported/imageres_86.ico" />
+                        <FontIcon Glyph="&#xE9F5;" />
                     </NavigationViewItem.Icon>
                 </NavigationViewItem>
-                <NavigationViewItem Content="Work Folders" IsEnabled="False">
+                <NavigationViewItem Content="Updates">
                     <NavigationViewItem.Icon>
-                        <ImageIcon Source="ms-appx:///AppRT/Exported/imageres_86.ico" />
+                        <FontIcon Glyph="&#xE117;" />
                     </NavigationViewItem.Icon>
                     <NavigationViewItem.MenuItems>
-                        <NavigationViewItem Content="Let Windows suggest settings" />
-                        <NavigationViewItem Content="Optimize visual display" />
-                    </NavigationViewItem.MenuItems>
-                </NavigationViewItem>
-                <NavigationViewItem Content="Updates" IsEnabled="False">
-                    <NavigationViewItem.Icon>
-                        <ImageIcon Source="ms-appx:///AppRT/Exported/imageres_86.ico" />
-                    </NavigationViewItem.Icon>
-                    <NavigationViewItem.MenuItems>
-                        <NavigationViewItem Content="Windows Update" />
-                        <NavigationViewItem Content="Device manufacturer software updates" />
-                        <NavigationViewItem Content="Update installed apps (winget upgrade)" />
+                        <NavigationViewItem Content="Windows Update">
+                            <NavigationViewItem.Icon>
+                                <FontIcon Glyph="&#xE777;" />
+                            </NavigationViewItem.Icon>
+                            <interactivity:Interaction.Behaviors>
+                                <core:EventTriggerBehavior EventName="Tapped">
+                                    <behaviors:NavigateToUriAction NavigateUri="ms-settings:windowsupdate" />
+                                </core:EventTriggerBehavior>
+                            </interactivity:Interaction.Behaviors>
+                        </NavigationViewItem>
+                        <NavigationViewItem>
+                            <TextBlock Text="Device manufacturer software updates" TextWrapping="WrapWholeWords"/>
+                            <NavigationViewItem.Icon>
+                                <FontIcon Glyph="&#xE7F4;" />
+                            </NavigationViewItem.Icon>
+                            <interactivity:Interaction.Behaviors>
+                                <core:EventTriggerBehavior EventName="Tapped">
+                                    <behaviors:NavigateToUriAction NavigateUri="ms-settings:windowsupdate-optionalupdates" />
+                                </core:EventTriggerBehavior>
+                            </interactivity:Interaction.Behaviors>
+                        </NavigationViewItem>
+                        <NavigationViewItem IsEnabled="False">
+                            <TextBlock Text="Update installed apps (Winget upgrade)" TextWrapping="WrapWholeWords"/>
+                            <NavigationViewItem.Icon>
+                                <FontIcon Glyph="&#xE179;" />
+                            </NavigationViewItem.Icon>
+                        </NavigationViewItem>
                     </NavigationViewItem.MenuItems>
                 </NavigationViewItem>
             </NavigationView.MenuItems>
@@ -248,31 +302,23 @@
                                     Style="{ThemeResource AccentButtonStyle}" />
                             </StackPanel>
                         </SettingsUI:SettingsCard>
-                        <TextBlock
-                            Margin="3"
-                            Style="{StaticResource BodyStrongTextBlockStyle}"
-                            Text="Recommended" />
+                        <SettingsUI:SettingsCard Description="Check and fix all corrupted files in Windows using sfc /scannow. Do not use this option if you have any Windows mods other than Rebound 11 installed on your PC." Header="System File Integrity Check">
+                            <SettingsUI:SettingsCard.HeaderIcon>
+                                <FontIcon Glyph="&#xE74C;" />
+                            </SettingsUI:SettingsCard.HeaderIcon>
+                            <StackPanel Orientation="Horizontal" Spacing="8">
+                                <Button
+                                    Click="Button_Click"
+                                    Content="Repair"
+                                    Style="{ThemeResource AccentButtonStyle}"
+                                    IsEnabled="False"/>
+                            </StackPanel>
+                        </SettingsUI:SettingsCard>
                         <SettingsUI:SettingsCard
                             Click="SettingsCard_Click_1"
                             Description="Change User Account Control Settings."
                             Header="User Account Control"
                             IsClickEnabled="True">
-                            <SettingsUI:SettingsCard.HeaderIcon>
-                                <FontIcon Glyph="" />
-                            </SettingsUI:SettingsCard.HeaderIcon>
-                        </SettingsUI:SettingsCard>
-                        <SettingsUI:SettingsCard
-                            Header="Windows Update"
-                            IsClickEnabled="True"
-                            IsEnabled="False">
-                            <SettingsUI:SettingsCard.HeaderIcon>
-                                <FontIcon Glyph="" />
-                            </SettingsUI:SettingsCard.HeaderIcon>
-                        </SettingsUI:SettingsCard>
-                        <SettingsUI:SettingsCard
-                            Header="Windows Backup"
-                            IsClickEnabled="True"
-                            IsEnabled="False">
                             <SettingsUI:SettingsCard.HeaderIcon>
                                 <FontIcon Glyph="" />
                             </SettingsUI:SettingsCard.HeaderIcon>
