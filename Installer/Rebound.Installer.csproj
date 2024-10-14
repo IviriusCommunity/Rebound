@@ -94,4 +94,5 @@
 			<FrameworkSdkReference Remove="@(FrameworkSdkReference)" Condition="$([System.String]::Copy('%(FrameworkSdkReference.SDKName)').StartsWith('Microsoft.WindowsAppRuntime.'))" />
 		</ItemGroup>
 	</Target>
+	<Import Project="..\Delivery\Rebound.Delivery.projitems" Label="Shared" />
 </Project>
