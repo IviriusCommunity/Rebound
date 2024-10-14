@@ -28,18 +28,18 @@ public sealed partial class MainPage : Page
         // Load new TPM information asynchronously
         _ = ViewModelTpm.LoadTpmInfoAsync();
 
-        var list = TpmManager.GetTpmInfo();
+        // Assign values to the UI elements, ensuring to convert to strings if necessary
+        ManufacturerName.Text = ViewModelTpm.ManufacturerName;
+        ManufacturerVersion.Text = ViewModelTpm.ManufacturerVersion;
+        SpecificationVersion.Text = ViewModelTpm.SpecificationVersion;
+        TpmSubVersion.Text = ViewModelTpm.TpmSubVersion;
+        PcClientSpecVersion.Text = ViewModelTpm.PcClientSpecVersion;
+        PcrValues.Text = ViewModelTpm.PcrValues;
+        Status.Text = ViewModelTpm.Status;
 
-        ManufacturerName.Text = list[0];
-        ManufacturerVersion.Text = list[1];
-        SpecificationVersion.Text = list[2];
-        TpmSubVersion.Text = list[3];
-        PcClientSpecVersion.Text = list[4];
-        PcrValues.Text = list[5];
-        Status.Text = list[6];
-
-        StatusBar.Severity = list[6] == "Ready" ? InfoBarSeverity.Success : InfoBarSeverity.Error;
-        StatusBar.Title = $"Status: {list[6]}";
+        // Status bar logic
+        StatusBar.Severity = ViewModelTpm.Status == "Ready" ? InfoBarSeverity.Success : InfoBarSeverity.Error;
+        StatusBar.Title = $"Status: {ViewModelTpm.Status}";
     }
 
     ContentDialog dial;
@@ -78,34 +78,34 @@ public sealed partial class MainPage : Page
         // Call the TPM reset function
         await TpmReset.ResetTpmAsync(sender);
 
-        var list = TpmManager.GetTpmInfo();
+        // Assign values to the UI elements, ensuring to convert to strings if necessary
+        ManufacturerName.Text = ViewModelTpm.ManufacturerName;
+        ManufacturerVersion.Text = ViewModelTpm.ManufacturerVersion;
+        SpecificationVersion.Text = ViewModelTpm.SpecificationVersion;
+        TpmSubVersion.Text = ViewModelTpm.TpmSubVersion;
+        PcClientSpecVersion.Text = ViewModelTpm.PcClientSpecVersion;
+        Status.Text = ViewModelTpm.Status;
 
-        ManufacturerName.Text = list[0];
-        ManufacturerVersion.Text = list[1];
-        SpecificationVersion.Text = list[2];
-        TpmSubVersion.Text = list[3];
-        PcClientSpecVersion.Text = list[4];
-        PcrValues.Text = list[5];
-        Status.Text = list[6];
-
-        StatusBar.Severity = list[6] == "Ready" ? InfoBarSeverity.Success : InfoBarSeverity.Error;
-        StatusBar.Title = $"Status: {list[6]}";
+        // Status bar logic
+        StatusBar.Severity = ViewModelTpm.Status == "Ready" ? InfoBarSeverity.Success : InfoBarSeverity.Error;
+        StatusBar.Title = $"Status: {ViewModelTpm.Status}";
     }
 
     private void HyperlinkButton_Click(object sender, RoutedEventArgs e)
     {
-        var list = TpmManager.GetTpmInfo();
 
-        ManufacturerName.Text = list[0];
-        ManufacturerVersion.Text = list[1];
-        SpecificationVersion.Text = list[2];
-        TpmSubVersion.Text = list[3];
-        PcClientSpecVersion.Text = list[4];
-        PcrValues.Text = list[5];
-        Status.Text = list[6];
+        // Assign values to the UI elements, ensuring to convert to strings if necessary
+        ManufacturerName.Text = ViewModelTpm.ManufacturerName;
+        ManufacturerVersion.Text = ViewModelTpm.ManufacturerVersion;
+        SpecificationVersion.Text = ViewModelTpm.SpecificationVersion;
+        TpmSubVersion.Text = ViewModelTpm.TpmSubVersion;
+        PcClientSpecVersion.Text = ViewModelTpm.PcClientSpecVersion;
+        Status.Text = ViewModelTpm.Status;
 
-        StatusBar.Severity = list[6] == "Ready" ? InfoBarSeverity.Success : InfoBarSeverity.Error;
-        StatusBar.Title = $"Status: {list[6]}";
+        // Status bar logic
+        StatusBar.Severity = ViewModelTpm.Status == "Ready" ? InfoBarSeverity.Success : InfoBarSeverity.Error;
+        StatusBar.Title = $"Status: {ViewModelTpm.Status}";
+
     }
 }
 

@@ -12,7 +12,7 @@
     <PublishProfile>win-$(Platform).pubxml</PublishProfile>
     <UseWinUI>true</UseWinUI>
     <EnableMsixTooling>true</EnableMsixTooling>
-    <Version>0.0.4</Version>
+    <Version>0.0.3</Version>
     <ImplicitUsings>true</ImplicitUsings>
     <LangVersion>Latest</LangVersion>
     <ApplicationIcon>Assets\icon.ico</ApplicationIcon>
@@ -98,10 +98,6 @@
   <ItemGroup>
     <ProjectReference Include="..\Helpers\Rebound.Helpers.csproj" />
   </ItemGroup>
-  
-    <PropertyGroup>
-            <WindowsSdkPackageVersion>10.0.22621.38</WindowsSdkPackageVersion>
-        </PropertyGroup>
 
   <PropertyGroup>
     <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
