@@ -283,7 +283,7 @@
                 FontWeight="Normal"
                 Foreground="{Binding Foreground, ElementName=WindowTitle}"
                 Opacity="0.5"
-                Text=" v0.0.3"
+                Text=" v0.0.4"
                 TextTrimming="CharacterEllipsis" />
         </StackPanel>
         <StackPanel

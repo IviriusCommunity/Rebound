@@ -1,15 +1,20 @@
-﻿using System.ComponentModel;
+﻿using System;
+using System.ComponentModel;
+using System.Diagnostics;
 using System.Management;
+using System.Text;
+using Tpm2Lib;
+using Windows.Devices.Spi;
 
 public class TpmManager : INotifyPropertyChanged
 {
-    private string _manufacturerName;
-    private string _manufacturerVersion;
-    private string _specificationVersion;
-    private string _status;
-    private string _tpmSubVersion;
-    private string _pcClientSpecVersion;
-    private string _pcrValues;
+    public string _manufacturerName;
+    public string _manufacturerVersion;
+    public string _specificationVersion;
+    public string _status;
+    public string _tpmSubVersion;
+    public string _pcClientSpecVersion;
+    public string _pcrValues;
 
     public string ManufacturerName
     {
@@ -85,15 +90,18 @@ public class TpmManager : INotifyPropertyChanged
 
     public TpmManager()
     {
-        GetTpmInfo();
+        tpmDevice = new TbsDevice(); // or whichever device you are using
+        tpmDevice.Connect(); // No assignment, just calling the method
+        tpm = new Tpm2(tpmDevice);
+        GetTpmInfo(); // No assignment, just calling the method
     }
 
     public void RefreshTpmInfo()
     {
-        GetTpmInfo();
+        GetTpmInfo(); // No assignment, just calling the method
     }
 
-    public List<string> GetTpmInfo()
+    private void GetTpmInfo()
     {
         try
         {
@@ -101,24 +109,14 @@ public class TpmManager : INotifyPropertyChanged
             {
                 foreach (ManagementObject queryObj in searcher.Get())
                 {
-                    return new List<string>
-                    {
-                        queryObj["ManufacturerID"] != null ? ConvertManufacturerIdToName((uint)queryObj["ManufacturerID"]) : "Unknown",
-                        queryObj["ManufacturerVersion"]?.ToString() ?? "Unknown",
-                        queryObj["SpecVersion"]?.ToString() ?? "Unknown",
-                        queryObj["ManufacturerVersion"]?.ToString() ?? "Unknown",
-                        queryObj["SpecVersion"]?.ToString() ?? "Unknown",
-                        GetPcrValues(),
-                        queryObj["IsActivated_InitialValue"] != null && (bool)queryObj["IsActivated_InitialValue"] ? "Ready" : "Not Ready"
-                    };
-                    /*ManufacturerName = queryObj["ManufacturerID"] != null ? ConvertManufacturerIdToName((uint)queryObj["ManufacturerID"]) : "Unknown";
+                    ManufacturerName = queryObj["ManufacturerID"] != null ? ConvertManufacturerIdToName((uint)queryObj["ManufacturerID"]) : "Unknown";
                     ManufacturerVersion = queryObj["ManufacturerVersion"]?.ToString() ?? "Unknown";
                     SpecificationVersion = queryObj["SpecVersion"]?.ToString() ?? "Unknown";
                     TpmSubVersion = queryObj["ManufacturerVersion"]?.ToString() ?? "Unknown";
                     PcClientSpecVersion = queryObj["SpecVersion"]?.ToString() ?? "Unknown";
                     PcrValues = GetPcrValues();
 
-                    Status = queryObj["IsActivated_InitialValue"] != null && (bool)queryObj["IsActivated_InitialValue"] ? "Ready" : "Not Ready";*/
+                    Status = queryObj["IsActivated_InitialValue"] != null && (bool)queryObj["IsActivated_InitialValue"] ? "Ready" : "Not Ready";
                 }
             }
         }
@@ -133,21 +131,9 @@ public class TpmManager : INotifyPropertyChanged
             Status = "Error communicating with TPM";
             Console.WriteLine($"An error occurred while getting TPM information: {ex.Message}");
         }
-
-        return new List<string>()
-        {
-            ManufacturerName,
-            ManufacturerVersion,
-            SpecificationVersion,
-            TpmSubVersion,
-            PcClientSpecVersion,
-            PcrValues,
-
-            Status,
-        };
     }
 
-    private string ConvertManufacturerIdToName(uint manufacturerId)
+    public string ConvertManufacturerIdToName(uint manufacturerId)
     {
         var manufacturerStr = string.Empty;
         manufacturerStr += (char)((manufacturerId >> 24) & 0xFF);
@@ -157,11 +143,54 @@ public class TpmManager : INotifyPropertyChanged
         return manufacturerStr;
     }
 
-    private string GetPcrValues()
+    public Tpm2Device tpmDevice;
+    public Tpm2 tpm;
+    public string GetPcrValues()
     {
-        // Placeholder for PCR retrieval logic. This should query TPM for PCR values.
-        // Requires advanced access via TBS API or TPM library.
-        return "PCR values are not directly accessible via WMI. Requires advanced TPM API.";
+        try
+        {
+            // Specify PCR selection for reading (e.g., PCR 0, 1, 2)
+            PcrSelection[] pcrSelectionIn = { new PcrSelection(TpmAlgId.Sha256, new uint[] { 0, 1, 2 }) };
+            PcrSelection[] pcrSelectionOut;
+            Tpm2bDigest[] pcrValues;
+
+            // Read PCR values
+            tpm.PcrRead(pcrSelectionIn, out pcrSelectionOut, out pcrValues);
+
+            // Build a string to display PCR values
+            StringBuilder pcrStringBuilder = new StringBuilder();
+
+            // Check if pcrValues has entries
+            if (pcrValues.Length == 0)
+            {
+                return "No PCR values available.";
+            }
+
+            for (int i = 0; i < pcrSelectionOut.Length; i++)
+            {
+                pcrStringBuilder.AppendLine($"PCR {i}: {BitConverter.ToString(pcrValues[i].buffer)}");
+            }
+
+            return pcrStringBuilder.ToString();
+        }
+        catch (TpmException tpmEx)
+        {
+            // Log specific TPM-related errors
+            Debug.WriteLine($"TPM Error retrieving PCR values: {tpmEx.Message} (Error Code:)");
+            return $"TPM Error: {tpmEx.Message} (Error Code:)";
+        }
+        catch (Exception ex)
+        {
+            // Log general errors with stack trace
+            Debug.WriteLine($"General Error retrieving PCR values: {ex.Message}\n{ex.StackTrace}");
+            return $"Error retrieving PCR values: {ex.Message}";
+        }
+        finally
+        {
+            // Ensure resources are cleaned up
+            tpm?.Dispose();
+            tpmDevice?.Dispose();
+        }
     }
 
     protected virtual void OnPropertyChanged(string propertyName)
