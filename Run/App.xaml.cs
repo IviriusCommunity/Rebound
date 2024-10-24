@@ -69,20 +69,13 @@ namespace Rebound.Run
 
             MainWindow = new MainWindow();
 
-            // Register any background tasks or hooks
-            StartHook();
-
             // Delay for task execution
             await Task.Delay(5);
 
-            // Check if Windows hotkey shortcuts are disabled by group policy
-            if (GroupPolicyHelper.IsGroupPolicyEnabled(GroupPolicyHelper.EXPLORER_GROUP_POLICY_PATH, "NoWinKeys", 1) == true)
-            {
-                StopHook();
-            }
+            RunBoxReplace();
 
             // If started with the "STARTUP" argument, exit early
-            if (IsStartupArgumentPresent())
+            if (IsStartupArgumentPresent() == true)
             {
                 return 0;
             }
@@ -91,6 +84,71 @@ namespace Rebound.Run
             await ActivateMainWindowAsync();
 
             return 0;
+        }
+
+        public async void RunBoxReplace()
+        {
+            await Task.Delay(50);
+            if (LegacyRunBoxExists() == true)
+            {
+                try
+                {
+                    MainWindow.Activate();
+                    MainWindow.BringToFront();
+                }
+                catch
+                {
+                    MainWindow = new MainWindow();
+                    MainWindow.Activate();
+                    MainWindow.BringToFront();
+                }
+            }
+
+            RunBoxReplace();
+        }
+
+        // Importing the user32.dll to use GetWindowThreadProcessId
+        [DllImport("user32.dll")]
+        private static extern uint GetWindowThreadProcessId(IntPtr hWnd, out uint lpdwProcessId);
+
+        public static bool IsExplorerWindow(IntPtr hWnd)
+        {
+            // Get the process ID of the window handle (hWnd)
+            GetWindowThreadProcessId(hWnd, out uint processId);
+
+            try
+            {
+                // Get the process by ID
+                Process process = Process.GetProcessById((int)processId);
+
+                // Check if the process name is "explorer"
+                return process.ProcessName.Equals("explorer", StringComparison.OrdinalIgnoreCase);
+            }
+            catch (Exception)
+            {
+                // If there is an issue retrieving the process, assume it's not Explorer
+                return false;
+            }
+        }
+
+        public static bool LegacyRunBoxExists()
+        {
+            // Find the window with the title "Run"
+            IntPtr hWnd = Win32Helper.FindWindow(null, "Run");
+            //IntPtr hWndtaskmgr2 = Win32Helper.FindWindow("#32770", "Create new task");
+
+            if (hWnd != IntPtr.Zero && IsExplorerWindow(hWnd) == true)
+            {
+                // Send WM_CLOSE to close the window
+                bool sent = Win32Helper.PostMessage(hWnd, Win32Helper.WM_CLOSE, IntPtr.Zero, IntPtr.Zero);
+
+                Debug.Write(IsExplorerWindow(hWnd));
+                if (sent == true)
+                {
+                    return true;
+                }
+            }
+            return false;
         }
 
         private static void InitializeBackgroundWindow()
@@ -171,122 +229,6 @@ namespace Rebound.Run
             }
         }
 
-        public static void StartHook()
-        {
-            Win32Helper.keyboardProc = HookCallback;
-            Win32Helper.hookId = SetHook(Win32Helper.keyboardProc);
-        }
-
-        public static void StopHook()
-        {
-            Win32Helper.UnhookWindowsHookEx(Win32Helper.hookId);
-        }
-
-        public static bool AllowClosingRunBox { get; set; } = true;
-
-        private static IntPtr SetHook(Win32Helper.LowLevelKeyboardProc proc)
-        {
-            using (Process curProcess = Process.GetCurrentProcess())
-            {
-                if (curProcess.MainModule != null)
-                {
-                    using (ProcessModule curModule = curProcess.MainModule)
-                    {
-                        return Win32Helper.SetWindowsHookEx(Win32Helper.WH_KEYBOARD_LL, proc, Win32Helper.GetModuleHandle(curModule.ModuleName), 0);
-                    }
-                }
-            }
-            return IntPtr.Zero;
-        }
-
-        private static bool winKeyPressed = false;
-        private static bool rKeyPressed = false;
-
-        private static IntPtr HookCallback(int nCode, IntPtr wParam, IntPtr lParam)
-        {
-            if (nCode >= 0)
-            {
-                int vkCode = Marshal.ReadInt32(lParam);
-
-                // Check for keydown events
-                if (wParam == Win32Helper.WM_KEYDOWN)
-                {
-                    // Check if Windows key is pressed
-                    if (vkCode is Win32Helper.VK_LWIN or Win32Helper.VK_RWIN)
-                    {
-                        winKeyPressed = true;
-                    }
-
-                    // Check if 'R' key is pressed
-                    if (vkCode is Win32Helper.VK_R)
-                    {
-                        rKeyPressed = true;
-
-                        // If both Win and R are pressed, show the window
-                        if (winKeyPressed)
-                        {
-                            ((WindowEx?)MainWindow)?.Show();
-                            ((WindowEx?)MainWindow)?.BringToFront();
-                            try
-                            {
-                                ((WindowEx?)MainWindow)?.Activate();
-                            }
-                            catch
-                            {
-                                MainWindow = new MainWindow();
-                                MainWindow.Show();
-                                ((WindowEx?)MainWindow)?.Activate();
-                                ((WindowEx?)MainWindow)?.BringToFront();
-                            }
-
-                            // Prevent default behavior of Win + R
-                            return 1;
-                        }
-                    }
-                }
-
-                // Check for keyup events
-                if (wParam == Win32Helper.WM_KEYUP)
-                {
-                    // Check if Windows key is released
-                    if (vkCode is Win32Helper.VK_LWIN or Win32Helper.VK_RWIN)
-                    {
-                        winKeyPressed = false;
-
-                        // Suppress the Windows Start menu if 'R' is still pressed
-                        if (rKeyPressed == true)
-                        {
-                            ForceReleaseWin();
-                            return 1; // Prevent Windows menu from appearing
-                        }
-                    }
-
-                    // Check if 'R' key is released
-                    if (vkCode is Win32Helper.VK_R)
-                    {
-                        rKeyPressed = false;
-                    }
-                }
-            }
-
-            return Win32Helper.CallNextHookEx(Win32Helper.hookId, nCode, wParam, lParam);
-        }
-
-        public static async void ForceReleaseWin()
-        {
-            await Task.Delay(10);
-
-            var inj = InputInjector.TryCreate();
-            var info = new InjectedInputKeyboardInfo
-            {
-                VirtualKey = (ushort)VirtualKey.LeftWindows,
-                KeyOptions = InjectedInputKeyOptions.KeyUp
-            };
-            var infoList = new[] { info };
-
-            inj.InjectKeyboardInput(infoList);
-        }
-
-        public static Window? MainWindow;
+        public static WindowEx? MainWindow;
     }
 }

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 using Microsoft.Graphics.Display;
 using Microsoft.UI.Xaml;
@@ -47,7 +48,6 @@ namespace Rebound.Run
             this.SetIcon($"{AppContext.BaseDirectory}/Assets/RunBox.ico");
             this.Title = StringTable.AppTitle;
             this.SystemBackdrop = new MicaBackdrop();
-            CheckForRunBox();
             Load();
             LoadRunHistory();
         }
@@ -242,7 +242,6 @@ namespace Rebound.Run
                     {
                         if (runLegacy == true)
                         {
-                            App.AllowClosingRunBox = false;
                             var startInfo = new ProcessStartInfo
                             {
                                 FileName = "powershell.exe",
@@ -279,21 +278,6 @@ namespace Rebound.Run
                         return;
                     }
             }
-        }
-
-        public async void CloseRunBoxMethod()
-        {
-            try
-            {
-                CloseRunBox();
-            }
-            catch
-            {
-
-            }
-
-            await Task.Delay(50);
-            CloseRunBoxMethod();
         }
 
         public async Task RunPowershell(string fileLocation, string arguments, bool admin)
@@ -424,90 +408,6 @@ namespace Rebound.Run
 
         private HashSet<VirtualKey> PressedKeys = [];
 
-        private void CloseRunBox()
-        {
-            // Find the window with the title "Run"
-            IntPtr hWnd = Win32Helper.FindWindow(null, "Run");
-            //IntPtr hWndtaskmgr2 = Win32Helper.FindWindow("#32770", "Create new task");
-
-            if (hWnd != IntPtr.Zero)
-            {
-                // Send WM_CLOSE to close the window
-                bool sent = Win32Helper.PostMessage(hWnd, Win32Helper.WM_CLOSE, IntPtr.Zero, IntPtr.Zero);
-
-                if (sent)
-                {
-                    try
-                    {
-                        (App.MainWindow as MainWindow)?.BringToFront();
-                        App.MainWindow.Title ??= "Rebound Run";
-                        return;
-                    }
-                    catch
-                    {
-                        try
-                        {
-                            this.Close();
-                            App.MainWindow?.Close();
-                        }
-                        catch
-                        {
-
-                        }
-                        App.MainWindow = new MainWindow();
-                        App.MainWindow.Show();
-                        App.MainWindow.Activate();
-                        (App.MainWindow as MainWindow).BringToFront();
-                        return;
-                    }
-                }
-            }
-            /*if (hWndtaskmgr2 != IntPtr.Zero)
-            {
-                try
-                {
-                    // Send WM_CLOSE to close the window
-                    bool sent = Win32Helper.PostMessage(hWndtaskmgr2, Win32Helper.WM_CLOSE, IntPtr.Zero, IntPtr.Zero);
-
-                    if (sent)
-                    {
-                        try
-                        {
-                            (App.MainWindow as MainWindow).BringToFront();
-                            App.MainWindow.Title = "Rebound Run - Create new task (Task Manager)";
-                            await Task.Delay(250);
-                            App.MainWindow.Move((int)(25 * Scale()), (int)(25 * Scale()));
-                            return;
-                        }
-                        catch
-                        {
-                            try
-                            {
-                                this.Close();
-                                App.MainWindow.Close();
-                            }
-                            catch
-                            {
-
-                            }
-                            App.MainWindow = new MainWindow();
-                            App.MainWindow.Show();
-                            App.MainWindow.Activate();
-                            (App.MainWindow as MainWindow).BringToFront();
-                            App.MainWindow.Title = "Rebound Run - Create new task (Task Manager)";
-                            await Task.Delay(250);
-                            App.MainWindow.Move((int)(25 * Scale()), (int)(25 * Scale()));
-                            return;
-                        }
-                    }
-                }
-                catch
-                {
-
-                }
-            }*/
-        }
-
         private async void RunBox_KeyUp(object sender, KeyRoutedEventArgs e)
         {
             if (e.Key == VirtualKey.Escape &&
@@ -620,35 +520,12 @@ namespace Rebound.Run
 
         private async void WindowEx_Activated(object sender, WindowActivatedEventArgs args)
         {
-            CheckForRunBox();
             await Task.Delay(5);
 
             if (GroupPolicyHelper.IsGroupPolicyEnabled(GroupPolicyHelper.EXPLORER_GROUP_POLICY_PATH, "NoRun", 1) == true)
             {
                 this.Close();
             }
-        }
-
-        public void CheckForRunBox()
-        {
-            IntPtr hWnd = Win32Helper.FindWindow(null, "Run");
-            IntPtr taskManagerHandle = Win32Helper.FindWindow(null, "Task Manager");
-            IntPtr hWndtaskmgr = Win32Helper.FindWindowEx(taskManagerHandle, IntPtr.Zero, null, "Create new task");
-            if (hWnd == IntPtr.Zero)
-            {
-                App.AllowClosingRunBox = true;
-                CloseRunBoxMethod();
-                return;
-            }
-            if (hWndtaskmgr == IntPtr.Zero)
-            {
-                App.AllowClosingRunBox = true;
-                CloseRunBoxMethod();
-                return;
-            }
-            App.AllowClosingRunBox = false;
-            CloseRunBoxMethod();
-            return;
         }
 
         private void RunBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
