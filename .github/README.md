@@ -1,6 +1,8 @@
 > [!IMPORTANT]
 > Rebound 11 is now managed by [@FireCube](https://github.com/FireCubeStudios).
-> Development for v 0.0.4 is continuing
+> Development for v0.0.4 and onwards has resumed and we are preparing for a lot of changes!
+> 
+> Stay tuned in [Developer Sanctuary](https://dsc.gg/devsanx) for more info.
 
 ![Rebound Hub](https://github.com/user-attachments/assets/7d72f5ef-b02a-42bd-a2ba-0096ed446478)
 
