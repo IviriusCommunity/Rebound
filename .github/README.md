@@ -1,6 +1,6 @@
 > [!IMPORTANT]
-> Rebound 11 is going through major management changes as the owner is transferred to [@FireCube](https://github.com/FireCubeStudios).
-> Please refrain from making contributions to the codebase until the transfer is complete and the issue of management is resolved.
+> Rebound 11 is now managed by [@FireCube](https://github.com/FireCubeStudios).
+> Development for v 0.0.4 is continuing
 
 ![Rebound Hub](https://github.com/user-attachments/assets/7d72f5ef-b02a-42bd-a2ba-0096ed446478)
 
