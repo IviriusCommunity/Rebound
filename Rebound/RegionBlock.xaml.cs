@@ -4,7 +4,6 @@ using System.Text;
 using System.Threading.Tasks;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Media.Imaging;
-using WinRT.Interop;
 using WinUIEx;
 
 // To learn more about WinUI, the WinUI project structure,
@@ -41,12 +40,12 @@ public sealed partial class RegionBlock : Window
     // Method to retrieve the current user's wallpaper path
     private string GetWallpaperPath()
     {
-        StringBuilder wallpaperPath = new StringBuilder(MAX_PATH);
-        SystemParametersInfo(SPI_GETDESKWALLPAPER, MAX_PATH, wallpaperPath, 0);
+        var wallpaperPath = new StringBuilder(MAX_PATH);
+        _ = SystemParametersInfo(SPI_GETDESKWALLPAPER, MAX_PATH, wallpaperPath, 0);
         return wallpaperPath.ToString();
     }
 
-    public async void LoadWallpaper()
+    public void LoadWallpaper()
     {
         try
         {
@@ -73,7 +72,7 @@ public sealed partial class RegionBlock : Window
     [DllImport("user32.dll")]
     private static extern IntPtr GetClientRect(IntPtr hWnd, out RECT rect);
 
-    private static readonly IntPtr HWND_TOPMOST = new IntPtr(-1);
+    private static readonly IntPtr HWND_TOPMOST = new(-1);
     private const uint SWP_NOSIZE = 0x0001;
     private const uint SWP_NOMOVE = 0x0002;
 
@@ -83,11 +82,11 @@ public sealed partial class RegionBlock : Window
         var desktopHwnd = GetDesktopWindow();
 
         // Get the desktop rectangle
-        GetWindowRect(desktopHwnd, out RECT desktopRect);
+        _ = GetWindowRect(desktopHwnd, out var desktopRect);
         var windowRect = new RECT { Left = 0, Top = 0, Right = desktopRect.Right, Bottom = desktopRect.Bottom };
 
         // Set your window size and position
-        SetWindowPos(hwnd, HWND_TOPMOST, windowRect.Left, windowRect.Top, windowRect.Right - windowRect.Left, windowRect.Bottom - windowRect.Top, SWP_NOMOVE);
+        _ = SetWindowPos(hwnd, HWND_TOPMOST, windowRect.Left, windowRect.Top, windowRect.Right - windowRect.Left, windowRect.Bottom - windowRect.Top, SWP_NOMOVE);
 
         // To intercept input, you'll need a window that captures input events.
         // Consider using low-level hooks or other methods to ensure the taskbar cannot be interacted with.
@@ -108,7 +107,7 @@ public sealed partial class RegionBlock : Window
         LoadWallpaper();
         await Task.Delay(200);
         //BlockTaskbarInteraction();
-        BlockDialog.XamlRoot = this.Content.XamlRoot;
+        BlockDialog.XamlRoot = Content.XamlRoot;
         await BlockDialog.ShowAsync();
         Close();
     }

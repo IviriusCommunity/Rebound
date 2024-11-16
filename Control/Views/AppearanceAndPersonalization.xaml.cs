@@ -6,8 +6,6 @@ using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Windows.System;
 
-#pragma warning disable SYSLIB1054 // Use 'LibraryImportAttribute' instead of 'DllImportAttribute' to generate P/Invoke marshalling code at compile time
-
 namespace Rebound.Control.Views;
 
 public sealed partial class AppearanceAndPersonalization : Page
@@ -36,7 +34,7 @@ public sealed partial class AppearanceAndPersonalization : Page
         _ = PleaseWaitDialog.ShowAsync();
         App.ControlPanelWindow.IsAlwaysOnTop = true;
         var filePath = $"{AppContext.BaseDirectory}\\Themes\\{((FrameworkElement)sender).Tag}.deskthemepack";
-        Process.Start(new ProcessStartInfo()
+        _ = Process.Start(new ProcessStartInfo()
         {
             FileName = $"{filePath}",
             UseShellExecute = true
@@ -50,7 +48,7 @@ public sealed partial class AppearanceAndPersonalization : Page
             Process.GetProcessesByName("SystemSettings")[0].Kill();
         }
         await Task.Delay(200);
-        App.ControlPanelWindow.BringToFront();
+        _ = App.ControlPanelWindow.BringToFront();
         PleaseWaitDialog.Hide();
     }
 
@@ -60,7 +58,7 @@ public sealed partial class AppearanceAndPersonalization : Page
         const int SW_SHOWNORMAL = 1;
 
         // Call ShellExecute to open the File Explorer Options dialog
-        ShellExecute(IntPtr.Zero, "open", "control.exe", "/name Microsoft.FolderOptions", null, SW_SHOWNORMAL);
+        _ = ShellExecute(IntPtr.Zero, "open", "control.exe", "/name Microsoft.FolderOptions", null, SW_SHOWNORMAL);
     }
 
     [DllImport("shell32.dll", CharSet = CharSet.Unicode, SetLastError = true)]
@@ -70,11 +68,11 @@ public sealed partial class AppearanceAndPersonalization : Page
     {
         if ((NavigationViewItem)sender.SelectedItem == TBAndNav)
         {
-            await Launcher.LaunchUriAsync(new Uri("ms-settings:taskbar"));
+            _ = await Launcher.LaunchUriAsync(new Uri("ms-settings:taskbar"));
         }
         if ((NavigationViewItem)sender.SelectedItem == Access)
         {
-            await Launcher.LaunchUriAsync(new Uri("ms-settings:easeofaccess"));
+            _ = await Launcher.LaunchUriAsync(new Uri("ms-settings:easeofaccess"));
         }
         if ((NavigationViewItem)sender.SelectedItem == ExpOptions)
         {
@@ -82,7 +80,7 @@ public sealed partial class AppearanceAndPersonalization : Page
         }
         if ((NavigationViewItem)sender.SelectedItem == Fonts)
         {
-            await Launcher.LaunchUriAsync(new Uri("ms-settings:fonts"));
+            _ = await Launcher.LaunchUriAsync(new Uri("ms-settings:fonts"));
         }
         sender.SelectedItem = Rebound11Item;
     }

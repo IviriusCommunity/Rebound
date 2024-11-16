@@ -4,9 +4,6 @@ using System.Threading.Tasks;
 using Microsoft.UI.Xaml;
 using WinUIEx;
 
-#pragma warning disable SYSLIB1054 // Use 'LibraryImportAttribute' instead of 'DllImportAttribute' to generate P/Invoke marshalling code at compile time
-#pragma warning disable CA1401 // P/Invokes should not be visible
-
 namespace Rebound.Helpers;
 
 public static class Win32
@@ -70,13 +67,7 @@ public static class Win32
         }
     }
 
-    public static int GET_X_LPARAM(IntPtr lParam)
-    {
-        return unchecked((short)(long)lParam);
-    }
+    public static int GET_X_LPARAM(IntPtr lParam) => unchecked((short)(long)lParam);
 
-    public static int GET_Y_LPARAM(IntPtr lParam)
-    {
-        return unchecked((short)((long)lParam >> 16));
-    }
+    public static int GET_Y_LPARAM(IntPtr lParam) => unchecked((short)((long)lParam >> 16));
 }

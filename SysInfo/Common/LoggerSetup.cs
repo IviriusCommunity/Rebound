@@ -12,7 +12,7 @@ public static class LoggerSetup
     {
         if (!Directory.Exists(Constants.LogDirectoryPath))
         {
-            Directory.CreateDirectory(Constants.LogDirectoryPath);
+            _ = Directory.CreateDirectory(Constants.LogDirectoryPath);
         }
 
         Logger = new LoggerConfiguration()

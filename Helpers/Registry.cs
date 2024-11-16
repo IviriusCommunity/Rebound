@@ -33,15 +33,12 @@ internal class Registry
             _monitorThread = new Thread(MonitorRegistry) { IsBackground = true };
         }
 
-        public void Start()
-        {
-            _monitorThread.Start();
-        }
+        public void Start() => _monitorThread.Start();
 
         public void Stop()
         {
             _running = false;
-            _changeEvent.Set();
+            _ = _changeEvent.Set();
             _monitorThread.Join();
         }
 
@@ -63,7 +60,7 @@ internal class Registry
                         serv.CheckFocus();
                     }
 
-                    _changeEvent.WaitOne();
+                    _ = _changeEvent.WaitOne();
                 }
             }
 

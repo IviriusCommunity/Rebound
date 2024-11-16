@@ -8,7 +8,10 @@ namespace Rebound.TrustedPlatform;
 
 public sealed partial class MainWindow : WindowEx
 {
-    public TitleBarService TitleBarService { get; set; }
+    public TitleBarService TitleBarService
+    {
+        get; set;
+    }
 
     public MainWindow()
     {
@@ -17,14 +20,14 @@ public sealed partial class MainWindow : WindowEx
         SystemBackdrop = new MicaBackdrop();
         AppWindow.DefaultTitleBarShouldMatchAppModeTheme = true;
         WindowTitle.Text = Title;
-        RootFrame.Navigate(typeof(MainPage));
+        _ = RootFrame.Navigate(typeof(MainPage));
 
         TitleBarService = new(this, AccentStrip, TitleBarIcon, WindowTitle, Close, CrimsonMaxRes, Minimize, MaxResGlyph, ContentGrid);
         TitleBarService.SetWindowIcon($"Assets\\icon.ico");
 
         MinHeight = 600;
-        MinWidth = 500; 
-        
+        MinWidth = 500;
+
         var rects = Display.GetDPIAwareDisplayRect(this);
         if (rects.Height < 900 || rects.Width < 1200)
         {
@@ -32,8 +35,5 @@ public sealed partial class MainWindow : WindowEx
         }
     }
 
-    private void WindowEx_Closed(object sender, WindowEventArgs args)
-    {
-        App.MainAppWindow = null;
-    }
+    private void WindowEx_Closed(object sender, WindowEventArgs args) => App.MainAppWindow = null;
 }

@@ -1,5 +1,4 @@
 ﻿using WinUIEx;
-using Windows.Foundation;
 
 namespace Rebound.Helpers;
 

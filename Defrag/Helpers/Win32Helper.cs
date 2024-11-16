@@ -7,8 +7,6 @@ using WinUIEx;
 using WinUIEx.Messaging;
 
 #nullable enable
-#pragma warning disable SYSLIB1054 // Use 'LibraryImportAttribute' instead of 'DllImportAttribute' to generate P/Invoke marshalling code at compile time
-#pragma warning disable CA1401 // P/Invokes should not be visible
 
 namespace Rebound.Defrag.Helpers;
 
@@ -49,7 +47,7 @@ public static partial class Win32Helper
     public static void RemoveIcon(WindowEx window)
     {
         var hWnd = WinRT.Interop.WindowNative.GetWindowHandle(window);
-        SetWindowLongPtr(hWnd, -20, 0x00000001L);
+        _ = SetWindowLongPtr(hWnd, -20, 0x00000001L);
     }
 
     [DllImport("user32.dll", SetLastError = true)]
@@ -92,16 +90,9 @@ public static partial class Win32Helper
     [DllImport("User32.dll", SetLastError = true, CharSet = CharSet.Unicode)]
     private static extern bool EnableWindow(IntPtr hWnd, bool bEnable);
 
-    private const int GWL_HWNDPARENT = (-8);
+    private const int GWL_HWNDPARENT = -8;
 
-    private static IntPtr SetWindowLong(IntPtr hWnd, int nIndex, IntPtr dwNewLong)
-    {
-        if (IntPtr.Size == 4)
-        {
-            return SetWindowLongPtr32(hWnd, nIndex, dwNewLong);
-        }
-        return SetWindowLongPtr64(hWnd, nIndex, dwNewLong);
-    }
+    private static IntPtr SetWindowLong(IntPtr hWnd, int nIndex, IntPtr dwNewLong) => IntPtr.Size == 4 ? SetWindowLongPtr32(hWnd, nIndex, dwNewLong) : SetWindowLongPtr64(hWnd, nIndex, dwNewLong);
 
     [DllImport("User32.dll", CharSet = CharSet.Auto, EntryPoint = "SetWindowLong")]
     private static extern IntPtr SetWindowLongPtr32(IntPtr hWnd, int nIndex, IntPtr dwNewLong);
@@ -113,20 +104,20 @@ public static partial class Win32Helper
     {
         var hWndChildWindow = WinRT.Interop.WindowNative.GetWindowHandle(childWindow);
         var hWndParentWindow = WinRT.Interop.WindowNative.GetWindowHandle(parentWindow);
-        SetWindowLong(hWndChildWindow, GWL_HWNDPARENT, hWndParentWindow);
+        _ = SetWindowLong(hWndChildWindow, GWL_HWNDPARENT, hWndParentWindow);
         ((OverlappedPresenter)childWindow.AppWindow.Presenter).IsModal = true;
         if (blockInput == true)
         {
-            EnableWindow(hWndParentWindow, false);
+            _ = EnableWindow(hWndParentWindow, false);
             childWindow.Closed += ChildWindow_Closed;
             void ChildWindow_Closed(object sender, Microsoft.UI.Xaml.WindowEventArgs args)
             {
-                EnableWindow(hWndParentWindow, true);
+                _ = EnableWindow(hWndParentWindow, true);
             }
         }
         if (summonWindowAutomatically == true)
         {
-            childWindow.Show();
+            _ = childWindow.Show();
         }
 
         WindowMessageMonitor _msgMonitor;

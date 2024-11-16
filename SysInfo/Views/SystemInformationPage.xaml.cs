@@ -63,9 +63,9 @@ public sealed partial class SystemInformationPage : Page
         {
             PerformanceCounter cpuCounter;
             cpuCounter = new PerformanceCounter("Processor", "% Processor Time", "_Total");
-            var cpu_util = cpuCounter.NextValue() + "%";
+            _ = cpuCounter.NextValue() + "%";
             System.Threading.Thread.Sleep(10);
-            cpu_util = cpuCounter.NextValue() + "%";
+            var cpu_util = cpuCounter.NextValue() + "%";
             return cpu_util;
         }
         else
@@ -77,13 +77,13 @@ public sealed partial class SystemInformationPage : Page
     public string GetRAMAmount()
     {
 
-        ObjectQuery objectQuery = new ObjectQuery("SELECT * FROM Win32_OperatingSystem");
-        ManagementObjectSearcher managementObjectSearcher = new ManagementObjectSearcher(objectQuery);
-        ManagementObjectCollection managementObjectCollection = managementObjectSearcher.Get();
+        var objectQuery = new ObjectQuery("SELECT * FROM Win32_OperatingSystem");
+        var managementObjectSearcher = new ManagementObjectSearcher(objectQuery);
+        var managementObjectCollection = managementObjectSearcher.Get();
         var amount = "";
         foreach (ManagementObject managementObject in managementObjectCollection)
         {
-            var MemorySize = (UInt64)managementObject["TotalVisibleMemorySize"] / 1048576;
+            var MemorySize = (ulong)managementObject["TotalVisibleMemorySize"] / 1048576;
             amount = $"{MemorySize}GB RAM";
         }
         return amount;
@@ -93,9 +93,9 @@ public sealed partial class SystemInformationPage : Page
     {
         PerformanceCounter ramCounter;
         ramCounter = new PerformanceCounter("Memory", "% Committed Bytes In Use", null);
-        var ram_util = ramCounter.NextValue() + "%";
+        _ = ramCounter.NextValue() + "%";
         System.Threading.Thread.Sleep(10);
-        ram_util = ramCounter.NextValue() + "%";
+        var ram_util = ramCounter.NextValue() + "%";
         return ram_util;
     }
 
@@ -103,14 +103,16 @@ public sealed partial class SystemInformationPage : Page
     {
         get
         {
-            int type = 0;
+            var type = 0;
 
-            ConnectionOptions connection = new ConnectionOptions();
-            connection.Impersonation = ImpersonationLevel.Impersonate;
-            ManagementScope scope = new ManagementScope("\\\\.\\root\\CIMV2", connection);
+            var connection = new ConnectionOptions
+            {
+                Impersonation = ImpersonationLevel.Impersonate
+            };
+            var scope = new ManagementScope("\\\\.\\root\\CIMV2", connection);
             scope.Connect();
-            ObjectQuery query = new ObjectQuery("SELECT * FROM Win32_PhysicalMemory");
-            ManagementObjectSearcher searcher = new ManagementObjectSearcher(scope, query);
+            var query = new ObjectQuery("SELECT * FROM Win32_PhysicalMemory");
+            var searcher = new ManagementObjectSearcher(scope, query);
             foreach (ManagementObject queryObj in searcher.Get())
             {
                 type = Convert.ToInt32(queryObj["MemoryType"]);
@@ -122,40 +124,37 @@ public sealed partial class SystemInformationPage : Page
 
     private static string TypeString(int type)
     {
-        string outValue = string.Empty;
-
-        switch (type)
+        var outValue = type switch
         {
-            case 0x0: outValue = "Unknown"; break;
-            case 0x1: outValue = "Other"; break;
-            case 0x2: outValue = "DRAM"; break;
-            case 0x3: outValue = "Synchronous DRAM"; break;
-            case 0x4: outValue = "Cache DRAM"; break;
-            case 0x5: outValue = "EDO"; break;
-            case 0x6: outValue = "EDRAM"; break;
-            case 0x7: outValue = "VRAM"; break;
-            case 0x8: outValue = "SRAM"; break;
-            case 0x9: outValue = "RAM"; break;
-            case 0xa: outValue = "ROM"; break;
-            case 0xb: outValue = "Flash"; break;
-            case 0xc: outValue = "EEPROM"; break;
-            case 0xd: outValue = "FEPROM"; break;
-            case 0xe: outValue = "EPROM"; break;
-            case 0xf: outValue = "CDRAM"; break;
-            case 0x10: outValue = "3DRAM"; break;
-            case 0x11: outValue = "SDRAM"; break;
-            case 0x12: outValue = "SGRAM"; break;
-            case 0x13: outValue = "RDRAM"; break;
-            case 0x14: outValue = "DDR"; break;
-            case 0x15: outValue = "DDR2"; break;
-            case 0x16: outValue = "DDR2 FB-DIMM"; break;
-            case 0x17: outValue = "Undefined 23"; break;
-            case 0x18: outValue = "DDR3"; break;
-            case 0x19: outValue = "FBD2"; break;
-            case 0x1a: outValue = "DDR4"; break;
-            default: outValue = "Undefined"; break;
-        }
-
+            0x0 => "Unknown",
+            0x1 => "Other",
+            0x2 => "DRAM",
+            0x3 => "Synchronous DRAM",
+            0x4 => "Cache DRAM",
+            0x5 => "EDO",
+            0x6 => "EDRAM",
+            0x7 => "VRAM",
+            0x8 => "SRAM",
+            0x9 => "RAM",
+            0xa => "ROM",
+            0xb => "Flash",
+            0xc => "EEPROM",
+            0xd => "FEPROM",
+            0xe => "EPROM",
+            0xf => "CDRAM",
+            0x10 => "3DRAM",
+            0x11 => "SDRAM",
+            0x12 => "SGRAM",
+            0x13 => "RDRAM",
+            0x14 => "DDR",
+            0x15 => "DDR2",
+            0x16 => "DDR2 FB-DIMM",
+            0x17 => "Undefined 23",
+            0x18 => "DDR3",
+            0x19 => "FBD2",
+            0x1a => "DDR4",
+            _ => "Undefined",
+        };
         return outValue;
     }
 
@@ -165,9 +164,9 @@ public sealed partial class SystemInformationPage : Page
 
         // The current wallpaper path is stored in the registry at HKEY_CURRENT_USER\\Control Panel\\Desktop\\WallPaper
 
-        RegistryKey rkWallPaper = Registry.CurrentUser.OpenSubKey("Control Panel\\Desktop", false);
+        var rkWallPaper = Registry.CurrentUser.OpenSubKey("Control Panel\\Desktop", false);
 
-        string WallpaperPath = rkWallPaper.GetValue("WallPaper").ToString();
+        var WallpaperPath = rkWallPaper.GetValue("WallPaper").ToString();
 
         rkWallPaper.Close();
 

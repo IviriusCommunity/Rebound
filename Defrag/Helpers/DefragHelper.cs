@@ -42,24 +42,11 @@ public class SystemVolumes
                 var size = (ulong)volume["Capacity"];
 
                 // We can further refine this by querying for EFI, Recovery, etc., based on size and file system
-                string friendlyName;
-                if (fileSystem == "FAT32" && size < 512 * 1024 * 1024)
-                {
-                    friendlyName = "EFI System Partition";
-                }
-                else if (fileSystem == "NTFS" && size > 500 * 1024 * 1024)
-                {
-                    friendlyName = "Recovery Partition";
-                }
-                else if (fileSystem == "NTFS" && size < 500 * 1024 * 1024)
-                {
-                    friendlyName = "System Reserved Partition";
-                }
-                else
-                {
-                    friendlyName = "Unknown System Partition";
-                }
-
+                var friendlyName = fileSystem == "FAT32" && size < 512 * 1024 * 1024
+                    ? "EFI System Partition"
+                    : fileSystem == "NTFS" && size > 500 * 1024 * 1024
+                        ? "Recovery Partition"
+                        : fileSystem == "NTFS" && size < 500 * 1024 * 1024 ? "System Reserved Partition" : "Unknown System Partition";
                 volumes.Add(new VolumeInfo
                 {
                     GUID = volumePath,

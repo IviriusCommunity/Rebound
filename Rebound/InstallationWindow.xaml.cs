@@ -4,7 +4,6 @@ using System.IO;
 using System.Security.Cryptography.X509Certificates;
 using System.Threading.Tasks;
 using Microsoft.UI.Xaml;
-using Microsoft.UI.Xaml.Input;
 using Rebound.WindowModels;
 using WinUIEx;
 using FileAttributes = System.IO.FileAttributes;
@@ -127,13 +126,13 @@ public sealed partial class InstallationWindow : WindowEx
 
         CurrentStep += 1;
 
-        await CreateRebound11Folder();
+        _ = await CreateRebound11Folder();
 
         #endregion Folder
 
         #region Control Panel
 
-        await InstallExeWithShortcut(
+        _ = await InstallExeWithShortcut(
             $"{AppContext.BaseDirectory}\\Reserved\\rcontrol.exe",
             $"C:\\Rebound11\\rcontrol.exe",
             $"{AppContext.BaseDirectory}\\Shortcuts\\Control Panel.lnk",
@@ -151,7 +150,7 @@ public sealed partial class InstallationWindow : WindowEx
 
         if (Defrag == true)
         {
-            await InstallMsixPackage(
+            _ = await InstallMsixPackage(
                 $"{AppContext.BaseDirectory}\\Reserved\\Extended\\Rebound.Defrag.msix",
                 "C:\\Rebound11\\Rebound.Defrag.msix",
                 $"{AppContext.BaseDirectory}\\Reserved\\Extended\\Rebound.Defrag.cer",
@@ -170,7 +169,7 @@ public sealed partial class InstallationWindow : WindowEx
 
         if (Winver == true)
         {
-            await InstallMsixPackage(
+            _ = await InstallMsixPackage(
                 $"{AppContext.BaseDirectory}\\Reserved\\Extended\\Rebound.About.msix",
                 "C:\\Rebound11\\Rebound.About.msix",
                 $"{AppContext.BaseDirectory}\\Reserved\\Extended\\Rebound.About.cer",
@@ -189,8 +188,8 @@ public sealed partial class InstallationWindow : WindowEx
 
         if (Files == true)
         {
-            await InstallAppInstallerFile("Files App", "https://cdn.files.community/files/stable/Files.Package.appinstaller", "Files.exe");
-            await ApplyRegFile($@"{AppContext.BaseDirectory}\AppRT\Registry\SetFilesAsDefault.reg", "Set Files as Default");
+            _ = await InstallAppInstallerFile("Files App", "https://cdn.files.community/files/stable/Files.Package.appinstaller", "Files.exe");
+            _ = await ApplyRegFile($@"{AppContext.BaseDirectory}\AppRT\Registry\SetFilesAsDefault.reg", "Set Files as Default");
         }
 
         #endregion Files
@@ -199,7 +198,7 @@ public sealed partial class InstallationWindow : WindowEx
 
         if (UAC == true)
         {
-            await InstallExeWithShortcut(
+            _ = await InstallExeWithShortcut(
                 $"{AppContext.BaseDirectory}\\Reserved\\ruacsettings.exe",
                 $"C:\\Rebound11\\ruacsettings.exe",
                 $"{AppContext.BaseDirectory}\\Shortcuts\\Change User Account Control settings.lnk",
@@ -214,7 +213,7 @@ public sealed partial class InstallationWindow : WindowEx
 
         if (Run == true)
         {
-            await InstallMsixPackage(
+            _ = await InstallMsixPackage(
                 $"{AppContext.BaseDirectory}\\Reserved\\Extended\\Rebound.Run.msix",
                 "C:\\Rebound11\\Rebound.Run.msix",
                 $"{AppContext.BaseDirectory}\\Reserved\\Extended\\Rebound.Run.cer",
@@ -228,7 +227,7 @@ public sealed partial class InstallationWindow : WindowEx
 
             var startupFolderPath = Environment.GetFolderPath(Environment.SpecialFolder.Startup);
 
-            await InstallExeWithShortcut(
+            _ = await InstallExeWithShortcut(
                 $"{AppContext.BaseDirectory}\\Reserved\\rrunSTARTUP.exe",
                 $"C:\\Rebound11\\rrunSTARTUP.exe",
                 $"{AppContext.BaseDirectory}\\Shortcuts\\Rebound.RunStartup.lnk",
@@ -243,7 +242,7 @@ public sealed partial class InstallationWindow : WindowEx
 
         if (DiskCleanup == true)
         {
-            await InstallMsixPackage(
+            _ = await InstallMsixPackage(
                 $"{AppContext.BaseDirectory}\\Reserved\\Extended\\Rebound.Cleanup.msix",
                 "C:\\Rebound11\\Rebound.Cleanup.msix",
                 $"{AppContext.BaseDirectory}\\Reserved\\Extended\\Rebound.Cleanup.cer",
@@ -262,7 +261,7 @@ public sealed partial class InstallationWindow : WindowEx
 
         if (TPM == true)
         {
-            await InstallMsixPackage(
+            _ = await InstallMsixPackage(
                 $"{AppContext.BaseDirectory}\\Reserved\\Extended\\Rebound.TrustedPlatform.msix",
                 "C:\\Rebound11\\Rebound.TrustedPlatform.msix",
                 $"{AppContext.BaseDirectory}\\Reserved\\Extended\\Rebound.TrustedPlatform.cer",
@@ -281,7 +280,7 @@ public sealed partial class InstallationWindow : WindowEx
 
         if (OSK == true)
         {
-            await InstallExeWithShortcut(
+            _ = await InstallExeWithShortcut(
                 $"{AppContext.BaseDirectory}\\Reserved\\rosk.exe",
                 $"C:\\Rebound11\\rosk.exe",
                 $"{AppContext.BaseDirectory}\\Shortcuts\\On-Screen Keyboard.lnk",
@@ -330,10 +329,7 @@ public sealed partial class InstallationWindow : WindowEx
         ReboundProgress.Value = InstallProgress.Value = FinishProgress.Value = CurrentSubstep;
     }
 
-    private void Timer_Tick(object sender, object e)
-    {
-        TaskManager.StopTask("explorer.exe");
-    }
+    private void Timer_Tick(object sender, object e) => TaskManager.StopTask("explorer.exe");
 
     private async void Button_Click(object sender, RoutedEventArgs e)
     {
@@ -621,7 +617,7 @@ public sealed partial class InstallationWindow : WindowEx
             // Start the process
             try
             {
-                process.Start();
+                _ = process.Start();
                 process.WaitForExit();  // Optionally wait for the process to finish
             }
             catch
@@ -650,7 +646,7 @@ public sealed partial class InstallationWindow : WindowEx
         try
         {
             Subtitle.Text = $@"Step {CurrentStep} of {TotalSteps}: Creating the Rebound11 folder in ""C:\"".";
-            Directory.CreateDirectory("C:\\Rebound11");
+            _ = Directory.CreateDirectory("C:\\Rebound11");
         }
         catch
         {
@@ -699,7 +695,7 @@ public sealed partial class InstallationWindow : WindowEx
         try
         {
             Subtitle.Text = $"Step {CurrentStep} of {TotalSteps}: Creating wallpapers folder...";
-            Directory.CreateDirectory(@"C:\Rebound11\Wallpapers");
+            _ = Directory.CreateDirectory(@"C:\Rebound11\Wallpapers");
         }
         catch
         {

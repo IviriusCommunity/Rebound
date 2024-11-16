@@ -13,7 +13,7 @@ public sealed partial class WindowsTools : Page
 {
     public class ProgramItem()
     {
-        public string Name
+        public required string Name
         {
             get; set;
         }
@@ -25,15 +25,15 @@ public sealed partial class WindowsTools : Page
         {
             get; set;
         }
-        public string SpecialTag
+        public required string SpecialTag
         {
             get; set;
         }
-        public string Path
+        public required string Path
         {
             get; set;
         }
-        public string Icon
+        public required string Icon
         {
             get; set;
         }
@@ -43,8 +43,8 @@ public sealed partial class WindowsTools : Page
         }
     }
 
-    public List<ProgramItem> items = new()
-    {
+    public List<ProgramItem> items =
+    [
         new ProgramItem()
         {
             Icon = "ms-appx:///AppRT/Exported/imageres_15.png",
@@ -155,11 +155,11 @@ public sealed partial class WindowsTools : Page
             AdminVisibility = Visibility.Collapsed,
             SpecialTag = "SYSTEM",
         },
-    };
+    ];
 
     public WindowsTools()
     {
-        this.InitializeComponent();
+        InitializeComponent();
         App.ControlPanelWindow?.TitleBarEx.SetWindowIcon("AppRT\\Exported\\imageres_114.ico");
         if (App.ControlPanelWindow is not null)
         {

@@ -1,10 +1,9 @@
-﻿using Windows.Storage;
-
-namespace Rebound.SysInfo.Common;
+﻿namespace Rebound.SysInfo.Common;
 public static class DynamicLocalizerHelper
 {
     private static string StringsFolderPath { get; set; } = string.Empty;
 
+    [Obsolete]
     public static async Task InitializeLocalizer(params string[] languages)
     {
         // Initialize a "Strings" folder in the "LocalFolder" for the packaged app.
@@ -15,7 +14,7 @@ public static class DynamicLocalizerHelper
             StorageFolder stringsFolder = await localFolder.CreateFolderAsync(
                 "Strings",
                 CreationCollisionOption.OpenIfExists);
-            string resourceFileName = "Resources.resw";
+            var resourceFileName = "Resources.resw";
             foreach (var item in languages)
             {
                 await LocalizerBuilder.CreateStringResourceFileIfNotExists(stringsFolder, item, resourceFileName);
@@ -30,7 +29,7 @@ public static class DynamicLocalizerHelper
             var stringsFolder = await StorageFolder.GetFolderFromPathAsync(StringsFolderPath);
         }
 
-        ILocalizer localizer = await new LocalizerBuilder()
+        var localizer = await new LocalizerBuilder()
             .AddStringResourcesFolderForLanguageDictionaries(StringsFolderPath)
             .SetOptions(options =>
             {

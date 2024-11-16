@@ -18,10 +18,7 @@ public sealed partial class MainPage : Page
         }
     }
 
-    private void appTitleBar_PaneButtonClick(object sender, RoutedEventArgs e)
-    {
-        NavView.IsPaneOpen = !NavView.IsPaneOpen;
-    }
+    private void appTitleBar_PaneButtonClick(object sender, RoutedEventArgs e) => NavView.IsPaneOpen = !NavView.IsPaneOpen;
 
     private void NavFrame_Navigated(object sender, NavigationEventArgs e)
     {

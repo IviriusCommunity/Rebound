@@ -14,16 +14,11 @@ using Microsoft.UI.Xaml.Media;
 using Microsoft.Win32.TaskScheduler;
 using Microsoft.WindowsAPICodePack.Taskbar;
 using Rebound.Defrag.Helpers;
-using Windows.ApplicationModel;
-using Windows.ApplicationModel.Core;
-using Windows.Storage;
-using Windows.System;
 using WinUIEx;
 using WinUIEx.Messaging;
 using Task = System.Threading.Tasks.Task;
 
 #nullable enable
-#pragma warning disable CA1854 // Prefer the 'IDictionary.TryGetValue(TKey, out TValue)' method
 
 namespace Rebound.Defrag;
 
@@ -77,19 +72,13 @@ public sealed partial class MainWindow : WindowEx
         timer.Start();
 
         // Check if the application is running with administrator privileges
-        IsAdministrator();
+        _ = IsAdministrator();
         CheckTask();
     }
 
-    public static void SetProgressState(TaskbarProgressBarState state)
-    {
-        TaskbarManager.Instance.SetProgressState(state);
-    }
+    public static void SetProgressState(TaskbarProgressBarState state) => TaskbarManager.Instance.SetProgressState(state);
 
-    public static void SetProgressValue(int completed, int total)
-    {
-        TaskbarManager.Instance.SetProgressValue(completed, total);
-    }
+    public static void SetProgressValue(int completed, int total) => TaskbarManager.Instance.SetProgressValue(completed, total);
 
     private async void MessageReceived(object? sender, WindowMessageEventArgs e)
     {
@@ -165,10 +154,7 @@ public sealed partial class MainWindow : WindowEx
         return principal.IsInRole(WindowsBuiltInRole.Administrator);
     }
 
-    private void ListviewSelectionChange(object sender, SelectionChangedEventArgs args)
-    {
-        LoadSelectedItemInfo(GetStatus());
-    }
+    private void ListviewSelectionChange(object sender, SelectionChangedEventArgs args) => LoadSelectedItemInfo(GetStatus());
 
     public string GetLastOptimizeDate()
     {
@@ -195,14 +181,7 @@ public sealed partial class MainWindow : WindowEx
 
     public void LoadSelectedItemInfo(string status, string info = "....")
     {
-        if (info == "....")
-        {
-            info = GetLastOptimizeDate();
-        }
-        else
-        {
-            info = "Unknown....";
-        }
+        info = info == "...." ? GetLastOptimizeDate() : "Unknown....";
         if (MyListView.SelectedItem != null)
         {
             var selectedItem = MyListView.SelectedItem as DiskItem;
@@ -459,7 +438,7 @@ public sealed partial class MainWindow : WindowEx
         foreach (var c in input)
         {
             // Convert the character to its ASCII value and append it
-            numericRepresentation.Append((int)c);
+            _ = numericRepresentation.Append((int)c);
         }
 
         // Return the numeric representation as a string
@@ -597,10 +576,7 @@ public sealed partial class MainWindow : WindowEx
         };
     }
 
-    private void Button_Click(object sender, SplitButtonClickEventArgs e)
-    {
-        OptimizeSelected(AdvancedView.IsOn);
-    }
+    private void Button_Click(object sender, SplitButtonClickEventArgs e) => OptimizeSelected(AdvancedView.IsOn);
 
     public static void RestartAsAdmin(string args)
     {
@@ -619,7 +595,7 @@ public sealed partial class MainWindow : WindowEx
 
         try
         {
-            Process.Start(startInfo);
+            _ = Process.Start(startInfo);
             App.Current.Exit();
         }
         catch
@@ -697,14 +673,14 @@ $global:OutputLines
                         if (!string.IsNullOrEmpty(args.Data))
                         {
                             // Use the dispatcher to update the UI
-                            DispatcherQueue.TryEnqueue(() => { UpdateIO(args.Data); });
+                            _ = DispatcherQueue.TryEnqueue(() => { UpdateIO(args.Data); });
 
                             // Store the output data
                             outputData = "\n" + args.Data;
                         }
                     }
 
-                    process.Start();
+                    _ = process.Start();
                     process.BeginOutputReadLine();
 
                     Lock(false, "", true);
@@ -723,7 +699,7 @@ $global:OutputLines
 
                             var dataToReplace = " complete.";
 
-                            DispatcherQueue.TryEnqueue(() => { RunUpdate(a, dataToReplace); });
+                            _ = DispatcherQueue.TryEnqueue(() => { RunUpdate(a, dataToReplace); });
                         }
                     }
 
@@ -785,7 +761,7 @@ $global:OutputLines
             {
                 if (char.IsDigit(c))
                 {
-                    sb.Append(c);
+                    _ = sb.Append(c);
                 }
             }
 
@@ -884,14 +860,14 @@ $global:OutputLines
                     if (!string.IsNullOrEmpty(args.Data))
                     {
                         // Use the dispatcher to update the UI
-                        DispatcherQueue.TryEnqueue(() => { UpdateIO(args.Data); });
+                        _ = DispatcherQueue.TryEnqueue(() => { UpdateIO(args.Data); });
 
                         // Store the output data
                         outputData = "\n" + args.Data;
                     }
                 }
 
-                process.Start();
+                _ = process.Start();
                 process.BeginOutputReadLine();
 
                 Lock(false, "", true);
@@ -910,7 +886,7 @@ $global:OutputLines
 
                         var dataToReplace = " complete.";
 
-                        DispatcherQueue.TryEnqueue(() => { RunUpdate(a, dataToReplace); });
+                        _ = DispatcherQueue.TryEnqueue(() => { RunUpdate(a, dataToReplace); });
                     }
                 }
 
@@ -993,15 +969,9 @@ $global:OutputLines
         }
     }
 
-    private void MenuFlyoutItem_Click(object sender, RoutedEventArgs e)
-    {
-        OptimizeSelected(AdvancedView.IsOn);
-    }
+    private void MenuFlyoutItem_Click(object sender, RoutedEventArgs e) => OptimizeSelected(AdvancedView.IsOn);
 
-    private void MenuFlyoutItem_Click_1(object sender, RoutedEventArgs e)
-    {
-        OptimizeAll(false, AdvancedView.IsOn);
-    }
+    private void MenuFlyoutItem_Click_1(object sender, RoutedEventArgs e) => OptimizeAll(false, AdvancedView.IsOn);
 
     private void Button_Click_1(object sender, RoutedEventArgs e)
     {
@@ -1020,14 +990,7 @@ $global:OutputLines
         try
         {
             ScheduledOptimizationDetails.Text = GetTaskFrequency();
-            if (GetTaskFrequency() is not "Off")
-            {
-                ScheduledTaskText.Text = "Configure";
-            }
-            else
-            {
-                ScheduledTaskText.Text = "Turn on";
-            }
+            ScheduledTaskText.Text = GetTaskFrequency() is not "Off" ? "Configure" : "Turn on";
 
             CheckTask();
         }
@@ -1043,10 +1006,7 @@ $global:OutputLines
         Win32Helper.CreateModalWindow(this, win, true, true);
     }
 
-    private void Button_Click_2(object sender, RoutedEventArgs e)
-    {
-        LoadSelectedItemInfo(GetStatus());
-    }
+    private void Button_Click_2(object sender, RoutedEventArgs e) => LoadSelectedItemInfo(GetStatus());
 
     private async void AdvancedView_Toggled(object sender, RoutedEventArgs e)
     {
@@ -1054,10 +1014,7 @@ $global:OutputLines
         await LoadData(AdvancedView.IsOn);
     }
 
-    private async void MenuFlyoutItem_Click_2(object sender, RoutedEventArgs e)
-    {
-        await Launcher.LaunchUriAsync(new Uri("https://ivirius.vercel.app/docs/rebound11/defragment-and-optimize-drives/"));
-    }
+    private async void MenuFlyoutItem_Click_2(object sender, RoutedEventArgs e) => await Launcher.LaunchUriAsync(new Uri("https://ivirius.vercel.app/docs/rebound11/defragment-and-optimize-drives/"));
 
     private void CheckBox_Click(object? sender, RoutedEventArgs e)
     {
@@ -1065,7 +1022,7 @@ $global:OutputLines
         var isChecked = ((CheckBox?)sender)?.IsChecked;
         if (name != null && isChecked != null)
         {
-            WriteBoolToLocalSettings(ConvertStringToNumericRepresentation(name), (bool)isChecked);
+            _ = WriteBoolToLocalSettings(ConvertStringToNumericRepresentation(name), (bool)isChecked);
         }
     }
 
@@ -1137,7 +1094,7 @@ $global:OutputLines
 
     private void MenuFlyoutItem_Click_3(object sender, RoutedEventArgs e)
     {
-        Process.Start("dfrgui.exe");
+        _ = Process.Start("dfrgui.exe");
         Close();
     }
 }

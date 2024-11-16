@@ -47,10 +47,10 @@ public sealed partial class BreadcrumbBarUserControl : UserControl
 
     private void BreadcrumbBar_ItemClicked(BreadcrumbBar sender, BreadcrumbBarItemClickedEventArgs args)
     {
-        int numItemsToGoBack = BreadcrumbBarCollection.Count - args.Index - 1;
-        for (int i = 0; i < numItemsToGoBack; i++)
+        var numItemsToGoBack = BreadcrumbBarCollection.Count - args.Index - 1;
+        for (var i = 0; i < numItemsToGoBack; i++)
         {
-            App.Current.JsonNavigationViewService.GoBack();
+            _ = App.Current.JsonNavigationViewService.GoBack();
         }
     }
 }

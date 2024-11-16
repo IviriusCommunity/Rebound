@@ -25,7 +25,7 @@ public class TpmViewModel : INotifyPropertyChanged
     public async Task LoadTpmInfoAsync()
     {
         // Call the method to refresh TPM info
-        await Task.Run(() => _tpmManager.RefreshTpmInfo());
+        await Task.Run(_tpmManager.RefreshTpmInfo);
         // Notify properties
         OnPropertyChanged(nameof(ManufacturerName));
         OnPropertyChanged(nameof(ManufacturerVersion));
@@ -37,8 +37,5 @@ public class TpmViewModel : INotifyPropertyChanged
         OnPropertyChanged(nameof(PcrValues));
     }
 
-    protected virtual void OnPropertyChanged(string propertyName)
-    {
-        PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
-    }
+    protected virtual void OnPropertyChanged(string propertyName) => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
 }

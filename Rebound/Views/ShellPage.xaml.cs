@@ -2,9 +2,7 @@ using System;
 using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
-using ABI.System;
 using Microsoft.UI.Xaml.Controls;
-using WinUIEx;
 
 // To learn more about WinUI, the WinUI project structure,
 // and more about our project templates, see: http://aka.ms/winui-project-info.
@@ -34,7 +32,7 @@ public sealed partial class ShellPage : Page
         }
     }
 
-    private async void NavigationViewControl_SelectionChanged(NavigationView sender, NavigationViewSelectionChangedEventArgs args)
+    private void NavigationViewControl_SelectionChanged(NavigationView sender, NavigationViewSelectionChangedEventArgs args)
     {
         if ((string)(args.SelectedItem as NavigationViewItem).Tag == "Home")
         {
@@ -46,15 +44,12 @@ public sealed partial class ShellPage : Page
         }
         if ((string)(args.SelectedItem as NavigationViewItem).Tag == "Control Panel")
         {
-            Process.Start(new ProcessStartInfo("control:") { UseShellExecute = true });
+            _ = Process.Start(new ProcessStartInfo("control:") { UseShellExecute = true });
             sender.SelectedItem = sender.MenuItems[2];
             App.MainAppWindow.Close();
         }
         //NavigationViewControl.Header = (string)(args.SelectedItem as NavigationViewItem).Tag;
     }
 
-    private void NavigationViewControl_BackRequested(NavigationView sender, NavigationViewBackRequestedEventArgs args)
-    {
-        NavigationFrame.GoBack();
-    }
+    private void NavigationViewControl_BackRequested(NavigationView sender, NavigationViewBackRequestedEventArgs args) => NavigationFrame.GoBack();
 }

@@ -1,6 +1,4 @@
-﻿using Windows.System;
-
-namespace Rebound.SysInfo.Views;
+﻿namespace Rebound.SysInfo.Views;
 public sealed partial class AppUpdateSettingPage : Page
 {
     public string CurrentVersion
@@ -44,8 +42,8 @@ public sealed partial class AppUpdateSettingPage : Page
         {
             try
             {
-                string username = "Ivirius-Main";
-                string repo = "Rebound.SysInfo";
+                var username = "Ivirius-Main";
+                var repo = "Rebound.SysInfo";
                 TxtLastUpdateCheck.Text = DateTime.Now.ToShortDateString();
                 Settings.LastUpdateCheck = DateTime.Now.ToShortDateString();
                 var update = await UpdateHelper.CheckUpdateAsync(username, repo, new Version(App.Current.AppVersion));
@@ -76,15 +74,13 @@ public sealed partial class AppUpdateSettingPage : Page
         BtnCheckUpdate.IsEnabled = true;
     }
 
-    private async void GoToUpdateAsync()
-    {
+    private async void GoToUpdateAsync() =>
         //Todo: Change Uri
         await Launcher.LaunchUriAsync(new Uri("https://github.com/WinUICommunity/WinUICommunity/releases"));
-    }
 
     private async void GetReleaseNotesAsync()
     {
-        ContentDialog dialog = new ContentDialog()
+        var dialog = new ContentDialog()
         {
             Title = "Release notes",
             CloseButtonText = "Close",
@@ -102,7 +98,7 @@ public sealed partial class AppUpdateSettingPage : Page
             XamlRoot = App.m_window.Content.XamlRoot
         };
 
-        await dialog.ShowAsyncQueue();
+        _ = await dialog.ShowAsyncQueue();
     }
 }
 

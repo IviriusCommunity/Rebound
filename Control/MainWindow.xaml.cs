@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 using Microsoft.UI.Xaml;
@@ -30,7 +29,7 @@ public sealed partial class MainWindow : WindowEx
         SystemBackdrop = new MicaBackdrop();
         Title = "Control Panel";
         WindowTitle.Text = Title;
-        RootFrame.Navigate(typeof(ModernHomePage));
+        _ = RootFrame.Navigate(typeof(ModernHomePage));
         this.CenterOnScreen();
         this.SetWindowSize(1250, 750);
 
@@ -94,7 +93,7 @@ public sealed partial class MainWindow : WindowEx
         {
             case CPL_HOME:
                 {
-                    await Launcher.LaunchUriAsync(new Uri(Environment.GetFolderPath(Environment.SpecialFolder.Desktop)));
+                    _ = await Launcher.LaunchUriAsync(new Uri(Environment.GetFolderPath(Environment.SpecialFolder.Desktop)));
                     App.ControlPanelWindow?.Close();
                     break;
                 }
@@ -118,7 +117,7 @@ public sealed partial class MainWindow : WindowEx
                 }
             default:
                 {
-                    await Launcher.LaunchUriAsync(new Uri(Environment.GetFolderPath(Environment.SpecialFolder.Desktop)));
+                    _ = await Launcher.LaunchUriAsync(new Uri(Environment.GetFolderPath(Environment.SpecialFolder.Desktop)));
                     App.ControlPanelWindow?.Close();
                     break;
                 }
@@ -133,7 +132,7 @@ public sealed partial class MainWindow : WindowEx
         {
             newList.Add(item);
         }
-        RootFrame.Navigate(typeof(HomePage), null, new Microsoft.UI.Xaml.Media.Animation.SuppressNavigationTransitionInfo());
+        _ = RootFrame.Navigate(typeof(HomePage), null, new Microsoft.UI.Xaml.Media.Animation.SuppressNavigationTransitionInfo());
         RootFrame.GoBack();
         RootFrame.ForwardStack.Clear();
         foreach (var item in newList)
@@ -162,10 +161,7 @@ public sealed partial class MainWindow : WindowEx
         NavigateToPath();
     }
 
-    private void WindowEx_Closed(object sender, WindowEventArgs args)
-    {
-        App.ControlPanelWindow = null;
-    }
+    private void WindowEx_Closed(object sender, WindowEventArgs args) => App.ControlPanelWindow = null;
 
     private void TextBox_LostFocus(object sender, RoutedEventArgs e)
     {
@@ -178,7 +174,7 @@ public sealed partial class MainWindow : WindowEx
         AddressBar.Visibility = Visibility.Collapsed;
         AddressBox.Visibility = Visibility.Visible;
         await Task.Delay(10);
-        AddressBox.Focus(FocusState.Programmatic);
+        _ = AddressBox.Focus(FocusState.Programmatic);
     }
 
     public void HideAll()
@@ -230,14 +226,14 @@ public sealed partial class MainWindow : WindowEx
     public async void NavigateToPath(bool legacyHomePage = false)
     {
         HideAll();
-        RootFrame.Focus(FocusState.Programmatic);
+        _ = RootFrame.Focus(FocusState.Programmatic);
         switch (AddressBox.Text)
         {
             case CPL_APPEARANCE_AND_PERSONALIZATION:
                 {
                     if (RootFrame.Content is not Views.AppearanceAndPersonalization)
                     {
-                        App.ControlPanelWindow?.RootFrame.Navigate(typeof(AppearanceAndPersonalization), null, new Microsoft.UI.Xaml.Media.Animation.DrillInNavigationTransitionInfo());
+                        _ = (App.ControlPanelWindow?.RootFrame.Navigate(typeof(AppearanceAndPersonalization), null, new Microsoft.UI.Xaml.Media.Animation.DrillInNavigationTransitionInfo()));
                     }
                     AppearanceAndPersonalization.Visibility = Visibility.Visible;
                     return;
@@ -246,7 +242,7 @@ public sealed partial class MainWindow : WindowEx
                 {
                     if (RootFrame.Content is not Views.SystemAndSecurity)
                     {
-                        App.ControlPanelWindow?.RootFrame.Navigate(typeof(SystemAndSecurity), null, new Microsoft.UI.Xaml.Media.Animation.DrillInNavigationTransitionInfo());
+                        _ = (App.ControlPanelWindow?.RootFrame.Navigate(typeof(SystemAndSecurity), null, new Microsoft.UI.Xaml.Media.Animation.DrillInNavigationTransitionInfo()));
                     }
                     SystemAndSecurity.Visibility = Visibility.Visible;
                     return;
@@ -255,7 +251,7 @@ public sealed partial class MainWindow : WindowEx
                 {
                     if (RootFrame.Content is not Views.WindowsTools)
                     {
-                        App.ControlPanelWindow?.RootFrame.Navigate(typeof(WindowsTools), null, new Microsoft.UI.Xaml.Media.Animation.DrillInNavigationTransitionInfo());
+                        _ = (App.ControlPanelWindow?.RootFrame.Navigate(typeof(WindowsTools), null, new Microsoft.UI.Xaml.Media.Animation.DrillInNavigationTransitionInfo()));
                     }
                     SystemAndSecurity.Visibility = Visibility.Visible;
                     WindowsTools.Visibility = Visibility.Visible;
@@ -265,11 +261,11 @@ public sealed partial class MainWindow : WindowEx
                 {
                     if (legacyHomePage == false && RootFrame.Content is not ModernHomePage)
                     {
-                        App.ControlPanelWindow?.RootFrame.Navigate(typeof(ModernHomePage), null, new Microsoft.UI.Xaml.Media.Animation.DrillInNavigationTransitionInfo());
+                        _ = (App.ControlPanelWindow?.RootFrame.Navigate(typeof(ModernHomePage), null, new Microsoft.UI.Xaml.Media.Animation.DrillInNavigationTransitionInfo()));
                     }
                     else if (legacyHomePage != false && RootFrame.Content is not HomePage)
                     {
-                        App.ControlPanelWindow?.RootFrame.Navigate(typeof(HomePage), null, new Microsoft.UI.Xaml.Media.Animation.DrillInNavigationTransitionInfo());
+                        _ = (App.ControlPanelWindow?.RootFrame.Navigate(typeof(HomePage), null, new Microsoft.UI.Xaml.Media.Animation.DrillInNavigationTransitionInfo()));
                     }
                     return;
                 }
@@ -277,7 +273,7 @@ public sealed partial class MainWindow : WindowEx
                 {
                     try
                     {
-                        await Launcher.LaunchUriAsync(new Uri(AddressBox.Text));
+                        _ = await Launcher.LaunchUriAsync(new Uri(AddressBox.Text));
                         Close();
                         return;
                     }
@@ -305,7 +301,7 @@ public sealed partial class MainWindow : WindowEx
         const int SW_SHOWNORMAL = 1;
 
         // Call ShellExecute to open the File Explorer Options dialog
-        ShellExecute(IntPtr.Zero, "open", "control.exe", "/name Microsoft.FolderOptions", null, SW_SHOWNORMAL);
+        _ = ShellExecute(IntPtr.Zero, "open", "control.exe", "/name Microsoft.FolderOptions", null, SW_SHOWNORMAL);
     }
 
     private void MenuFlyoutItem_Click_3(object sender, RoutedEventArgs e)

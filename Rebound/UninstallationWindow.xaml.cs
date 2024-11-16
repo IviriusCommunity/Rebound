@@ -43,7 +43,7 @@ public sealed partial class UninstallationWindow : WindowEx
         Timer.Start();
 
         TotalSteps = 11;
-        TotalSubsteps = 
+        TotalSubsteps =
             SUBSTEPS_FOLDER +                  // Rebound 11 Folder
             SUBSTEPS_REPLACE_SHORTCUT +        // Control Panel
             SUBSTEPS_FOLDER +                  // Rebound 11 Tools
@@ -65,57 +65,57 @@ public sealed partial class UninstallationWindow : WindowEx
 
         ReboundProgress.Maximum = TotalSubsteps;
 
-        await RemoveFolder(@"C:\Rebound11");
+        _ = await RemoveFolder(@"C:\Rebound11");
 
-        await ReplaceShortcut(
+        _ = await ReplaceShortcut(
             $@"{AppContext.BaseDirectory}\Shortcuts\Included\Control Panel.lnk",
             $@"{Environment.GetFolderPath(Environment.SpecialFolder.StartMenu)}\Programs\System Tools\Control Panel.lnk",
             "Control Panel");
 
-        await RemoveFolder($@"{Environment.GetFolderPath(Environment.SpecialFolder.StartMenu)}\Programs\Rebound 11 Tools");
+        _ = await RemoveFolder($@"{Environment.GetFolderPath(Environment.SpecialFolder.StartMenu)}\Programs\Rebound 11 Tools");
 
-        await DeleteShortcut(
+        _ = await DeleteShortcut(
             $@"{Environment.GetFolderPath(Environment.SpecialFolder.StartMenu)}\Programs\Administrative Tools\Change User Account Control settings.lnk",
             "Change User Account Control settings");
 
-        await UninstallAppPackage(
+        _ = await UninstallAppPackage(
             InstallationWindowModel.RUN,
             "Rebound Run",
             $@"{AppContext.BaseDirectory}\Shortcuts\Included\Run.lnk",
             $@"{Environment.GetFolderPath(Environment.SpecialFolder.StartMenu)}\Programs\System Tools\Run.lnk",
             "Run");
 
-        await DeleteShortcut(
+        _ = await DeleteShortcut(
             $@"{Environment.GetFolderPath(Environment.SpecialFolder.StartMenu)}\Programs\Startup\ReboundRunStartup.lnk",
             "Rebound Run Startup");
 
-        await UninstallAppPackage(
+        _ = await UninstallAppPackage(
             InstallationWindowModel.DEFRAG,
             "Rebound Defragment And Optimize Drives",
             $@"{AppContext.BaseDirectory}\Shortcuts\Included\dfrgui.lnk",
             $@"{Environment.GetFolderPath(Environment.SpecialFolder.CommonAdminTools)}\dfrgui.lnk",
             "Defragment And Optimize Drives");
 
-        await UninstallAppPackage(
+        _ = await UninstallAppPackage(
             InstallationWindowModel.WINVER,
             "Rebound Winver",
             $@"",
             $@"{Environment.GetFolderPath(Environment.SpecialFolder.CommonAdminTools)}\winver.lnk",
             "winver");
 
-        await ReplaceShortcut(
+        _ = await ReplaceShortcut(
             $@"{AppContext.BaseDirectory}\Shortcuts\Included\On-Screen Keyboard.lnk",
             $@"{Environment.GetFolderPath(Environment.SpecialFolder.StartMenu)}\Programs\Accessibility\On-Screen Keyboard.lnk",
             "On-Screen Keyboard");
 
-        await UninstallAppPackage(
+        _ = await UninstallAppPackage(
             InstallationWindowModel.TPM,
             "Rebound TPM Management",
             $@"",
             $@"{Environment.GetFolderPath(Environment.SpecialFolder.CommonAdminTools)}\tpm.msc.lnk",
             "tpm.msc");
 
-        await UninstallAppPackage(
+        _ = await UninstallAppPackage(
             InstallationWindowModel.DISK_CLEANUP,
             "Rebound Disk Cleanup",
             $@"{AppContext.BaseDirectory}\Shortcuts\Included\Disk Cleanup.lnk",
@@ -124,11 +124,11 @@ public sealed partial class UninstallationWindow : WindowEx
 
         if (deleteAll == true)
         {
-            await UninstallAppPackageWithoutLink(
+            _ = await UninstallAppPackageWithoutLink(
                 InstallationWindowModel.FILES_APP,
                 "Files App",
                 "Files.exe");
-            await ApplyRegFile(
+            _ = await ApplyRegFile(
                 $@"{AppContext.BaseDirectory}\AppRT\Registry\UnsetFilesAsDefault.reg",
                 "Unset Files as Default");
 
@@ -189,7 +189,7 @@ public sealed partial class UninstallationWindow : WindowEx
                 process.StartInfo.CreateNoWindow = true;
 
                 // Start the process
-                process.Start();
+                _ = process.Start();
 
                 // Read the output and error
                 var output = process.StandardOutput.ReadToEnd();
@@ -247,7 +247,7 @@ public sealed partial class UninstallationWindow : WindowEx
             };
 
             // Start the process
-            process.Start();
+            _ = process.Start();
 
             var error = process.StandardError.ReadToEnd();
 
@@ -333,7 +333,7 @@ public sealed partial class UninstallationWindow : WindowEx
             };
 
             // Start the process
-            process.Start();
+            _ = process.Start();
 
             var error = process.StandardError.ReadToEnd();
 
@@ -427,7 +427,7 @@ public sealed partial class UninstallationWindow : WindowEx
             // Start the process
             try
             {
-                process.Start();
+                _ = process.Start();
                 process.WaitForExit();  // Optionally wait for the process to finish
             }
             catch
@@ -445,10 +445,7 @@ public sealed partial class UninstallationWindow : WindowEx
         return Task.CompletedTask;
     }
 
-    private void Timer_Tick(object sender, object e)
-    {
-        TaskManager.StopTask("explorer.exe");
-    }
+    private void Timer_Tick(object sender, object e) => TaskManager.StopTask("explorer.exe");
 
     private readonly DispatcherTimer Timer = new();
 

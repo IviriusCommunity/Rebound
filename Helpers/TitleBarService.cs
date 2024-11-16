@@ -1,15 +1,14 @@
-﻿using Microsoft.UI.Xaml.Media.Imaging;
+﻿using System;
 using System.Threading.Tasks;
-using System;
+using Microsoft.UI;
+using Microsoft.UI.Windowing;
+using Microsoft.UI.Xaml;
+using Microsoft.UI.Xaml.Controls;
+using Microsoft.UI.Xaml.Input;
+using Microsoft.UI.Xaml.Media;
+using Microsoft.UI.Xaml.Media.Imaging;
 using WinUIEx;
 using WinUIEx.Messaging;
-using Microsoft.UI.Xaml.Media;
-using Microsoft.UI.Xaml;
-using Microsoft.UI;
-using Microsoft.UI.Xaml.Controls;
-using Microsoft.UI.Windowing;
-using Windows.Graphics;
-using Microsoft.UI.Xaml.Input;
 
 namespace Rebound.Helpers;
 
@@ -25,9 +24,15 @@ public class TitleBarService
     private readonly FontIcon MaxResGlyph;
     private readonly FrameworkElement Content;
 
-    private WindowMessageMonitor MessageMonitor { get; set; }
+    private WindowMessageMonitor MessageMonitor
+    {
+        get; set;
+    }
     private bool IsWindowFocused { get; set; } = false;
-    private SolidColorBrush ButtonBrush { get; set; }
+    private SolidColorBrush ButtonBrush
+    {
+        get; set;
+    }
 
     private double AdditionalHeight = 0;
 
@@ -81,10 +86,7 @@ public class TitleBarService
         }
     }
 
-    private void CurrentWindow_WindowStateChanged(object sender, WindowState e)
-    {
-        CheckMaximization();
-    }
+    private void CurrentWindow_WindowStateChanged(object sender, WindowState e) => CheckMaximization();
 
     private void PointerMoved(object sender, PointerRoutedEventArgs e)
     {
@@ -123,14 +125,7 @@ public class TitleBarService
         }
     }
 
-    public static bool IsInRect(double x, double xMin, double xMax, double y, double yMin, double yMax)
-    {
-        if (xMin <= x && x <= xMax && yMin <= y && y <= yMax)
-        {
-            return true;
-        }
-        return false;
-    }
+    public static bool IsInRect(double x, double xMin, double xMax, double y, double yMin, double yMax) => xMin <= x && x <= xMax && yMin <= y && y <= yMax;
 
     private async void Rehook()
     {
@@ -149,10 +144,7 @@ public class TitleBarService
         CurrentWindow.SetIcon($"{AppContext.BaseDirectory}\\{path}");
     }
 
-    public WindowEx GetWindow()
-    {
-        return CurrentWindow;
-    }
+    public WindowEx GetWindow() => CurrentWindow;
 
     public static bool IsAccentColorEnabledForTitleBars()
     {
@@ -222,7 +214,7 @@ public class TitleBarService
 
         double minButtonLeftPos = 0;
         double maxButtonLeftPos = 0;
-        double closeButtonLeftPos = 0; 
+        double closeButtonLeftPos = 0;
         double buttonsMinY = 0;
         double buttonsMaxY = 0;
 
@@ -245,49 +237,49 @@ public class TitleBarService
                 minButtonLeftPos = (Minimize.Width + MaxRes.Width + Close.Width) * Display.Scale(CurrentWindow);
                 maxButtonLeftPos = (MaxRes.Width + Close.Width) * Display.Scale(CurrentWindow);
                 closeButtonLeftPos = Close.Width * Display.Scale(CurrentWindow);
-                buttonsMinY = Close.Margin.Top * Display.Scale(CurrentWindow) + 2;
+                buttonsMinY = (Close.Margin.Top * Display.Scale(CurrentWindow)) + 2;
                 buttonsMaxY = (Close.Height + Close.Margin.Top) * Display.Scale(CurrentWindow);
 
                 // Gets the X positions from: Window X + Window border + (Window size +/- button size)
                 xMinimizeMin =
                     CurrentWindow.AppWindow.Position.X +
-                    7 * Display.Scale(CurrentWindow) +
-                    (CurrentWindow.Bounds.Width * Display.Scale(CurrentWindow) - minButtonLeftPos);
+                    (7 * Display.Scale(CurrentWindow)) +
+                    ((CurrentWindow.Bounds.Width * Display.Scale(CurrentWindow)) - minButtonLeftPos);
 
                 xMinimizeMax =
                     CurrentWindow.AppWindow.Position.X +
-                    7 * Display.Scale(CurrentWindow) +
-                    (CurrentWindow.Bounds.Width * Display.Scale(CurrentWindow) - maxButtonLeftPos);
+                    (7 * Display.Scale(CurrentWindow)) +
+                    ((CurrentWindow.Bounds.Width * Display.Scale(CurrentWindow)) - maxButtonLeftPos);
 
                 xMaximizeMin =
                     CurrentWindow.AppWindow.Position.X +
-                    7 * Display.Scale(CurrentWindow) +
-                    (CurrentWindow.Bounds.Width * Display.Scale(CurrentWindow) - maxButtonLeftPos);
+                    (7 * Display.Scale(CurrentWindow)) +
+                    ((CurrentWindow.Bounds.Width * Display.Scale(CurrentWindow)) - maxButtonLeftPos);
 
                 xMaximizeMax =
                     CurrentWindow.AppWindow.Position.X +
-                    7 * Display.Scale(CurrentWindow) +
-                    (CurrentWindow.Bounds.Width * Display.Scale(CurrentWindow) - closeButtonLeftPos);
+                    (7 * Display.Scale(CurrentWindow)) +
+                    ((CurrentWindow.Bounds.Width * Display.Scale(CurrentWindow)) - closeButtonLeftPos);
 
                 xCloseMin =
                     CurrentWindow.AppWindow.Position.X +
-                    7 * Display.Scale(CurrentWindow) +
-                    (CurrentWindow.Bounds.Width * Display.Scale(CurrentWindow) - closeButtonLeftPos);
+                    (7 * Display.Scale(CurrentWindow)) +
+                    ((CurrentWindow.Bounds.Width * Display.Scale(CurrentWindow)) - closeButtonLeftPos);
 
                 xCloseMax =
                     CurrentWindow.AppWindow.Position.X +
-                    7 * Display.Scale(CurrentWindow) +
-                    CurrentWindow.Bounds.Width * Display.Scale(CurrentWindow);
+                    (7 * Display.Scale(CurrentWindow)) +
+                    (CurrentWindow.Bounds.Width * Display.Scale(CurrentWindow));
 
                 // Gets the Y positions from: Window Y + Window border + (Window size +/- button size)
                 yMin =
                     CurrentWindow.AppWindow.Position.Y +
-                    AdditionalHeight * Display.Scale(CurrentWindow) +
+                    (AdditionalHeight * Display.Scale(CurrentWindow)) +
                     buttonsMinY;
 
                 yMax =
                     CurrentWindow.AppWindow.Position.Y +
-                    AdditionalHeight * Display.Scale(CurrentWindow) +
+                    (AdditionalHeight * Display.Scale(CurrentWindow)) +
                     buttonsMaxY;
             }
         }
@@ -322,20 +314,13 @@ public class TitleBarService
                     {
                         e.Handled = true;
                         e.Result = new IntPtr(8);
-                        if (CurrentCaption == SelectedCaptionButton.Minimize)
-                        {
-                            VisualStateManager.GoToState(Minimize, "Pressed", true);
-                        }
-                        else if (CurrentCaption == SelectedCaptionButton.None)
-                        {
-                            VisualStateManager.GoToState(Minimize, "PointerOver", true);
-                        }
-                        else
-                        {
-                            VisualStateManager.GoToState(Minimize, "Normal", true);
-                        }
-                        VisualStateManager.GoToState(MaxRes, "Normal", true);
-                        VisualStateManager.GoToState(Close, "Normal", true);
+                        _ = CurrentCaption == SelectedCaptionButton.Minimize
+                            ? VisualStateManager.GoToState(Minimize, "Pressed", true)
+                            : CurrentCaption == SelectedCaptionButton.None
+                                ? VisualStateManager.GoToState(Minimize, "PointerOver", true)
+                                : VisualStateManager.GoToState(Minimize, "Normal", true);
+                        _ = VisualStateManager.GoToState(MaxRes, "Normal", true);
+                        _ = VisualStateManager.GoToState(Close, "Normal", true);
                         await Task.Delay(1000);
                         e.Handled = false;
                     }
@@ -345,20 +330,13 @@ public class TitleBarService
                     {
                         e.Handled = true;
                         e.Result = new IntPtr(9);
-                        VisualStateManager.GoToState(Minimize, "Normal", true);
-                        if (CurrentCaption == SelectedCaptionButton.Maximize)
-                        {
-                            VisualStateManager.GoToState(MaxRes, "Pressed", true);
-                        }
-                        else if (CurrentCaption == SelectedCaptionButton.None)
-                        {
-                            VisualStateManager.GoToState(MaxRes, "PointerOver", true);
-                        }
-                        else
-                        {
-                            VisualStateManager.GoToState(MaxRes, "Normal", true);
-                        }
-                        VisualStateManager.GoToState(Close, "Normal", true);
+                        _ = VisualStateManager.GoToState(Minimize, "Normal", true);
+                        _ = CurrentCaption == SelectedCaptionButton.Maximize
+                            ? VisualStateManager.GoToState(MaxRes, "Pressed", true)
+                            : CurrentCaption == SelectedCaptionButton.None
+                                ? VisualStateManager.GoToState(MaxRes, "PointerOver", true)
+                                : VisualStateManager.GoToState(MaxRes, "Normal", true);
+                        _ = VisualStateManager.GoToState(Close, "Normal", true);
                         await Task.Delay(1000);
                         e.Handled = false;
                     }
@@ -368,20 +346,13 @@ public class TitleBarService
                     {
                         e.Handled = true;
                         e.Result = new IntPtr(20);
-                        VisualStateManager.GoToState(Minimize, "Normal", true);
-                        VisualStateManager.GoToState(MaxRes, "Normal", true);
-                        if (CurrentCaption == SelectedCaptionButton.Close)
-                        {
-                            VisualStateManager.GoToState(Close, "Pressed", true);
-                        }
-                        else if (CurrentCaption == SelectedCaptionButton.None)
-                        {
-                            VisualStateManager.GoToState(Close, "PointerOver", true);
-                        }
-                        else
-                        {
-                            VisualStateManager.GoToState(Close, "Normal", true);
-                        }
+                        _ = VisualStateManager.GoToState(Minimize, "Normal", true);
+                        _ = VisualStateManager.GoToState(MaxRes, "Normal", true);
+                        _ = CurrentCaption == SelectedCaptionButton.Close
+                            ? VisualStateManager.GoToState(Close, "Pressed", true)
+                            : CurrentCaption == SelectedCaptionButton.None
+                                ? VisualStateManager.GoToState(Close, "PointerOver", true)
+                                : VisualStateManager.GoToState(Close, "Normal", true);
                         await Task.Delay(1000);
                         e.Handled = false;
                     }
@@ -391,9 +362,9 @@ public class TitleBarService
                     {
                         e.Handled = true;
                         e.Result = new IntPtr(1);
-                        VisualStateManager.GoToState(Minimize, "Normal", true);
-                        VisualStateManager.GoToState(MaxRes, "Normal", true);
-                        VisualStateManager.GoToState(Close, "Normal", true);
+                        _ = VisualStateManager.GoToState(Minimize, "Normal", true);
+                        _ = VisualStateManager.GoToState(MaxRes, "Normal", true);
+                        _ = VisualStateManager.GoToState(Close, "Normal", true);
                         e.Handled = false;
                     }
 
@@ -409,36 +380,36 @@ public class TitleBarService
                     if (IsInRect(x, xMinimizeMin, xMinimizeMax, y, yMin, yMax))
                     {
                         CurrentCaption = SelectedCaptionButton.Minimize;
-                        VisualStateManager.GoToState(Minimize, "Pressed", true);
-                        VisualStateManager.GoToState(MaxRes, "Normal", true);
-                        VisualStateManager.GoToState(Close, "Normal", true);
+                        _ = VisualStateManager.GoToState(Minimize, "Pressed", true);
+                        _ = VisualStateManager.GoToState(MaxRes, "Normal", true);
+                        _ = VisualStateManager.GoToState(Close, "Normal", true);
                     }
 
                     // Maximize Button
                     else if (IsInRect(x, xMaximizeMin, xMaximizeMax, y, yMin, yMax))
                     {
                         CurrentCaption = SelectedCaptionButton.Maximize;
-                        VisualStateManager.GoToState(Minimize, "Normal", true);
-                        VisualStateManager.GoToState(MaxRes, "Pressed", true);
-                        VisualStateManager.GoToState(Close, "Normal", true);
+                        _ = VisualStateManager.GoToState(Minimize, "Normal", true);
+                        _ = VisualStateManager.GoToState(MaxRes, "Pressed", true);
+                        _ = VisualStateManager.GoToState(Close, "Normal", true);
                     }
 
                     // Close Button
                     else if (IsInRect(x, xCloseMin, xCloseMax, y, yMin, yMax))
                     {
                         CurrentCaption = SelectedCaptionButton.Close;
-                        VisualStateManager.GoToState(Minimize, "Normal", true);
-                        VisualStateManager.GoToState(MaxRes, "Normal", true);
-                        VisualStateManager.GoToState(Close, "Pressed", true);
+                        _ = VisualStateManager.GoToState(Minimize, "Normal", true);
+                        _ = VisualStateManager.GoToState(MaxRes, "Normal", true);
+                        _ = VisualStateManager.GoToState(Close, "Pressed", true);
                     }
 
                     // Title bar drag area
                     else
                     {
                         CurrentCaption = SelectedCaptionButton.None;
-                        VisualStateManager.GoToState(Minimize, "Normal", true);
-                        VisualStateManager.GoToState(MaxRes, "Normal", true);
-                        VisualStateManager.GoToState(Close, "Normal", true);
+                        _ = VisualStateManager.GoToState(Minimize, "Normal", true);
+                        _ = VisualStateManager.GoToState(MaxRes, "Normal", true);
+                        _ = VisualStateManager.GoToState(Close, "Normal", true);
                     }
 
                     break;
@@ -455,9 +426,9 @@ public class TitleBarService
                         if (CurrentCaption == SelectedCaptionButton.Minimize)
                         {
                             CurrentWindow.Minimize();
-                            VisualStateManager.GoToState(Minimize, "Normal", true);
-                            VisualStateManager.GoToState(MaxRes, "Normal", true);
-                            VisualStateManager.GoToState(Close, "Normal", true);
+                            _ = VisualStateManager.GoToState(Minimize, "Normal", true);
+                            _ = VisualStateManager.GoToState(MaxRes, "Normal", true);
+                            _ = VisualStateManager.GoToState(Close, "Normal", true);
                         }
                     }
 
@@ -496,9 +467,9 @@ public class TitleBarService
                     e.Handled = true;
                     e.Result = new IntPtr(1);
                     e.Handled = false;
-                    VisualStateManager.GoToState(Minimize, "Normal", true);
-                    VisualStateManager.GoToState(MaxRes, "Normal", true);
-                    VisualStateManager.GoToState(Close, "Normal", true);
+                    _ = VisualStateManager.GoToState(Minimize, "Normal", true);
+                    _ = VisualStateManager.GoToState(MaxRes, "Normal", true);
+                    _ = VisualStateManager.GoToState(Close, "Normal", true);
                     break;
                 }
             default:
@@ -535,7 +506,7 @@ public class TitleBarService
             {
                 MaxResGlyph.Glyph = "";
                 await Task.Delay(10);
-                VisualStateManager.GoToState(MaxRes, "Normal", true);
+                _ = VisualStateManager.GoToState(MaxRes, "Normal", true);
                 AdditionalHeight = 0;
                 return;
             }
@@ -543,7 +514,7 @@ public class TitleBarService
             {
                 MaxResGlyph.Glyph = "";
                 await Task.Delay(10);
-                VisualStateManager.GoToState(MaxRes, "Normal", true);
+                _ = VisualStateManager.GoToState(MaxRes, "Normal", true);
                 AdditionalHeight = 6;
                 return;
             }
@@ -552,7 +523,7 @@ public class TitleBarService
         {
             MaxResGlyph.Glyph = "";
             await Task.Delay(10);
-            VisualStateManager.GoToState(MaxRes, "Normal", true);
+            _ = VisualStateManager.GoToState(MaxRes, "Normal", true);
             return;
         }
     }
@@ -570,7 +541,7 @@ public class TitleBarService
 
                 var rect = new RectInt32(0, 0, (int)(CurrentWindow.Bounds.Width * Display.Scale(CurrentWindow)), (int)(31 * Display.Scale(CurrentWindow)));
 
-                RectInt32[] rects = [ rect ];
+                RectInt32[] rects = [rect];
 
                 titleBar.SetDragRectangles(rects);
             }

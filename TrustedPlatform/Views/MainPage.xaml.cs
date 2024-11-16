@@ -15,7 +15,7 @@ public sealed partial class MainPage : Page
 
     public MainPage()
     {
-        this.InitializeComponent();
+        InitializeComponent();
 
         // Initialize TpmManager for the original properties
         TpmManager = new TpmManager();
@@ -23,7 +23,7 @@ public sealed partial class MainPage : Page
         ViewModelTpm = new TpmViewModel();
 
         // Set DataContext to TpmManager for original properties
-        this.DataContext = this;
+        DataContext = this;
 
         // Load new TPM information asynchronously
         _ = ViewModelTpm.LoadTpmInfoAsync();
@@ -42,13 +42,13 @@ public sealed partial class MainPage : Page
         StatusBar.Title = $"Status: {ViewModelTpm.Status}";
     }
 
-    ContentDialog dial;
+    private ContentDialog dial;
 
     private async void Button_Click(object sender, RoutedEventArgs e)
     {
         var dialog = new ContentDialog()
         {
-            XamlRoot = this.XamlRoot,
+            XamlRoot = XamlRoot,
             PrimaryButtonText = "Reset",
             SecondaryButtonText = "Cancel",
             DefaultButton = ContentDialogButton.Primary,
@@ -58,14 +58,13 @@ public sealed partial class MainPage : Page
         dial = dialog;
         dialog.PrimaryButtonClick += Dialog_PrimaryButtonClick;
         dialog.SecondaryButtonClick += Dialog_SecondaryButtonClick;
-        await dialog.ShowAsync(); // Show the dialog
+        _ = await dialog.ShowAsync(); // Show the dialog
     }
 
     private void Dialog_SecondaryButtonClick(ContentDialog sender, ContentDialogButtonClickEventArgs args)
     {
         sender.Hide();
         dial = null;
-        sender = null;
     }
 
     private async void Dialog_PrimaryButtonClick(ContentDialog sender, ContentDialogButtonClickEventArgs args)

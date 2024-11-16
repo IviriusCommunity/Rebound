@@ -50,18 +50,18 @@ public sealed partial class Rebound11Page : Page
             Rebound11IsNotInstalledGrid.Visibility = Visibility.Collapsed;
             DetailsPanel.Visibility = Visibility.Visible;
         }
-        CheckForUpdatesAsync();
+        _ = CheckForUpdatesAsync();
     }
 
     public async void GetWallpaper()
     {
         try
         {
-            if (this.ActualTheme == ElementTheme.Light)
+            if (ActualTheme == ElementTheme.Light)
             {
                 BKGImage.Path = "/Assets/Backgrounds/BackgroundLight.png";
             }
-            if (this.ActualTheme == ElementTheme.Dark)
+            if (ActualTheme == ElementTheme.Dark)
             {
                 BKGImage.Path = "/Assets/Backgrounds/BackgroundDark.png";
             }
@@ -81,35 +81,32 @@ public sealed partial class Rebound11Page : Page
         return principal.IsInRole(WindowsBuiltInRole.Administrator);
     }
 
-    public bool IsReboundInstalled()
-    {
-        return Directory.Exists("C:\\Rebound11");
-    }
+    public bool IsReboundInstalled() => Directory.Exists("C:\\Rebound11");
 
     private void Button_Click(object sender, RoutedEventArgs e)
     {
         var win = new InstallationWindow((bool)FilesCheck.IsChecked, (bool)RunCheck.IsChecked, (bool)DefragCheck.IsChecked, (bool)WinverCheck.IsChecked, (bool)UACCheck.IsChecked, (bool)OSKCheck.IsChecked, (bool)TPMCheck.IsChecked, (bool)DiskCleanupCheck.IsChecked);
-        win.Show();
+        _ = win.Show();
     }
 
     private async Task CheckForUpdatesAsync()
     {
         // URL of the text file containing the latest version number
-        string versionUrl = "https://ivirius.vercel.app/reboundhubversion.txt";
+        var versionUrl = "https://ivirius.vercel.app/reboundhubversion.txt";
 
         // Use HttpClient to fetch the content
-        using HttpClient client = new HttpClient();
+        using var client = new HttpClient();
 
         try
         {
             // Fetch the version string from the URL
-            string latestVersion = await client.GetStringAsync(versionUrl);
+            var latestVersion = await client.GetStringAsync(versionUrl);
 
             // Trim any excess whitespace/newlines from the fetched string
             latestVersion = latestVersion.Trim();
 
             // Get the current app version
-            string currentVersion = "v0.0.3 ALPHA";
+            var currentVersion = "v0.0.3 ALPHA";
 
             // Compare versions
             if (latestVersion == currentVersion)
@@ -150,7 +147,7 @@ public sealed partial class Rebound11Page : Page
                 }
             }
         }
-        catch (Exception ex)
+        catch (Exception)
         {
             // Handle any errors that occur during the request
             UpdateBar.IsOpen = true;
@@ -193,17 +190,7 @@ public sealed partial class Rebound11Page : Page
         App.MainAppWindow.Close();
     }
 
-    private void SettingsCard_Click(object sender, RoutedEventArgs e)
-    {
-        if (File.Exists("C:\\Rebound11\\rwinver.exe"))
-        {
-            Process.Start("C:\\Rebound11\\rwinver.exe");
-        }
-        else
-        {
-            Process.Start("winver.exe");
-        }
-    }
+    private void SettingsCard_Click(object sender, RoutedEventArgs e) => _ = File.Exists("C:\\Rebound11\\rwinver.exe") ? Process.Start("C:\\Rebound11\\rwinver.exe") : Process.Start("winver.exe");
 
     private async void Button_Click_3(object sender, RoutedEventArgs e)
     {

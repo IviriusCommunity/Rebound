@@ -2,7 +2,6 @@
 using WinUIEx;
 
 #nullable enable
-#pragma warning disable CA2211 // Non-constant fields should not be visible
 
 namespace Rebound.TrustedPlatform;
 
@@ -20,10 +19,7 @@ public partial class App : Application
         _singleInstanceApp.Launched += OnSingleInstanceLaunched;
     }
 
-    protected override void OnLaunched(LaunchActivatedEventArgs args)
-    {
-        _singleInstanceApp?.Launch(args.Arguments);
-    }
+    protected override void OnLaunched(LaunchActivatedEventArgs args) => _singleInstanceApp?.Launch(args.Arguments);
 
     private void OnSingleInstanceLaunched(object? sender, SingleInstanceLaunchEventArgs e)
     {
@@ -48,6 +44,6 @@ public partial class App : Application
     private static void LaunchWork()
     {
         MainAppWindow = new MainWindow();
-        MainAppWindow.Show();
+        _ = MainAppWindow.Show();
     }
 }

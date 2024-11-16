@@ -14,7 +14,6 @@ using Microsoft.UI.Xaml.Media.Imaging;
 using Microsoft.Win32;
 using Rebound.Helpers;
 using Rebound.Views;
-using Windows.Graphics;
 using WinUIEx;
 using WinUIEx.Messaging;
 
@@ -28,13 +27,12 @@ namespace Rebound;
 public sealed partial class MainWindow : WindowEx
 {
     public bool AllowSizeCheck = false;
-
-    bool isCrimsonUIEnabled = false;
+    private readonly bool isCrimsonUIEnabled = false;
 
     public async void CheckWindowProperties()
     {
         AllowSizeCheck = false;
-        this.SystemBackdrop = new MicaBackdrop()
+        SystemBackdrop = new MicaBackdrop()
         {
             Kind = MicaKind.Base
         };
@@ -62,7 +60,11 @@ public sealed partial class MainWindow : WindowEx
                     (double)SettingsHelper.GetSetting("Core.WindowHeight"));
             }
         }
-        else this.CenterOnScreen();
+        else
+        {
+            this.CenterOnScreen();
+        }
+
         if (SettingsHelper.GetSetting("Core.Maximized") != null)
         {
             if (SettingsHelper.GetSettingBool("Core.Maximized") == true)
@@ -87,11 +89,11 @@ public sealed partial class MainWindow : WindowEx
         this.InitializeComponent();
         RootFrame.Navigate(typeof(ShellPage));
         CheckWindowProperties();
-        this.ExtendsContentIntoTitleBar = true;
-        this.AppWindow.TitleBar.PreferredHeightOption = Microsoft.UI.Windowing.TitleBarHeightOption.Collapsed;
-        this.AppWindow.TitleBar.ButtonHoverBackgroundColor = Windows.UI.Color.FromArgb(25, 200, 200, 200);
-        this.AppWindow.TitleBar.ButtonPressedBackgroundColor = Windows.UI.Color.FromArgb(15, 200, 200, 200);
-        this.AppWindow.Title = "Rebound Hub";
+        ExtendsContentIntoTitleBar = true;
+        AppWindow.TitleBar.PreferredHeightOption = Microsoft.UI.Windowing.TitleBarHeightOption.Collapsed;
+        AppWindow.TitleBar.ButtonHoverBackgroundColor = Windows.UI.Color.FromArgb(25, 200, 200, 200);
+        AppWindow.TitleBar.ButtonPressedBackgroundColor = Windows.UI.Color.FromArgb(15, 200, 200, 200);
+        AppWindow.Title = "Rebound Hub";
         this.SetIcon($"{AppContext.BaseDirectory}\\Assets\\AppIcons\\Rebound.ico");
 
         _msgMonitor ??= new WindowMessageMonitor(this);
@@ -100,7 +102,7 @@ public sealed partial class MainWindow : WindowEx
 
         if (isCrimsonUIEnabled == true)
         {
-            this.AppWindow.TitleBar.PreferredHeightOption = Microsoft.UI.Windowing.TitleBarHeightOption.Collapsed;
+            AppWindow.TitleBar.PreferredHeightOption = Microsoft.UI.Windowing.TitleBarHeightOption.Collapsed;
             CrimsonUIButtons.Visibility = Visibility.Visible;
             LoadBounds();
         }
@@ -134,7 +136,10 @@ public sealed partial class MainWindow : WindowEx
     {
         try
         {
-            if (WindowTitle != null && this != null) WindowTitle.Text = Title;
+            if (WindowTitle != null && this != null)
+            {
+                WindowTitle.Text = Title;
+            }
         }
         catch
         {
@@ -146,13 +151,12 @@ public sealed partial class MainWindow : WindowEx
         CheckWindow();
     }
 
-    RegistryMonitor mon;
+    private readonly RegistryMonitor mon;
 
     #region MaximizeButton
 
-    WindowMessageMonitor _msgMonitor;
-
-    double additionalHeight = 0;
+    private WindowMessageMonitor _msgMonitor;
+    private double additionalHeight = 0;
 
     public bool isInMaxButton = false;
 
@@ -173,7 +177,7 @@ public sealed partial class MainWindow : WindowEx
         isInMaxButton = false;
     }
 
-    PointerRoutedEventArgs ev;
+    private PointerRoutedEventArgs ev;
 
     private void CrimsonMaxRes_PointerMoved(object sender, PointerRoutedEventArgs e)
     {
@@ -184,19 +188,12 @@ public sealed partial class MainWindow : WindowEx
         _msgMonitor.WindowMessageReceived += Event;
     }
 
-    private int GET_X_LPARAM(IntPtr lParam)
-    {
-        return unchecked((short)(long)lParam);
-    }
+    private int GET_X_LPARAM(IntPtr lParam) => unchecked((short)(long)lParam);
 
-    private int GET_Y_LPARAM(IntPtr lParam)
-    {
-        return unchecked((short)((long)lParam >> 16));
-    }
+    private int GET_Y_LPARAM(IntPtr lParam) => unchecked((short)((long)lParam >> 16));
 
-    bool windowFocused = false;
-
-    SolidColorBrush buttonBrush;
+    private bool windowFocused = false;
+    private SolidColorBrush buttonBrush;
 
     private const string RegistryKeyPath = @"Software\Microsoft\Windows\DWM";
     private const string RegistryValueName = "ColorPrevalence";
@@ -217,7 +214,7 @@ public sealed partial class MainWindow : WindowEx
     private const uint REG_NOTIFY_CHANGE_LAST_SET = 0x00000004;
     private const uint REG_NOTIFY_CHANGE_SECURITY = 0x00000008;
 
-    private static ManualResetEvent _changeEvent = new(false);
+    private static readonly ManualResetEvent _changeEvent = new(false);
     private static bool _running = true;
 
     private class RegistryMonitor : IDisposable
@@ -232,15 +229,12 @@ public sealed partial class MainWindow : WindowEx
             _monitorThread = new Thread(MonitorRegistry) { IsBackground = true };
         }
 
-        public void Start()
-        {
-            _monitorThread.Start();
-        }
+        public void Start() => _monitorThread.Start();
 
         public void Stop()
         {
             _running = false;
-            _changeEvent.Set();
+            _ = _changeEvent.Set();
             _monitorThread.Join();
         }
 
@@ -257,12 +251,16 @@ public sealed partial class MainWindow : WindowEx
                 if (RegNotifyChangeKeyValue(_hKey, true, REG_NOTIFY_CHANGE_NAME | REG_NOTIFY_CHANGE_ATTRIBUTES | REG_NOTIFY_CHANGE_LAST_SET | REG_NOTIFY_CHANGE_SECURITY, _changeEvent.SafeWaitHandle.DangerousGetHandle(), true) == 0)
                 {
                     // Handle registry change
-                    if (App.MainAppWindow != null) (App.MainAppWindow as MainWindow).CheckFocus();
-                    _changeEvent.WaitOne();
+                    if (App.MainAppWindow != null)
+                    {
+                        (App.MainAppWindow as MainWindow).CheckFocus();
+                    }
+
+                    _ = _changeEvent.WaitOne();
                 }
             }
 
-            RegCloseKey(_hKey);
+            _ = RegCloseKey(_hKey);
         }
 
         public void Dispose()
@@ -302,7 +300,11 @@ public sealed partial class MainWindow : WindowEx
         {
             try
             {
-                if (AccentStrip != null) AccentStrip.Visibility = Visibility.Visible;
+                if (AccentStrip != null)
+                {
+                    AccentStrip.Visibility = Visibility.Visible;
+                }
+
                 if (!windowFocused)
                 {
                     buttonBrush = new SolidColorBrush(Colors.White);
@@ -320,15 +322,14 @@ public sealed partial class MainWindow : WindowEx
         {
             try
             {
-                if (AccentStrip != null) AccentStrip.Visibility = Visibility.Collapsed;
-                if (!windowFocused)
+                if (AccentStrip != null)
                 {
-                    buttonBrush = Application.Current.Resources["TextFillColorPrimaryBrush"] as SolidColorBrush;
+                    AccentStrip.Visibility = Visibility.Collapsed;
                 }
-                else
-                {
-                    buttonBrush = Application.Current.Resources["TextFillColorDisabledBrush"] as SolidColorBrush;
-                }
+
+                buttonBrush = !windowFocused
+                    ? Application.Current.Resources["TextFillColorPrimaryBrush"] as SolidColorBrush
+                    : Application.Current.Resources["TextFillColorDisabledBrush"] as SolidColorBrush;
             }
             catch { }
         }
@@ -360,7 +361,7 @@ public sealed partial class MainWindow : WindowEx
 
     public SelectedCaptionButton currentCaption = SelectedCaptionButton.None;
 
-    async void Event(object sender, WinUIEx.Messaging.WindowMessageEventArgs e)
+    private async void Event(object sender, WinUIEx.Messaging.WindowMessageEventArgs e)
     {
         const int WM_NCLBUTTONDOWN = 0x00A1;
         const int WM_NCHITTEST = 0x0084;
@@ -397,16 +398,26 @@ public sealed partial class MainWindow : WindowEx
             case WM_NCHITTEST:
                 {
                     // Minimize Button
-                    if ((x - 7 * Scale() - this.AppWindow.Position.X) >= (this.Bounds.Width * Scale() - minButtonLeftPos) &&
-                        (x - 7 * Scale() - this.AppWindow.Position.X) < (this.Bounds.Width * Scale() - maxButtonLeftPos) &&
-                        y < this.AppWindow.Position.Y + 46 * Scale() + additionalHeight * Scale() &&
-                        y >= this.AppWindow.Position.Y + 1 * Scale())
+                    if ((x - (7 * Scale()) - AppWindow.Position.X) >= ((Bounds.Width * Scale()) - minButtonLeftPos) &&
+                        (x - (7 * Scale()) - AppWindow.Position.X) < ((Bounds.Width * Scale()) - maxButtonLeftPos) &&
+                        y < AppWindow.Position.Y + (46 * Scale()) + (additionalHeight * Scale()) &&
+                        y >= AppWindow.Position.Y + (1 * Scale()))
                     {
                         e.Handled = true;
                         e.Result = new IntPtr(8);
-                        if (currentCaption == SelectedCaptionButton.Minimize) VisualStateManager.GoToState(Minimize, "Pressed", true);
-                        else if (currentCaption == SelectedCaptionButton.None) VisualStateManager.GoToState(Minimize, "PointerOver", true);
-                        else VisualStateManager.GoToState(Minimize, "Normal", true);
+                        if (currentCaption == SelectedCaptionButton.Minimize)
+                        {
+                            VisualStateManager.GoToState(Minimize, "Pressed", true);
+                        }
+                        else if (currentCaption == SelectedCaptionButton.None)
+                        {
+                            VisualStateManager.GoToState(Minimize, "PointerOver", true);
+                        }
+                        else
+                        {
+                            VisualStateManager.GoToState(Minimize, "Normal", true);
+                        }
+
                         VisualStateManager.GoToState(CrimsonMaxRes, "Normal", true);
                         VisualStateManager.GoToState(Close, "Normal", true);
                         await Task.Delay(1000);
@@ -414,35 +425,55 @@ public sealed partial class MainWindow : WindowEx
                     }
 
                     // Maximize Button
-                    else if ((x - 7 * Scale() - this.AppWindow.Position.X) >= (this.Bounds.Width * Scale() - maxButtonLeftPos) &&
-                             ((x - 7 * Scale() - this.AppWindow.Position.X) < (this.Bounds.Width * Scale() - closeButtonLeftPos)) &&
-                        y < this.AppWindow.Position.Y + 46 * Scale() + additionalHeight * Scale() &&
-                        y >= this.AppWindow.Position.Y + 1 * Scale())
+                    else if ((x - (7 * Scale()) - AppWindow.Position.X) >= ((Bounds.Width * Scale()) - maxButtonLeftPos) &&
+                             ((x - (7 * Scale()) - AppWindow.Position.X) < ((Bounds.Width * Scale()) - closeButtonLeftPos)) &&
+                        y < AppWindow.Position.Y + (46 * Scale()) + (additionalHeight * Scale()) &&
+                        y >= AppWindow.Position.Y + (1 * Scale()))
                     {
                         e.Handled = true;
                         e.Result = new IntPtr(9);
                         VisualStateManager.GoToState(Minimize, "Normal", true);
-                        if (currentCaption == SelectedCaptionButton.Maximize) VisualStateManager.GoToState(CrimsonMaxRes, "Pressed", true);
-                        else if (currentCaption == SelectedCaptionButton.None) VisualStateManager.GoToState(CrimsonMaxRes, "PointerOver", true);
-                        else VisualStateManager.GoToState(CrimsonMaxRes, "Normal", true);
+                        if (currentCaption == SelectedCaptionButton.Maximize)
+                        {
+                            VisualStateManager.GoToState(CrimsonMaxRes, "Pressed", true);
+                        }
+                        else if (currentCaption == SelectedCaptionButton.None)
+                        {
+                            VisualStateManager.GoToState(CrimsonMaxRes, "PointerOver", true);
+                        }
+                        else
+                        {
+                            VisualStateManager.GoToState(CrimsonMaxRes, "Normal", true);
+                        }
+
                         VisualStateManager.GoToState(Close, "Normal", true);
                         await Task.Delay(1000);
                         e.Handled = false;
                     }
 
                     // Close Button
-                    else if ((x - 7 * Scale() - this.AppWindow.Position.X) >= (this.Bounds.Width * Scale() - closeButtonLeftPos) &&
-                             (x - 7 * Scale() - this.AppWindow.Position.X) < (this.Bounds.Width * Scale()) + 2 &&
-                        y < this.AppWindow.Position.Y + 46 * Scale() + additionalHeight * Scale() &&
-                        y >= this.AppWindow.Position.Y + 1 * Scale())
+                    else if ((x - (7 * Scale()) - AppWindow.Position.X) >= ((Bounds.Width * Scale()) - closeButtonLeftPos) &&
+                             (x - (7 * Scale()) - AppWindow.Position.X) < (Bounds.Width * Scale()) + 2 &&
+                        y < AppWindow.Position.Y + (46 * Scale()) + (additionalHeight * Scale()) &&
+                        y >= AppWindow.Position.Y + (1 * Scale()))
                     {
                         e.Handled = true;
                         e.Result = new IntPtr(20);
                         VisualStateManager.GoToState(Minimize, "Normal", true);
                         VisualStateManager.GoToState(CrimsonMaxRes, "Normal", true);
-                        if (currentCaption == SelectedCaptionButton.Close) VisualStateManager.GoToState(Close, "Pressed", true);
-                        else if (currentCaption == SelectedCaptionButton.None) VisualStateManager.GoToState(Close, "PointerOver", true);
-                        else VisualStateManager.GoToState(Close, "Normal", true);
+                        if (currentCaption == SelectedCaptionButton.Close)
+                        {
+                            VisualStateManager.GoToState(Close, "Pressed", true);
+                        }
+                        else if (currentCaption == SelectedCaptionButton.None)
+                        {
+                            VisualStateManager.GoToState(Close, "PointerOver", true);
+                        }
+                        else
+                        {
+                            VisualStateManager.GoToState(Close, "Normal", true);
+                        }
+
                         await Task.Delay(1000);
                         e.Handled = false;
                     }
@@ -467,10 +498,10 @@ public sealed partial class MainWindow : WindowEx
                     e.Handled = false;
 
                     // Minimize Button
-                    if ((x - 7 * Scale() - this.AppWindow.Position.X) >= (this.Bounds.Width * Scale() - minButtonLeftPos) &&
-                        (x - 7 * Scale() - this.AppWindow.Position.X) < (this.Bounds.Width * Scale() - maxButtonLeftPos) &&
-                        y < this.AppWindow.Position.Y + 46 * Scale() + additionalHeight * Scale() &&
-                        y >= this.AppWindow.Position.Y + 1 * Scale())
+                    if ((x - (7 * Scale()) - AppWindow.Position.X) >= ((Bounds.Width * Scale()) - minButtonLeftPos) &&
+                        (x - (7 * Scale()) - AppWindow.Position.X) < ((Bounds.Width * Scale()) - maxButtonLeftPos) &&
+                        y < AppWindow.Position.Y + (46 * Scale()) + (additionalHeight * Scale()) &&
+                        y >= AppWindow.Position.Y + (1 * Scale()))
                     {
                         currentCaption = SelectedCaptionButton.Minimize;
                         VisualStateManager.GoToState(Minimize, "Pressed", true);
@@ -479,10 +510,10 @@ public sealed partial class MainWindow : WindowEx
                     }
 
                     // Maximize Button
-                    else if ((x - 7 * Scale() - this.AppWindow.Position.X) >= (this.Bounds.Width * Scale() - maxButtonLeftPos) &&
-                             ((x - 7 * Scale() - this.AppWindow.Position.X) < (this.Bounds.Width * Scale() - closeButtonLeftPos)) &&
-                        y < this.AppWindow.Position.Y + 46 * Scale() + additionalHeight * Scale() &&
-                        y >= this.AppWindow.Position.Y + 1 * Scale())
+                    else if ((x - (7 * Scale()) - AppWindow.Position.X) >= ((Bounds.Width * Scale()) - maxButtonLeftPos) &&
+                             ((x - (7 * Scale()) - AppWindow.Position.X) < ((Bounds.Width * Scale()) - closeButtonLeftPos)) &&
+                        y < AppWindow.Position.Y + (46 * Scale()) + (additionalHeight * Scale()) &&
+                        y >= AppWindow.Position.Y + (1 * Scale()))
                     {
                         currentCaption = SelectedCaptionButton.Maximize;
                         VisualStateManager.GoToState(Minimize, "Normal", true);
@@ -491,10 +522,10 @@ public sealed partial class MainWindow : WindowEx
                     }
 
                     // Close Button
-                    else if ((x - 7 * Scale() - this.AppWindow.Position.X) >= (this.Bounds.Width * Scale() - closeButtonLeftPos) &&
-                             (x - 7 * Scale() - this.AppWindow.Position.X) < (this.Bounds.Width * Scale()) + 2 &&
-                        y < this.AppWindow.Position.Y + 46 * Scale() + additionalHeight * Scale() &&
-                        y >= this.AppWindow.Position.Y + 1 * Scale())
+                    else if ((x - (7 * Scale()) - AppWindow.Position.X) >= ((Bounds.Width * Scale()) - closeButtonLeftPos) &&
+                             (x - (7 * Scale()) - AppWindow.Position.X) < (Bounds.Width * Scale()) + 2 &&
+                        y < AppWindow.Position.Y + (46 * Scale()) + (additionalHeight * Scale()) &&
+                        y >= AppWindow.Position.Y + (1 * Scale()))
                     {
                         currentCaption = SelectedCaptionButton.Close;
                         VisualStateManager.GoToState(Minimize, "Normal", true);
@@ -520,10 +551,10 @@ public sealed partial class MainWindow : WindowEx
                     e.Handled = false;
 
                     // Minimize Button
-                    if ((x - 7 * Scale() - this.AppWindow.Position.X) >= (this.Bounds.Width * Scale() - minButtonLeftPos) &&
-                        (x - 7 * Scale() - this.AppWindow.Position.X) < (this.Bounds.Width * Scale() - maxButtonLeftPos) &&
-                        y < this.AppWindow.Position.Y + 46 * Scale() + additionalHeight * Scale() &&
-                        y >= this.AppWindow.Position.Y + 1 * Scale())
+                    if ((x - (7 * Scale()) - AppWindow.Position.X) >= ((Bounds.Width * Scale()) - minButtonLeftPos) &&
+                        (x - (7 * Scale()) - AppWindow.Position.X) < ((Bounds.Width * Scale()) - maxButtonLeftPos) &&
+                        y < AppWindow.Position.Y + (46 * Scale()) + (additionalHeight * Scale()) &&
+                        y >= AppWindow.Position.Y + (1 * Scale()))
                     {
                         if (currentCaption == SelectedCaptionButton.Minimize)
                         {
@@ -535,23 +566,26 @@ public sealed partial class MainWindow : WindowEx
                     }
 
                     // Maximize Button
-                    else if ((x - 7 * Scale() - this.AppWindow.Position.X) >= (this.Bounds.Width * Scale() - maxButtonLeftPos) &&
-                             ((x - 7 * Scale() - this.AppWindow.Position.X) < (this.Bounds.Width * Scale() - closeButtonLeftPos)) &&
-                        y < this.AppWindow.Position.Y + 46 * Scale() + additionalHeight * Scale() &&
-                        y >= this.AppWindow.Position.Y + 1 * Scale())
+                    else if ((x - (7 * Scale()) - AppWindow.Position.X) >= ((Bounds.Width * Scale()) - maxButtonLeftPos) &&
+                             ((x - (7 * Scale()) - AppWindow.Position.X) < ((Bounds.Width * Scale()) - closeButtonLeftPos)) &&
+                        y < AppWindow.Position.Y + (46 * Scale()) + (additionalHeight * Scale()) &&
+                        y >= AppWindow.Position.Y + (1 * Scale()))
                     {
-                        if (currentCaption == SelectedCaptionButton.Maximize) RunMaximization();
+                        if (currentCaption == SelectedCaptionButton.Maximize)
+                        {
+                            RunMaximization();
+                        }
                     }
 
                     // Close Button
-                    else if ((x - 7 * Scale() - this.AppWindow.Position.X) >= (this.Bounds.Width * Scale() - closeButtonLeftPos) &&
-                             (x - 7 * Scale() - this.AppWindow.Position.X) < (this.Bounds.Width * Scale()) + 2 &&
-                        y < this.AppWindow.Position.Y + 46 * Scale() + additionalHeight * Scale() &&
-                        y >= this.AppWindow.Position.Y + 1 * Scale())
+                    else if ((x - (7 * Scale()) - AppWindow.Position.X) >= ((Bounds.Width * Scale()) - closeButtonLeftPos) &&
+                             (x - (7 * Scale()) - AppWindow.Position.X) < (Bounds.Width * Scale()) + 2 &&
+                        y < AppWindow.Position.Y + (46 * Scale()) + (additionalHeight * Scale()) &&
+                        y >= AppWindow.Position.Y + (1 * Scale()))
                     {
                         if (currentCaption == SelectedCaptionButton.Close)
                         {
-                            this.Close();
+                            Close();
                         }
                     }
 
@@ -587,7 +621,7 @@ public sealed partial class MainWindow : WindowEx
 
     #endregion MaximizeButton
 
-    double closeWidth = 46;
+    private double closeWidth = 46;
 
     private async void X_ThemeChanged(ThemeListener sender)
     {
@@ -618,10 +652,10 @@ public sealed partial class MainWindow : WindowEx
                 {
                     //CrimsonMaxRes.Style = CrimsonUIButtons.Resources["Maximize"] as Style;
                     SettingsHelper.SetSetting("Core.Maximized", false);
-                    SettingsHelper.SetSetting("Core.WindowX", (double)this.AppWindow.Position.X);
-                    SettingsHelper.SetSetting("Core.WindowY", (double)this.AppWindow.Position.Y);
-                    SettingsHelper.SetSetting("Core.WindowWidth", this.Bounds.Width + 16);
-                    SettingsHelper.SetSetting("Core.WindowHeight", this.Bounds.Height + 8);
+                    SettingsHelper.SetSetting("Core.WindowX", (double)AppWindow.Position.X);
+                    SettingsHelper.SetSetting("Core.WindowY", (double)AppWindow.Position.Y);
+                    SettingsHelper.SetSetting("Core.WindowWidth", Bounds.Width + 16);
+                    SettingsHelper.SetSetting("Core.WindowHeight", Bounds.Height + 8);
                     await Task.Delay(10);
                     VisualStateManager.GoToState(CrimsonMaxRes, "Normal", true);
                     MaxResGlyph.Glyph = "";
@@ -1002,9 +1036,9 @@ public sealed partial class MainWindow : WindowEx
 
     #endregion CloseButton
 */
-    public async void RunMaximization()
+    public void RunMaximization()
     {
-        var state = (this.Presenter as OverlappedPresenter).State;
+        var state = (Presenter as OverlappedPresenter).State;
         if (state == OverlappedPresenterState.Restored)
         {
             this.Maximize();
@@ -1029,27 +1063,18 @@ public sealed partial class MainWindow : WindowEx
         }
     }
 
-    private void CrimsonMinimize_Click(object sender, RoutedEventArgs e)
-    {
-        this.Minimize();
-    }
+    private void CrimsonMinimize_Click(object sender, RoutedEventArgs e) => this.Minimize();
 
-    private void CrimsonMaxRes_Click(object sender, RoutedEventArgs e)
-    {
-        RunMaximization();
-    }
+    private void CrimsonMaxRes_Click(object sender, RoutedEventArgs e) => RunMaximization();
 
-    private void CrimsonClose_Click(object sender, RoutedEventArgs e)
-    {
-        this.Close();
-    }
+    private void CrimsonClose_Click(object sender, RoutedEventArgs e) => Close();
 
     public void LoadBounds()
     {
-        var appWindow = this.AppWindow;
+        var appWindow = AppWindow;
         var titleBar = appWindow.TitleBar;
 
-        RectInt32 rect = new RectInt32(0, 0, (int)(this.Bounds.Width * Scale()), (int)(46 * Scale()));
+        var rect = new RectInt32(0, 0, (int)(Bounds.Width * Scale()), (int)(46 * Scale()));
 
         RectInt32[] rects =
         [
@@ -1061,7 +1086,7 @@ public sealed partial class MainWindow : WindowEx
 
     private void Grid_PointerMoved(object sender, PointerRoutedEventArgs e)
     {
-        if (e.GetCurrentPoint(this.Content).Properties.IsLeftButtonPressed != true)
+        if (e.GetCurrentPoint(Content).Properties.IsLeftButtonPressed != true)
         {
             currentCaption = SelectedCaptionButton.None;
         }
@@ -1072,7 +1097,7 @@ public sealed partial class MainWindow : WindowEx
         try
         {
             // Get the DisplayInformation object for the current view
-            DisplayInformation displayInformation = DisplayInformation.CreateForWindowId(this.AppWindow.Id);
+            var displayInformation = DisplayInformation.CreateForWindowId(AppWindow.Id);
             // Get the RawPixelsPerViewPixel which gives the scale factor
             var scaleFactor = displayInformation.RawPixelsPerViewPixel;
             return scaleFactor;
@@ -1085,7 +1110,7 @@ public sealed partial class MainWindow : WindowEx
 
     private void Grid_PointerReleased(object sender, PointerRoutedEventArgs e)
     {
-        if (e.GetCurrentPoint(this.Content).Properties.IsLeftButtonPressed != true)
+        if (e.GetCurrentPoint(Content).Properties.IsLeftButtonPressed != true)
         {
             currentCaption = SelectedCaptionButton.None;
         }
@@ -1097,9 +1122,9 @@ public sealed partial class MainWindow : WindowEx
         {
             if (this != null)
             {
-                if (this.Content != null)
+                if (Content != null)
                 {
-                    if (e.GetCurrentPoint(this.Content).Properties.IsLeftButtonPressed != true)
+                    if (e.GetCurrentPoint(Content).Properties.IsLeftButtonPressed != true)
                     {
                         currentCaption = SelectedCaptionButton.None;
                     }

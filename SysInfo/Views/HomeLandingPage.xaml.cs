@@ -24,7 +24,7 @@ public sealed partial class HomeLandingPage : Page
         var args = (ItemClickEventArgs)e;
         var item = (DataItem)args.ClickedItem;
 
-        App.Current.JsonNavigationViewService.NavigateTo(item.UniqueId + item.Parameter?.ToString(), item);
+        _ = App.Current.JsonNavigationViewService.NavigateTo(item.UniqueId + item.Parameter?.ToString(), item);
     }
 }
 

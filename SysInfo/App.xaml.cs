@@ -12,7 +12,7 @@ public partial class App : Application
     {
         get; set;
     }
-    public new static App Current => (App)Application.Current;
+    public static new App Current => (App)Application.Current;
     public string AppVersion { get; set; } = AssemblyInfoHelper.GetAssemblyVersion();
     public string AppName { get; set; } = "Rebound.SysInfo";
     public App()
@@ -27,9 +27,10 @@ public partial class App : Application
 
     protected override void OnLaunched(LaunchActivatedEventArgs args)
     {
-        m_window = new WindowEx();
-
-        m_window.SystemBackdrop = new Microsoft.UI.Xaml.Media.MicaBackdrop();
+        m_window = new WindowEx
+        {
+            SystemBackdrop = new Microsoft.UI.Xaml.Media.MicaBackdrop()
+        };
         m_window.AppWindow.DefaultTitleBarShouldMatchAppModeTheme = true;
 
         //CurrentWindow.AppWindow.TitleBar.ExtendsContentIntoTitleBar = true;
@@ -40,7 +41,7 @@ public partial class App : Application
             m_window.Content = rootFrame = new Frame();
         }
 
-        rootFrame.Navigate(typeof(MainPage));
+        _ = rootFrame.Navigate(typeof(MainPage));
 
         m_window.Title = $"{AppName} v{AppVersion}";
         m_window.SetIcon("Assets/icon.ico");

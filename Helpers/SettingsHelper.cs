@@ -1,7 +1,4 @@
-﻿using System;
-using Windows.Storage;
-
-namespace Rebound.Helpers;
+﻿namespace Rebound.Helpers;
 
 public static class SettingsHelper
 {
