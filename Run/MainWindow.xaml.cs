@@ -12,6 +12,8 @@ using Microsoft.UI.Xaml.Media;
 using Microsoft.Win32;
 using Rebound.Run.Helpers;
 using Rebound.Run.Languages;
+using Windows.Storage.Pickers;
+using Windows.System;
 using WinUIEx;
 
 #pragma warning disable IDE0044 // Add readonly modifier
@@ -267,7 +269,7 @@ public sealed partial class MainWindow : WindowEx
                         }
                         catch (Exception)
                         {
-                            await ShowMessageDialogAsync($"The system cannot find the file specified.");
+                            await ShowMessageDialogAsync(StringTable.ErrorMessage2);
                         }
                     }
                     else
@@ -296,19 +298,19 @@ public sealed partial class MainWindow : WindowEx
 
                         try
                         {
-                            await ShowMessageDialogAsync($"You will have to open this app again to bring back the Windows + R invoke command for Rebound Run.", "Important");
+                            await ShowMessageDialogAsync(StringTable.WarningMessage, StringTable.Warning);
                             var res = Process.Start(startInfo);
                             Close();
                             Process.GetCurrentProcess().Kill();
                         }
                         catch (Exception)
                         {
-                            await ShowMessageDialogAsync($"The system cannot find the file specified.");
+                            await ShowMessageDialogAsync(StringTable.ErrorMessage2);
                         }
                     }
                     else
                     {
-                        await ShowMessageDialogAsync($"The WinUI 3 run box is already opened.", "Error");
+                        await ShowMessageDialogAsync(StringTable.Win3UIBoxAlreadyOpened, StringTable.Error);
                         return;
                     }
                     Close();
@@ -515,7 +517,7 @@ public sealed partial class MainWindow : WindowEx
         // Set options for your file picker
         openPicker.ViewMode = PickerViewMode.Thumbnail;
         openPicker.SuggestedStartLocation = PickerLocationId.Desktop;
-        openPicker.CommitButtonText = "Select file to run";
+        openPicker.CommitButtonText = StringTable.SelectFileToRun;
         openPicker.FileTypeFilter.Add(".exe");
         openPicker.FileTypeFilter.Add(".pif");
         openPicker.FileTypeFilter.Add(".com");
