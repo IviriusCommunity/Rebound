@@ -12,8 +12,6 @@ using Microsoft.UI.Xaml.Media;
 using Microsoft.Win32;
 using Rebound.Run.Helpers;
 using Rebound.Run.Languages;
-using Windows.Storage.Pickers;
-using Windows.System;
 using WinUIEx;
 
 #pragma warning disable IDE0044 // Add readonly modifier
