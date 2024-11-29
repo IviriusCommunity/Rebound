@@ -1,4 +1,4 @@
-﻿namespace Rebound.Helpers;
+namespace Rebound.Helpers;
 
 public static class SettingsHelper
 {

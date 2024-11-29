@@ -8,6 +8,7 @@
     xmlns:local="using:Rebound.Run"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:winuiex="using:WinUIEx"
+    xmlns:languages="using:Rebound.Run.Languages"
     Activated="WindowEx_Activated"
     mc:Ignorable="d">
 
@@ -371,7 +372,7 @@
         </Grid.Resources>
         <TextBlock
             Margin="125,25,25,25"
-            Text="Type the name of a program, folder, document, or Internet resource, and Windows will open it for you."
+            Text="{x:Bind StringTable:StringTable.Description}"
             TextWrapping="WrapWholeWords" />
         <ComboBox
             x:Name="RunBox"
@@ -395,11 +396,11 @@
         <TextBlock
             Margin="30,90,0,0"
             HorizontalAlignment="Left"
-            Text="Open:" />
+            Text="{x:Bind StringTable:StringTable.Open}" />
         <TextBlock
             Margin="30,135,0,0"
             HorizontalAlignment="Left"
-            Text="Arguments:" />
+            Text="{x:Bind StringTable:StringTable.Arguments}" />
         <Border
             Grid.ColumnSpan="2"
             Height="75"
@@ -421,11 +422,11 @@
                 HorizontalAlignment="Stretch"
                 VerticalAlignment="Bottom"
                 Click="SplitButton_Click"
-                Content="{x:Bind Path=StringTable:StringTable.Run}"
+                Content="{x:Bind StringTable:StringTable.Run}"
                 Style="{StaticResource AccentSplitButtonStyle}">
                 <SplitButton.Flyout>
                     <MenuFlyout>
-                        <MenuFlyoutItem IsEnabled="False" Text="Hover for information">
+                        <MenuFlyoutItem IsEnabled="False" Text="{x:Bind StringTable:StringTable.Hover}">
                             <MenuFlyoutItem.Icon>
                                 <FontIcon Glyph="" />
                             </MenuFlyoutItem.Icon>
@@ -433,8 +434,8 @@
                         <MenuFlyoutSeparator />
                         <MenuFlyoutItem
                             Click="MenuFlyoutItem_Click_2"
-                            Text="Run as Administrator"
-                            ToolTipService.ToolTip="Run the selected process as administrator. This option will attempt to launch the corresponding Rebound 11 counterpart of the chosen task.">
+                            Text="{x:Bind StringTable:StringTable.RunAsAdmin}"
+                            ToolTipService.ToolTip="{x:Bind StringTable:StringTable.RunAsAdminTooltip}">
                             <MenuFlyoutItem.Icon>
                                 <ImageIcon Source="/Assets/Administrator.ico" />
                             </MenuFlyoutItem.Icon>
@@ -447,8 +448,8 @@
                         </MenuFlyoutItem>
                         <MenuFlyoutItem
                             Click="MenuFlyoutItem_Click_3"
-                            Text="Run as Administrator (Legacy)"
-                            ToolTipService.ToolTip="Rebound 11 replaces run entries of classic Windows applets with Rebound apps. To launch the legacy applets as administrator, use this option instead. (Also launches Task Manager without WinUI 3.)">
+                            Text="{x:Bind StringTable:StringTable.RunAsAdminLegacy}"
+                            ToolTipService.ToolTip="{x:Bind StringTable:StringTable.RunAsAdminLegacyTooltip}">
                             <MenuFlyoutItem.Icon>
                                 <ImageIcon Source="/Assets/Administrator.ico" />
                             </MenuFlyoutItem.Icon>
@@ -458,8 +459,8 @@
                         </MenuFlyoutItem>
                         <MenuFlyoutItem
                             Click="MenuFlyoutItem_Click_1"
-                            Text="Run"
-                            ToolTipService.ToolTip="This option will attempt to launch the corresponding Rebound 11 counterpart of the chosen task.">
+                            Text="{x:Bind StringTable:StringTable.Run}"
+                            ToolTipService.ToolTip="{x:Bind StringTable:StringTable.RunTooltip}">
                             <MenuFlyoutItem.Icon>
                                 <FontIcon Glyph="" />
                             </MenuFlyoutItem.Icon>
@@ -469,8 +470,8 @@
                         </MenuFlyoutItem>
                         <MenuFlyoutItem
                             Click="MenuFlyoutItem_Click"
-                            Text="Run Legacy"
-                            ToolTipService.ToolTip="Rebound 11 replaces run entries of classic Windows applets with Rebound apps. To launch the legacy applets, use this option instead. (Also launches Task Manager without WinUI 3.)">
+                            Text="{x:Bind StringTable:StringTable.RunLegacy}"
+                            ToolTipService.ToolTip="{x:Bind StringTable:StringTable.RunLegacyTooltip}">
                             <MenuFlyoutItem.Icon>
                                 <FontIcon Glyph="" />
                             </MenuFlyoutItem.Icon>
@@ -487,7 +488,7 @@
                 HorizontalAlignment="Stretch"
                 VerticalAlignment="Bottom"
                 Click="Button_Click"
-                Content="Cancel">
+                Content="{x:Bind StringTable:StringTable.Cancel}">
                 <Button.KeyboardAccelerators>
                     <KeyboardAccelerator Key="Escape" />
                 </Button.KeyboardAccelerators>
@@ -498,7 +499,7 @@
                 HorizontalAlignment="Stretch"
                 VerticalAlignment="Bottom"
                 Click="Button_Click_1"
-                Content="Browse" />
+                Content="{x:Bind StringTable:StringTable.Browse}" />
         </Grid>
     </Grid>
 </winuiex:WindowEx>
