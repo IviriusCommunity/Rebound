@@ -126,6 +126,10 @@ public class StringTable
     public static string ReboundNewUpdate;
     public static string ReboundError;
 
+    public static string ShellPageHome;
+    public static string ShellPageControl;
+    public static string ShellPageLegalTerms;
+
     public static void LoadStrings()
     {
         switch (currentCulture)
@@ -243,6 +247,10 @@ public class StringTable
                 ReboundNewBETAwarn = "Note: BETA versions can be unstable.";
                 ReboundNewUpdate = "A new update is available for Rebound Hub and Rebound 11! (New version: ";
                 ReboundError = "Something went wrong.";
+
+                ShellPageHome = "Home";
+                ShellPageControl = "Control Panel";
+                ShellPageLegalTerms = "Legal Terms";
                 break;
             case "ru-ru":
                 Title = "Это Ivirius";
@@ -357,6 +365,10 @@ public class StringTable
                 ReboundNewBETAwarn = "Внимание: BETA версии могут быть нестабильными.";
                 ReboundNewUpdate = "Новое обновление доступно для Rebound Hub и Rebound 11! (Версия: ";
                 ReboundError = "Что-то пошло не так.";
+
+                ShellPageHome = "Дом";
+                ShellPageControl = "Панель управления";
+                ShellPageLegalTerms = "Юридические термины";
                 break;
             default:
                 currentCulture = "en-us";
