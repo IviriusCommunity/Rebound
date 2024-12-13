@@ -19,9 +19,13 @@ public sealed partial class ModernHomePage : Page
 {
     public ModernHomePage()
     {
-        this.InitializeComponent();
-        if (App.ControlPanelWindow != null) App.ControlPanelWindow.TitleBarEx.SetWindowIcon("AppRT\\Products\\Associated\\rcontrol.ico");
-        if (App.ControlPanelWindow != null) App.ControlPanelWindow.Title = "Control Panel";
+        InitializeComponent();
+        App.ControlPanelWindow?.TitleBarEx.SetWindowIcon("AppRT\\Products\\Associated\\rcontrol.ico");
+        if (App.ControlPanelWindow != null)
+        {
+            App.ControlPanelWindow.Title = "Control Panel";
+        }
+
         LoadWallpaper();
         DisplaySystemInformation();
     }
@@ -29,16 +33,16 @@ public sealed partial class ModernHomePage : Page
     private void DisplaySystemInformation()
     {
         // Get Current User
-        string currentUser = Environment.UserName;
+        var currentUser = Environment.UserName;
 
         // Get PC Name
-        string pcName = Environment.MachineName;
+        var pcName = Environment.MachineName;
 
         // Get CPU Name
-        string cpuName = GetCPUName();
+        var cpuName = GetCPUName();
 
         // Get RAM Capacity
-        string ramCapacity = GetRAMCapacity();
+        var ramCapacity = GetRAMCapacity();
 
         // Displaying the information (Assuming you have TextBlocks in your XAML)
         CurrentUser.Text = $"Logged in as {currentUser}";
@@ -49,7 +53,7 @@ public sealed partial class ModernHomePage : Page
 
     private string GetCPUName()
     {
-        string cpuName = string.Empty;
+        var cpuName = string.Empty;
         using (var searcher = new ManagementObjectSearcher("select Name from Win32_Processor"))
         {
             foreach (var item in searcher.Get())
@@ -85,8 +89,8 @@ public sealed partial class ModernHomePage : Page
     // Method to retrieve the current user's wallpaper path
     private string GetWallpaperPath()
     {
-        StringBuilder wallpaperPath = new StringBuilder(MAX_PATH);
-        SystemParametersInfo(SPI_GETDESKWALLPAPER, MAX_PATH, wallpaperPath, 0);
+        var wallpaperPath = new StringBuilder(MAX_PATH);
+        _ = SystemParametersInfo(SPI_GETDESKWALLPAPER, MAX_PATH, wallpaperPath, 0);
         return wallpaperPath.ToString();
     }
 
@@ -132,19 +136,19 @@ public sealed partial class ModernHomePage : Page
             }
             else if ((string)((NavigationViewItem)sender.SelectedItem).Tag is "Programs" or "Uninstall a program")
             {
-                await Launcher.LaunchUriAsync(new Uri("ms-settings:appsfeatures"));
+                _ = await Launcher.LaunchUriAsync(new Uri("ms-settings:appsfeatures"));
             }
         }
         catch (Exception ex)
         {
-            if (App.ControlPanelWindow != null) App.ControlPanelWindow.Title = ex.Message;
+            if (App.ControlPanelWindow != null)
+            {
+                App.ControlPanelWindow.Title = ex.Message;
+            }
         }
     }
 
-    private void MenuFlyoutItem_Click(object sender, RoutedEventArgs e)
-    {
-        App.ControlPanelWindow.RootFrame.Navigate(typeof(AppearanceAndPersonalization), null, new Microsoft.UI.Xaml.Media.Animation.DrillInNavigationTransitionInfo());
-    }
+    private void MenuFlyoutItem_Click(object sender, RoutedEventArgs e) => App.ControlPanelWindow.RootFrame.Navigate(typeof(AppearanceAndPersonalization), null, new Microsoft.UI.Xaml.Media.Animation.DrillInNavigationTransitionInfo());
 
     private void SettingsCard_Click(object sender, RoutedEventArgs e)
     {
@@ -156,20 +160,16 @@ public sealed partial class ModernHomePage : Page
             UseShellExecute = false,
             CreateNoWindow = true
         };
-
-        var process = Process.Start(info);
+        _ = Process.Start(info);
 
         App.ControlPanelWindow.Close();
     }
 
-    private void MenuFlyoutItem_Click_1(object sender, RoutedEventArgs e)
-    {
-        App.ControlPanelWindow.RootFrame.Navigate(typeof(SystemAndSecurity), null, new Microsoft.UI.Xaml.Media.Animation.DrillInNavigationTransitionInfo());
-    }
+    private void MenuFlyoutItem_Click_1(object sender, RoutedEventArgs e) => App.ControlPanelWindow.RootFrame.Navigate(typeof(SystemAndSecurity), null, new Microsoft.UI.Xaml.Media.Animation.DrillInNavigationTransitionInfo());
 
     private void ReboundHubSettingsCard_Click(object sender, RoutedEventArgs e)
     {
-        Process.Start(new ProcessStartInfo("rebound:") { UseShellExecute = true });
+        _ = Process.Start(new ProcessStartInfo("rebound:") { UseShellExecute = true });
         App.ControlPanelWindow.Close();
     }
 }

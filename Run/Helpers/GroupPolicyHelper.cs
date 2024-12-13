@@ -1,51 +1,48 @@
 ﻿using System;
 using Microsoft.Win32;
 
-namespace Rebound.Run.Helpers
+namespace Rebound.Run.Helpers;
+
+public static class GroupPolicyHelper
 {
-    public static class GroupPolicyHelper
+    public const string EXPLORER_GROUP_POLICY_PATH = @"Software\Microsoft\Windows\CurrentVersion\Policies\Explorer";
+
+    public static bool? IsGroupPolicyEnabled(string path, string value, int trueValue)
     {
-        public const string EXPLORER_GROUP_POLICY_PATH = @"Software\Microsoft\Windows\CurrentVersion\Policies\Explorer";
-
-        public static bool? IsGroupPolicyEnabled(string path, string value, int trueValue)
+        try
         {
-            try
+            // Path to the registry key
+            var registryKeyPath = path;
+            // Name of the value we are looking for
+            var valueName = value;
+
+            // Open the registry key
+            using var key = Registry.CurrentUser.OpenSubKey(registryKeyPath);
+            if (key != null)
             {
-                // Path to the registry key
-                string registryKeyPath = path;
-                // Name of the value we are looking for
-                string valueName = value;
+                var val = key.GetValue(valueName);
 
-                // Open the registry key
-                using (RegistryKey key = Registry.CurrentUser.OpenSubKey(registryKeyPath))
+                if (val != null && (int)val == trueValue)
                 {
-                    if (key != null)
-                    {
-                        object val = key.GetValue(valueName);
-
-                        if (val != null && (int)val == trueValue)
-                        {
-                            // Run box is disabled
-                            return true;
-                        }
-                        else
-                        {
-                            // Run box is enabled
-                            return false;
-                        }
-                    }
-                    else
-                    {
-                        // Key not found, assume Run box is enabled
-                        return null;
-                    }
+                    // Run box is disabled
+                    return true;
+                }
+                else
+                {
+                    // Run box is enabled
+                    return false;
                 }
             }
-            catch (Exception)
+            else
             {
-                // Handle any exceptions
+                // Key not found, assume Run box is enabled
                 return null;
             }
+        }
+        catch (Exception)
+        {
+            // Handle any exceptions
+            return null;
         }
     }
 }

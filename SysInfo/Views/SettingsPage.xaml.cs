@@ -13,13 +13,15 @@ public sealed partial class SettingsPage : Page
         var item = sender as SettingsCard;
         if (item.Tag != null)
         {
-            Type pageType = Application.Current.GetType().Assembly.GetType($"Rebound.SysInfo.Views.{item.Tag}");
+            var pageType = Application.Current.GetType().Assembly.GetType($"Rebound.SysInfo.Views.{item.Tag}");
 
             if (pageType != null)
             {
-                SlideNavigationTransitionInfo entranceNavigation = new SlideNavigationTransitionInfo();
-                entranceNavigation.Effect = SlideNavigationTransitionEffect.FromRight;
-                App.Current.JsonNavigationViewService.NavigateTo(pageType, item.Header, false, entranceNavigation);
+                var entranceNavigation = new SlideNavigationTransitionInfo
+                {
+                    Effect = SlideNavigationTransitionEffect.FromRight
+                };
+                _ = App.Current.JsonNavigationViewService.NavigateTo(pageType, item.Header, false, entranceNavigation);
             }
         }
     }

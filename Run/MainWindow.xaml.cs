@@ -12,8 +12,6 @@ using Microsoft.UI.Xaml.Media;
 using Microsoft.Win32;
 using Rebound.Run.Helpers;
 using Rebound.Run.Languages;
-using Windows.Storage.Pickers;
-using Windows.System;
 using WinUIEx;
 
 #pragma warning disable IDE0044 // Add readonly modifier
@@ -39,7 +37,7 @@ public sealed partial class MainWindow : WindowEx
     {
         this?.InitializeComponent();
         StringTable.ReadLanguage();
-        this.MoveAndResize(25 * Scale(), (WindowsDisplayAPI.Display.GetDisplays().ToList<WindowsDisplayAPI.Display>()[0].CurrentSetting.Resolution.Height - 370 / Scale()) / Scale(), 525, 295);
+        this.MoveAndResize(25 * Scale(), (WindowsDisplayAPI.Display.GetDisplays().ToList<WindowsDisplayAPI.Display>()[0].CurrentSetting.Resolution.Height - (370 / Scale())) / Scale(), 525, 295);
         IsMinimizable = false;
         IsMaximizable = false;
         IsResizable = false;
@@ -88,7 +86,7 @@ public sealed partial class MainWindow : WindowEx
                         }
                         else
                         {
-                            runHistory.Remove(entryValue);
+                            _ = runHistory.Remove(entryValue);
                             runHistory.Clear();
                         }
                     }
@@ -269,7 +267,7 @@ public sealed partial class MainWindow : WindowEx
                         }
                         catch (Exception)
                         {
-                            await ShowMessageDialogAsync($"The system cannot find the file specified.");
+                            await ShowMessageDialogAsync(StringTable.ErrorMessage2);
                         }
                     }
                     else
@@ -298,19 +296,19 @@ public sealed partial class MainWindow : WindowEx
 
                         try
                         {
-                            await ShowMessageDialogAsync($"You will have to open this app again to bring back the Windows + R invoke command for Rebound Run.", "Important");
+                            await ShowMessageDialogAsync(StringTable.WarningMessage, StringTable.Warning);
                             var res = Process.Start(startInfo);
                             Close();
                             Process.GetCurrentProcess().Kill();
                         }
                         catch (Exception)
                         {
-                            await ShowMessageDialogAsync($"The system cannot find the file specified.");
+                            await ShowMessageDialogAsync(StringTable.ErrorMessage2);
                         }
                     }
                     else
                     {
-                        await ShowMessageDialogAsync($"The WinUI 3 run box is already opened.", "Error");
+                        await ShowMessageDialogAsync(StringTable.Win3UIBoxAlreadyOpened, StringTable.Error);
                         return;
                     }
                     Close();
@@ -339,14 +337,9 @@ public sealed partial class MainWindow : WindowEx
         var runBoxText = fileLocation;
         var argsBoxText = arguments;
 
-        if (!string.IsNullOrWhiteSpace(argsBoxText))
-        {
-            startInfo.Arguments = $"Start-Process -FilePath '{runBoxText}' -ArgumentList '{argsBoxText}'";
-        }
-        else
-        {
-            startInfo.Arguments = $"Start-Process -FilePath '{runBoxText}' ";
-        }
+        startInfo.Arguments = !string.IsNullOrWhiteSpace(argsBoxText)
+            ? $"Start-Process -FilePath '{runBoxText}' -ArgumentList '{argsBoxText}'"
+            : $"Start-Process -FilePath '{runBoxText}' ";
 
         // Handle running as administrator
         if (admin)
@@ -433,25 +426,13 @@ public sealed partial class MainWindow : WindowEx
         }
     }
 
-    private async void MenuFlyoutItem_Click(object sender, RoutedEventArgs e)
-    {
-        await Run(true);
-    }
+    private async void MenuFlyoutItem_Click(object sender, RoutedEventArgs e) => await Run(true);
 
-    private async void MenuFlyoutItem_Click_1(object sender, RoutedEventArgs e)
-    {
-        await Run();
-    }
+    private async void MenuFlyoutItem_Click_1(object sender, RoutedEventArgs e) => await Run();
 
-    private async void MenuFlyoutItem_Click_2(object sender, RoutedEventArgs e)
-    {
-        await Run(false, true);
-    }
+    private async void MenuFlyoutItem_Click_2(object sender, RoutedEventArgs e) => await Run(false, true);
 
-    private async void MenuFlyoutItem_Click_3(object sender, RoutedEventArgs e)
-    {
-        await Run(true, true);
-    }
+    private async void MenuFlyoutItem_Click_3(object sender, RoutedEventArgs e) => await Run(true, true);
 
     private HashSet<VirtualKey> PressedKeys = [];
 
@@ -515,10 +496,7 @@ public sealed partial class MainWindow : WindowEx
         VisualStateManager.GoToState(RunButton, "Disabled", true);
     }
 
-    private void Button_Click(object sender, RoutedEventArgs e)
-    {
-        Close();
-    }
+    private void Button_Click(object sender, RoutedEventArgs e) => Close();
 
     private async void Button_Click_1(object sender, RoutedEventArgs e)
     {
@@ -537,7 +515,7 @@ public sealed partial class MainWindow : WindowEx
         // Set options for your file picker
         openPicker.ViewMode = PickerViewMode.Thumbnail;
         openPicker.SuggestedStartLocation = PickerLocationId.Desktop;
-        openPicker.CommitButtonText = "Select file to run";
+        openPicker.CommitButtonText = StringTable.SelectFileToRun;
         openPicker.FileTypeFilter.Add(".exe");
         openPicker.FileTypeFilter.Add(".pif");
         openPicker.FileTypeFilter.Add(".com");
@@ -575,13 +553,7 @@ public sealed partial class MainWindow : WindowEx
         }
     }
 
-    private void RunBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
-    {
-        CheckRunBoxText();
-    }
+    private void RunBox_SelectionChanged(object sender, SelectionChangedEventArgs e) => CheckRunBoxText();
 
-    private void RunBox_LostFocus(object sender, RoutedEventArgs e)
-    {
-        CheckRunBoxText();
-    }
+    private void RunBox_LostFocus(object sender, RoutedEventArgs e) => CheckRunBoxText();
 }

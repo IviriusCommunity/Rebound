@@ -1,10 +1,8 @@
-﻿using System;
-using System.ComponentModel;
+﻿using System.ComponentModel;
 using System.Diagnostics;
 using System.Management;
 using System.Text;
 using Tpm2Lib;
-using Windows.Devices.Spi;
 
 public class TpmManager : INotifyPropertyChanged
 {
@@ -96,28 +94,23 @@ public class TpmManager : INotifyPropertyChanged
         GetTpmInfo(); // No assignment, just calling the method
     }
 
-    public void RefreshTpmInfo()
-    {
-        GetTpmInfo(); // No assignment, just calling the method
-    }
+    public void RefreshTpmInfo() => GetTpmInfo(); // No assignment, just calling the method
 
     private void GetTpmInfo()
     {
         try
         {
-            using (ManagementObjectSearcher searcher = new ManagementObjectSearcher(@"root\CIMV2\Security\MicrosoftTpm", "SELECT * FROM Win32_Tpm"))
+            using var searcher = new ManagementObjectSearcher(@"root\CIMV2\Security\MicrosoftTpm", "SELECT * FROM Win32_Tpm");
+            foreach (ManagementObject queryObj in searcher.Get())
             {
-                foreach (ManagementObject queryObj in searcher.Get())
-                {
-                    ManufacturerName = queryObj["ManufacturerID"] != null ? ConvertManufacturerIdToName((uint)queryObj["ManufacturerID"]) : "Unknown";
-                    ManufacturerVersion = queryObj["ManufacturerVersion"]?.ToString() ?? "Unknown";
-                    SpecificationVersion = queryObj["SpecVersion"]?.ToString() ?? "Unknown";
-                    TpmSubVersion = queryObj["ManufacturerVersion"]?.ToString() ?? "Unknown";
-                    PcClientSpecVersion = queryObj["SpecVersion"]?.ToString() ?? "Unknown";
-                    PcrValues = GetPcrValues();
+                ManufacturerName = queryObj["ManufacturerID"] != null ? ConvertManufacturerIdToName((uint)queryObj["ManufacturerID"]) : "Unknown";
+                ManufacturerVersion = queryObj["ManufacturerVersion"]?.ToString() ?? "Unknown";
+                SpecificationVersion = queryObj["SpecVersion"]?.ToString() ?? "Unknown";
+                TpmSubVersion = queryObj["ManufacturerVersion"]?.ToString() ?? "Unknown";
+                PcClientSpecVersion = queryObj["SpecVersion"]?.ToString() ?? "Unknown";
+                PcrValues = GetPcrValues();
 
-                    Status = queryObj["IsActivated_InitialValue"] != null && (bool)queryObj["IsActivated_InitialValue"] ? "Ready" : "Not Ready";
-                }
+                Status = queryObj["IsActivated_InitialValue"] != null && (bool)queryObj["IsActivated_InitialValue"] ? "Ready" : "Not Ready";
             }
         }
         catch (Exception ex)
@@ -150,15 +143,15 @@ public class TpmManager : INotifyPropertyChanged
         try
         {
             // Specify PCR selection for reading (e.g., PCR 0, 1, 2)
-            PcrSelection[] pcrSelectionIn = { new PcrSelection(TpmAlgId.Sha256, new uint[] { 0, 1, 2 }) };
+            PcrSelection[] pcrSelectionIn = { new(TpmAlgId.Sha256, new uint[] { 0, 1, 2 }) };
             PcrSelection[] pcrSelectionOut;
             Tpm2bDigest[] pcrValues;
 
             // Read PCR values
-            tpm.PcrRead(pcrSelectionIn, out pcrSelectionOut, out pcrValues);
+            _ = tpm.PcrRead(pcrSelectionIn, out pcrSelectionOut, out pcrValues);
 
             // Build a string to display PCR values
-            StringBuilder pcrStringBuilder = new StringBuilder();
+            var pcrStringBuilder = new StringBuilder();
 
             // Check if pcrValues has entries
             if (pcrValues.Length == 0)
@@ -166,9 +159,9 @@ public class TpmManager : INotifyPropertyChanged
                 return "No PCR values available.";
             }
 
-            for (int i = 0; i < pcrSelectionOut.Length; i++)
+            for (var i = 0; i < pcrSelectionOut.Length; i++)
             {
-                pcrStringBuilder.AppendLine($"PCR {i}: {BitConverter.ToString(pcrValues[i].buffer)}");
+                _ = pcrStringBuilder.AppendLine($"PCR {i}: {BitConverter.ToString(pcrValues[i].buffer)}");
             }
 
             return pcrStringBuilder.ToString();
@@ -193,8 +186,5 @@ public class TpmManager : INotifyPropertyChanged
         }
     }
 
-    protected virtual void OnPropertyChanged(string propertyName)
-    {
-        PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
-    }
+    protected virtual void OnPropertyChanged(string propertyName) => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
 }

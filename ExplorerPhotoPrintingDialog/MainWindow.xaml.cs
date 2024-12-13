@@ -1,5 +1,4 @@
 using System;
-using System.Collections.Generic;
 using System.Diagnostics;
 using System.Drawing.Printing;
 using System.IO;
@@ -9,15 +8,8 @@ using System.Runtime.InteropServices.WindowsRuntime;
 using System.Threading.Tasks;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
-using Microsoft.UI.Xaml.Controls.Primitives;
-using Microsoft.UI.Xaml.Data;
-using Microsoft.UI.Xaml.Input;
-using Microsoft.UI.Xaml.Media;
 using Microsoft.UI.Xaml.Media.Imaging;
-using Microsoft.UI.Xaml.Navigation;
 using Microsoft.UI.Xaml.Printing;
-using Windows.Foundation;
-using Windows.Foundation.Collections;
 using Windows.Graphics.Printing;
 using PrintDocument = Microsoft.UI.Xaml.Printing.PrintDocument;
 
@@ -32,13 +24,13 @@ public sealed partial class MainWindow : Window
 {
     public MainWindow()
     {
-        this.InitializeComponent();
+        InitializeComponent();
     }
 
     public async Task<byte[]> RenderUIElementToBytes(FrameworkElement element)
     {
         // Create a RenderTargetBitmap object
-        RenderTargetBitmap renderTargetBitmap = new RenderTargetBitmap();
+        var renderTargetBitmap = new RenderTargetBitmap();
 
         // Render the element
         await renderTargetBitmap.RenderAsync(element);
@@ -47,7 +39,7 @@ public sealed partial class MainWindow : Window
         var pixelBuffer = await renderTargetBitmap.GetPixelsAsync();
 
         // Convert the pixel buffer to byte array
-        byte[] pixels = pixelBuffer.ToArray();
+        var pixels = pixelBuffer.ToArray();
 
         // You can now use these bytes to send to the printer
         return pixels;
@@ -59,7 +51,10 @@ public sealed partial class MainWindow : Window
         foreach (string printer in PrinterSettings.InstalledPrinters)
         {
             if (printer.Contains("EPSON"))
+            {
                 return printer;
+            }
+
             Debug.WriteLine(printer);
             // Return the name of the first available printer
             //return printer;
@@ -72,17 +67,17 @@ public sealed partial class MainWindow : Window
     {
         myButton.Content = "Clicked";
         // Render the element to a byte array
-        byte[] elementBytes = await RenderUIElementToBytes(fff);
+        var elementBytes = await RenderUIElementToBytes(fff);
 
         // Allocate memory for the byte array
-        IntPtr pUnmanagedBytes = Marshal.AllocCoTaskMem(elementBytes.Length);
+        var pUnmanagedBytes = Marshal.AllocCoTaskMem(elementBytes.Length);
         Marshal.Copy(elementBytes, 0, pUnmanagedBytes, elementBytes.Length);
 
         // Send the bytes to the printer
 
-        RawPrintingService.SendStringToPrinter(GetFirstPrinterName(), "Eeeeeeeeeeeeeeeeeee");
+        _ = RawPrintingService.SendStringToPrinter(GetFirstPrinterName(), "Eeeeeeeeeeeeeeeeeee");
         return;
-        bool result = RawPrintingService.SendBytesToPrinter(GetFirstPrinterName(), pUnmanagedBytes, elementBytes.Length);
+        var result = RawPrintingService.SendBytesToPrinter(GetFirstPrinterName(), pUnmanagedBytes, elementBytes.Length);
 
         /*RegisterPrint();
         try
@@ -118,7 +113,7 @@ public sealed partial class MainWindow : Window
         get; set;
     }
 
-    void RegisterPrint()
+    private void RegisterPrint()
     {
         // Register for PrintTaskRequested event
         var hWnd = WinRT.Interop.WindowNative.GetWindowHandle(this);
@@ -134,11 +129,9 @@ public sealed partial class MainWindow : Window
         printDoc.AddPages += AddPages;
     }
 
-    private void Paginate(object sender, PaginateEventArgs e)
-    {
+    private void Paginate(object sender, PaginateEventArgs e) =>
         // As I only want to print one Rectangle, so I set the count to 1
         printDoc.SetPreviewPageCount(1, PreviewPageCountType.Final);
-    }
 
     private void GetPreviewPage(object sender, GetPreviewPageEventArgs e)
     {
@@ -146,20 +139,18 @@ public sealed partial class MainWindow : Window
         //printDoc.SetPreviewPage(e.PageNumber, REBItems);
     }
 
-    private async void AddPages(object sender, AddPagesEventArgs e)
-    {
+    private void AddPages(object sender, AddPagesEventArgs e) =>
         /*var children = REBItems.Children.ToList();  // Create a copy of the children
 
-        foreach (FrameworkElement ui in children)
-        {
-            //REBItems.Children.Remove(ui);  // Remove the child from the stack panel
-            printDoc.AddPage(ui);          // Add the child to the print document
-            //await Task.Delay(200);
-        }*/
+foreach (FrameworkElement ui in children)
+{
+//REBItems.Children.Remove(ui);  // Remove the child from the stack panel
+printDoc.AddPage(ui);          // Add the child to the print document
+//await Task.Delay(200);
+}*/
 
         // Indicate that all of the print pages have been provided
         printDoc.AddPagesComplete();
-    }
 
     private void PrintTaskCompleted(PrintTask sender, PrintTaskCompletedEventArgs args)
     {
@@ -167,16 +158,16 @@ public sealed partial class MainWindow : Window
         // Notify the user when the print operation fails.
         if (args.Completion == PrintTaskCompletion.Failed)
         {
-            this.DispatcherQueue.TryEnqueue(async () =>
+            _ = DispatcherQueue.TryEnqueue(async () =>
             {
-                ContentDialog noPrintingDialog = new ContentDialog()
+                var noPrintingDialog = new ContentDialog()
                 {
-                    XamlRoot = this.Content.XamlRoot,
+                    XamlRoot = Content.XamlRoot,
                     Title = "Printing error",
                     Content = "\nSorry, failed to print.",
                     PrimaryButtonText = "OK"
                 };
-                await noPrintingDialog.ShowAsync();
+                _ = await noPrintingDialog.ShowAsync();
             });
         }
     }
@@ -192,11 +183,9 @@ public sealed partial class MainWindow : Window
         printTask.Completed += PrintTaskCompleted;
     }
 
-    private void PrintTaskSourceRequrested(PrintTaskSourceRequestedArgs args)
-    {
+    private void PrintTaskSourceRequrested(PrintTaskSourceRequestedArgs args) =>
         // Set the document source.
         args.SetSource(printDocSource);
-    }
 }
 
 public class RawPrintingService
@@ -220,7 +209,7 @@ public class RawPrintingService
     public static extern bool ClosePrinter(IntPtr hPrinter);
 
     [DllImport("winspool.Drv", EntryPoint = "StartDocPrinterA", SetLastError = true, CharSet = CharSet.Unicode, ExactSpelling = true, CallingConvention = CallingConvention.StdCall)]
-    public static extern bool StartDocPrinter(IntPtr hPrinter, Int32 level, [In, MarshalAs(UnmanagedType.LPStruct)] DOCINFOA di);
+    public static extern bool StartDocPrinter(IntPtr hPrinter, int level, [In, MarshalAs(UnmanagedType.LPStruct)] DOCINFOA di);
 
     [DllImport("winspool.Drv", EntryPoint = "EndDocPrinter", SetLastError = true, ExactSpelling = true, CallingConvention = CallingConvention.StdCall)]
     public static extern bool EndDocPrinter(IntPtr hPrinter);
@@ -232,23 +221,22 @@ public class RawPrintingService
     public static extern bool EndPagePrinter(IntPtr hPrinter);
 
     [DllImport("winspool.Drv", EntryPoint = "WritePrinter", SetLastError = true, ExactSpelling = true, CallingConvention = CallingConvention.StdCall)]
-    public static extern bool WritePrinter(IntPtr hPrinter, IntPtr pBytes, Int32 dwCount, out Int32 dwWritten);
+    public static extern bool WritePrinter(IntPtr hPrinter, IntPtr pBytes, int dwCount, out int dwWritten);
 
     // SendBytesToPrinter()
     // When the function is given a printer name and an unmanaged array
     // of bytes, the function sends those bytes to the print queue.
     // Returns true on success, false on failure.
-    public static bool SendBytesToPrinter(string szPrinterName, IntPtr pBytes, Int32 dwCount)
+    public static bool SendBytesToPrinter(string szPrinterName, IntPtr pBytes, int dwCount)
     {
-        Int32 dwError = 0, dwWritten = 0;
-        IntPtr hPrinter = new IntPtr(0);
-        DOCINFOA di = new DOCINFOA();
-        bool bSuccess = false; // Assume failure unless you specifically succeed.
+        _ = new IntPtr(0);
+        var di = new DOCINFOA();
+        var bSuccess = false; // Assume failure unless you specifically succeed.
 
         di.pDocName = "RAW Document";
         // Win7
         di.pDataType = "RAW";
-
+        System.nint hPrinter;
         // Win8+
         // di.pDataType = "XPS_PASS";
 
@@ -262,18 +250,18 @@ public class RawPrintingService
                 if (StartPagePrinter(hPrinter))
                 {
                     // Write your bytes.
-                    bSuccess = WritePrinter(hPrinter, pBytes, dwCount, out dwWritten);
-                    EndPagePrinter(hPrinter);
+                    bSuccess = WritePrinter(hPrinter, pBytes, dwCount, out _);
+                    _ = EndPagePrinter(hPrinter);
                 }
-                EndDocPrinter(hPrinter);
+                _ = EndDocPrinter(hPrinter);
             }
-            ClosePrinter(hPrinter);
+            _ = ClosePrinter(hPrinter);
         }
         // If you did not succeed, GetLastError may give more information
         // about why not.
         if (bSuccess == false)
         {
-            dwError = Marshal.GetLastWin32Error();
+            _ = Marshal.GetLastWin32Error();
         }
         return bSuccess;
     }
@@ -281,43 +269,41 @@ public class RawPrintingService
     public static bool SendFileToPrinter(string szPrinterName, string szFileName)
     {
         // Open the file.
-        FileStream fs = new FileStream(szFileName, FileMode.Open);
+        var fs = new FileStream(szFileName, FileMode.Open);
         // Create a BinaryReader on the file.
-        BinaryReader br = new BinaryReader(fs);
+        var br = new BinaryReader(fs);
         // Dim an array of bytes big enough to hold the file's contents.
-        Byte[] bytes = new Byte[fs.Length];
-        bool bSuccess = false;
+        _ = new byte[fs.Length];
         // Your unmanaged pointer.
-        IntPtr pUnmanagedBytes = new IntPtr(0);
+        _ = new IntPtr(0);
         int nLength;
 
         nLength = Convert.ToInt32(fs.Length);
         // Read the contents of the file into the array.
-        bytes = br.ReadBytes(nLength);
+        var bytes = br.ReadBytes(nLength);
         // Allocate some unmanaged memory for those bytes.
-        pUnmanagedBytes = Marshal.AllocCoTaskMem(nLength);
+        var pUnmanagedBytes = Marshal.AllocCoTaskMem(nLength);
         // Copy the managed byte array into the unmanaged array.
         Marshal.Copy(bytes, 0, pUnmanagedBytes, nLength);
         // Send the unmanaged bytes to the printer.
-        bSuccess = SendBytesToPrinter(szPrinterName, pUnmanagedBytes, nLength);
+        var bSuccess = SendBytesToPrinter(szPrinterName, pUnmanagedBytes, nLength);
         // Free the unmanaged memory that you allocated earlier.
         Marshal.FreeCoTaskMem(pUnmanagedBytes);
         fs.Close();
         fs.Dispose();
-        fs = null;
         return bSuccess;
     }
     public static bool SendStringToPrinter(string szPrinterName, string szString)
     {
         IntPtr pBytes;
-        Int32 dwCount;
+        int dwCount;
         // How many characters are in the string?
         dwCount = szString.Length;
         // Assume that the printer is expecting ANSI text, and then convert
         // the string to ANSI text.
         pBytes = Marshal.StringToCoTaskMemAnsi(szString);
         // Send the converted ANSI string to the printer.
-        SendBytesToPrinter(szPrinterName, pBytes, dwCount);
+        _ = SendBytesToPrinter(szPrinterName, pBytes, dwCount);
         Marshal.FreeCoTaskMem(pBytes);
         return true;
     }

@@ -16,7 +16,7 @@
 
 	<Properties>
 		<DisplayName>Rebound.Run</DisplayName>
-		<PublisherDisplayName>Lenovo</PublisherDisplayName>
+		<PublisherDisplayName>Ivirius</PublisherDisplayName>
 		<Logo>Assets\StoreLogo.png</Logo>
 	</Properties>
 

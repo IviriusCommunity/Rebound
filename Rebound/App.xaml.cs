@@ -45,7 +45,7 @@ public partial class App : Application
     {
         if (string.Join(" ", Environment.GetCommandLineArgs().Skip(1)).Contains("CONTROL"))
         {
-            Process.Start(new ProcessStartInfo("control:") { UseShellExecute = true });
+            _ = Process.Start(new ProcessStartInfo("control:") { UseShellExecute = true });
             MainAppWindow.Close();
         }
         /*if (string.Join(" ", Environment.GetCommandLineArgs().Skip(1)).Contains("UAC"))
@@ -60,27 +60,27 @@ public partial class App : Application
         if (string.Join(" ", Environment.GetCommandLineArgs().Skip(1)).Contains("SFC"))
         {
             var win = new UninstallationWindow(true);
-            win.Show();
+            _ = win.Show();
             await Task.Delay(10);
-            win.BringToFront();
+            _ = win.BringToFront();
             MainAppWindow = null;
             return;
         }
         if (string.Join(" ", Environment.GetCommandLineArgs().Skip(1)).Contains("UNINSTALLFULL"))
         {
             var win = new UninstallationWindow(true);
-            win.Show();
+            _ = win.Show();
             await Task.Delay(10);
-            win.BringToFront();
+            _ = win.BringToFront();
             MainAppWindow = null;
             return;
         }
         if (string.Join(" ", Environment.GetCommandLineArgs().Skip(1)).Contains("UNINSTALL"))
         {
             var win = new UninstallationWindow(false);
-            win.Show();
+            _ = win.Show();
             await Task.Delay(10);
-            win.BringToFront();
+            _ = win.BringToFront();
             MainAppWindow = null;
             return;
         }
@@ -98,10 +98,7 @@ public partial class App : Application
         e.Handled = true; // Prevent the application from terminating
     }
 
-    protected override void OnLaunched(LaunchActivatedEventArgs args)
-    {
-        _singleInstanceApp?.Launch(args.Arguments);
-    }
+    protected override void OnLaunched(LaunchActivatedEventArgs args) => _singleInstanceApp?.Launch(args.Arguments);
 
     public static Window MainAppWindow;
 

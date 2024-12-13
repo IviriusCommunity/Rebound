@@ -1,8 +1,6 @@
 using System;
 using System.Diagnostics;
-using System.IO;
 using System.Threading.Tasks;
-using IWshRuntimeLibrary;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Rebound.Control.ViewModels;
@@ -39,11 +37,11 @@ public sealed partial class SystemAndSecurity : Page
         var driveEncrypted = await SystemAndSecurityModel.IsDriveEncrypted("C");
         var isPasswordComplex = await SystemAndSecurityModel.IsPasswordComplex();
         var securityIndex =
-            uac * 1 +      // 10% of total
-            (defenderStatus == true ? 1 : 0) * 5 + // 50% of total
-            (updatesPending == false ? 1 : 0) * 2.5 + // 25% of total
-            (driveEncrypted == true ? 1 : 0) * 1 + // 10% of total
-            (isPasswordComplex == true ? 1 : 0) * 0.5; // 5% of total
+            (uac * 1) +      // 10% of total
+            ((defenderStatus == true ? 1 : 0) * 5) + // 50% of total
+            ((updatesPending == false ? 1 : 0) * 2.5) + // 25% of total
+            ((driveEncrypted == true ? 1 : 0) * 1) + // 10% of total
+            ((isPasswordComplex == true ? 1 : 0) * 0.5); // 5% of total
 
         string status;
         InfoBarSeverity sev2;
@@ -130,12 +128,12 @@ Complex password: {(isPasswordComplex == true ? "Yes" : "No")}";
     private void SettingsCard_Click_1(object sender, RoutedEventArgs e)
     {
         var win = new UACWindow();
-        win.Show();
+        _ = win.Show();
     }
 
     private async void Button_Click_1(object sender, RoutedEventArgs e)
     {
-        var destDir = $@"{Environment.GetFolderPath(Environment.SpecialFolder.StartMenu)}\Programs\Rebound 11 Tools";
+        _ = $@"{Environment.GetFolderPath(Environment.SpecialFolder.StartMenu)}\Programs\Rebound 11 Tools";
 
         // PowerShell command to create the folder
         var powerShellCommand = @"
@@ -162,14 +160,14 @@ Complex password: {(isPasswordComplex == true ? "Yes" : "No")}";
         using (var process = new Process())
         {
             process.StartInfo = startInfo;
-            process.Start();
+            _ = process.Start();
 
             // Capture the output
             var output = process.StandardOutput.ReadToEnd();
             process.WaitForExit();
         }
 
-        await InstallExeWithShortcut(
+        _ = await InstallExeWithShortcut(
             "Rebound 11 Quick Full Computer Cleanup",
             $"{AppContext.BaseDirectory}\\Reserved\\QuickFullComputerCleanup.exe",
             @"C:\Rebound11\QuickFullComputerCleanup.exe",
@@ -225,14 +223,11 @@ Complex password: {(isPasswordComplex == true ? "Yes" : "No")}";
     {
         if (File.Exists(@"C:\Rebound11\QuickFullComputerCleanup.exe"))
         {
-            Process.Start(@"C:\Rebound11\QuickFullComputerCleanup.exe");
+            _ = Process.Start(@"C:\Rebound11\QuickFullComputerCleanup.exe");
         }
     }
 
-    private void Expander_Expanding(Expander sender, ExpanderExpandingEventArgs args)
-    {
-        GetCurrentSecurityIndex();
-    }
+    private void Expander_Expanding(Expander sender, ExpanderExpandingEventArgs args) => GetCurrentSecurityIndex();
 
     public async Task<Task> InstallExeWithShortcut(string displayAppName, string exeFile, string exeDestination, string lnkFile, string lnkDestination, string exeDisplayName, string lnkDisplayName)
     {

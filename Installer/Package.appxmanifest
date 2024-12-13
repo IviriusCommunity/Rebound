@@ -16,7 +16,7 @@
 
   <Properties>
     <DisplayName>ReboundHubInstaller</DisplayName>
-    <PublisherDisplayName>Lenovo</PublisherDisplayName>
+    <PublisherDisplayName>Ivirius</PublisherDisplayName>
     <Logo>Assets\StoreLogo.png</Logo>
   </Properties>
 

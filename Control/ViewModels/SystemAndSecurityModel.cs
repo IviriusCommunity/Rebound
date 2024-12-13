@@ -10,7 +10,6 @@ using Microsoft.Win32;
 using Windows.System;
 
 #pragma warning disable CS1998 // Async method lacks 'await' operators and will run synchronously
-#pragma warning disable SYSLIB1054 // Use 'LibraryImportAttribute' instead of 'DllImportAttribute' to generate P/Invoke marshalling code at compile time
 
 namespace Rebound.Control.ViewModels;
 
@@ -111,7 +110,7 @@ public static class SystemAndSecurityModel
             {
                 var sev = InfoBarSeverity.Informational;
                 var msg = string.Empty;
-                var e = await DecodeProductState((int)((uint)queryObj["productState"]));
+                var e = await DecodeProductState((int)(uint)queryObj["productState"]);
 
                 switch (e[..1])
                 {
@@ -183,7 +182,7 @@ public static class SystemAndSecurityModel
                             Content = "Open",
                             Margin = new Thickness(0, 0, 0, 15)
                         };
-                        y.Click += async (s, e) => { await Launcher.LaunchUriAsync(new Uri("windowsdefender://")); };
+                        y.Click += async (s, e) => { _ = await Launcher.LaunchUriAsync(new Uri("windowsdefender://")); };
                         x.Content = y;
                     }
                     if (sev is InfoBarSeverity.Success or InfoBarSeverity.Informational)

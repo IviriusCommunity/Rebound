@@ -1,6 +1,4 @@
-﻿using Windows.System;
-
-namespace Rebound.SysInfo.Views;
+﻿namespace Rebound.SysInfo.Views;
 public sealed partial class ThemeSettingPage : Page
 {
     public string BreadCrumbBarItemText
@@ -26,20 +24,11 @@ public sealed partial class ThemeSettingPage : Page
         App.Current.ThemeService.SetBackdropComboBoxDefaultItem(CmbBackdrop);
     }
 
-    private void CmbTheme_SelectionChanged(object sender, SelectionChangedEventArgs e)
-    {
-        App.Current.ThemeService.OnThemeComboBoxSelectionChanged(sender);
-    }
+    private void CmbTheme_SelectionChanged(object sender, SelectionChangedEventArgs e) => App.Current.ThemeService.OnThemeComboBoxSelectionChanged(sender);
 
-    private void CmbBackdrop_SelectionChanged(object sender, SelectionChangedEventArgs e)
-    {
-        App.Current.ThemeService.OnBackdropComboBoxSelectionChanged(sender);
-    }
+    private void CmbBackdrop_SelectionChanged(object sender, SelectionChangedEventArgs e) => App.Current.ThemeService.OnBackdropComboBoxSelectionChanged(sender);
 
-    private async void OpenWindowsColorSettings(object sender, RoutedEventArgs e)
-    {
-        _ = await Launcher.LaunchUriAsync(new Uri("ms-settings:colors"));
-    }
+    private async void OpenWindowsColorSettings(object sender, RoutedEventArgs e) => _ = await Launcher.LaunchUriAsync(new Uri("ms-settings:colors"));
 }
 
 

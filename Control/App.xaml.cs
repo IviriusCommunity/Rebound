@@ -1,8 +1,6 @@
 ﻿using System.Diagnostics;
 using Microsoft.UI.Xaml;
 
-#pragma warning disable CA2211 // Non-constant fields should not be visible
-
 namespace Rebound.Control;
 
 public partial class App : Application

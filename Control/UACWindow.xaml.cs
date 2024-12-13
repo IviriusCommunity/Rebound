@@ -20,15 +20,15 @@ public sealed partial class UACWindow : WindowEx
 {
     public UACWindow()
     {
-        this.InitializeComponent();
-        this.IsMaximizable = false;
+        InitializeComponent();
+        IsMaximizable = false;
         this.SetWindowSize(750, 500);
         this.CenterOnScreen();
-        this.SystemBackdrop = new MicaBackdrop();
+        SystemBackdrop = new MicaBackdrop();
         this.SetIcon($"{AppContext.BaseDirectory}\\Assets\\AppIcons\\imageres_78.ico");
         Helpers.Win32.SetDarkMode(this, App.Current);
-        this.Title = "User Account Control Settings";
-        this.IsResizable = false;
+        Title = "User Account Control Settings";
+        IsResizable = false;
         UACConfigurator.UpdateUACSlider(UACSlider);
         if (UACSlider.Value == 0)
         {
@@ -106,10 +106,7 @@ public sealed partial class UACWindow : WindowEx
         }
     }
 
-    private void Button_Click(object sender, RoutedEventArgs e)
-    {
-        this.Close();
-    }
+    private void Button_Click(object sender, RoutedEventArgs e) => Close();
 
     private void Button_Click_1(object sender, RoutedEventArgs e)
     {
@@ -150,11 +147,8 @@ public class UACConfigurator
     {
         try
         {
-            using RegistryKey key = Registry.LocalMachine.CreateSubKey(RegistryKeyPath);
-            if (key != null)
-            {
-                key.SetValue(valueName, value, RegistryValueKind.DWord);
-            }
+            using var key = Registry.LocalMachine.CreateSubKey(RegistryKeyPath);
+            key?.SetValue(valueName, value, RegistryValueKind.DWord);
         }
         catch (Exception ex)
         {
@@ -178,13 +172,13 @@ public class UACConfigurator
             }
         };
 
-        process.Start();
+        _ = process.Start();
         process.WaitForExit();
     }
 
     public static void SetAlwaysNotify()
     {
-        string command = @"
+        var command = @"
             Set-ItemProperty -Path 'HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System' -Name 'EnableLUA' -Value 1;
             Set-ItemProperty -Path 'HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System' -Name 'ConsentPromptBehaviorAdmin' -Value 2;
             Set-ItemProperty -Path 'HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System' -Name 'PromptOnSecureDesktop' -Value 1;
@@ -194,7 +188,7 @@ public class UACConfigurator
 
     public static void SetNotifyWithDim()
     {
-        string command = @"
+        var command = @"
             Set-ItemProperty -Path 'HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System' -Name 'EnableLUA' -Value 1;
             Set-ItemProperty -Path 'HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System' -Name 'ConsentPromptBehaviorAdmin' -Value 5;
             Set-ItemProperty -Path 'HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System' -Name 'PromptOnSecureDesktop' -Value 1;
@@ -204,7 +198,7 @@ public class UACConfigurator
 
     public static void SetNotifyWithoutDim()
     {
-        string command = @"
+        var command = @"
             Set-ItemProperty -Path 'HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System' -Name 'EnableLUA' -Value 1;
             Set-ItemProperty -Path 'HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System' -Name 'ConsentPromptBehaviorAdmin' -Value 5;
             Set-ItemProperty -Path 'HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System' -Name 'PromptOnSecureDesktop' -Value 0;
@@ -214,7 +208,7 @@ public class UACConfigurator
 
     public static void SetNeverNotify()
     {
-        string command = @"
+        var command = @"
             Set-ItemProperty -Path 'HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System' -Name 'EnableLUA' -Value 1;
             Set-ItemProperty -Path 'HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System' -Name 'ConsentPromptBehaviorAdmin' -Value 0;
             Set-ItemProperty -Path 'HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System' -Name 'PromptOnSecureDesktop' -Value 0;
@@ -226,41 +220,39 @@ public class UACConfigurator
     {
         try
         {
-            using (RegistryKey key = Registry.LocalMachine.OpenSubKey(RegistryKeyPath))
+            using var key = Registry.LocalMachine.OpenSubKey(RegistryKeyPath);
+            if (key != null)
             {
-                if (key != null)
+                // Read the EnableLUA value
+                var enableLUAValue = key.GetValue("EnableLUA");
+                var consentPromptBehaviorAdminValue = key.GetValue("ConsentPromptBehaviorAdmin");
+                var promptOnSecureDesktopValue = key.GetValue("PromptOnSecureDesktop");
+
+                if (enableLUAValue != null)
                 {
-                    // Read the EnableLUA value
-                    object enableLUAValue = key.GetValue("EnableLUA");
-                    object consentPromptBehaviorAdminValue = key.GetValue("ConsentPromptBehaviorAdmin");
-                    object promptOnSecureDesktopValue = key.GetValue("PromptOnSecureDesktop");
-
-                    if (enableLUAValue != null)
+                    var enableLUA = Convert.ToInt32(enableLUAValue);
+                    if (enableLUA == 1)
                     {
-                        int enableLUA = Convert.ToInt32(enableLUAValue);
-                        if (enableLUA == 1)
-                        {
-                            int consentPromptBehaviorAdmin = consentPromptBehaviorAdminValue != null ? Convert.ToInt32(consentPromptBehaviorAdminValue) : -1;
-                            int promptOnSecureDesktop = promptOnSecureDesktopValue != null ? Convert.ToInt32(promptOnSecureDesktopValue) : -1;
+                        var consentPromptBehaviorAdmin = consentPromptBehaviorAdminValue != null ? Convert.ToInt32(consentPromptBehaviorAdminValue) : -1;
+                        var promptOnSecureDesktop = promptOnSecureDesktopValue != null ? Convert.ToInt32(promptOnSecureDesktopValue) : -1;
 
-                            // Determine the UAC state
-                            if (consentPromptBehaviorAdmin == 2)
-                            {
-                                return 3; // 2: Dim Desktop, 1: No Dim Desktop
-                            }
-                            else if (consentPromptBehaviorAdmin == 5)
-                            {
-                                return promptOnSecureDesktop == 1 ? 2 : 1; // 2: Dim Desktop, 1: No Dim Desktop
-                            }
-                        }
-                        else
+                        // Determine the UAC state
+                        if (consentPromptBehaviorAdmin == 2)
                         {
-                            return 0; // UAC is disabled (Never Notify)
+                            return 3; // 2: Dim Desktop, 1: No Dim Desktop
+                        }
+                        else if (consentPromptBehaviorAdmin == 5)
+                        {
+                            return promptOnSecureDesktop == 1 ? 2 : 1; // 2: Dim Desktop, 1: No Dim Desktop
                         }
                     }
+                    else
+                    {
+                        return 0; // UAC is disabled (Never Notify)
+                    }
                 }
-                return -1; // Error or UAC setting not found
             }
+            return -1; // Error or UAC setting not found
         }
         catch (Exception ex)
         {
@@ -271,26 +263,16 @@ public class UACConfigurator
 
     public static void UpdateUACSlider(Slider uacSlider)
     {
-        int uacState = GetUACState();
+        var uacState = GetUACState();
 
         // Update the UACSlider based on the UAC state
-        switch (uacState)
+        uacSlider.Value = uacState switch
         {
-            case 0:
-                uacSlider.Value = 0; // Never Notify
-                break;
-            case 1:
-                uacSlider.Value = 1; // Notify without Dim Desktop
-                break;
-            case 2:
-                uacSlider.Value = 2; // Notify with Dim Desktop
-                break;
-            case 3:
-                uacSlider.Value = 3; // Always Notify
-                break;
-            default:
-                uacSlider.Value = -1; // Error or Undefined State
-                break;
-        }
+            0 => 0,// Never Notify
+            1 => 1,// Notify without Dim Desktop
+            2 => 2,// Notify with Dim Desktop
+            3 => 3,// Always Notify
+            _ => (double)-1,// Error or Undefined State
+        };
     }
 }

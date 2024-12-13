@@ -3,8 +3,6 @@ using System.Diagnostics;
 using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 
-#pragma warning disable SYSLIB1054 // Use 'LibraryImportAttribute' instead of 'DllImportAttribute' to generate P/Invoke marshalling code at compile time
-
 namespace Rebound.WindowModels;
 
 public static class InstallationWindowModel
@@ -33,10 +31,7 @@ public static class SystemLock
     [DllImport("user32.dll")]
     private static extern void LockWorkStation();
 
-    public static void Lock()
-    {
-        LockWorkStation();
-    }
+    public static void Lock() => LockWorkStation();
 }
 
 public static class TaskManager
@@ -65,7 +60,7 @@ public static class TaskManager
         try
         {
             // Start a new explorer.exe process
-            Process.Start(task);
+            _ = Process.Start(task);
         }
         catch
         {
@@ -81,31 +76,29 @@ public class PackageChecker
         try
         {
             // Create the PowerShell command
-            string command = $"Get-AppxPackage -Name {packageFamilyName}";
+            var command = $"Get-AppxPackage -Name {packageFamilyName}";
 
             // Create a new process to run PowerShell
-            using (var process = new Process())
-            {
-                process.StartInfo.FileName = "powershell.exe";
-                process.StartInfo.Arguments = $"-Command \"{command}\"";
-                process.StartInfo.RedirectStandardOutput = true;
-                process.StartInfo.RedirectStandardError = true;
-                process.StartInfo.UseShellExecute = false;
-                process.StartInfo.CreateNoWindow = true;
+            using var process = new Process();
+            process.StartInfo.FileName = "powershell.exe";
+            process.StartInfo.Arguments = $"-Command \"{command}\"";
+            process.StartInfo.RedirectStandardOutput = true;
+            process.StartInfo.RedirectStandardError = true;
+            process.StartInfo.UseShellExecute = false;
+            process.StartInfo.CreateNoWindow = true;
 
-                // Start the process
-                process.Start();
+            // Start the process
+            _ = process.Start();
 
-                // Read the output
-                string output = await process.StandardOutput.ReadToEndAsync();
-                string error = await process.StandardError.ReadToEndAsync();
+            // Read the output
+            var output = await process.StandardOutput.ReadToEndAsync();
+            var error = await process.StandardError.ReadToEndAsync();
 
-                // Wait for the process to exit
-                await process.WaitForExitAsync();
+            // Wait for the process to exit
+            await process.WaitForExitAsync();
 
-                // Check if output contains the package family name
-                return !string.IsNullOrWhiteSpace(output) && output.Contains(packageFamilyName);
-            }
+            // Check if output contains the package family name
+            return !string.IsNullOrWhiteSpace(output) && output.Contains(packageFamilyName);
         }
         catch (Exception ex)
         {

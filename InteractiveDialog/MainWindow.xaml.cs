@@ -1,6 +1,5 @@
 using System;
 using System.Threading.Tasks;
-using Microsoft.UI;
 using Microsoft.UI.Windowing;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
@@ -21,19 +20,19 @@ public sealed partial class MainWindow : Window
     public void GetAppWindowAndPresenter()
     {
         var hWnd = WinRT.Interop.WindowNative.GetWindowHandle(this);
-        WindowId wndId = Microsoft.UI.Win32Interop.GetWindowIdFromWindow(hWnd);
+        var wndId = Microsoft.UI.Win32Interop.GetWindowIdFromWindow(hWnd);
         _apw = AppWindow.GetFromWindowId(wndId);
         _presenter = _apw.Presenter as OverlappedPresenter ?? throw new InvalidOperationException("Presenter is not of type OverlappedPresenter");
     }
 
     public MainWindow()
     {
-        this.InitializeComponent();
+        InitializeComponent();
 
         GetAppWindowAndPresenter();
         _presenter.IsMaximizable = false;
         _presenter.IsMinimizable = false;
-        this.AppWindow.MoveAndResize(new Windows.Graphics.RectInt32(328, 198, 328, 198));
+        AppWindow.MoveAndResize(new Windows.Graphics.RectInt32(328, 198, 328, 198));
         this.SetIsMinimizable(false);
         this.SetIsMaximizable(false);
         this.SetIsResizable(false);
@@ -44,10 +43,7 @@ public sealed partial class MainWindow : Window
         window.SetTitleBar(AppTitleBar); // Set titlebar as <Border /> from MainWindow.xaml
     }
 
-    private async void RootGrid_Loaded(object sender, RoutedEventArgs e)
-    {
-        await ShowDialog();
-    }
+    private async void RootGrid_Loaded(object sender, RoutedEventArgs e) => await ShowDialog();
 
     public async Task ShowDialog()
     {
@@ -61,11 +57,8 @@ public sealed partial class MainWindow : Window
 
         dialog.Closed += Dialog_Closed;
 
-        await dialog.ShowAsync();
+        _ = await dialog.ShowAsync();
     }
 
-    private void Dialog_Closed(ContentDialog sender, ContentDialogClosedEventArgs args)
-    {
-        Application.Current.Exit();
-    }
+    private void Dialog_Closed(ContentDialog sender, ContentDialogClosedEventArgs args) => Application.Current.Exit();
 }

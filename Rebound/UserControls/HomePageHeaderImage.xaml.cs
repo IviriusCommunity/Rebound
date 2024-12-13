@@ -12,7 +12,6 @@ using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Hosting;
 using Microsoft.UI.Xaml.Media.Animation;
-using Windows.UI;
 
 // To learn more about WinUI, the WinUI project structure,
 // and more about our project templates, see: http://aka.ms/winui-project-info.
@@ -108,15 +107,9 @@ namespace WinUIGallery.Controls
                 AnimateImage();
             }
         }
-        private void SetBottomGradientStartPoint()
-        {
-            _bottomGradientStartPointAnimation?.Properties.InsertScalar(GradientSizeKey, 180);
-        }
+        private void SetBottomGradientStartPoint() => _bottomGradientStartPointAnimation?.Properties.InsertScalar(GradientSizeKey, 180);
 
-        private void OnImageOpened(object sender, RoutedEventArgs e)
-        {
-            AnimateImage();
-        }
+        private void OnImageOpened(object sender, RoutedEventArgs e) => AnimateImage();
 
         private void AnimateImage()
         {
@@ -153,7 +146,7 @@ public static class CompositionGradientBrushExtensions
         var easingFunc = easingType.ToEasingFunction(easingMode);
         if (easingFunc != null)
         {
-            for (float i = colorStopBegin; i < colorStopEnd; i += gap)
+            for (var i = colorStopBegin; i < colorStopEnd; i += gap)
             {
                 var progress = (i - colorStopBegin) / (colorStopEnd - colorStopBegin);
 

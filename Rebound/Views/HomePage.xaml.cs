@@ -30,8 +30,8 @@ public sealed partial class HomePage : Page
     // Method to retrieve the current user's wallpaper path
     private string GetWallpaperPath()
     {
-        StringBuilder wallpaperPath = new StringBuilder(MAX_PATH);
-        SystemParametersInfo(SPI_GETDESKWALLPAPER, MAX_PATH, wallpaperPath, 0);
+        var wallpaperPath = new StringBuilder(MAX_PATH);
+        _ = SystemParametersInfo(SPI_GETDESKWALLPAPER, MAX_PATH, wallpaperPath, 0);
         return wallpaperPath.ToString();
     }
 
@@ -39,11 +39,11 @@ public sealed partial class HomePage : Page
     {
         try
         {
-            if (this.ActualTheme == ElementTheme.Light)
+            if (ActualTheme == ElementTheme.Light)
             {
                 BKGImage.Path = "/Assets/Backgrounds/BackgroundLight.png";
             }
-            if (this.ActualTheme == ElementTheme.Dark)
+            if (ActualTheme == ElementTheme.Dark)
             {
                 BKGImage.Path = "/Assets/Backgrounds/BackgroundDark.png";
             }

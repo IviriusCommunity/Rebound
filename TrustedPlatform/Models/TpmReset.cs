@@ -9,7 +9,7 @@ public class TpmReset
         try
         {
             // Path to the PowerShell script
-            string scriptPath = Path.Combine(Path.GetTempPath(), "Reset-TPM.ps1");
+            var scriptPath = Path.Combine(Path.GetTempPath(), "Reset-TPM.ps1");
 
             // Write the PowerShell script to a temporary file
             File.WriteAllText(scriptPath, @"
@@ -19,7 +19,7 @@ public class TpmReset
         ");
 
             // Set up the process to run PowerShell with elevated privileges
-            ProcessStartInfo psi = new ProcessStartInfo
+            var psi = new ProcessStartInfo
             {
                 FileName = "powershell.exe",
                 Arguments = $"-NoProfile -ExecutionPolicy Bypass -File \"{scriptPath}\"",
@@ -47,7 +47,7 @@ public class TpmReset
             }
             dial.IsSecondaryButtonEnabled = true;
         }
-        catch (Exception ex)
+        catch (Exception)
         {
             // Handle exceptions and update InfoBar for failure
             dial.Content = $"Operation cancelled from User Account Control.";

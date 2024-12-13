@@ -20,10 +20,7 @@ public partial class App : Application
         _singleInstanceApp.Launched += OnSingleInstanceLaunched;
     }
 
-    protected override void OnLaunched(LaunchActivatedEventArgs args)
-    {
-        _singleInstanceApp?.Launch(args.Arguments);
-    }
+    protected override void OnLaunched(LaunchActivatedEventArgs args) => _singleInstanceApp?.Launch(args.Arguments);
 
     private async void OnSingleInstanceLaunched(object? sender, SingleInstanceLaunchEventArgs e)
     {
