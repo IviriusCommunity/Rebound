@@ -8,6 +8,7 @@ using System.Security.Principal;
 using System.Threading.Tasks;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
+using Windows.System;
 using WinUIEx;
 
 // To learn more about WinUI, the WinUI project structure,
@@ -47,9 +48,6 @@ public class CleanItem
     }
 }
 
-/// <summary>
-/// An empty window that can be used on its own or navigated to within a Frame.
-/// </summary>
 public sealed partial class DiskWindow : WindowEx
 {
     public long GetFolderLongSize(string folderPath)
@@ -102,7 +100,7 @@ public sealed partial class DiskWindow : WindowEx
     {
         try
         {
-            var driverStorePath = @"C:\Windows\System32\DriverStore\FileRepository";
+            var driverStorePath = @$"{Path.GetPathRoot(Environment.SystemDirectory)}\Windows\System32\DriverStore\FileRepository";
 
             // Fetch all directories in the DriverStore
             var directories = Directory.GetDirectories(driverStorePath);
@@ -569,10 +567,10 @@ public sealed partial class DiskWindow : WindowEx
             items.Add(new CleanItem
             {
                 Name = $"Downloaded Program Files",
-                ItemPath = @"C:\Windows\Downloaded Program Files",
+                ItemPath = @$"{Path.GetPathRoot(Environment.SystemDirectory)}\Windows\Downloaded Program Files",
                 ImagePath = "ms-appx:///Assets/imageres_3.ico",
-                Size = GetFolderLongSize(@"C:\Windows\Downloaded Program Files"),
-                DisplaySize = GetFolderSize(@"C:\Windows\Downloaded Program Files"),
+                Size = GetFolderLongSize(@$"{Path.GetPathRoot(Environment.SystemDirectory)}\Windows\Downloaded Program Files"),
+                DisplaySize = GetFolderSize(@$"{Path.GetPathRoot(Environment.SystemDirectory)}\Windows\Downloaded Program Files"),
                 Description = "This category includes ActiveX controls and Java applets that were automatically downloaded from the Internet when you view certain web pages. These files are temporarily stored on your computer to speed up the loading of the pages when you revisit them. They can be safely deleted if not needed.",
                 IsChecked = true,
             });
@@ -582,10 +580,10 @@ public sealed partial class DiskWindow : WindowEx
             items.Add(new CleanItem
             {
                 Name = $"Rebound 11 temporary files",
-                ItemPath = @"C:\Rebound11\Temp",
+                ItemPath = @$"{Path.GetPathRoot(Environment.SystemDirectory)}\Rebound11\Temp",
                 ImagePath = "ms-appx:///Assets/r11imageres_101.ico",
-                Size = GetFolderLongSize(@"C:\Rebound11\Temp"),
-                DisplaySize = GetFolderSize(@"C:\Rebound11\Temp"),
+                Size = GetFolderLongSize(@$"{Path.GetPathRoot(Environment.SystemDirectory)}\Rebound11\Temp"),
+                DisplaySize = GetFolderSize(@$"{Path.GetPathRoot(Environment.SystemDirectory)}\Rebound11\Temp"),
                 Description = "Rebound 11 might sometimes copy packages and other files to a special temp folder in order for PowerShell to read the paths easier when installing.",
                 IsChecked = true,
             });
@@ -631,10 +629,10 @@ public sealed partial class DiskWindow : WindowEx
             items.Add(new CleanItem
             {
                 Name = $"System Created Windows Error Reporting",
-                ItemPath = $@"C:\ProgramData\Microsoft\Windows\WER",
+                ItemPath = $@"{Path.GetPathRoot(Environment.SystemDirectory)}\ProgramData\Microsoft\Windows\WER",
                 ImagePath = "ms-appx:///Assets/EventViewer.png",
-                Size = GetFolderLongSize($@"C:\ProgramData\Microsoft\Windows\WER"),
-                DisplaySize = GetFolderSize($@"C:\ProgramData\Microsoft\Windows\WER"),
+                Size = GetFolderLongSize($@"{Path.GetPathRoot(Environment.SystemDirectory)}\ProgramData\Microsoft\Windows\WER"),
+                DisplaySize = GetFolderSize($@"{Path.GetPathRoot(Environment.SystemDirectory)}\ProgramData\Microsoft\Windows\WER"),
                 Description = "These are files generated when your system encounters an error. They contain data that can be used to troubleshoot and diagnose issues with your system. If the reports have been sent to Microsoft or are no longer needed, they can be deleted to free up space.",
                 IsChecked = false,
             });
@@ -657,10 +655,10 @@ public sealed partial class DiskWindow : WindowEx
             items.Add(new CleanItem
             {
                 Name = $"System Cache Files",
-                ItemPath = $@"C:\Windows\Prefetch\",
+                ItemPath = $@"{Path.GetPathRoot(Environment.SystemDirectory)}\Windows\Prefetch\",
                 ImagePath = "ms-appx:///Assets/imageres_2.ico",
-                Size = GetFolderLongSize($@"C:\Windows\Prefetch\"),
-                DisplaySize = GetFolderSize($@"C:\Windows\Prefetch\"),
+                Size = GetFolderLongSize($@"{Path.GetPathRoot(Environment.SystemDirectory)}\Windows\Prefetch\"),
+                DisplaySize = GetFolderSize($@"{Path.GetPathRoot(Environment.SystemDirectory)}\Windows\Prefetch\"),
                 Description = "These include various files used by the system to speed up operations. Examples include prefetch files that help applications start faster and font cache files that speed up font rendering. Deleting these files can reclaim space but might temporarily slow down some operations.",
                 IsChecked = false,
             });
@@ -672,8 +670,8 @@ public sealed partial class DiskWindow : WindowEx
                 Name = $"Windows Update Cache Files",
                 ItemPath = $@"C:\Windows\SoftwareDistribution",
                 ImagePath = "ms-appx:///Assets/imageres_2.ico",
-                Size = GetFolderLongSize($@"C:\Windows\SoftwareDistribution"),
-                DisplaySize = GetFolderSize($@"C:\Windows\SoftwareDistribution"),
+                Size = GetFolderLongSize($@"{Path.GetPathRoot(Environment.SystemDirectory)}\Windows\SoftwareDistribution"),
+                DisplaySize = GetFolderSize($@"{Path.GetPathRoot(Environment.SystemDirectory)}\Windows\SoftwareDistribution"),
                 Description = "Disk Cleanup can remove files that are no longer needed after installing Windows updates. These include old versions of files that have been updated, which can sometimes take up significant disk space. Deleting these files will make it harder to uninstall updates.",
                 IsChecked = true,
             });
@@ -685,8 +683,8 @@ public sealed partial class DiskWindow : WindowEx
                 Name = $"Previous Windows Installations",
                 ItemPath = $@"C:\Windows.old",
                 ImagePath = "ms-appx:///Assets/imageres_2.ico",
-                Size = GetFolderLongSize($@"C:\Windows.old"),
-                DisplaySize = GetFolderSize($@"C:\Windows.old"),
+                Size = GetFolderLongSize($@"{Path.GetPathRoot(Environment.SystemDirectory)}\Windows.old"),
+                DisplaySize = GetFolderSize($@"{Path.GetPathRoot(Environment.SystemDirectory)}\Windows.old"),
                 Description = "If you�ve recently upgraded to a newer version of Windows, files from the previous installation are kept in the Windows.old folder in case you need to revert to the earlier version. Deleting these files will permanently remove the ability to roll back to the previous version.",
                 IsChecked = false,
             });
@@ -698,8 +696,8 @@ public sealed partial class DiskWindow : WindowEx
                 Name = $"System Error Memory Dump Files",
                 ItemPath = $@"C:\Windows\MEMORY.DMP",
                 ImagePath = "ms-appx:///Assets/EventViewer.png",
-                Size = GetFolderLongSize($@"C:\Windows\MEMORY.DMP"),
-                DisplaySize = GetFolderSize($@"C:\Windows\MEMORY.DMP"),
+                Size = GetFolderLongSize($@"{Path.GetPathRoot(Environment.SystemDirectory)}\Windows\MEMORY.DMP"),
+                DisplaySize = GetFolderSize($@"{Path.GetPathRoot(Environment.SystemDirectory)}\Windows\MEMORY.DMP"),
                 Description = "These files are created when Windows crashes and contain a copy of the memory at the time of the crash. They can be used to diagnose the cause of the crash. Large memory dumps can take up significant space and can be safely deleted if no longer needed.",
                 IsChecked = false,
             });
@@ -711,8 +709,8 @@ public sealed partial class DiskWindow : WindowEx
                 Name = $"System Error Minidump Files",
                 ItemPath = $@"C:\Windows\Minidump",
                 ImagePath = "ms-appx:///Assets/EventViewer.png",
-                Size = GetFolderLongSize($@"C:\Windows\Minidump"),
-                DisplaySize = GetFolderSize($@"C:\Windows\Minidump"),
+                Size = GetFolderLongSize($@"{Path.GetPathRoot(Environment.SystemDirectory)}\Windows\Minidump"),
+                DisplaySize = GetFolderSize($@"{Path.GetPathRoot(Environment.SystemDirectory)}\Windows\Minidump"),
                 Description = "Minidumps are smaller versions of memory dump files created when the system crashes. They contain essential information to diagnose the cause of the crash but are smaller in size than full memory dumps. These can be deleted if you no longer need to troubleshoot a crash.",
                 IsChecked = false,
             });
@@ -724,25 +722,25 @@ public sealed partial class DiskWindow : WindowEx
                 Name = $"Temporary Windows Installation Files",
                 ItemPath = $@"C:\Windows\Temp",
                 ImagePath = "ms-appx:///Assets/imageres_2.ico",
-                Size = GetFolderLongSize($@"C:\Windows\Temp"),
-                DisplaySize = GetFolderSize($@"C:\Windows\Temp"),
+                Size = GetFolderLongSize($@"{Path.GetPathRoot(Environment.SystemDirectory)}\Windows\Temp"),
+                DisplaySize = GetFolderSize($@"{Path.GetPathRoot(Environment.SystemDirectory)}\Windows\Temp"),
                 Description = "These files are created during the installation or updating of Windows. They help ensure the installation process runs smoothly and are typically deleted once the process is complete. Deleting them frees up space without affecting system stability.\r\n",
                 IsChecked = false,
             });
         }
-        if (disk == "C:" && IsAdministrator() == true)
+        /*if (disk == "C:" && IsAdministrator() == true)
         {
             items.Add(new CleanItem
             {
                 Name = $"Device Driver Packages",
-                ItemPath = @"C:\Windows\System32\DriverStore\FileRepository",
+                ItemPath = @$"{Path.GetPathRoot(Environment.SystemDirectory)}\Windows\System32\DriverStore\FileRepository",
                 ImagePath = "ms-appx:///Assets/DDORes_2001.ico",
-                Size = GetFolderLongSizeDrivers(@"C:\Windows\System32\DriverStore\FileRepository"),
-                DisplaySize = GetFolderSizeDrivers(@"C:\Windows\System32\DriverStore\FileRepository"),
+                Size = GetFolderLongSizeDrivers(@$"{Path.GetPathRoot(Environment.SystemDirectory)}\Windows\System32\DriverStore\FileRepository"),
+                DisplaySize = GetFolderSizeDrivers(@$"{Path.GetPathRoot(Environment.SystemDirectory)}\Windows\System32\DriverStore\FileRepository"),
                 Description = "These are files related to hardware drivers installed on your system. They are used by Windows to manage hardware devices and ensure proper functionality. Over time, old or unused driver packages may accumulate and take up disk space. Cleaning up these packages can help free up storage and keep your system organized. Only outdated or redundant packages will be removed, while active drivers will remain unaffected.",
                 IsChecked = false,
             });
-        }
+        }*/
 
         long size = 0;
 
@@ -782,7 +780,7 @@ public sealed partial class DiskWindow : WindowEx
         MoreOptions.IsEnabled = false;
         ViewFiles.IsEnabled = false;
         Working.IsIndeterminate = true;
-        Title = $"Disk Cleanup : Cleaning drive ({Disk})... (This may take a while)";
+        (this as WindowEx).Title = $"Disk Cleanup : Cleaning drive ({Disk})... (This may take a while)";
 
         await Task.Delay(100);
 
@@ -1026,7 +1024,7 @@ public sealed partial class DiskWindow : WindowEx
         MoreOptions.IsEnabled = false;
         ViewFiles.IsEnabled = false;
         Working.IsIndeterminate = true;
-        Title = $"Disk Cleanup : Cleaning drive ({Disk})... (This may take a while)";
+        (this as WindowEx).Title = $"Disk Cleanup : Cleaning drive ({Disk})... (This may take a while)";
 
         await Task.Delay(100);
 

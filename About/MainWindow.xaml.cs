@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Media;
 using Microsoft.Win32;
+using Windows.ApplicationModel.DataTransfer;
 using WinUIEx;
 
 namespace Rebound.About;

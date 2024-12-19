@@ -1,8 +1,9 @@
 <Project Sdk="Microsoft.NET.Sdk">
 	<PropertyGroup>
 		<OutputType>WinExe</OutputType>
-		<TargetFramework>net8.0-windows10.0.19041.0</TargetFramework>
+		<TargetFramework>net8.0-windows10.0.22621.0</TargetFramework>
 		<TargetPlatformMinVersion>10.0.17763.0</TargetPlatformMinVersion>
+		<WindowsSdkPackageVersion>10.0.22621.38</WindowsSdkPackageVersion>
 		<RootNamespace>Rebound.About</RootNamespace>
 		<ApplicationManifest>app.manifest</ApplicationManifest>
 		<Platforms>x86;x64;ARM64</Platforms>
@@ -11,7 +12,6 @@
 		<PublishProfile>win-$(Platform).pubxml</PublishProfile>
 		<UseWinUI>true</UseWinUI>
 		<EnableMsixTooling>true</EnableMsixTooling>
-		<WindowsSdkPackageVersion>10.0.22621.35-preview</WindowsSdkPackageVersion>
 		<GenerateAppInstallerFile>True</GenerateAppInstallerFile>
 		<AppxPackageSigningEnabled>True</AppxPackageSigningEnabled>
 		<PackageCertificateThumbprint>3A171B4CC25BF8365620669A928F4BF543826E6F</PackageCertificateThumbprint>

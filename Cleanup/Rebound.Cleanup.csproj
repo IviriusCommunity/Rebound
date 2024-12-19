@@ -12,7 +12,7 @@
     <PublishProfile>win-$(Platform).pubxml</PublishProfile>
     <UseWinUI>true</UseWinUI>
     <EnableMsixTooling>true</EnableMsixTooling>
-       <WindowsSdkPackageVersion>10.0.22621.35-preview</WindowsSdkPackageVersion>
+       <WindowsSdkPackageVersion>10.0.22621.38</WindowsSdkPackageVersion>
        <GenerateAppInstallerFile>True</GenerateAppInstallerFile>
        <AppxPackageSigningEnabled>True</AppxPackageSigningEnabled>
        <PackageCertificateKeyFile>Rebound.Cleanup_TemporaryKey.pfx</PackageCertificateKeyFile>
