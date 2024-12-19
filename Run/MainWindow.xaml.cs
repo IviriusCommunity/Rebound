@@ -12,6 +12,8 @@ using Microsoft.UI.Xaml.Media;
 using Microsoft.Win32;
 using Rebound.Run.Helpers;
 using Rebound.Run.Languages;
+using Windows.Storage.Pickers;
+using Windows.System;
 using WinUIEx;
 
 #pragma warning disable IDE0044 // Add readonly modifier
@@ -267,7 +269,7 @@ public sealed partial class MainWindow : WindowEx
                         }
                         catch (Exception)
                         {
-                            await ShowMessageDialogAsync(StringTable.ErrorMessage2);
+                            await ShowMessageDialogAsync("Error");
                         }
                     }
                     else
@@ -296,19 +298,19 @@ public sealed partial class MainWindow : WindowEx
 
                         try
                         {
-                            await ShowMessageDialogAsync(StringTable.WarningMessage, StringTable.Warning);
+                            await ShowMessageDialogAsync("Warning", "Warning");
                             var res = Process.Start(startInfo);
                             Close();
                             Process.GetCurrentProcess().Kill();
                         }
                         catch (Exception)
                         {
-                            await ShowMessageDialogAsync(StringTable.ErrorMessage2);
+                            await ShowMessageDialogAsync("Warning");
                         }
                     }
                     else
                     {
-                        await ShowMessageDialogAsync(StringTable.Win3UIBoxAlreadyOpened, StringTable.Error);
+                        await ShowMessageDialogAsync("Warning", "Error");
                         return;
                     }
                     Close();
@@ -515,7 +517,7 @@ public sealed partial class MainWindow : WindowEx
         // Set options for your file picker
         openPicker.ViewMode = PickerViewMode.Thumbnail;
         openPicker.SuggestedStartLocation = PickerLocationId.Desktop;
-        openPicker.CommitButtonText = StringTable.SelectFileToRun;
+        openPicker.CommitButtonText = "Select file to run";
         openPicker.FileTypeFilter.Add(".exe");
         openPicker.FileTypeFilter.Add(".pif");
         openPicker.FileTypeFilter.Add(".com");
