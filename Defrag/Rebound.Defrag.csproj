@@ -55,15 +55,15 @@
 	  <PackageReference Include="Cake.Powershell" Version="4.0.0" />
     <PackageReference Include="HardwareProviders.HDD.Standard" Version="2.0.1" />
     <PackageReference Include="Microsoft-WindowsAPICodePack-Shell" Version="1.1.5" />
-	  <PackageReference Include="Microsoft.Windows.CsWinRT" Version="2.1.5" />
-	<PackageReference Include="Microsoft.Web.WebView2" Version="1.0.2646-prerelease" />
+	  <PackageReference Include="Microsoft.Windows.CsWinRT" Version="2.2.0" />
+	<PackageReference Include="Microsoft.Web.WebView2" Version="1.0.2950-prerelease" />
 	<PackageReference Include="Microsoft.Windows.SDK.BuildTools" Version="10.0.26100.1742" />
-	<PackageReference Include="Microsoft.WindowsAppSDK" Version="1.6.240701003-experimental2" />
+	<PackageReference Include="Microsoft.WindowsAppSDK" Version="1.7.241114004-experimental1" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
-    <PackageReference Include="System.Diagnostics.EventLog" Version="9.0.0-preview.6.24327.7" />
-    <PackageReference Include="System.Management" Version="8.0.0" />
+    <PackageReference Include="System.Diagnostics.EventLog" Version="9.0.0" />
+    <PackageReference Include="System.Management" Version="9.0.0" />
     <PackageReference Include="TaskScheduler" Version="2.11.0" />
-    <PackageReference Include="WinUIEx" Version="2.3.4" />
+    <PackageReference Include="WinUIEx" Version="2.5.0" />
     <Manifest Include="$(ApplicationManifest)" />
   </ItemGroup>
 

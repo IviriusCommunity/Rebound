@@ -46,8 +46,8 @@
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Microsoft.Windows.SDK.BuildTools" Version="10.0.26100.1742" />
-    <PackageReference Include="Microsoft.WindowsAppSDK" Version="1.6.240923002" />
-    <PackageReference Include="WinUIEx" Version="2.4.2" />
+    <PackageReference Include="Microsoft.WindowsAppSDK" Version="1.7.241114004-experimental1" />
+    <PackageReference Include="WinUIEx" Version="2.5.0" />
   </ItemGroup>
 
   <!--
@@ -74,7 +74,7 @@
     </None>
   </ItemGroup>
   <ItemGroup>
-    <None Include="..\.github\README.md" Pack="true" PackagePath="\"/>
+    <None Include="..\.github\README.md" Pack="true" PackagePath="\" />
   </ItemGroup>
 
   <PropertyGroup>

@@ -39,20 +39,20 @@
   </ItemGroup>
   <ItemGroup>
     <Manifest Include="$(ApplicationManifest)" />
-    <PackageReference Include="Ivirius.UI.Controls" Version="0.1.1-prerelease" />
-    <PackageReference Include="Microsoft.Windows.SDK.BuildTools" Version="10.0.26100.1" />
-    <PackageReference Include="Microsoft.WindowsAppSDK" Version="1.6.240701003-experimental2" />
-    <PackageReference Include="System.Diagnostics.PerformanceCounter" Version="8.0.0" />
-    <PackageReference Include="System.Management" Version="9.0.0-preview.6.24327.7" />
-    <PackageReference Include="WinUICommunity.Win2D" Version="6.9.0" />
-    <PackageReference Include="WinUICommunity.Core" Version="6.9.0" />
-    <PackageReference Include="WinUICommunity.Components" Version="6.9.0" />
-    <PackageReference Include="WinUICommunity.LandingPages" Version="6.9.0" />
-    <PackageReference Include="Serilog" Version="4.0.2" />
+    <PackageReference Include="Ivirius.UI.Controls" Version="0.2.0-prerelease" />
+    <PackageReference Include="Microsoft.Windows.SDK.BuildTools" Version="10.0.26100.1742" />
+    <PackageReference Include="Microsoft.WindowsAppSDK" Version="1.7.241114004-experimental1" />
+    <PackageReference Include="System.Diagnostics.PerformanceCounter" Version="9.0.0" />
+    <PackageReference Include="System.Management" Version="9.0.0" />
+    <PackageReference Include="WinUICommunity.Win2D" Version="7.1.0" />
+    <PackageReference Include="WinUICommunity.Core" Version="7.1.0" />
+    <PackageReference Include="WinUICommunity.Components" Version="7.1.0" />
+    <PackageReference Include="WinUICommunity.LandingPages" Version="7.1.0" />
+    <PackageReference Include="Serilog" Version="4.2.0" />
     <PackageReference Include="Serilog.Sinks.File" Version="6.0.0" />
     <PackageReference Include="Serilog.Sinks.Debug" Version="3.0.0" />
     <PackageReference Include="Serilog.Sinks.Console" Version="6.0.0" />
-    <PackageReference Include="WinUIEx" Version="2.3.4" />
+    <PackageReference Include="WinUIEx" Version="2.5.0" />
   </ItemGroup>
   <!-- 
     Defining the "Msix" ProjectCapability here allows the Single-project MSIX Packaging
@@ -83,7 +83,7 @@
     </None>
   </ItemGroup>
   <ItemGroup>
-    <None Include="..\.github\README.md" Pack="true" PackagePath="\"/>
+    <None Include="..\.github\README.md" Pack="true" PackagePath="\" />
   </ItemGroup>
 
   <PropertyGroup>
