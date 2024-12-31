@@ -1,31 +1,18 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 	<!-- Properties -->
 	<PropertyGroup>
 		<!-- Versions -->
-		<TargetFramework>net8.0-windows10.0.22621.0</TargetFramework>
+		<TargetFramework>net9.0-windows10.0.26100.0</TargetFramework>
 		<WindowsSdkPackageVersion>10.0.22621.38</WindowsSdkPackageVersion>
-
-		<!-- Frameworks -->
-		<UseWPF>false</UseWPF>
-		<UseWinUI>true</UseWinUI>
 
 		<!-- Application metadata -->
 		<ApplicationManifest>app.manifest</ApplicationManifest>
 		<ApplicationIcon>Assets\Rebound.ico</ApplicationIcon>
 		<AssemblyName>Rebound About</AssemblyName>
-		<Title>About Windows</Title>
-		<Authors>Ivirius Community</Authors>
-		<Copyright>Copyright (c) 2024-present Ivirius Community</Copyright>
-		<Description>Windows 11 done right.</Description>
 		<OutputType>WinExe</OutputType>
-		<Version>0.0.3</Version>
 
 		<!-- Package metadata -->
-		<PackageProjectUrl>https://ivirius.com/</PackageProjectUrl>
-		<PackageId>Rebound.About</PackageId>
-		<PackageIcon>Rebound11Icon.png</PackageIcon>
 		<PackageLicenseExpression>MIT</PackageLicenseExpression>
-		<PackageReadmeFile>README.md</PackageReadmeFile>
 
 		<!-- Architecture -->
 		<Platforms>x86;x64;ARM64</Platforms>
@@ -38,7 +25,6 @@
 
 		<!-- Packaging -->
 		<GenerateAppInstallerFile>true</GenerateAppInstallerFile>
-		<GeneratePackageOnBuild>true</GeneratePackageOnBuild>
 		<EnableMsixTooling>true</EnableMsixTooling>
 		<AppxAutoIncrementPackageRevision>false</AppxAutoIncrementPackageRevision>
 		<AppxSymbolPackageEnabled>false</AppxSymbolPackageEnabled>
@@ -47,7 +33,16 @@
 		<!-- Compilation -->
 		<GenerateTestArtifacts>true</GenerateTestArtifacts>
 		<PublishProfile>win-$(Platform).pubxml</PublishProfile>
+		<UseWinUI>true</UseWinUI>
 		<PublishAot>true</PublishAot>
+		<EnableComInterop>true</EnableComInterop>
+		
+		<!-- Required for MVVM -->
+		<LangVersion>preview</LangVersion>
+		<SupportedOSPlatformVersion>10.0.17763.0</SupportedOSPlatformVersion>
+
+		<!-- Required for WMI -->
+		<PublishTrimmed>false</PublishTrimmed>
 	</PropertyGroup>
 
 	<ItemGroup>
@@ -72,6 +67,7 @@
 
 	<ItemGroup>
 		<!-- Package References -->
+		<PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.0" />
 		<PackageReference Include="Microsoft.Windows.CsWinRT" Version="2.2.0" />
 		<PackageReference Include="Microsoft.Windows.SDK.BuildTools" Version="10.0.26100.1742" />
 		<PackageReference Include="Microsoft.WindowsAppSDK" Version="1.7.241114004-experimental1" />
@@ -92,5 +88,17 @@
 	<PropertyGroup Condition="'$(DisableHasPackageAndPublishMenuAddedByProject)'!='true' and '$(EnableMsixTooling)'=='true'">
 		<!-- Enable Package and Publish menu options if MSIX tooling is enabled and not disabled by project configuration -->
 		<HasPackageAndPublishMenu>true</HasPackageAndPublishMenu>
+	</PropertyGroup>
+
+	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x86'">
+	  <Optimize>True</Optimize>
+	</PropertyGroup>
+
+	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+	  <Optimize>True</Optimize>
+	</PropertyGroup>
+
+	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|ARM64'">
+	  <Optimize>True</Optimize>
 	</PropertyGroup>
 </Project>
