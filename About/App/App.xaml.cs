@@ -35,7 +35,7 @@ public partial class App : Application
         jumpList.Items.Clear();
 
         var item = Windows.UI.StartScreen.JumpListItem.CreateWithArguments("legacy", "Legacy winver");
-        item.Logo = new Uri("ms-appx:///Assets/imageres_61.ico");
+        item.Logo = new Uri("ms-appx:///Assets/Computer disk.png");
 
         jumpList.Items.Add(item);
 

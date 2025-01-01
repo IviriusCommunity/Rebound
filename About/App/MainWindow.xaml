@@ -67,8 +67,7 @@
                     <TextBlock TextWrapping="WrapWholeWords" Text="{x:Bind ViewModel.DetailedWindowsVersion}"/>
                     <TextBlock Text="Copyright ©️ Microsoft Corporation. All rights reserved." />
                     <TextBlock
-                        x:Name="LegalStuff"
-                        Text="The Windows 11 Pro operating system and its user interface are protected by trademark and other pending or existing intellectual property rights in the United States and other countries/regions."
+                        Text="{x:Bind ViewModel.LegalInfo}"
                         TextWrapping="WrapWholeWords" />
                     <TextBlock>
                         <Run Text="This product is licensed under the" />
@@ -77,14 +76,14 @@
                         </Hyperlink>
                         <Run Text="to:" />
                     </TextBlock>
-                    <TextBlock x:Name="User" Text="Le" />
+                    <TextBlock x:Name="User" Text="{x:Bind ViewModel.LicenseOwners}" />
                 </StackPanel>
                 <Button Grid.Column="2" Background="Transparent" BorderBrush="Transparent" HorizontalAlignment="Right" VerticalAlignment="Top" Padding="8" Margin="-8">
                     <FontIcon Glyph="&#xE8C8;" FontSize="16"/>
                     <Button.Flyout>
                         <MenuFlyout>
-                            <MenuFlyoutItem Text="Copy Windows version"/>
-                            <MenuFlyoutItem Text="Copy license owners"/>
+                            <MenuFlyoutItem Text="Copy Windows version" Command="{x:Bind CopyWindowsVersionCommand}"/>
+                            <MenuFlyoutItem Text="Copy license owners" Command="{x:Bind CopyLicenseOwnersCommand}"/>
                         </MenuFlyout>
                     </Button.Flyout>
                 </Button>
@@ -110,21 +109,11 @@
                         TextWrapping="WrapWholeWords"
                         FontWeight="SemiBold"
                         Margin="0, -3, 0, 8"/>
-                    <TextBlock>
-                        <Run Text="{x:Bind environment:ReboundVersion.REBOUND_VERSION, Mode=OneWay}" />
-                        <Run Text="- Rebound About" />
-                        <Run Text="{x:Bind environment:ReboundVersion.REBOUND_ABOUT_VERSION, Mode=OneWay}" />
-                    </TextBlock>
+                    <TextBlock Text="{x:Bind environment:ReboundVersion.REBOUND_VERSION}" />
                     <TextBlock Text="Rebound is a Windows mod that does not interfere with the system. The current Windows installation contains additional apps to run Rebound." TextWrapping="WrapWholeWords" />
                 </StackPanel>
-                <Button Grid.Column="2" Background="Transparent" BorderBrush="Transparent" HorizontalAlignment="Right" VerticalAlignment="Top" Padding="8" Margin="-8">
+                <Button Grid.Column="2" Background="Transparent" BorderBrush="Transparent" HorizontalAlignment="Right" VerticalAlignment="Top" Padding="8" Margin="-8" Command="{x:Bind CopyReboundVersionCommand}">
                     <FontIcon Glyph="&#xE8C8;" FontSize="16"/>
-                    <Button.Flyout>
-                        <MenuFlyout>
-                            <MenuFlyoutItem Text="Copy Rebound version"/>
-                            <MenuFlyoutItem Text="Copy app version"/>
-                        </MenuFlyout>
-                    </Button.Flyout>
                 </Button>
             </Grid>
         </Border>
@@ -147,8 +136,12 @@
                 Margin="0,20,20,20"
                 HorizontalAlignment="Stretch"
                 VerticalAlignment="Bottom"
-                Click="Button_Click_1"
-                Content="OK" />
+                Content="OK"
+                Command="{x:Bind CloseWindowCommand}">
+                <Button.KeyboardAccelerators>
+                    <KeyboardAccelerator Key="Escape"/>
+                </Button.KeyboardAccelerators>
+            </Button>
         </Grid>
     </Grid>
 </winuiex:WindowEx>

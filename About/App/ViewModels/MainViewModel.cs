@@ -1,10 +1,7 @@
 ﻿using System.Linq;
 using System.Management;
 using CommunityToolkit.Mvvm.ComponentModel;
-using CommunityToolkit.Mvvm.Input;
 using Microsoft.Win32;
-using Rebound.Helpers.Environment;
-using Windows.ApplicationModel.DataTransfer;
 
 namespace Rebound.About;
 
@@ -20,26 +17,12 @@ public partial class MainViewModel : ObservableObject
     public partial string DetailedWindowsVersion { get; set; } = GetDetailedWindowsVersion();
 
     [ObservableProperty]
-    public partial string CurrentUserName { get; set; } = GetCurrentUserName();
+    public partial string LicenseOwners { get; set; } = GetCurrentUserName();
+
+    [ObservableProperty]
+    public partial string LegalInfo { get; set; } = GetInformation();
 
     public const string WMI_WIN32OPERATINGSYSTEM = "SELECT * FROM Win32_OperatingSystem";
-
-    [RelayCommand]
-    public void CopyDetails()
-    {
-        var content = 
-
-$@"{WindowsVersionTitle}
-{DetailedWindowsVersion}
-Licensed to: {CurrentUserName.Replace("\n", ", ")}
-
-Rebound 11
-{ReboundVersion.REBOUND_VERSION}";
-
-        var package = new DataPackage();
-        package.SetText(content);
-        Clipboard.SetContent(package);
-    }
 
     private static string GetCurrentUserName()
     {
@@ -51,7 +34,7 @@ Rebound 11
             var owner = key.GetValue("RegisteredOwner", "Unknown") as string;
             var owner2 = key.GetValue("RegisteredOrganization", "Unknown") as string;
 
-            return owner + (string.IsNullOrEmpty(owner2) ? string.Empty : ("\n" + owner2));
+            return owner + (string.IsNullOrEmpty(owner2) ? string.Empty : (", " + owner2));
         }
         return "Unknown license holders";
     }
@@ -72,7 +55,7 @@ Rebound 11
         return "Unknown version";
     }
 
-    public string GetInformation()
+    public static string GetInformation()
         => $"The {
             // Simplified name for Windows without the Microsoft branding
             GetWMIValue("Caption").Replace("Microsoft ", "")

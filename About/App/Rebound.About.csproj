@@ -47,7 +47,7 @@
 
 	<ItemGroup>
 		<!-- Package content -->
-		<None Remove="Assets\imageres_61.ico" />
+		<None Remove="Assets\Computer disk.png" />
 		<None Remove="Assets\Rebound.ico" />
 		<None Include="README.md" Pack="true" PackagePath="\" />
 	</ItemGroup>
