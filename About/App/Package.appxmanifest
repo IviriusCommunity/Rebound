@@ -8,14 +8,14 @@
   IgnorableNamespaces="uap rescap">
 
 	<Identity
-	  Name="039b9731-7b33-49de-bb09-5b81d5978d1c"
+	  Name="ReboundAbout"
 	  Publisher="CN=Ivirius"
-	  Version="0.0.3.0" />
+	  Version="0.1.0.0" />
 
 	<mp:PhoneIdentity PhoneProductId="039b9731-7b33-49de-bb09-5b81d5978d1c" PhonePublisherId="00000000-0000-0000-0000-000000000000"/>
 
 	<Properties>
-		<DisplayName>Rebound Winver</DisplayName>
+		<DisplayName>Rebound About</DisplayName>
 		<PublisherDisplayName>Ivirius Community</PublisherDisplayName>
 		<Logo>Assets\StoreLogo.png</Logo>
 	</Properties>
@@ -34,8 +34,8 @@
 		  Executable="$targetnametoken$.exe"
 		  EntryPoint="$targetentrypoint$">
 			<uap:VisualElements
-			  DisplayName="Rebound Winver"
-			  Description="Rebound Winver"
+			  DisplayName="Rebound About"
+			  Description="Rebound About"
 			  BackgroundColor="transparent"
 			  Square150x150Logo="Assets\Square150x150Logo.png"
 			  Square44x44Logo="Assets\Square44x44Logo.png"

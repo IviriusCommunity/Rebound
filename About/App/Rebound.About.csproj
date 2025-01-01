@@ -4,6 +4,7 @@
 		<!-- Versions -->
 		<TargetFramework>net9.0-windows10.0.26100.0</TargetFramework>
 		<WindowsSdkPackageVersion>10.0.22621.38</WindowsSdkPackageVersion>
+		<SupportedOSPlatformVersion>10.0.17763.0</SupportedOSPlatformVersion>
 
 		<!-- Application metadata -->
 		<ApplicationManifest>app.manifest</ApplicationManifest>
@@ -39,7 +40,6 @@
 		
 		<!-- Required for MVVM -->
 		<LangVersion>preview</LangVersion>
-		<SupportedOSPlatformVersion>10.0.17763.0</SupportedOSPlatformVersion>
 
 		<!-- Required for WMI -->
 		<PublishTrimmed>false</PublishTrimmed>
@@ -47,12 +47,9 @@
 
 	<ItemGroup>
 		<!-- Package content -->
+		<None Remove="Assets\imageres_61.ico" />
 		<None Remove="Assets\Rebound.ico" />
 		<None Include="README.md" Pack="true" PackagePath="\" />
-		<None Include="..\Rebound\Assets\AppIcons\Rebound11Icon.png">
-			<Pack>True</Pack>
-			<PackagePath>\</PackagePath>
-		</None>
 	</ItemGroup>
 
 	<ItemGroup>
@@ -83,6 +80,10 @@
 	<ItemGroup Condition="'$(DisableMsixProjectCapabilityAddedByProject)'!='true' and '$(EnableMsixTooling)'=='true'">
 		<!-- Add MSIX capability if tooling is enabled and not disabled by project configuration -->
 		<ProjectCapability Include="Msix" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <ProjectReference Include="..\..\Helpers\Rebound.Helpers.csproj" />
 	</ItemGroup>
 
 	<PropertyGroup Condition="'$(DisableHasPackageAndPublishMenuAddedByProject)'!='true' and '$(EnableMsixTooling)'=='true'">

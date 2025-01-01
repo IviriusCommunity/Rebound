@@ -31,7 +31,9 @@
     <Content Include="$(MSBuildThisFileDirectory)AppRT\Exported\imageres_144.ico" />
     <Content Include="$(MSBuildThisFileDirectory)AppRT\Exported\imageres_149.ico" />
     <Content Include="$(MSBuildThisFileDirectory)AppRT\Exported\imageres_15.png" />
-    <Content Include="$(MSBuildThisFileDirectory)AppRT\Exported\imageres_161.ico" />
+    <Content Include="$(MSBuildThisFileDirectory)AppRT\Exported\imageres_161.ico">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
     <Content Include="$(MSBuildThisFileDirectory)AppRT\Exported\imageres_195.ico" />
     <Content Include="$(MSBuildThisFileDirectory)AppRT\Exported\imageres_196.ico" />
     <Content Include="$(MSBuildThisFileDirectory)AppRT\Exported\imageres_197.ico" />
@@ -131,5 +133,8 @@
     <Content Include="$(MSBuildThisFileDirectory)Themes\CyanLight.deskthemepack" />
     <Content Include="$(MSBuildThisFileDirectory)Themes\PurpleDark.deskthemepack" />
     <Content Include="$(MSBuildThisFileDirectory)Themes\PurpleLight.deskthemepack" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="$(MSBuildThisFileDirectory)Extensions\AppEx.cs" />
   </ItemGroup>
 </Project>

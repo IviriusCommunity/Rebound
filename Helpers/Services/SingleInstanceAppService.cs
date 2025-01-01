@@ -1,13 +1,13 @@
 ﻿using System;
-using System.Diagnostics;
 using System.IO;
 using System.IO.Pipes;
 using System.Linq;
 using System.Threading;
+using Microsoft.UI.Xaml;
 
 #nullable enable
 
-namespace Rebound.Helpers;
+namespace Rebound.Helpers.Services;
 
 public class SingleInstanceLaunchEventArgs(string arguments, bool isFirstLaunch) : EventArgs
 {
@@ -15,7 +15,7 @@ public class SingleInstanceLaunchEventArgs(string arguments, bool isFirstLaunch)
     public bool IsFirstLaunch { get; private set; } = isFirstLaunch;
 }
 
-public sealed partial class SingleInstanceDesktopApp(string appId) : IDisposable
+public partial class SingleInstanceAppService(string appId) : IDisposable
 {
     private readonly string _mutexName = "MUTEX_" + appId;
     private readonly string _pipeName = "PIPE_" + appId;
@@ -52,9 +52,7 @@ public sealed partial class SingleInstanceDesktopApp(string appId) : IDisposable
         {
             SendArgumentsToRunningInstance(arguments);
 
-            Process.GetCurrentProcess().Kill();
-            // Note: needed to kill the process in WinAppSDK 1.0, since Application.Current.Exit() does not work there.
-            // OR: Application.Current.Exit();
+            Application.Current.Exit();
         }
     }
 
