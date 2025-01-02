@@ -4,40 +4,53 @@
 #include <iostream>
 #include <vector>
 
+// Standard because yes
 using namespace std;
 
 // Package family name for the required app
-std::string packageFamilyName = "ReboundAbout_yejd587sfa94t";
+string packageFamilyName = "ReboundAbout_yejd587sfa94t";
 
 // Arguments for launching the app
-std::string args = "";
+string args = "";
 
 // PowerShell command
-std::string command = "Start-Process 'shell:AppsFolder\\" + packageFamilyName + "!App' -ArgumentList @(' " + args + " ')";
+string command = "Start-Process 'shell:AppsFolder\\" + packageFamilyName + "!App' -ArgumentList @(' " + args + " ')";
 
-// Function to convert std::string to std::wstring
-std::wstring StringToWString(const std::string& str) {
-    int len;
-    int slength = (int)str.length() + 1;
-    len = MultiByteToWideChar(CP_ACP, 0, str.c_str(), slength, NULL, 0);
-    std::wstring wstr(len, 0);
-    MultiByteToWideChar(CP_ACP, 0, str.c_str(), slength, &wstr[0], len);
-    return wstr;
+// Convert string to wide string
+static wstring StringToWString(const string& str) 
+{
+    // Step 1: Get the length of the wide-character version of the input string, including the null terminator.
+    int requiredSize = MultiByteToWideChar(CP_ACP, 0, str.c_str(), -1, NULL, 0);
+
+    // Step 2: Create a wide string (wstring) with enough space to hold the converted string.
+    wstring wideString(requiredSize, 0);
+
+    // Step 3: Convert the narrow string to a wide-character string.
+    MultiByteToWideChar(CP_ACP, 0, str.c_str(), -1, &wideString[0], requiredSize);
+
+    // Return the resulting wide-character string.
+    return wideString;
 }
 
 // Function to check if the application is running as admin
-BOOL IsRunningAsAdmin() {
+static BOOL IsRunningAsAdmin() 
+{
     BOOL isAdmin = FALSE;
     PSID adminGroup = NULL;
+
+    // Define the NT Authority SID, which is the security identifier for system-level authorities.
     SID_IDENTIFIER_AUTHORITY NtAuthority = SECURITY_NT_AUTHORITY;
 
+    // Step 1: Allocate and initialize a SID for the Administrators group.
     if (AllocateAndInitializeSid(&NtAuthority, 2,
         SECURITY_BUILTIN_DOMAIN_RID, DOMAIN_ALIAS_RID_ADMINS,
         0, 0, 0, 0, 0, 0,
-        &adminGroup)) {
-        if (CheckTokenMembership(NULL, adminGroup, &isAdmin)) {
-            isAdmin = isAdmin ? TRUE : FALSE;
-        }
+        &adminGroup)) 
+    {
+        // Step 2: Check if the current token is a member of the Administrators group.
+        if (CheckTokenMembership(NULL, adminGroup, &isAdmin)) isAdmin = isAdmin ? TRUE : FALSE;
+
+        // Step 3: Free the allocated SID.
         FreeSid(adminGroup);
     }
 
@@ -45,60 +58,62 @@ BOOL IsRunningAsAdmin() {
 }
 
 // Function to run a PowerShell command
-void RunPowerShellCommand(const std::string& command, BOOL runAsAdmin) {
-    std::string powershellCommand = command;
+static void RunPowerShellCommand(const string& command, BOOL runAsAdmin) 
+{
+    string powershellCommand = command;
 
-    if (runAsAdmin) {
-        powershellCommand = "powershell.exe -Command \"" + powershellCommand + "\" -Verb RunAs";
-    }
-    else {
-        powershellCommand = "powershell.exe -Command \"" + powershellCommand + "\"";
-    }
+    // If admin privileges are required, add the `-Verb RunAs` flag to the PowerShell command.
+    if (runAsAdmin) powershellCommand = "powershell.exe -Command \"" + powershellCommand + "\" -Verb RunAs";
+    else powershellCommand = "powershell.exe -Command \"" + powershellCommand + "\"";
 
-    std::wstring wideCommand = StringToWString(powershellCommand);
-    std::vector<wchar_t> commandBuffer(wideCommand.begin(), wideCommand.end());
-    commandBuffer.push_back(L'\0'); // Null-terminate the string
+    // Convert the string to a wide string for compatibility with Windows API.
+    wstring wideCommand = StringToWString(powershellCommand);
+    vector<wchar_t> commandBuffer(wideCommand.begin(), wideCommand.end());
+    commandBuffer.push_back(L'\0'); // Ensure the string is null-terminated.
 
     STARTUPINFO si = { sizeof(STARTUPINFO) };
     si.dwFlags |= STARTF_USESHOWWINDOW;
-    si.wShowWindow = SW_HIDE; // Hide the PowerShell window
+    si.wShowWindow = SW_HIDE; // Hide the PowerShell window.
 
     PROCESS_INFORMATION pi;
     ZeroMemory(&pi, sizeof(pi));
 
+    // Create the PowerShell process.
     BOOL result = CreateProcess(
-        nullptr,                     // No module name (use command line)
-        commandBuffer.data(),        // Command line (wide char array)
-        nullptr,                     // Process handle not inheritable
-        nullptr,                     // Thread handle not inheritable
-        FALSE,                       // Set handle inheritance to FALSE
-        0,                           // No creation flags
-        nullptr,                     // Use parent's environment block
-        nullptr,                     // Use parent's starting directory 
-        &si,                         // Pointer to STARTUPINFO structure
-        &pi);                        // Pointer to PROCESS_INFORMATION structure
+        nullptr,                     // Use command line (no module name).
+        commandBuffer.data(),        // Command to run.
+        nullptr,                     // Process handle not inheritable.
+        nullptr,                     // Thread handle not inheritable.
+        FALSE,                       // Inheritance flag.
+        0,                           // Creation flags.
+        nullptr,                     // Parent's environment variables.
+        nullptr,                     // Parent's working directory.
+        &si,                         // Startup info.
+        &pi                          // Process information.
+    );
 
-    if (result) {
-        // Successfully created the process
-        std::wcout << L"Process started successfully.\n";
+    if (result)
+    {
+        // Process created successfully.
+        wcout << L"Process started successfully.\n";
 
-        // Wait until the PowerShell process exits
+        // Wait for the process to exit.
         WaitForSingleObject(pi.hProcess, INFINITE);
 
-        // Close process and thread handles
+        // Close handles.
         CloseHandle(pi.hProcess);
         CloseHandle(pi.hThread);
     }
-    else {
-        // Error occurred
+    else 
+    {
+        // Process creation failed. Print the error.
         DWORD error = GetLastError();
-        std::wcerr << L"CreateProcess failed with error code " << error << L".\n";
+        wcerr << L"CreateProcess failed with error code " << error << L".\n";
 
-        // Convert error code to a message
-        LPVOID msgBuffer;
+        LPVOID msgBuffer = nullptr;
         FormatMessage(FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM,
             nullptr, error, 0, (LPWSTR)&msgBuffer, 0, nullptr);
-        std::wcerr << L"Error message: " << (LPWSTR)msgBuffer << std::endl;
+        wcerr << L"Error message: " << (LPWSTR)msgBuffer << endl;
         LocalFree(msgBuffer);
     }
 }
