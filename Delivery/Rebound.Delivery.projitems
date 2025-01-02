@@ -16,6 +16,8 @@
     <Content Include="$(MSBuildThisFileDirectory)AppRT\Exported\imageres_114.ico" />
     <Content Include="$(MSBuildThisFileDirectory)AppRT\Registry\SetFilesAsDefault.reg" />
     <Content Include="$(MSBuildThisFileDirectory)AppRT\Registry\UnsetFilesAsDefault.reg" />
+    <Content Include="$(MSBuildThisFileDirectory)AppRT\Wallpapers\WallpaperGeometricalDark.png" />
+    <Content Include="$(MSBuildThisFileDirectory)AppRT\Wallpapers\WallpaperGeometricalLight.png" />
     <None Include="$(MSBuildThisFileDirectory)README.md" />
   </ItemGroup>
   <ItemGroup>
