@@ -11,15 +11,13 @@ public partial class App : Application
 {
     public static WindowEx? MainWindow { get; set; }
 
-    private SingleInstanceAppService SingleInstanceAppService { get; set; }
+    private SingleInstanceAppService SingleInstanceAppService { get; set; } = new SingleInstanceAppService("ReboundAbout");
 
-    private ReboundAppService ReboundAppService { get; set; }
+    private ReboundAppService ReboundAppService { get; set; } = new ReboundAppService("Legacy winver");
 
     public App()
     {
         InitializeComponent();
-        ReboundAppService = new ReboundAppService("Legacy winver");
-        SingleInstanceAppService = new SingleInstanceAppService("ReboundAbout");
         SingleInstanceAppService.Launched += SingleInstanceApp_Launched;
         Current.UnhandledException += App_UnhandledException;
     }

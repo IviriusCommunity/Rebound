@@ -99,12 +99,22 @@ public sealed partial class ScheduledOptimization : WindowEx
 
         // Set triggers based on the scheduleFrequency input
         td.Triggers.Clear();
-        _ = scheduleFrequency.ToLower() switch
+        switch (scheduleFrequency.ToLower())
         {
-            "daily" => td.Triggers.Add(new DailyTrigger { DaysInterval = 1 }),
-            "weekly" => td.Triggers.Add(new WeeklyTrigger { DaysOfWeek = DaysOfTheWeek.Sunday }),
-            "monthly" => td.Triggers.Add(new MonthlyTrigger { DaysOfMonth = [1] }),
-            _ => throw new ArgumentException("Invalid schedule frequency"),
+            case "daily":
+                { td.Triggers.Add(new DailyTrigger { DaysInterval = 1 });
+                    break;
+                }
+            case "weekly":
+                {
+                    td.Triggers.Add(new WeeklyTrigger { DaysOfWeek = DaysOfTheWeek.Sunday });
+                        break;
+                }
+            case "monthly":
+                {
+                    td.Triggers.Add(new MonthlyTrigger { DaysOfMonth = [1] });
+                        break;
+                }
         };
 
         // Build the defrag command with selected drives

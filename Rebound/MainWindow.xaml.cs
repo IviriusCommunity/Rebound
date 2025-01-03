@@ -14,6 +14,7 @@ using Microsoft.UI.Xaml.Media.Imaging;
 using Microsoft.Win32;
 using Rebound.Helpers;
 using Rebound.Views;
+using Windows.Graphics;
 using WinUIEx;
 using WinUIEx.Messaging;
 

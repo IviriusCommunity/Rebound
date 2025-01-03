@@ -236,7 +236,7 @@ public class RawPrintingService
         di.pDocName = "RAW Document";
         // Win7
         di.pDataType = "RAW";
-        System.nint hPrinter;
+        nint hPrinter;
         // Win8+
         // di.pDataType = "XPS_PASS";
 

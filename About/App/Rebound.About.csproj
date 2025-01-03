@@ -45,15 +45,15 @@
 		<PublishTrimmed>false</PublishTrimmed>
 	</PropertyGroup>
 
+	<!-- Package content -->
 	<ItemGroup>
-		<!-- Package content -->
 		<None Remove="Assets\Computer disk.png" />
 		<None Remove="Assets\Rebound.ico" />
 		<None Include="README.md" Pack="true" PackagePath="\" />
 	</ItemGroup>
 
+	<!-- App assets -->
 	<ItemGroup>
-		<!-- App assets -->
 		<Content Include="Assets\SplashScreen.scale-200.png" />
 		<Content Include="Assets\LockScreenLogo.scale-200.png" />
 		<Content Include="Assets\Square150x150Logo.scale-200.png" />
@@ -62,8 +62,8 @@
 		<Content Include="Assets\Wide310x150Logo.scale-200.png" />
 	</ItemGroup>
 
+	<!-- Package References -->
 	<ItemGroup>
-		<!-- Package References -->
 		<PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.0" />
 		<PackageReference Include="Microsoft.Windows.CsWinRT" Version="2.2.0" />
 		<PackageReference Include="Microsoft.Windows.SDK.BuildTools" Version="10.0.26100.1742" />
@@ -72,22 +72,31 @@
 		<PackageReference Include="WinUIEx" Version="2.5.0" />
 	</ItemGroup>
 
+	<!-- App manifest -->
 	<ItemGroup>
-		<!-- App manifest -->
 		<Manifest Include="$(ApplicationManifest)" />
 	</ItemGroup>
 
+	<!-- Add MSIX capability if tooling is enabled and not disabled by project configuration -->
 	<ItemGroup Condition="'$(DisableMsixProjectCapabilityAddedByProject)'!='true' and '$(EnableMsixTooling)'=='true'">
-		<!-- Add MSIX capability if tooling is enabled and not disabled by project configuration -->
 		<ProjectCapability Include="Msix" />
 	</ItemGroup>
 
+	<!-- Helpers project -->
 	<ItemGroup>
 	  <ProjectReference Include="..\..\Helpers\Rebound.Helpers.csproj" />
 	</ItemGroup>
 
+	<!-- Publish Properties -->
+	<PropertyGroup>
+		<PublishReadyToRun Condition="'$(Configuration)' == 'Debug'">False</PublishReadyToRun>
+		<PublishReadyToRun Condition="'$(Configuration)' != 'Debug'">True</PublishReadyToRun>
+		<PublishTrimmed Condition="'$(Configuration)' == 'Debug'">False</PublishTrimmed>
+		<PublishTrimmed Condition="'$(Configuration)' != 'Debug'">False</PublishTrimmed>
+	</PropertyGroup>
+
+	<!-- Enable Package and Publish menu options if MSIX tooling is enabled and not disabled by project configuration -->
 	<PropertyGroup Condition="'$(DisableHasPackageAndPublishMenuAddedByProject)'!='true' and '$(EnableMsixTooling)'=='true'">
-		<!-- Enable Package and Publish menu options if MSIX tooling is enabled and not disabled by project configuration -->
 		<HasPackageAndPublishMenu>true</HasPackageAndPublishMenu>
 	</PropertyGroup>
 
