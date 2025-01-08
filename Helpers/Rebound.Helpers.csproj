@@ -1,53 +1,52 @@
 <Project Sdk="Microsoft.NET.Sdk">
-  <PropertyGroup>
-	  <!-- Versions -->
-	  <TargetFramework>net9.0-windows10.0.26100.0</TargetFramework>
-	  <WindowsSdkPackageVersion>10.0.22621.38</WindowsSdkPackageVersion>
-	  <SupportedOSPlatformVersion>10.0.17763.0</SupportedOSPlatformVersion>
-	  
-    <RootNamespace>Rebound.Helpers</RootNamespace>
-    <RuntimeIdentifiers Condition="$([MSBuild]::GetTargetFrameworkVersion('$(TargetFramework)')) &gt;= 8">win-x86;win-x64;win-arm64</RuntimeIdentifiers>
-    <RuntimeIdentifiers Condition="$([MSBuild]::GetTargetFrameworkVersion('$(TargetFramework)')) &lt; 8">win10-x86;win10-x64;win10-arm64</RuntimeIdentifiers>
-    <UseWinUI>true</UseWinUI>
-    <Platforms>AnyCPU;x64</Platforms>
-  </PropertyGroup>
+    <PropertyGroup>
+        <!-- Versions -->
+        <TargetFramework>net9.0-windows10.0.26100.0</TargetFramework>
+        <WindowsSdkPackageVersion>10.0.22621.38</WindowsSdkPackageVersion>
+        <SupportedOSPlatformVersion>10.0.17763.0</SupportedOSPlatformVersion>
+        <RootNamespace>Rebound.Helpers</RootNamespace>
+        <RuntimeIdentifiers>win-x86;win-x64;win-arm64</RuntimeIdentifiers>
+        <UseWinUI>true</UseWinUI>
+        <Platforms>AnyCPU;x64</Platforms>
+    </PropertyGroup>
 
-  <ItemGroup>
-	  <PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.0" />
-	  <PackageReference Include="Microsoft.Web.WebView2" Version="1.0.2950-prerelease" />
-	  <PackageReference Include="Microsoft.Windows.CsWinRT" Version="2.2.0" />
-	  <PackageReference Include="Microsoft.Windows.SDK.BuildTools" Version="10.0.26100.1742" />
-	  <PackageReference Include="Microsoft.WindowsAppSDK" Version="1.7.241114004-experimental1" />
-	  <PackageReference Include="WinUIEx" Version="2.5.0" />
-  </ItemGroup>
+    <ItemGroup>
+        <PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.0" />
+        <PackageReference Include="Microsoft.Web.WebView2" Version="1.0.2950-prerelease" />
+        <PackageReference Include="Microsoft.Windows.CsWinRT" Version="2.2.0" />
+        <PackageReference Include="Microsoft.Windows.SDK.BuildTools" Version="10.0.26100.1742" />
+        <PackageReference Include="Microsoft.WindowsAppSDK" Version="1.7.241114004-experimental1" />
+        <PackageReference Include="WinUIEx" Version="2.5.0" />
+    </ItemGroup>
 
-	<ItemGroup>
-		<None Include="..\Rebound\Assets\AppIcons\Rebound11Icon.png">
-			<Pack>True</Pack>
-			<PackagePath>\</PackagePath>
-		</None>
-	</ItemGroup>
-	<ItemGroup>
-		<None Include="..\.github\README.md" Pack="true" PackagePath="\" />
-	</ItemGroup>
-	<PropertyGroup Label="Globals">
-	  <WebView2EnableCsWinRTProjection>False</WebView2EnableCsWinRTProjection>
-	  <WebView2LoaderPreference>Static</WebView2LoaderPreference>
-	</PropertyGroup>
+    <ItemGroup>
+        <None Include="..\Rebound\Assets\AppIcons\Rebound11Icon.png">
+            <Pack>True</Pack>
+            <PackagePath>\</PackagePath>
+        </None>
+    </ItemGroup>
+    <ItemGroup>
+        <None Include="..\.github\README.md" Pack="true" PackagePath="\" />
+    </ItemGroup>
+    
+    <PropertyGroup Label="Globals">
+        <WebView2EnableCsWinRTProjection>False</WebView2EnableCsWinRTProjection>
+        <WebView2LoaderPreference>Static</WebView2LoaderPreference>
+    </PropertyGroup>
 
-	<PropertyGroup>
-		<GeneratePackageOnBuild>True</GeneratePackageOnBuild>
-		<Authors>Riverside, ErrorTek, Lamparter</Authors>
-		<PackageProjectUrl>https://ivirius.vercel.app</PackageProjectUrl>
-		<Title>Rebound Helpers</Title>
-		<PackageId>Riverside.Rebound.Helpers</PackageId>
-		<Copyright>Copyright (c) 2024-present Ivirius Community</Copyright>
-		<Description>Windows 11 done right.</Description>
-		<PackageIcon>Rebound11Icon.png</PackageIcon>
-		<IncludeSymbols>true</IncludeSymbols>
-		<SymbolPackageFormat>snupkg</SymbolPackageFormat>
-		<Version>0.0.3</Version>
-		<PackageLicenseExpression>MIT</PackageLicenseExpression>
-		<PackageReadmeFile>README.md</PackageReadmeFile>
-	</PropertyGroup>
+    <PropertyGroup>
+        <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
+        <Authors>Riverside, ErrorTek, Lamparter</Authors>
+        <PackageProjectUrl>https://ivirius.vercel.app</PackageProjectUrl>
+        <Title>Rebound Helpers</Title>
+        <PackageId>Riverside.Rebound.Helpers</PackageId>
+        <Copyright>Copyright (c) 2024-present Ivirius Community</Copyright>
+        <Description>Windows 11 done right.</Description>
+        <PackageIcon>Rebound11Icon.png</PackageIcon>
+        <IncludeSymbols>true</IncludeSymbols>
+        <SymbolPackageFormat>snupkg</SymbolPackageFormat>
+        <Version>0.0.3</Version>
+        <PackageLicenseExpression>MIT</PackageLicenseExpression>
+        <PackageReadmeFile>README.md</PackageReadmeFile>
+    </PropertyGroup>
 </Project>

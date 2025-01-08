@@ -1,130 +1,114 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
-  <PropertyGroup>
-    <OutputType>WinExe</OutputType>
-	  <TargetFramework>net9.0-windows10.0.26100.0</TargetFramework>
-	  <WindowsSdkPackageVersion>10.0.22621.38</WindowsSdkPackageVersion>
-	  <SupportedOSPlatformVersion>10.0.17763.0</SupportedOSPlatformVersion>
-    <RootNamespace>Rebound.Defrag</RootNamespace>
-    <ApplicationManifest>app.manifest</ApplicationManifest>
-    <Platforms>x86;x64;ARM64</Platforms>
-    <RuntimeIdentifiers Condition="$([MSBuild]::GetTargetFrameworkVersion('$(TargetFramework)')) &gt;= 8">win-x86;win-x64;win-arm64</RuntimeIdentifiers>
-    <RuntimeIdentifiers Condition="$([MSBuild]::GetTargetFrameworkVersion('$(TargetFramework)')) &lt; 8">win10-x86;win10-x64;win10-arm64</RuntimeIdentifiers>
-    <PublishProfile>win-$(Platform).pubxml</PublishProfile>
-    <UseWinUI>true</UseWinUI>
-    <EnableMsixTooling>true</EnableMsixTooling>
-       <GenerateAppInstallerFile>True</GenerateAppInstallerFile>
-       <AppxPackageSigningEnabled>True</AppxPackageSigningEnabled>
-       <AppxPackageSigningTimestampDigestAlgorithm>SHA256</AppxPackageSigningTimestampDigestAlgorithm>
-       <AppxAutoIncrementPackageRevision>False</AppxAutoIncrementPackageRevision>
-       <AppxSymbolPackageEnabled>False</AppxSymbolPackageEnabled>
-       <GenerateTestArtifacts>True</GenerateTestArtifacts>
-       <AppxBundle>Never</AppxBundle>
-       <AppInstallerUri>C:\Users\Lenovo\Desktop\rdfrgui</AppInstallerUri>
-       <HoursBetweenUpdateChecks>0</HoursBetweenUpdateChecks>
-       <ApplicationIcon>Rebound.Defrag.ico</ApplicationIcon>
-       <PackageCertificateThumbprint>805D9FAF3E251362A569D694C3D7834BE80FE5B8</PackageCertificateThumbprint>
-  </PropertyGroup>
-  <ItemGroup>
-    <None Remove="Assets\Administrator.png" />
-    <None Remove="Assets\Drive.png" />
-    <None Remove="Assets\DriveFloppy.png" />
-    <None Remove="Assets\DriveOptical.png" />
-    <None Remove="Assets\DriveRemovable.png" />
-    <None Remove="Assets\DriveSystem.png" />
-    <None Remove="Assets\DriveUnknown.png" />
-    <None Remove="Assets\DriveWindows.png" />
-    <None Remove="Assets\Rebound.Defrag.ico" />
-    <None Remove="Assets\Rebound.Defrag.png" />
-    <None Remove="ScheduledOptimization.xaml" />
-  </ItemGroup>
-  <ItemGroup>
-    <Page Remove="AdminWindow.xaml" />
-  </ItemGroup>
+    <PropertyGroup>
+        <OutputType>WinExe</OutputType>
+        <TargetFramework>net9.0-windows10.0.26100.0</TargetFramework>
+        <WindowsSdkPackageVersion>10.0.22621.38</WindowsSdkPackageVersion>
+        <SupportedOSPlatformVersion>10.0.17763.0</SupportedOSPlatformVersion>
+        <RootNamespace>Rebound.Defrag</RootNamespace>
+        <ApplicationManifest>app.manifest</ApplicationManifest>
+        <Platforms>x86;x64;ARM64</Platforms>
+        <RuntimeIdentifiers Condition="$([MSBuild]::GetTargetFrameworkVersion('$(TargetFramework)')) &gt;= 8">win-x86;win-x64;win-arm64</RuntimeIdentifiers>
+        <RuntimeIdentifiers Condition="$([MSBuild]::GetTargetFrameworkVersion('$(TargetFramework)')) &lt; 8">win10-x86;win10-x64;win10-arm64</RuntimeIdentifiers>
+        <PublishProfile>win-$(Platform).pubxml</PublishProfile>
+        <UseWinUI>true</UseWinUI>
+        <EnableMsixTooling>true</EnableMsixTooling>
+        <GenerateAppInstallerFile>True</GenerateAppInstallerFile>
+        <AppxPackageSigningEnabled>True</AppxPackageSigningEnabled>
+        <AppxPackageSigningTimestampDigestAlgorithm>SHA256</AppxPackageSigningTimestampDigestAlgorithm>
+        <AppxAutoIncrementPackageRevision>False</AppxAutoIncrementPackageRevision>
+        <AppxSymbolPackageEnabled>False</AppxSymbolPackageEnabled>
+        <GenerateTestArtifacts>True</GenerateTestArtifacts>
+        <AppxBundle>Never</AppxBundle>
+        <AppInstallerUri>C:\Users\Lenovo\Desktop\rdfrgui</AppInstallerUri>
+        <HoursBetweenUpdateChecks>0</HoursBetweenUpdateChecks>
+        <ApplicationIcon>Rebound.Defrag.ico</ApplicationIcon>
+        <PackageCertificateThumbprint>805D9FAF3E251362A569D694C3D7834BE80FE5B8</PackageCertificateThumbprint>
+    </PropertyGroup>
 
-  <ItemGroup>
-    <Content Include="Assets\SplashScreen.scale-200.png" />
-    <Content Include="Assets\LockScreenLogo.scale-200.png" />
-    <Content Include="Assets\Square150x150Logo.scale-200.png" />
-    <Content Include="Assets\Square44x44Logo.scale-200.png" />
-    <Content Include="Assets\Square44x44Logo.targetsize-24_altform-unplated.png" />
-    <Content Include="Assets\Wide310x150Logo.scale-200.png" />
-    <Content Include="Rebound.Defrag.ico" />
-  </ItemGroup>
+    <ItemGroup>
+        <Content Include="Assets\SplashScreen.scale-200.png" />
+        <Content Include="Assets\LockScreenLogo.scale-200.png" />
+        <Content Include="Assets\Square150x150Logo.scale-200.png" />
+        <Content Include="Assets\Square44x44Logo.scale-200.png" />
+        <Content Include="Assets\Square44x44Logo.targetsize-24_altform-unplated.png" />
+        <Content Include="Assets\Wide310x150Logo.scale-200.png" />
+        <Content Include="Rebound.Defrag.ico" />
+    </ItemGroup>
 
-  <ItemGroup>
-	  <PackageReference Include="Cake.Powershell" Version="4.0.0" />
-    <PackageReference Include="HardwareProviders.HDD.Standard" Version="2.0.1" />
-    <PackageReference Include="Microsoft-WindowsAPICodePack-Shell" Version="1.1.5" />
-	  <PackageReference Include="Microsoft.Windows.CsWinRT" Version="2.2.0" />
-	<PackageReference Include="Microsoft.Web.WebView2" Version="1.0.2950-prerelease" />
-	<PackageReference Include="Microsoft.Windows.SDK.BuildTools" Version="10.0.26100.1742" />
-	<PackageReference Include="Microsoft.WindowsAppSDK" Version="1.7.241114004-experimental1" />
-    <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
-    <PackageReference Include="System.Diagnostics.EventLog" Version="9.0.0" />
-    <PackageReference Include="System.Management" Version="9.0.0" />
-    <PackageReference Include="TaskScheduler" Version="2.11.0" />
-    <PackageReference Include="WinUIEx" Version="2.5.0" />
-    <Manifest Include="$(ApplicationManifest)" />
-  </ItemGroup>
+    <ItemGroup>
+        <PackageReference Include="Cake.Powershell" Version="4.0.0" />
+        <PackageReference Include="HardwareProviders.HDD.Standard" Version="2.0.1" />
+        <PackageReference Include="Microsoft-WindowsAPICodePack-Shell" Version="1.1.5" />
+        <PackageReference Include="Microsoft.Windows.CsWinRT" Version="2.2.0" />
+        <PackageReference Include="Microsoft.Web.WebView2" Version="1.0.2950-prerelease" />
+        <PackageReference Include="Microsoft.Windows.SDK.BuildTools" Version="10.0.26100.1742" />
+        <PackageReference Include="Microsoft.WindowsAppSDK" Version="1.7.241114004-experimental1" />
+        <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
+        <PackageReference Include="System.Diagnostics.EventLog" Version="9.0.0" />
+        <PackageReference Include="System.Management" Version="9.0.0" />
+        <PackageReference Include="TaskScheduler" Version="2.11.0" />
+        <PackageReference Include="WinUIEx" Version="2.5.0" />
+        <Manifest Include="$(ApplicationManifest)" />
+    </ItemGroup>
 
-  <!--
+    <!--
     Defining the "Msix" ProjectCapability here allows the Single-project MSIX Packaging
     Tools extension to be activated for this project even if the Windows App SDK Nuget
     package has not yet been restored.
   -->
-  <ItemGroup Condition="'$(DisableMsixProjectCapabilityAddedByProject)'!='true' and '$(EnableMsixTooling)'=='true'">
-    <ProjectCapability Include="Msix" />
-  </ItemGroup>
-  <ItemGroup>
-    <Content Update="Assets\DriveSystem.png">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-  </ItemGroup>
-  <ItemGroup>
-    <None Update="AdminWindow.xaml">
-      <Generator>MSBuild:Compile</Generator>
-    </None>
-    <Page Update="ScheduledOptimization.xaml">
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-  </ItemGroup>
+    <ItemGroup Condition="'$(DisableMsixProjectCapabilityAddedByProject)'!='true' and '$(EnableMsixTooling)'=='true'">
+        <ProjectCapability Include="Msix" />
+    </ItemGroup>
+    <ItemGroup>
+        <Content Update="Assets\DriveSystem.png">
+            <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+        </Content>
+    </ItemGroup>
+    <ItemGroup>
+        <None Update="AdminWindow.xaml">
+            <Generator>MSBuild:Compile</Generator>
+        </None>
+        <Page Update="ScheduledOptimization.xaml">
+            <Generator>MSBuild:Compile</Generator>
+        </Page>
+    </ItemGroup>
 
-  <!--
+    <!--
     Defining the "HasPackageAndPublishMenuAddedByProject" property here allows the Solution
     Explorer "Package and Publish" context menu entry to be enabled for this project even if
     the Windows App SDK Nuget package has not yet been restored.
   -->
 
-  <ItemGroup>
-    <None Include="..\Rebound\Assets\AppIcons\Rebound11Icon.png">
-      <Pack>True</Pack>
-      <PackagePath>\</PackagePath>
-    </None>
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="..\.github\README.md" Pack="true" PackagePath="\" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\Helpers\Rebound.Helpers.csproj" />
-  </ItemGroup>
+    <ItemGroup>
+        <None Include="..\Rebound\Assets\AppIcons\Rebound11Icon.png">
+            <Pack>True</Pack>
+            <PackagePath>\</PackagePath>
+        </None>
+    </ItemGroup>
+    <ItemGroup>
+        <None Include="..\.github\README.md" Pack="true" PackagePath="\" />
+    </ItemGroup>
+    <ItemGroup>
+        <ProjectReference Include="..\Helpers\Rebound.Helpers.csproj" />
+    </ItemGroup>
 
-  <PropertyGroup Condition="'$(DisableHasPackageAndPublishMenuAddedByProject)'!='true' and '$(EnableMsixTooling)'=='true'">
-    <HasPackageAndPublishMenu>true</HasPackageAndPublishMenu>
-  </PropertyGroup>
-  <PropertyGroup>
-    <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
-    <Authors>Riverside, ErrorTek, Lamparter</Authors>
-    <PackageProjectUrl>https://ivirius.vercel.app</PackageProjectUrl>
-    <Title>Defragment and Optimize Drives</Title>
-    <PackageId>Riverside.Rebound.Defrag</PackageId>
-    <Copyright>Copyright (c) 2024-present Ivirius Community</Copyright>
-    <Description>Modern defrag app for Windows 11.</Description>
-    <PackageIcon>Rebound11Icon.png</PackageIcon>
-    <IncludeSymbols>true</IncludeSymbols>
-    <SymbolPackageFormat>snupkg</SymbolPackageFormat>
-    <Version>0.0.3</Version>
-    <PackageLicenseExpression>MIT</PackageLicenseExpression>
-    <PackageReadmeFile>README.md</PackageReadmeFile>
-    <AssemblyName>Rebound Defragment and Optimize Drives</AssemblyName>
-  </PropertyGroup>
+    <PropertyGroup Condition="'$(DisableHasPackageAndPublishMenuAddedByProject)'!='true' and '$(EnableMsixTooling)'=='true'">
+        <HasPackageAndPublishMenu>true</HasPackageAndPublishMenu>
+    </PropertyGroup>
+    <PropertyGroup>
+        <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
+        <Authors>Riverside, ErrorTek, Lamparter</Authors>
+        <PackageProjectUrl>https://ivirius.vercel.app</PackageProjectUrl>
+        <Title>Defragment and Optimize Drives</Title>
+        <PackageId>Riverside.Rebound.Defrag</PackageId>
+        <Copyright>Copyright (c) 2024-present Ivirius Community</Copyright>
+        <Description>Modern defrag app for Windows 11.</Description>
+        <PackageIcon>Rebound11Icon.png</PackageIcon>
+        <IncludeSymbols>true</IncludeSymbols>
+        <SymbolPackageFormat>snupkg</SymbolPackageFormat>
+        <Version>0.0.3</Version>
+        <PackageLicenseExpression>MIT</PackageLicenseExpression>
+        <PackageReadmeFile>README.md</PackageReadmeFile>
+        <AssemblyName>Rebound Defragment and Optimize Drives</AssemblyName>
+    </PropertyGroup>
 </Project>
