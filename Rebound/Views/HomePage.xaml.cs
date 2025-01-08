@@ -48,7 +48,7 @@ public sealed partial class HomePage : Page
                 BKGImage.Path = "/Assets/Backgrounds/BackgroundDark.png";
             }
             await Task.Delay(100);
-            LoadWallpaper();
+           //// LoadWallpaper();
         }
         catch
         {

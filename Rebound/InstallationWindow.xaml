@@ -9,9 +9,7 @@
     xmlns:winuiex="using:WinUIEx"
     mc:Ignorable="d">
 
-    <Grid
-        Background="Black"
-        RequestedTheme="Dark">
+    <Grid Background="Black" RequestedTheme="Dark">
         <StackPanel
             HorizontalAlignment="Center"
             VerticalAlignment="Center"

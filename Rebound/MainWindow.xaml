@@ -16,9 +16,6 @@
         PointerMoved="Grid_PointerMoved"
         PointerReleased="Grid_PointerReleased">
         <Grid.Resources>
-            <MenuFlyout x:Key="Sysmenu" x:Name="Sysmenu">
-                <MenuFlyoutItem />
-            </MenuFlyout>
             <Style x:Key="Close" TargetType="Button">
                 <Setter Property="Foreground" Value="{ThemeResource CaptionForegroundBrush}" />
                 <Setter Property="BorderBrush" Value="Transparent" />
@@ -355,43 +352,63 @@
                 </Setter>
             </Style>
         </Grid.Resources>
-        <Frame x:Name="RootFrame" />
-        <Border
-            x:Name="AccentStrip"
-            Height="45"
-            VerticalAlignment="Top"
-            Background="{ThemeResource SystemAccentColor}"
-            Visibility="Collapsed" />
-        <Image
-            x:Name="TitleBarIcon"
-            Width="16"
-            Margin="16,15"
-            HorizontalAlignment="Left"
-            VerticalAlignment="Top"
-            x:FieldModifier="public"
-            Source="/Assets/AppIcons/Rebound.ico" />
+
+        <Grid.RowDefinitions>
+            <RowDefinition Height="48" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+
+        <Grid x:Name="TitleBarGrid">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="16" />
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="12" />
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="Auto" />
+            </Grid.ColumnDefinitions>
+
+            <Image
+                x:Name="TitleBarIcon"
+                Grid.Column="1"
+                Width="16"
+                VerticalAlignment="Center"
+                x:FieldModifier="public"
+                Source="/Assets/AppIcons/Rebound.ico" />
+
+            <TextBlock
+                x:Name="WindowTitle"
+                Grid.Column="3"
+                VerticalAlignment="Center"
+                x:FieldModifier="public"
+                FontFamily="Segoe UI"
+                FontSize="12"
+                FontWeight="Normal"
+                Foreground="#ffffff"
+                TextTrimming="CharacterEllipsis" />
+
+            <TextBlock
+                Grid.Column="4"
+                VerticalAlignment="Center"
+                x:FieldModifier="public"
+                FontFamily="Segoe UI"
+                FontSize="12"
+                FontWeight="Normal"
+                Opacity="0.5"
+                Text="  -  ALPHA v0.0.3"
+                TextTrimming="CharacterEllipsis" />
+        </Grid>
+
+        <Frame x:Name="RootFrame" Grid.Row="1" />
+
         <StackPanel
             Margin="45,15,140,0"
             HorizontalAlignment="Left"
             VerticalAlignment="Top"
-            Orientation="Horizontal">
-            <TextBlock
-                x:Name="WindowTitle"
-                x:FieldModifier="public"
-                FontFamily="Segoe UI"
-                FontSize="12"
-                FontWeight="Normal"
-                TextTrimming="CharacterEllipsis" />
-            <TextBlock
-                x:FieldModifier="public"
-                FontFamily="Segoe UI"
-                FontSize="12"
-                FontWeight="Normal"
-                Foreground="{Binding Foreground, ElementName=WindowTitle}"
-                Opacity="0.5"
-                Text="  -  ALPHA v0.0.3"
-                TextTrimming="CharacterEllipsis" />
-        </StackPanel>
+            Orientation="Horizontal" />
         <StackPanel
             x:Name="CaptionButtons"
             HorizontalAlignment="Right"

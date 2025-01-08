@@ -140,5 +140,10 @@
             <Generator>MSBuild:Compile</Generator>
         </Page>
     </ItemGroup>
+    <ItemGroup>
+      <Page Update="Styles\NavigationViews.xaml">
+        <Generator>MSBuild:Compile</Generator>
+      </Page>
+    </ItemGroup>
     <Import Project="..\Delivery\Rebound.Delivery.projitems" Label="Shared" />
 </Project>

@@ -2,9 +2,10 @@
 using System.Runtime.InteropServices;
 using System.Threading;
 using System.Threading.Tasks;
+
 using CommunityToolkit.WinUI.Helpers;
+
 using Microsoft.Graphics.Display;
-using Microsoft.UI;
 using Microsoft.UI.Composition.SystemBackdrops;
 using Microsoft.UI.Windowing;
 using Microsoft.UI.Xaml;
@@ -12,9 +13,12 @@ using Microsoft.UI.Xaml.Input;
 using Microsoft.UI.Xaml.Media;
 using Microsoft.UI.Xaml.Media.Imaging;
 using Microsoft.Win32;
+
 using Rebound.Helpers;
 using Rebound.Views;
+
 using Windows.Graphics;
+
 using WinUIEx;
 using WinUIEx.Messaging;
 
@@ -297,43 +301,6 @@ public sealed partial class MainWindow : WindowEx
 
     private void CheckFocus()
     {
-        if (IsAccentColorEnabledForTitleBars() == true)
-        {
-            try
-            {
-                if (AccentStrip != null)
-                {
-                    AccentStrip.Visibility = Visibility.Visible;
-                }
-
-                if (!windowFocused)
-                {
-                    buttonBrush = new SolidColorBrush(Colors.White);
-                    AccentStrip.Visibility = Visibility.Visible;
-                }
-                else
-                {
-                    buttonBrush = Application.Current.Resources["TextFillColorDisabledBrush"] as SolidColorBrush;
-                    AccentStrip.Visibility = Visibility.Collapsed;
-                }
-            }
-            catch { }
-        }
-        else
-        {
-            try
-            {
-                if (AccentStrip != null)
-                {
-                    AccentStrip.Visibility = Visibility.Collapsed;
-                }
-
-                buttonBrush = !windowFocused
-                    ? Application.Current.Resources["TextFillColorPrimaryBrush"] as SolidColorBrush
-                    : Application.Current.Resources["TextFillColorDisabledBrush"] as SolidColorBrush;
-            }
-            catch { }
-        }
         UpdateBrush();
     }
 
@@ -341,10 +308,10 @@ public sealed partial class MainWindow : WindowEx
     {
         try
         {
-            Close.Foreground = buttonBrush;
-            CrimsonMaxRes.Foreground = buttonBrush;
-            Minimize.Foreground = buttonBrush;
-            WindowTitle.Foreground = buttonBrush;
+            //Close.Foreground = buttonBrush;
+            //CrimsonMaxRes.Foreground = buttonBrush;
+            //Minimize.Foreground = buttonBrush;
+            //WindowTitle.Foreground = buttonBrush;
         }
         catch
         {

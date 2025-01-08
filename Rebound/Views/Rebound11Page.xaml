@@ -14,7 +14,7 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     mc:Ignorable="d">
 
-    <ScrollViewer>
+    <ScrollViewer CornerRadius="8,0,0,0">
         <Grid>
             <header:HomePageHeaderImage
                 x:Name="BKGImage"
@@ -412,7 +412,10 @@
                         VerticalAlignment="Top"
                         Orientation="Horizontal"
                         Spacing="8">
-                        <Button HorizontalAlignment="Right" Click="Button_Click_2" ToolTipService.ToolTip="Uninstall Rebound 11 apps and files.">
+                        <Button
+                            HorizontalAlignment="Right"
+                            Click="Button_Click_2"
+                            ToolTipService.ToolTip="Uninstall Rebound 11 apps and files.">
                             <StackPanel Orientation="Horizontal" Spacing="10">
                                 <Image
                                     x:Name="Admin5"
@@ -421,7 +424,10 @@
                                 <TextBlock Text="Uninstall" />
                             </StackPanel>
                         </Button>
-                        <Button HorizontalAlignment="Right" Click="Button_Click_3" ToolTipService.ToolTip="Uninstall Rebound 11 apps, files, and associated apps (for example: Files App).">
+                        <Button
+                            HorizontalAlignment="Right"
+                            Click="Button_Click_3"
+                            ToolTipService.ToolTip="Uninstall Rebound 11 apps, files, and associated apps (for example: Files App).">
                             <StackPanel Orientation="Horizontal" Spacing="10">
                                 <Image
                                     x:Name="Admin6"
@@ -630,9 +636,10 @@
                                         Content="File Explorer (Files - 3rd party)"
                                         IsChecked="True"
                                         IsEnabled="False" />
-                                    <InfoBar Title="Files will not be uninstalled by Rebound Hub and you will have to uninstall it manually." IsClosable="False" Margin="0, 8">
-                                        
-                                    </InfoBar>
+                                    <InfoBar
+                                        Title="Files will not be uninstalled by Rebound Hub and you will have to uninstall it manually."
+                                        Margin="0,8"
+                                        IsClosable="False" />
                                     <CheckBox
                                         Content="Remote Desktop"
                                         IsChecked="True"
