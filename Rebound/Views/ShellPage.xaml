@@ -73,7 +73,8 @@
         <NavigationView.Content>
             <Frame
                 x:Name="NavigationFrame"
-                BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                Background="{ThemeResource CardBackgroundFillColorSecondaryBrush}"
+                BorderBrush="#66757575"
                 BorderThickness="1,1,0,0"
                 CornerRadius="8,0,0,0" />
         </NavigationView.Content>

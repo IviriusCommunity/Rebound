@@ -390,16 +390,20 @@
                 Foreground="#ffffff"
                 TextTrimming="CharacterEllipsis" />
 
-            <TextBlock
+            <Border
                 Grid.Column="4"
+                Margin="10,0,0,0"
+                Padding="4,2"
                 VerticalAlignment="Center"
-                x:FieldModifier="public"
-                FontFamily="Segoe UI"
-                FontSize="12"
-                FontWeight="Normal"
-                Opacity="0.5"
-                Text="  -  ALPHA v0.0.3"
-                TextTrimming="CharacterEllipsis" />
+                Background="{ThemeResource AccentFillColorSecondaryBrush}"
+                CornerRadius="4">
+                <TextBlock
+                    FontSize="10"
+                    FontWeight="SemiBold"
+                    Foreground="{ThemeResource TextFillColorInverseBrush}"
+                    Text="ALPHA" />
+            </Border>
+
         </Grid>
 
         <Frame x:Name="RootFrame" Grid.Row="1" />
