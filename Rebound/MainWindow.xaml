@@ -401,7 +401,7 @@
                     FontSize="10"
                     FontWeight="SemiBold"
                     Foreground="{ThemeResource TextFillColorInverseBrush}"
-                    Text="ALPHA" />
+                    Text="PREVIEW" />
             </Border>
 
         </Grid>
