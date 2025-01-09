@@ -156,17 +156,9 @@ public sealed partial class ShellPage : Page
             return;
         }
 
-        if (navMenuItem.Id == "Docs")
+        //// We need to have target type (target page) for all items. If not, we shouldn't add such items to the nav bar.
+        if (navMenuItem.TargetType is null)
         {
-            // Open docs
-
-            return;
-        }
-
-        if (navMenuItem.Id == "Discord")
-        {
-            // Open Discord
-
             return;
         }
 

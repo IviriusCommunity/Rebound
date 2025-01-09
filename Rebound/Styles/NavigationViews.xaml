@@ -765,7 +765,7 @@
                             Icon="{TemplateBinding Icon}"
                             InfoBadge="{TemplateBinding InfoBadge}"
                             IsTabStop="false"
-                            Style="{ThemeResource StoreNavigationViewItemPresenterStyle}"
+                            Style="{ThemeResource CustomNavigationViewItemPresenterStyle}"
                             UseSystemFocusVisuals="{TemplateBinding UseSystemFocusVisuals}" />
                         <local:ItemsRepeater
                             x:Name="NavigationViewItemMenuItemsHost"
@@ -828,7 +828,7 @@
                             <VisualStateGroup x:Name="ItemOnNavigationViewListPositionStates">
                                 <VisualState x:Name="OnLeftNavigation">
                                     <VisualState.Setters>
-                                        <Setter Target="NavigationViewItemPresenter.Style" Value="{StaticResource StoreNavigationViewItemPresenterStyle}" />
+                                        <Setter Target="NavigationViewItemPresenter.Style" Value="{StaticResource CustomNavigationViewItemPresenterStyle}" />
                                     </VisualState.Setters>
                                 </VisualState>
                                 <VisualState x:Name="OnTopNavigationPrimary">
@@ -853,7 +853,7 @@
 
     <Style TargetType="primitives:NavigationViewItemPresenter" />
 
-    <Style x:Key="StoreNavigationViewItemPresenterStyle" TargetType="primitives:NavigationViewItemPresenter">
+    <Style x:Key="CustomNavigationViewItemPresenterStyle" TargetType="primitives:NavigationViewItemPresenter">
         <Setter Property="Foreground" Value="{ThemeResource NavigationViewItemForeground}" />
         <Setter Property="Background" Value="{ThemeResource NavigationViewItemBackground}" />
         <Setter Property="BorderBrush" Value="{ThemeResource NavigationViewItemBorderBrush}" />
