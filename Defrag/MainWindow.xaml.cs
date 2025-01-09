@@ -34,16 +34,15 @@ public sealed partial class MainWindow : WindowEx
         // Set window backdrop to Mica for a modern translucent effect
         SystemBackdrop = new MicaBackdrop();
 
-        // Set the window title
-        Title = "Optimize Drives";
+        TitleBarControl.InitializeForWindow(this, App.Current);
+        //TitleBarControl.SetWindowIcon(@$"{AppContext.BaseDirectory}/Assets/Rebound.Defrag.ico");
+
+        IsResizable = false;
 
         // Window customization
-        IsMaximizable = false;
         this.SetWindowSize(800, 670);
-        IsResizable = false;
-        AppWindow.DefaultTitleBarShouldMatchAppModeTheme = true;
         this.CenterOnScreen();
-        this.SetIcon(@$"{AppContext.BaseDirectory}/Assets/Rebound.Defrag.ico");
+        //this.SetIcon(@$"{AppContext.BaseDirectory}/Assets/Rebound.Defrag.ico");
     }
 
     public async Task LoadAppAsync()
@@ -1100,6 +1099,11 @@ $global:OutputLines
     {
         _ = Process.Start("dfrgui.exe");
         Close();
+    }
+
+    private void TitleBarControl_Loaded(object sender, RoutedEventArgs e)
+    {
+        TitleBarControl.SetWindowIcon(@$"{AppContext.BaseDirectory}/Assets/Rebound.Defrag.ico");
     }
 }
 

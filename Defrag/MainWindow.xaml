@@ -8,6 +8,8 @@
     xmlns:local="using:Rebound.Defrag"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:winuiex="using:WinUIEx"
+    xmlns:titleBar="using:Riverside.Toolkit.Controls.TitleBar"
+    xmlns:controls="using:CommunityToolkit.WinUI.UI.Controls"
     mc:Ignorable="d">
     <Grid>
         <StackPanel Margin="15,5,15,13" Spacing="10">
@@ -513,6 +515,75 @@
                 </StackPanel>
             </Grid>
         </StackPanel>
+        <ListView Margin="15, 100" BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" CornerRadius="4" BorderThickness="1" Background="{ThemeResource CardBackgroundFillColorDefaultBrush}">
+            <ListView.Header>
+                <Grid Height="32" Background="{ThemeResource ControlFillColorInputActiveBrush}" CornerRadius="4, 4, 0, 0">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="48"/>
+                        <ColumnDefinition Width="1"/>
+                        <ColumnDefinition Width="150"/>
+                        <ColumnDefinition Width="1"/>
+                        <ColumnDefinition Width="100"/>
+                        <ColumnDefinition Width="1"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="1"/>
+                        <ColumnDefinition Width="150"/>
+                    </Grid.ColumnDefinitions>
+                    <TextBlock Text="Name" Grid.Column="2" VerticalAlignment="Center" Margin="0, 0, 12, 2" Style="{ThemeResource CaptionTextBlockStyle}" Opacity="0.8"/>
+                    <Border Margin="0, 8" Background="{ThemeResource MenuFlyoutSeparatorThemeBrush}" Grid.Column="3"/>
+                    <TextBlock Text="Type" Grid.Column="4" VerticalAlignment="Center" Margin="12, 0, 12, 2" Style="{ThemeResource CaptionTextBlockStyle}" Opacity="0.8"/>
+                    <Border Margin="0, 8" Background="{ThemeResource MenuFlyoutSeparatorThemeBrush}" Grid.Column="5"/>
+                    <TextBlock Text="Status" Grid.Column="6" VerticalAlignment="Center" Margin="12, 0, 12, 2" Style="{ThemeResource CaptionTextBlockStyle}" Opacity="0.8"/>
+                    <Border Margin="0, 8" Background="{ThemeResource MenuFlyoutSeparatorThemeBrush}" Grid.Column="7"/>
+                    <TextBlock Text="Last optimized" Grid.Column="8" VerticalAlignment="Center" Margin="12, 0, 12, 2" Style="{ThemeResource CaptionTextBlockStyle}" Opacity="0.8"/>
+                </Grid>
+            </ListView.Header>
+            <ListView.Items>
+                <ListViewItem>
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="32"/>
+                            <ColumnDefinition Width="1"/>
+                            <ColumnDefinition Width="150"/>
+                            <ColumnDefinition Width="1"/>
+                            <ColumnDefinition Width="100"/>
+                            <ColumnDefinition Width="1"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="1"/>
+                            <ColumnDefinition Width="138"/>
+                        </Grid.ColumnDefinitions>
+                        <CheckBox/>
+                        <StackPanel Orientation="Horizontal" Grid.Column="2" Spacing="8" VerticalAlignment="Center" Margin="0, 0, 12, 2">
+                            <Image Source="ms-appx:///Assets/Drive.png" Width="20"/>
+                            <TextBlock Text="Local Disk (C:)"/>
+                        </StackPanel>
+                        <TextBlock Text="SSD" Grid.Column="4" VerticalAlignment="Center" Margin="12, 0, 12, 2" Style="{ThemeResource CaptionTextBlockStyle}" Opacity="0.8"/>
+                        <Grid Grid.Column="6">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="50"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <TextBlock Text="73%" Margin="12, 0, 12, 2" VerticalAlignment="Center" Style="{ThemeResource CaptionTextBlockStyle}" Opacity="0.8"/>
+                            <ProgressBar Value="73" Grid.Column="1"/>
+                        </Grid>
+                        <Border Margin="0, 8" Background="{ThemeResource MenuFlyoutSeparatorThemeBrush}" Grid.Column="7"/>
+                        <TextBlock Text="Last optimized" Grid.Column="8" VerticalAlignment="Center" Margin="12, 0, 12, 2" Style="{ThemeResource CaptionTextBlockStyle}" Opacity="0.8"/>
+                    </Grid>
+                </ListViewItem>
+                <ListViewItem/>
+                <ListViewItem/>
+                <ListViewItem/>
+                <ListViewItem/>
+            </ListView.Items>
+            <ListView.ItemTemplate>
+                <DataTemplate>
+                    <Grid>
+                        <CheckBox/>
+                    </Grid>
+                </DataTemplate>
+            </ListView.ItemTemplate>
+        </ListView>
+        <titleBar:TitleBarEx x:Name="TitleBarControl" Loaded="TitleBarControl_Loaded" VerticalAlignment="Top" Title="Optimize Drives" Subtitle="  -  Developer Preview" IsMaximizable="False" UseWinUIEverywhere="True"/>
     </Grid>
 
 </winuiex:WindowEx>

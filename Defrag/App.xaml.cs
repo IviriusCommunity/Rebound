@@ -46,7 +46,7 @@ public partial class App : Application
     {
         MainAppWindow = new MainWindow();
         MainAppWindow.Activate();
-        await ((MainWindow)MainAppWindow).LoadAppAsync();
+        //await ((MainWindow)MainAppWindow).LoadAppAsync();
 
         var commandArgs = string.Join(" ", Environment.GetCommandLineArgs().Skip(1));
 
