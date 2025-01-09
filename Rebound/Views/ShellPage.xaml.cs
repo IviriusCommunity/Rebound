@@ -61,7 +61,7 @@ public sealed partial class ShellPage : Page
             SelectedIcon = "",
             IconFontFamily = new FontFamily("ms-appx:///Fonts/FluentIcons.ttf#FluentSystemIcons-Resizable"),
             Title = "Ivirius.UI",
-            TargetType= null,
+            TargetType= typeof(EmptyPage),
         });
 
         var navigationViewItems = BuildNavigationViewItems(menuItems);
@@ -84,6 +84,7 @@ public sealed partial class ShellPage : Page
             SelectedIcon = "",
             IconFontFamily = new FontFamily("ms-appx:///Fonts/FluentIcons.ttf#FluentSystemIcons-Resizable"),
             Title = "Docs",
+            TargetType = typeof(EmptyPage),
         });
 
         menuItems.Add(new NavMenuItem
@@ -93,6 +94,7 @@ public sealed partial class ShellPage : Page
             SelectedIcon = "",
             IconFontFamily = new FontFamily("ms-appx:///Fonts/FluentIcons.ttf#FluentSystemIcons-Resizable"),
             Title = "Discord",
+            TargetType = typeof(EmptyPage),
         });
 
         var navigationViewItems = BuildNavigationViewItems(menuItems);

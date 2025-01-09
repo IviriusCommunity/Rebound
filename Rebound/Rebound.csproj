@@ -125,6 +125,7 @@
     </ItemGroup>
     <ItemGroup>
       <None Remove="Styles\Images.xaml" />
+      <None Remove="Views\EmptyPage.xaml" />
     </ItemGroup>
     <ItemGroup>
         <COMReference Include="IWshRuntimeLibrary">
@@ -147,6 +148,11 @@
       <Content Update="Assets\Backgrounds\BackgroundLight.jpg">
         <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
       </Content>
+    </ItemGroup>
+    <ItemGroup>
+      <Page Update="Views\EmptyPage.xaml">
+        <Generator>MSBuild:Compile</Generator>
+      </Page>
     </ItemGroup>
     <ItemGroup>
       <Page Update="Styles\Images.xaml">
