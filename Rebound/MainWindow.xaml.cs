@@ -32,7 +32,6 @@ namespace Rebound;
 public sealed partial class MainWindow : WindowEx
 {
     public bool AllowSizeCheck = false;
-    private readonly bool isCrimsonUIEnabled = false;
 
     public async void CheckWindowProperties()
     {
@@ -105,12 +104,6 @@ public sealed partial class MainWindow : WindowEx
         _msgMonitor.WindowMessageReceived -= Event;
         _msgMonitor.WindowMessageReceived += Event;
 
-        if (isCrimsonUIEnabled == true)
-        {
-            AppWindow.TitleBar.PreferredHeightOption = Microsoft.UI.Windowing.TitleBarHeightOption.Collapsed;
-            CrimsonUIButtons.Visibility = Visibility.Visible;
-            LoadBounds();
-        }
         mon = new RegistryMonitor(@"Software\Microsoft\Windows\DWM");
         mon.Start();
         var x = new ThemeListener();
