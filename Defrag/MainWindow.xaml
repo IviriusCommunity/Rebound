@@ -538,8 +538,8 @@
                     <TextBlock Text="Last optimized" Grid.Column="8" VerticalAlignment="Center" Margin="12, 0, 12, 2" Style="{ThemeResource CaptionTextBlockStyle}" Opacity="0.8"/>
                 </Grid>
             </ListView.Header>
-            <ListView.Items>
-                <ListViewItem>
+            <ListView.ItemTemplate>
+                <DataTemplate>
                     <Grid>
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="32"/>
@@ -564,21 +564,9 @@
                                 <ColumnDefinition Width="*"/>
                             </Grid.ColumnDefinitions>
                             <TextBlock Text="73%" Margin="12, 0, 12, 2" VerticalAlignment="Center" Style="{ThemeResource CaptionTextBlockStyle}" Opacity="0.8"/>
-                            <ProgressBar Value="73" Grid.Column="1"/>
+                            <ProgressBar Value="73" Margin="0, 0, 8, 0" Grid.Column="1"/>
                         </Grid>
-                        <Border Margin="0, 8" Background="{ThemeResource MenuFlyoutSeparatorThemeBrush}" Grid.Column="7"/>
-                        <TextBlock Text="Last optimized" Grid.Column="8" VerticalAlignment="Center" Margin="12, 0, 12, 2" Style="{ThemeResource CaptionTextBlockStyle}" Opacity="0.8"/>
-                    </Grid>
-                </ListViewItem>
-                <ListViewItem/>
-                <ListViewItem/>
-                <ListViewItem/>
-                <ListViewItem/>
-            </ListView.Items>
-            <ListView.ItemTemplate>
-                <DataTemplate>
-                    <Grid>
-                        <CheckBox/>
+                        <TextBlock Text="Tomorrow" Grid.Column="8" VerticalAlignment="Center" Margin="12, 0, 12, 2" Style="{ThemeResource CaptionTextBlockStyle}" Opacity="0.8"/>
                     </Grid>
                 </DataTemplate>
             </ListView.ItemTemplate>

@@ -23,6 +23,7 @@
        <HoursBetweenUpdateChecks>0</HoursBetweenUpdateChecks>
        <ApplicationIcon>Rebound.Defrag.ico</ApplicationIcon>
        <PackageCertificateThumbprint>805D9FAF3E251362A569D694C3D7834BE80FE5B8</PackageCertificateThumbprint>
+  <LangVerion>preview</LangVerion>
   </PropertyGroup>
   <ItemGroup>
     <None Remove="Assets\Administrator.png" />
@@ -130,5 +131,6 @@
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <AssemblyName>Rebound Defragment and Optimize Drives</AssemblyName>
+    <LangVersion>preview</LangVersion>
   </PropertyGroup>
 </Project>
