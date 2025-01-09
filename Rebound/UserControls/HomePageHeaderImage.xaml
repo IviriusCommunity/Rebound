@@ -43,14 +43,14 @@
                 toolkit:VisualExtensions.NormalizedCenterPoint="0.5"
                 ImageOpened="OnImageOpened"
                 Opacity="{ThemeResource ImageOpacity}"
-                Source="{x:Bind Path}"
+                Source="{x:Bind Path, Mode=OneWay}"
                 Stretch="UniformToFill" />
 
             <Image
                 x:Name="HeroOverlayImage"
                 toolkit:VisualExtensions.NormalizedCenterPoint="0.5"
                 Opacity="{ThemeResource ImageOpacity}"
-                Source="{x:Bind Path}"
+                Source="{x:Bind Path, Mode=OneWay}"
                 Stretch="UniformToFill" />
 
         </Grid>

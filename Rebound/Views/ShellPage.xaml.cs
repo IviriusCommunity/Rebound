@@ -1,55 +1,181 @@
-using System;
+﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
-using Microsoft.UI.Xaml.Controls;
 
-// To learn more about WinUI, the WinUI project structure,
-// and more about our project templates, see: http://aka.ms/winui-project-info.
+using Microsoft.UI.Xaml.Controls;
+using Microsoft.UI.Xaml.Data;
+using Microsoft.UI.Xaml.Media;
+
+using Rebound.Models;
 
 namespace Rebound.Views;
-/// <summary>
-/// An empty page that can be used on its own or navigated to within a Frame.
-/// </summary>
+
 public sealed partial class ShellPage : Page
 {
+    private NavMenuItem _selectedMenuItem;
+
     public ShellPage()
     {
-        this.InitializeComponent();
+        InitializeComponent();
+        
         Debug.WriteLine(@$"{Environment.GetFolderPath(Environment.SpecialFolder.StartMenu)}\Programs\Rebound 11 Tools");
-        //NavigationFrame.Navigate(typeof(HomePage));
-        NavigationViewControl.SelectedItem = HomeItem;
+
+        BuildTopNavigationMenu();
+        BuildBottomNavigationMenu();
+
+        MainFrame.Navigate(_selectedMenuItem.TargetType);
 
         CheckLaunch();
     }
 
+    private void BuildTopNavigationMenu()
+    {
+        var menuItems = new List<NavMenuItem>();
+
+        menuItems.Add(new NavMenuItem
+        {
+            Id = "Home",
+            NormalIcon = "",
+            SelectedIcon = "",
+            IconFontFamily = new FontFamily("ms-appx:///Fonts/FluentIcons.ttf#FluentSystemIcons-Resizable"),
+            Title = "Home",
+            TargetType = typeof(HomePage),
+        });
+
+        menuItems.Add(new NavMenuItem
+        {
+            Id = "Rebound11",
+            NormalIcon = "",
+            SelectedIcon = "",
+            IconFontFamily = new FontFamily("ms-appx:///Fonts/FluentIcons.ttf#FluentSystemIcons-Resizable"),
+            Title = "Rebound 11",
+            TargetType = typeof(Rebound11Page),
+        });
+
+        menuItems.Add(new NavMenuItem
+        {
+            Id = "IviriusUI",
+            NormalIcon = "",
+            SelectedIcon = "",
+            IconFontFamily = new FontFamily("ms-appx:///Fonts/FluentIcons.ttf#FluentSystemIcons-Resizable"),
+            Title = "Ivirius.UI",
+            TargetType= null,
+        });
+
+        var navigationViewItems = BuildNavigationViewItems(menuItems);
+
+        NavigationViewControl.MenuItemsSource = navigationViewItems;
+        NavigationViewControl.SelectedItem = navigationViewItems.First();
+
+        _selectedMenuItem = navigationViewItems.First().DataContext as NavMenuItem;
+        _selectedMenuItem.IsSelected = true;
+    }
+
+    private void BuildBottomNavigationMenu()
+    {
+        var menuItems = new List<NavMenuItem>();
+
+        menuItems.Add(new NavMenuItem
+        {
+            Id = "Docs",
+            NormalIcon = "",
+            SelectedIcon = "",
+            IconFontFamily = new FontFamily("ms-appx:///Fonts/FluentIcons.ttf#FluentSystemIcons-Resizable"),
+            Title = "Docs",
+        });
+
+        menuItems.Add(new NavMenuItem
+        {
+            Id = "Discord",
+            NormalIcon = "",
+            SelectedIcon = "",
+            IconFontFamily = new FontFamily("ms-appx:///Fonts/FluentIcons.ttf#FluentSystemIcons-Resizable"),
+            Title = "Discord",
+        });
+
+        var navigationViewItems = BuildNavigationViewItems(menuItems);
+
+        NavigationViewControl.FooterMenuItemsSource = navigationViewItems;
+    }
+
+    private List<NavigationViewItem> BuildNavigationViewItems(List<NavMenuItem> menuItems)
+    {
+        var navigationViewItems = new List<NavigationViewItem>();
+
+        foreach (var item in menuItems)
+        {
+            var fontIcon = new FontIcon
+            {
+                FontFamily = item.IconFontFamily,
+            };
+
+            var iconBinding = new Binding()
+            {
+                Mode = BindingMode.OneWay,
+                Source = item,
+                Path = new Microsoft.UI.Xaml.PropertyPath("Icon"),
+                UpdateSourceTrigger = UpdateSourceTrigger.PropertyChanged,
+            };
+
+            fontIcon.SetBinding(FontIcon.GlyphProperty, iconBinding);
+
+            var navItem = new NavigationViewItem
+            {
+                DataContext = item,
+                Content = item.Title,
+                Icon = fontIcon,
+            };
+
+            navigationViewItems.Add(navItem);
+        }
+
+        return navigationViewItems;
+    }
+
+
     public async void CheckLaunch()
     {
+        return;
+
         await Task.Delay(500);
         if (string.Join(" ", Environment.GetCommandLineArgs().Skip(1)).Contains("INSTALLREBOUND11"))
         {
-            NavigationViewControl.SelectedItem = Rebound11Item;
+            ////TEMP
+            NavigationViewControl.SelectedItem = NavigationViewControl.MenuItems[1];
         }
     }
 
-    private void NavigationViewControl_SelectionChanged(NavigationView sender, NavigationViewSelectionChangedEventArgs args)
+    private void Navigate(NavigationView sender, NavigationViewItemInvokedEventArgs args)
     {
-        if ((string)(args.SelectedItem as NavigationViewItem).Tag == "Home")
-        {
-            NavigationFrame.Navigate(typeof(HomePage));
-        }
-        if ((string)(args.SelectedItem as NavigationViewItem).Tag == "Rebound 11")
-        {
-            NavigationFrame.Navigate(typeof(Rebound11Page));
-        }
-        if ((string)(args.SelectedItem as NavigationViewItem).Tag == "Control Panel")
-        {
-            _ = Process.Start(new ProcessStartInfo("control:") { UseShellExecute = true });
-            sender.SelectedItem = sender.MenuItems[2];
-            App.MainAppWindow.Close();
-        }
-        //NavigationViewControl.Header = (string)(args.SelectedItem as NavigationViewItem).Tag;
-    }
+        var navMenuItem = args.InvokedItemContainer.DataContext as NavMenuItem;
 
-    private void NavigationViewControl_BackRequested(NavigationView sender, NavigationViewBackRequestedEventArgs args) => NavigationFrame.GoBack();
+        if (navMenuItem.Id == _selectedMenuItem.Id)
+        {
+            return;
+        }
+
+        if (navMenuItem.Id == "Docs")
+        {
+            // Open docs
+
+            return;
+        }
+
+        if (navMenuItem.Id == "Discord")
+        {
+            // Open Discord
+
+            return;
+        }
+
+        MainFrame.Navigate(navMenuItem.TargetType);
+
+        _selectedMenuItem.IsSelected = false;
+
+        _selectedMenuItem = navMenuItem;
+
+        _selectedMenuItem.IsSelected = true;
+    }
 }

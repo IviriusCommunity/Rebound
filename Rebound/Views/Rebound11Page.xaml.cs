@@ -42,7 +42,7 @@ public sealed partial class Rebound11Page : Page
             Rebound11IsNotInstalledGrid.Visibility = Visibility.Visible;
             DetailsPanel.Visibility = Visibility.Visible;
         }
-        GetWallpaper();
+
         if (string.Join(" ", Environment.GetCommandLineArgs().Skip(1)).Contains("INSTALLREBOUND11"))
         {
             Rebound11IsInstalledGrid.Visibility = Visibility.Collapsed;
@@ -51,27 +51,6 @@ public sealed partial class Rebound11Page : Page
             DetailsPanel.Visibility = Visibility.Visible;
         }
         _ = CheckForUpdatesAsync();
-    }
-
-    public async void GetWallpaper()
-    {
-        try
-        {
-            if (ActualTheme == ElementTheme.Light)
-            {
-                BKGImage.Path = "/Assets/Backgrounds/BackgroundLight.png";
-            }
-            if (ActualTheme == ElementTheme.Dark)
-            {
-                BKGImage.Path = "/Assets/Backgrounds/BackgroundDark.png";
-            }
-            await Task.Delay(100);
-            GetWallpaper();
-        }
-        catch
-        {
-
-        }
     }
 
     public bool IsAdmin()

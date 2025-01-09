@@ -1,8 +1,11 @@
 using System.Runtime.InteropServices;
 using System.Text;
-using System.Threading.Tasks;
+
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
+using Microsoft.UI.Xaml.Data;
+using Microsoft.UI.Xaml.Media;
+using Microsoft.UI.Xaml.Media.Imaging;
 
 // To learn more about WinUI, the WinUI project structure,
 // and more about our project templates, see: http://aka.ms/winui-project-info.
@@ -16,7 +19,8 @@ public sealed partial class HomePage : Page
     public HomePage()
     {
         this.InitializeComponent();
-        LoadWallpaper();
+
+        ////BKGImage.Path = (ImageSource)Application.Current.Resources["HeroBackgroundBitmapImage"];
     }
 
     // Constants for SystemParametersInfo function
@@ -33,26 +37,5 @@ public sealed partial class HomePage : Page
         var wallpaperPath = new StringBuilder(MAX_PATH);
         _ = SystemParametersInfo(SPI_GETDESKWALLPAPER, MAX_PATH, wallpaperPath, 0);
         return wallpaperPath.ToString();
-    }
-
-    public async void LoadWallpaper()
-    {
-        try
-        {
-            if (ActualTheme == ElementTheme.Light)
-            {
-                BKGImage.Path = "/Assets/Backgrounds/BackgroundLight.png";
-            }
-            if (ActualTheme == ElementTheme.Dark)
-            {
-                BKGImage.Path = "/Assets/Backgrounds/BackgroundDark.png";
-            }
-            await Task.Delay(100);
-           //// LoadWallpaper();
-        }
-        catch
-        {
-
-        }
     }
 }

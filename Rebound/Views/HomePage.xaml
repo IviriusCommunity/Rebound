@@ -23,7 +23,8 @@
                 HorizontalAlignment="Stretch"
                 VerticalAlignment="Top"
                 Opacity="0.5"
-                Path="/Assets/Wallpapers/WallpaperDarkBlue.png" />
+                Path="{ThemeResource HeroBackgroundBitmapImage}"
+                Visibility="Visible" />
             <StackPanel Margin="45">
                 <Grid>
                     <Image

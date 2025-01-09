@@ -891,11 +891,12 @@
 
                             <Grid
                                 x:Name="ContentGrid"
+                                MinWidth="64"
                                 MinHeight="58"
                                 HorizontalAlignment="Stretch">
                                 <Grid.ChildrenTransitions>
                                     <TransitionCollection>
-                                        <ReorderThemeTransition />
+                                        <RepositionThemeTransition />
                                     </TransitionCollection>
                                 </Grid.ChildrenTransitions>
 
@@ -909,9 +910,9 @@
                                 <Viewbox
                                     x:Name="IconBox"
                                     Grid.Row="1"
-                                    Width="20"
-                                    Height="20"
-                                    Margin="0"
+                                    Width="28"
+                                    Height="28"
+                                    Margin="0,-3.5,0,0"
                                     HorizontalAlignment="Center">
                                     <ContentPresenter
                                         x:Name="Icon"
@@ -926,7 +927,6 @@
                                 <Border
                                     x:Name="TextBox"
                                     Grid.Row="2"
-                                    Margin="0,6,0,0"
                                     Padding="{TemplateBinding Padding}"
                                     HorizontalAlignment="Center">
                                     <ContentPresenter

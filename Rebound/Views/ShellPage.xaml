@@ -10,69 +10,17 @@
 
     <NavigationView
         x:Name="NavigationViewControl"
-        BackRequested="NavigationViewControl_BackRequested"
         Canvas.ZIndex="0"
-        ExpandedModeThresholdWidth="1280"
         IsBackButtonVisible="Collapsed"
-        IsBackEnabled="{Binding CanGoBack, ElementName=NavigationFrame}"
         IsPaneToggleButtonVisible="False"
         IsSettingsVisible="False"
+        ItemInvoked="Navigate"
         OpenPaneLength="72"
         PaneDisplayMode="Left"
-        SelectionChanged="NavigationViewControl_SelectionChanged"
         Style="{ThemeResource ExtendedNavigationViewStyle}">
-        <NavigationView.MenuItems>
-            <NavigationViewItem
-                x:Name="HomeItem"
-                Content="Home"
-                Tag="Home">
-                <NavigationViewItem.Icon>
-                    <FontIcon FontFamily="{StaticResource SymbolThemeFontFamily}" Glyph="" />
-                </NavigationViewItem.Icon>
-            </NavigationViewItem>
-            <NavigationViewItem
-                x:Name="Rebound11Item"
-                Content="Rebound 11"
-                Tag="Rebound 11">
-                <NavigationViewItem.Icon>
-                    <PathIcon Data="M 0 2 C 0 1 1 0 2 0 L 7 0 L 7 7 L 0 7 M 1 6 L 6 6 L 6 1 L 2 1 C 1.48 0.999 1.005 1.459 1 2 M 8 0 L 13 0 C 14 0 15 1 15 2 L 15 7 L 8 7 M 9 6 L 14 6 L 14 2 C 14.001 1.418 13.52 1 13 1 L 9 1 M 7 8 L 0 8 L 0 13 C 0 14 1 15 2 15 L 7 15 M 6 14 L 2 14 C 1.468 14.006 1.003 13.547 1 13 L 1 9 L 6 9 M 8 8 L 15 8 L 15 13 C 15 14 14 15 13 15 L 8 15 M 9 14 L 13 14 C 13.477 14 13.975 13.556 14 13 L 14 9 L 9 9 M 0 0 L 16 16" />
-                </NavigationViewItem.Icon>
-            </NavigationViewItem>
-            <NavigationViewItem
-                Content="CrimsonUI"
-                IsEnabled="False"
-                Tag="CrimsonUI">
-                <NavigationViewItem.Icon>
-                    <FontIcon FontFamily="{StaticResource SymbolThemeFontFamily}" Glyph="" />
-                </NavigationViewItem.Icon>
-            </NavigationViewItem>
-            <NavigationViewItem
-                Content="Ivirius.UI"
-                IsEnabled="False"
-                Tag="Ivirius.UI">
-                <NavigationViewItem.Icon>
-                    <FontIcon Glyph="" />
-                </NavigationViewItem.Icon>
-            </NavigationViewItem>
-        </NavigationView.MenuItems>
-        <NavigationView.FooterMenuItems>
-            <NavigationViewItem Content="Control Panel" Tag="Control Panel">
-                <NavigationViewItem.Icon>
-                    <PathIcon Margin="1,2,-1,-2" Data="M -1 2 C -1 1 0 0 1 0 L 12 0 C 13 0 14 1 14 2 L 14 9 C 14 10 13 11 12 11 L 1 11 C 0 11 -1 10 -1 9 Z M 0 9 C 0.006 9.481 0.477 10.016 1 10 L 12 10 C 12.527 10.016 12.998 9.524 13 9 L 13 2 C 12.997 1.513 12.52 0.992 12 1 L 1 1 C 0.499 1 0.002 1.448 0 2 Z M 3.51 1.994 A 1 1 0 0 0 3.531 6.998 A 1 1 0 0 0 3.521 1.994 M 3.5 3 L 3.5 4.5 L 5 4.5 C 5 5.333 4.333 6 3.5 6 C 2.666 6 2 5.333 2 4.5 C 2 3.666 2.666 3 3.5 3 Z M 7 2 L 12 2 L 12 3 L 7 3 M 7 4 L 12 4 L 12 5 L 7 5 M 7 6 L 12 6 L 12 7 L 7 7 M 1 8 L 12 8 L 12 9 L 1 9 M 8 8 L 16 16" />
-                </NavigationViewItem.Icon>
-            </NavigationViewItem>
-            <NavigationViewItem
-                Content="Legal terms"
-                IsEnabled="False"
-                Tag="Legal terms">
-                <NavigationViewItem.Icon>
-                    <FontIcon Glyph="" />
-                </NavigationViewItem.Icon>
-            </NavigationViewItem>
-        </NavigationView.FooterMenuItems>
         <NavigationView.Content>
             <Frame
-                x:Name="NavigationFrame"
+                x:Name="MainFrame"
                 Background="{ThemeResource CardBackgroundFillColorSecondaryBrush}"
                 BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
                 BorderThickness="1,1,0,0"

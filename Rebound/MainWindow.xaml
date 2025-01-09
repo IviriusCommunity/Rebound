@@ -387,7 +387,7 @@
                 FontFamily="Segoe UI"
                 FontSize="12"
                 FontWeight="Normal"
-                Foreground="#ffffff"
+                Foreground="{ThemeResource TextFillColorPrimaryBrush}"
                 TextTrimming="CharacterEllipsis" />
 
             <Border
