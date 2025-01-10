@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <OutputType>WinExe</OutputType>
-	  <TargetFramework>net9.0-windows10.0.26100.0</TargetFramework>
+	  <TargetFramework>net8.0-windows10.0.22621.0</TargetFramework>
 	  <WindowsSdkPackageVersion>10.0.22621.38</WindowsSdkPackageVersion>
 	  <SupportedOSPlatformVersion>10.0.17763.0</SupportedOSPlatformVersion>
     <RootNamespace>Rebound.Defrag</RootNamespace>
@@ -23,6 +23,7 @@
        <HoursBetweenUpdateChecks>0</HoursBetweenUpdateChecks>
        <ApplicationIcon>Rebound.Defrag.ico</ApplicationIcon>
        <PackageCertificateThumbprint>805D9FAF3E251362A569D694C3D7834BE80FE5B8</PackageCertificateThumbprint>
+  <LangVerion>preview</LangVerion>
   </PropertyGroup>
   <ItemGroup>
     <None Remove="Assets\Administrator.png" />
@@ -51,21 +52,25 @@
     <Content Include="Rebound.Defrag.ico" />
   </ItemGroup>
 
-  <ItemGroup>
-	  <PackageReference Include="Cake.Powershell" Version="4.0.0" />
-    <PackageReference Include="HardwareProviders.HDD.Standard" Version="2.0.1" />
-    <PackageReference Include="Microsoft-WindowsAPICodePack-Shell" Version="1.1.5" />
-	  <PackageReference Include="Microsoft.Windows.CsWinRT" Version="2.2.0" />
-	<PackageReference Include="Microsoft.Web.WebView2" Version="1.0.2950-prerelease" />
-	<PackageReference Include="Microsoft.Windows.SDK.BuildTools" Version="10.0.26100.1742" />
-	<PackageReference Include="Microsoft.WindowsAppSDK" Version="1.7.241114004-experimental1" />
-    <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
-    <PackageReference Include="System.Diagnostics.EventLog" Version="9.0.0" />
-    <PackageReference Include="System.Management" Version="9.0.0" />
-    <PackageReference Include="TaskScheduler" Version="2.11.0" />
-    <PackageReference Include="WinUIEx" Version="2.5.0" />
-    <Manifest Include="$(ApplicationManifest)" />
-  </ItemGroup>
+	<ItemGroup>
+		<PackageReference Include="Cake.Powershell" Version="4.0.0" />
+		<PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.0" />
+		<PackageReference Include="CommunityToolkit.WinUI.Extensions" Version="8.2.241112-preview1" />
+		<PackageReference Include="CommunityToolkit.WinUI.Helpers" Version="8.2.241112-preview1" />
+		<PackageReference Include="HardwareProviders.HDD.Standard" Version="2.0.1" />
+		<PackageReference Include="Microsoft-WindowsAPICodePack-Shell" Version="1.1.5" />
+		<PackageReference Include="Microsoft.Windows.CsWinRT" Version="2.2.0" />
+		<PackageReference Include="Microsoft.Web.WebView2" Version="1.0.2950-prerelease" />
+		<PackageReference Include="Microsoft.Windows.SDK.BuildTools" Version="10.0.26100.1742" />
+		<PackageReference Include="Microsoft.WindowsAppSDK" Version="1.7.241114004-experimental1" />
+		<PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
+		<PackageReference Include="Riverside.Toolkit" Version="2.0.0-alpha1" />
+		<PackageReference Include="System.Diagnostics.EventLog" Version="9.0.0" />
+		<PackageReference Include="System.Management" Version="9.0.0" />
+		<PackageReference Include="TaskScheduler" Version="2.11.0" />
+		<PackageReference Include="WinUIEx" Version="2.5.0" />
+		<Manifest Include="$(ApplicationManifest)" />
+	</ItemGroup>
 
   <!--
     Defining the "Msix" ProjectCapability here allows the Single-project MSIX Packaging
@@ -126,5 +131,6 @@
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <AssemblyName>Rebound Defragment and Optimize Drives</AssemblyName>
+    <LangVersion>preview</LangVersion>
   </PropertyGroup>
 </Project>
