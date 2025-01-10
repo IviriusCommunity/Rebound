@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Diagnostics;
 using System.Linq;
-using Rebound.Helpers;
-using static Rebound.Defrag.MainWindow;
+using System.Text;
+using Microsoft.Windows.Storage;
 
 #nullable enable
 
@@ -35,8 +35,53 @@ public partial class DriveListViewItem
     public bool IsChecked
     {
         // Use settings helper here to retrieve and write this value
-        get;
-        set;
+        get => GetValue<bool>(ConvertStringToNumericRepresentation(DriveLetter));
+        set => SetValue(ConvertStringToNumericRepresentation(DriveLetter), value);
+    }
+
+    public static string ConvertStringToNumericRepresentation(string? input)
+    {
+        input ??= "";
+
+        // Create a StringBuilder to store the numeric representation
+        StringBuilder numericRepresentation = new();
+
+        // Iterate over each character in the string
+        foreach (var c in input)
+        {
+            // Convert the character to its ASCII value and append it
+            _ = numericRepresentation.Append((int)c);
+        }
+
+        // Return the numeric representation as a string
+        return numericRepresentation.ToString();
+    }
+
+    public static T? GetValue<T>(string key)
+    {
+        try
+        {
+            var userSettings = ApplicationData.GetDefault();
+            if ((T)userSettings.LocalSettings.Values[key] is not null) return (T)userSettings.LocalSettings.Values[key];
+            else return default;
+        }
+        catch
+        {
+            return default;
+        }
+    }
+
+    public static void SetValue<T>(string key, T newValue)
+    {
+        try
+        {
+            var userSettings = ApplicationData.GetDefault();
+            userSettings.LocalSettings.Values[key] = newValue;
+        }
+        catch
+        {
+            return;
+        }
     }
 
     public bool CheckIfNeedsOptimization()
