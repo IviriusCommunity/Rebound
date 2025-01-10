@@ -16,11 +16,7 @@ public sealed partial class MainWindow : WindowEx
         InitializeComponent();
         ViewModel = new MainViewModel();
         AppWindow.DefaultTitleBarShouldMatchAppModeTheme = true;
-        IsMaximizable = false;
-        IsMinimizable = false;
         this.MoveAndResize(25, 25, 650, 690);
-        Title = "About Windows";
-        IsResizable = false;
         SystemBackdrop = new MicaBackdrop();
         this.SetIcon($"{AppContext.BaseDirectory}\\Assets\\Rebound.ico");
     }
