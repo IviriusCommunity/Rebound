@@ -21,6 +21,7 @@ using WinUIEx;
 using System.Diagnostics;
 using Windows.Devices.Enumeration;
 using Rebound.Defrag.Controls;
+using CommunityToolkit.Mvvm.Input;
 
 #nullable enable
 
@@ -98,4 +99,15 @@ public sealed partial class MainPage : Page
         });
     }
 
+    [RelayCommand]
+    public void Optimize()
+    {
+        foreach (var item in DriveItems)
+        {
+            if (item.CanBeOptimized && item.IsChecked)
+            {
+                item.Optimize();
+            }
+        }
+    }
 }

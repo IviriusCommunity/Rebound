@@ -3,6 +3,10 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Diagnostics.Eventing.Reader;
 using System.Linq;
+using System.Text;
+using Microsoft.UI.Dispatching;
+using Microsoft.UI.Xaml.Controls;
+using Microsoft.WindowsAPICodePack.Taskbar;
 using Rebound.Defrag.Helpers;
 using static Rebound.Defrag.MainWindow;
 
@@ -72,6 +76,125 @@ public partial class DriveListViewItem
     private static List<string> cachedEventMessages = null;
     private static DateTime lastCacheTime = DateTime.MinValue;
     private static readonly TimeSpan cacheDuration = TimeSpan.FromMinutes(5); // Cache duration of 5 minutes
+
+    public async void Optimize()
+    {
+        var volume = DrivePath.DrivePathToLetter();
+        var arguments = $@"
+$global:OutputLines = @()
+
+Optimize-Volume -DriveLetter {volume} {(MediaType?.Contains("HDD") == true ? "-Defrag" : "-Retrim")} -Verbose | ForEach-Object {{
+    if ($_ -like '*Progress*') {{
+        Write-Output ""Progress: $_""
+    }} else {{
+        $global:OutputLines += $_
+        Write-Output $_
+    }}
+}}
+
+$global:OutputLines
+
+";
+
+        try
+        {
+            if (!CanBeOptimized)
+            {
+                return;
+            }
+
+            var processInfo = new ProcessStartInfo
+            {
+                FileName = "powershell.exe",
+                Arguments = $"-ExecutionPolicy Bypass -Command \"{arguments}\"",  // Use -File to execute the script
+                RedirectStandardOutput = true,
+                RedirectStandardError = true,
+                UseShellExecute = false,
+                CreateNoWindow = true,
+                Verb = "runas"  // Run as administrator
+            };
+
+            using var process = new Process { StartInfo = processInfo };
+
+            PowerShellProcess = process;
+
+            var alreadyUsed = new List<string>();
+
+            process.OutputDataReceived += UpdateOutput;
+
+            void UpdateOutput(object sender, DataReceivedEventArgs args)
+            {
+                // Only process if there's data
+                if (!string.IsNullOrEmpty(args.Data))
+                {
+                    // Use the dispatcher to update the UI
+                    UpdateIO(args.Data);
+                }
+            }
+
+            _ = process.Start();
+            process.BeginOutputReadLine();
+
+            void UpdateIO(string data)
+            {
+                if (data.Contains("VERBOSE: ") && data.Contains(" complete."))
+                {
+                    var a = data[data.LastIndexOf("VERBOSE: ")..].Replace("VERBOSE: ", string.Empty);
+
+                    var dataToReplace = " complete.";
+
+                    RunUpdate(a, dataToReplace);
+                }
+            }
+
+            void RunUpdate(string a, string dataToReplace)
+            {
+                if (alreadyUsed.Contains(a) != true)
+                {
+                    alreadyUsed.Add(a);
+                    OperationProgress = GetMaxPercentage(a);
+                    OperationInformation = $"{a}: {OperationProgress}% complete";
+                    if (a.Contains(" complete..."))
+                    {
+                        dataToReplace = " complete...";
+                    }
+                    else if (a.Contains(" complete."))
+                    {
+                        dataToReplace = " complete.";
+
+                    }
+                }
+            }
+
+            await process.WaitForExitAsync();
+
+            PowerShellProcess = null;
+        }
+        catch
+        {
+
+        }
+    }
+
+    private static int GetMaxPercentage(string data)
+    {
+        static string KeepOnlyNumbers(string input)
+        {
+            StringBuilder sb = new();
+
+            foreach (var c in input)
+            {
+                if (char.IsDigit(c))
+                {
+                    _ = sb.Append(c);
+                }
+            }
+
+            return sb.ToString();
+        }
+        var match = KeepOnlyNumbers(data);
+        return int.Parse(match);
+    }
 
     public string GetLastOptimized()
     {
