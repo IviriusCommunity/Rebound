@@ -37,6 +37,7 @@
     <None Remove="Assets\Rebound.Defrag.ico" />
     <None Remove="Assets\Rebound.Defrag.png" />
     <None Remove="ScheduledOptimization.xaml" />
+    <None Remove="Views\MainPage.xaml" />
   </ItemGroup>
   <ItemGroup>
     <Page Remove="AdminWindow.xaml" />
@@ -57,6 +58,10 @@
 		<PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.0" />
 		<PackageReference Include="CommunityToolkit.WinUI.Extensions" Version="8.2.241112-preview1" />
 		<PackageReference Include="CommunityToolkit.WinUI.Helpers" Version="8.2.241112-preview1" />
+		<PackageReference Include="DependencyPropertyGenerator" Version="1.5.0-beta.2">
+		  <PrivateAssets>all</PrivateAssets>
+		  <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+		</PackageReference>
 		<PackageReference Include="HardwareProviders.HDD.Standard" Version="2.0.1" />
 		<PackageReference Include="Microsoft-WindowsAPICodePack-Shell" Version="1.1.5" />
 		<PackageReference Include="Microsoft.Windows.CsWinRT" Version="2.2.0" />
@@ -89,6 +94,9 @@
     <None Update="AdminWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
     </None>
+    <Page Update="Views\MainPage.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Update="ScheduledOptimization.xaml">
       <Generator>MSBuild:Compile</Generator>
     </Page>

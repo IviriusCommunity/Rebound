@@ -1,8 +1,11 @@
 ﻿using System;
+using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.UI.Xaml;
 using Rebound.Helpers;
+using WinUIEx;
+using WinUIEx.Messaging;
 
 #nullable enable
 
@@ -20,7 +23,11 @@ public partial class App : Application
         _singleInstanceApp.Launched += OnSingleInstanceLaunched;
     }
 
-    protected override void OnLaunched(LaunchActivatedEventArgs args) => _singleInstanceApp?.Launch(args.Arguments);
+    protected override void OnLaunched(LaunchActivatedEventArgs args)
+    {
+        MainAppWindow = new MainWindow();
+        MainAppWindow.Activate();
+    }
 
     private async void OnSingleInstanceLaunched(object? sender, SingleInstanceLaunchEventArgs e)
     {
@@ -46,6 +53,7 @@ public partial class App : Application
     {
         MainAppWindow = new MainWindow();
         MainAppWindow.Activate();
+        mon = new WindowMessageMonitor(MainAppWindow);
         //await ((MainWindow)MainAppWindow).LoadAppAsync();
 
         var commandArgs = string.Join(" ", Environment.GetCommandLineArgs().Skip(1));
@@ -135,5 +143,7 @@ public partial class App : Application
         }
     }
 
-    private Window? MainAppWindow;
+    public static WindowEx MainAppWindow { get; set; }
+
+    public static WindowMessageMonitor mon { get; set; }
 }

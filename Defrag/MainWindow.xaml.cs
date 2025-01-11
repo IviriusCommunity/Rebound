@@ -1,4 +1,5 @@
-﻿using System;
+﻿using DependencyPropertyGenerator;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Diagnostics.Eventing.Reader;
@@ -13,6 +14,7 @@ using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Media;
 using Microsoft.Win32.TaskScheduler;
 using Microsoft.WindowsAPICodePack.Taskbar;
+using Rebound.Defrag.Controls;
 using Rebound.Defrag.Helpers;
 using Windows.ApplicationModel;
 using Windows.ApplicationModel.Core;
@@ -21,6 +23,7 @@ using Windows.System;
 using WinUIEx;
 using WinUIEx.Messaging;
 using Task = System.Threading.Tasks.Task;
+using Rebound.Defrag.Views;
 
 #nullable enable
 
@@ -37,12 +40,13 @@ public sealed partial class MainWindow : WindowEx
         TitleBarControl.InitializeForWindow(this, App.Current);
         //TitleBarControl.SetWindowIcon(@$"{AppContext.BaseDirectory}/Assets/Rebound.Defrag.ico");
 
-        IsResizable = false;
-
         // Window customization
-        this.SetWindowSize(800, 670);
+        this.SetWindowSize(800, 550);
         this.CenterOnScreen();
         //this.SetIcon(@$"{AppContext.BaseDirectory}/Assets/Rebound.Defrag.ico");
+
+        //DrivesListView.ItemsSource = DriveHelper.GetDriveItems(ShowAdvanced);
+        RootFrame.Navigate(typeof(MainPage));
     }
 
     public async Task LoadAppAsync()
@@ -393,7 +397,7 @@ public sealed partial class MainWindow : WindowEx
 
         if (loadSystemPartitions)
         {
-            var syspart = SystemVolumes.GetSystemVolumes();
+            var syspart = DriveHelper.GetSystemVolumes();
 
             // Add system partitions to the items list
             foreach (var result in syspart)

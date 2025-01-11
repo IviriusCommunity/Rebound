@@ -10,9 +10,12 @@
     xmlns:winuiex="using:WinUIEx"
     xmlns:titleBar="using:Riverside.Toolkit.Controls.TitleBar"
     xmlns:controls="using:CommunityToolkit.WinUI.UI.Controls"
+    xmlns:converters="using:CommunityToolkit.WinUI.UI.Converters"
+    Title="Optimize drives"
+    IsResizable="False"
     mc:Ignorable="d">
     <Grid>
-        <StackPanel Margin="15,5,15,13" Spacing="10">
+        <StackPanel Margin="15,5,15,13" Visibility="Collapsed" Spacing="10">
             <InfoBar
                 x:Name="HeaderInfoBar"
                 Title="You can optimize your drives to help your computer run more efficiently, or analyze them to find out if they need to be optimized. Only drives on or connected to your computer are shown."
@@ -515,63 +518,7 @@
                 </StackPanel>
             </Grid>
         </StackPanel>
-        <ListView Margin="15, 100" BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" CornerRadius="4" BorderThickness="1" Background="{ThemeResource CardBackgroundFillColorDefaultBrush}">
-            <ListView.Header>
-                <Grid Height="32" Background="{ThemeResource ControlFillColorInputActiveBrush}" CornerRadius="4, 4, 0, 0">
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="48"/>
-                        <ColumnDefinition Width="1"/>
-                        <ColumnDefinition Width="150"/>
-                        <ColumnDefinition Width="1"/>
-                        <ColumnDefinition Width="100"/>
-                        <ColumnDefinition Width="1"/>
-                        <ColumnDefinition Width="*"/>
-                        <ColumnDefinition Width="1"/>
-                        <ColumnDefinition Width="150"/>
-                    </Grid.ColumnDefinitions>
-                    <TextBlock Text="Name" Grid.Column="2" VerticalAlignment="Center" Margin="0, 0, 12, 2" Style="{ThemeResource CaptionTextBlockStyle}" Opacity="0.8"/>
-                    <Border Margin="0, 8" Background="{ThemeResource MenuFlyoutSeparatorThemeBrush}" Grid.Column="3"/>
-                    <TextBlock Text="Type" Grid.Column="4" VerticalAlignment="Center" Margin="12, 0, 12, 2" Style="{ThemeResource CaptionTextBlockStyle}" Opacity="0.8"/>
-                    <Border Margin="0, 8" Background="{ThemeResource MenuFlyoutSeparatorThemeBrush}" Grid.Column="5"/>
-                    <TextBlock Text="Status" Grid.Column="6" VerticalAlignment="Center" Margin="12, 0, 12, 2" Style="{ThemeResource CaptionTextBlockStyle}" Opacity="0.8"/>
-                    <Border Margin="0, 8" Background="{ThemeResource MenuFlyoutSeparatorThemeBrush}" Grid.Column="7"/>
-                    <TextBlock Text="Last optimized" Grid.Column="8" VerticalAlignment="Center" Margin="12, 0, 12, 2" Style="{ThemeResource CaptionTextBlockStyle}" Opacity="0.8"/>
-                </Grid>
-            </ListView.Header>
-            <ListView.ItemTemplate>
-                <DataTemplate>
-                    <Grid>
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="32"/>
-                            <ColumnDefinition Width="1"/>
-                            <ColumnDefinition Width="150"/>
-                            <ColumnDefinition Width="1"/>
-                            <ColumnDefinition Width="100"/>
-                            <ColumnDefinition Width="1"/>
-                            <ColumnDefinition Width="*"/>
-                            <ColumnDefinition Width="1"/>
-                            <ColumnDefinition Width="138"/>
-                        </Grid.ColumnDefinitions>
-                        <CheckBox/>
-                        <StackPanel Orientation="Horizontal" Grid.Column="2" Spacing="8" VerticalAlignment="Center" Margin="0, 0, 12, 2">
-                            <Image Source="ms-appx:///Assets/Drive.png" Width="20"/>
-                            <TextBlock Text="Local Disk (C:)"/>
-                        </StackPanel>
-                        <TextBlock Text="SSD" Grid.Column="4" VerticalAlignment="Center" Margin="12, 0, 12, 2" Style="{ThemeResource CaptionTextBlockStyle}" Opacity="0.8"/>
-                        <Grid Grid.Column="6">
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="50"/>
-                                <ColumnDefinition Width="*"/>
-                            </Grid.ColumnDefinitions>
-                            <TextBlock Text="73%" Margin="12, 0, 12, 2" VerticalAlignment="Center" Style="{ThemeResource CaptionTextBlockStyle}" Opacity="0.8"/>
-                            <ProgressBar Value="73" Margin="0, 0, 8, 0" Grid.Column="1"/>
-                        </Grid>
-                        <TextBlock Text="Tomorrow" Grid.Column="8" VerticalAlignment="Center" Margin="12, 0, 12, 2" Style="{ThemeResource CaptionTextBlockStyle}" Opacity="0.8"/>
-                    </Grid>
-                </DataTemplate>
-            </ListView.ItemTemplate>
-        </ListView>
+        <Frame Margin="0, 28, 0, 0" x:Name="RootFrame"/>
         <titleBar:TitleBarEx x:Name="TitleBarControl" Loaded="TitleBarControl_Loaded" VerticalAlignment="Top" Title="Optimize Drives" Subtitle="  -  Developer Preview" IsMaximizable="False" UseWinUIEverywhere="True"/>
     </Grid>
-
 </winuiex:WindowEx>
