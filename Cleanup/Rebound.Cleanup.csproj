@@ -51,6 +51,7 @@
 
 	<!-- Package content -->
 	<ItemGroup>
+		<None Remove="Assets\Administrator.png" />
 		<None Remove="Assets\cleanmgr.ico" />
 		<None Remove="Assets\cleanmgr.png" />
 		<None Remove="Assets\DDORes_2001.ico" />

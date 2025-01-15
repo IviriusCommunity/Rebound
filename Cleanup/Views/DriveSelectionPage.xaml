@@ -11,8 +11,12 @@
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
             <RowDefinition Height="8"/>
             <RowDefinition Height="Auto"/>
+            <RowDefinition Height="8"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="16"/>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
@@ -20,7 +24,7 @@
             <MenuBarItem Title="Options">
                 <MenuFlyoutItem Text="Clean up system files">
                     <MenuFlyoutItem.Icon>
-                        <FontIcon Glyph=""/>
+                        <ImageIcon Source="ms-appx:///Assets/Administrator.png"/>
                     </MenuFlyoutItem.Icon>
                 </MenuFlyoutItem>
                 <MenuFlyoutItem Text="Delete shadow copies">
@@ -40,14 +44,15 @@
                 </MenuFlyoutItem>
                 <MenuFlyoutItem Text="Optimize drives">
                     <MenuFlyoutItem.Icon>
-                        <FontIcon Glyph="&#xE958;"/>
+                        <FontIcon Glyph="&#xE621;"/>
                     </MenuFlyoutItem.Icon>
                 </MenuFlyoutItem>
             </MenuBarItem>
         </MenuBar>
         <ComboBox
-            Margin="20, 8, 20, 12"
-            Grid.Row="2"
+            Margin="16, 0"
+            Grid.Row="1"
+            Header="Select a drive to clean up."
             HorizontalAlignment="Stretch"
             VerticalAlignment="Center"
             ItemsSource="{x:Bind ComboBoxItems, Mode=OneWay}"
@@ -61,10 +66,24 @@
                 </DataTemplate>
             </ComboBox.ItemTemplate>
         </ComboBox>
+        <InfoBar
+            IsOpen="True"
+            IsClosable="False" 
+            Margin="16, 0"
+            Grid.Row="3"
+            Title="Hover over an item for a description." />
+        <ListView
+            Grid.Row="5"
+            CornerRadius="4"
+            Margin="16, 0"
+            Background="{ThemeResource CardBackgroundFillColorDefaultBrush}" 
+            BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}">
+            
+        </ListView>
         <ProgressBar
             x:Name="Working"
-            Grid.Row="8"
-            Value="50"
+            Grid.Row="7"
+            IsIndeterminate="True"
             VerticalAlignment="Bottom"
             Background="Transparent" />
         <Border
