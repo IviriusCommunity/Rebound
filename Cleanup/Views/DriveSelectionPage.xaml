@@ -10,15 +10,46 @@
     mc:Ignorable="d">
     <Grid>
         <Grid.RowDefinitions>
-            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="8"/>
+            <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
+        <MenuBar>
+            <MenuBarItem Title="Options">
+                <MenuFlyoutItem Text="Clean up system files">
+                    <MenuFlyoutItem.Icon>
+                        <FontIcon Glyph=""/>
+                    </MenuFlyoutItem.Icon>
+                </MenuFlyoutItem>
+                <MenuFlyoutItem Text="Delete shadow copies">
+                    <MenuFlyoutItem.Icon>
+                        <FontIcon Glyph="&#xED62;"/>
+                    </MenuFlyoutItem.Icon>
+                </MenuFlyoutItem>
+                <MenuFlyoutItem Text="View files">
+                    <MenuFlyoutItem.Icon>
+                        <FontIcon Glyph="&#xE838;"/>
+                    </MenuFlyoutItem.Icon>
+                </MenuFlyoutItem>
+                <MenuFlyoutItem Text="Programs and features">
+                    <MenuFlyoutItem.Icon>
+                        <FontIcon Glyph="&#xE74C;"/>
+                    </MenuFlyoutItem.Icon>
+                </MenuFlyoutItem>
+                <MenuFlyoutItem Text="Optimize drives">
+                    <MenuFlyoutItem.Icon>
+                        <FontIcon Glyph="&#xE958;"/>
+                    </MenuFlyoutItem.Icon>
+                </MenuFlyoutItem>
+            </MenuBarItem>
+        </MenuBar>
         <ComboBox
             Margin="20, 8, 20, 12"
+            Grid.Row="2"
             HorizontalAlignment="Stretch"
             VerticalAlignment="Center"
-            Header="Select the drive you want to clean up."
             ItemsSource="{x:Bind ComboBoxItems, Mode=OneWay}"
             SelectedIndex="0">
             <ComboBox.ItemTemplate>
@@ -30,12 +61,18 @@
                 </DataTemplate>
             </ComboBox.ItemTemplate>
         </ComboBox>
+        <ProgressBar
+            x:Name="Working"
+            Grid.Row="8"
+            Value="50"
+            VerticalAlignment="Bottom"
+            Background="Transparent" />
         <Border
-            Grid.Row="2"
+            Grid.Row="8"
             Height="75"
             VerticalAlignment="Bottom"
             Background="{ThemeResource SystemControlBackgroundAltMediumLowBrush}" />
-        <Grid Grid.Row="2" Margin="20" VerticalAlignment="Center">
+        <Grid Grid.Row="8" Margin="20" VerticalAlignment="Center">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition />
                 <ColumnDefinition Width="8" />
@@ -43,21 +80,16 @@
             </Grid.ColumnDefinitions>
             <Button
                 HorizontalAlignment="Stretch"
-                Content="OK"
+                Content="Clean"
                 Style="{ThemeResource AccentButtonStyle}" />
             <Button
                 Grid.Column="2"
                 HorizontalAlignment="Stretch"
-                Content="Exit">
+                Content="Cancel">
                 <Button.KeyboardAccelerators>
                     <KeyboardAccelerator Key="Escape"/>
                 </Button.KeyboardAccelerators>
             </Button>
         </Grid>
-        <ProgressBar
-            x:Name="Working"
-            Grid.Row="1"
-            VerticalAlignment="Bottom"
-            Background="Transparent" />
     </Grid>
 </Page>

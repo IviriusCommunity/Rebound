@@ -16,12 +16,12 @@ public sealed partial class MainWindow : WindowEx
     {
         InitializeComponent();
         AppWindow.DefaultTitleBarShouldMatchAppModeTheme = true;
-        this.SetWindowSize(350, 200);
+        this.SetWindowSize(400, 600);
         IsMaximizable = false;
         IsMinimizable = false;
         IsResizable = false;
         this.CenterOnScreen();
-        Title = "Disk Cleanup : Drive Selection";
+        Title = "Disk Cleanup";
         SystemBackdrop = new MicaBackdrop();
         this.SetIcon($@"{AppContext.BaseDirectory}\Assets\cleanmgr.ico");
         var x = Directory.GetLogicalDrives();
