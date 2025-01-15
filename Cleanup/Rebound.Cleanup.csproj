@@ -1,107 +1,157 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
-  <PropertyGroup>
-    <OutputType>WinExe</OutputType>
-       <TargetFramework>net8.0-windows10.0.22621.0</TargetFramework>
-       <TargetPlatformMinVersion>10.0.17763.0</TargetPlatformMinVersion>	  <TargetFramework>net8.0-windows10.0.22621.0</TargetFramework>
-	  
-    <RootNamespace>Rebound.Cleanup</RootNamespace>
-    <ApplicationManifest>app.manifest</ApplicationManifest>
-    <Platforms>x86;x64;ARM64</Platforms>
-    <RuntimeIdentifiers Condition="$([MSBuild]::GetTargetFrameworkVersion('$(TargetFramework)')) &gt;= 8">win-x86;win-x64;win-arm64</RuntimeIdentifiers>
-    <RuntimeIdentifiers Condition="$([MSBuild]::GetTargetFrameworkVersion('$(TargetFramework)')) &lt; 8">win10-x86;win10-x64;win10-arm64</RuntimeIdentifiers>
-    <PublishProfile>win-$(Platform).pubxml</PublishProfile>
-    <UseWinUI>true</UseWinUI>
-    <EnableMsixTooling>true</EnableMsixTooling>
-       <WindowsSdkPackageVersion>10.0.22621.38</WindowsSdkPackageVersion>
-       <GenerateAppInstallerFile>True</GenerateAppInstallerFile>
-       <AppxPackageSigningEnabled>True</AppxPackageSigningEnabled>
-       <PackageCertificateKeyFile>Rebound.Cleanup_TemporaryKey.pfx</PackageCertificateKeyFile>
-       <AppxPackageSigningTimestampDigestAlgorithm>SHA256</AppxPackageSigningTimestampDigestAlgorithm>
-       <AppxAutoIncrementPackageRevision>False</AppxAutoIncrementPackageRevision>
-       <AppxSymbolPackageEnabled>False</AppxSymbolPackageEnabled>
-       <GenerateTestArtifacts>True</GenerateTestArtifacts>
-       <AppxBundle>Never</AppxBundle>
-       <AppInstallerUri>C:\Users\Lenovo\Desktop</AppInstallerUri>
-       <HoursBetweenUpdateChecks>0</HoursBetweenUpdateChecks>	  
-  </PropertyGroup>
-  <ItemGroup>
-    <None Remove="Assets\cleanmgr.ico" />
-    <None Remove="Assets\cleanmgr.png" />
-    <None Remove="Assets\DDORes_2001.ico" />
-    <None Remove="Assets\EventViewer.png" />
-    <None Remove="Assets\imageres_184.ico" />
-    <None Remove="Assets\imageres_2.ico" />
-    <None Remove="Assets\imageres_3.ico" />
-    <None Remove="Assets\imageres_5364.ico" />
-    <None Remove="Assets\imageres_54.ico" />
-    <None Remove="Assets\imageres_59.ico" />
-    <None Remove="Assets\r11imageres_101.ico" />
-    <None Remove="DiskWindow.xaml" />
-  </ItemGroup>
+	<!-- Properties -->
+	<PropertyGroup>
+		<!-- Versions -->
+		<TargetFramework>net8.0-windows10.0.22621.0</TargetFramework>
+		<WindowsSdkPackageVersion>10.0.22621.38</WindowsSdkPackageVersion>
+		<SupportedOSPlatformVersion>10.0.17763.0</SupportedOSPlatformVersion>
 
-  <ItemGroup>
-    <Content Include="Assets\SplashScreen.scale-200.png" />
-    <Content Include="Assets\LockScreenLogo.scale-200.png" />
-    <Content Include="Assets\Square150x150Logo.scale-200.png" />
-    <Content Include="Assets\Square44x44Logo.scale-200.png" />
-    <Content Include="Assets\Square44x44Logo.targetsize-24_altform-unplated.png" />
-    <Content Include="Assets\Wide310x150Logo.scale-200.png" />
-  </ItemGroup>
+		<!-- Application metadata -->
+		<ApplicationManifest>app.manifest</ApplicationManifest>
+		<ApplicationIcon>Assets\cleanmgr.ico</ApplicationIcon>
+		<AssemblyName>Rebound Disk Cleanup</AssemblyName>
+		<OutputType>WinExe</OutputType>
 
-  <ItemGroup>
-    <PackageReference Include="Microsoft.Windows.CsWinRT" Version="2.2.0" />
-    <PackageReference Include="Microsoft.Windows.SDK.BuildTools" Version="10.0.26100.1742" />
-    <PackageReference Include="Microsoft.WindowsAppSDK" Version="1.7.241114004-experimental1" />
-    <PackageReference Include="WinUIEx" Version="2.5.0" />
-    <Manifest Include="$(ApplicationManifest)" />
-  </ItemGroup>
+		<!-- Package metadata -->
+		<PackageLicenseExpression>MIT</PackageLicenseExpression>
 
-  <!--
-    Defining the "Msix" ProjectCapability here allows the Single-project MSIX Packaging
-    Tools extension to be activated for this project even if the Windows App SDK Nuget
-    package has not yet been restored.
-  -->
-  <ItemGroup Condition="'$(DisableMsixProjectCapabilityAddedByProject)'!='true' and '$(EnableMsixTooling)'=='true'">
-    <ProjectCapability Include="Msix" />
-  </ItemGroup>
-  <ItemGroup>
-    <Page Update="DiskWindow.xaml">
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-  </ItemGroup>
+		<!-- Architecture -->
+		<Platforms>x86;x64;ARM64</Platforms>
+		<RuntimeIdentifiers>win-x86;win-x64;win-arm64</RuntimeIdentifiers>
 
-  <!--
-    Defining the "HasPackageAndPublishMenuAddedByProject" property here allows the Solution
-    Explorer "Package and Publish" context menu entry to be enabled for this project even if
-    the Windows App SDK Nuget package has not yet been restored.
-  -->
-  <PropertyGroup Condition="'$(DisableHasPackageAndPublishMenuAddedByProject)'!='true' and '$(EnableMsixTooling)'=='true'">
-    <HasPackageAndPublishMenu>true</HasPackageAndPublishMenu>
-  </PropertyGroup>
+		<!-- Signing -->
+		<AppxPackageSigningEnabled>true</AppxPackageSigningEnabled>
+		<PackageCertificateKeyFile>Rebound.Cleanup_TemporaryKey.pfx</PackageCertificateKeyFile>
+		<AppxPackageSigningTimestampDigestAlgorithm>SHA256</AppxPackageSigningTimestampDigestAlgorithm>
 
-  <ItemGroup>
-    <None Include="..\Rebound\Assets\AppIcons\Rebound11Icon.png">
-      <Pack>True</Pack>
-      <PackagePath>\</PackagePath>
-    </None>
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="..\.github\README.md" Pack="true" PackagePath="\" />
-  </ItemGroup>
+		<!-- Packaging -->
+		<GenerateAppInstallerFile>true</GenerateAppInstallerFile>
+		<EnableMsixTooling>true</EnableMsixTooling>
+		<AppxAutoIncrementPackageRevision>false</AppxAutoIncrementPackageRevision>
+		<AppxSymbolPackageEnabled>false</AppxSymbolPackageEnabled>
+		<AppxBundle>Never</AppxBundle>
 
-  <PropertyGroup>
-    <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
-    <Authors>Riverside, ErrorTek, Lamparter</Authors>
-    <PackageProjectUrl>https://ivirius.vercel.app</PackageProjectUrl>
-    <Title>Disk Clean-up</Title>
-    <PackageId>Riverside.Rebound.Cleanup</PackageId>
-    <Copyright>Copyright (c) 2024-present Ivirius Community</Copyright>
-    <Description>Windows 11 done right.</Description>
-    <PackageIcon>Rebound11Icon.png</PackageIcon>
-    <IncludeSymbols>true</IncludeSymbols>
-    <SymbolPackageFormat>snupkg</SymbolPackageFormat>
-    <Version>0.0.3</Version>
-    <PackageLicenseExpression>MIT</PackageLicenseExpression>
-    <PackageReadmeFile>README.md</PackageReadmeFile>
-  </PropertyGroup>
+		<!-- Compilation -->
+		<GenerateTestArtifacts>true</GenerateTestArtifacts>
+		<PublishProfile>win-$(Platform).pubxml</PublishProfile>
+		<UseWinUI>true</UseWinUI>
+		<PublishAot>true</PublishAot>
+		<EnableComInterop>true</EnableComInterop>
+
+		<!-- Required for MVVM -->
+		<LangVersion>preview</LangVersion>
+
+		<!-- Required for WMI -->
+		<PublishTrimmed>false</PublishTrimmed>
+		
+		<!-- Runtime identifiers -->
+		<RuntimeIdentifiers Condition="$([MSBuild]::GetTargetFrameworkVersion('$(TargetFramework)')) &gt;= 8">win-x86;win-x64;win-arm64</RuntimeIdentifiers>
+		<RuntimeIdentifiers Condition="$([MSBuild]::GetTargetFrameworkVersion('$(TargetFramework)')) &lt; 8">win10-x86;win10-x64;win10-arm64</RuntimeIdentifiers>
+	</PropertyGroup>
+
+	<!-- Package content -->
+	<ItemGroup>
+		<None Remove="Assets\cleanmgr.ico" />
+		<None Remove="Assets\cleanmgr.png" />
+		<None Remove="Assets\DDORes_2001.ico" />
+		<None Remove="Assets\Drive.png" />
+		<None Remove="Assets\DriveFloppy.png" />
+		<None Remove="Assets\DriveOptical.png" />
+		<None Remove="Assets\DriveRemovable.png" />
+		<None Remove="Assets\DriveSystem.png" />
+		<None Remove="Assets\DriveUnknown.png" />
+		<None Remove="Assets\DriveWindows.png" />
+		<None Remove="Assets\EventViewer.png" />
+		<None Remove="Assets\imageres_184.ico" />
+		<None Remove="Assets\imageres_2.ico" />
+		<None Remove="Assets\imageres_3.ico" />
+		<None Remove="Assets\imageres_5364.ico" />
+		<None Remove="Assets\imageres_54.ico" />
+		<None Remove="Assets\imageres_59.ico" />
+		<None Remove="Assets\r11imageres_101.ico" />
+		<None Remove="DiskWindow.xaml" />
+		<None Remove="Views\DriveSelectionPage.xaml" />
+	</ItemGroup>
+
+	<!-- App assets -->
+	<ItemGroup>
+		<Content Include="Assets\SplashScreen.scale-200.png" />
+		<Content Include="Assets\LockScreenLogo.scale-200.png" />
+		<Content Include="Assets\Square150x150Logo.scale-200.png" />
+		<Content Include="Assets\Square44x44Logo.scale-200.png" />
+		<Content Include="Assets\Square44x44Logo.targetsize-24_altform-unplated.png" />
+		<Content Include="Assets\Wide310x150Logo.scale-200.png" />
+	</ItemGroup>
+
+	<!-- Package References -->
+	<ItemGroup>
+		<PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.0" />
+		<PackageReference Include="Microsoft.Windows.CsWinRT" Version="2.2.0" />
+		<PackageReference Include="Microsoft.Windows.SDK.BuildTools" Version="10.0.26100.1742" />
+		<PackageReference Include="Microsoft.WindowsAppSDK" Version="1.7.241114004-experimental1" />
+		<PackageReference Include="WinUIEx" Version="2.5.0" />
+		<Manifest Include="$(ApplicationManifest)" />
+	</ItemGroup>
+
+	<!-- Helpers project -->
+	<ItemGroup>
+		<ProjectReference Include="..\Helpers\Rebound.Helpers.csproj" />
+	</ItemGroup>
+
+	<!-- Add MSIX capability if tooling is enabled and not disabled by project configuration -->
+	<ItemGroup Condition="'$(DisableMsixProjectCapabilityAddedByProject)'!='true' and '$(EnableMsixTooling)'=='true'">
+		<ProjectCapability Include="Msix" />
+	</ItemGroup>
+
+	<!-- Enable Package and Publish menu options if MSIX tooling is enabled and not disabled by project configuration -->
+	<PropertyGroup Condition="'$(DisableHasPackageAndPublishMenuAddedByProject)'!='true' and '$(EnableMsixTooling)'=='true'">
+		<HasPackageAndPublishMenu>true</HasPackageAndPublishMenu>
+	</PropertyGroup>
+
+	<!-- XAML Windows -->
+	<ItemGroup>
+		<Page Update="DiskWindow.xaml">
+			<Generator>MSBuild:Compile</Generator>
+		</Page>
+	</ItemGroup>
+
+	<!-- XAML Pages -->
+	<ItemGroup>
+		<Page Update="Views\DriveSelectionPage.xaml">
+			<Generator>MSBuild:Compile</Generator>
+		</Page>
+	</ItemGroup>
+
+	<!-- Icons -->
+	<ItemGroup>
+		<None Include="..\Rebound\Assets\AppIcons\Rebound11Icon.png">
+			<Pack>True</Pack>
+			<PackagePath>\</PackagePath>
+		</None>
+	</ItemGroup>
+	
+	<!-- GitHub README -->
+	<ItemGroup>
+		<None Include="..\.github\README.md" Pack="true" PackagePath="\" />
+	</ItemGroup>
+
+	<!-- Publish Properties -->
+	<PropertyGroup>
+		<PublishReadyToRun Condition="'$(Configuration)' == 'Debug'">False</PublishReadyToRun>
+		<PublishReadyToRun Condition="'$(Configuration)' != 'Debug'">True</PublishReadyToRun>
+		<PublishTrimmed Condition="'$(Configuration)' == 'Debug'">False</PublishTrimmed>
+		<PublishTrimmed Condition="'$(Configuration)' != 'Debug'">False</PublishTrimmed>
+	</PropertyGroup>
+
+	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x86'">
+		<Optimize>True</Optimize>
+	</PropertyGroup>
+
+	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+		<Optimize>True</Optimize>
+	</PropertyGroup>
+
+	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|ARM64'">
+		<Optimize>True</Optimize>
+	</PropertyGroup>
 </Project>

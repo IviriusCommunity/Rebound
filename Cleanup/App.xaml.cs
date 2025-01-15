@@ -30,7 +30,7 @@ public partial class App : Application
     {
         var commandArgs = string.Join(" ", Environment.GetCommandLineArgs().Skip(1));
 
-        m_window = new MainWindow(commandArgs);
+        m_window = new MainWindow();
         m_window.Activate();
 
         if (string.IsNullOrEmpty(commandArgs) != true)

@@ -72,6 +72,11 @@
 		<PackageReference Include="WinUIEx" Version="2.5.0" />
 	</ItemGroup>
 
+	<!-- Helpers project -->
+	<ItemGroup>
+		<ProjectReference Include="..\..\Helpers\Rebound.Helpers.csproj" />
+	</ItemGroup>
+
 	<!-- App manifest -->
 	<ItemGroup>
 		<Manifest Include="$(ApplicationManifest)" />
@@ -82,10 +87,10 @@
 		<ProjectCapability Include="Msix" />
 	</ItemGroup>
 
-	<!-- Helpers project -->
-	<ItemGroup>
-	  <ProjectReference Include="..\..\Helpers\Rebound.Helpers.csproj" />
-	</ItemGroup>
+	<!-- Enable Package and Publish menu options if MSIX tooling is enabled and not disabled by project configuration -->
+	<PropertyGroup Condition="'$(DisableHasPackageAndPublishMenuAddedByProject)'!='true' and '$(EnableMsixTooling)'=='true'">
+		<HasPackageAndPublishMenu>true</HasPackageAndPublishMenu>
+	</PropertyGroup>
 
 	<!-- Publish Properties -->
 	<PropertyGroup>
@@ -93,11 +98,6 @@
 		<PublishReadyToRun Condition="'$(Configuration)' != 'Debug'">True</PublishReadyToRun>
 		<PublishTrimmed Condition="'$(Configuration)' == 'Debug'">False</PublishTrimmed>
 		<PublishTrimmed Condition="'$(Configuration)' != 'Debug'">False</PublishTrimmed>
-	</PropertyGroup>
-
-	<!-- Enable Package and Publish menu options if MSIX tooling is enabled and not disabled by project configuration -->
-	<PropertyGroup Condition="'$(DisableHasPackageAndPublishMenuAddedByProject)'!='true' and '$(EnableMsixTooling)'=='true'">
-		<HasPackageAndPublishMenu>true</HasPackageAndPublishMenu>
 	</PropertyGroup>
 
 	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x86'">
