@@ -19,6 +19,6 @@
     </winuiex:WindowEx.SystemBackdrop>
     <Grid>
         <Frame Margin="0, 28, 0, 0" x:Name="RootFrame"/>
-        <titleBar:TitleBarEx x:Name="TitleBarControl" Loaded="TitleBarControl_Loaded" VerticalAlignment="Top" Title="Optimize Drives" Subtitle="  -  Developer Preview" IsMaximizable="False" UseWinUIEverywhere="True"/>
+        <titleBar:TitleBarEx x:Name="TitleBarControl" Loaded="TitleBarControl_Loaded" VerticalAlignment="Top" Title="Optimize Drives" Subtitle="   Developer Preview" IsMaximizable="False" UseWinUIEverywhere="True"/>
     </Grid>
 </winuiex:WindowEx>
