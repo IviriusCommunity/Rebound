@@ -26,4 +26,6 @@ public static class GenericHelpers
     }
 
     public static string DrivePathToLetter(this string path) => path.Remove(2, 1);
+
+    public static string DrivePathToSingleLetter(this string path) => path.Remove(1, 2);
 }

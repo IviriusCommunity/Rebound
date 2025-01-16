@@ -1,20 +1,23 @@
-﻿using System;
+﻿using CommunityToolkit.Mvvm.ComponentModel;
+using Microsoft.UI.Dispatching;
+using Rebound.Defrag.Helpers;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Diagnostics.Eventing.Reader;
 using System.Linq;
-using System.Text;
-using Microsoft.UI.Dispatching;
-using Microsoft.UI.Xaml.Controls;
-using Microsoft.WindowsAPICodePack.Taskbar;
-using Rebound.Defrag.Helpers;
-using static Rebound.Defrag.MainWindow;
+using System.Text.RegularExpressions;
+using System.Threading.Tasks;
 
 #nullable enable
 
 namespace Rebound.Defrag.Controls;
 
-public partial class DriveListViewItem
+/// <summary>
+/// The drive items themselves seen in the main window
+/// </summary>
+
+public partial class DriveListViewItem : ObservableObject
 {
     // The name of the drive
     public string? DriveName { get; set; }
@@ -25,38 +28,33 @@ public partial class DriveListViewItem
     // Drive path (C:/ or {GUID}/)
     public string? DrivePath { get; set; }
 
-    // The last time it was optimized
-    public string? LastOptimized
-    {
-        get => GetLastOptimized(); 
-        set;
-    }
-
-    // Determines whether or not the drive should be optimized
-    public bool NeedsOptimization
-    {
-        get => CheckNeedsOptimization();
-        set;
-    }
-
-    // Determines whether or not the drive can be optimized
-    public bool CanBeOptimized
-    {
-        get => DriveName is not "EFI System Partition" and not "Recovery Partition" && MediaType is not "CD-ROM"; 
-        set;
-    }
-
     // Optical drive, SSD, HDD, etc.
     public string? MediaType { get; set; }
 
-    // How much of the operation is finished
-    public int OperationProgress { get; set; }
-
-    // Information to be displayed about the operation
-    public string? OperationInformation { get; set; }
-
     // The defragmentation process
     public Process? PowerShellProcess { get; set; }
+
+    // Determines whether or not the drive should be optimized
+    public bool NeedsOptimization => CheckNeedsOptimization();
+
+    // Determines whether or not the drive can be optimized
+    public bool CanBeOptimized => DriveName is not "EFI System Partition" and not "Recovery Partition" && MediaType is not "CD-ROM" and not "Removable";
+
+    // The last time it was optimized
+    [ObservableProperty]
+    public partial string? LastOptimized { get; set; }
+
+    // How much of the operation is finished
+    [ObservableProperty]
+    public partial int OperationProgress { get; set; }
+
+    // Information to be displayed about the operation
+    [ObservableProperty]
+    public partial string? OperationInformation { get; set; }
+
+    // Information to be displayed about the operation
+    [ObservableProperty]
+    public partial bool IsLoading { get; set; } = false;
 
     // Item selected value
     public bool IsChecked
@@ -72,128 +70,130 @@ public partial class DriveListViewItem
             GenericHelpers.ConvertStringToNumericRepresentation(DrivePath), value);
     }
 
+    // Defrag events
     private const int EventID = 258;
-    private static List<string> cachedEventMessages = null;
+
+    // Caching
+    private static List<string>? cachedEventMessages = null;
     private static DateTime lastCacheTime = DateTime.MinValue;
-    private static readonly TimeSpan cacheDuration = TimeSpan.FromMinutes(5); // Cache duration of 5 minutes
+    private static readonly TimeSpan cacheDuration = TimeSpan.FromMinutes(1); // Cache duration of 1 minute
 
-    public async void Optimize()
+    // UI thread
+    private readonly DispatcherQueue _uiDispatcherQueue = DispatcherQueue.GetForCurrentThread();
+
+    public void Cancel()
     {
-        var volume = DrivePath.DrivePathToLetter();
-        var arguments = $@"
-$global:OutputLines = @()
-
-Optimize-Volume -DriveLetter {volume} {(MediaType?.Contains("HDD") == true ? "-Defrag" : "-Retrim")} -Verbose | ForEach-Object {{
-    if ($_ -like '*Progress*') {{
-        Write-Output ""Progress: $_""
-    }} else {{
-        $global:OutputLines += $_
-        Write-Output $_
-    }}
-}}
-
-$global:OutputLines
-
-";
-
-        try
+        if (PowerShellProcess != null)
         {
-            if (!CanBeOptimized)
-            {
-                return;
-            }
+            // Clear cached data
+            cachedEventMessages = null;
+            lastCacheTime = DateTime.MinValue;
 
-            var processInfo = new ProcessStartInfo
-            {
-                FileName = "powershell.exe",
-                Arguments = $"-ExecutionPolicy Bypass -Command \"{arguments}\"",  // Use -File to execute the script
-                RedirectStandardOutput = true,
-                RedirectStandardError = true,
-                UseShellExecute = false,
-                CreateNoWindow = true,
-                Verb = "runas"  // Run as administrator
-            };
-
-            using var process = new Process { StartInfo = processInfo };
-
-            PowerShellProcess = process;
-
-            var alreadyUsed = new List<string>();
-
-            process.OutputDataReceived += UpdateOutput;
-
-            void UpdateOutput(object sender, DataReceivedEventArgs args)
-            {
-                // Only process if there's data
-                if (!string.IsNullOrEmpty(args.Data))
-                {
-                    // Use the dispatcher to update the UI
-                    UpdateIO(args.Data);
-                }
-            }
-
-            _ = process.Start();
-            process.BeginOutputReadLine();
-
-            void UpdateIO(string data)
-            {
-                if (data.Contains("VERBOSE: ") && data.Contains(" complete."))
-                {
-                    var a = data[data.LastIndexOf("VERBOSE: ")..].Replace("VERBOSE: ", string.Empty);
-
-                    var dataToReplace = " complete.";
-
-                    RunUpdate(a, dataToReplace);
-                }
-            }
-
-            void RunUpdate(string a, string dataToReplace)
-            {
-                if (alreadyUsed.Contains(a) != true)
-                {
-                    alreadyUsed.Add(a);
-                    OperationProgress = GetMaxPercentage(a);
-                    OperationInformation = $"{a}: {OperationProgress}% complete";
-                    if (a.Contains(" complete..."))
-                    {
-                        dataToReplace = " complete...";
-                    }
-                    else if (a.Contains(" complete."))
-                    {
-                        dataToReplace = " complete.";
-
-                    }
-                }
-            }
-
-            await process.WaitForExitAsync();
-
+            // Terminate the PowerShell process
+            PowerShellProcess.Kill();
             PowerShellProcess = null;
-        }
-        catch
-        {
-
         }
     }
 
-    private static int GetMaxPercentage(string data)
+    public async Task Optimize()
     {
-        static string KeepOnlyNumbers(string input)
+        if (!CanBeOptimized)
         {
-            StringBuilder sb = new();
+            return;
+        }
 
-            foreach (var c in input)
+        var volume = DrivePath?.DrivePathToSingleLetter();
+        var command = $@"Optimize-Volume -DriveLetter {volume} {(MediaType?.Contains("HDD") == true ? "-Defrag" : "-Retrim")} -Verbose";
+
+        var processInfo = new ProcessStartInfo
+        {
+            FileName = "powershell.exe",
+            Arguments = $"-ExecutionPolicy Bypass -Command \"{command}\"",
+            RedirectStandardOutput = true,
+            RedirectStandardError = true,
+            UseShellExecute = false,
+            CreateNoWindow = true,
+            Verb = "runas"
+        };
+
+        try
+        {
+            // Begin processing
+            // Processing... [----====------------]
+            IsLoading = true;
+            OperationProgress = 0;
+            OperationInformation = "Processing...";
+
+            // Create process
+            using var process = new Process { StartInfo = processInfo };
+            PowerShellProcess = process;
+
+            // Track already processed messages
+            var alreadyProcessedMessages = new HashSet<string>();
+
+            process.OutputDataReceived += (sender, args) =>
             {
-                if (char.IsDigit(c))
+                if (!string.IsNullOrWhiteSpace(args.Data))
                 {
-                    _ = sb.Append(c);
+                    _uiDispatcherQueue.TryEnqueue(() => ProcessOutput(args.Data));
+                }
+            };
+
+            // Begin defrag
+            await Task.Run(process.Start);
+            process.BeginOutputReadLine();
+            await process.WaitForExitAsync();
+
+            // Finish defrag
+            // OK [--------------------]
+            ClearCache();
+
+            IsLoading = false;
+            OperationProgress = 0;
+            OperationInformation = "OK";
+            LastOptimized = "Today";
+            PowerShellProcess = null;
+
+            void ProcessOutput(string data)
+            {
+                if (data.StartsWith("VERBOSE: ") && data.Contains(" complete"))
+                {
+                    var progressText = data.Replace("VERBOSE: ", string.Empty).Trim();
+
+                    if (alreadyProcessedMessages.Add(progressText))
+                    {
+                        // Extract the percentage
+                        var percentageMatch = MyRegex().Match(progressText);
+                        if (percentageMatch.Success && int.TryParse(percentageMatch.Groups[1].Value, out var progress))
+                        {
+                            // Ongoing
+                            // Trim: 50% done [==========----------]
+                            IsLoading = false;
+                            OperationProgress = progress;
+                            OperationInformation = progressText;
+                        }
+                    }
                 }
             }
-
-            return sb.ToString();
         }
-        var match = KeepOnlyNumbers(data);
-        return int.Parse(match);
+        catch
+        {
+            ResetState();
+        }
+    }
+
+    private static void ClearCache()
+    {
+        cachedEventMessages = null;
+        lastCacheTime = DateTime.MinValue;
+    }
+
+    private void ResetState()
+    {
+        IsLoading = false;
+        OperationProgress = 0;
+        OperationInformation = "Error";
+        PowerShellProcess = null;
     }
 
     public string GetLastOptimized()
@@ -201,10 +201,17 @@ $global:OutputLines
         try
         {
             var lastOptimizedDate = GetLastOptimizationDate();
-            if (lastOptimizedDate == null) return "Never";
 
+            // If no optimization date is available, assume optimization is needed
+            if (!lastOptimizedDate.HasValue)
+            {
+                return "Never";
+            }
+
+            // Calculate days passed since the last optimization
             var daysPassed = (DateTime.Now - lastOptimizedDate.Value).Days;
 
+            // Return the amount of days that have passed since the last optimization
             return daysPassed switch
             {
                 0 => "Today",
@@ -214,6 +221,7 @@ $global:OutputLines
         }
         catch
         {
+            // Assume optimization is needed on error
             return "Never";
         }
     }
@@ -223,15 +231,23 @@ $global:OutputLines
         try
         {
             var lastOptimizedDate = GetLastOptimizationDate();
-            if (lastOptimizedDate == null) return true;
 
+            // If no optimization date is available, assume optimization is needed
+            if (!lastOptimizedDate.HasValue)
+            {
+                return true;
+            }
+
+            // Calculate days passed since the last optimization
             var daysPassed = (DateTime.Now - lastOptimizedDate.Value).Days;
 
+            // Return true if 50 or more days have passed, otherwise false
             return daysPassed >= 50;
         }
         catch
         {
-            return true;
+            // Assume optimization is needed on error
+            return true; 
         }
     }
 
@@ -239,17 +255,32 @@ $global:OutputLines
     {
         try
         {
+            // Retrieve the most recent log entry matching the drive path
             var lastOptimizedEntry = GetEventLogEntriesForID(EventID)
-                .LastOrDefault(s => s.Contains($"({DrivePath?.DrivePathToLetter()})"));
+                // Get the last entry
+                .LastOrDefault(entry => entry.Contains($"({DrivePath?.DrivePathToLetter()})"));
 
-            if (string.IsNullOrEmpty(lastOptimizedEntry))
+            // If there's no entry return null
+            if (string.IsNullOrWhiteSpace(lastOptimizedEntry))
+            {
                 return null;
+            }
 
-            // Parse date and return
-            return DateTime.Parse(lastOptimizedEntry[..^4]);
+            // Extract and parse the date portion of the entry
+            var datePart = lastOptimizedEntry[..^4];
+
+            // If parse is successful return
+            if (DateTime.TryParse(datePart, out var parsedDate))
+            {
+                return parsedDate;
+            }
+
+            // Return null if parsing fails
+            return null; 
         }
         catch
         {
+            // Return null if parsing fails
             return null;
         }
     }
@@ -263,16 +294,16 @@ $global:OutputLines
             return cachedEventMessages; // Return cached result if still valid
         }
 
-        List<string> eventMessages = new List<string>();
+        List<string> logEntries = [];
 
         // Define the query
         var logName = "Application"; // Windows Logs > Application
         var queryStr = "*[System/EventID=" + eventID + "]";
 
-        EventLogQuery query = new EventLogQuery(logName, PathType.LogName, queryStr);
+        var query = new EventLogQuery(logName, PathType.LogName, queryStr);
 
         // Create the reader
-        using (EventLogReader reader = new EventLogReader(query))
+        using (var reader = new EventLogReader(query))
         {
             // Read the events from the log
             for (var eventInstance = reader.ReadEvent(); eventInstance != null; eventInstance = reader.ReadEvent())
@@ -281,14 +312,20 @@ $global:OutputLines
                 var sb = string.Concat(eventInstance.TimeCreated.ToString(), eventInstance.FormatDescription().ToString().AsSpan(eventInstance.FormatDescription().ToString().Length - 4));
 
                 // Add the formatted message to the list
-                eventMessages.Add(sb.ToString());
+                logEntries.Add(sb.ToString());
             }
         }
 
         // Update the cache
-        cachedEventMessages = eventMessages;
-        lastCacheTime = DateTime.Now; // Store the time when the cache was updated
+        cachedEventMessages = logEntries;
 
-        return eventMessages;
+        // Store the time when the cache was updated
+        lastCacheTime = DateTime.Now; 
+
+        // Return the log entries
+        return logEntries;
     }
+
+    [GeneratedRegex(@"(\d+)%")]
+    private static partial Regex MyRegex();
 }

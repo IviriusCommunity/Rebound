@@ -1,27 +1,14 @@
+using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Input;
 using DependencyPropertyGenerator;
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Runtime.InteropServices.WindowsRuntime;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
-using Microsoft.UI.Xaml.Controls.Primitives;
-using Microsoft.UI.Xaml.Data;
-using Microsoft.UI.Xaml.Input;
-using Microsoft.UI.Xaml.Media;
-using Microsoft.UI.Xaml.Navigation;
-using Windows.Foundation;
-using Windows.Foundation.Collections;
-using Rebound.Defrag.Helpers;
-using System.Threading.Tasks;
-using CommunityToolkit.Mvvm.ComponentModel;
-using WinUIEx.Messaging;
-using WinUIEx;
-using System.Diagnostics;
-using Windows.Devices.Enumeration;
 using Rebound.Defrag.Controls;
-using CommunityToolkit.Mvvm.Input;
+using Rebound.Defrag.Helpers;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
+using Windows.Devices.Enumeration;
 
 #nullable enable
 
@@ -39,7 +26,13 @@ public sealed partial class MainPage : Page
     [ObservableProperty]
     public partial bool IsLoading { get; set; } = false;
 
-    public async void OnShowAdvancedChanged(bool oldValue, bool newValue)
+    [ObservableProperty]
+    public partial bool IsOptimizeEnabled { get; set; } = true;
+
+    [ObservableProperty]
+    public partial bool IsStopEnabled { get; set; } = true;
+
+    public void OnShowAdvancedChanged(bool oldValue, bool newValue)
     {
         SettingsHelper.SetValue("ViewAdvanced", newValue);
         ReloadListItems();
@@ -47,26 +40,24 @@ public sealed partial class MainPage : Page
 
     public async void ReloadListItems()
     {
+        IsOptimizeEnabled = false;
+        IsStopEnabled = false;
         AreItemsEnabled = false;
         IsLoading = true;
         await Task.Delay(75);
         DriveItems = DriveHelper.GetDriveItems(ShowAdvanced);
         AreItemsEnabled = true;
         IsLoading = false;
+        CheckA();
     }
-
-    private DeviceWatcher _deviceWatcher;
 
     public MainPage()
     {
         InitializeComponent();
         ShowAdvanced = SettingsHelper.GetValue<bool?>("ViewAdvanced") != null && SettingsHelper.GetValue<bool>("ViewAdvanced");
         DriveItems ??= DriveHelper.GetDriveItems(ShowAdvanced);
-        // Begin monitoring window messages (such as device changes)
 
-        // Subscribe to the WindowMessageReceived event
-        //App.mon.WindowMessageReceived += MessageReceived;
-        // Create a watcher for USB devices (or any other device class you need)
+        // Begin monitoring window messages (such as device changes)
         var deviceWatcher = DeviceInformation.CreateWatcher(DeviceClass.PortableStorageDevice);
 
         // Handle device added
@@ -77,37 +68,102 @@ public sealed partial class MainPage : Page
 
         // Start watching
         deviceWatcher.Start();
-        _deviceWatcher = deviceWatcher;
-
     }
 
-    private async void DeviceWatcher_Added(DeviceWatcher sender, DeviceInformation args)
+    private void DeviceWatcher_Added(DeviceWatcher sender, DeviceInformation args)
     {
         // Device was plugged in
-        DispatcherQueue.TryEnqueue(() =>
-        {
-            ReloadListItems();
-            });
+        DispatcherQueue.TryEnqueue(ReloadListItems);
     }
 
-    private async void DeviceWatcher_Removed(DeviceWatcher sender, DeviceInformationUpdate args)
+    private void DeviceWatcher_Removed(DeviceWatcher sender, DeviceInformationUpdate args)
     {
         // Device was removed
-        DispatcherQueue.TryEnqueue(() =>
-        {
-            ReloadListItems();
-        });
+        DispatcherQueue.TryEnqueue(ReloadListItems);
     }
 
     [RelayCommand]
-    public void Optimize()
+    public async Task Optimize()
     {
+        if (DriveItems is null)
+        {
+            return;
+        }
+
+        // Disable optimize button and enable stop button if there are items to optimize
+        var hasOptimizableItems = DriveItems.Any(item => item.CanBeOptimized && item.IsChecked);
+        IsOptimizeEnabled = !hasOptimizableItems;
+        IsStopEnabled = hasOptimizableItems;
+
+        // Collect optimization tasks
+        var optimizationTasks = DriveItems
+            .Where(item => item.CanBeOptimized && item.IsChecked)
+            .Select(item => item.Optimize())
+            .ToList();
+
+        // Await all optimization tasks to complete
+        await Task.WhenAll(optimizationTasks);
+        CheckA();
+    }
+
+    [RelayCommand]
+    public void Stop()
+    {
+        if (DriveItems is null)
+        {
+            return;
+        }
+
+        foreach (var item in DriveItems.Where(item => item.IsChecked && item.PowerShellProcess != null))
+        {
+            item.Cancel();
+        }
+    }
+
+    private void ItemCheckBox_Toggled(object sender, RoutedEventArgs e)
+    {
+        CheckA();
+    }
+
+    private async void CheckA()
+    {
+        await Task.Delay(10); // Small delay to allow UI updates
+
+        if (DriveItems is null)
+        {
+            IsOptimizeEnabled = false;
+            IsStopEnabled = false;
+            return;
+        }
+
+        var canOptimize = true;
+        var canStop = true;
+        var selectedItems = 0;
+
         foreach (var item in DriveItems)
         {
-            if (item.CanBeOptimized && item.IsChecked)
+            if (item.IsChecked)
             {
-                item.Optimize();
+                selectedItems++;
+                if (!item.CanBeOptimized || item.PowerShellProcess != null)
+                {
+                    canOptimize = false;
+                }
+
+                if (!item.CanBeOptimized || item.PowerShellProcess == null)
+                {
+                    canStop = false;
+                }
             }
         }
+
+        if (selectedItems == 0)
+        {
+            canOptimize = false;
+            canStop = false;
+        }
+
+        IsOptimizeEnabled = canOptimize;
+        IsStopEnabled = canStop;
     }
 }

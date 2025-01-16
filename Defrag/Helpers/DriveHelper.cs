@@ -1,17 +1,19 @@
-﻿using System;
-using System.Collections.Concurrent;
+﻿using Rebound.Defrag.Controls;
+using Rebound.Helpers;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Management;
 using System.Text;
 using System.Threading.Tasks;
-using Rebound.Defrag.Controls;
-using Rebound.Helpers;
-using static Rebound.Defrag.MainWindow;
 
 #nullable enable
 
 namespace Rebound.Defrag.Helpers;
+
+/// <summary>
+/// Contains helpers for identifying drives, media types, etc.
+/// </summary>
 
 public static class DriveHelper
 {
@@ -129,7 +131,7 @@ public static class DriveHelper
                         ImagePath = "ms-appx:///Assets/Drive.png",
                         MediaType = mediaType,
                         DrivePath = drive,
-                        IsChecked = GetBoolFromLocalSettings(ConvertStringToNumericRepresentation(drive))
+                        IsChecked = SettingsHelper.GetValue<bool>(GenericHelpers.ConvertStringToNumericRepresentation(drive))
                     };
 
                     // Set the icon for the drive
@@ -147,6 +149,8 @@ public static class DriveHelper
                     // Check if it needs to be optimized
                     item.OperationInformation = !item.CanBeOptimized ? "Cannot be optimized" : item.NeedsOptimization ? "Needs optimization" :
                         item.OperationProgress == 0 ? "OK" : item.OperationInformation;
+
+                    item.LastOptimized = item.GetLastOptimized();
 
                     // Add to collection
                     items.Add(item);
@@ -178,12 +182,14 @@ public static class DriveHelper
                     ImagePath = "ms-appx:///Assets/DriveSystem.png",
                     MediaType = driveMediaType,
                     DrivePath = result.GUID,
-                    IsChecked = result.GUID != null && GetBoolFromLocalSettings(ConvertStringToNumericRepresentation(result.GUID))
+                    IsChecked = result.GUID != null && SettingsHelper.GetValue<bool>(GenericHelpers.ConvertStringToNumericRepresentation(result.GUID))
                 };
 
                 // Check if it needs to be optimized
                 item.OperationInformation = !item.CanBeOptimized ? "Cannot be optimized" : item.NeedsOptimization ? "Needs optimization" :
                     item.OperationProgress == 0 ? "OK" : item.OperationInformation;
+
+                item.LastOptimized = item.GetLastOptimized();
 
                 // Add to collection
                 items.Add(item);
@@ -210,18 +216,17 @@ public static class DriveHelper
         };
     }
 
-    private static readonly object cacheLock = new object();
-    private static Dictionary<string, string> cachedDiskMappings;
-    private static List<PhysicalDisk> cachedPhysicalDisks;
+    // Caching
+    private static readonly object cacheLock = new();
+    private static Dictionary<string, string>? cachedDiskMappings;
+    private static List<PhysicalDisk>? cachedPhysicalDisks;
     private static DateTime lastCacheUpdate;
-
-    // Cache Refresh Interval (e.g., 1 minute)
     private static readonly TimeSpan CacheRefreshInterval = TimeSpan.FromMinutes(1);
 
     public class PhysicalDisk
     {
-        public string MediaType { get; set; }
-        public string DeviceID { get; set; }
+        public string? MediaType { get; set; }
+        public string? DeviceID { get; set; }
     }
 
     public static string GetDiskDriveFromLetter(string driveLetter)
@@ -234,9 +239,9 @@ public static class DriveHelper
             EnsureCacheIsUpToDate();
 
             // Use cached data for disk and logical mappings
-            if (cachedDiskMappings.TryGetValue(normalizedDriveLetter, out var deviceID))
+            if (cachedDiskMappings != null && cachedDiskMappings.TryGetValue(normalizedDriveLetter, out var deviceID))
             {
-                var matchedDisk = cachedPhysicalDisks.FirstOrDefault(disk => deviceID.Contains(disk.DeviceID));
+                var matchedDisk = cachedPhysicalDisks?.FirstOrDefault(disk => deviceID.Contains(disk.DeviceID ??= string.Empty));
                 if (matchedDisk != null)
                 {
                     return matchedDisk.MediaType switch
@@ -276,8 +281,8 @@ public static class DriveHelper
     private static void RefreshCache()
     {
         // Query the disk and logical mappings in one optimized WMI call
-        var physicalDisksTask = Task.Run(() => GetPhysicalDisks());
-        var logicalDiskMappingsTask = Task.Run(() => GetLogicalDiskMappings());
+        var physicalDisksTask = Task.Run(GetPhysicalDisks);
+        var logicalDiskMappingsTask = Task.Run(GetLogicalDiskMappings);
 
         Task.WhenAll(physicalDisksTask, logicalDiskMappingsTask).Wait();
 
@@ -287,14 +292,13 @@ public static class DriveHelper
 
     private static List<PhysicalDisk> GetPhysicalDisks()
     {
-        return QueryWmiObjects("root\\Microsoft\\Windows\\Storage", "SELECT MediaType, DeviceID FROM MSFT_PhysicalDisk")
+        return [.. QueryWmiObjects("root\\Microsoft\\Windows\\Storage", "SELECT MediaType, DeviceID FROM MSFT_PhysicalDisk")
             .Select(obj => new PhysicalDisk
             {
                 MediaType = obj["MediaType"]?.ToString(),
                 DeviceID = obj["DeviceID"]?.ToString()
             })
-            .Where(disk => !string.IsNullOrEmpty(disk.MediaType) && !string.IsNullOrEmpty(disk.DeviceID))
-            .ToList();
+            .Where(disk => !string.IsNullOrEmpty(disk.MediaType) && !string.IsNullOrEmpty(disk.DeviceID))];
     }
 
     private static Dictionary<string, string> GetLogicalDiskMappings()
@@ -306,13 +310,19 @@ public static class DriveHelper
         foreach (var drive in diskDrives)
         {
             var deviceID = drive["DeviceID"]?.ToString();
-            if (string.IsNullOrEmpty(deviceID)) continue;
+            if (string.IsNullOrEmpty(deviceID))
+            {
+                continue;
+            }
 
             var partitions = GetAssociatedObjects("Win32_DiskDrive.DeviceID", deviceID, "Win32_DiskDriveToDiskPartition");
             foreach (var partition in partitions)
             {
                 var partitionID = partition["DeviceID"]?.ToString();
-                if (string.IsNullOrEmpty(partitionID)) continue;
+                if (string.IsNullOrEmpty(partitionID))
+                {
+                    continue;
+                }
 
                 var disks = GetAssociatedObjects("Win32_DiskPartition.DeviceID", partitionID, "Win32_LogicalDiskToPartition");
                 foreach (var disk in disks)
@@ -329,23 +339,26 @@ public static class DriveHelper
         return logicalDiskMappings;
     }
 
-    private static List<ManagementObject> GetAssociatedObjects(string propertyName, string propertyValue, string assocClass)
+    private static List<ManagementObject> GetAssociatedObjects(string propertyName, string propertyValue, string associatedClass)
     {
-        if (string.IsNullOrEmpty(propertyValue)) return new List<ManagementObject>();
+        if (string.IsNullOrEmpty(propertyValue))
+        {
+            return [];
+        }
 
-        var query = $"ASSOCIATORS OF {{{propertyName}='{propertyValue}'}} WHERE AssocClass={assocClass}";
+        var query = $"ASSOCIATORS OF {{{propertyName}='{propertyValue}'}} WHERE AssocClass={associatedClass}";
         return QueryWmiObjects(query);
     }
 
     private static List<ManagementObject> QueryWmiObjects(string scope, string query)
     {
         using var searcher = new ManagementObjectSearcher(scope, query);
-        return searcher.Get().Cast<ManagementObject>().ToList();
+        return [.. searcher.Get().Cast<ManagementObject>()];
     }
 
     private static List<ManagementObject> QueryWmiObjects(string query)
     {
         using var searcher = new ManagementObjectSearcher(query);
-        return searcher.Get().Cast<ManagementObject>().ToList();
+        return [.. searcher.Get().Cast<ManagementObject>()];
     }
 }

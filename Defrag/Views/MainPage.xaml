@@ -68,7 +68,7 @@
                                 <ColumnDefinition Width="1"/>
                                 <ColumnDefinition Width="108"/>
                             </Grid.ColumnDefinitions>
-                            <CheckBox IsChecked="{x:Bind IsChecked, Mode=TwoWay}"/>
+                            <CheckBox IsChecked="{x:Bind IsChecked, Mode=TwoWay}" Checked="ItemCheckBox_Toggled" Unchecked="ItemCheckBox_Toggled"/>
                             <Grid Grid.Column="2" VerticalAlignment="Center" Margin="0, 0, 12, 2">
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="Auto"/>
@@ -85,7 +85,7 @@
                                     <ColumnDefinition Width="*"/>
                                 </Grid.ColumnDefinitions>
                                 <TextBlock Text="{x:Bind OperationInformation, Mode=OneWay}" Margin="12, 0, 12, 2" VerticalAlignment="Center" Style="{ThemeResource CaptionTextBlockStyle}"/>
-                                <ProgressBar Value="{x:Bind OperationProgress, Mode=OneWay}" ShowPaused="{x:Bind NeedsOptimization, Mode=OneWay}" IsIndeterminate="{x:Bind NeedsOptimization, Mode=OneWay}" Background="Transparent" Margin="0, 0, 8, 0" Grid.Column="1"/>
+                                <ProgressBar Value="{x:Bind OperationProgress, Mode=OneWay}" IsIndeterminate="{x:Bind IsLoading, Mode=OneWay}" Background="Transparent" Margin="0, 0, 8, 0" Grid.Column="1"/>
                             </Grid>
                             <TextBlock Text="{x:Bind LastOptimized, Mode=OneWay}" Grid.Column="8" VerticalAlignment="Center" Margin="12, 0, 12, 2" Style="{ThemeResource CaptionTextBlockStyle}"/>
                         </Grid>
@@ -107,8 +107,8 @@
                 <ColumnDefinition Width="Auto"/>
             </Grid.ColumnDefinitions>
             <ToggleSwitch OnContent="Hidden partitions" OffContent="Hidden partitions" IsOn="{x:Bind ShowAdvanced, Mode=TwoWay}" IsEnabled="{x:Bind AreItemsEnabled, Mode=OneWay}"/>
-            <Button Grid.Column="2" Content="Stop" IsEnabled="{x:Bind AreItemsEnabled, Mode=OneWay, Converter={StaticResource BoolNegationConverter}}"/>
-            <Button Style="{ThemeResource AccentButtonStyle}" Grid.Column="4" Content="Optimize" IsEnabled="{x:Bind AreItemsEnabled, Mode=OneWay}" Command="{x:Bind OptimizeCommand}"/>
+            <Button Grid.Column="2" Content="Stop" IsEnabled="{x:Bind IsStopEnabled, Mode=OneWay}" Command="{x:Bind StopCommand}"/>
+            <Button Style="{ThemeResource AccentButtonStyle}" Grid.Column="4" Content="Optimize" IsEnabled="{x:Bind IsOptimizeEnabled, Mode=OneWay}" Command="{x:Bind OptimizeCommand}"/>
         </Grid>
         <Grid Padding="12, 8"
                   Background="{ThemeResource SystemFillColorAttentionBackgroundBrush}"
