@@ -2,30 +2,26 @@ using System;
 using System.Diagnostics;
 using System.IO;
 using System.Threading.Tasks;
+using CommunityToolkit.Mvvm.Input;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Media;
+using Rebound.Cleanup.Views;
 using WinUIEx;
-
-// To learn more about WinUI, the WinUI project structure,
-// and more about our project templates, see: http://aka.ms/winui-project-info.
 
 namespace Rebound.Cleanup;
 
-/// <summary>
-/// An empty window that can be used on its own or navigated to within a Frame.
-/// </summary>
 public sealed partial class MainWindow : WindowEx
 {
-    public MainWindow(string disk)
+    public MainWindow()
     {
-        this.InitializeComponent();
+        InitializeComponent();
         AppWindow.DefaultTitleBarShouldMatchAppModeTheme = true;
-        this.SetWindowSize(375, 235);
+        this.SetWindowSize(400, 600);
         IsMaximizable = false;
         IsMinimizable = false;
         IsResizable = false;
         this.CenterOnScreen();
-        Title = "Disk Cleanup : Drive Selection";
+        Title = "Disk Cleanup";
         SystemBackdrop = new MicaBackdrop();
         this.SetIcon($@"{AppContext.BaseDirectory}\Assets\cleanmgr.ico");
         var x = Directory.GetLogicalDrives();
@@ -34,6 +30,7 @@ public sealed partial class MainWindow : WindowEx
             DrivesBox.Items.Add(i[..2]);
         }
         DrivesBox.SelectedIndex = 0;
+        RootFrame.Navigate(typeof(DriveSelectionPage));
     }
 
     private async void Button_Click(object sender, RoutedEventArgs e)
@@ -75,6 +72,12 @@ public sealed partial class MainWindow : WindowEx
         win.SetIcon($@"{AppContext.BaseDirectory}\Assets\cleanmgr.ico");
         _ = win.Show();
         return Task.CompletedTask;
+    }
+
+    [RelayCommand]
+    public void CloseWindow()
+    {
+
     }
 
     private void CancelButton_Click(object sender, RoutedEventArgs e) => Process.GetCurrentProcess().Kill();
