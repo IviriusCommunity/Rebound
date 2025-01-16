@@ -8,14 +8,14 @@
   IgnorableNamespaces="uap rescap">
 
 	<Identity
-	  Name="54d2a63e-e616-4159-bed6-c776b8a816e1"
+	  Name="Rebound.Defrag"
 	  Publisher="CN=Ivirius"
-	  Version="0.0.2.0" />
+	  Version="0.1.0.0" />
 
 	<mp:PhoneIdentity PhoneProductId="54d2a63e-e616-4159-bed6-c776b8a816e1" PhonePublisherId="00000000-0000-0000-0000-000000000000"/>
 
 	<Properties>
-		<DisplayName>Rebound.Defrag</DisplayName>
+		<DisplayName>Rebound Defrag</DisplayName>
 		<PublisherDisplayName>Ivirius Community</PublisherDisplayName>
 		<Logo>Assets\StoreLogo.png</Logo>
 	</Properties>
