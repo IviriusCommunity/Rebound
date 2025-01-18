@@ -1,3 +1,0 @@
-#include "resource.h"
-
-IDI_ICON2 ICON "Rebound.About.Launcher.ico"

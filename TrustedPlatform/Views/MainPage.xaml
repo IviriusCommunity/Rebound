@@ -13,44 +13,65 @@
         <NavigationView
             IsPaneOpen="False"
             IsSettingsVisible="False"
-            PaneTitle="TPM Management">
+            IsBackButtonVisible="Collapsed">
             <NavigationView.MenuItems>
-                <NavigationViewItem Content="TPM Management on Local Computer" IsSelected="True">
+                <NavigationViewItem Content="Local Computer" IsSelected="True">
                     <NavigationViewItem.Icon>
                         <FontIcon Glyph="&#xE8D7;" />
                     </NavigationViewItem.Icon>
                 </NavigationViewItem>
             </NavigationView.MenuItems>
+            <NavigationView.FooterMenuItems>
+                <NavigationViewItem Content="Rebound Computer Management" IsSelected="True">
+                    <NavigationViewItem.Icon>
+                        <ImageIcon Source="/Assets/ManagementConsole.png" />
+                    </NavigationViewItem.Icon>
+                </NavigationViewItem>
+            </NavigationView.FooterMenuItems>
             <Grid>
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="*" MinWidth="150" />
-                    <ColumnDefinition Width="Auto" />
-                    <ColumnDefinition Width="250" MinWidth="150" />
-                </Grid.ColumnDefinitions>
-
                 <ScrollViewer>
-                    <StackPanel
-                    Margin="20"
-                    HorizontalAlignment="Stretch"
-                    Spacing="20">
+                    <Grid HorizontalAlignment="Stretch">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                        </Grid.RowDefinitions>
                         <!--  Header  -->
-                        <TextBlock
-                        FontSize="16"
-                        FontWeight="Bold"
-                        Text="TPM Management on Local Computer" />
-                        <Expander
-                        HorizontalAlignment="Stretch"
-                        Header="Overview"
-                        IsExpanded="True">
-                            <TextBlock Text="Windows computers containing a Trusted Platform Module (TPM) to provide enhanced security features. This snap-in displays information about the computer's TPM and allows administrators to manage the device." TextWrapping="WrapWholeWords" />
-                        </Expander>
+                        <TextBlock Text="TPM Management" FontWeight="SemiBold" Margin="20, 0" VerticalAlignment="Center"/>
+                        <CommandBar OverflowButtonVisibility="Collapsed" DefaultLabelPosition="Right">
+                            <AppBarButton Label="Reset TPM">
+                                <AppBarButton.Icon>
+                                    <FontIcon Glyph="&#xE950;" FontSize="16"/>
+                                </AppBarButton.Icon>
+                            </AppBarButton>
+                            <AppBarButton Label="Refresh">
+                                <AppBarButton.Icon>
+                                    <FontIcon Glyph="&#xE72C;" FontSize="16"/>
+                                </AppBarButton.Icon>
+                            </AppBarButton>
+                        </CommandBar>
                         <InfoBar
+                            Grid.Row="2"
+                            IsOpen="True"
+                            IsClosable="False"
+                            Margin="16, 0, 16, 16"
+                            Title="Windows computers containing a Trusted Platform Module (TPM) to provide enhanced security features. This snap-in displays information about the computer's TPM and allows administrators to manage the device."/>
+                        <InfoBar
+                            Grid.Row="3"
+                            Margin="16, 0"
                         x:Name="StatusBar"
                         Title="Status: Not Implemented."
                         IsClosable="False"
                         IsOpen="True"
                         Severity="Warning" />
                         <Expander
+                            Grid.Row="4"
+                            Margin="16"
                         HorizontalAlignment="Stretch"
                         HorizontalContentAlignment="Stretch"
                         Header="TPM Manufacturer Information"
@@ -186,6 +207,7 @@
                         </Expander>
                         <!--  Status Section  -->
                         <StackPanel
+                            Grid.Row="8"
                         Margin="0,30,0,10"
                         Orientation="Horizontal"
                         Visibility="Collapsed">
@@ -202,37 +224,8 @@
                         </StackPanel>
 
 
-                    </StackPanel>
+                    </Grid>
                 </ScrollViewer>
-                <toolkit:GridSplitter Grid.Column="1" Width="16" />
-                <Grid
-                    Grid.Column="2"
-                    Padding="15"
-                    Background="{ThemeResource CardBackgroundFillColorDefaultBrush}">
-                    <StackPanel Spacing="20">
-                        <TextBlock
-                            FontSize="16"
-                            FontWeight="Bold"
-                            Text="Actions" />
-                        <!--  Reset TPM Button  -->
-                        <StackPanel Spacing="4">
-                            <HyperlinkButton
-                                HorizontalAlignment="Stretch"
-                                HorizontalContentAlignment="Left"
-                                BorderThickness="0"
-                                Click="Button_Click">
-                                Reset TPM
-                            </HyperlinkButton>
-                            <HyperlinkButton
-                                HorizontalAlignment="Stretch"
-                                HorizontalContentAlignment="Left"
-                                BorderThickness="0"
-                                Click="HyperlinkButton_Click">
-                                Refresh
-                            </HyperlinkButton>
-                        </StackPanel>
-                    </StackPanel>
-                </Grid>
             </Grid>
         </NavigationView>
     </Grid>

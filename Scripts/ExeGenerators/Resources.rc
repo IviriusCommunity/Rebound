@@ -1,0 +1,4 @@
+// resource.rc
+#include <windows.h>
+
+ID_ICON ICON "Icon.ico"

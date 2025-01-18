@@ -2,7 +2,7 @@
   <PropertyGroup>
     <OutputType>WinExe</OutputType>
 	  <!-- Versions -->
-	  <TargetFramework>net9.0-windows10.0.26100.0</TargetFramework>
+	  <TargetFramework>net8.0-windows10.0.26100.0</TargetFramework>
 	  <WindowsSdkPackageVersion>10.0.22621.38</WindowsSdkPackageVersion>
 	  <SupportedOSPlatformVersion>10.0.17763.0</SupportedOSPlatformVersion>
     <RootNamespace>Rebound.TrustedPlatform</RootNamespace>
@@ -69,6 +69,7 @@
     <PackageReference Include="Microsoft.Windows.SDK.BuildTools" Version="10.0.26100.1742" />
     <PackageReference Include="Microsoft.WindowsAppSDK" Version="1.7.241114004-experimental1" />
     <PackageReference Include="Microsoft.Xaml.Behaviors.WinUI.Managed" Version="3.0.0-preview2" />
+    <PackageReference Include="Riverside.Toolkit" Version="2.0.0-alpha1" />
     <PackageReference Include="System.Management" Version="9.0.0" />
     <PackageReference Include="WinUIEx" Version="2.5.0" />
   </ItemGroup>
