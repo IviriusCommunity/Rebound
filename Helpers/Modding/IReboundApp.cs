@@ -1,25 +1,44 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Collections.Generic;
 
 #nullable enable
 
 namespace Rebound.Helpers.Modding;
 
-enum ReboundAppIntegrity
+public enum ReboundAppIntegrity
 {
     Installed,
     Corrupt,
     NotInstalled
 }
 
-internal interface IReboundApp
+public enum InstallationTemplate
+{
+    Basic,
+    Recommended,
+    Complete,
+    Extras
+}
+
+public interface IReboundRootApp
 {
     public void Install();
 
     public void Uninstall();
 
     public ReboundAppIntegrity GetIntegrity();
+}
+
+public interface IReboundPackagedApp : IReboundRootApp
+{
+    public List<AppPackage>? AppPackages { get; set; }
+}
+
+public interface IReboundShortcutsApp : IReboundRootApp
+{
+    public List<ReboundAppShortcut>? Shortcuts { get; set; }
+}
+
+public interface IReboundIFEOApp : IReboundRootApp
+{
+    public List<IFEOEntry>? IFEOEntries { get; set; }
 }
