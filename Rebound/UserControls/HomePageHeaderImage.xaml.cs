@@ -30,8 +30,8 @@ namespace WinUIGallery.Controls
     // ATTRIBUTION: @RykenApps
     public sealed partial class HomePageHeaderImage : UserControl, INotifyPropertyChanged
     {
-        public static readonly DependencyProperty PathProperty =
-  DependencyProperty.Register("Path", typeof(ImageSource), typeof(HomePageHeaderImage), new PropertyMetadata(new BitmapImage()));
+        public static readonly DependencyProperty ImageProperty =
+            DependencyProperty.Register("Image", typeof(ImageSource), typeof(HomePageHeaderImage), new PropertyMetadata(new BitmapImage()));
 
         private Compositor _compositor;
         private CompositionLinearGradientBrush _imageGridBottomGradientBrush;
@@ -92,15 +92,15 @@ namespace WinUIGallery.Controls
             ElementCompositionPreview.SetElementChildVisual(ImageGridSurfaceRec, _imageGridSpriteVisual);
         }
 
-        public ImageSource Path
+        public ImageSource Image
         {
             get
             {
-                return (ImageSource)GetValue(PathProperty);
+                return (ImageSource)GetValue(ImageProperty);
             }
             set
             {
-                SetValue(PathProperty, value);
+                SetValue(ImageProperty, value);
                 OnPropertyChanged();
                 AnimateImage();
             }

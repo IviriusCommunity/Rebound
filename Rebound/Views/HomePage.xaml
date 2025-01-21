@@ -29,7 +29,8 @@
                 MinWidth="100"
                 HorizontalAlignment="Stretch"
                 VerticalAlignment="Top"
-                Path="{ThemeResource HeroBackgroundBitmapImage}"
+                Image="{ThemeResource HeroBackgroundBitmapImage}"
+                Opacity="0.8"
                 Visibility="Visible" />
 
             <Grid

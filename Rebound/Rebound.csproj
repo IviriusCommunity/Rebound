@@ -97,13 +97,7 @@
         <PackageLicenseExpression>MIT</PackageLicenseExpression>
         <PackageReadmeFile>README.md</PackageReadmeFile>
     </PropertyGroup>
-    <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x86'">
-        <Optimize>False</Optimize>
-    </PropertyGroup>
-    <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-        <Optimize>False</Optimize>
-    </PropertyGroup>
-    <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|ARM64'">
+    <PropertyGroup Condition="'$(Configuration)'=='Release'">
         <Optimize>False</Optimize>
     </PropertyGroup>
     <ItemGroup>
@@ -122,10 +116,6 @@
     </ItemGroup>
     <ItemGroup>
         <PRIResource Remove="Assets\Wallpapers\**" />
-    </ItemGroup>
-    <ItemGroup>
-      <None Remove="Styles\Images.xaml" />
-      <None Remove="Views\EmptyPage.xaml" />
     </ItemGroup>
     <ItemGroup>
         <COMReference Include="IWshRuntimeLibrary">
@@ -148,6 +138,11 @@
       <Content Update="Assets\Backgrounds\BackgroundLight.jpg">
         <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
       </Content>
+    </ItemGroup>
+    <ItemGroup>
+      <Page Update="Styles\CaptionButtons.xaml">
+        <Generator>MSBuild:Compile</Generator>
+      </Page>
     </ItemGroup>
     <ItemGroup>
       <Page Update="Views\EmptyPage.xaml">
