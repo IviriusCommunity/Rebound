@@ -1,116 +1,122 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
-    <PropertyGroup>
-        <OutputType>WinExe</OutputType>
-        <!-- Versions -->
-        <TargetFramework>net9.0-windows10.0.26100.0</TargetFramework>
-        <WindowsSdkPackageVersion>10.0.22621.38</WindowsSdkPackageVersion>
-        <SupportedOSPlatformVersion>10.0.17763.0</SupportedOSPlatformVersion>
-        <RootNamespace>Rebound.TrustedPlatform</RootNamespace>
-        <ApplicationManifest>app.manifest</ApplicationManifest>
-        <Platforms>x64;x86</Platforms>
-        <RuntimeIdentifiers>win-x86;win-x64;win-arm64</RuntimeIdentifiers>
-        <PublishProfile>win-$(Platform).pubxml</PublishProfile>
-        <UseWinUI>true</UseWinUI>
-        <EnableMsixTooling>true</EnableMsixTooling>
-        <Version>0.0.4</Version>
-        <ImplicitUsings>true</ImplicitUsings>
-        <LangVersion>Latest</LangVersion>
-        <ApplicationIcon>Assets\icon.ico</ApplicationIcon>
-        <IncludeSourceRevisionInInformationalVersion>false</IncludeSourceRevisionInInformationalVersion>
-        <WindowsAppSDKSelfContained>true</WindowsAppSDKSelfContained>
-        <WindowsPackageType>MSIX</WindowsPackageType>
-        <GenerateAppInstallerFile>False</GenerateAppInstallerFile>
-        <AppxPackageSigningEnabled>True</AppxPackageSigningEnabled>
-        <AppxPackageSigningTimestampDigestAlgorithm>SHA256</AppxPackageSigningTimestampDigestAlgorithm>
-        <AppxAutoIncrementPackageRevision>False</AppxAutoIncrementPackageRevision>
-        <AppxSymbolPackageEnabled>False</AppxSymbolPackageEnabled>
-        <GenerateTestArtifacts>True</GenerateTestArtifacts>
-        <AppxBundle>Never</AppxBundle>
-        <HoursBetweenUpdateChecks>0</HoursBetweenUpdateChecks>
-        <PackageCertificateKeyFile>Rebound.TrustedPlatform_TemporaryKey.pfx</PackageCertificateKeyFile>
-    </PropertyGroup>
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+	  <!-- Versions -->
+	  <TargetFramework>net9.0-windows10.0.26100.0</TargetFramework>
+	  <WindowsSdkPackageVersion>10.0.22621.38</WindowsSdkPackageVersion>
+	  <SupportedOSPlatformVersion>10.0.17763.0</SupportedOSPlatformVersion>
+    <RootNamespace>Rebound.TrustedPlatform</RootNamespace>
+    <ApplicationManifest>app.manifest</ApplicationManifest>
+    <Platforms>x64;x86</Platforms>
+    <RuntimeIdentifiers Condition="$([MSBuild]::GetTargetFrameworkVersion('$(TargetFramework)')) &gt;= 8">win-x86;win-x64</RuntimeIdentifiers>
+    <RuntimeIdentifiers Condition="$([MSBuild]::GetTargetFrameworkVersion('$(TargetFramework)')) &lt; 8">win10-x86;win10-x64</RuntimeIdentifiers>
+    <PublishProfile>win-$(Platform).pubxml</PublishProfile>
+    <UseWinUI>true</UseWinUI>
+    <EnableMsixTooling>true</EnableMsixTooling>
+    <Version>0.0.4</Version>
+    <ImplicitUsings>true</ImplicitUsings>
+    <LangVersion>Latest</LangVersion>
+    <ApplicationIcon>Assets\icon.ico</ApplicationIcon>
+    <IncludeSourceRevisionInInformationalVersion>false</IncludeSourceRevisionInInformationalVersion>
+    <WindowsAppSDKSelfContained>true</WindowsAppSDKSelfContained>
+    <WindowsPackageType>MSIX</WindowsPackageType>
+    <GenerateAppInstallerFile>False</GenerateAppInstallerFile>
+    <AppxPackageSigningEnabled>True</AppxPackageSigningEnabled>
+    <AppxPackageSigningTimestampDigestAlgorithm>SHA256</AppxPackageSigningTimestampDigestAlgorithm>
+    <AppxAutoIncrementPackageRevision>False</AppxAutoIncrementPackageRevision>
+    <AppxSymbolPackageEnabled>False</AppxSymbolPackageEnabled>
+    <GenerateTestArtifacts>True</GenerateTestArtifacts>
+    <AppxBundle>Never</AppxBundle>
+    <HoursBetweenUpdateChecks>0</HoursBetweenUpdateChecks>
+    <PackageCertificateKeyFile>Rebound.TrustedPlatform_TemporaryKey.pfx</PackageCertificateKeyFile>
+  </PropertyGroup>
 
-    <ItemGroup>
-        <None Include="Assets\**\*">
-            <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-        </None>
-    </ItemGroup>
+  <ItemGroup>
+    <None Include="Assets\**\*">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
 
-    <ItemGroup>
-        <Content Remove="Assets\Store\icon.ico" />
-        <Content Remove="Assets\Store\icon.png" />
-    </ItemGroup>
+  <ItemGroup>
+    <Content Remove="Assets\Store\icon.ico" />
+    <Content Remove="Assets\Store\icon.png" />
+  </ItemGroup>
 
-    <ItemGroup>
-        <Manifest Include="$(ApplicationManifest)" />
-    </ItemGroup>
+  <ItemGroup>
+    <None Remove="Assets\icon.ico" />
+    <None Remove="MainWindow.xaml" />
+  </ItemGroup>
 
-    <!-- 
+  <ItemGroup>
+    <Manifest Include="$(ApplicationManifest)" />
+  </ItemGroup>
+
+  <!-- 
     Defining the "Msix" ProjectCapability here allows the Single-project MSIX Packaging
     Tools extension to be activated for this project even if the Windows App SDK Nuget
     package has not yet been restored.
   -->
-    <ItemGroup Condition="'$(DisableMsixProjectCapabilityAddedByProject)'!='true' and '$(EnableMsixTooling)'=='true'">
-        <ProjectCapability Include="Msix" />
-    </ItemGroup>
-    <ItemGroup>
-        <PackageReference Include="CommunityToolkit.WinUI.Controls.Sizers" Version="8.2.241112-preview1" />
-        <PackageReference Include="CommunityToolkit.WinUI.Helpers" Version="8.2.241112-preview1" />
-        <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="9.0.0" />
-        <PackageReference Include="Microsoft.Graphics.Win2D" Version="1.3.0" />
-        <PackageReference Include="Microsoft.TSS" Version="2.1.1" />
-        <PackageReference Include="Microsoft.Windows.CsWinRT" Version="2.2.0" />
-        <PackageReference Include="Microsoft.Windows.SDK.BuildTools" Version="10.0.26100.1742" />
-        <PackageReference Include="Microsoft.WindowsAppSDK" Version="1.7.241114004-experimental1" />
-        <PackageReference Include="Microsoft.Xaml.Behaviors.WinUI.Managed" Version="3.0.0-preview2" />
-        <PackageReference Include="System.Management" Version="9.0.0" />
-        <PackageReference Include="WinUIEx" Version="2.5.0" />
-    </ItemGroup>
-    <ItemGroup>
-        <Page Update="MainWindow.xaml">
-            <Generator>MSBuild:Compile</Generator>
-        </Page>
-    </ItemGroup>
+  <ItemGroup Condition="'$(DisableMsixProjectCapabilityAddedByProject)'!='true' and '$(EnableMsixTooling)'=='true'">
+    <ProjectCapability Include="Msix" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="CommunityToolkit.WinUI.Controls.Sizers" Version="8.2.241112-preview1" />
+    <PackageReference Include="CommunityToolkit.WinUI.Helpers" Version="8.2.241112-preview1" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="9.0.0" />
+    <PackageReference Include="Microsoft.Graphics.Win2D" Version="1.3.0" />
+    <PackageReference Include="Microsoft.TSS" Version="2.1.1" />
+    <PackageReference Include="Microsoft.Windows.CsWinRT" Version="2.2.0" />
+    <PackageReference Include="Microsoft.Windows.SDK.BuildTools" Version="10.0.26100.1742" />
+    <PackageReference Include="Microsoft.WindowsAppSDK" Version="1.7.241114004-experimental1" />
+    <PackageReference Include="Microsoft.Xaml.Behaviors.WinUI.Managed" Version="3.0.0-preview2" />
+    <PackageReference Include="System.Management" Version="9.0.0" />
+    <PackageReference Include="WinUIEx" Version="2.5.0" />
+  </ItemGroup>
+  <ItemGroup>
+    <Page Update="MainWindow.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+  </ItemGroup>
 
-    <!-- 
+  <!-- 
     Defining the "HasPackageAndPublishMenuAddedByProject" property here allows the Solution 
     Explorer "Package and Publish" context menu entry to be enabled for this project even if 
     the Windows App SDK Nuget package has not yet been restored.
   -->
-    <PropertyGroup Condition="'$(DisableHasPackageAndPublishMenuAddedByProject)'!='true' and '$(EnableMsixTooling)'=='true'">
-        <HasPackageAndPublishMenu>true</HasPackageAndPublishMenu>
-    </PropertyGroup>
+  <PropertyGroup Condition="'$(DisableHasPackageAndPublishMenuAddedByProject)'!='true' and '$(EnableMsixTooling)'=='true'">
+    <HasPackageAndPublishMenu>true</HasPackageAndPublishMenu>
+  </PropertyGroup>
 
-    <ItemGroup>
-        <None Include="..\Rebound\Assets\AppIcons\Rebound11Icon.png">
-            <Pack>True</Pack>
-            <PackagePath>\</PackagePath>
-        </None>
-    </ItemGroup>
-    <ItemGroup>
-        <None Include="..\.github\README.md" Pack="true" PackagePath="\" />
-    </ItemGroup>
-    <ItemGroup>
-        <ProjectReference Include="..\Helpers\Rebound.Helpers.csproj" />
-    </ItemGroup>
-
+  <ItemGroup>
+    <None Include="..\Rebound\Assets\AppIcons\Rebound11Icon.png">
+      <Pack>True</Pack>
+      <PackagePath>\</PackagePath>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\.github\README.md" Pack="true" PackagePath="\" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Helpers\Rebound.Helpers.csproj" />
+  </ItemGroup>
+  
     <PropertyGroup>
-        <WindowsSdkPackageVersion>10.0.22621.38</WindowsSdkPackageVersion>
-    </PropertyGroup>
+            <WindowsSdkPackageVersion>10.0.22621.38</WindowsSdkPackageVersion>
+        </PropertyGroup>
 
-    <PropertyGroup>
-        <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
-        <Authors>Riverside, ErrorTek,TheDevil, Lamparter</Authors>
-        <PackageProjectUrl>https://ivirius.vercel.app</PackageProjectUrl>
-        <Title>TPM Management</Title>
-        <PackageId>Riverside.Rebound.TrustedPlatform</PackageId>
-        <Copyright>Copyright (c) 2024-present Ivirius Community</Copyright>
-        <Description>Windows 11 done right.</Description>
-        <PackageIcon>Rebound11Icon.png</PackageIcon>
-        <IncludeSymbols>true</IncludeSymbols>
-        <SymbolPackageFormat>snupkg</SymbolPackageFormat>
-        <PackageLicenseExpression>MIT</PackageLicenseExpression>
-        <PackageReadmeFile>README.md</PackageReadmeFile>
-        <AssemblyName>Rebound TPM Management</AssemblyName>
-    </PropertyGroup>
+  <PropertyGroup>
+    <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
+    <Authors>Riverside, ErrorTek,TheDevil, Lamparter</Authors>
+    <PackageProjectUrl>https://ivirius.vercel.app</PackageProjectUrl>
+    <Title>TPM Management</Title>
+    <PackageId>Riverside.Rebound.TrustedPlatform</PackageId>
+    <Copyright>Copyright (c) 2024-present Ivirius Community</Copyright>
+    <Description>Windows 11 done right.</Description>
+    <PackageIcon>Rebound11Icon.png</PackageIcon>
+    <IncludeSymbols>true</IncludeSymbols>
+    <SymbolPackageFormat>snupkg</SymbolPackageFormat>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <AssemblyName>Rebound TPM Management</AssemblyName>
+  </PropertyGroup>
 </Project>
