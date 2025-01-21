@@ -26,19 +26,10 @@ public interface IReboundRootApp
     public void Uninstall();
 
     public ReboundAppIntegrity GetIntegrity();
-}
 
-public interface IReboundPackagedApp : IReboundRootApp
-{
     public List<AppPackage>? AppPackages { get; set; }
-}
 
-public interface IReboundShortcutsApp : IReboundRootApp
-{
     public List<ReboundAppShortcut>? Shortcuts { get; set; }
-}
 
-public interface IReboundIFEOApp : IReboundRootApp
-{
     public List<IFEOEntry>? IFEOEntries { get; set; }
 }

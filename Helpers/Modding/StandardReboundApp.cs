@@ -1,11 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
+using System.Linq;
 
 #nullable enable
 
 namespace Rebound.Helpers.Modding;
 
-public partial class StandardReboundApp : IReboundPackagedApp, IReboundShortcutsApp, IReboundIFEOApp
+public abstract class StandardReboundApp : IReboundRootApp
 {
     public virtual List<AppPackage>? AppPackages { get; set; }
 
@@ -25,48 +25,19 @@ public partial class StandardReboundApp : IReboundPackagedApp, IReboundShortcuts
 
     public ReboundAppIntegrity GetIntegrity()
     {
-        if (AppPackages == null || Shortcuts == null || IFEOEntries == null)
-        {
-            throw new InvalidOperationException("App packages and shortcuts must not be null.");
-        }
-
-        var isAppPackageIntact = true;
-        var isShortcutIntact = true;
-        var isIFEOEntryIntact = true;
-
-        foreach (var appPackage in AppPackages)
-        {
-            if (!appPackage.IsInstalled())
-            {
-                isAppPackageIntact = false;
-            }
-        }
-
-        foreach (var shortcut in Shortcuts)
-        {
-            if (!shortcut.IsShortcutIconModernized())
-            {
-                isShortcutIntact = false;
-            }
-        }
-
-        foreach (var entry in IFEOEntries)
-        {
-            if (!entry.IsIntact())
-            {
-                isIFEOEntryIntact = false;
-            }
-        }
+        var isAppPackageIntact = AppPackages?.All(pkg => pkg.IsInstalled());
+        var isShortcutIntact = Shortcuts?.All(sc => sc.IsShortcutIconModernized());
+        var isIFEOEntryIntact = IFEOEntries?.All(entry => entry.IsIntact());
 
         return
             // Check if everything is ok
-            isShortcutIntact && isAppPackageIntact && isIFEOEntryIntact ?
+            isShortcutIntact is true or null && isAppPackageIntact is true or null && isIFEOEntryIntact is true or null ?
 
             // All good
             ReboundAppIntegrity.Installed :
 
             // Check if nothing is ok
-            !isShortcutIntact && !isAppPackageIntact && !isIFEOEntryIntact ?
+            isShortcutIntact is false && !isAppPackageIntact is false && !isIFEOEntryIntact is false ?
 
             // Not installed
             ReboundAppIntegrity.NotInstalled : 
