@@ -28,7 +28,7 @@
                 <ControlTemplate TargetType="Button">
                     <Grid x:Name="RootGrid" Background="Transparent">
                         <Grid.BackgroundTransition>
-                            <BrushTransition Duration="0:0:0.1" />
+                            <BrushTransition Duration="0:0:0.083" />
                         </Grid.BackgroundTransition>
 
                         <ContentPresenter
@@ -45,7 +45,7 @@
                             CornerRadius="0"
                             Foreground="{TemplateBinding Foreground}">
                             <ContentPresenter.BackgroundTransition>
-                                <BrushTransition Duration="0:0:0.1" />
+                                <BrushTransition Duration="0:0:0.083" />
                             </ContentPresenter.BackgroundTransition>
                         </ContentPresenter>
                         <VisualStateManager.VisualStateGroups>
@@ -107,7 +107,7 @@
                 <ControlTemplate TargetType="Button">
                     <Grid x:Name="RootGrid" Background="Transparent">
                         <Grid.BackgroundTransition>
-                            <BrushTransition Duration="0:0:0.1" />
+                            <BrushTransition Duration="0:0:0.083" />
                         </Grid.BackgroundTransition>
 
                         <ContentPresenter
@@ -124,7 +124,7 @@
                             CornerRadius="0"
                             Foreground="{TemplateBinding Foreground}">
                             <ContentPresenter.BackgroundTransition>
-                                <BrushTransition Duration="0:0:0.1" />
+                                <BrushTransition Duration="0:0:0.083" />
                             </ContentPresenter.BackgroundTransition>
                         </ContentPresenter>
                         <VisualStateManager.VisualStateGroups>
@@ -180,7 +180,7 @@
                 <ControlTemplate TargetType="Button">
                     <Grid x:Name="RootGrid" Background="Transparent">
                         <Grid.BackgroundTransition>
-                            <BrushTransition Duration="0:0:0.1" />
+                            <BrushTransition Duration="0:0:0.083" />
                         </Grid.BackgroundTransition>
 
                         <ContentPresenter
@@ -197,7 +197,7 @@
                             CornerRadius="0"
                             Foreground="{TemplateBinding Foreground}">
                             <ContentPresenter.BackgroundTransition>
-                                <BrushTransition Duration="0:0:0.1" />
+                                <BrushTransition Duration="0:0:0.083" />
                             </ContentPresenter.BackgroundTransition>
                         </ContentPresenter>
                         <VisualStateManager.VisualStateGroups>

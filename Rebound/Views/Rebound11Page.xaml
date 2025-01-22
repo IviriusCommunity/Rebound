@@ -871,7 +871,12 @@
                                         HorizontalAlignment="Center"
                                         VerticalAlignment="Bottom"
                                         Content="WinUI 3" />
-                                    <Slider Margin="25,60,25,0" VerticalAlignment="Top" />
+                                    <Slider
+                                        Margin="25,60,25,0"
+                                        VerticalAlignment="Top"
+                                        Maximum="100"
+                                        Minimum="0"
+                                        Value="32" />
                                 </Grid>
                             </Border>
                         </Grid>
@@ -1002,7 +1007,7 @@
                     </StackPanel>
                     <Grid Grid.Column="2" VerticalAlignment="Stretch">
                         <Grid
-                            Height="240"
+                            Height="288"
                             VerticalAlignment="Top"
                             Shadow="{ThemeResource SharedShadow}"
                             Translation="0,0,36">

@@ -49,7 +49,7 @@
                         Source="/Assets/AppIcons/IviriusCommunityIcon.png" />
 
                     <StackPanel Grid.Column="2">
-                        <TextBlock Style="{ThemeResource TitleLargeTextBlockStyle}" Text="This is Ivirius." />
+                        <TextBlock Style="{ThemeResource TitleLargeTextBlockStyle}" Text="This is Ivirius" />
                         <TextBlock
                             FontSize="18"
                             Text="We made apps and tools for you to have the best experience with Windows 11."
@@ -805,5 +805,5 @@
             </ToolkitControls:WrapPanel>
         </Grid>
     </ScrollViewer>
-    
+
 </Page>

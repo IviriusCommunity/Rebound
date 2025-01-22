@@ -157,11 +157,11 @@ public sealed partial class ShellPage : Page
 
     private async void VisitDocsWebsite(object sender, TappedRoutedEventArgs e)
     {
-        await Launcher.LaunchUriAsync(new Uri("https://github.com/IviriusCommunity/Rebound"));
+        await Launcher.LaunchUriAsync(new Uri("https://ivirius.com/docs"));
     }
 
     private async void GoToDiscordServer(object sender, TappedRoutedEventArgs e)
     {
-        await Launcher.LaunchUriAsync(new Uri("https://discord.gg/FnwmAPf4"));
+        await Launcher.LaunchUriAsync(new Uri("https://discord.com/invite/uasSwW5U2B"));
     }
 }

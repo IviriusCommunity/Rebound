@@ -399,13 +399,6 @@
                                             </Button>
                                         </Grid>
 
-                                        <ContentControl
-                                            x:Name="PaneCustomContentBorder"
-                                            Grid.Row="7"
-                                            HorizontalContentAlignment="Stretch"
-                                            VerticalContentAlignment="Stretch"
-                                            IsTabStop="False" />
-
                                         <!--  "Non header" content  -->
                                         <Grid x:Name="ItemsContainerGrid" Grid.Row="6">
                                             <Grid.RowDefinitions>
@@ -468,6 +461,13 @@
                                                 </ScrollViewer>
                                             </local:ItemsRepeaterScrollHost>
                                         </Grid>
+
+                                        <ContentControl
+                                            x:Name="PaneCustomContentBorder"
+                                            Grid.Row="7"
+                                            HorizontalContentAlignment="Stretch"
+                                            VerticalContentAlignment="Stretch"
+                                            IsTabStop="False" />
                                     </Grid>
                                 </SplitView.Pane>
 
