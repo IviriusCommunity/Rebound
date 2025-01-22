@@ -26,7 +26,7 @@ public abstract class StandardReboundApp : IReboundRootApp
     public ReboundAppIntegrity GetIntegrity()
     {
         var isAppPackageIntact = AppPackages?.All(pkg => pkg.IsInstalled());
-        var isShortcutIntact = Shortcuts?.All(sc => sc.IsShortcutIconModernized());
+        var isShortcutIntact = Shortcuts?.All(sc => sc.IsShortcutIntact());
         var isIFEOEntryIntact = IFEOEntries?.All(entry => entry.IsIntact());
 
         return
