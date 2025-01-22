@@ -33,7 +33,7 @@
         </ResourceDictionary>
     </ResourceDictionary.ThemeDictionaries>
 
-    <Style x:Key="ExtendedNavigationViewStyle" TargetType="local:NavigationView">
+    <Style x:Key="CustomNavigationViewStyle" TargetType="local:NavigationView">
         <Setter Property="PaneToggleButtonStyle" Value="{StaticResource PaneToggleButtonStyle}" />
         <Setter Property="IsTabStop" Value="False" />
         <Setter Property="CompactPaneLength" Value="{ThemeResource NavigationViewCompactPaneLength}" />
@@ -325,6 +325,7 @@
                                             <RowDefinition Height="0" />
                                             <!--  above list margin  -->
                                             <RowDefinition x:Name="ItemsContainerRow" Height="*" />
+                                            <RowDefinition Height="Auto" />
                                         </Grid.RowDefinitions>
 
                                         <Grid x:Name="ContentPaneTopPadding" Height="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=TemplateSettings.TopPadding}" />
@@ -400,7 +401,7 @@
 
                                         <ContentControl
                                             x:Name="PaneCustomContentBorder"
-                                            Grid.Row="4"
+                                            Grid.Row="7"
                                             HorizontalContentAlignment="Stretch"
                                             VerticalContentAlignment="Stretch"
                                             IsTabStop="False" />
@@ -851,6 +852,134 @@
         </Setter>
     </Style>
 
+    <Style x:Key="CustomNavigationViewItemStyle" TargetType="local:NavigationViewItem">
+        <Setter Property="Foreground" Value="{ThemeResource NavigationViewItemForeground}" />
+        <Setter Property="Background" Value="{ThemeResource NavigationViewItemBackground}" />
+        <Setter Property="BorderBrush" Value="{ThemeResource NavigationViewItemBorderBrush}" />
+        <Setter Property="BorderThickness" Value="{StaticResource NavigationViewItemBorderThickness}" />
+        <Setter Property="FontFamily" Value="{ThemeResource ContentControlThemeFontFamily}" />
+        <Setter Property="FontWeight" Value="Normal" />
+        <Setter Property="FontSize" Value="{ThemeResource ControlContentThemeFontSize}" />
+        <Setter Property="Margin" Value="{ThemeResource NavigationViewItemMargin}" />
+        <Setter Property="UseSystemFocusVisuals" Value="True" />
+        <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+        <Setter Property="TabNavigation" Value="Once" />
+        <Setter Property="CornerRadius" Value="{ThemeResource ControlCornerRadius}" />
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="local:NavigationViewItem">
+                    <Grid x:Name="NVIRootGrid">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="*" />
+                            <RowDefinition Height="Auto" />
+                        </Grid.RowDefinitions>
+
+                        <primitives:NavigationViewItemPresenter
+                            x:Name="NavigationViewItemPresenter"
+                            Padding="{TemplateBinding Padding}"
+                            HorizontalAlignment="{TemplateBinding HorizontalAlignment}"
+                            VerticalAlignment="{TemplateBinding VerticalAlignment}"
+                            HorizontalContentAlignment="{TemplateBinding HorizontalContentAlignment}"
+                            VerticalContentAlignment="{TemplateBinding VerticalContentAlignment}"
+                            Background="{TemplateBinding Background}"
+                            BorderBrush="{TemplateBinding BorderBrush}"
+                            BorderThickness="{TemplateBinding BorderThickness}"
+                            Content="{TemplateBinding Content}"
+                            ContentTemplate="{TemplateBinding ContentTemplate}"
+                            ContentTemplateSelector="{TemplateBinding ContentTemplateSelector}"
+                            ContentTransitions="{TemplateBinding ContentTransitions}"
+                            Control.IsTemplateFocusTarget="True"
+                            CornerRadius="{TemplateBinding CornerRadius}"
+                            Foreground="{TemplateBinding Foreground}"
+                            Icon="{TemplateBinding Icon}"
+                            InfoBadge="{TemplateBinding InfoBadge}"
+                            IsTabStop="false"
+                            Style="{ThemeResource CustomNavigationViewItemPresenterStyle}"
+                            UseSystemFocusVisuals="{TemplateBinding UseSystemFocusVisuals}" />
+                        <local:ItemsRepeater
+                            x:Name="NavigationViewItemMenuItemsHost"
+                            Grid.Row="1"
+                            x:Load="False"
+                            Visibility="Collapsed">
+                            <local:ItemsRepeater.Layout>
+                                <local:StackLayout Orientation="Vertical" />
+                            </local:ItemsRepeater.Layout>
+                        </local:ItemsRepeater>
+                        <FlyoutBase.AttachedFlyout>
+                            <Flyout x:Name="ChildrenFlyout" Placement="RightEdgeAlignedTop">
+                                <Flyout.FlyoutPresenterStyle>
+                                    <Style TargetType="FlyoutPresenter">
+                                        <Setter Property="Padding" Value="{ThemeResource NavigationViewItemChildrenMenuFlyoutPadding}" />
+                                        <!--  Set negative top margin to make the flyout align exactly with the button  -->
+                                        <Setter Property="Margin" Value="0,-4,0,0" />
+                                        <Setter Property="ScrollViewer.HorizontalScrollMode" Value="Auto" />
+                                        <Setter Property="ScrollViewer.HorizontalScrollBarVisibility" Value="Auto" />
+                                        <Setter Property="ScrollViewer.VerticalScrollMode" Value="Auto" />
+                                        <Setter Property="ScrollViewer.VerticalScrollBarVisibility" Value="Auto" />
+                                        <Setter Property="ScrollViewer.ZoomMode" Value="Disabled" />
+                                        <Setter Property="CornerRadius" Value="{ThemeResource OverlayCornerRadius}" />
+                                        <Setter Property="Template">
+                                            <Setter.Value>
+                                                <ControlTemplate TargetType="FlyoutPresenter">
+                                                    <ScrollViewer
+                                                        x:Name="ScrollViewer"
+                                                        AutomationProperties.AccessibilityView="Raw"
+                                                        HorizontalScrollBarVisibility="{TemplateBinding ScrollViewer.HorizontalScrollBarVisibility}"
+                                                        HorizontalScrollMode="{TemplateBinding ScrollViewer.HorizontalScrollMode}"
+                                                        VerticalScrollBarVisibility="{TemplateBinding ScrollViewer.VerticalScrollBarVisibility}"
+                                                        VerticalScrollMode="{TemplateBinding ScrollViewer.VerticalScrollMode}"
+                                                        ZoomMode="{TemplateBinding ScrollViewer.ZoomMode}">
+                                                        <ContentPresenter
+                                                            x:Name="ContentPresenter"
+                                                            Padding="{TemplateBinding Padding}"
+                                                            HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
+                                                            VerticalAlignment="{TemplateBinding VerticalContentAlignment}"
+                                                            Background="{TemplateBinding Background}"
+                                                            BorderBrush="{TemplateBinding BorderBrush}"
+                                                            BorderThickness="{TemplateBinding BorderThickness}"
+                                                            Content="{TemplateBinding Content}"
+                                                            ContentTemplate="{TemplateBinding ContentTemplate}"
+                                                            ContentTransitions="{TemplateBinding ContentTransitions}"
+                                                            CornerRadius="{TemplateBinding CornerRadius}" />
+                                                    </ScrollViewer>
+                                                </ControlTemplate>
+                                            </Setter.Value>
+                                        </Setter>
+                                    </Style>
+                                </Flyout.FlyoutPresenterStyle>
+                                <Grid x:Name="FlyoutRootGrid">
+                                    <Grid x:Name="FlyoutContentGrid" />
+                                </Grid>
+                            </Flyout>
+                        </FlyoutBase.AttachedFlyout>
+
+                        <VisualStateManager.VisualStateGroups>
+                            <VisualStateGroup x:Name="ItemOnNavigationViewListPositionStates">
+                                <VisualState x:Name="OnLeftNavigation">
+                                    <VisualState.Setters>
+                                        <Setter Target="NavigationViewItemPresenter.Style" Value="{StaticResource CustomNavigationViewItemPresenterStyle}" />
+                                    </VisualState.Setters>
+                                </VisualState>
+                                <VisualState x:Name="OnTopNavigationPrimary">
+                                    <VisualState.Setters>
+                                        <Setter Target="NavigationViewItemPresenter.Margin" Value="{ThemeResource TopNavigationViewItemMargin}" />
+                                        <Setter Target="NavigationViewItemPresenter.Style" Value="{StaticResource MUX_NavigationViewItemPresenterStyleWhenOnTopPane}" />
+                                        <Setter Target="ChildrenFlyout.Placement" Value="BottomEdgeAlignedLeft" />
+                                    </VisualState.Setters>
+                                </VisualState>
+                                <VisualState x:Name="OnTopNavigationOverflow">
+                                    <VisualState.Setters>
+                                        <Setter Target="NavigationViewItemPresenter.Style" Value="{StaticResource MUX_NavigationViewItemPresenterStyleWhenOnTopPaneOverflow}" />
+                                    </VisualState.Setters>
+                                </VisualState>
+                            </VisualStateGroup>
+                        </VisualStateManager.VisualStateGroups>
+                    </Grid>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
     <Style TargetType="primitives:NavigationViewItemPresenter" />
 
     <Style x:Key="CustomNavigationViewItemPresenterStyle" TargetType="primitives:NavigationViewItemPresenter">
@@ -894,11 +1023,6 @@
                                 MinWidth="64"
                                 MinHeight="58"
                                 HorizontalAlignment="Stretch">
-                                <Grid.ChildrenTransitions>
-                                    <TransitionCollection>
-                                        <RepositionThemeTransition />
-                                    </TransitionCollection>
-                                </Grid.ChildrenTransitions>
 
                                 <Grid.RowDefinitions>
                                     <RowDefinition Height="*" />
@@ -914,6 +1038,9 @@
                                     Height="28"
                                     Margin="0,-3.5,0,0"
                                     HorizontalAlignment="Center">
+                                    <Viewbox.RenderTransform>
+                                        <TranslateTransform x:Name="IconBoxTranslateTransform" Y="0" />
+                                    </Viewbox.RenderTransform>
                                     <ContentPresenter
                                         x:Name="Icon"
                                         HorizontalContentAlignment="Stretch"
@@ -956,8 +1083,31 @@
 
                         <VisualStateManager.VisualStateGroups>
                             <VisualStateGroup x:Name="PointerStates">
-                                <VisualState x:Name="Normal" />
+                                <VisualState x:Name="Normal">
+                                    <VisualState.Storyboard>
+                                        <Storyboard>
+                                            <DoubleAnimation
+                                                EnableDependentAnimation="True"
+                                                Storyboard.TargetName="IconBoxTranslateTransform"
+                                                Storyboard.TargetProperty="Y"
+                                                From="{x:Null}"
+                                                To="0"
+                                                Duration="0:0:0.1" />
+                                        </Storyboard>
+                                    </VisualState.Storyboard>
+                                </VisualState>
                                 <VisualState x:Name="PointerOver">
+                                    <VisualState.Storyboard>
+                                        <Storyboard>
+                                            <DoubleAnimation
+                                                EnableDependentAnimation="True"
+                                                Storyboard.TargetName="IconBoxTranslateTransform"
+                                                Storyboard.TargetProperty="Y"
+                                                From="{x:Null}"
+                                                To="0"
+                                                Duration="0:0:0.1" />
+                                        </Storyboard>
+                                    </VisualState.Storyboard>
                                     <VisualState.Setters>
                                         <Setter Target="LayoutRoot.Background" Value="{ThemeResource NavigationViewItemBackgroundPointerOver}" />
                                         <Setter Target="Icon.Foreground" Value="{ThemeResource NavigationViewItemForegroundPointerOver}" />
@@ -966,6 +1116,17 @@
                                     </VisualState.Setters>
                                 </VisualState>
                                 <VisualState x:Name="Pressed">
+                                    <VisualState.Storyboard>
+                                        <Storyboard>
+                                            <DoubleAnimation
+                                                EnableDependentAnimation="True"
+                                                Storyboard.TargetName="IconBoxTranslateTransform"
+                                                Storyboard.TargetProperty="Y"
+                                                From="{x:Null}"
+                                                To="0"
+                                                Duration="0:0:0.1" />
+                                        </Storyboard>
+                                    </VisualState.Storyboard>
                                     <VisualState.Setters>
                                         <Setter Target="LayoutRoot.Background" Value="{ThemeResource NavigationViewItemBackgroundPressed}" />
                                         <Setter Target="Icon.Foreground" Value="{ThemeResource NavigationViewItemForegroundPressed}" />
@@ -974,29 +1135,62 @@
                                     </VisualState.Setters>
                                 </VisualState>
                                 <VisualState x:Name="Selected">
+                                    <VisualState.Storyboard>
+                                        <Storyboard>
+                                            <DoubleAnimation
+                                                EnableDependentAnimation="True"
+                                                Storyboard.TargetName="IconBoxTranslateTransform"
+                                                Storyboard.TargetProperty="Y"
+                                                From="{x:Null}"
+                                                To="4.5"
+                                                Duration="0:0:0.1" />
+                                        </Storyboard>
+                                    </VisualState.Storyboard>
                                     <VisualState.Setters>
                                         <Setter Target="LayoutRoot.Background" Value="{ThemeResource NavigationViewItemBackgroundSelected}" />
                                         <Setter Target="Icon.Foreground" Value="{ThemeResource NavigationViewSelectionIndicatorForeground}" />
                                         <Setter Target="ContentPresenter.Foreground" Value="{ThemeResource NavigationViewItemForegroundSelected}" />
-                                        <Setter Target="TextBox.Visibility" Value="Collapsed" />
+                                        <Setter Target="TextBox.Opacity" Value="0" />
                                     </VisualState.Setters>
                                 </VisualState>
                                 <VisualState x:Name="PointerOverSelected">
+                                    <VisualState.Storyboard>
+                                        <Storyboard>
+                                            <DoubleAnimation
+                                                EnableDependentAnimation="True"
+                                                Storyboard.TargetName="IconBoxTranslateTransform"
+                                                Storyboard.TargetProperty="Y"
+                                                From="{x:Null}"
+                                                To="4.5"
+                                                Duration="0:0:0.1" />
+                                        </Storyboard>
+                                    </VisualState.Storyboard>
                                     <VisualState.Setters>
                                         <Setter Target="LayoutRoot.Background" Value="{ThemeResource NavigationViewItemBackgroundSelectedPointerOver}" />
                                         <Setter Target="Icon.Foreground" Value="{ThemeResource NavigationViewSelectionIndicatorForeground}" />
                                         <Setter Target="ContentPresenter.Foreground" Value="{ThemeResource NavigationViewItemForegroundSelectedPointerOver}" />
                                         <Setter Target="Icon.(local:AnimatedIcon.State)" Value="PointerOver" />
-                                        <Setter Target="TextBox.Visibility" Value="Collapsed" />
+                                        <Setter Target="TextBox.Opacity" Value="0" />
                                     </VisualState.Setters>
                                 </VisualState>
                                 <VisualState x:Name="PressedSelected">
+                                    <VisualState.Storyboard>
+                                        <Storyboard>
+                                            <DoubleAnimation
+                                                EnableDependentAnimation="True"
+                                                Storyboard.TargetName="IconBoxTranslateTransform"
+                                                Storyboard.TargetProperty="Y"
+                                                From="{x:Null}"
+                                                To="4.5"
+                                                Duration="0:0:0.1" />
+                                        </Storyboard>
+                                    </VisualState.Storyboard>
                                     <VisualState.Setters>
                                         <Setter Target="LayoutRoot.Background" Value="{ThemeResource NavigationViewItemBackgroundSelectedPressed}" />
                                         <Setter Target="Icon.Foreground" Value="{ThemeResource NavigationViewSelectionIndicatorForeground}" />
                                         <Setter Target="ContentPresenter.Foreground" Value="{ThemeResource NavigationViewItemForegroundSelectedPressed}" />
                                         <Setter Target="Icon.(local:AnimatedIcon.State)" Value="Pressed" />
-                                        <Setter Target="TextBox.Visibility" Value="Collapsed" />
+                                        <Setter Target="TextBox.Opacity" Value="0" />
                                     </VisualState.Setters>
                                 </VisualState>
                             </VisualStateGroup>

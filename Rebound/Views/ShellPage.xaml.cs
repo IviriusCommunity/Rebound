@@ -2,13 +2,15 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
-using System.Threading.Tasks;
 
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Data;
+using Microsoft.UI.Xaml.Input;
 using Microsoft.UI.Xaml.Media;
 
 using Rebound.Models;
+
+using Windows.System;
 
 namespace Rebound.Views;
 
@@ -19,15 +21,15 @@ public sealed partial class ShellPage : Page
     public ShellPage()
     {
         InitializeComponent();
-        
+
         Debug.WriteLine(@$"{Environment.GetFolderPath(Environment.SpecialFolder.StartMenu)}\Programs\Rebound 11 Tools");
 
         BuildTopNavigationMenu();
-        BuildBottomNavigationMenu();
 
-        MainFrame.Navigate(_selectedMenuItem.TargetType);
-
-        CheckLaunch();
+        if (!CheckArgs())
+        {
+            MainFrame.Navigate(_selectedMenuItem.TargetType);
+        }
     }
 
     private void BuildTopNavigationMenu()
@@ -61,7 +63,7 @@ public sealed partial class ShellPage : Page
             SelectedIcon = "",
             IconFontFamily = new FontFamily("ms-appx:///Fonts/FluentIcons.ttf#FluentSystemIcons-Resizable"),
             Title = "Ivirius.UI",
-            TargetType= typeof(EmptyPage),
+            TargetType = typeof(EmptyPage),
         });
 
         var navigationViewItems = BuildNavigationViewItems(menuItems);
@@ -71,35 +73,6 @@ public sealed partial class ShellPage : Page
 
         _selectedMenuItem = navigationViewItems.First().DataContext as NavMenuItem;
         _selectedMenuItem.IsSelected = true;
-    }
-
-    private void BuildBottomNavigationMenu()
-    {
-        var menuItems = new List<NavMenuItem>();
-
-        menuItems.Add(new NavMenuItem
-        {
-            Id = "Docs",
-            NormalIcon = "",
-            SelectedIcon = "",
-            IconFontFamily = new FontFamily("ms-appx:///Fonts/FluentIcons.ttf#FluentSystemIcons-Resizable"),
-            Title = "Docs",
-            TargetType = typeof(EmptyPage),
-        });
-
-        menuItems.Add(new NavMenuItem
-        {
-            Id = "Discord",
-            NormalIcon = "",
-            SelectedIcon = "",
-            IconFontFamily = new FontFamily("ms-appx:///Fonts/FluentIcons.ttf#FluentSystemIcons-Resizable"),
-            Title = "Discord",
-            TargetType = typeof(EmptyPage),
-        });
-
-        var navigationViewItems = BuildNavigationViewItems(menuItems);
-
-        NavigationViewControl.FooterMenuItemsSource = navigationViewItems;
     }
 
     private List<NavigationViewItem> BuildNavigationViewItems(List<NavMenuItem> menuItems)
@@ -137,16 +110,22 @@ public sealed partial class ShellPage : Page
     }
 
 
-    public async void CheckLaunch()
+    public bool CheckArgs()
     {
-        return;
-
-        await Task.Delay(500);
-        if (string.Join(" ", Environment.GetCommandLineArgs().Skip(1)).Contains("INSTALLREBOUND11"))
+        if (string.Join(" ", Environment.GetCommandLineArgs().Skip(1)).ToUpperInvariant().Contains("INSTALLREBOUND11"))
         {
-            ////TEMP
-            NavigationViewControl.SelectedItem = NavigationViewControl.MenuItems[1];
+            var selectedItem = (NavigationViewControl.MenuItemsSource as List<NavigationViewItem>)[1];
+            
+            NavigationViewControl.SelectedItem = selectedItem;
+
+            ChangeMenuSelection(selectedItem.DataContext as NavMenuItem);
+
+            MainFrame.Navigate(_selectedMenuItem.TargetType);
+
+            return true;
         }
+
+        return false;
     }
 
     private void Navigate(NavigationView sender, NavigationViewItemInvokedEventArgs args)
@@ -166,10 +145,23 @@ public sealed partial class ShellPage : Page
 
         MainFrame.Navigate(navMenuItem.TargetType);
 
+        ChangeMenuSelection(navMenuItem);
+    }
+
+    private void ChangeMenuSelection(NavMenuItem newNavMenuItem)
+    {
         _selectedMenuItem.IsSelected = false;
-
-        _selectedMenuItem = navMenuItem;
-
+        _selectedMenuItem = newNavMenuItem;
         _selectedMenuItem.IsSelected = true;
+    }
+
+    private async void VisitDocsWebsite(object sender, TappedRoutedEventArgs e)
+    {
+        await Launcher.LaunchUriAsync(new Uri("https://github.com/IviriusCommunity/Rebound"));
+    }
+
+    private async void GoToDiscordServer(object sender, TappedRoutedEventArgs e)
+    {
+        await Launcher.LaunchUriAsync(new Uri("https://discord.gg/FnwmAPf4"));
     }
 }
