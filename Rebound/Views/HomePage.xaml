@@ -30,8 +30,7 @@
                 HorizontalAlignment="Stretch"
                 VerticalAlignment="Top"
                 Image="{ThemeResource HeroBackgroundBitmapImage}"
-                Opacity="0.8"
-                Visibility="Visible" />
+                Opacity="0.8" />
 
             <Grid
                 x:Name="TitleGrid"
@@ -806,4 +805,5 @@
             </ToolkitControls:WrapPanel>
         </Grid>
     </ScrollViewer>
+    
 </Page>
