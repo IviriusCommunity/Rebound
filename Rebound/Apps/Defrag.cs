@@ -11,7 +11,12 @@ public partial class Defrag : StandardReboundApp
     [
         new ReboundAppShortcut()
         {
-
+            OriginalIconLocation = "C:\\Windows\\System32\\shell32.dll #456",
+            ModernIconLocation = "C:\\Windows\\System32\\shell32.dll #20",
+            ReplaceExisting = true,
+            Path = "C:\\Windows\\someshortcut.lnk",
+            RunAsAdmin = true, // Just bind this to the RunAsAdmin toggle switch in the installer
+            TargetPath = null // Replace existing ignores target path
         }
     ];
 
