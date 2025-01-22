@@ -5,8 +5,10 @@ using System.Linq;
 
 namespace Rebound.Helpers.Modding;
 
-public abstract class StandardReboundApp : IReboundRootApp
+public abstract class ReboundAppInstructions : IReboundRootApp
 {
+    public virtual InstallationTemplate PreferredInstallationTemplate { get; set; } = InstallationTemplate.Extras;
+
     public virtual List<AppPackage>? AppPackages { get; set; }
 
     public virtual List<ReboundAppShortcut>? Shortcuts { get; set; }

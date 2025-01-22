@@ -27,6 +27,8 @@ public interface IReboundRootApp
 
     public ReboundAppIntegrity GetIntegrity();
 
+    public InstallationTemplate PreferredInstallationTemplate { get; set; }
+
     public List<AppPackage>? AppPackages { get; set; }
 
     public List<ReboundAppShortcut>? Shortcuts { get; set; }
