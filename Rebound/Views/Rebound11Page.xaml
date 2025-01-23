@@ -1529,6 +1529,37 @@
                         </Grid>
                     </Grid>
                 </StackPanel>
+                <Grid HorizontalAlignment="Left" Width="400" Padding="12" Background="{ThemeResource CardBackgroundFillColorDefault}" BorderBrush="{ThemeResource ControlElevationBorderBrush}" BorderThickness="1" CornerRadius="4">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="8"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="8"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="16"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="16"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+                    <Border VerticalAlignment="Center" Grid.RowSpan="3" BorderBrush="{ThemeResource AccentFillColorDefaultBrush}" Padding="4" BorderThickness="1" CornerRadius="4" Background="{ThemeResource ControlOnImageFillColorDefaultBrush}">
+                        <Image Width="64" Height="64" Source="/Assets/AppIcons/ManagementConsole.png"/>
+                    </Border>
+                    <TextBlock Text="Management Console" Grid.Column="2" FontWeight="SemiBold" FontSize="18" TextWrapping="WrapWholeWords"/>
+                    <StackPanel Orientation="Horizontal" Spacing="8" Margin="0, -4, 0, 0" Grid.Column="4">
+                        <Button Padding="6" Background="Transparent" BorderBrush="Transparent">
+                            <FontIcon Glyph="&#xE90F;" FontSize="16"/>
+                        </Button>
+                        <Button Padding="6" Background="Transparent" BorderBrush="Transparent">
+                            <FontIcon Glyph="&#xE713;" FontSize="16"/>
+                        </Button>
+                        <ToggleSwitch Margin="0, -2, -108, -2" OnContent="" OffContent=""/>
+                    </StackPanel>
+                    <TextBlock Grid.Row="2" Margin="0, -44, 0, 0" Text="The Management Console is used to manage Windows hardware and security." Grid.Column="2" Grid.ColumnSpan="3" TextWrapping="WrapWholeWords"/>
+                    <InfoBar IsOpen="True" IsClosable="False" Grid.Row="4" Grid.ColumnSpan="5" Title="This will do the following:" Message="- Redirect app launch&#x0a;- Change shortcut icon&#x0a;- Install Rebound Management Console"/>
+                </Grid>
             </StackPanel>
         </Grid>
     </ScrollViewer>
