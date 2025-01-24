@@ -23,6 +23,7 @@
                 <RowDefinition Height="Auto" />
                 <RowDefinition Height="Auto" />
                 <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
             </Grid.RowDefinitions>
 
             <header:HomePageHeaderImage
@@ -1154,86 +1155,87 @@
                             </Grid>
                         </Border>
                     </Grid>
-                    <StackPanel>
-                        <Grid
-                            Width="400"
-                            Padding="12"
-                            HorizontalAlignment="Left"
-                            Background="{ThemeResource CardBackgroundFillColorDefault}"
-                            BorderBrush="{ThemeResource ControlElevationBorderBrush}"
-                            BorderThickness="1"
-                            CornerRadius="4">
-                            <Grid.RowDefinitions>
-                                <RowDefinition Height="Auto" />
-                                <RowDefinition Height="8" />
-                                <RowDefinition Height="Auto" />
-                                <RowDefinition Height="8" />
-                                <RowDefinition Height="Auto" />
-                            </Grid.RowDefinitions>
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="Auto" />
-                                <ColumnDefinition Width="16" />
-                                <ColumnDefinition Width="*" />
-                                <ColumnDefinition Width="16" />
-                                <ColumnDefinition Width="Auto" />
-                            </Grid.ColumnDefinitions>
-                            <Border
-                                Grid.RowSpan="3"
-                                Padding="4"
-                                VerticalAlignment="Center"
-                                Background="{ThemeResource ControlOnImageFillColorDefaultBrush}"
-                                BorderBrush="{ThemeResource AccentFillColorDefaultBrush}"
-                                BorderThickness="1"
-                                CornerRadius="4">
-                                <Image
-                                    Width="64"
-                                    Height="64"
-                                    Source="/Assets/AppIcons/ManagementConsole.png" />
-                            </Border>
-                            <TextBlock
-                                Grid.Column="2"
-                                FontSize="18"
-                                FontWeight="SemiBold"
-                                Text="Management Console"
-                                TextWrapping="WrapWholeWords" />
-                            <StackPanel
-                                Grid.Column="4"
-                                Margin="0,-4,0,0"
-                                Orientation="Horizontal"
-                                Spacing="8">
-                                <Button
-                                    Padding="6"
-                                    Background="Transparent"
-                                    BorderBrush="Transparent">
-                                    <FontIcon FontSize="16" Glyph="&#xE90F;" />
-                                </Button>
-                                <Button
-                                    Padding="6"
-                                    Background="Transparent"
-                                    BorderBrush="Transparent">
-                                    <FontIcon FontSize="16" Glyph="&#xE713;" />
-                                </Button>
-                                <ToggleSwitch
-                                    Margin="0,-2,-108,-2"
-                                    OffContent=""
-                                    OnContent="" />
-                            </StackPanel>
-                            <TextBlock
-                                Grid.Row="2"
-                                Grid.Column="2"
-                                Grid.ColumnSpan="3"
-                                Margin="0,-44,0,0"
-                                Text="The Management Console is used to manage Windows hardware and security."
-                                TextWrapping="WrapWholeWords" />
-                            <InfoBar
-                                Title="This will do the following:"
-                                Grid.Row="4"
-                                Grid.ColumnSpan="5"
-                                IsClosable="False"
-                                IsOpen="True"
-                                Message="- Redirect app launch&#x0a;- Change shortcut icon&#x0a;- Install Rebound Management Console" />
-                        </Grid>
+                </Grid>
+            </StackPanel>
+
+            <StackPanel Grid.Row="6" Margin="48">
+                <Grid
+                    Width="400"
+                    Padding="12"
+                    HorizontalAlignment="Left"
+                    Background="{ThemeResource CardBackgroundFillColorDefault}"
+                    BorderBrush="{ThemeResource ControlElevationBorderBrush}"
+                    BorderThickness="1"
+                    CornerRadius="4">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="8" />
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="8" />
+                        <RowDefinition Height="Auto" />
+                    </Grid.RowDefinitions>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="16" />
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="16" />
+                        <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
+                    <Border
+                        Grid.RowSpan="3"
+                        Padding="4"
+                        VerticalAlignment="Center"
+                        Background="{ThemeResource ControlOnImageFillColorDefaultBrush}"
+                        BorderBrush="{ThemeResource AccentFillColorDefaultBrush}"
+                        BorderThickness="1"
+                        CornerRadius="4">
+                        <Image
+                            Width="64"
+                            Height="64"
+                            Source="/Assets/AppIcons/ManagementConsole.png" />
+                    </Border>
+                    <TextBlock
+                        Grid.Column="2"
+                        FontSize="18"
+                        FontWeight="SemiBold"
+                        Text="Management Console"
+                        TextWrapping="WrapWholeWords" />
+                    <StackPanel
+                        Grid.Column="4"
+                        Margin="0,-4,0,0"
+                        Orientation="Horizontal"
+                        Spacing="8">
+                        <Button
+                            Padding="6"
+                            Background="Transparent"
+                            BorderBrush="Transparent">
+                            <FontIcon FontSize="16" Glyph="&#xE90F;" />
+                        </Button>
+                        <Button
+                            Padding="6"
+                            Background="Transparent"
+                            BorderBrush="Transparent">
+                            <FontIcon FontSize="16" Glyph="&#xE713;" />
+                        </Button>
+                        <ToggleSwitch
+                            Margin="0,-2,-108,-2"
+                            OffContent=""
+                            OnContent="" />
                     </StackPanel>
+                    <TextBlock
+                        Grid.Row="2"
+                        Grid.Column="2"
+                        Grid.ColumnSpan="3"
+                        Margin="0,-44,0,0"
+                        Text="The Management Console is used to manage Windows hardware and security."
+                        TextWrapping="WrapWholeWords" />
+                    <InfoBar
+                        Title="This will do the following:"
+                        Grid.Row="4"
+                        Grid.ColumnSpan="5"
+                        IsClosable="False"
+                        IsOpen="True"
+                        Message="- Redirect app launch&#x0a;- Change shortcut icon&#x0a;- Install Rebound Management Console" />
                 </Grid>
             </StackPanel>
         </Grid>
