@@ -162,6 +162,6 @@ public sealed partial class ShellPage : Page
 
     private async void GoToDiscordServer(object sender, TappedRoutedEventArgs e)
     {
-        await Launcher.LaunchUriAsync(new Uri("https://discord.com/invite/uasSwW5U2B"));
+        await Launcher.LaunchUriAsync(new Uri("https://dsc.gg/ivirius"));
     }
 }
