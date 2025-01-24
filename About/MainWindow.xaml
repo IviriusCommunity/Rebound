@@ -8,7 +8,11 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:winuiex="using:WinUIEx"
     xmlns:environment="using:Rebound.Helpers.Environment"
-    mc:Ignorable="d">
+    mc:Ignorable="d"
+    IsMaximizable="False"
+    IsMinimizable="False"
+    Title="About Windows"
+    IsResizable="False">
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>

@@ -8,16 +8,16 @@
 using namespace std;
 
 // Package family name for the required app
-string packageFamilyName = "ReboundAbout_yejd587sfa94t";
+string packageFamilyName = "Your_app_package_family_name_here";
 
 // Arguments for launching the app
-string args = "";
+string args = "Your_args_here";
 
 // PowerShell command
 string command = "Start-Process 'shell:AppsFolder\\" + packageFamilyName + "!App' -ArgumentList @(' " + args + " ')";
 
 // Convert string to wide string
-static wstring StringToWString(const string& str) 
+static wstring StringToWString(const string& str)
 {
     // Step 1: Get the length of the wide-character version of the input string, including the null terminator.
     int requiredSize = MultiByteToWideChar(CP_ACP, 0, str.c_str(), -1, NULL, 0);
@@ -33,7 +33,7 @@ static wstring StringToWString(const string& str)
 }
 
 // Function to check if the application is running as admin
-static BOOL IsRunningAsAdmin() 
+static BOOL IsRunningAsAdmin()
 {
     BOOL isAdmin = FALSE;
     PSID adminGroup = NULL;
@@ -45,7 +45,7 @@ static BOOL IsRunningAsAdmin()
     if (AllocateAndInitializeSid(&NtAuthority, 2,
         SECURITY_BUILTIN_DOMAIN_RID, DOMAIN_ALIAS_RID_ADMINS,
         0, 0, 0, 0, 0, 0,
-        &adminGroup)) 
+        &adminGroup))
     {
         // Step 2: Check if the current token is a member of the Administrators group.
         if (CheckTokenMembership(NULL, adminGroup, &isAdmin)) isAdmin = isAdmin ? TRUE : FALSE;
@@ -58,7 +58,7 @@ static BOOL IsRunningAsAdmin()
 }
 
 // Function to run a PowerShell command
-static void RunPowerShellCommand(const string& command, BOOL runAsAdmin) 
+static void RunPowerShellCommand(const string& command, BOOL runAsAdmin)
 {
     string powershellCommand = command;
 
@@ -104,7 +104,7 @@ static void RunPowerShellCommand(const string& command, BOOL runAsAdmin)
         CloseHandle(pi.hProcess);
         CloseHandle(pi.hThread);
     }
-    else 
+    else
     {
         // Process creation failed. Print the error.
         DWORD error = GetLastError();

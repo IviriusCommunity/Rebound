@@ -10,42 +10,52 @@
     mc:Ignorable="d">
 
     <Grid>
-        <TextBlock Margin="20" Text="Select the drive you want to clean up." />
-        <ComboBox
+        <Grid Visibility="Collapsed">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+            <ComboBox
             x:Name="DrivesBox"
-            Margin="20,45"
+            Margin="20, 8, 20, 16"
             HorizontalAlignment="Stretch"
-            Header="Drives:" />
-        <Border
-            Grid.ColumnSpan="2"
+            VerticalAlignment="Center"
+            Header="Select the drive you want to clean up." />
+            <Border
+            Grid.Row="2"
             Height="75"
             VerticalAlignment="Bottom"
-            Background="{ThemeResource SystemControlBackgroundAltMediumLowBrush}"
-            BorderBrush="#338A8A8A"
-            BorderThickness="0,1,0,0" />
-        <Grid Margin="20" VerticalAlignment="Bottom">
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition />
-                <ColumnDefinition Width="8" />
-                <ColumnDefinition />
-            </Grid.ColumnDefinitions>
-            <Button
+            Background="{ThemeResource SystemControlBackgroundAltMediumLowBrush}" />
+            <Grid Grid.Row="2" Margin="20" VerticalAlignment="Center">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition />
+                    <ColumnDefinition Width="8" />
+                    <ColumnDefinition />
+                </Grid.ColumnDefinitions>
+                <Button
                 x:Name="OkButton"
                 HorizontalAlignment="Stretch"
                 Click="Button_Click"
                 Content="OK"
                 Style="{ThemeResource AccentButtonStyle}" />
-            <Button
+                <Button
                 x:Name="CancelButton"
                 Grid.Column="2"
                 HorizontalAlignment="Stretch"
                 Click="CancelButton_Click"
-                Content="Exit" />
-        </Grid>
-        <ProgressBar
+                Content="Exit">
+                    <Button.KeyboardAccelerators>
+                        <KeyboardAccelerator Key="Escape"/>
+                    </Button.KeyboardAccelerators>
+                </Button>
+            </Grid>
+            <ProgressBar
             x:Name="Working"
-            Margin="0,0,0,73"
+            Grid.Row="1"
             VerticalAlignment="Bottom"
             Background="Transparent" />
+        </Grid>
+        <Frame x:Name="RootFrame"/>
     </Grid>
 </winuiex:WindowEx>

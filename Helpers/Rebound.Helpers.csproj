@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
 	  <!-- Versions -->
-	  <TargetFramework>net9.0-windows10.0.26100.0</TargetFramework>
+	  <TargetFramework>net8.0-windows10.0.22621.0</TargetFramework>
 	  <WindowsSdkPackageVersion>10.0.22621.38</WindowsSdkPackageVersion>
 	  <SupportedOSPlatformVersion>10.0.17763.0</SupportedOSPlatformVersion>
 	  
@@ -11,6 +11,17 @@
     <UseWinUI>true</UseWinUI>
     <Platforms>AnyCPU;x64</Platforms>
   </PropertyGroup>
+  <ItemGroup>
+    <COMReference Include="WSHControllerLibrary">
+      <WrapperTool>tlbimp</WrapperTool>
+      <VersionMinor>0</VersionMinor>
+      <VersionMajor>1</VersionMajor>
+      <Guid>563dc060-b09a-11d2-a24d-00104bd35090</Guid>
+      <Lcid>0</Lcid>
+      <Isolated>false</Isolated>
+      <EmbedInteropTypes>true</EmbedInteropTypes>
+    </COMReference>
+  </ItemGroup>
 
   <ItemGroup>
 	  <PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.0" />
@@ -35,6 +46,17 @@
 	  <WebView2LoaderPreference>Static</WebView2LoaderPreference>
 	</PropertyGroup>
 
+	<ItemGroup>
+		<COMReference Include="IWshRuntimeLibrary">
+			<WrapperTool>tlbimp</WrapperTool>
+			<VersionMinor>0</VersionMinor>
+			<VersionMajor>1</VersionMajor>
+			<Guid>f935dc20-1cf0-11d0-adb9-00c04fd58a0b</Guid>
+			<Lcid>0</Lcid>
+			<Isolated>false</Isolated>
+			<EmbedInteropTypes>true</EmbedInteropTypes>
+		</COMReference>
+	</ItemGroup>
 	<PropertyGroup>
 		<GeneratePackageOnBuild>True</GeneratePackageOnBuild>
 		<Authors>Riverside, ErrorTek, Lamparter</Authors>

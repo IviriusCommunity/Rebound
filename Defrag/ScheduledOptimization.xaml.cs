@@ -5,7 +5,9 @@ using System.Text;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Media;
 using Microsoft.Win32.TaskScheduler;
+using Rebound.Defrag.Controls;
 using Rebound.Defrag.Helpers;
+using Rebound.Helpers;
 using WinUIEx;
 using static Rebound.Defrag.MainWindow;
 using Task = System.Threading.Tasks.Task;
@@ -16,6 +18,72 @@ namespace Rebound.Defrag;
 
 public sealed partial class ScheduledOptimization : WindowEx
 {
+    public static string GetTaskFrequency()
+    {
+        using TaskService ts = new();
+        // Specify the path to the task in Task Scheduler
+        var defragFolder = ts.GetFolder(@"Microsoft\Windows\Defrag");
+
+        // Retrieve the scheduled task
+        var task = defragFolder.GetTasks()["ScheduledDefrag"];
+
+        if (task.Enabled != true)
+        {
+            return $"Off";
+        }
+
+        if (task != null)
+        {
+            // Check the triggers for their type
+            foreach (var trigger in task.Definition.Triggers)
+            {
+                switch (trigger)
+                {
+                    case DailyTrigger _:
+                        return "On (Frequency: daily)";
+                    case WeeklyTrigger _:
+                        return "On (Frequency: weekly)";
+                    case MonthlyTrigger _:
+                        return "On (Frequency: monthly)";
+                }
+            }
+
+            return "On (Frequency: unknown)";
+        }
+        else
+        {
+            return $"Off";
+        }
+    }
+
+    public static string GetTaskCommand()
+    {
+        using TaskService ts = new();
+        // Specify the path to the task in Task Scheduler
+        var defragFolder = ts.GetFolder(@"Microsoft\Windows\Defrag");
+
+        // Retrieve the scheduled task
+        var task = defragFolder.GetTasks()["ScheduledDefrag"];
+
+        if (task != null)
+        {
+            // Check the triggers for their type
+            foreach (var action in task.Definition.Actions)
+            {
+                if (action is ExecAction ex)
+                {
+                    return ex.Arguments;
+                }
+            }
+
+            return "None";
+        }
+        else
+        {
+            return $"None";
+        }
+    }
+
     public ScheduledOptimization(int parentX, int parentY)
     {
         this.InitializeComponent();
@@ -27,7 +95,7 @@ public sealed partial class ScheduledOptimization : WindowEx
         Title = "Scheduled optimization";
         SystemBackdrop = new MicaBackdrop();
         AppWindow.DefaultTitleBarShouldMatchAppModeTheme = true;
-        LoadData();
+        //LoadData();
         if (GetTaskFrequency() is not "Off")
         {
             EnableTaskSwitch.IsOn = true;
@@ -55,25 +123,25 @@ public sealed partial class ScheduledOptimization : WindowEx
         if (GetTaskCommand().Contains("/E"))
         {
             OptimizeNew.IsChecked = true;
-            foreach (var disk in (List<DiskItem>)MyListView.ItemsSource)
+            foreach (var disk in (List<CommonDriveListViewItem>)MyListView.ItemsSource)
             {
-                var letter = disk.DriveLetter != null && disk.DriveLetter.EndsWith('\\') ? disk.DriveLetter[..^1] : disk.DriveLetter;
+                var letter = disk.DrivePath != null && disk.DrivePath.EndsWith('\\') ? disk.DrivePath[..^1] : disk.DrivePath;
                 disk.IsChecked = letter == null || !GetTaskCommand().Contains(letter);
             }
         }
         else
         {
             OptimizeNew.IsChecked = false;
-            foreach (var disk in (List<DiskItem>)MyListView.ItemsSource)
+            foreach (var disk in (List<CommonDriveListViewItem>)MyListView.ItemsSource)
             {
-                var letter = disk.DriveLetter != null && disk.DriveLetter.EndsWith('\\') ? disk.DriveLetter[..^1] : disk.DriveLetter;
+                var letter = disk.DrivePath != null && disk.DrivePath.EndsWith('\\') ? disk.DrivePath[..^1] : disk.DrivePath;
                 disk.IsChecked = letter != null && GetTaskCommand().Contains(letter);
             }
         }
         CheckSelectAll();
     }
 
-    public static void ScheduleDefragTask(List<DiskItem> items, bool optimizeNewDrives, string scheduleFrequency)
+    public static void ScheduleDefragTask(List<CommonDriveListViewItem> items, bool optimizeNewDrives, string scheduleFrequency)
     {
         using TaskService ts = new();
         // Create or open the Defrag folder in Task Scheduler
@@ -125,7 +193,7 @@ public sealed partial class ScheduledOptimization : WindowEx
             {
                 if (disk.IsChecked == false)
                 {
-                    var letter = disk.DriveLetter != null && disk.DriveLetter.EndsWith('\\') ? disk.DriveLetter[..^1] : disk.DriveLetter;
+                    var letter = disk.DrivePath != null && disk.DrivePath.EndsWith('\\') ? disk.DrivePath[..^1] : disk.DrivePath;
                     if (letter != null)
                     {
                         drives.Add(letter);
@@ -143,7 +211,7 @@ public sealed partial class ScheduledOptimization : WindowEx
             {
                 if (disk.IsChecked == true)
                 {
-                    var letter = disk.DriveLetter != null && disk.DriveLetter.EndsWith('\\') ? disk.DriveLetter[..^1] : disk.DriveLetter;
+                    var letter = disk.DrivePath != null && disk.DrivePath.EndsWith('\\') ? disk.DrivePath[..^1] : disk.DrivePath;
                     if (letter != null)
                     {
                         drives.Add(letter);
@@ -176,103 +244,90 @@ public sealed partial class ScheduledOptimization : WindowEx
         scheduledDefrag.Enabled = false;
     }
 
-    public async void LoadData()
+    public static string GetDriveTypeDescription(string driveRoot)
     {
-        // Initial delay
-        // Essential for ensuring the UI loads before starting tasks
-        await Task.Delay(100);
+        var driveType = Win32Helper.GetDriveType(driveRoot);
 
-        List<DiskItem> items = [];
+        return driveType switch
+        {
+            Win32Helper.DriveType.DRIVE_REMOVABLE => "Removable",
+            Win32Helper.DriveType.DRIVE_FIXED => "Fixed",
+            Win32Helper.DriveType.DRIVE_REMOTE => "Network",
+            Win32Helper.DriveType.DRIVE_CDROM => "CD-ROM",
+            Win32Helper.DriveType.DRIVE_RAMDISK => "RAM Disk",
+            Win32Helper.DriveType.DRIVE_NO_ROOT_DIR => "No Root Directory",
+            _ => "Unknown",
+        };
+    }
+
+    public static List<CommonDriveListViewItem> GetDriveItems()
+    {
+        // The drive items
+        List<CommonDriveListViewItem> items = [];
 
         // Get the logical drives bitmask
         var drivesBitMask = Win32Helper.GetLogicalDrives();
-        if (drivesBitMask == 0)
+
+        // If there are no drives return
+        if (drivesBitMask is 0)
         {
-            return;
+            return [];
         }
 
-        for (var driveLetter = 'A'; driveLetter <= 'Z'; driveLetter++)
+        // Obtain each drive
+        for (var singularDriveLetter = 'A'; singularDriveLetter <= 'Z'; singularDriveLetter++)
         {
-            var mask = 1u << (driveLetter - 'A');
+            // Get mask
+            var mask = 1u << (singularDriveLetter - 'A');
+
             if ((drivesBitMask & mask) != 0)
             {
-                var drive = $"{driveLetter}:\\";
+                // Convert single drive letter into drive path of format C:\
+                var drive = $"{singularDriveLetter}:\\";
 
+                // Create string builders
                 StringBuilder volumeName = new(261);
                 StringBuilder fileSystemName = new(261);
+
+                // Obtain volume information using P/Invoke
                 if (Win32Helper.GetVolumeInformation(drive, volumeName, volumeName.Capacity, out _, out _, out _, fileSystemName, fileSystemName.Capacity))
                 {
-                    var newDriveLetter = drive.ToString().Remove(2, 1);
-                    var mediaType = GetDriveTypeDescriptionAsync(drive);
+                    // Convert singular drive letter of format C into drive letter of format C:
+                    var driveLetter = $"{singularDriveLetter}:";
 
-                    if (volumeName.ToString() != string.Empty)
+                    // Obtain the drive media type for drive path
+                    var mediaType = GetDriveTypeDescription(drive);
+
+                    // Create the drive item
+                    var item = new CommonDriveListViewItem
                     {
-                        var item = new DiskItem
-                        {
-                            Name = $"{volumeName} ({newDriveLetter})",
-                            ImagePath = "ms-appx:///Assets/Drive.png",
-                            MediaType = mediaType,
-                            DriveLetter = drive,
-                        };
-                        if (item.MediaType == "Removable")
-                        {
-                            item.ImagePath = "ms-appx:///Assets/DriveRemovable.png";
-                        }
-                        if (item.MediaType == "Unknown")
-                        {
-                            item.ImagePath = "ms-appx:///Assets/DriveUnknown.png";
-                        }
-                        if (item.MediaType == "CD-ROM")
-                        {
-                            item.ImagePath = "ms-appx:///Assets/DriveOptical.png";
-                        }
-                        if (item.DriveLetter.Contains('C'))
-                        {
-                            item.ImagePath = "ms-appx:///Assets/DriveWindows.png";
-                        }
-                        items.Add(item);
-                    }
-                    else
+                        // Set the friendly name of format Local Disk (C:)
+                        DriveName = volumeName.ToString() == string.Empty ? $"({driveLetter})" : $"{volumeName} ({driveLetter})",
+                        ImagePath = "ms-appx:///Assets/Drive.png",
+                        MediaType = mediaType,
+                        DrivePath = drive,
+                    };
+
+                    // Set the icon for the drive
+                    item.ImagePath = item.MediaType switch
                     {
-                        var item = new DiskItem
-                        {
-                            Name = $"({newDriveLetter})",
-                            ImagePath = "ms-appx:///Assets/Drive.png",
-                            MediaType = mediaType,
-                            DriveLetter = drive,
-                        };
-                        if (item.MediaType == "Removable")
-                        {
-                            item.ImagePath = "ms-appx:///Assets/DriveRemovable.png";
-                        }
-                        if (item.MediaType == "Unknown")
-                        {
-                            item.ImagePath = "ms-appx:///Assets/DriveUnknown.png";
-                        }
-                        if (item.MediaType == "CD-ROM")
-                        {
-                            item.ImagePath = "ms-appx:///Assets/DriveOptical.png";
-                        }
-                        if (item.DriveLetter.Contains('C'))
-                        {
-                            item.ImagePath = "ms-appx:///Assets/DriveWindows.png";
-                        }
-                        items.Add(item);
-                    }
-                }
-                else
-                {
-                    Debug.WriteLine($"  Failed to get volume information for {drive}");
+                        "Removable" => "ms-appx:///Assets/DriveRemovable.png",
+                        "Unknown" => "ms-appx:///Assets/DriveUnknown.png",
+                        "CD-ROM" => "ms-appx:///Assets/DriveOptical.png",
+                        _ => "ms-appx:///Assets/Drive.png"
+                    };
+
+                    // If the drive is the Windows installation drive use the Windows drive icon
+                    item.ImagePath = driveLetter == EnvironmentHelper.GetWindowsInstallationDrivePath().DrivePathToLetter() ? "ms-appx:///Assets/DriveWindows.png" : item.ImagePath;
+
+                    // Add to collection
+                    items.Add(item);
                 }
             }
         }
 
-        int selIndex = MyListView.SelectedIndex is not -1 ? MyListView.SelectedIndex : 0;
-
-        // Set the list view's item source
-        MyListView.ItemsSource = items;
-
-        MyListView.SelectedIndex = selIndex >= items.Count ? items.Count - 1 : selIndex;
+        // Return the drives list
+        return items;
     }
 
     private void Button_Click(object sender, Microsoft.UI.Xaml.RoutedEventArgs e)
@@ -284,7 +339,7 @@ public sealed partial class ScheduledOptimization : WindowEx
 
         if (EnableTaskSwitch.IsOn == true)
         {
-            ScheduleDefragTask((List<DiskItem>?)MyListView.ItemsSource ?? [], OptimizeNew.IsChecked ?? false, frequencyContent);
+            ScheduleDefragTask((List<CommonDriveListViewItem>?)MyListView.ItemsSource ?? [], OptimizeNew.IsChecked ?? false, frequencyContent);
             Close();
             return;
         }
@@ -311,14 +366,14 @@ public sealed partial class ScheduledOptimization : WindowEx
     public void CheckSelectAll()
     {
         var checkedItems = 0;
-        foreach (var item in (List<DiskItem>)MyListView.ItemsSource)
+        foreach (var item in (List<CommonDriveListViewItem>)MyListView.ItemsSource)
         {
             if (item.IsChecked == true)
             {
                 checkedItems++;
             }
         }
-        if (checkedItems == ((List<DiskItem>)MyListView.ItemsSource).Count)
+        if (checkedItems == ((List<CommonDriveListViewItem>)MyListView.ItemsSource).Count)
         {
             SelectAllBox.IsChecked = true;
             return;
@@ -338,34 +393,32 @@ public sealed partial class ScheduledOptimization : WindowEx
     private async void CheckBox_Checked_1(object sender, Microsoft.UI.Xaml.RoutedEventArgs e)
     {
         await Task.Delay(50);
-        List<DiskItem> list = [];
+        List<CommonDriveListViewItem> list = [];
         if (SelectAllBox.IsChecked == true)
         {
-            foreach (var item in (List<DiskItem>)MyListView.ItemsSource)
+            foreach (var item in (List<CommonDriveListViewItem>)MyListView.ItemsSource)
             {
                 list.Add(new()
                 {
-                    DriveLetter = item.DriveLetter,
+                    DrivePath = item.DrivePath,
                     ImagePath = item.ImagePath,
                     IsChecked = true,
                     MediaType = item.MediaType,
-                    Name = item.Name,
-                    ProgressValue = item.ProgressValue,
+                    DriveName = item.DriveName,
                 });
             }
         }
         else if (SelectAllBox.IsChecked == false)
         {
-            foreach (var item in (List<DiskItem>)MyListView.ItemsSource)
+            foreach (var item in (List<CommonDriveListViewItem>)MyListView.ItemsSource)
             {
                 list.Add(new()
                 {
-                    DriveLetter = item.DriveLetter,
+                    DrivePath = item.DrivePath,
                     ImagePath = item.ImagePath,
-                    IsChecked = false,
+                    IsChecked = true,
                     MediaType = item.MediaType,
-                    Name = item.Name,
-                    ProgressValue = item.ProgressValue,
+                    DriveName = item.DriveName,
                 });
             }
         }

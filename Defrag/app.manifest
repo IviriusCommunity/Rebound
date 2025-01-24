@@ -20,7 +20,7 @@
 		<security>
 			<requestedPrivileges>
 				<!-- This will require the app to run as admin -->
-				<requestedExecutionLevel level="asInvoker" uiAccess="false" />
+				<requestedExecutionLevel level="requireAdministrator" uiAccess="false" />
 			</requestedPrivileges>
 		</security>
 	</trustInfo>
