@@ -135,7 +135,13 @@
       <Content Update="Assets\Backgrounds\BackgroundDark.jpg">
         <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
       </Content>
+      <Content Update="Assets\Backgrounds\BackgroundDarkNew.png">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </Content>
       <Content Update="Assets\Backgrounds\BackgroundLight.jpg">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </Content>
+      <Content Update="Assets\Backgrounds\BackgroundLightNew.png">
         <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
       </Content>
     </ItemGroup>
