@@ -1,4 +1,3 @@
-<?xml version="1.0" encoding="utf-8" ?>
 <Page
     x:Class="Rebound.Views.HomePage"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
@@ -203,7 +202,7 @@
                         </StackPanel>
                         <interactivity:Interaction.Behaviors>
                             <core:EventTriggerBehavior EventName="Click">
-                                <behaviors:NavigateToUriAction NavigateUri="https://ivirius.vercel.app/ivirius-text-editor" />
+                                <behaviors:NavigateToUriAction NavigateUri="https://ivirius.com/ivirius-text-editor" />
                             </core:EventTriggerBehavior>
                         </interactivity:Interaction.Behaviors>
                     </Button>
@@ -240,7 +239,7 @@
                         </StackPanel>
                         <interactivity:Interaction.Behaviors>
                             <core:EventTriggerBehavior EventName="Click">
-                                <behaviors:NavigateToUriAction NavigateUri="https://ivirius.vercel.app/ivirius-text-editor-plus" />
+                                <behaviors:NavigateToUriAction NavigateUri="https://ivirius.com/ivirius-text-editor-plus" />
                             </core:EventTriggerBehavior>
                         </interactivity:Interaction.Behaviors>
                     </Button>
@@ -307,7 +306,7 @@
                         </StackPanel>
                         <interactivity:Interaction.Behaviors>
                             <core:EventTriggerBehavior EventName="Click">
-                                <behaviors:NavigateToUriAction NavigateUri="https://ivirius.vercel.app/crimsonui" />
+                                <behaviors:NavigateToUriAction NavigateUri="https://ivirius.com/crimsonui" />
                             </core:EventTriggerBehavior>
                         </interactivity:Interaction.Behaviors>
                     </Button>
@@ -347,7 +346,7 @@
                         </StackPanel>
                         <interactivity:Interaction.Behaviors>
                             <core:EventTriggerBehavior EventName="Click">
-                                <behaviors:NavigateToUriAction NavigateUri="https://ivirius.vercel.app/docs" />
+                                <behaviors:NavigateToUriAction NavigateUri="https://ivirius.com/docs" />
                             </core:EventTriggerBehavior>
                         </interactivity:Interaction.Behaviors>
                     </Button>
@@ -394,14 +393,6 @@
                                     HorizontalAlignment="Right"
                                     FontSize="15"
                                     Glyph="" />
-                            </StackPanel>
-                            <StackPanel
-                                Margin="-3,0"
-                                VerticalAlignment="Bottom"
-                                Orientation="Horizontal"
-                                Spacing="4">
-                                <HyperlinkButton Content="Dev Sanx" NavigateUri="https://discord.gg/windows-apps-hub-714581497222398064" />
-                                <HyperlinkButton Content="WCH" NavigateUri="https://discord.gg/windows-customization-hub-966684383178276874" />
                             </StackPanel>
                         </Grid>
                         <interactivity:Interaction.Behaviors>
@@ -455,7 +446,7 @@
                     </Grid>
                     <interactivity:Interaction.Behaviors>
                         <core:EventTriggerBehavior EventName="Click">
-                            <behaviors:NavigateToUriAction NavigateUri="https://ivirius.vercel.app/docs/rebound11/control-panel" />
+                            <behaviors:NavigateToUriAction NavigateUri="https://ivirius.com/docs/rebound11/control-panel" />
                         </core:EventTriggerBehavior>
                     </interactivity:Interaction.Behaviors>
                 </Button>
@@ -488,7 +479,7 @@
                     </Grid>
                     <interactivity:Interaction.Behaviors>
                         <core:EventTriggerBehavior EventName="Click">
-                            <behaviors:NavigateToUriAction NavigateUri="https://ivirius.vercel.app/docs/rebound11/defragment-and-optimize-drives" />
+                            <behaviors:NavigateToUriAction NavigateUri="https://ivirius.com/docs/rebound11/defragment-and-optimize-drives" />
                         </core:EventTriggerBehavior>
                     </interactivity:Interaction.Behaviors>
                 </Button>
@@ -521,7 +512,7 @@
                     </Grid>
                     <interactivity:Interaction.Behaviors>
                         <core:EventTriggerBehavior EventName="Click">
-                            <behaviors:NavigateToUriAction NavigateUri="https://ivirius.vercel.app/docs/rebound11/disk-cleanup" />
+                            <behaviors:NavigateToUriAction NavigateUri="https://ivirius.com/docs/rebound11/disk-cleanup" />
                         </core:EventTriggerBehavior>
                     </interactivity:Interaction.Behaviors>
                 </Button>
@@ -555,7 +546,7 @@
                     </Grid>
                     <interactivity:Interaction.Behaviors>
                         <core:EventTriggerBehavior EventName="Click">
-                            <behaviors:NavigateToUriAction NavigateUri="https://ivirius.vercel.app/docs/rebound11/event-viewer" />
+                            <behaviors:NavigateToUriAction NavigateUri="https://ivirius.com/docs/rebound11/event-viewer" />
                         </core:EventTriggerBehavior>
                     </interactivity:Interaction.Behaviors>
                 </Button>
@@ -632,7 +623,7 @@
                     </Grid>
                     <interactivity:Interaction.Behaviors>
                         <core:EventTriggerBehavior EventName="Click">
-                            <behaviors:NavigateToUriAction NavigateUri="https://ivirius.vercel.app/ivirius-text-editor" />
+                            <behaviors:NavigateToUriAction NavigateUri="https://ivirius.com/ivirius-text-editor" />
                         </core:EventTriggerBehavior>
                     </interactivity:Interaction.Behaviors>
                 </Button>
@@ -665,7 +656,7 @@
                     </Grid>
                     <interactivity:Interaction.Behaviors>
                         <core:EventTriggerBehavior EventName="Click">
-                            <behaviors:NavigateToUriAction NavigateUri="https://ivirius.vercel.app/docs/rebound11/on-screen-keyboard" />
+                            <behaviors:NavigateToUriAction NavigateUri="https://ivirius.com/docs/rebound11/on-screen-keyboard" />
                         </core:EventTriggerBehavior>
                     </interactivity:Interaction.Behaviors>
                 </Button>
@@ -698,7 +689,7 @@
                     </Grid>
                     <interactivity:Interaction.Behaviors>
                         <core:EventTriggerBehavior EventName="Click">
-                            <behaviors:NavigateToUriAction NavigateUri="https://ivirius.vercel.app/docs/rebound11/run" />
+                            <behaviors:NavigateToUriAction NavigateUri="https://ivirius.com/docs/rebound11/run" />
                         </core:EventTriggerBehavior>
                     </interactivity:Interaction.Behaviors>
                 </Button>
@@ -732,7 +723,7 @@
                     </Grid>
                     <interactivity:Interaction.Behaviors>
                         <core:EventTriggerBehavior EventName="Click">
-                            <behaviors:NavigateToUriAction NavigateUri="https://ivirius.vercel.app/docs/rebound11/task-scheduler" />
+                            <behaviors:NavigateToUriAction NavigateUri="https://ivirius.com/docs/rebound11/task-scheduler" />
                         </core:EventTriggerBehavior>
                     </interactivity:Interaction.Behaviors>
                 </Button>
@@ -765,7 +756,7 @@
                     </Grid>
                     <interactivity:Interaction.Behaviors>
                         <core:EventTriggerBehavior EventName="Click">
-                            <behaviors:NavigateToUriAction NavigateUri="https://ivirius.vercel.app/docs/rebound11/tpm" />
+                            <behaviors:NavigateToUriAction NavigateUri="https://ivirius.com/docs/rebound11/tpm" />
                         </core:EventTriggerBehavior>
                     </interactivity:Interaction.Behaviors>
                 </Button>
@@ -798,7 +789,7 @@
                     </Grid>
                     <interactivity:Interaction.Behaviors>
                         <core:EventTriggerBehavior EventName="Click">
-                            <behaviors:NavigateToUriAction NavigateUri="https://ivirius.vercel.app/docs/rebound11/winver" />
+                            <behaviors:NavigateToUriAction NavigateUri="https://ivirius.com/docs/rebound11/winver" />
                         </core:EventTriggerBehavior>
                     </interactivity:Interaction.Behaviors>
                 </Button>
