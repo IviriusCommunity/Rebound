@@ -381,7 +381,7 @@
             LostFocus="RunBox_LostFocus"
             Header="Program name, path, or URL"
             SelectionChanged="RunBox_SelectionChanged" />
-        <CheckBox Content="Run as admin"
+        <CheckBox Content="Run as administrator"
             Margin="96, 80, 20, 0"
                   VerticalAlignment="Top"/>
         <TextBox

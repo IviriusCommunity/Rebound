@@ -146,7 +146,7 @@ public partial class App : Application
     public static bool LegacyRunBoxExists()
     {
         // Find the window with the title "Run"
-        var hWnd = Win32Helper.FindWindow(null, "Run");
+        var hWnd = Win32Helper.FindWindow("#32770", "Run");
         //IntPtr hWndtaskmgr2 = Win32Helper.FindWindow("#32770", "Create new task");
 
         if (hWnd != IntPtr.Zero && IsExplorerWindow(hWnd) == true)
