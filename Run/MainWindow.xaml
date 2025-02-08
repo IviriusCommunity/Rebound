@@ -5,10 +5,10 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:StringTable="using:Rebound.Run.Languages"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:languages="using:Rebound.Run.Languages"
     xmlns:local="using:Rebound.Run"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:winuiex="using:WinUIEx"
-    xmlns:languages="using:Rebound.Run.Languages"
     Activated="WindowEx_Activated"
     mc:Ignorable="d">
 
@@ -371,36 +371,32 @@
             </Style>
         </Grid.Resources>
         <TextBlock
-            Margin="125,25,25,25"
+            Margin="100,15,25,25"
             Text="{x:Bind StringTable:StringTable.Description}"
             TextWrapping="WrapWholeWords" />
         <ComboBox
             x:Name="RunBox"
-            Margin="125,85,25,0"
+            Margin="100,65,25,0"
             HorizontalAlignment="Stretch"
             IsEditable="True"
             KeyDown="RunBox_KeyDown"
             KeyUp="RunBox_KeyUp"
             LostFocus="RunBox_LostFocus"
             SelectionChanged="RunBox_SelectionChanged" />
+        <InfoBar
+            Title="Type the name of a program, folder, document"
+            IsClosable="False"
+            IsOpen="True" />
         <TextBox
             x:Name="ArgsBox"
-            Margin="126,130,25,0"
+            Margin="100,110,25,0"
             VerticalAlignment="Top" />
         <Image
-            Width="64"
-            Margin="30,15"
+            Width="48"
+            Margin="20,10"
             HorizontalAlignment="Left"
             VerticalAlignment="Top"
             Source="/Assets/RunBox.ico" />
-        <TextBlock
-            Margin="30,90,0,0"
-            HorizontalAlignment="Left"
-            Text="{x:Bind StringTable:StringTable.Open}" />
-        <TextBlock
-            Margin="30,135,0,0"
-            HorizontalAlignment="Left"
-            Text="{x:Bind StringTable:StringTable.Arguments}" />
         <Border
             Grid.ColumnSpan="2"
             Height="75"
@@ -410,13 +406,16 @@
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*" />
                 <ColumnDefinition Width="8" />
-                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="Auto" />
                 <ColumnDefinition Width="8" />
-                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="8" />
+                <ColumnDefinition Width="Auto" />
             </Grid.ColumnDefinitions>
             <SplitButton
                 x:Name="RunButton"
-                Grid.Column="0"
+                Grid.Column="2"
+                Width="100"
                 Height="32"
                 Margin="20,20,0,20"
                 HorizontalAlignment="Stretch"
@@ -483,7 +482,8 @@
                 </SplitButton.Flyout>
             </SplitButton>
             <Button
-                Grid.Column="2"
+                Grid.Column="4"
+                Width="100"
                 Margin="0,20,0,20"
                 HorizontalAlignment="Stretch"
                 VerticalAlignment="Bottom"
@@ -494,7 +494,8 @@
                 </Button.KeyboardAccelerators>
             </Button>
             <Button
-                Grid.Column="4"
+                Grid.Column="6"
+                Width="100"
                 Margin="0,20,20,20"
                 HorizontalAlignment="Stretch"
                 VerticalAlignment="Bottom"
