@@ -39,7 +39,7 @@ public sealed partial class MainWindow : WindowEx
     {
         this?.InitializeComponent();
         StringTable.ReadLanguage();
-        this.MoveAndResize(15 * Scale(), (WindowsDisplayAPI.Display.GetDisplays().ToList<WindowsDisplayAPI.Display>()[0].CurrentSetting.Resolution.Height - (275 / Scale())) / Scale(), 450, 215);
+        this.MoveAndResize(15 * Scale(), (WindowsDisplayAPI.Display.GetDisplays().ToList<WindowsDisplayAPI.Display>()[0].CurrentSetting.Resolution.Height - (295 / Scale())) / Scale(), 450, 235);
         IsMinimizable = false;
         IsMaximizable = false;
         IsResizable = false;
