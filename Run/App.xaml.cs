@@ -17,6 +17,22 @@ namespace Rebound.Run;
 
 public partial class App : Application
 {
+    private const uint EVENT_OBJECT_CREATE = 0x8000;
+    private const uint WINEVENT_OUTOFCONTEXT = 0;
+
+    private delegate void WinEventDelegate(IntPtr hWinEventHook, uint eventType, IntPtr hwnd, int idObject,
+                                           int idChild, uint dwEventThread, uint dwmsEventTime);
+
+    private static WinEventDelegate _winEventProc;
+
+    [DllImport("user32.dll")]
+    private static extern IntPtr SetWinEventHook(uint eventMin, uint eventMax, IntPtr hmodWinEventProc,
+                                                 WinEventDelegate lpfnWinEventProc, uint idProcess,
+                                                 uint idThread, uint dwFlags);
+
+    [DllImport("user32.dll")]
+    private static extern bool UnhookWinEvent(IntPtr hWinEventHook);
+
     private readonly SingleInstanceDesktopApp _singleInstanceApp;
 
     public App()
@@ -42,24 +58,16 @@ public partial class App : Application
         }
         else
         {
-            // Get the current process
-            var currentProcess = Process.GetCurrentProcess();
-
-            // Start a new instance of the application
-            if (currentProcess.MainModule != null)
-            {
-                _ = Process.Start(currentProcess.MainModule.FileName);
-            }
-
-            // Terminate the current process
-            currentProcess?.Kill();
             return;
         }
     }
 
     public async Task<int> LaunchWork()
     {
-        CreateShortcut();
+        _winEventProc = new WinEventDelegate(WinEventProc);
+
+        IntPtr hook = SetWinEventHook(EVENT_OBJECT_CREATE, EVENT_OBJECT_CREATE, IntPtr.Zero,
+                                      _winEventProc, 0, 0, WINEVENT_OUTOFCONTEXT);
 
         // Initialize the background window
         InitializeBackgroundWindow();
@@ -69,7 +77,7 @@ public partial class App : Application
         // Delay for task execution
         await Task.Delay(5);
 
-        RunBoxReplace();
+        RunDialogReplace();
 
         // If started with the "STARTUP" argument, exit early
         if (IsStartupArgumentPresent() == true)
@@ -83,25 +91,31 @@ public partial class App : Application
         return 0;
     }
 
-    public async void RunBoxReplace()
+    private async void WinEventProc(IntPtr hWinEventHook, uint eventType, IntPtr hwnd,
+                                 int idObject, int idChild, uint dwEventThread, uint dwmsEventTime)
     {
-        await Task.Delay(50);
+        if (hwnd != IntPtr.Zero)
+        {
+            RunDialogReplace();
+        }
+    }
+
+    public static async void RunDialogReplace()
+    {
         if (LegacyRunBoxExists() == true)
         {
             try
             {
-                MainWindow.Activate();
-                _ = MainWindow.BringToFront();
+                // Try to activate the main window
+                await ActivateMainWindowAsync();
             }
             catch
             {
                 MainWindow = new MainWindow();
-                MainWindow.Activate();
-                _ = MainWindow.BringToFront();
+                // Try to activate the main window
+                await ActivateMainWindowAsync();
             }
         }
-
-        RunBoxReplace();
     }
 
     // Importing the user32.dll to use GetWindowThreadProcessId

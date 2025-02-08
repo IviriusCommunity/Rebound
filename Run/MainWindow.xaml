@@ -370,30 +370,25 @@
                 </Setter>
             </Style>
         </Grid.Resources>
-        <TextBlock
-            Margin="100,15,25,25"
-            Text="{x:Bind StringTable:StringTable.Description}"
-            TextWrapping="WrapWholeWords" />
         <ComboBox
             x:Name="RunBox"
-            Margin="100,65,25,0"
+            Margin="96, 16, 20, 0"
             HorizontalAlignment="Stretch"
             IsEditable="True"
             KeyDown="RunBox_KeyDown"
             KeyUp="RunBox_KeyUp"
             LostFocus="RunBox_LostFocus"
+            Header="Program name, path, or URL"
             SelectionChanged="RunBox_SelectionChanged" />
-        <InfoBar
-            Title="Type the name of a program, folder, document"
-            IsClosable="False"
-            IsOpen="True" />
         <TextBox
             x:Name="ArgsBox"
-            Margin="100,110,25,0"
+            Visibility="Collapsed"
+            Margin="96, 52, 16, 0"
+            PlaceholderText="Arguments"
             VerticalAlignment="Top" />
         <Image
             Width="48"
-            Margin="20,10"
+            Margin="24, 24"
             HorizontalAlignment="Left"
             VerticalAlignment="Top"
             Source="/Assets/RunBox.ico" />
@@ -412,7 +407,7 @@
                 <ColumnDefinition Width="8" />
                 <ColumnDefinition Width="Auto" />
             </Grid.ColumnDefinitions>
-            <SplitButton
+            <Button
                 x:Name="RunButton"
                 Grid.Column="2"
                 Width="100"
@@ -420,71 +415,12 @@
                 Margin="20,20,0,20"
                 HorizontalAlignment="Stretch"
                 VerticalAlignment="Bottom"
-                Click="SplitButton_Click"
                 Content="{x:Bind StringTable:StringTable.Run}"
-                Style="{StaticResource AccentSplitButtonStyle}">
-                <SplitButton.Flyout>
-                    <MenuFlyout>
-                        <MenuFlyoutItem IsEnabled="False" Text="{x:Bind StringTable:StringTable.Hover}">
-                            <MenuFlyoutItem.Icon>
-                                <FontIcon Glyph="" />
-                            </MenuFlyoutItem.Icon>
-                        </MenuFlyoutItem>
-                        <MenuFlyoutSeparator />
-                        <MenuFlyoutItem
-                            Click="MenuFlyoutItem_Click_2"
-                            Text="{x:Bind StringTable:StringTable.RunAsAdmin}"
-                            ToolTipService.ToolTip="{x:Bind StringTable:StringTable.RunAsAdminTooltip}">
-                            <MenuFlyoutItem.Icon>
-                                <ImageIcon Source="/Assets/Administrator.ico" />
-                            </MenuFlyoutItem.Icon>
-                            <MenuFlyoutItem.KeyboardAccelerators>
-                                <KeyboardAccelerator
-                                    Key="Enter"
-                                    IsEnabled="False"
-                                    Modifiers="Control, Shift" />
-                            </MenuFlyoutItem.KeyboardAccelerators>
-                        </MenuFlyoutItem>
-                        <MenuFlyoutItem
-                            Click="MenuFlyoutItem_Click_3"
-                            Text="{x:Bind StringTable:StringTable.RunAsAdminLegacy}"
-                            ToolTipService.ToolTip="{x:Bind StringTable:StringTable.RunAsAdminLegacyTooltip}">
-                            <MenuFlyoutItem.Icon>
-                                <ImageIcon Source="/Assets/Administrator.ico" />
-                            </MenuFlyoutItem.Icon>
-                            <MenuFlyoutItem.KeyboardAccelerators>
-                                <KeyboardAccelerator Key="Enter" Modifiers="Control, Menu, Shift" />
-                            </MenuFlyoutItem.KeyboardAccelerators>
-                        </MenuFlyoutItem>
-                        <MenuFlyoutItem
-                            Click="MenuFlyoutItem_Click_1"
-                            Text="{x:Bind StringTable:StringTable.Run}"
-                            ToolTipService.ToolTip="{x:Bind StringTable:StringTable.RunTooltip}">
-                            <MenuFlyoutItem.Icon>
-                                <FontIcon Glyph="" />
-                            </MenuFlyoutItem.Icon>
-                            <MenuFlyoutItem.KeyboardAccelerators>
-                                <KeyboardAccelerator Key="Enter" />
-                            </MenuFlyoutItem.KeyboardAccelerators>
-                        </MenuFlyoutItem>
-                        <MenuFlyoutItem
-                            Click="MenuFlyoutItem_Click"
-                            Text="{x:Bind StringTable:StringTable.RunLegacy}"
-                            ToolTipService.ToolTip="{x:Bind StringTable:StringTable.RunLegacyTooltip}">
-                            <MenuFlyoutItem.Icon>
-                                <FontIcon Glyph="" />
-                            </MenuFlyoutItem.Icon>
-                            <MenuFlyoutItem.KeyboardAccelerators>
-                                <KeyboardAccelerator Key="Enter" Modifiers="Menu" />
-                            </MenuFlyoutItem.KeyboardAccelerators>
-                        </MenuFlyoutItem>
-                    </MenuFlyout>
-                </SplitButton.Flyout>
-            </SplitButton>
+                Style="{StaticResource AccentButtonStyle}"/>
             <Button
-                Grid.Column="4"
+                Grid.Column="6"
                 Width="100"
-                Margin="0,20,0,20"
+                Margin="0,20,20,20"
                 HorizontalAlignment="Stretch"
                 VerticalAlignment="Bottom"
                 Click="Button_Click"
@@ -494,9 +430,9 @@
                 </Button.KeyboardAccelerators>
             </Button>
             <Button
-                Grid.Column="6"
+                Grid.Column="4"
                 Width="100"
-                Margin="0,20,20,20"
+                Margin="0,20,0,20"
                 HorizontalAlignment="Stretch"
                 VerticalAlignment="Bottom"
                 Click="Button_Click_1"

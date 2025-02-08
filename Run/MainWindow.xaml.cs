@@ -39,7 +39,7 @@ public sealed partial class MainWindow : WindowEx
     {
         this?.InitializeComponent();
         StringTable.ReadLanguage();
-        this.MoveAndResize(25 * Scale(), (WindowsDisplayAPI.Display.GetDisplays().ToList<WindowsDisplayAPI.Display>()[0].CurrentSetting.Resolution.Height - (370 / Scale())) / Scale(), 525, 295);
+        this.MoveAndResize(15 * Scale(), (WindowsDisplayAPI.Display.GetDisplays().ToList<WindowsDisplayAPI.Display>()[0].CurrentSetting.Resolution.Height - (275 / Scale())) / Scale(), 450, 215);
         IsMinimizable = false;
         IsMaximizable = false;
         IsResizable = false;
@@ -48,7 +48,7 @@ public sealed partial class MainWindow : WindowEx
         Title = StringTable.AppTitle;
         SystemBackdrop = new MicaBackdrop();
         Load();
-        LoadRunHistory();
+        //LoadRunHistory();
     }
 
     public async void Load()
