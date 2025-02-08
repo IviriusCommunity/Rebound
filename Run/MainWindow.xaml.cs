@@ -558,4 +558,9 @@ public sealed partial class MainWindow : WindowEx
     private void RunBox_SelectionChanged(object sender, SelectionChangedEventArgs e) => CheckRunBoxText();
 
     private void RunBox_LostFocus(object sender, RoutedEventArgs e) => CheckRunBoxText();
+
+    private void WindowEx_Closed(object sender, WindowEventArgs args)
+    {
+        App.MainWindow = null;
+    }
 }

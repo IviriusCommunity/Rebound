@@ -106,6 +106,7 @@ public partial class App : Application
         {
             try
             {
+                if (MainWindow == null) MainWindow = new MainWindow();
                 // Try to activate the main window
                 await ActivateMainWindowAsync();
             }
@@ -191,17 +192,6 @@ public partial class App : Application
         try
         {
             MainWindow?.Activate();
-        }
-        catch
-        {
-            // Handle activation error
-        }
-
-        await Task.Delay(100);  // Ensure main window focus
-
-        try
-        {
-            MainWindow?.Activate();  // Reactivate to ensure focus
         }
         catch
         {

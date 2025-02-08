@@ -10,6 +10,7 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:winuiex="using:WinUIEx"
     Activated="WindowEx_Activated"
+    Closed="WindowEx_Closed"
     mc:Ignorable="d">
 
     <Grid>
