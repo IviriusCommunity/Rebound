@@ -74,7 +74,7 @@
 
 	<!-- Helpers project -->
 	<ItemGroup>
-		<ProjectReference Include="..\..\Helpers\Rebound.Helpers.csproj" />
+		<ProjectReference Include="..\Helpers\Rebound.Helpers.csproj" />
 	</ItemGroup>
 
 	<!-- App manifest -->
