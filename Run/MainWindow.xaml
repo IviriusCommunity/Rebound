@@ -371,9 +371,27 @@
                 </Setter>
             </Style>
         </Grid.Resources>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="16"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="8"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="8"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="8"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="20"/>
+            <ColumnDefinition Width="Auto"/>
+            <ColumnDefinition Width="12"/>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="20"/>
+        </Grid.ColumnDefinitions>
         <ComboBox
             x:Name="RunBox"
-            Margin="96, 16, 20, 0"
+            Grid.Column="3"
+            Grid.Row="1"
             HorizontalAlignment="Stretch"
             IsEditable="True"
             KeyDown="RunBox_KeyDown"
@@ -382,26 +400,23 @@
             Header="Program name, path, or URL"
             SelectionChanged="RunBox_SelectionChanged" />
         <CheckBox Content="Run as administrator"
-            Margin="96, 80, 20, 0"
+                  Grid.Row="5"
+                  Grid.Column="3"
                   VerticalAlignment="Top"/>
         <TextBox
             x:Name="ArgsBox"
-            Visibility="Collapsed"
-            Margin="96, 52, 16, 0"
-            PlaceholderText="Arguments"
+            Grid.Row="3"
+            Grid.Column="3"
+            Header="Arguments"
             VerticalAlignment="Top" />
         <Image
             Width="48"
-            Margin="24, 24"
+            Grid.Row="1"
+            Grid.Column="1"
             HorizontalAlignment="Left"
             VerticalAlignment="Top"
             Source="/Assets/RunBox.ico" />
-        <Border
-            Grid.ColumnSpan="2"
-            Height="75"
-            VerticalAlignment="Bottom"
-            Background="{ThemeResource SystemControlBackgroundAltMediumLowBrush}" />
-        <Grid Grid.ColumnSpan="2">
+        <Grid Grid.ColumnSpan="5" Height="80" Background="{ThemeResource SystemControlBackgroundAltMediumLowBrush}" Grid.Row="7">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*" />
                 <ColumnDefinition Width="8" />
@@ -411,6 +426,7 @@
                 <ColumnDefinition Width="8" />
                 <ColumnDefinition Width="Auto" />
             </Grid.ColumnDefinitions>
+            <ToggleButton HorizontalAlignment="Left" Click="ToggleButton_Click"></ToggleButton>
             <Button
                 x:Name="RunButton"
                 Grid.Column="2"

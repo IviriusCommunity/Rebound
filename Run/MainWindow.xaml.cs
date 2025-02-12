@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using Microsoft.Graphics.Display;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
+using Microsoft.UI.Xaml.Controls.Primitives;
 using Microsoft.UI.Xaml.Input;
 using Microsoft.UI.Xaml.Media;
 using Microsoft.Win32;
@@ -562,5 +563,24 @@ public sealed partial class MainWindow : WindowEx
     private void WindowEx_Closed(object sender, WindowEventArgs args)
     {
         App.MainWindow = null;
+    }
+
+    private void ToggleButton_Click(object sender, RoutedEventArgs e)
+    {
+        switch ((sender as ToggleButton).IsChecked)
+        {
+            case true:
+                {
+                    this.SetWindowSize(450, 285);
+                    ArgsBox.Visibility = Visibility.Visible;
+                    break;
+                }
+            default:
+                {
+                    this.SetWindowSize(450, 245);
+                    ArgsBox.Visibility = Visibility.Collapsed;
+                    break;
+                }
+        }
     }
 }
