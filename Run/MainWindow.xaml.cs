@@ -40,7 +40,7 @@ public sealed partial class MainWindow : WindowEx
     {
         this?.InitializeComponent();
         StringTable.ReadLanguage();
-        this.MoveAndResize(15 * Scale(), (WindowsDisplayAPI.Display.GetDisplays().ToList<WindowsDisplayAPI.Display>()[0].CurrentSetting.Resolution.Height - (295 / Scale())) / Scale(), 450, 235);
+        this.MoveAndResize(15 * Scale(), (WindowsDisplayAPI.Display.GetDisplays().ToList<WindowsDisplayAPI.Display>()[0].CurrentSetting.Resolution.Height - (260 / Scale())) / Scale(), 400, 200);
         IsMinimizable = false;
         IsMaximizable = false;
         IsResizable = false;
@@ -565,20 +565,22 @@ public sealed partial class MainWindow : WindowEx
         App.MainWindow = null;
     }
 
-    private void ToggleButton_Click(object sender, RoutedEventArgs e)
+    private async void ToggleButton_Click(object sender, RoutedEventArgs e)
     {
         switch ((sender as ToggleButton).IsChecked)
         {
             case true:
                 {
-                    this.SetWindowSize(450, 285);
                     ArgsBox.Visibility = Visibility.Visible;
+                    RunAsAdminCheckBox.Visibility = Visibility.Visible;
+                    this.MoveAndResize(AppWindow.Position.X, AppWindow.Position.Y - 100, 450, 300);
                     break;
                 }
             default:
                 {
-                    this.SetWindowSize(450, 245);
                     ArgsBox.Visibility = Visibility.Collapsed;
+                    RunAsAdminCheckBox.Visibility = Visibility.Collapsed;
+                    this.MoveAndResize(AppWindow.Position.X, AppWindow.Position.Y + 100, 400, 200);
                     break;
                 }
         }

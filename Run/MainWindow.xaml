@@ -13,7 +13,7 @@
     Closed="WindowEx_Closed"
     mc:Ignorable="d">
 
-    <Grid>
+    <Grid x:Name="MainGrid">
         <Grid.Resources>
             <Style x:Key="AccentSplitButtonStyle" TargetType="SplitButton">
                 <Setter Property="Background" Value="{ThemeResource AccentFillColorDefaultBrush}" />
@@ -374,24 +374,23 @@
         <Grid.RowDefinitions>
             <RowDefinition Height="16"/>
             <RowDefinition Height="Auto"/>
-            <RowDefinition Height="8"/>
             <RowDefinition Height="Auto"/>
-            <RowDefinition Height="8"/>
             <RowDefinition Height="Auto"/>
-            <RowDefinition Height="8"/>
+            <RowDefinition Height="*"/>
             <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="20"/>
+            <ColumnDefinition Width="24"/>
             <ColumnDefinition Width="Auto"/>
-            <ColumnDefinition Width="12"/>
-            <ColumnDefinition Width="*"/>
             <ColumnDefinition Width="20"/>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="24"/>
         </Grid.ColumnDefinitions>
         <ComboBox
             x:Name="RunBox"
             Grid.Column="3"
-            Grid.Row="1"
+            Grid.RowSpan="2"
+            Margin="0, 4, 0, 0"
             HorizontalAlignment="Stretch"
             IsEditable="True"
             KeyDown="RunBox_KeyDown"
@@ -400,12 +399,17 @@
             Header="Program name, path, or URL"
             SelectionChanged="RunBox_SelectionChanged" />
         <CheckBox Content="Run as administrator"
-                  Grid.Row="5"
+                  Grid.Row="4"
+                  x:Name="RunAsAdminCheckBox"
+                  Visibility="Collapsed"
                   Grid.Column="3"
+            Margin="0, 8, 0, 0"
                   VerticalAlignment="Top"/>
         <TextBox
             x:Name="ArgsBox"
             Grid.Row="3"
+            Margin="0, 8, 0, 0"
+            Visibility="Collapsed"
             Grid.Column="3"
             Header="Arguments"
             VerticalAlignment="Top" />
@@ -416,33 +420,31 @@
             HorizontalAlignment="Left"
             VerticalAlignment="Top"
             Source="/Assets/RunBox.ico" />
-        <Grid Grid.ColumnSpan="5" Height="80" Background="{ThemeResource SystemControlBackgroundAltMediumLowBrush}" Grid.Row="7">
+        <Grid Grid.ColumnSpan="5" Padding="24" Background="{ThemeResource SystemControlBackgroundAltMediumLowBrush}" Grid.Row="6">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*" />
                 <ColumnDefinition Width="8" />
-                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="*" />
                 <ColumnDefinition Width="8" />
-                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="*" />
                 <ColumnDefinition Width="8" />
-                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="*" />
             </Grid.ColumnDefinitions>
-            <ToggleButton HorizontalAlignment="Left" Click="ToggleButton_Click"></ToggleButton>
+            <ToggleButton HorizontalAlignment="Left" Padding="8" VerticalAlignment="Center" Background="Transparent" BorderBrush="Transparent" Click="ToggleButton_Click">
+                <FontIcon Glyph="&#xE62F;" FontSize="16"/>
+            </ToggleButton>
             <Button
                 x:Name="RunButton"
                 Grid.Column="2"
-                Width="100"
                 Height="32"
-                Margin="20,20,0,20"
                 HorizontalAlignment="Stretch"
-                VerticalAlignment="Bottom"
+                VerticalAlignment="Center"
                 Content="{x:Bind StringTable:StringTable.Run}"
                 Style="{StaticResource AccentButtonStyle}"/>
             <Button
                 Grid.Column="6"
-                Width="100"
-                Margin="0,20,20,20"
                 HorizontalAlignment="Stretch"
-                VerticalAlignment="Bottom"
+                VerticalAlignment="Center"
                 Click="Button_Click"
                 Content="{x:Bind StringTable:StringTable.Cancel}">
                 <Button.KeyboardAccelerators>
@@ -451,10 +453,8 @@
             </Button>
             <Button
                 Grid.Column="4"
-                Width="100"
-                Margin="0,20,0,20"
                 HorizontalAlignment="Stretch"
-                VerticalAlignment="Bottom"
+                VerticalAlignment="Center"
                 Click="Button_Click_1"
                 Content="{x:Bind StringTable:StringTable.Browse}" />
         </Grid>
