@@ -372,55 +372,62 @@
             </Style>
         </Grid.Resources>
         <Grid.RowDefinitions>
-            <RowDefinition Height="16"/>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="*"/>
-            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="16" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+            <RowDefinition Height="Auto" />
         </Grid.RowDefinitions>
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="24"/>
-            <ColumnDefinition Width="Auto"/>
-            <ColumnDefinition Width="20"/>
-            <ColumnDefinition Width="*"/>
-            <ColumnDefinition Width="24"/>
+            <ColumnDefinition Width="20" />
+            <ColumnDefinition Width="Auto" />
+            <ColumnDefinition Width="24" />
+            <ColumnDefinition Width="*" />
+            <ColumnDefinition Width="24" />
         </Grid.ColumnDefinitions>
         <ComboBox
             x:Name="RunBox"
-            Grid.Column="3"
             Grid.RowSpan="2"
-            Margin="0, 4, 0, 0"
+            Grid.Column="3"
+            Margin="0,4,0,0"
             HorizontalAlignment="Stretch"
+            Header="Program name, path, or URL"
             IsEditable="True"
             KeyDown="RunBox_KeyDown"
             KeyUp="RunBox_KeyUp"
             LostFocus="RunBox_LostFocus"
-            Header="Program name, path, or URL"
             SelectionChanged="RunBox_SelectionChanged" />
-        <CheckBox Content="Run as administrator"
-                  Grid.Row="4"
-                  x:Name="RunAsAdminCheckBox"
-                  Visibility="Collapsed"
-                  Grid.Column="3"
-            Margin="0, 8, 0, 0"
-                  VerticalAlignment="Top"/>
+        <CheckBox
+            x:Name="RunAsAdminCheckBox"
+            Grid.Row="4"
+            Grid.Column="3"
+            Margin="0,8,0,0"
+            VerticalAlignment="Top"
+            Content="Run as administrator"
+            Visibility="Collapsed" />
         <TextBox
             x:Name="ArgsBox"
             Grid.Row="3"
-            Margin="0, 8, 0, 0"
-            Visibility="Collapsed"
             Grid.Column="3"
+            Margin="0,8,0,0"
+            VerticalAlignment="Top"
             Header="Arguments"
-            VerticalAlignment="Top" />
+            Visibility="Collapsed" />
         <Image
-            Width="48"
-            Grid.Row="1"
+            Grid.Row="0"
+            Grid.RowSpan="2"
             Grid.Column="1"
+            Width="48"
+            Margin="0,8,0,0"
             HorizontalAlignment="Left"
             VerticalAlignment="Top"
             Source="/Assets/RunBox.ico" />
-        <Grid Grid.ColumnSpan="5" Padding="24" Background="{ThemeResource SystemControlBackgroundAltMediumLowBrush}" Grid.Row="6">
+        <Grid
+            Grid.Row="6"
+            Grid.ColumnSpan="5"
+            Padding="24"
+            Background="{ThemeResource SystemControlBackgroundAltMediumLowBrush}">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*" />
                 <ColumnDefinition Width="8" />
@@ -430,8 +437,14 @@
                 <ColumnDefinition Width="8" />
                 <ColumnDefinition Width="*" />
             </Grid.ColumnDefinitions>
-            <ToggleButton HorizontalAlignment="Left" Padding="8" VerticalAlignment="Center" Background="Transparent" BorderBrush="Transparent" Click="ToggleButton_Click">
-                <FontIcon Glyph="&#xE62F;" FontSize="16"/>
+            <ToggleButton
+                Padding="8"
+                HorizontalAlignment="Left"
+                VerticalAlignment="Center"
+                Background="Transparent"
+                BorderBrush="Transparent"
+                Click="ToggleButton_Click">
+                <FontIcon FontSize="16" Glyph="&#xE7EF;" />
             </ToggleButton>
             <Button
                 x:Name="RunButton"
@@ -440,7 +453,7 @@
                 HorizontalAlignment="Stretch"
                 VerticalAlignment="Center"
                 Content="{x:Bind StringTable:StringTable.Run}"
-                Style="{StaticResource AccentButtonStyle}"/>
+                Style="{StaticResource AccentButtonStyle}" />
             <Button
                 Grid.Column="6"
                 HorizontalAlignment="Stretch"

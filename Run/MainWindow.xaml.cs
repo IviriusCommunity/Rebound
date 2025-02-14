@@ -46,7 +46,7 @@ public sealed partial class MainWindow : WindowEx
         IsResizable = false;
         AppWindow.DefaultTitleBarShouldMatchAppModeTheme = true;
         this.SetIcon($"{AppContext.BaseDirectory}/Assets/RunBox.ico");
-        Title = StringTable.AppTitle;
+        Title = "Run";
         SystemBackdrop = new MicaBackdrop();
         Load();
         //LoadRunHistory();
