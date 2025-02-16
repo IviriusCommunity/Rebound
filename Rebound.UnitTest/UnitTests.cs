@@ -1,12 +1,9 @@
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
-using Microsoft.UI.Xaml.Controls;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Microsoft.VisualStudio.TestTools.UnitTesting.AppContainer;
-using Rebound.Helpers.Generators;
 using System;
-using System.Collections.Generic;
 using System.Diagnostics;
+using System.IO;
 using System.Linq;
 using System.Reflection;
 
@@ -32,8 +29,8 @@ namespace Rebound.Run
 }
 ");
 
-            // directly create an instance of the generator
-            Rebound.Helpers.Generators.ReboundAppAttribute generator = new ReboundAppAttribute("Rebound.Run", "Legacy run");
+            // Directly create an instance of the source generator (not the attribute)
+            Rebound.Generators.ReboundAppSourceGenerator generator = new Rebound.Generators.ReboundAppSourceGenerator();
 
             // Create the driver that will control the generation, passing in our generator
             GeneratorDriver driver = CSharpGeneratorDriver.Create(generator);
@@ -42,8 +39,10 @@ namespace Rebound.Run
             driver = driver.RunGeneratorsAndUpdateCompilation(inputCompilation, out var outputCompilation, out var diagnostics);
 
             // Assert there are no errors in the diagnostics
-            Debug.Assert(diagnostics.IsEmpty);
-            Debug.Assert(outputCompilation.SyntaxTrees.Count() == 2); // two syntax trees: original + generated
+            Assert.IsTrue(diagnostics.IsEmpty);
+
+            // Assert the correct number of syntax trees (original + generated)
+            Assert.AreEqual(2, outputCompilation.SyntaxTrees.Count());
 
             // Get the results of the generation
             GeneratorDriverRunResult runResult = driver.GetRunResult();
@@ -61,9 +60,9 @@ using Windows.UI.StartScreen;
 using Windows.Foundation;
 using Windows.ApplicationModel;
 
-namespace Rebound.Helpers
+namespace Rebound.Run
 {
-    partial class App
+    partial class App : Application
     {
         public App()
         {
@@ -96,13 +95,13 @@ namespace Rebound.Helpers
 ";
 
             // Compare the generated code with the expected result
-            Debug.Assert(generatedSource.Trim() == expectedGeneratedCode.Trim(), "Generated code does not match expected result.");
+            Assert.AreEqual(expectedGeneratedCode.Trim(), generatedSource.Trim());
         }
 
         private static Compilation CreateCompilation(string source)
             => CSharpCompilation.Create("compilation",
                 new[] { CSharpSyntaxTree.ParseText(source) },
-                new[] { MetadataReference.CreateFromFile(typeof(Binder).GetTypeInfo().Assembly.Location) },
+                new[] { MetadataReference.CreateFromFile(typeof(object).Assembly.Location) },
                 new CSharpCompilationOptions(OutputKind.ConsoleApplication));
     }
 }

@@ -5,11 +5,11 @@ using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 using IWshRuntimeLibrary;
 using Microsoft.UI.Xaml;
+using Rebound.Generators;
 using Rebound.Helpers;
-using Rebound.Helpers.Generators;
+using Rebound.Helpers.Services;
 using Rebound.Run.Helpers;
 using WinUIEx;
-using File = System.IO.File;
 
 #nullable enable
 
@@ -33,10 +33,10 @@ public partial class App : Application
     public App()
     {
         InitializeComponent();
-        LaunchWork();
+        //LaunchWork();
     }
 
-    private void OnSingleInstanceLaunched(object? sender, SingleInstanceLaunchEventArgs e)
+    public void OnSingleInstanceLaunched(object? sender, Rebound.Helpers.Services.SingleInstanceLaunchEventArgs e)
     {
         if (e.IsFirstLaunch)
         {

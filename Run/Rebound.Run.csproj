@@ -55,6 +55,8 @@
 	</ItemGroup>
 
 	<ItemGroup>
+		<PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="4.12.0" />
+		<PackageReference Include="Microsoft.CodeAnalysis.Common" Version="4.12.0" />
 		<PackageReference Include="Microsoft.Windows.CsWinRT" Version="2.2.0" />
 		<PackageReference Include="Microsoft.Windows.SDK.BuildTools" Version="10.0.26100.1742" />
 		<PackageReference Include="Microsoft.WindowsAppSDK" Version="1.7.241114004-experimental1" />
@@ -100,21 +102,7 @@
 	</ItemGroup>
 	<ItemGroup>
 	  <ProjectReference Include="..\Helpers\Rebound.Helpers.csproj" />
+	  <ProjectReference Include="..\Rebound.Generators\Rebound.Generators.csproj" 
+                      OutputItemType="Analyzer"/>
 	</ItemGroup>
-
-	<PropertyGroup>
-		<GeneratePackageOnBuild>True</GeneratePackageOnBuild>
-		<Authors>Riverside, ErrorTek, Lamparter</Authors>
-		<PackageProjectUrl>https://ivirius.vercel.app</PackageProjectUrl>
-		<Title>Run</Title>
-		<PackageId>Riverside.Rebound.Run</PackageId>
-		<Copyright>Copyright (c) 2024-present Ivirius Community</Copyright>
-		<Description>Windows 11 done right.</Description>
-		<PackageIcon>Rebound11Icon.png</PackageIcon>
-		<IncludeSymbols>true</IncludeSymbols>
-		<SymbolPackageFormat>snupkg</SymbolPackageFormat>
-		<Version>0.0.3</Version>
-		<PackageLicenseExpression>MIT</PackageLicenseExpression>
-		<PackageReadmeFile>README.md</PackageReadmeFile>
-	</PropertyGroup>
 </Project>
