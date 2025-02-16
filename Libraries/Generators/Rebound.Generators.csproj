@@ -7,6 +7,7 @@
 	  <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
 	  <LangVersion>preview</LangVersion>
 	  <EnableExtendedAnalyzerRules>true</EnableExtendedAnalyzerRules>
+	  <Platforms>AnyCPU;x64</Platforms>
   </PropertyGroup>
 
   <ItemGroup>

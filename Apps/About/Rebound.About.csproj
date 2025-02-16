@@ -65,16 +65,16 @@
 	<!-- Package References -->
 	<ItemGroup>
 		<PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.0" />
+		<PackageReference Include="System.Management" Version="9.0.0" />
 		<PackageReference Include="Microsoft.Windows.CsWinRT" Version="2.2.0" />
 		<PackageReference Include="Microsoft.Windows.SDK.BuildTools" Version="10.0.26100.1742" />
-		<PackageReference Include="Microsoft.WindowsAppSDK" Version="1.7.241114004-experimental1" />
-		<PackageReference Include="System.Management" Version="9.0.0" />
-		<PackageReference Include="WinUIEx" Version="2.5.0" />
+		<PackageReference Include="Microsoft.WindowsAppSDK" Version="1.7.250208002-preview1" />
+		<PackageReference Include="WinUIEx" Version="2.5.1" />
 	</ItemGroup>
 
 	<!-- Helpers project -->
 	<ItemGroup>
-		<ProjectReference Include="..\Helpers\Rebound.Helpers.csproj" />
+		<ProjectReference Include="..\..\Libraries\Helpers\Rebound.Helpers.csproj" />
 	</ItemGroup>
 
 	<!-- App manifest -->
