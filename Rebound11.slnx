@@ -1,0 +1,101 @@
+<Solution>
+  <Configurations>
+    <Platform Name="ARM64" />
+    <Platform Name="x64" />
+    <Platform Name="x86" />
+  </Configurations>
+  <Folder Name="/src/" Id="02ea681e-c7d8-13c7-8484-4ac65e1b71e8" />
+  <Folder Name="/src/components/" Id="1e181218-d949-4ca9-8875-49983143917e" />
+  <Folder Name="/src/components/management/" Id="91439590-63d6-49cc-90f1-43dbf60f4154">
+    <Project Path="src/components/management/Rebound.ManagementConsole.TrustedPlatform/Rebound.ManagementConsole.TrustedPlatform.csproj">
+      <Platform Solution="*|ARM64" Project="x64" />
+      <Platform Solution="*|x64" Project="x64" />
+      <Platform Solution="*|x86" Project="x86" />
+      <Deploy />
+    </Project>
+  </Folder>
+  <Folder Name="/src/components/shell/" Id="14547d38-0320-4d63-88ef-3352e4e46d22">
+    <Project Path="src/components/shell/Rebound.Shell.ControlPanel/Rebound.Shell.ControlPanel.csproj">
+      <Platform Solution="*|ARM64" Project="ARM64" />
+      <Platform Solution="*|x64" Project="x64" />
+      <Platform Solution="*|x86" Project="x86" />
+      <Deploy />
+    </Project>
+    <Project Path="src/components/shell/Rebound.Shell.ExperienceHost/Rebound.Shell.ExperienceHost.csproj">
+      <Platform Solution="*|ARM64" Project="ARM64" />
+      <Platform Solution="*|x64" Project="x64" />
+      <Platform Solution="*|x86" Project="x86" />
+      <Deploy />
+    </Project>
+    <Project Path="src/components/shell/Rebound.Shell.ExperiencePack/Rebound.Shell.ExperiencePack.csproj">
+      <Platform Solution="*|x64" Project="x64" />
+    </Project>
+    <Project Path="src/components/shell/Rebound.Shell.ExplorerPhotoPrintingDialog/Rebound.Shell.ExplorerPhotoPrintingDialog.csproj">
+      <Platform Solution="*|ARM64" Project="ARM64" />
+      <Platform Solution="*|x64" Project="x64" />
+      <Platform Solution="*|x86" Project="x86" />
+      <Deploy />
+    </Project>
+    <Project Path="src/components/shell/Rebound.Shell.InteractiveDialog/Rebound.Shell.InteractiveDialog.csproj">
+      <Platform Solution="*|ARM64" Project="ARM64" />
+      <Platform Solution="*|x64" Project="x64" />
+      <Platform Solution="*|x86" Project="x86" />
+      <Deploy />
+    </Project>
+    <Project Path="src/components/shell/Rebound.Shell.Run/Rebound.Shell.Run.csproj">
+      <Platform Solution="*|ARM64" Project="ARM64" />
+      <Platform Solution="*|x64" Project="x64" />
+      <Platform Solution="*|x86" Project="x86" />
+      <Deploy />
+    </Project>
+  </Folder>
+  <Folder Name="/src/core/" Id="fb5d6fae-fad5-4679-aec2-b8fb3878993e">
+    <Project Path="src/core/Rebound.Core.Helpers/Rebound.Core.Helpers.csproj">
+      <Platform Solution="*|x64" Project="x64" />
+    </Project>
+    <Project Path="src/core/Rebound.Core.SourceGenerator/Rebound.Core.SourceGenerator.csproj">
+      <Platform Solution="*|x64" Project="x64" />
+    </Project>
+    <Project Path="src/core/Rebound.Delivery/Rebound.Delivery.shproj" Id="b6c8c1f3-644e-475f-84c6-214243620014" />
+  </Folder>
+  <Folder Name="/src/platforms/" Id="cbff53eb-5ead-4b57-8ed6-53491d4790e6">
+    <Project Path="src/platforms/Rebound.About/Rebound.About.csproj">
+      <Platform Solution="*|ARM64" Project="ARM64" />
+      <Platform Solution="*|x64" Project="x64" />
+      <Platform Solution="*|x86" Project="x86" />
+      <Deploy />
+    </Project>
+    <Project Path="src/platforms/Rebound.App/Rebound.App.csproj">
+      <Platform Solution="*|ARM64" Project="ARM64" />
+      <Platform Solution="*|x64" Project="x64" />
+      <Platform Solution="*|x86" Project="x86" />
+      <Deploy />
+    </Project>
+    <Project Path="src/platforms/Rebound.Cleanup/Rebound.Cleanup.csproj">
+      <Platform Solution="*|ARM64" Project="ARM64" />
+      <Platform Solution="*|x64" Project="x64" />
+      <Platform Solution="*|x86" Project="x86" />
+      <Deploy />
+    </Project>
+    <Project Path="src/platforms/Rebound.Defrag/Rebound.Defrag.csproj">
+      <Platform Solution="*|ARM64" Project="ARM64" />
+      <Platform Solution="*|x64" Project="x64" />
+      <Platform Solution="*|x86" Project="x86" />
+      <Deploy />
+    </Project>
+    <Project Path="src/platforms/Rebound.Installer/Rebound.Installer.csproj">
+      <Platform Solution="*|ARM64" Project="ARM64" />
+      <Platform Solution="*|x64" Project="x64" />
+      <Platform Solution="*|x86" Project="x86" />
+      <Deploy />
+    </Project>
+  </Folder>
+  <Folder Name="/tests/" Id="73e99a73-057a-449b-b2ca-03877cfd1e88">
+    <Project Path="tests/Rebound.InteractionTests/Rebound.InteractionTests.csproj">
+      <Platform Solution="*|ARM64" Project="ARM64" />
+      <Platform Solution="*|x64" Project="x64" />
+      <Platform Solution="*|x86" Project="x86" />
+      <Deploy />
+    </Project>
+  </Folder>
+</Solution>

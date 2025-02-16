@@ -1,0 +1,51 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+	  <!-- Versions -->
+	  <TargetFramework>net8.0-windows10.0.22621.0</TargetFramework>
+	  <WindowsSdkPackageVersion>10.0.22621.38</WindowsSdkPackageVersion>
+	  <SupportedOSPlatformVersion>10.0.17763.0</SupportedOSPlatformVersion>
+    <RootNamespace>Rebound.Helpers</RootNamespace>
+    <RuntimeIdentifiers Condition="$([MSBuild]::GetTargetFrameworkVersion('$(TargetFramework)')) &gt;= 8">win-x86;win-x64</RuntimeIdentifiers>
+    <RuntimeIdentifiers Condition="$([MSBuild]::GetTargetFrameworkVersion('$(TargetFramework)')) &lt; 8">win10-x86;win10-x64</RuntimeIdentifiers>
+    <UseWinUI>true</UseWinUI>
+    <Platforms>AnyCPU;x64</Platforms>
+  </PropertyGroup>
+  <ItemGroup>
+    <COMReference Include="WSHControllerLibrary">
+      <WrapperTool>tlbimp</WrapperTool>
+      <VersionMinor>0</VersionMinor>
+      <VersionMajor>1</VersionMajor>
+      <Guid>563dc060-b09a-11d2-a24d-00104bd35090</Guid>
+      <Lcid>0</Lcid>
+      <Isolated>false</Isolated>
+      <EmbedInteropTypes>true</EmbedInteropTypes>
+    </COMReference>
+  </ItemGroup>
+
+  <ItemGroup>
+	  <PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.0" />
+	  <PackageReference Include="Microsoft.CodeAnalysis.Common" Version="4.12.0" />
+	  <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="4.12.0" />
+	  <PackageReference Include="Microsoft.Web.WebView2" Version="1.0.3116-prerelease" />
+	  <PackageReference Include="Microsoft.Windows.CsWinRT" Version="2.2.0" />
+	  <PackageReference Include="Microsoft.Windows.SDK.BuildTools" Version="10.0.26100.1742" />
+	  <PackageReference Include="Microsoft.WindowsAppSDK" Version="1.7.250208002-preview1" />
+	  <PackageReference Include="WinUIEx" Version="2.5.1" />
+  </ItemGroup>
+	<PropertyGroup Label="Globals">
+	  <WebView2EnableCsWinRTProjection>False</WebView2EnableCsWinRTProjection>
+	  <WebView2LoaderPreference>Static</WebView2LoaderPreference>
+	</PropertyGroup>
+
+	<ItemGroup>
+		<COMReference Include="IWshRuntimeLibrary">
+			<WrapperTool>tlbimp</WrapperTool>
+			<VersionMinor>0</VersionMinor>
+			<VersionMajor>1</VersionMajor>
+			<Guid>f935dc20-1cf0-11d0-adb9-00c04fd58a0b</Guid>
+			<Lcid>0</Lcid>
+			<Isolated>false</Isolated>
+			<EmbedInteropTypes>true</EmbedInteropTypes>
+		</COMReference>
+	</ItemGroup>
+</Project>
