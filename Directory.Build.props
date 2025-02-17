@@ -1,6 +1,7 @@
 <Project>
 	<Import Project="$(MSBuildThisFileDirectory)eng\AppShortName.props" />
 	<Import Project="$(MSBuildThisFileDirectory)eng\DefinedConstants.props" />
+	<Import Project="$(MSBuildThisFileDirectory)eng\AdditionalFiles.props" />
 	<!-- Directories -->
 	<PropertyGroup>
 		<RootDirectory Condition=" '$(RootDirectory)' == '' ">$(MSBuildThisFileDirectory)</RootDirectory>
