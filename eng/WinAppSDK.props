@@ -88,4 +88,8 @@
 	<PropertyGroup Condition="'$(DisableHasPackageAndPublishMenuAddedByProject)'!='true' and '$(EnableMsixTooling)'=='true'">
 		<HasPackageAndPublishMenu>true</HasPackageAndPublishMenu>
 	</PropertyGroup>
+
+	<ItemGroup>
+		<Compile Include="$(BuildDirectory)\GlobalUsings.cs" />
+	</ItemGroup>
 </Project>
