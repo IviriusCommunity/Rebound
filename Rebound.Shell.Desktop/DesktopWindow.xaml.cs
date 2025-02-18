@@ -8,7 +8,7 @@ public sealed partial class DesktopWindow : WindowEx
 {
     public DesktopWindow()
     {
-        this.InitializeComponent();
+        InitializeComponent();
         AppWindow.TitleBar.ExtendsContentIntoTitleBar = true;
         AppWindow.TitleBar.PreferredHeightOption = Microsoft.UI.Windowing.TitleBarHeightOption.Collapsed;
         this.SetWindowPresenter(Microsoft.UI.Windowing.AppWindowPresenterKind.FullScreen);

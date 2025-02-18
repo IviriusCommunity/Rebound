@@ -1,29 +1,48 @@
-<Project Sdk="Microsoft.NET.Sdk">
-  <PropertyGroup>
-    <TargetFramework>net8.0-windows10.0.19041.0</TargetFramework>
-    <TargetPlatformMinVersion>10.0.17763.0</TargetPlatformMinVersion>
-    <RootNamespace>Rebound.Shell.Desktop</RootNamespace>
-    <RuntimeIdentifiers>win-x86;win-x64;win-arm64</RuntimeIdentifiers>
-    <UseWinUI>true</UseWinUI>
-  </PropertyGroup>
-  <ItemGroup>
-    <None Remove="DesktopPage.xaml" />
-    <None Remove="DesktopWindow.xaml" />
-  </ItemGroup>
-  <ItemGroup>
-    <PackageReference Include="Microsoft.Windows.SDK.BuildTools" Version="10.0.26100.1742" />
-    <PackageReference Include="Microsoft.WindowsAppSDK" Version="1.7.250208002-preview1" />
-    <PackageReference Include="WinUIEx" Version="2.5.1" />
-  </ItemGroup>
-  <ItemGroup>
-    <Page Update="DesktopPage.xaml">
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-  </ItemGroup>
-  <ItemGroup>
-    <Page Update="DesktopWindow.xaml">
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-  </ItemGroup>
-  
+﻿<Project Sdk="Microsoft.NET.Sdk">
+	<PropertyGroup>
+		<TargetFramework>net8.0-windows10.0.22621.0</TargetFramework>
+		<TargetPlatformMinVersion>10.0.17763.0</TargetPlatformMinVersion>
+		<RootNamespace>Rebound.Shell.Desktop</RootNamespace>
+		<RuntimeIdentifiers>win-x86;win-x64;</RuntimeIdentifiers>
+		<UseWinUI>true</UseWinUI>
+		<LangVersion>preview</LangVersion>
+		<Platforms>AnyCPU;x64</Platforms>
+	</PropertyGroup>
+	<ItemGroup>
+		<None Remove="DesktopPage.xaml" />
+		<None Remove="DesktopWindow.xaml" />
+	</ItemGroup>
+	<ItemGroup>
+		<PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.0" />
+		<PackageReference Include="CommunityToolkit.WinUI.Converters" Version="8.2.250129-preview2" />
+		<PackageReference Include="CommunityToolkit.WinUI.Media" Version="8.2.250129-preview2" />
+		<PackageReference Include="Microsoft.Windows.SDK.BuildTools" Version="10.0.26100.1742" />
+		<PackageReference Include="Microsoft.WindowsAppSDK" Version="1.7.250208002-preview1" />
+		<PackageReference Include="WinUIEx" Version="2.5.1" />
+	</ItemGroup>
+	<ItemGroup>
+		<COMReference Include="IWshRuntimeLibrary">
+			<WrapperTool>tlbimp</WrapperTool>
+			<VersionMinor>0</VersionMinor>
+			<VersionMajor>1</VersionMajor>
+			<Guid>f935dc20-1cf0-11d0-adb9-00c04fd58a0b</Guid>
+			<Lcid>0</Lcid>
+			<Isolated>false</Isolated>
+			<EmbedInteropTypes>true</EmbedInteropTypes>
+		</COMReference>
+	</ItemGroup>
+	<ItemGroup>
+	  <ProjectReference Include="..\src\components\shell\Rebound.Shell.ExperiencePack\Rebound.Shell.ExperiencePack.csproj" />
+	</ItemGroup>
+	<ItemGroup>
+		<Page Update="DesktopPage.xaml">
+			<Generator>MSBuild:Compile</Generator>
+		</Page>
+	</ItemGroup>
+	<ItemGroup>
+		<Page Update="DesktopWindow.xaml">
+			<Generator>MSBuild:Compile</Generator>
+		</Page>
+	</ItemGroup>
+
 </Project>

@@ -8,7 +8,7 @@
     <RuntimeIdentifiers Condition="$([MSBuild]::GetTargetFrameworkVersion('$(TargetFramework)')) &gt;= 8">win-x86;win-x64</RuntimeIdentifiers>
     <RuntimeIdentifiers Condition="$([MSBuild]::GetTargetFrameworkVersion('$(TargetFramework)')) &lt; 8">win10-x86;win10-x64</RuntimeIdentifiers>
     <UseWinUI>true</UseWinUI>
-    <Platforms>AnyCPU;x64</Platforms>
+    <Platforms>x86;x64</Platforms>
   </PropertyGroup>
   <ItemGroup>
     <COMReference Include="WSHControllerLibrary">
