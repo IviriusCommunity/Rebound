@@ -457,7 +457,7 @@
                     VerticalAlignment="Top"
                     ui:UIElementExtensions.ClipToBounds="False">
                     <Image
-                        x:Name="Thumbnailimg"
+                        x:Name="ThumbnailImage"
                         VerticalAlignment="Center"
                         ui:UIElementExtensions.ClipToBounds="False"
                         Source="{x:Bind Thumbnail}"
@@ -465,7 +465,7 @@
                         <ui:Effects.Shadow>
                             <ui:AttachedDropShadow
                                 BlurRadius="10"
-                                CastTo="{x:Bind Thumbnailimg}"
+                                CastTo="{x:Bind ThumbnailImage}"
                                 Opacity="0.25" />
                         </ui:Effects.Shadow>
                     </Image>
@@ -550,7 +550,7 @@
 
                 <!--  File Details  -->
                 <TextBlock
-                    x:Name="txtb"
+                    x:Name="FileNameControl1"
                     Margin="8,60,8,8"
                     HorizontalAlignment="Stretch"
                     FontSize="12"
@@ -562,14 +562,14 @@
                     <ui:Effects.Shadow>
                         <ui:AttachedDropShadow
                             BlurRadius="7"
-                            CastTo="{x:Bind txtb}"
+                            CastTo="{x:Bind FileNameControl1}"
                             IsMasked="True"
                             Opacity="1"
                             Offset="1" />
                     </ui:Effects.Shadow>
                 </TextBlock>
                 <TextBlock
-                    x:Name="txtb2"
+                    x:Name="FileNameControl2"
                     Margin="8,60,8,8"
                     HorizontalAlignment="Stretch"
                     FontSize="12"
@@ -581,7 +581,7 @@
                     <ui:Effects.Shadow>
                         <ui:AttachedDropShadow
                             BlurRadius="3"
-                            CastTo="{x:Bind txtb2}"
+                            CastTo="{x:Bind FileNameControl2}"
                             IsMasked="True"
                             Opacity="1" />
                     </ui:Effects.Shadow>
@@ -614,25 +614,23 @@
             </Grid>
         </DataTemplate>
     </Page.Resources>
-    <Grid x:Name="aaa" Background="#00000000">
+    <Grid Background="#00000000">
         <Image
-            x:Name="wallpaper"
-            PointerReleased="Grid_PointerReleased"
-            Stretch="UniformToFill"
-            Tapped="wallpaper_Tapped" />
+            x:Name="WallpaperImage"
+            Stretch="UniformToFill" />
         <Canvas
-            x:Name="fff"
+            x:Name="CanvasControl"
             HorizontalAlignment="Stretch"
             VerticalAlignment="Stretch"
             AllowDrop="True"
             Background="Transparent"
-            DragOver="fff_DragOver"
-            Drop="fff_Drop"
-            PointerMoved="fff_PointerMoved"
-            PointerPressed="fff_PointerPressed"
-            PointerReleased="wallpaper_PointerReleased">
+            DragOver="CanvasControl_DragOver"
+            Drop="CanvasControl_Drop"
+            PointerMoved="CanvasControl_PointerMoved"
+            PointerPressed="CanvasControl_PointerPressed"
+            PointerReleased="CanvasControl_PointerReleased">
             <Canvas.ContextFlyout>
-                <MenuFlyout x:Name="eee">
+                <MenuFlyout>
                     <MenuFlyoutSubItem MinWidth="250" Text="View">
                         <MenuFlyoutSubItem.Icon>
                             <FontIcon Glyph="&#xF0E2;" />
@@ -709,12 +707,12 @@
             VerticalAlignment="Top"
             BorderBrush="{ThemeResource AccentFillColorDefaultBrush}"
             BorderThickness="1"
-            PointerMoved="fff_PointerMoved"
-            PointerReleased="wallpaper_PointerReleased">
+            PointerMoved="CanvasControl_PointerMoved"
+            PointerReleased="CanvasControl_PointerReleased">
             <Border
                 Background="{ThemeResource AccentFillColorDefaultBrush}"
                 Opacity="0.2"
-                PointerReleased="wallpaper_PointerReleased" />
+                PointerReleased="CanvasControl_PointerReleased" />
         </Border>
         <Grid
             x:Name="LoadingGrid"

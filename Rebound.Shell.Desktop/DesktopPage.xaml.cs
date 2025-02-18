@@ -64,7 +64,7 @@ public sealed partial class DesktopPage : Page
         var path = GetWallpaperPath();
         if (File.Exists(path))
         {
-            wallpaper.Source = new BitmapImage(new Uri(path));
+            WallpaperImage.Source = new BitmapImage(new Uri(path));
         }
 
         await Task.Delay(50);
@@ -100,7 +100,7 @@ public sealed partial class DesktopPage : Page
                     item.Y = freeSpot.Y;
 
                     // Add it to the canvas
-                    fff.Children.Add(contentControl);
+                    CanvasControl.Children.Add(contentControl);
                 }
                 else
                 {
@@ -114,7 +114,7 @@ public sealed partial class DesktopPage : Page
                 Canvas.SetTop(contentControl, (double)item.Y);
 
                 // Add it to the canvas
-                fff.Children.Add(contentControl);
+                CanvasControl.Children.Add(contentControl);
             }
         }
 
@@ -163,11 +163,6 @@ public sealed partial class DesktopPage : Page
         }
     }
 
-    private void Grid_PointerReleased(object sender, PointerRoutedEventArgs e)
-    {
-
-    }
-
     private void MenuFlyoutItem_Click(object sender, RoutedEventArgs e)
     {
         Process.GetCurrentProcess().Kill();
@@ -204,12 +199,7 @@ public sealed partial class DesktopPage : Page
         });
     }
 
-    private void wallpaper_Tapped(object sender, TappedRoutedEventArgs e)
-    {
-
-    }
-
-    private void wallpaper_PointerReleased(object sender, PointerRoutedEventArgs e)
+    private void CanvasControl_PointerReleased(object sender, PointerRoutedEventArgs e)
     {
         SelectionBorder.Margin = new(0);
         SelectionBorder.Width = 0;
@@ -221,7 +211,7 @@ public sealed partial class DesktopPage : Page
     private double initialMarginX;
     private double initialMarginY;
 
-    private void fff_PointerPressed(object sender, PointerRoutedEventArgs e)
+    private void CanvasControl_PointerPressed(object sender, PointerRoutedEventArgs e)
     {
         if (e.KeyModifiers != Windows.System.VirtualKeyModifiers.Control && !_isInItem)
         {
@@ -231,9 +221,9 @@ public sealed partial class DesktopPage : Page
             }
         }
         _selectionOn = true;
-        initialMarginX = e.GetCurrentPoint(fff).Position.X;
-        initialMarginY = e.GetCurrentPoint(fff).Position.Y;
-        SelectionBorder.Margin = new(e.GetCurrentPoint(fff).Position.X, e.GetCurrentPoint(fff).Position.Y, 0, 0);
+        initialMarginX = e.GetCurrentPoint(CanvasControl).Position.X;
+        initialMarginY = e.GetCurrentPoint(CanvasControl).Position.Y;
+        SelectionBorder.Margin = new(e.GetCurrentPoint(CanvasControl).Position.X, e.GetCurrentPoint(CanvasControl).Position.Y, 0, 0);
         SelectionBorder.Width = 0;
         SelectionBorder.Height = 0;
     }
@@ -243,9 +233,9 @@ public sealed partial class DesktopPage : Page
     private double left;
     private double top;
 
-    private void fff_PointerMoved(object sender, PointerRoutedEventArgs e)
+    private void CanvasControl_PointerMoved(object sender, PointerRoutedEventArgs e)
     {
-        var Pos = e.GetCurrentPoint(fff).Position;
+        var Pos = e.GetCurrentPoint(CanvasControl).Position;
         try
         {
             if (e.Pointer.IsInContact && _selectionOn && !_isDragging)
@@ -284,7 +274,7 @@ public sealed partial class DesktopPage : Page
         }
     }
 
-    private void fff_DragOver(object sender, DragEventArgs e)
+    private void CanvasControl_DragOver(object sender, DragEventArgs e)
     {
         e.AcceptedOperation = DataPackageOperation.Move;
         e.DragUIOverride.Caption = "Move on Desktop";
@@ -292,7 +282,7 @@ public sealed partial class DesktopPage : Page
 
     private Point oldPoint;
 
-    private async void fff_Drop(object sender, DragEventArgs e)
+    private async void CanvasControl_Drop(object sender, DragEventArgs e)
     {
         _isDragging = false;
         if (e.DataView.Contains(StandardDataFormats.StorageItems))
@@ -300,7 +290,7 @@ public sealed partial class DesktopPage : Page
             var items = await e.DataView.GetStorageItemsAsync();
             if (items.Count > 0)
             {
-                var point = e.GetPosition(fff); // Get drop position
+                var point = e.GetPosition(CanvasControl); // Get drop position
                 var freeSpot = FindFreeSpotCoordinates(point.X, point.Y) ?? FindFreeSpot(); // Find the first available spot
 
                 List<DesktopItem> existingFiles = [];
@@ -435,7 +425,7 @@ public sealed partial class DesktopPage : Page
                     file.Y = freeSpot.Y;
 
                     Items.Add(file);
-                    fff.Children.Add(contentControl);
+                    CanvasControl.Children.Add(contentControl);
                 }
             }
         }
@@ -460,14 +450,14 @@ public sealed partial class DesktopPage : Page
 
             // Move to the next slot
             y += cellHeight;
-            if (y + cellHeight > fff.ActualHeight) // If we reach the end of the row, go to the next row
+            if (y + cellHeight > CanvasControl.ActualHeight) // If we reach the end of the row, go to the next row
             {
                 y = 0;
                 x += cellWidth;
             }
 
             // Break out if we exceed the canvas size (optional safeguard)
-            if (x + cellWidth > fff.ActualWidth)
+            if (x + cellWidth > CanvasControl.ActualWidth)
             {
                 Debug.WriteLine("No space available!");
                 return new Point(-1, -1); // Fallback if no space found
@@ -481,9 +471,9 @@ public sealed partial class DesktopPage : Page
         const int cellHeight = 102;
 
         // Iterate over columns and rows to find a free spot
-        for (var col = 0; col < (fff.ActualWidth - cellWidth) / cellWidth; col++)
+        for (var col = 0; col < (CanvasControl.ActualWidth - cellWidth) / cellWidth; col++)
         {
-            for (var row = 0; row < (fff.ActualHeight - cellHeight) / cellHeight; row++)
+            for (var row = 0; row < (CanvasControl.ActualHeight - cellHeight) / cellHeight; row++)
             {
                 // Calculate the potential spot (top-left corner of the "cell")
                 double x = col * cellWidth;
@@ -604,7 +594,7 @@ public sealed partial class DesktopPage : Page
     private ContentControl? GetContentControlFromDesktopFile(DesktopItem desktopFile)
     {
         // Iterate through all children of the canvas (fff)
-        foreach (var child in fff.Children)
+        foreach (var child in CanvasControl.Children)
         {
             // Check if the child is a ContentControl
             if (child is ContentControl contentControl)
@@ -669,7 +659,7 @@ public sealed partial class DesktopPage : Page
             return;
         }
 
-        oldPoint = e.GetCurrentPoint(fff).Position;
+        oldPoint = e.GetCurrentPoint(CanvasControl).Position;
 
         if (e.KeyModifiers == Windows.System.VirtualKeyModifiers.Control)
         {
@@ -678,12 +668,15 @@ public sealed partial class DesktopPage : Page
         else
 
         {
+            if (desktopFile.IsSelected != true)
+            {
                 foreach (var item in Items)
                 {
                     item.IsSelected = false;
                 }
 
                 desktopFile.IsSelected = true;
+            }
         }
         _isDragging = true;
     }
