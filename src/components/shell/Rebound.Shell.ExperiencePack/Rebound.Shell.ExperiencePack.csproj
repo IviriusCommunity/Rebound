@@ -25,6 +25,9 @@
 		<PackageReference Include="Microsoft.WindowsAppSDK" Version="1.7.250208002-preview1" />
 		<PackageReference Include="WinUIEx" Version="2.5.1" />
 	</ItemGroup>
+	<ItemGroup>
+	  <ProjectReference Include="..\..\..\core\Rebound.Core.Helpers\Rebound.Core.Helpers.csproj" />
+	</ItemGroup>
 	<PropertyGroup Label="Globals">
 		<WebView2EnableCsWinRTProjection>False</WebView2EnableCsWinRTProjection>
 		<WebView2LoaderPreference>Static</WebView2LoaderPreference>

@@ -4,7 +4,18 @@ using System.Threading.Tasks;
 using Microsoft.UI.Xaml;
 using WinUIEx;
 
+#nullable enable
+
 namespace Rebound.Helpers;
+
+public static class User32
+{
+    [DllImport("user32.dll", CharSet = CharSet.Unicode)]
+    public static extern IntPtr FindWindow(string lpClassName, string? lpWindowName);
+
+    [DllImport("user32.dll", CharSet = CharSet.Auto)]
+    public static extern IntPtr SetParent(IntPtr hWndChild, IntPtr hWndNewParent);
+}
 
 public static class Win32
 {
