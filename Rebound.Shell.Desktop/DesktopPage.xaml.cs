@@ -5,30 +5,21 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
-using System.Runtime.InteropServices.WindowsRuntime;
 using System.Text;
 using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.ComponentModel;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
-using Microsoft.UI.Xaml.Controls.Primitives;
-using Microsoft.UI.Xaml.Data;
 using Microsoft.UI.Xaml.Input;
-using Microsoft.UI.Xaml.Media;
 using Microsoft.UI.Xaml.Media.Imaging;
-using Microsoft.UI.Xaml.Navigation;
 using Windows.ApplicationModel.DataTransfer;
 using Windows.Foundation;
-using Windows.Foundation.Collections;
 using Windows.Storage;
 
-// To learn more about WinUI, the WinUI project structure,
-// and more about our project templates, see: http://aka.ms/winui-project-info.
+#nullable enable
 
 namespace Rebound.Shell.Desktop;
-/// <summary>
-/// An empty page that can be used on its own or navigated to within a Frame.
-/// </summary>
+
 [ObservableObject]
 public sealed partial class DesktopPage : Page
 {
@@ -37,17 +28,18 @@ public sealed partial class DesktopPage : Page
 
     public DesktopPage()
     {
-        this.InitializeComponent();
+        InitializeComponent();
     }
+
     public static async Task GetDesktopFilesAsync(ObservableCollection<DesktopItem> items)
     {
-        string desktopPath = Environment.GetFolderPath(Environment.SpecialFolder.Desktop);
+        var desktopPath = Environment.GetFolderPath(Environment.SpecialFolder.Desktop);
 
         if (Directory.Exists(desktopPath))
         {
             // Get both files and folders
-            string[] files = Directory.GetFiles(desktopPath);
-            string[] folders = Directory.GetDirectories(desktopPath);
+            var files = Directory.GetFiles(desktopPath);
+            var folders = Directory.GetDirectories(desktopPath);
 
             // Create tasks for loading files and folders concurrently
             var tasks = files.Concat(folders)
@@ -60,7 +52,7 @@ public sealed partial class DesktopPage : Page
 
     private static async Task LoadFileAsync(string filePath, ObservableCollection<DesktopItem> items)
     {
-        DesktopItem desktopFile = new DesktopItem(filePath);
+        var desktopFile = new DesktopItem(filePath);
         await desktopFile.LoadThumbnailAsync();
 
         // Add directly to ObservableCollection for real-time UI update
@@ -69,8 +61,8 @@ public sealed partial class DesktopPage : Page
 
     private async void LoadingGrid_Loaded(object sender, RoutedEventArgs e)
     {
-        string path = GetWallpaperPath();
-        if (System.IO.File.Exists(path))
+        var path = GetWallpaperPath();
+        if (File.Exists(path))
         {
             wallpaper.Source = new BitmapImage(new Uri(path));
         }
@@ -124,11 +116,6 @@ public sealed partial class DesktopPage : Page
                 // Add it to the canvas
                 fff.Children.Add(contentControl);
             }
-            // Optionally set any additional properties, such as position on the Canvas
-            /*Canvas.SetLeft(contentControl, item.X); // Example of setting X position
-            Canvas.SetTop(contentControl, item.Y);  // Example of setting Y position
-
-            fff.Children.Add(contentControl); // Add the ContentControl to the Canvas*/
         }
 
         LoadingGrid.Visibility = Visibility.Collapsed;
@@ -153,32 +140,17 @@ public sealed partial class DesktopPage : Page
     private const int MAX_PATH = 260;
 
     // P/Invoke declaration for SystemParametersInfo to get the wallpaper
-    [DllImport("user32.dll", CharSet = CharSet.Auto)]
+    [DllImport("user32.dll", CharSet = CharSet.Unicode)]
     public static extern bool SystemParametersInfo(int uAction, int uParam, StringBuilder lpvParam, int fuWinIni);
-
-    // P/Invoke to Find the ProgMan window
-    [DllImport("user32.dll", CharSet = CharSet.Auto)]
-    public static extern IntPtr FindWindow(string lpClassName, string? lpWindowName);
 
     // P/Invoke to set the parent of the window
     [DllImport("user32.dll", CharSet = CharSet.Auto)]
     public static extern IntPtr SetParent(IntPtr hWndChild, IntPtr hWndNewParent);
 
-    // ProgMan class name (desktop window)
-    private const string ProgManClassName = "Progman";
-
-
-    // P/Invoke to ShowWindow function
-    [DllImport("user32.dll", CharSet = CharSet.Auto)]
-    public static extern bool ShowWindow(IntPtr hWnd, int nCmdShow);
-
-    // Constants for ShowWindow
-    private const int SW_MAXIMIZE = 3;
-
     public static string GetWallpaperPath()
     {
         var wallpaperPath = new StringBuilder(MAX_PATH);
-        bool result = SystemParametersInfo(SPI_GETDESKWALLPAPER, MAX_PATH, wallpaperPath, 0);
+        var result = SystemParametersInfo(SPI_GETDESKWALLPAPER, MAX_PATH, wallpaperPath, 0);
 
         if (result)
         {
@@ -193,31 +165,7 @@ public sealed partial class DesktopPage : Page
 
     private void Grid_PointerReleased(object sender, PointerRoutedEventArgs e)
     {
-        //eee.ShowAt(aaa);
-        //fff.SelectedItem = null;
-    }
 
-    [DllImport("shell32.dll", CharSet = CharSet.Auto)]
-    public static extern void SHChangeNotify(uint wEventId, uint uFlags, IntPtr dwItem1, IntPtr dwItem2);
-
-    // Constants for SHChangeNotify
-    private const uint SHCNE_UPDATEITEM = 0x00002000;
-    private const uint SHCNF_PATH = 0x00000001;
-
-    public static void RefreshThumbnailCache(string filePath)
-    {
-        IntPtr pathPtr = Marshal.StringToHGlobalAuto(filePath); // Convert the string to IntPtr
-
-        try
-        {
-            // Send notification to Explorer to update the thumbnail cache for the file
-            SHChangeNotify(SHCNE_UPDATEITEM, SHCNF_PATH, pathPtr, IntPtr.Zero);
-        }
-        finally
-        {
-            // Free the unmanaged memory
-            Marshal.FreeHGlobal(pathPtr);
-        }
     }
 
     private void MenuFlyoutItem_Click(object sender, RoutedEventArgs e)
@@ -242,8 +190,11 @@ public sealed partial class DesktopPage : Page
         var grid = sender as Grid;
 
         // Retrieve the DesktopFile from the DataContext
-        var desktopFile = grid?.DataContext as DesktopItem;
-        if (desktopFile == null) return;
+        var desktopFile = (DesktopItem?)grid?.DataContext;
+        if (desktopFile == null)
+        {
+            return;
+        }
 
         // Open the file
         Process.Start(new ProcessStartInfo
@@ -255,22 +206,20 @@ public sealed partial class DesktopPage : Page
 
     private void wallpaper_Tapped(object sender, TappedRoutedEventArgs e)
     {
-        /*fff.SelectedItem = null;*/
+
     }
 
     private void wallpaper_PointerReleased(object sender, PointerRoutedEventArgs e)
     {
-        /*fff.SelectedItem = null;*/
         SelectionBorder.Margin = new(0);
         SelectionBorder.Width = 0;
         SelectionBorder.Height = 0;
         _selectionOn = false;
     }
 
-    bool _selectionOn = false;
-    double initialMarginX;
-    double initialMarginY;
-
+    private bool _selectionOn = false;
+    private double initialMarginX;
+    private double initialMarginY;
 
     private void fff_PointerPressed(object sender, PointerRoutedEventArgs e)
     {
@@ -289,10 +238,10 @@ public sealed partial class DesktopPage : Page
         SelectionBorder.Height = 0;
     }
 
-    Windows.Foundation.Point lastPos;
+    private Point lastPos;
 
-    double left;
-    double top;
+    private double left;
+    private double top;
 
     private void fff_PointerMoved(object sender, PointerRoutedEventArgs e)
     {
@@ -335,11 +284,6 @@ public sealed partial class DesktopPage : Page
         }
     }
 
-    private void Grid_DragLeave(object sender, DragEventArgs e)
-    {
-
-    }
-
     private void fff_DragOver(object sender, DragEventArgs e)
     {
         e.AcceptedOperation = DataPackageOperation.Move;
@@ -359,12 +303,12 @@ public sealed partial class DesktopPage : Page
                 var point = e.GetPosition(fff); // Get drop position
                 var freeSpot = FindFreeSpotCoordinates(point.X, point.Y) ?? FindFreeSpot(); // Find the first available spot
 
-                List<DesktopItem> existingFiles = new();
-                List<DesktopItem> newFiles = new();
+                List<DesktopItem> existingFiles = [];
+                List<DesktopItem> newFiles = [];
 
                 foreach (var storageFile in items)
                 {
-                    var desktopFile = Items.FirstOrDefault(item => item.FilePath.Equals(storageFile.Path, StringComparison.OrdinalIgnoreCase));
+                    var desktopFile = Items.FirstOrDefault(item => (item.FilePath ?? "").Equals(storageFile.Path, StringComparison.OrdinalIgnoreCase));
 
                     if (desktopFile == null) // New file or folder
                     {
@@ -411,7 +355,7 @@ public sealed partial class DesktopPage : Page
                             newFiles.Add(desktopFile);
                         }
 
-                        Items.Add(desktopFile);
+                        Items.Add(desktopFile ?? new DesktopItem(""));
                     }
                     else
                     {
@@ -502,12 +446,12 @@ public sealed partial class DesktopPage : Page
         const int cellWidth = 82;
         const int cellHeight = 102;
 
-        double x = Math.Floor(startX / cellWidth) * cellWidth;
-        double y = Math.Floor(startY / cellHeight) * cellHeight;
+        var x = Math.Floor(startX / cellWidth) * cellWidth;
+        var y = Math.Floor(startY / cellHeight) * cellHeight;
 
         while (true) // Keep searching for the next available spot
         {
-            bool spotTaken = Items.Any(item => item.X == x && item.Y == y);
+            var spotTaken = Items.Any(item => item.X == x && item.Y == y);
 
             if (!spotTaken)
             {
@@ -537,16 +481,16 @@ public sealed partial class DesktopPage : Page
         const int cellHeight = 102;
 
         // Iterate over columns and rows to find a free spot
-        for (int col = 0; col < (fff.ActualWidth - cellWidth) / cellWidth; col++)
+        for (var col = 0; col < (fff.ActualWidth - cellWidth) / cellWidth; col++)
         {
-            for (int row = 0; row < (fff.ActualHeight - cellHeight) / cellHeight; row++)
+            for (var row = 0; row < (fff.ActualHeight - cellHeight) / cellHeight; row++)
             {
                 // Calculate the potential spot (top-left corner of the "cell")
                 double x = col * cellWidth;
                 double y = row * cellHeight;
 
                 // Check if the spot is occupied by any of the items
-                bool spotTaken = false;
+                var spotTaken = false;
                 foreach (var item in Items)
                 {
                     // Get the item's position (assumes the item has a way to track position, e.g., a Canvas.Left/Top)
@@ -571,15 +515,15 @@ public sealed partial class DesktopPage : Page
         // Return a default point (or indicate no free spot found) if needed
         return new Point(-1, -1);  // Or another way of signaling no space found
     }
-    const int cellWidth = 82;
-    const int cellHeight = 102;
+
+    private const int CELL_WIDTH = 82;
+    private const int CELL_HEIGHT = 102;
+
     public bool CheckIfSpotIsFree(double x, double y)
     {
-
-
         // Calculate the "grid position" by flooring the coordinates to the nearest cell
-        double snappedX = Math.Floor(x / cellWidth) * cellWidth;
-        double snappedY = Math.Floor(y / cellHeight) * cellHeight;
+        var snappedX = Math.Floor(x / CELL_WIDTH) * CELL_WIDTH;
+        var snappedY = Math.Floor(y / CELL_HEIGHT) * CELL_HEIGHT;
 
         // Check if this snapped position is already occupied
         foreach (var item in Items)
@@ -597,14 +541,15 @@ public sealed partial class DesktopPage : Page
         // If no items are in the spot, return true (it's free)
         return true;
     }
+
     public Point? FindFreeSpotCoordinates(double x, double y)
     {
         const int cellWidth = 82;
         const int cellHeight = 102;
 
         // Calculate the "grid position" by flooring the coordinates to the nearest cell
-        double snappedX = Math.Floor(x / cellWidth) * cellWidth;
-        double snappedY = Math.Floor(y / cellHeight) * cellHeight;
+        var snappedX = Math.Floor(x / cellWidth) * cellWidth;
+        var snappedY = Math.Floor(y / cellHeight) * cellHeight;
 
         // Check if this snapped position is already occupied
         foreach (var item in Items)
@@ -622,20 +567,21 @@ public sealed partial class DesktopPage : Page
         // If no items are in the spot, return the snapped coordinates (it's free)
         return new Point(snappedX, snappedY);
     }
-    public Point FindSpotCoordinates(double x, double y)
+
+    public static Point FindSpotCoordinates(double x, double y)
     {
         const int cellWidth = 82;
         const int cellHeight = 102;
 
         // Calculate the "grid position" by flooring the coordinates to the nearest cell
-        double snappedX = Math.Floor(x / cellWidth) * cellWidth;
-        double snappedY = Math.Floor(y / cellHeight) * cellHeight;
+        var snappedX = Math.Floor(x / cellWidth) * cellWidth;
+        var snappedY = Math.Floor(y / cellHeight) * cellHeight;
 
         // If no items are in the spot, return the snapped coordinates (it's free)
         return new Point(snappedX, snappedY);
     }
 
-    public async Task CopyStorageFolderAsync(StorageFolder sourceFolder, StorageFolder destinationFolder)
+    public static async Task CopyStorageFolderAsync(StorageFolder sourceFolder, StorageFolder destinationFolder)
     {
         // Create a new folder in the destination folder
         var copiedFolder = await destinationFolder.CreateFolderAsync(sourceFolder.Name, CreationCollisionOption.ReplaceExisting);
@@ -655,16 +601,16 @@ public sealed partial class DesktopPage : Page
         }
     }
 
-    private ContentControl GetContentControlFromDesktopFile(DesktopItem desktopFile)
+    private ContentControl? GetContentControlFromDesktopFile(DesktopItem desktopFile)
     {
         // Iterate through all children of the canvas (fff)
-        foreach (UIElement child in fff.Children)
+        foreach (var child in fff.Children)
         {
             // Check if the child is a ContentControl
             if (child is ContentControl contentControl)
             {
                 // Compare the Content of the ContentControl with the DesktopFile
-                if (contentControl.Content is DesktopItem item && item.FilePath.Equals(desktopFile.FilePath, StringComparison.OrdinalIgnoreCase))
+                if (contentControl.Content is DesktopItem item && (item.FilePath ?? "").Equals(desktopFile.FilePath, StringComparison.OrdinalIgnoreCase))
                 {
                     // Return the matching ContentControl
                     return contentControl;
@@ -687,7 +633,7 @@ public sealed partial class DesktopPage : Page
                 try
                 {
                     // Check if the item is a folder
-                    var attributes = System.IO.File.GetAttributes(item.FilePath);
+                    var attributes = File.GetAttributes(item.FilePath ?? "");
                     if (attributes.HasFlag(System.IO.FileAttributes.Directory))
                     {
                         var storageFolder = await StorageFolder.GetFolderFromPathAsync(item.FilePath);
@@ -709,7 +655,7 @@ public sealed partial class DesktopPage : Page
         args.Data.SetStorageItems(storageItems);
     }
 
-    bool _isDragging;
+    private bool _isDragging;
 
     private void Grid_PointerPressed(object sender, PointerRoutedEventArgs e)
     {
@@ -717,25 +663,27 @@ public sealed partial class DesktopPage : Page
         var grid = sender as Grid;
 
         // Retrieve the DesktopFile from the DataContext
-        var desktopFile = grid?.DataContext as DesktopItem;
-        if (desktopFile == null) return;
+        var desktopFile = (DesktopItem?)grid?.DataContext;
+        if (desktopFile == null)
+        {
+            return;
+        }
 
         oldPoint = e.GetCurrentPoint(fff).Position;
 
         if (e.KeyModifiers == Windows.System.VirtualKeyModifiers.Control)
+        {
             desktopFile.IsSelected = true;
+        }
         else
 
         {
-            if ((bool)!desktopFile.IsSelected)
-            {
                 foreach (var item in Items)
                 {
                     item.IsSelected = false;
                 }
 
                 desktopFile.IsSelected = true;
-            }
         }
         _isDragging = true;
     }
@@ -746,8 +694,11 @@ public sealed partial class DesktopPage : Page
         var grid = sender as Grid;
 
         // Retrieve the DesktopFile from the DataContext
-        var desktopFile = grid?.DataContext as DesktopItem;
-        if (desktopFile == null) return;
+        var desktopFile = (DesktopItem?)grid?.DataContext;
+        if (desktopFile == null)
+        {
+            return;
+        }
 
         _isDragging = false;
         if (e.KeyModifiers != Windows.System.VirtualKeyModifiers.Control)
@@ -761,7 +712,7 @@ public sealed partial class DesktopPage : Page
         }
     }
 
-    bool _isInItem = false;
+    private bool _isInItem = false;
 
     private void Grid_PointerEntered(object sender, PointerRoutedEventArgs e)
     {
