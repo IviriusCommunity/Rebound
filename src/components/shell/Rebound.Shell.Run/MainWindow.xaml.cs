@@ -28,7 +28,7 @@ public sealed partial class MainWindow : WindowEx
     {
         try
         {
-            return DisplayInformation.CreateForWindowId(AppWindow.Id).RawPixelsPerViewPixel;
+            return 1;//DisplayInformation.CreateForWindowId(AppWindow.Id).RawPixelsPerViewPixel;
         }
         catch
         {
@@ -44,7 +44,7 @@ public sealed partial class MainWindow : WindowEx
         IsMinimizable = false;
         IsMaximizable = false;
         IsResizable = false;
-        AppWindow.DefaultTitleBarShouldMatchAppModeTheme = true;
+        //AppWindow.DefaultTitleBarShouldMatchAppModeTheme = true;
         this.SetIcon($"{AppContext.BaseDirectory}/Assets/RunBox.ico");
         Title = "Run";
         SystemBackdrop = new MicaBackdrop();

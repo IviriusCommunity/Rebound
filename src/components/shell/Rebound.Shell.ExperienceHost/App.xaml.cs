@@ -1,4 +1,5 @@
-﻿using Microsoft.UI.Xaml;
+﻿using H.NotifyIcon.Core;
+using Microsoft.UI.Xaml;
 using Rebound.Generators;
 using Rebound.Helpers.Services;
 using WinUIEx;
@@ -19,7 +20,7 @@ public partial class App : Application
     {
         if (e.IsFirstLaunch)
         {
-
+            var icon = new TrayIcon();
         }
     }
 

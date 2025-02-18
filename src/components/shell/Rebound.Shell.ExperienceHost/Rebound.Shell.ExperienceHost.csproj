@@ -46,9 +46,9 @@
 		<PackageReference Include="WinUIEx" Version="2.5.1" />
 	</ItemGroup>
 	<ItemGroup>
-		<ProjectReference Include="..\..\Libraries\Generators\Rebound.Generators.csproj" OutputItemType="Analyzer" />
-		<ProjectReference Include="..\..\Libraries\Helpers\Rebound.Helpers.csproj" />
-		<ProjectReference Include="..\..\Rebound.ShellExperiencePack\Rebound.ShellExperiencePack.csproj" />
+	  <ProjectReference Include="..\..\..\core\Rebound.Core.Helpers\Rebound.Core.Helpers.csproj" />
+	  <ProjectReference Include="..\..\..\core\Rebound.Core.SourceGenerator\Rebound.Core.SourceGenerator.csproj" OutputItemType="Analyzer" />
+	  <ProjectReference Include="..\Rebound.Shell.ExperiencePack\Rebound.Shell.ExperiencePack.csproj" />
 	</ItemGroup>
 
 	<!--

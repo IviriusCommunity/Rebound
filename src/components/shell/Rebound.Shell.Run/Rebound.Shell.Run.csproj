@@ -59,10 +59,10 @@
 		<PackageReference Include="Microsoft.CodeAnalysis.Common" Version="4.12.0" />
 		<PackageReference Include="Microsoft.Windows.CsWinRT" Version="2.2.0" />
 		<PackageReference Include="Microsoft.Windows.SDK.BuildTools" Version="10.0.26100.1742" />
-		<PackageReference Include="Microsoft.WindowsAppSDK" Version="1.7.241114004-experimental1" />
+		<PackageReference Include="Microsoft.WindowsAppSDK" Version="1.7.250208002-preview1" />
 		<PackageReference Include="TaskScheduler" Version="2.11.0" />
 		<PackageReference Include="WindowsDisplayAPI" Version="1.3.0.13" />
-		<PackageReference Include="WinUIEx" Version="2.5.0" />
+		<PackageReference Include="WinUIEx" Version="2.5.1" />
 		<Manifest Include="$(ApplicationManifest)" />
 	</ItemGroup>
 
@@ -101,8 +101,7 @@
 		<None Include="..\.github\README.md" Pack="true" PackagePath="\" />
 	</ItemGroup>
 	<ItemGroup>
-	  <ProjectReference Include="..\Helpers\Rebound.Helpers.csproj" />
-	  <ProjectReference Include="..\Rebound.Generators\Rebound.Generators.csproj" 
-                      OutputItemType="Analyzer"/>
+	  <ProjectReference Include="..\..\..\core\Rebound.Core.Helpers\Rebound.Core.Helpers.csproj" />
+	  <ProjectReference Include="..\..\..\core\Rebound.Core.SourceGenerator\Rebound.Core.SourceGenerator.csproj" OutputItemType="Analyzer" />
 	</ItemGroup>
 </Project>
