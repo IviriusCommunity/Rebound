@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading.Tasks;
 using H.NotifyIcon.Core;
 using Microsoft.UI.Xaml;
 using Rebound.Generators;
