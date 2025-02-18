@@ -1,6 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 	<PropertyGroup>
-		<TargetFramework>net8.0-windows10.0.22621.0</TargetFramework>
+		<TargetFramework>net9.0-windows10.0.19041.0</TargetFramework>
 		<TargetPlatformMinVersion>10.0.17763.0</TargetPlatformMinVersion>
 		<RootNamespace>Rebound.Shell.Desktop</RootNamespace>
 		<RuntimeIdentifiers>win-x86;win-x64;</RuntimeIdentifiers>
@@ -8,6 +8,10 @@
 		<LangVersion>preview</LangVersion>
 		<Platforms>AnyCPU;x64</Platforms>
 		<AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+		<Nullable>enable</Nullable>
+		<PublishAot>true</PublishAot>
+		<PublishTrimmed>false</PublishTrimmed>
+		<EnableComInterop>true</EnableComInterop>
 	</PropertyGroup>
 	<ItemGroup>
 		<None Remove="DesktopPage.xaml" />
@@ -19,6 +23,11 @@
 		<PackageReference Include="CommunityToolkit.WinUI.Media" Version="8.2.250129-preview2" />
 		<PackageReference Include="Microsoft.Windows.SDK.BuildTools" Version="10.0.26100.1742" />
 		<PackageReference Include="Microsoft.WindowsAppSDK" Version="1.7.250208002-preview1" />
+		<PackageReference Include="Microsoft.Windows.CsWin32" Version="0.3.183">
+			<PrivateAssets>all</PrivateAssets>
+			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+		</PackageReference>
+		<PackageReference Include="System.Drawing.Common" Version="9.0.2" />
 		<PackageReference Include="WinUIEx" Version="2.5.1" />
 	</ItemGroup>
 	<ItemGroup>
@@ -33,7 +42,7 @@
 		</COMReference>
 	</ItemGroup>
 	<ItemGroup>
-	  <ProjectReference Include="..\src\components\shell\Rebound.Shell.ExperiencePack\Rebound.Shell.ExperiencePack.csproj" />
+		<ProjectReference Include="..\src\components\shell\Rebound.Shell.ExperiencePack\Rebound.Shell.ExperiencePack.csproj" />
 	</ItemGroup>
 	<ItemGroup>
 		<Page Update="DesktopPage.xaml">
