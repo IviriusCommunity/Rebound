@@ -6,6 +6,8 @@ using WinRT.Interop;
 using WinUIEx;
 using static Rebound.Helpers.User32;
 
+#nullable enable
+
 namespace Rebound.Helpers;
 
 public static partial class User32
