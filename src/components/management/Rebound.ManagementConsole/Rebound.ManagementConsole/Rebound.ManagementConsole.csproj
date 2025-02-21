@@ -2,7 +2,7 @@
 	<PropertyGroup>
 		<OutputType>WinExe</OutputType>
 		<EnableMsixTooling>true</EnableMsixTooling>
-		<RootNamespace>Rebound.Shell.ExperienceHost</RootNamespace>
+		<RootNamespace>Rebound.ManagementConsole</RootNamespace>
 	</PropertyGroup>
 
 	<ItemGroup>
@@ -16,9 +16,7 @@
 	</ItemGroup>
 
 	<ItemGroup>
-	  <ProjectReference Include="..\..\..\core\Rebound.Core.Helpers\Rebound.Core.Helpers.csproj" />
-	  <ProjectReference Include="..\..\..\core\Rebound.Core.SourceGenerator\Rebound.Core.SourceGenerator.csproj" OutputType="Analyzer" />
-	  <ProjectReference Include="..\Rebound.Shell.Desktop\Rebound.Shell.Desktop.csproj" />
-	  <ProjectReference Include="..\Rebound.Shell.ExperiencePack\Rebound.Shell.ExperiencePack.csproj" />
+	  <ProjectReference Include="..\..\..\..\core\Rebound.Core.Helpers\Rebound.Core.Helpers.csproj" />
+	  <ProjectReference Include="..\..\..\..\core\Rebound.Core.SourceGenerator\Rebound.Core.SourceGenerator.csproj" OutputType="Analyzer" />
 	</ItemGroup>
 </Project>

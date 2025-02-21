@@ -1,0 +1,27 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+	<PropertyGroup>
+		<RootNamespace>Rebound.Shell.Desktop</RootNamespace>
+	</PropertyGroup>
+	<ItemGroup>
+	  <None Remove="DesktopPage.xaml" />
+	  <None Remove="DesktopWindow.xaml" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<ProjectReference Include="..\..\..\core\Rebound.Core.Helpers\Rebound.Core.Helpers.csproj" />
+		<ProjectReference Include="..\..\..\core\Rebound.Core.SourceGenerator\Rebound.Core.SourceGenerator.csproj" OutputType="Analyzer" />
+		<ProjectReference Include="..\Rebound.Shell.ExperiencePack\Rebound.Shell.ExperiencePack.csproj" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <Page Update="DesktopWindow.xaml">
+	    <Generator>MSBuild:Compile</Generator>
+	  </Page>
+	</ItemGroup>
+
+	<ItemGroup>
+	  <Page Update="DesktopPage.xaml">
+	    <Generator>MSBuild:Compile</Generator>
+	  </Page>
+	</ItemGroup>
+</Project>

@@ -21,14 +21,17 @@
       <Platform Solution="*|x86" Project="x86" />
       <Deploy />
     </Project>
-    <Project Path="src/components/shell/Rebound.Shell.ExperienceHost/Rebound.Shell.ExperienceHost.csproj">
+    <Project Path="src/components/shell/Rebound.Shell.Desktop/Rebound.Shell.Desktop.csproj" Id="acc88f1b-3bcb-4e2c-912a-d859f6f2e916">
+      <Platform Project="x64" />
+    </Project>
+    <Project Path="src/components/shell/Rebound.Shell.ExperienceHost/Rebound.Shell.ExperienceHost.csproj" Id="e731f105-798f-451d-9bc3-6a998c87b6c4">
       <Platform Solution="*|ARM64" Project="ARM64" />
       <Platform Solution="*|x64" Project="x64" />
       <Platform Solution="*|x86" Project="x86" />
       <Deploy />
     </Project>
-    <Project Path="src/components/shell/Rebound.Shell.ExperiencePack/Rebound.Shell.ExperiencePack.csproj">
-      <Platform Solution="*|x64" Project="x64" />
+    <Project Path="src/components/shell/Rebound.Shell.ExperiencePack/Rebound.Shell.ExperiencePack.csproj" Id="1acd7b73-1092-4510-b40a-716ae15363d9">
+      <Platform Project="x64" />
     </Project>
     <Project Path="src/components/shell/Rebound.Shell.ExplorerPhotoPrintingDialog/Rebound.Shell.ExplorerPhotoPrintingDialog.csproj">
       <Platform Solution="*|ARM64" Project="ARM64" />

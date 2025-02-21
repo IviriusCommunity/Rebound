@@ -8,14 +8,14 @@
   IgnorableNamespaces="uap rescap">
 
   <Identity
-    Name="2da1b35c-d299-4e6f-9fb0-4ac4b64c1840"
+    Name="e9048a3e-7e54-411f-88be-1cfcc831d2e0"
     Publisher="CN=Desktop Ivirius"
     Version="1.0.0.0" />
 
-  <mp:PhoneIdentity PhoneProductId="2da1b35c-d299-4e6f-9fb0-4ac4b64c1840" PhonePublisherId="00000000-0000-0000-0000-000000000000"/>
+  <mp:PhoneIdentity PhoneProductId="e9048a3e-7e54-411f-88be-1cfcc831d2e0" PhonePublisherId="00000000-0000-0000-0000-000000000000"/>
 
   <Properties>
-    <DisplayName>Rebound.ShellExperienceHost</DisplayName>
+    <DisplayName>Rebound.Shell.ExperienceHost</DisplayName>
     <PublisherDisplayName>Desktop Ivirius</PublisherDisplayName>
     <Logo>Assets\StoreLogo.png</Logo>
   </Properties>
@@ -34,8 +34,8 @@
       Executable="$targetnametoken$.exe"
       EntryPoint="$targetentrypoint$">
       <uap:VisualElements
-        DisplayName="Rebound.ShellExperienceHost"
-        Description="Rebound.ShellExperienceHost"
+        DisplayName="Rebound.Shell.ExperienceHost"
+        Description="Rebound.Shell.ExperienceHost"
         BackgroundColor="transparent"
         Square150x150Logo="Assets\Square150x150Logo.png"
         Square44x44Logo="Assets\Square44x44Logo.png">

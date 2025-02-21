@@ -1,32 +1,10 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
-
+<Project Sdk="Microsoft.NET.Sdk">
 	<PropertyGroup>
-		<TargetFramework>net8.0-windows10.0.22621.0</TargetFramework>
-		<WindowsSdkPackageVersion>10.0.22621.38</WindowsSdkPackageVersion>
-		<SupportedOSPlatformVersion>10.0.17763.0</SupportedOSPlatformVersion>
-		<ImplicitUsings>enable</ImplicitUsings>
-		<Nullable>enable</Nullable>
 		<RootNamespace>Rebound.ShellExperiencePack</RootNamespace>
-		<UseWinUI>true</UseWinUI>
-		<Platforms>AnyCPU;x64</Platforms>
 	</PropertyGroup>
-	<PropertyGroup Label="Globals">
-		<WebView2EnableCsWinRTProjection>False</WebView2EnableCsWinRTProjection>
-		<WebView2LoaderPreference>Static</WebView2LoaderPreference>
-	</PropertyGroup>
+
 	<ItemGroup>
-		<PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.0" />
-		<PackageReference Include="H.NotifyIcon" Version="2.2.0" />
-		<PackageReference Include="Microsoft.CodeAnalysis.Common" Version="4.12.0" />
-		<PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="4.12.0" />
-		<PackageReference Include="Microsoft.Web.WebView2" Version="1.0.3116-prerelease" />
-		<PackageReference Include="Microsoft.Windows.CsWinRT" Version="2.2.0" />
-		<PackageReference Include="Microsoft.Windows.SDK.BuildTools" Version="10.0.26100.1742" />
-		<PackageReference Include="Microsoft.WindowsAppSDK" Version="1.7.250208002-preview1" />
-		<PackageReference Include="WinUIEx" Version="2.5.1" />
+		<ProjectReference Include="..\..\..\core\Rebound.Core.Helpers\Rebound.Core.Helpers.csproj" />
+		<ProjectReference Include="..\..\..\core\Rebound.Core.SourceGenerator\Rebound.Core.SourceGenerator.csproj" OutputType="Analyzer" />
 	</ItemGroup>
-	<PropertyGroup Label="Globals">
-		<WebView2EnableCsWinRTProjection>False</WebView2EnableCsWinRTProjection>
-		<WebView2LoaderPreference>Static</WebView2LoaderPreference>
-	</PropertyGroup>
 </Project>

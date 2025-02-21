@@ -1,0 +1,31 @@
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+
+	<Target Name="AppConfiguration" Condition="'$(OutputType)' != 'Library'">
+		<PropertyGroup>
+			<OutputType>WinExe</OutputType>
+			<ApplicationManifest>app.manifest</ApplicationManifest>
+			<PublishProfile>win-$(Platform).pubxml</PublishProfile>
+			<EnableMsixTooling>true</EnableMsixTooling>
+		</PropertyGroup>
+
+		<ItemGroup>
+			<Manifest Include="$(ApplicationManifest)" />
+		</ItemGroup>
+
+		<ItemGroup Condition="'$(DisableMsixProjectCapabilityAddedByProject)'!='true' and '$(EnableMsixTooling)'=='true'">
+			<ProjectCapability Include="Msix" />
+		</ItemGroup>
+
+		<PropertyGroup Condition="'$(DisableHasPackageAndPublishMenuAddedByProject)'!='true' and '$(EnableMsixTooling)'=='true'">
+			<HasPackageAndPublishMenu>true</HasPackageAndPublishMenu>
+		</PropertyGroup>
+
+		<PropertyGroup>
+			<PublishReadyToRun Condition="'$(Configuration)' == 'Debug'">False</PublishReadyToRun>
+			<PublishReadyToRun Condition="'$(Configuration)' != 'Debug'">True</PublishReadyToRun>
+			<PublishTrimmed Condition="'$(Configuration)' == 'Debug'">False</PublishTrimmed>
+			<PublishTrimmed Condition="'$(Configuration)' != 'Debug'">True</PublishTrimmed>
+		</PropertyGroup>
+	</Target>
+
+</Project>

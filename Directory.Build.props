@@ -1,0 +1,104 @@
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+
+	<!-- General Project Settings -->
+	<PropertyGroup>
+		<!-- Target Framework -->
+		<TargetFramework>net9.0-windows10.0.26100.0</TargetFramework>
+
+		<!-- AOT Compilation and Trimming -->
+		<PublishAot>true</PublishAot>
+		<PublishTrimmed>false</PublishTrimmed>
+
+		<!-- OS and Platform Versions -->
+		<SupportedOSPlatformVersion>10.0.22621.0</SupportedOSPlatformVersion>
+		<TargetPlatformMinVersion>10.0.17763.0</TargetPlatformMinVersion>
+
+		<!-- WinUI Configuration -->
+		<UseWinUI>true</UseWinUI>
+
+		<!-- Language and Code Configuration -->
+		<LangVersion>preview</LangVersion>
+		<Nullable>enable</Nullable>
+		<AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+		<EnableComInterop>true</EnableComInterop>
+
+		<!-- Runtime Identifiers -->
+		<RuntimeIdentifiers>win-x64;</RuntimeIdentifiers>
+		<Platforms>x64</Platforms>
+
+		<!-- Conditional RuntimeIdentifiers based on target framework version -->
+		<RuntimeIdentifiers Condition="$([MSBuild]::GetTargetFrameworkVersion('$(TargetFramework)')) &gt;= 9">win-x64</RuntimeIdentifiers>
+		<RuntimeIdentifiers Condition="$([MSBuild]::GetTargetFrameworkVersion('$(TargetFramework)')) &lt; 9">win10-x64</RuntimeIdentifiers>
+	</PropertyGroup>
+
+	<!-- Windows SDK Settings -->
+	<PropertyGroup>
+		<WindowsSdkPackageVersion>10.0.22621.38</WindowsSdkPackageVersion>
+	</PropertyGroup>
+
+	<!-- Global Settings -->
+	<PropertyGroup Label="Globals" Condition="'$(OutputItemType)' != 'Analyzer'">
+		<WebView2EnableCsWinRTProjection>False</WebView2EnableCsWinRTProjection>
+		<WebView2LoaderPreference>Static</WebView2LoaderPreference>
+	</PropertyGroup>
+
+	<!-- Output and Manifest Settings for Non-Library Projects -->
+	<PropertyGroup Condition="'$(OutputType)' == 'WinExe'">
+		<ApplicationManifest>app.manifest</ApplicationManifest>
+		<PublishProfile>win-$(Platform).pubxml</PublishProfile>
+	</PropertyGroup>
+
+	<!-- Manifest and Msix Settings -->
+	<ItemGroup Condition="'$(OutputType)' == 'WinExe'">
+		<Manifest Include="$(ApplicationManifest)" />
+	</ItemGroup>
+
+	<ItemGroup Condition="'$(DisableMsixProjectCapabilityAddedByProject)'!='true' and '$(EnableMsixTooling)'=='true' and '$(OutputType)' == 'WinExe'">
+		<ProjectCapability Include="Msix" />
+	</ItemGroup>
+
+	<PropertyGroup Condition="'$(DisableHasPackageAndPublishMenuAddedByProject)'!='true' and '$(EnableMsixTooling)'=='true' and '$(OutputType)' == 'WinExe'">
+		<HasPackageAndPublishMenu>true</HasPackageAndPublishMenu>
+	</PropertyGroup>
+
+	<!-- Publish Settings -->
+	<PropertyGroup Condition="'$(OutputType)' == 'WinExe'">
+		<PublishReadyToRun Condition="'$(Configuration)' == 'Debug'">False</PublishReadyToRun>
+		<PublishReadyToRun Condition="'$(Configuration)' != 'Debug'">True</PublishReadyToRun>
+	</PropertyGroup>
+
+	<!-- Package References -->
+	<ItemGroup Condition="'$(OutputItemType)' != 'Analyzer'">
+		<PackageReference Include="Microsoft.Web.WebView2" Version="1.0.3116-prerelease" />
+		<PackageReference Include="TaskScheduler" Version="2.11.0" />
+		<PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.0" />
+		<PackageReference Include="CommunityToolkit.WinUI.Converters" Version="8.2.250129-preview2" />
+		<PackageReference Include="CommunityToolkit.WinUI.Media" Version="8.2.250129-preview2" />
+		<PackageReference Include="Microsoft.Windows.CsWinRT" Version="2.2.0" />
+		<PackageReference Include="Microsoft.Windows.SDK.BuildTools" Version="10.0.26100.1742" />
+		<PackageReference Include="Microsoft.WindowsAppSDK" Version="1.7.250208002-preview1" />
+		<PackageReference Include="Microsoft.Windows.CsWin32" Version="0.3.183">
+			<PrivateAssets>all</PrivateAssets>
+			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+		</PackageReference>
+		<PackageReference Include="System.Drawing.Common" Version="9.0.2" />
+		<PackageReference Include="WinUIEx" Version="2.5.1" />
+		<PackageReference Include="H.NotifyIcon" Version="2.2.0" />
+		<PackageReference Include="Microsoft.CodeAnalysis.Common" Version="4.12.0" />
+		<PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="4.12.0" />
+	</ItemGroup>
+
+	<!-- COM References -->
+	<ItemGroup>
+		<COMReference Include="IWshRuntimeLibrary">
+			<WrapperTool>tlbimp</WrapperTool>
+			<VersionMinor>0</VersionMinor>
+			<VersionMajor>1</VersionMajor>
+			<Guid>f935dc20-1cf0-11d0-adb9-00c04fd58a0b</Guid>
+			<Lcid>0</Lcid>
+			<Isolated>false</Isolated>
+			<EmbedInteropTypes>true</EmbedInteropTypes>
+		</COMReference>
+	</ItemGroup>
+
+</Project>
