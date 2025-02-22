@@ -2,4 +2,7 @@
 	<PropertyGroup>
 		<RootNamespace>Rebound.Helpers</RootNamespace>
 	</PropertyGroup>
+	<ItemGroup>
+	  <Folder Include="SystemComponents\" />
+	</ItemGroup>
 </Project>

@@ -1,8 +1,10 @@
-﻿using System.Threading.Tasks;
+﻿using System;
+using System.Threading.Tasks;
 using Microsoft.UI.Xaml;
 using Rebound.Generators;
 using Rebound.Helpers.Services;
 using Rebound.Shell.Desktop;
+using Windows.Storage;
 using WinUIEx;
 
 namespace Rebound.Shell.ExperienceHost;
@@ -13,22 +15,23 @@ public partial class App : Application
     public App()
     {
         InitializeComponent();
-        // Tray icon
-        /*using System.Drawing.Icon icon = new($"{AppContext.BaseDirectory}\\Assets\\ReboundIcon.ico");
-        var trayIcon = new TrayIcon
-        {
-            Icon = icon.Handle,
-            ToolTip = "Rebound Shell"
-        };
-        trayIcon.Create();
-        trayIcon.Show();*/
-
         // Desktop
         Run();
     }
 
     private async void Run()
     {
+        // Background window
+        BackgroundWindow = new WindowEx();
+        BackgroundWindow = new() { SystemBackdrop = new TransparentTintBackdrop(), IsMaximizable = false };
+        BackgroundWindow.SetExtendedWindowStyle(ExtendedWindowStyle.ToolWindow);
+        BackgroundWindow.SetWindowStyle(WindowStyle.Visible);
+        BackgroundWindow.Activate();
+        BackgroundWindow.MoveAndResize(0, 0, 0, 0);
+        BackgroundWindow.Minimize();
+        BackgroundWindow.SetWindowOpacity(0);
+
+        // Desktop window
         DesktopWindow = new DesktopWindow();
         DesktopWindow.SetWindowOpacity(0);
         DesktopWindow.Activate();
@@ -47,4 +50,5 @@ public partial class App : Application
     public static WindowEx? RunWindow { get; set; }
     public static WindowEx? DesktopWindow { get; set; }
     public static WindowEx? ShutdownDialog { get; set; }
+    public static WindowEx? BackgroundWindow { get; set; }
 }
