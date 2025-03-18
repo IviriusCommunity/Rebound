@@ -1,34 +1,46 @@
-﻿using System.Diagnostics;
+﻿using System;
+using System.Diagnostics;
 using Microsoft.UI.Xaml;
-using Rebound.Helpers.Services;
+using Rebound.Generators;
 using WinUIEx;
 
 #nullable enable
 
 namespace Rebound.About;
 
+[ReboundApp("Rebound.About", "Legacy winver")]
 public partial class App : Application
 {
     public static WindowEx? MainWindow { get; set; }
 
-    private SingleInstanceAppService SingleInstanceAppService { get; set; } = new SingleInstanceAppService("ReboundAbout");
+    //private SingleInstanceAppService SingleInstanceAppService { get; set; } = new SingleInstanceAppService("ReboundAbout");
 
-    private ReboundAppService ReboundAppService { get; set; } = new ReboundAppService("Legacy winver");
+    //private ReboundAppService ReboundAppService { get; set; } = new ReboundAppService("Legacy winver");
+
+    private void OnSingleInstanceLaunched(object? sender, Rebound.Helpers.Services.SingleInstanceLaunchEventArgs e)
+    {
+        if (e.IsFirstLaunch)
+        {
+            LaunchWork();
+        }
+    }
+
+    private void LaunchWork()
+    {
+        MainWindow = new MainWindow();
+        MainWindow.Activate();
+    }
 
     public App()
     {
         InitializeComponent();
-        SingleInstanceAppService.Launched += SingleInstanceApp_Launched;
-        Current.UnhandledException += App_UnhandledException;
+        //SingleInstanceAppService.Launched += SingleInstanceApp_Launched;
     }
 
     // Override default app launch
-    protected override void OnLaunched(LaunchActivatedEventArgs args) => SingleInstanceAppService?.Launch(args.Arguments);
+    //protected override void OnLaunched(LaunchActivatedEventArgs args) => SingleInstanceAppService?.Launch(args.Arguments);
 
-    // Handle any unhandled exceptions
-    private void App_UnhandledException(object sender, UnhandledExceptionEventArgs e) => e.Handled = true;
-
-    private void SingleInstanceApp_Launched(object? sender, SingleInstanceLaunchEventArgs e)
+    /*private void SingleInstanceApp_Launched(object? sender, SingleInstanceLaunchEventArgs e)
     {
         if (e.Arguments == ReboundAppService.LEGACY_LAUNCH)
         {
@@ -48,5 +60,5 @@ public partial class App : Application
         }
 
         return;
-    }
+    }*/
 }

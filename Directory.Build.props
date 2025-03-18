@@ -1,17 +1,23 @@
 <Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
 
-	<!-- General Project Settings -->
-	<PropertyGroup>
+	<PropertyGroup Condition="'$(OutputItemType)' != 'Analyzer'">
 		<!-- Target Framework -->
 		<TargetFramework>net9.0-windows10.0.26100.0</TargetFramework>
 
+		<UseSourceGenerators>true</UseSourceGenerators>
+		
 		<!-- AOT Compilation and Trimming -->
 		<PublishAot>true</PublishAot>
-		<PublishTrimmed>false</PublishTrimmed>
-
 		<!-- OS and Platform Versions -->
 		<SupportedOSPlatformVersion>10.0.22621.0</SupportedOSPlatformVersion>
 		<TargetPlatformMinVersion>10.0.17763.0</TargetPlatformMinVersion>
+
+		<EnableComInterop>true</EnableComInterop>
+	</PropertyGroup>
+	
+	<!-- General Project Settings -->
+	<PropertyGroup>
+		<PublishTrimmed>false</PublishTrimmed>
 
 		<!-- WinUI Configuration -->
 		<UseWinUI>true</UseWinUI>
@@ -20,7 +26,6 @@
 		<LangVersion>preview</LangVersion>
 		<Nullable>enable</Nullable>
 		<AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-		<EnableComInterop>true</EnableComInterop>
 
 		<!-- Runtime Identifiers -->
 		<RuntimeIdentifiers>win-x64;</RuntimeIdentifiers>
@@ -37,7 +42,8 @@
 	</PropertyGroup>
 
 	<!-- Global Settings -->
-	<PropertyGroup Label="Globals" Condition="'$(OutputItemType)' != 'Analyzer'">
+	<PropertyGroup Label="Globals" Condition="'$(OutputType)' == 'WinExe'">
+		<EnableAnalyzers>true</EnableAnalyzers>
 		<WebView2EnableCsWinRTProjection>False</WebView2EnableCsWinRTProjection>
 		<WebView2LoaderPreference>Static</WebView2LoaderPreference>
 	</PropertyGroup>
@@ -82,6 +88,7 @@
 			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
 		</PackageReference>
 		<PackageReference Include="System.Drawing.Common" Version="9.0.2" />
+		<PackageReference Include="System.Management" Version="10.0.0-preview.2.25163.2" />
 		<PackageReference Include="WinUIEx" Version="2.5.1" />
 		<PackageReference Include="H.NotifyIcon" Version="2.2.0" />
 		<PackageReference Include="Microsoft.CodeAnalysis.Common" Version="4.12.0" />
@@ -89,7 +96,7 @@
 	</ItemGroup>
 
 	<!-- COM References -->
-	<ItemGroup>
+	<ItemGroup Condition="'$(OutputItemType)' != 'Analyzer'">
 		<COMReference Include="IWshRuntimeLibrary">
 			<WrapperTool>tlbimp</WrapperTool>
 			<VersionMinor>0</VersionMinor>
