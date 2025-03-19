@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Diagnostics;
 using Microsoft.UI.Xaml;
-using Rebound.Core.SourceGeneratorAttributes;
+using Rebound.Generators;
 using WinUIEx;
 
 #nullable enable

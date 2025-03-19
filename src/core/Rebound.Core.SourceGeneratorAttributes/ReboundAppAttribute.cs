@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 // To learn more about WinUI, the WinUI project structure,
 // and more about our project templates, see: http://aka.ms/winui-project-info.
 
-namespace Rebound.Core.SourceGeneratorAttributes;
+namespace Rebound.Generators;
 
 [AttributeUsage(AttributeTargets.Class, Inherited = false, AllowMultiple = false)]
 public class ReboundAppAttribute : Attribute
