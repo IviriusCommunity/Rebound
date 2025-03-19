@@ -12,15 +12,16 @@
 		<SupportedOSPlatformVersion>10.0.22621.0</SupportedOSPlatformVersion>
 		<TargetPlatformMinVersion>10.0.17763.0</TargetPlatformMinVersion>
 
-		<EnableComInterop>true</EnableComInterop>
-	</PropertyGroup>
-	
-	<!-- General Project Settings -->
-	<PropertyGroup>
-		<PublishTrimmed>false</PublishTrimmed>
-
 		<!-- WinUI Configuration -->
 		<UseWinUI>true</UseWinUI>
+
+		<EnableComInterop>true</EnableComInterop>
+	</PropertyGroup>
+
+	<!-- General Project Settings -->
+	<PropertyGroup>
+		<AnalysisMode>All</AnalysisMode>
+		<PublishTrimmed>false</PublishTrimmed>
 
 		<!-- Language and Code Configuration -->
 		<LangVersion>preview</LangVersion>
@@ -30,10 +31,6 @@
 		<!-- Runtime Identifiers -->
 		<RuntimeIdentifiers>win-x64;</RuntimeIdentifiers>
 		<Platforms>x64</Platforms>
-
-		<!-- Conditional RuntimeIdentifiers based on target framework version -->
-		<RuntimeIdentifiers Condition="$([MSBuild]::GetTargetFrameworkVersion('$(TargetFramework)')) &gt;= 9">win-x64</RuntimeIdentifiers>
-		<RuntimeIdentifiers Condition="$([MSBuild]::GetTargetFrameworkVersion('$(TargetFramework)')) &lt; 9">win10-x64</RuntimeIdentifiers>
 	</PropertyGroup>
 
 	<!-- Windows SDK Settings -->

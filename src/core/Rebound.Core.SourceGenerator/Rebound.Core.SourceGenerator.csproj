@@ -1,12 +1,14 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 	<PropertyGroup>
-		<TargetFramework>net9.0</TargetFramework>
+		<TargetFrameworks>netstandard2.0;net9.0-windows10.0.26100.0</TargetFrameworks>
 		<OutputItemType>Analyzer</OutputItemType>
 		<!-- Ensure it's a compatible version for analyzers -->
-		<!--<EnableExtendedAnalyzerRules>true</EnableExtendedAnalyzerRules>
+		<EnableExtendedAnalyzerRules>true</EnableExtendedAnalyzerRules>
 		<EnforceExtendedAnalyzerRules>true</EnforceExtendedAnalyzerRules>
 		<EnableRoslynAnalyzers>true</EnableRoslynAnalyzers>
-		<GenerateAssemblyInfo>false</GenerateAssemblyInfo>-->
+		<GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+		<OutputType>Library</OutputType>
+		<PublishAot>false</PublishAot>
 	</PropertyGroup>
 
 	<ItemGroup>

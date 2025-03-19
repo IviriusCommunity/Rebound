@@ -8,19 +8,6 @@ using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 
 namespace Rebound.Generators
 {
-    [AttributeUsage(AttributeTargets.Class, Inherited = false, AllowMultiple = false)]
-    public class ReboundAppAttribute : Attribute
-    {
-        public string SingleProcessTaskName { get; }
-        public string LegacyLaunchCommandTitle { get; }
-
-        public ReboundAppAttribute(string singleProcessTaskName, string legacyLaunchCommandTitle)
-        {
-            SingleProcessTaskName = singleProcessTaskName;
-            LegacyLaunchCommandTitle = legacyLaunchCommandTitle;
-        }
-    }
-
     [Generator]
     public class ReboundAppSourceGenerator : ISourceGenerator
     {
@@ -43,12 +30,12 @@ namespace Rebound.Generators
                         .FirstOrDefault(attr => attr.AttributeClass?.Name == "ReboundAppAttribute");
 
                     // Extract the parameters from the attribute's constructor
-                    var singleProcessTaskName = (string)attribute.ConstructorArguments[0].Value;
-                    var legacyLaunchCommandTitle = (string)attribute.ConstructorArguments[1].Value;
+                    var singleProcessTaskName = attribute?.ConstructorArguments[0].Value?.ToString() ?? "";
+                    var legacyLaunchCommandTitle = attribute?.ConstructorArguments[1].Value?.ToString() ?? "";
 
                     // Get the namespace of the class
                     var namespaceSymbol = classSymbol.ContainingNamespace;
-                    string namespaceName = namespaceSymbol.ToDisplayString(); // This gives the full namespace path
+                    var namespaceName = namespaceSymbol.ToDisplayString(); // This gives the full namespace path
 
                     // Process the class and generate the necessary code
                     var classDeclaration = GenerateClass(classSymbol, singleProcessTaskName, legacyLaunchCommandTitle);

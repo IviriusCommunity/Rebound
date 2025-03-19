@@ -1,8 +1,9 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 	<PropertyGroup>
 		<RootNamespace>Rebound.Helpers</RootNamespace>
+		<OutputType>Library</OutputType>
 	</PropertyGroup>
 	<ItemGroup>
-	  <Folder Include="SystemComponents\" />
+		<Folder Include="SystemComponents\" />
 	</ItemGroup>
 </Project>

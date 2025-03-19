@@ -1,48 +1,13 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 	<!-- Properties -->
 	<PropertyGroup>
-		<!-- Versions -->
-		<TargetFramework>net8.0-windows10.0.22621.0</TargetFramework>
-		<WindowsSdkPackageVersion>10.0.22621.38</WindowsSdkPackageVersion>
-		<SupportedOSPlatformVersion>10.0.17763.0</SupportedOSPlatformVersion>
-
-		<!-- Application metadata -->
-		<ApplicationManifest>app.manifest</ApplicationManifest>
+		
 		<ApplicationIcon>Assets\Rebound.Defrag.ico</ApplicationIcon>
 		<AssemblyName>Rebound Defragment and Optimize Drives</AssemblyName>
 		<OutputType>WinExe</OutputType>
 
-		<!-- Package metadata -->
-		<PackageLicenseExpression>MIT</PackageLicenseExpression>
-
-		<!-- Architecture -->
-		<Platforms>x86;x64;ARM64</Platforms>
-		<RuntimeIdentifiers>win-x86;win-x64;win-arm64</RuntimeIdentifiers>
-
-		<!-- Signing -->
-		<AppxPackageSigningEnabled>true</AppxPackageSigningEnabled>
-		<PackageCertificateThumbprint>805D9FAF3E251362A569D694C3D7834BE80FE5B8</PackageCertificateThumbprint>
-		<AppxPackageSigningTimestampDigestAlgorithm>SHA256</AppxPackageSigningTimestampDigestAlgorithm>
-
-		<!-- Packaging -->
-		<GenerateAppInstallerFile>true</GenerateAppInstallerFile>
+		
 		<EnableMsixTooling>true</EnableMsixTooling>
-		<AppxAutoIncrementPackageRevision>false</AppxAutoIncrementPackageRevision>
-		<AppxSymbolPackageEnabled>false</AppxSymbolPackageEnabled>
-		<AppxBundle>Never</AppxBundle>
-
-		<!-- Compilation -->
-		<GenerateTestArtifacts>true</GenerateTestArtifacts>
-		<PublishProfile>win-$(Platform).pubxml</PublishProfile>
-		<UseWinUI>true</UseWinUI>
-		<PublishAot>true</PublishAot>
-		<EnableComInterop>true</EnableComInterop>
-
-		<!-- Required for MVVM -->
-		<LangVersion>preview</LangVersion>
-
-		<!-- Required for WMI -->
-		<PublishTrimmed>false</PublishTrimmed>
 	</PropertyGroup>
 
 	<!-- Package content -->
@@ -72,49 +37,11 @@
 		<Content Include="Rebound.Defrag.ico" />
 	</ItemGroup>
 
-	<!-- Package References -->
-	<ItemGroup>
-		<PackageReference Include="Cake.Powershell" Version="4.0.0" />
-		<PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.0" />
-		<PackageReference Include="CommunityToolkit.WinUI.Extensions" Version="8.2.241112-preview1" />
-		<PackageReference Include="CommunityToolkit.WinUI.Helpers" Version="8.2.241112-preview1" />
-		<PackageReference Include="DependencyPropertyGenerator" Version="1.5.0-beta.2">
-			<PrivateAssets>all</PrivateAssets>
-			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-		</PackageReference>
-		<PackageReference Include="HardwareProviders.HDD.Standard" Version="2.0.1" />
-		<PackageReference Include="Microsoft-WindowsAPICodePack-Shell" Version="1.1.5" />
-		<PackageReference Include="Microsoft.Windows.CsWinRT" Version="2.2.0" />
-		<PackageReference Include="Microsoft.Web.WebView2" Version="1.0.2950-prerelease" />
-		<PackageReference Include="Microsoft.Windows.SDK.BuildTools" Version="10.0.26100.1742" />
-		<PackageReference Include="Microsoft.WindowsAppSDK" Version="1.7.241114004-experimental1" />
-		<PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
-		<PackageReference Include="Riverside.Toolkit" Version="2.0.0-alpha1" />
-		<PackageReference Include="System.Diagnostics.EventLog" Version="9.0.0" />
-		<PackageReference Include="System.Management" Version="9.0.0" />
-		<PackageReference Include="TaskScheduler" Version="2.11.0" />
-		<PackageReference Include="WinUIEx" Version="2.5.0" />
-	</ItemGroup>
-
 	<!-- Helpers project -->
 	<ItemGroup>
-		<ProjectReference Include="..\Helpers\Rebound.Helpers.csproj" />
+		<ProjectReference Include="..\..\core\Rebound.Core.Helpers\Rebound.Core.Helpers.csproj" />
+		<ProjectReference Include="..\..\core\Rebound.Core.SourceGenerator\Rebound.Core.SourceGenerator.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
 	</ItemGroup>
-
-	<!-- App manifest -->
-	<ItemGroup>
-		<Manifest Include="$(ApplicationManifest)" />
-	</ItemGroup>
-
-	<!-- Add MSIX capability if tooling is enabled and not disabled by project configuration -->
-	<ItemGroup Condition="'$(DisableMsixProjectCapabilityAddedByProject)'!='true' and '$(EnableMsixTooling)'=='true'">
-		<ProjectCapability Include="Msix" />
-	</ItemGroup>
-
-	<!-- Enable Package and Publish menu options if MSIX tooling is enabled and not disabled by project configuration -->
-	<PropertyGroup Condition="'$(DisableHasPackageAndPublishMenuAddedByProject)'!='true' and '$(EnableMsixTooling)'=='true'">
-		<HasPackageAndPublishMenu>true</HasPackageAndPublishMenu>
-	</PropertyGroup>
 
 	<!-- XAML Windows -->
 	<ItemGroup>
@@ -151,24 +78,4 @@
 	<ItemGroup>
 		<None Include="..\.github\README.md" Pack="true" PackagePath="\" />
 	</ItemGroup>
-
-	<!-- Publish Properties -->
-	<PropertyGroup>
-		<PublishReadyToRun Condition="'$(Configuration)' == 'Debug'">False</PublishReadyToRun>
-		<PublishReadyToRun Condition="'$(Configuration)' != 'Debug'">True</PublishReadyToRun>
-		<PublishTrimmed Condition="'$(Configuration)' == 'Debug'">False</PublishTrimmed>
-		<PublishTrimmed Condition="'$(Configuration)' != 'Debug'">False</PublishTrimmed>
-	</PropertyGroup>
-
-	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x86'">
-		<Optimize>True</Optimize>
-	</PropertyGroup>
-
-	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-		<Optimize>True</Optimize>
-	</PropertyGroup>
-
-	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|ARM64'">
-		<Optimize>True</Optimize>
-	</PropertyGroup>
 </Project>

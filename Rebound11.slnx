@@ -6,7 +6,7 @@
   </Configurations>
   <Folder Name="/Solution Items/" Id="8ec462fd-d22e-90a8-e5ce-7e832ba40c5d">
     <File Path="Directory.Build.props" />
-    <File Path="Directory.Build.targets" />
+    <File Path="Directory.Build.targets1" />
   </Folder>
   <Folder Name="/src/" Id="02ea681e-c7d8-13c7-8484-4ac65e1b71e8" />
   <Folder Name="/src/components/" Id="1e181218-d949-4ca9-8875-49983143917e" />
@@ -62,6 +62,9 @@
     </Project>
     <Project Path="src/core/Rebound.Core.SourceGenerator/Rebound.Core.SourceGenerator.csproj">
       <Platform Solution="*|x64" Project="x64" />
+    </Project>
+    <Project Path="src/core/Rebound.Core.SourceGeneratorAttributes/Rebound.Core.SourceGeneratorAttributes.csproj" Id="395b0f3b-b45f-4076-9070-a06ff89c307c">
+      <Platform Project="x64" />
     </Project>
     <Project Path="src/core/Rebound.Delivery/Rebound.Delivery.shproj" Id="b6c8c1f3-644e-475f-84c6-214243620014" />
   </Folder>
