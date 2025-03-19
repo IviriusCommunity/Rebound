@@ -1,6 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 	<PropertyGroup>
-		<TargetFrameworks>net9.0-windows10.0.26100.0</TargetFrameworks>
+		<TargetFrameworks>netstandard2.0</TargetFrameworks>
 		<!-- Ensure it's a compatible version for analyzers -->
 		<IsRoslynComponent>true</IsRoslynComponent>
 		<EnforceExtendedAnalyzerRules>true</EnforceExtendedAnalyzerRules>
@@ -18,9 +18,5 @@
 	<ItemGroup>
 		<PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="4.12.0" PrivateAssets="all" />
 		<PackageReference Include="Microsoft.CodeAnalysis.Common" Version="4.12.0" PrivateAssets="all" />
-	</ItemGroup>
-
-	<ItemGroup>
-		<ProjectReference Include="..\Rebound.Core.SourceGeneratorAttributes\Rebound.Core.SourceGeneratorAttributes.csproj" PrivateAssets="all" />
 	</ItemGroup>
 </Project>
