@@ -1,8 +1,6 @@
 <Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
 
 	<PropertyGroup Condition="'$(OutputItemType)' != 'Analyzer'">
-		<!-- Target Framework -->
-		<TargetFramework>net9.0-windows10.0.26100.0</TargetFramework>
 
 		<UseSourceGenerators>true</UseSourceGenerators>
 		
@@ -20,6 +18,8 @@
 
 	<!-- General Project Settings -->
 	<PropertyGroup>
+		<!-- Target Framework -->
+		<TargetFramework>net9.0-windows10.0.26100.0</TargetFramework>
 		<AnalysisMode>All</AnalysisMode>
 		<PublishTrimmed>false</PublishTrimmed>
 
@@ -71,7 +71,7 @@
 	</PropertyGroup>
 
 	<!-- Package References -->
-	<ItemGroup Condition="'$(OutputItemType)' != 'Analyzer'">
+	<ItemGroup Condition="'$(PublishAot)' == 'true'">
 		<PackageReference Include="Microsoft.Web.WebView2" Version="1.0.3116-prerelease" />
 		<PackageReference Include="TaskScheduler" Version="2.11.0" />
 		<PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.0" />
