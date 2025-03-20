@@ -58,22 +58,22 @@ public partial class MainViewModel : ObservableObject
     public static string GetInformation()
         => $"The {
             // Simplified name for Windows without the Microsoft branding
-            GetWMIValue("Caption").Replace("Microsoft ", "")
+            GetWMIValue("Caption")?.Replace("Microsoft ", "")
             } operating system and its user interface are protected by trademark and other pending or existing intellectual property rights in the United States and other countries/regions.";
 
-    private static string GetWMIValue(string value) => 
+    private static string? GetWMIValue(string value) => 
         // Query WMI
         new ManagementObjectSearcher(WMI_WIN32OPERATINGSYSTEM)
         
         // Obtain collection
-        .Get()
+        .Get()?
         
         // Cast to ManagementObject
-        .Cast<ManagementObject>()
+        .Cast<ManagementObject?>()?
         
         // Get the first object available
-        .First()
+        .First()?
         
         // Obtain the required value
-        [value].ToString();
+        [value]?.ToString();
 }

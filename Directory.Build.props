@@ -90,7 +90,7 @@
 
 		<!-- Windows App SDK and WinUI -->
 		<PackageReference Include="Microsoft.Windows.SDK.BuildTools" Version="10.0.26100.1742" />
-		<PackageReference Include="Microsoft.WindowsAppSDK" Version="1.7.250208002-preview1" />
+		<PackageReference Update="Microsoft.WindowsAppSDK" Version="1.7.250310001" />
 		<PackageReference Include="WinUIEx" Version="2.5.1" />
 
 		<!-- Windows Interop -->

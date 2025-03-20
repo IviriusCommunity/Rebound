@@ -2,7 +2,7 @@
 using System.Threading.Tasks;
 using Microsoft.UI.Xaml;
 using Rebound.Generators;
-using Rebound.Helpers.Services;
+using Rebound.Helpers;
 using Rebound.Shell.Desktop;
 using Windows.Storage;
 using WinUIEx;
@@ -14,9 +14,7 @@ public partial class App : Application
 {
     public App()
     {
-        InitializeComponent();
-        // Desktop
-        Run();
+
     }
 
     private async void Run()
@@ -39,11 +37,11 @@ public partial class App : Application
         DesktopWindow.AttachToProgMan();
     }
 
-    private void OnSingleInstanceLaunched(object? sender, SingleInstanceLaunchEventArgs e)
+    private void OnSingleInstanceLaunched(object? sender, Helpers.Services.SingleInstanceLaunchEventArgs e)
     {
         if (e.IsFirstLaunch)
         {
-
+            Run();
         }
     }
 

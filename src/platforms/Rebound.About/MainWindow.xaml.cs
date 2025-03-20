@@ -4,9 +4,8 @@ using Microsoft.UI.Xaml.Media;
 using Windows.ApplicationModel.DataTransfer;
 using WinUIEx;
 
-#nullable enable
-
 namespace Rebound.About;
+
 public sealed partial class MainWindow : WindowEx
 {
     private readonly MainViewModel ViewModel;
@@ -15,7 +14,6 @@ public sealed partial class MainWindow : WindowEx
     {
         InitializeComponent();
         ViewModel = new MainViewModel();
-        //AppWindow.DefaultTitleBarShouldMatchAppModeTheme = true;
         this.MoveAndResize(25, 25, 650, 690);
         SystemBackdrop = new MicaBackdrop();
         this.SetIcon($"{AppContext.BaseDirectory}\\Assets\\Rebound.ico");

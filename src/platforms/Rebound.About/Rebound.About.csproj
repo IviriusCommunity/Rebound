@@ -1,11 +1,11 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
+	
 	<!-- Properties -->
 	<PropertyGroup>
-		<!-- Application metadata -->
-		<EnableMsixTooling>true</EnableMsixTooling>
+		<OutputType>WinExe</OutputType>
 		<ApplicationIcon>Assets\Rebound.ico</ApplicationIcon>
 		<AssemblyName>Rebound About</AssemblyName>
-		<OutputType>WinExe</OutputType>
+		<EnableMsixTooling>true</EnableMsixTooling>
 	</PropertyGroup>
 
 	<!-- Package content -->
@@ -25,9 +25,13 @@
 		<Content Include="Assets\Wide310x150Logo.scale-200.png" />
 	</ItemGroup>
 
+	<!-- Project references -->
 	<ItemGroup>
-		<ProjectReference Include="..\..\core\Rebound.Core.SourceGenerator\Rebound.Core.SourceGenerator.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
+		<ProjectReference Include="..\..\core\Rebound.Core.SourceGenerator\Rebound.Core.SourceGenerator.csproj" 
+						  OutputItemType="Analyzer" 
+						  ReferenceOutputAssembly="false" />
 		<ProjectReference Include="..\..\core\Rebound.Core.SourceGeneratorAttributes\Rebound.Core.SourceGeneratorAttributes.csproj" />
 		<ProjectReference Include="..\..\core\Rebound.Core.Helpers\Rebound.Core.Helpers.csproj" />
 	</ItemGroup>
+	
 </Project>

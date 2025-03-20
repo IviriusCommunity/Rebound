@@ -53,7 +53,8 @@ namespace Rebound.Generators
                             UsingDirective(IdentifierName("Rebound.Helpers.Services")),
                             UsingDirective(IdentifierName("Windows.UI.StartScreen")),
                             UsingDirective(IdentifierName("System.Threading.Tasks")),
-                            UsingDirective(IdentifierName("Windows.Foundation"))
+                            UsingDirective(IdentifierName("Windows.Foundation")),
+                            UsingDirective(IdentifierName("WinUIEx"))
                         )
                         .AddMembers(namespaceDeclaration)
                         .NormalizeWhitespace();
@@ -97,7 +98,6 @@ namespace Rebound.Generators
                         ParseStatement(@$"_singleInstanceAppService = new SingleInstanceAppService(""{singleProcessTaskName}"");"),
                         ParseStatement(@"_singleInstanceAppService.Launched += OnSingleInstanceLaunched;"),
                         ParseStatement(@"_singleInstanceAppService.Launch(args.Arguments);"),
-                        //ParseStatement("Current.UnhandledException += App_UnhandledException;"),
                         ParseStatement("InitializeJumpList();")
                     ))
                 : null;
@@ -129,16 +129,40 @@ namespace Rebound.Generators
                 )
                 .AddModifiers(Token(SyntaxKind.PrivateKeyword), Token(SyntaxKind.StaticKeyword));
 
+            // Create a static field for MainWindow
+            var mainWindowField = FieldDeclaration(
+                    VariableDeclaration(IdentifierName("WindowEx"))
+                    .AddVariables(VariableDeclarator("MainAppWindow"))
+                )
+                .AddModifiers(Token(SyntaxKind.PrivateKeyword), Token(SyntaxKind.StaticKeyword));
+
             // Create the class and add members to it
             var classDeclaration = ClassDeclaration(className)
-                .AddModifiers(Token(SyntaxKind.PartialKeyword));
+                    .AddModifiers(Token(SyntaxKind.PartialKeyword));
 
             // Only add the members if they don't already exist
             if (onLaunchedMethod != null) classDeclaration = classDeclaration.AddMembers(onLaunchedMethod);
             if (initializeJumpListMethod != null) classDeclaration = classDeclaration.AddMembers(initializeJumpListMethod);
 
+            // Iterate over the class members to find the method where InitializeComponent should be added
+            foreach (var member in classDeclaration.Members.OfType<MethodDeclarationSyntax>())
+            {
+                // Check if the method has a body (it should for this use case)
+                if (member.Body != null)
+                {
+                    var initializeComponentStatement = ParseStatement("InitializeComponent();");
+
+                    // Add the InitializeComponent() statement to the method's body
+                    var updatedBody = member.Body.AddStatements(initializeComponentStatement);
+
+                    // Replace the old body with the updated one
+                    classDeclaration = classDeclaration.ReplaceNode(member.Body, updatedBody);
+                }
+            }
+
             // Add the static field for SingleInstanceApp
             classDeclaration = classDeclaration.AddMembers(singleInstanceAppField);
+            classDeclaration = classDeclaration.AddMembers(mainWindowField);
 
             return classDeclaration;
         }

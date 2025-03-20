@@ -3,8 +3,6 @@ using System.Runtime.InteropServices;
 using System.Threading;
 using System.Threading.Tasks;
 
-using CommunityToolkit.WinUI.Helpers;
-
 using Microsoft.Graphics.Display;
 using Microsoft.UI.Composition.SystemBackdrops;
 using Microsoft.UI.Windowing;
@@ -106,8 +104,6 @@ public sealed partial class MainWindow : WindowEx
 
         mon = new RegistryMonitor(@"Software\Microsoft\Windows\DWM");
         mon.Start();
-        var x = new ThemeListener();
-        x.ThemeChanged += X_ThemeChanged;
 
         Rehook();
         CheckWindow();
@@ -584,12 +580,6 @@ public sealed partial class MainWindow : WindowEx
 
     private double closeWidth = 46;
 
-    private async void X_ThemeChanged(ThemeListener sender)
-    {
-        await Task.Delay(200);
-        CheckFocus();
-    }
-
     private void WindowEx_SizeChanged(object sender, WindowSizeChangedEventArgs args)
     {
         CheckMaximization();
@@ -700,18 +690,7 @@ public sealed partial class MainWindow : WindowEx
 
     public double Scale()
     {
-        try
-        {
-            // Get the DisplayInformation object for the current view
-            var displayInformation = DisplayInformation.CreateForWindowId(AppWindow.Id);
-            // Get the RawPixelsPerViewPixel which gives the scale factor
-            var scaleFactor = displayInformation.RawPixelsPerViewPixel;
-            return scaleFactor;
-        }
-        catch
-        {
-            return 0;
-        }
+        return 1;
     }
 
     private void Grid_PointerReleased(object sender, PointerRoutedEventArgs e)

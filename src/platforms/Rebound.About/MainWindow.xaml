@@ -123,23 +123,15 @@
         </Border>
         <Border
             Grid.Row="5"
-            Height="75"
+            Height="80"
             VerticalAlignment="Bottom"
             Background="{ThemeResource SystemControlBackgroundAltMediumLowBrush}" />
-        <Grid Grid.Row="5" VerticalAlignment="Center">
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="2*" />
-                <ColumnDefinition Width="8" />
-                <ColumnDefinition Width="*" />
-                <ColumnDefinition Width="8" />
-                <ColumnDefinition Width="*" />
-            </Grid.ColumnDefinitions>
+        <Grid Grid.Row="5" Height="80" Padding="24">
             <Button
                 Style="{ThemeResource AccentButtonStyle}"
-                Grid.Column="4"
-                Margin="0,20,20,20"
-                HorizontalAlignment="Stretch"
-                VerticalAlignment="Bottom"
+                HorizontalAlignment="Right"
+                VerticalAlignment="Center"
+                Width="160"
                 Content="OK"
                 Command="{x:Bind CloseWindowCommand}">
                 <Button.KeyboardAccelerators>
