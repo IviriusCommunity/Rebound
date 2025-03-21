@@ -22,7 +22,7 @@ public partial class WinverInstructions : ReboundAppInstructions
         new IFEOInstruction()
         {
             Name = "winver.exe",
-            Path = "winver"
+            Path = "winver.bat"
         }
     };
 
