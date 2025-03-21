@@ -6,9 +6,9 @@ public class IFEOInstruction : IReboundAppInstruction
 {
     private const string BaseRegistryPath = @"SOFTWARE\Microsoft\Windows NT\CurrentVersion\Image File Execution Options";
 
-    public required string Name { get; set; }
+    public required string OriginalExecutableName { get; set; }
 
-    public required string Path { get; set; }
+    public required string LauncherName { get; set; }
 
     public IFEOInstruction()
     {
@@ -17,8 +17,8 @@ public class IFEOInstruction : IReboundAppInstruction
 
     public void Apply()
     {
-        string registryPath = $@"{BaseRegistryPath}\{Name}";
-        string debuggerValue = $"{System.Environment.GetFolderPath(System.Environment.SpecialFolder.LocalApplicationData)}\\{Path}";
+        string registryPath = $@"{BaseRegistryPath}\{OriginalExecutableName}";
+        string debuggerValue = $"%PROGRAMFILES%\\Rebound\\{LauncherName}";
 
         using RegistryKey? key = Microsoft.Win32.Registry.LocalMachine.CreateSubKey(registryPath, true);
         key?.SetValue("Debugger", debuggerValue, RegistryValueKind.String);
@@ -26,19 +26,19 @@ public class IFEOInstruction : IReboundAppInstruction
 
     public void Remove()
     {
-        string registryPath = $@"{BaseRegistryPath}\{Name}";
+        string registryPath = $@"{BaseRegistryPath}\{OriginalExecutableName}";
         Microsoft.Win32.Registry.LocalMachine.DeleteSubKeyTree(registryPath, false);
     }
 
     public bool IsApplied()
     {
-        string registryPath = $@"{BaseRegistryPath}\{Name}";
+        string registryPath = $@"{BaseRegistryPath}\{OriginalExecutableName}";
 
         using RegistryKey? key = Microsoft.Win32.Registry.LocalMachine.OpenSubKey(registryPath);
         if (key == null) return false;
 
         string? debuggerValue = key.GetValue("Debugger") as string;
-        string expectedValue = $"{System.Environment.GetFolderPath(System.Environment.SpecialFolder.LocalApplicationData)}\\{Path}";
+        string expectedValue = $"%PROGRAMFILES%\\Rebound\\{LauncherName}";
 
         return debuggerValue == expectedValue;
     }

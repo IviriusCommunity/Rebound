@@ -21,8 +21,13 @@ public partial class WinverInstructions : ReboundAppInstructions
     {
         new IFEOInstruction()
         {
-            Name = "winver.exe",
-            Path = "winver.bat"
+            OriginalExecutableName = "winver.exe",
+            LauncherName = "rwinver.exe"
+        },
+        new LauncherInstruction()
+        {
+            Path = $"{AppContext.BaseDirectory}\\Modding\\Launchers\\rwinver.exe",
+            TargetPath = $"%PROGRAMFILES%\\Rebound\\rwinver.exe",
         }
     };
 
