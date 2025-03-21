@@ -111,6 +111,13 @@
 		<PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.0" />
 		<PackageReference Include="CommunityToolkit.WinUI.Converters" Version="8.2.250129-preview2" />
 		<PackageReference Include="CommunityToolkit.WinUI.Media" Version="8.2.250129-preview2" />
+		<PackageReference Include="CommunityToolkit.WinUI.Animations" Version="8.2.250129-preview2" />
+		<PackageReference Include="CommunityToolkit.WinUI.Behaviors" Version="8.2.250129-preview2" />
+		<PackageReference Include="CommunityToolkit.WinUI.Controls.Primitives" Version="8.2.250129-preview2" />
+		<PackageReference Include="CommunityToolkit.WinUI.Extensions" Version="8.2.250129-preview2" />
+		<PackageReference Include="CommunityToolkit.WinUI.Helpers" Version="8.2.250129-preview2" />
+		<PackageReference Include="CommunityToolkit.WinUI.Triggers" Version="8.2.250129-preview2" />
+		<PackageReference Include="CommunityToolkit.WinUI.Controls.SettingsControls" Version="8.2.250129-preview2" />
 
 		<!-- 3rd Party -->
 		<PackageReference Include="H.NotifyIcon" Version="2.2.0" />

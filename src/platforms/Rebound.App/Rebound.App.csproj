@@ -43,9 +43,12 @@
         <PRIResource Remove="Assets\Wallpapers\**" />
     </ItemGroup>
     <ItemGroup>
+      <None Remove="Assets\AppIcons\ReboundIcon.ico" />
+      <None Remove="Assets\AppIcons\Rectify11.png" />
+    </ItemGroup>
+    <ItemGroup>
       <ProjectReference Include="..\..\core\Rebound.Core.Helpers\Rebound.Core.Helpers.csproj" />
-      <ProjectReference Include="..\..\core\Rebound.Core.SourceGenerator\Rebound.Core.SourceGenerator.csproj"
-                      OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
+      <ProjectReference Include="..\..\core\Rebound.Core.SourceGenerator\Rebound.Core.SourceGenerator.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
     </ItemGroup>
 	
     <ItemGroup>

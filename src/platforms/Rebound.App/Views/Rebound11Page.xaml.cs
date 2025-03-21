@@ -1,4 +1,5 @@
 using System;
+using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
@@ -8,48 +9,33 @@ using System.Threading.Tasks;
 
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
-
+using Rebound.Helpers.Modding;
+using Windows.Graphics.Display;
 using WinUIEx;
 
 namespace Rebound.Views;
 
+public partial class WinverInstructions : ReboundAppInstructions
+{
+    public override ObservableCollection<IReboundAppInstruction>? Instructions { get; set; } = new()
+    {
+        new IFEOInstruction()
+        {
+            Name = "winver.exe",
+            Path = "winver"
+        }
+    };
+
+    public override InstallationTemplate PreferredInstallationTemplate { get; set; } = InstallationTemplate.Basic;
+}
+
 public sealed partial class Rebound11Page : Page
 {
+    public WinverInstructions WinverInstructions { get; set; } = new();
+
     public Rebound11Page()
     {
         this.InitializeComponent();
-
-        if (IsAdmin())
-        {
-            Admin1.Visibility = Visibility.Collapsed;
-            Admin3.Visibility = Visibility.Collapsed;
-            Admin5.Visibility = Visibility.Collapsed;
-            Admin6.Visibility = Visibility.Collapsed;
-        }
-
-        if (IsReboundInstalled())
-        {
-            Rebound11IsInstalledGrid.Visibility = Visibility.Visible;
-            Rebound11IsInstallingGrid.Visibility = Visibility.Collapsed;
-            Rebound11IsNotInstalledGrid.Visibility = Visibility.Collapsed;
-            DetailsPanel.Visibility = Visibility.Collapsed;
-        }
-        else
-        {
-            Rebound11IsInstalledGrid.Visibility = Visibility.Collapsed;
-            Rebound11IsInstallingGrid.Visibility = Visibility.Collapsed;
-            Rebound11IsNotInstalledGrid.Visibility = Visibility.Visible;
-            DetailsPanel.Visibility = Visibility.Visible;
-        }
-
-        if (string.Join(" ", Environment.GetCommandLineArgs().Skip(1)).ToUpperInvariant().Contains("INSTALLREBOUND11"))
-        {
-            Rebound11IsInstalledGrid.Visibility = Visibility.Collapsed;
-            Rebound11IsInstallingGrid.Visibility = Visibility.Visible;
-            Rebound11IsNotInstalledGrid.Visibility = Visibility.Collapsed;
-            DetailsPanel.Visibility = Visibility.Visible;
-        }
-        _ = CheckForUpdatesAsync();
     }
 
     public bool IsAdmin()

@@ -1,50 +1,65 @@
-﻿using System.Collections.Generic;
-using System.Linq;
-
-#nullable enable
+﻿using System.Collections.ObjectModel;
+using System.Threading.Tasks;
+using CommunityToolkit.Mvvm.ComponentModel;
 
 namespace Rebound.Helpers.Modding;
 
-public abstract class ReboundAppInstructions : IReboundRootApp
+public abstract partial class ReboundAppInstructions : ObservableObject
 {
-    public virtual InstallationTemplate PreferredInstallationTemplate { get; set; } = InstallationTemplate.Extras;
+    [ObservableProperty]
+    public partial bool IsInstalled { get; set; } = false;
 
-    public virtual List<AppPackage>? AppPackages { get; set; }
-
-    public virtual List<ReboundAppShortcut>? Shortcuts { get; set; }
-
-    public virtual List<IFEOEntry>? IFEOEntries { get; set; }
-
-    public void Install()
+    async partial void OnIsInstalledChanged(bool oldValue, bool newValue)
     {
-
+        if (newValue) await Install();
+        else await Uninstall();
     }
 
-    public void Uninstall()
-    {
+    public virtual InstallationTemplate PreferredInstallationTemplate { get; set; } = InstallationTemplate.Extras;
 
+    public virtual ObservableCollection<IReboundAppInstruction>? Instructions { get; set; }
+
+    public ReboundAppInstructions()
+    {
+        IsInstalled = GetIntegrity() == ReboundAppIntegrity.Installed;
+    }
+
+    public async Task Install()
+    {
+        await Task.Run(() =>
+        {
+            foreach (var instruction in Instructions)
+            {
+                instruction.Apply();
+            }
+        });
+
+        IsInstalled = GetIntegrity() == ReboundAppIntegrity.Installed;
+    }
+
+    public async Task Uninstall()
+    {
+        await Task.Run(() =>
+        {
+            foreach (var instruction in Instructions)
+            {
+                instruction.Remove();
+            }
+        });
+
+        IsInstalled = GetIntegrity() == ReboundAppIntegrity.Installed;
     }
 
     public ReboundAppIntegrity GetIntegrity()
     {
-        var isAppPackageIntact = AppPackages?.All(pkg => pkg.IsInstalled());
-        var isShortcutIntact = Shortcuts?.All(sc => sc.IsShortcutIntact());
-        var isIFEOEntryIntact = IFEOEntries?.All(entry => entry.IsIntact());
+        var intactItems = 0;
+        var totalItems = Instructions?.Count;
 
-        return
-            // Check if everything is ok
-            isShortcutIntact is true or null && isAppPackageIntact is true or null && isIFEOEntryIntact is true or null ?
+        foreach (var instruction in Instructions)
+        {
+            if (instruction.IsApplied()) intactItems++;
+        }
 
-            // All good
-            ReboundAppIntegrity.Installed :
-
-            // Check if nothing is ok
-            isShortcutIntact is false && !isAppPackageIntact is false && !isIFEOEntryIntact is false ?
-
-            // Not installed
-            ReboundAppIntegrity.NotInstalled : 
-            
-            // Corrupt
-            ReboundAppIntegrity.Corrupt;
+        return intactItems == totalItems ? ReboundAppIntegrity.Installed : intactItems == 0 ? ReboundAppIntegrity.NotInstalled : ReboundAppIntegrity.Corrupt;
     }
 }

@@ -6,7 +6,6 @@
   </Configurations>
   <Folder Name="/Solution Items/" Id="8ec462fd-d22e-90a8-e5ce-7e832ba40c5d">
     <File Path="Directory.Build.props" />
-    <File Path="Directory.Build.targets1" />
   </Folder>
   <Folder Name="/src/" Id="02ea681e-c7d8-13c7-8484-4ac65e1b71e8" />
   <Folder Name="/src/components/" Id="1e181218-d949-4ca9-8875-49983143917e" />
@@ -16,6 +15,11 @@
       <Platform Solution="*|x64" Project="x64" />
       <Platform Solution="*|x86" Project="x86" />
       <Deploy />
+    </Project>
+  </Folder>
+  <Folder Name="/src/components/platform/" Id="119afa20-c57f-41f1-9bbf-bf3a94a49119">
+    <Project Path="src/components/platform/Rebound.Launcher/Rebound.Launcher.vcxproj" Id="6dc0afcf-f1cf-498c-93dc-9714325f45c7">
+      <Platform Solution="*|ARM64" Project="x64" />
     </Project>
   </Folder>
   <Folder Name="/src/components/shell/" Id="14547d38-0320-4d63-88ef-3352e4e46d22">
