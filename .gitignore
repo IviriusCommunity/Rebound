@@ -366,3 +366,5 @@ MigrationBackup/
 
 # Fody - auto-generated XML schema
 FodyWeavers.xsd
+/src/platforms/Rebound.About/rwinver.exe
+/src/platforms/Rebound.About/rwinver.exe
