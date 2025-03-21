@@ -3,15 +3,18 @@
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:SettingsControls="using:CommunityToolkit.WinUI.Controls"
-    xmlns:controls="using:CommunityToolkit.WinUI.Controls"
     xmlns:behaviors="using:CommunityToolkit.WinUI.Behaviors"
+    xmlns:controls="using:CommunityToolkit.WinUI.Controls"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:header="using:WinUIGallery.Controls"
+    xmlns:converters="using:CommunityToolkit.WinUI.Converters"
     xmlns:interactivity="using:Microsoft.Xaml.Interactivity"
     xmlns:local="using:Rebound.Views"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     mc:Ignorable="d">
-
+    <Page.Resources>
+        <converters:BoolToObjectConverter x:Key="BoolToReverseVisibilityConverter" FalseValue="Visible" TrueValue="Collapsed" />
+    </Page.Resources>
     <ScrollViewer CornerRadius="8,0,0,0">
         <Grid>
             <Grid.RowDefinitions>
@@ -359,793 +362,13 @@
                 </StackPanel>
             </ScrollViewer>
 
-            <InfoBar
-                x:Name="UpdateBar"
-                Title="A new update for Rebound 11 is available!"
-                Grid.Row="3"
-                Margin="48,24"
-                Severity="Warning">
-                <InfoBar.ActionButton>
-                    <Button Content="Download">
-                        <interactivity:Interaction.Behaviors>
-                            <interactivity:EventTriggerBehavior EventName="Click">
-                                <behaviors:NavigateToUriAction NavigateUri="https://ivirius.vercel.app/rebound11" />
-                            </interactivity:EventTriggerBehavior>
-                        </interactivity:Interaction.Behaviors>
-                    </Button>
-                </InfoBar.ActionButton>
-            </InfoBar>
-
-            <Grid
-                x:Name="Rebound11IsInstalledGrid"
-                Grid.Row="4"
-                Margin="48,0">
-                <FontIcon
-                    Width="90"
-                    Height="90"
-                    HorizontalAlignment="Left"
-                    VerticalAlignment="Top"
-                    FontSize="75"
-                    FontWeight="Black"
-                    Glyph="">
-                    <FontIcon.Foreground>
-                        <LinearGradientBrush>
-                            <GradientStop Color="#1493df" />
-                            <GradientStop Offset="1" Color="#0669bc" />
-                        </LinearGradientBrush>
-                    </FontIcon.Foreground>
-                </FontIcon>
-                <Border
-                    Width="40"
-                    Height="40"
-                    Margin="50,40,0,0"
-                    HorizontalAlignment="Left"
-                    VerticalAlignment="Top"
-                    CornerRadius="25">
-                    <Border.Background>
-                        <LinearGradientBrush>
-                            <GradientStop Color="#56b60e" />
-                            <GradientStop Offset="1" Color="#107c10" />
-                        </LinearGradientBrush>
-                    </Border.Background>
-                    <FontIcon
-                        FontWeight="ExtraBlack"
-                        Foreground="White"
-                        Glyph="" />
-                </Border>
-                <TextBlock
-                    Margin="110,20,0,0"
-                    FontSize="20"
-                    FontWeight="SemiBold"
-                    Text="Rebound 11 is installed." />
-                <TextBlock
-                    Margin="110,45,0,0"
-                    Opacity="0.5"
-                    Text="v0.0.3 ALPHA" />
-                <StackPanel
-                    Margin="0,30,0,0"
-                    HorizontalAlignment="Right"
-                    VerticalAlignment="Top"
-                    Orientation="Horizontal"
-                    Spacing="8">
-                    <Button
-                        HorizontalAlignment="Right"
-                        Click="Button_Click_2"
-                        ToolTipService.ToolTip="Uninstall Rebound 11 apps and files.">
-                        <StackPanel Orientation="Horizontal" Spacing="10">
-                            <Image
-                                x:Name="Admin5"
-                                Width="16"
-                                Source="ms-appx:///AppRT/Exported/imageres_78.ico" />
-                            <TextBlock Text="Uninstall" />
-                        </StackPanel>
-                    </Button>
-                    <Button
-                        HorizontalAlignment="Right"
-                        Click="Button_Click_3"
-                        ToolTipService.ToolTip="Uninstall Rebound 11 apps, files, and associated apps (for example: Files App).">
-                        <StackPanel Orientation="Horizontal" Spacing="10">
-                            <Image
-                                x:Name="Admin6"
-                                Width="16"
-                                Source="ms-appx:///AppRT/Exported/imageres_78.ico" />
-                            <TextBlock Text="Full Uninstall" />
-                        </StackPanel>
-                    </Button>
-                    <Button
-                        HorizontalAlignment="Right"
-                        Click="Button_Click_1"
-                        Style="{ThemeResource AccentButtonStyle}">
-                        <StackPanel Orientation="Horizontal" Spacing="10">
-                            <Image
-                                x:Name="Admin1"
-                                Width="16"
-                                Source="ms-appx:///AppRT/Exported/imageres_78.ico" />
-                            <TextBlock Text="Patch or Update" />
-                        </StackPanel>
-                    </Button>
-                </StackPanel>
-                <StackPanel Margin="0,125,0,0" Spacing="8">
-                    <InfoBar
-                        Title="If you just downloaded a new version of Rebound Hub, please update Rebound 11 as well."
-                        IsClosable="False"
-                        IsOpen="True"
-                        Severity="Informational" />
-                    <controls:SettingsCard Header="Windows Update" IsClickEnabled="True">
-                        <controls:SettingsCard.HeaderIcon>
-                            <FontIcon Glyph="" />
-                        </controls:SettingsCard.HeaderIcon>
-                    </controls:SettingsCard>
-                    <controls:SettingsCard
-                        Click="SettingsCard_Click"
-                        Header="Winver"
-                        IsClickEnabled="True">
-                        <controls:SettingsCard.HeaderIcon>
-                            <FontIcon Glyph="" />
-                        </controls:SettingsCard.HeaderIcon>
-                    </controls:SettingsCard>
-                </StackPanel>
-            </Grid>
-
-            <Grid
-                x:Name="Rebound11IsNotInstalledGrid"
-                Grid.Row="4"
-                Margin="48,0">
-                <FontIcon
-                    Width="90"
-                    Height="90"
-                    HorizontalAlignment="Left"
-                    VerticalAlignment="Top"
-                    FontSize="75"
-                    FontWeight="Black"
-                    Glyph="">
-                    <FontIcon.Foreground>
-                        <LinearGradientBrush>
-                            <GradientStop Color="#1493df" />
-                            <GradientStop Offset="1" Color="#0669bc" />
-                        </LinearGradientBrush>
-                    </FontIcon.Foreground>
-                </FontIcon>
-                <Border
-                    Width="40"
-                    Height="40"
-                    Margin="50,40,0,0"
-                    HorizontalAlignment="Left"
-                    VerticalAlignment="Top"
-                    CornerRadius="25">
-                    <Border.Background>
-                        <LinearGradientBrush>
-                            <GradientStop Color="#ea6322" />
-                            <GradientStop Offset="1" Color="#c13408" />
-                        </LinearGradientBrush>
-                    </Border.Background>
-                    <FontIcon
-                        Margin="1,1,-1,-1"
-                        FontWeight="ExtraBlack"
-                        Foreground="White"
-                        Glyph="" />
-                </Border>
-                <TextBlock
-                    Margin="110,20,0,0"
-                    FontSize="20"
-                    FontWeight="SemiBold"
-                    Text="Rebound 11 is not installed." />
-                <TextBlock
-                    Margin="110,45,0,0"
-                    Opacity="0.5"
-                    Text="You can install Rebound 11 here." />
-                <StackPanel
-                    Margin="0,30,0,0"
-                    HorizontalAlignment="Right"
-                    VerticalAlignment="Top"
-                    Orientation="Horizontal"
-                    Spacing="8">
-                    <Button
-                        HorizontalAlignment="Right"
-                        Click="Button_Click_1"
-                        Style="{ThemeResource AccentButtonStyle}">
-                        <StackPanel Orientation="Horizontal" Spacing="10">
-                            <Image
-                                x:Name="Admin3"
-                                Width="16"
-                                Source="ms-appx:///AppRT/Exported/imageres_78.ico" />
-                            <TextBlock Text="Install" />
-                        </StackPanel>
-                    </Button>
-                </StackPanel>
-            </Grid>
-
-            <Grid
-                x:Name="Rebound11IsInstallingGrid"
-                Grid.Row="4"
-                Margin="48,0">
-                <FontIcon
-                    Width="90"
-                    Height="90"
-                    HorizontalAlignment="Left"
-                    VerticalAlignment="Top"
-                    FontSize="75"
-                    FontWeight="Black"
-                    Glyph="">
-                    <FontIcon.Foreground>
-                        <LinearGradientBrush>
-                            <GradientStop Color="#1493df" />
-                            <GradientStop Offset="1" Color="#0669bc" />
-                        </LinearGradientBrush>
-                    </FontIcon.Foreground>
-                </FontIcon>
-                <Border
-                    Width="40"
-                    Height="40"
-                    Margin="50,40,0,0"
-                    HorizontalAlignment="Left"
-                    VerticalAlignment="Top"
-                    CornerRadius="25">
-                    <Border.Background>
-                        <LinearGradientBrush>
-                            <GradientStop Color="#fedc00" />
-                            <GradientStop Offset="1" Color="#fdbb01" />
-                        </LinearGradientBrush>
-                    </Border.Background>
-                    <FontIcon
-                        Margin="1,-1,-1,1"
-                        FontSize="35"
-                        Foreground="Black"
-                        Glyph="" />
-                </Border>
-                <TextBlock
-                    Margin="110,20,0,0"
-                    FontSize="20"
-                    FontWeight="SemiBold"
-                    Text="Configure Rebound 11 Installation" />
-                <TextBlock
-                    Margin="110,45,0,0"
-                    Opacity="0.5"
-                    Text="Choose the apps you would like to install." />
-                <StackPanel
-                    Margin="0,30,0,0"
-                    HorizontalAlignment="Right"
-                    VerticalAlignment="Top"
-                    Orientation="Horizontal"
-                    Spacing="8">
-                    <Button
-                        HorizontalAlignment="Right"
-                        Click="Button_Click"
-                        Style="{ThemeResource AccentButtonStyle}">
-                        <TextBlock Text="Install Rebound 11" />
-                    </Button>
-                </StackPanel>
-                <StackPanel Margin="0,125,0,0" Spacing="8">
-                    <TextBlock Style="{ThemeResource SubtitleTextBlockStyle}" Text="Installation templates" />
-                    <Grid>
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="*" />
-                            <ColumnDefinition Width="8" />
-                            <ColumnDefinition Width="*" />
-                            <ColumnDefinition Width="8" />
-                            <ColumnDefinition Width="*" />
-                        </Grid.ColumnDefinitions>
-                        <Button
-                            Grid.Column="0"
-                            Padding="12"
-                            HorizontalAlignment="Stretch"
-                            Content="☁️ Lightweight"
-                            FontSize="20"
-                            IsEnabled="False" />
-                        <Button
-                            Grid.Column="2"
-                            Padding="12"
-                            HorizontalAlignment="Stretch"
-                            Content="✨ Recommended"
-                            FontSize="20"
-                            IsEnabled="False" />
-                        <Button
-                            Grid.Column="4"
-                            Padding="12"
-                            HorizontalAlignment="Stretch"
-                            Content="⚙️ Full"
-                            FontSize="20"
-                            IsEnabled="False" />
-                    </Grid>
-                    <TextBlock Style="{ThemeResource SubtitleTextBlockStyle}" Text="Items" />
-                    <StackPanel Spacing="12">
-                        <Expander
-                            HorizontalAlignment="Stretch"
-                            HorizontalContentAlignment="Stretch"
-                            Header="Common"
-                            IsExpanded="True">
-                            <StackPanel>
-                                <CheckBox
-                                    x:Name="FilesCheck"
-                                    Content="File Explorer (Files - 3rd party)"
-                                    IsChecked="True"
-                                    IsEnabled="False" />
-                                <InfoBar
-                                    Title="Files will not be uninstalled by Rebound Hub and you will have to uninstall it manually."
-                                    Margin="0,8"
-                                    IsClosable="False" />
-                                <CheckBox
-                                    Content="Remote Desktop"
-                                    IsChecked="True"
-                                    IsEnabled="False" />
-                                <CheckBox
-                                    x:Name="RunCheck"
-                                    Content="Run"
-                                    IsChecked="True" />
-                                <CheckBox
-                                    Content="Steps Recorder"
-                                    IsChecked="True"
-                                    IsEnabled="False" />
-                                <CheckBox
-                                    x:Name="WinverCheck"
-                                    Content="Winver"
-                                    IsChecked="True" />
-                                <RadioButtons
-                                    Margin="0,15,0,0"
-                                    Header="WordPad"
-                                    IsEnabled="False"
-                                    SelectedIndex="2">
-                                    <RadioButton Content="Keep original" />
-                                    <RadioButton Content="Ivirius Text Editor (partial launch support)" />
-                                    <RadioButton Content="Ivirius Text Editor Plus (recommended)" />
-                                </RadioButtons>
-                                <InfoBar
-                                    x:Name="ivrpluswarning"
-                                    Title="You must have a valid copy of Ivirius Text Editor installed on your PC to set it as the default Rebound 11 WordPad replacement. Consider purchasing Ivirius Text Editor Plus and installing this option later if you haven't already."
-                                    Margin="0,10,0,0"
-                                    HorizontalAlignment="Stretch"
-                                    IsClosable="False"
-                                    IsOpen="True"
-                                    Severity="Warning" />
-                            </StackPanel>
-                        </Expander>
-                        <Expander
-                            HorizontalAlignment="Stretch"
-                            HorizontalContentAlignment="Stretch"
-                            Header="Productivity">
-                            <StackPanel>
-                                <CheckBox
-                                    Content="Character Map"
-                                    IsChecked="True"
-                                    IsEnabled="False" />
-                                <CheckBox
-                                    Content="Mobility Center (All devices)"
-                                    IsChecked="True"
-                                    IsEnabled="False" />
-                                <CheckBox
-                                    x:Name="OSKCheck"
-                                    Content="On-screen keyboard"
-                                    IsChecked="True" />
-                                <CheckBox
-                                    Content="Presentation Settings (All devices)"
-                                    IsChecked="True"
-                                    IsEnabled="False" />
-                                <CheckBox
-                                    Content="Sticky Keys and Filter keys"
-                                    IsChecked="True"
-                                    IsEnabled="False" />
-                                <CheckBox
-                                    Content="Volume Mixer (sndvol.exe)"
-                                    IsChecked="True"
-                                    IsEnabled="False" />
-                            </StackPanel>
-                        </Expander>
-                        <Expander
-                            HorizontalAlignment="Stretch"
-                            HorizontalContentAlignment="Stretch"
-                            Header="System Tools">
-                            <StackPanel>
-                                <CheckBox Content="Authorization Manager" IsEnabled="False" />
-                                <CheckBox
-                                    Content="Certificate Manager"
-                                    IsChecked="True"
-                                    IsEnabled="False" />
-                                <CheckBox Content="Color Management" IsEnabled="False" />
-                                <CheckBox Content="Component Services" IsEnabled="False" />
-                                <CheckBox Content="Computer Management" IsEnabled="False" />
-                                <CheckBox
-                                    Content="Control Panel - You cannot disable this option."
-                                    IsChecked="True"
-                                    IsEnabled="False" />
-                                <CheckBox
-                                    x:Name="DefragCheck"
-                                    Content="Defragment and Optimize Drives"
-                                    IsChecked="True" />
-                                <CheckBox
-                                    x:Name="DiskCleanupCheck"
-                                    Content="Disk Cleanup"
-                                    IsChecked="True" />
-                                <CheckBox Content="Malicious Software Removal Tool" IsEnabled="False" />
-                                <CheckBox Content="Memory Diagnostic" IsEnabled="False" />
-                                <CheckBox Content="Print Management" IsEnabled="False" />
-                                <CheckBox
-                                    Content="Registry Editor (Registry Editor Valley - 3rd party)"
-                                    IsChecked="True"
-                                    IsEnabled="False" />
-                                <CheckBox Content="Services" IsEnabled="False" />
-                                <CheckBox Content="System Configuration" IsEnabled="False" />
-                                <CheckBox
-                                    Content="System Information"
-                                    IsChecked="True"
-                                    IsEnabled="False" />
-                                <CheckBox Content="System Restore" IsEnabled="False" />
-                                <CheckBox Content="Task Scheduler" IsEnabled="False" />
-                                <CheckBox x:Name="TPMCheck" Content="TPM Management" />
-                                <CheckBox
-                                    x:Name="UACCheck"
-                                    Content="User Account Control settings"
-                                    IsChecked="True" />
-                                <CheckBox Content="User Account Manager" IsEnabled="False" />
-                                <CheckBox Content="Windows Defender Firewall" IsEnabled="False" />
-                            </StackPanel>
-                        </Expander>
-                        <Expander
-                            HorizontalAlignment="Stretch"
-                            HorizontalContentAlignment="Left"
-                            Header="Additional software">
-                            <StackPanel x:Name="AdditionalSoftwarePanel">
-                                <HyperlinkButton Content="Screenbox video player" />
-                                <HyperlinkButton Content="Lively Weather" />
-                                <HyperlinkButton Content="Wino Mail" />
-                                <HyperlinkButton Content="FluentHub" />
-                                <HyperlinkButton Content="SecureFolderFS" />
-                                <HyperlinkButton Content="Clipboard Canvas" />
-                                <HyperlinkButton Content="StartStrikesBack" />
-                            </StackPanel>
-                        </Expander>
-                        <StackPanel Margin="0,10,0,0" Spacing="10">
-                            <TextBlock
-                                Margin="5"
-                                Style="{StaticResource SubtitleTextBlockStyle}"
-                                Text="Installation" />
-                            <InfoBar
-                                Title="Before you proceed, please read the following disclaimer:"
-                                HorizontalAlignment="Stretch"
-                                IsClosable="False"
-                                IsOpen="True"
-                                Message="Rebound 11 is not a Windows mod. By clicking &quot;Install&quot;, Rebound 11 will replace shortcuts to system apps and install the required packages and certificates. All changes can be reverted after the installation is finished. Do not shut down your computer or close the installer to prevent damaging your PC. Rebound 11 does not modify Windows and will install standalone WinUI 3 apps to modernize your system instead of replacing system files. Ivirius is not responsible for any damages caused to your computer. The risk of damaging your PC is very low, but as with any software, still existent. Every Win32 app will still be available to use if Rebound 11 does not work properly. No system restore points are required to revert the changes.&#x0a;&#x0a;Rebound Hub will stop explorer.exe and restart it after the installation process is finished. Please save your work before proceeding."
-                                Severity="Warning" />
-                        </StackPanel>
-                    </StackPanel>
-                </StackPanel>
-            </Grid>
-
-            <StackPanel
-                x:Name="DetailsPanel"
-                Grid.Row="5"
+            <controls:StaggeredPanel
+                Grid.Row="6"
                 Margin="48"
-                HorizontalAlignment="Stretch">
-                <StackPanel.Resources>
-                    <ThemeShadow x:Key="SharedShadow" />
-                </StackPanel.Resources>
-
-                <Grid>
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="*" />
-                        <ColumnDefinition Width="64" />
-                        <ColumnDefinition Width="*" />
-                    </Grid.ColumnDefinitions>
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="Auto" />
-                        <RowDefinition Height="48" />
-                    </Grid.RowDefinitions>
-                    <StackPanel Grid.Column="0" Spacing="24">
-                        <TextBlock Style="{StaticResource TitleTextBlockStyle}" Text="Fluent, consistent." />
-                        <TextBlock Text="Rebound 11 replaces the start menu shortcuts of legacy Win32 apps with modern WinUI 3 tools. We made sure to fix as many bugs as we could to make your experience with Rebound 11 the best." TextWrapping="WrapWholeWords" />
-                    </StackPanel>
-                    <Grid Grid.Column="2" VerticalAlignment="Stretch">
-                        <Grid
-                            Height="180"
-                            Shadow="{StaticResource SharedShadow}"
-                            Translation="0,0,36">
-                            <Border
-                                Background="{ThemeResource ApplicationPageBackgroundThemeBrush}"
-                                BorderBrush="#66757575"
-                                BorderThickness="1"
-                                CornerRadius="8">
-                                <Grid>
-                                    <TextBlock
-                                        Margin="10,7,0,0"
-                                        FontSize="12"
-                                        Text="Title bar" />
-                                    <FontIcon
-                                        Margin="10"
-                                        HorizontalAlignment="Right"
-                                        VerticalAlignment="Top"
-                                        FontSize="10"
-                                        Glyph="" />
-                                    <Button
-                                        Margin="25"
-                                        HorizontalAlignment="Center"
-                                        VerticalAlignment="Bottom"
-                                        Content="WinUI 3" />
-                                    <Slider
-                                        Margin="25,60,25,0"
-                                        VerticalAlignment="Top"
-                                        Maximum="100"
-                                        Minimum="0"
-                                        Value="32" />
-                                </Grid>
-                            </Border>
-                        </Grid>
-                    </Grid>
-                </Grid>
-
-                <Grid>
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="*" />
-                        <ColumnDefinition Width="64" />
-                        <ColumnDefinition Width="*" />
-                    </Grid.ColumnDefinitions>
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="Auto" />
-                        <RowDefinition Height="48" />
-                    </Grid.RowDefinitions>
-
-                    <StackPanel Grid.Column="0" Spacing="24">
-                        <TextBlock Style="{StaticResource TitleTextBlockStyle}" Text="No visual glitches." />
-                        <TextBlock Text="Rebound 11 fixes the well-known maximize button hover alignment issue on all modernized apps." TextWrapping="WrapWholeWords" />
-                    </StackPanel>
-                    <Grid
-                        Grid.Column="2"
-                        Height="200"
-                        VerticalAlignment="Stretch"
-                        RequestedTheme="Light"
-                        Shadow="{ThemeResource SharedShadow}"
-                        Translation="0,0,36">
-                        <Grid>
-                            <Border
-                                Background="{ThemeResource ApplicationPageBackgroundThemeBrush}"
-                                BorderBrush="#66757575"
-                                BorderThickness="0,1,1,0"
-                                CornerRadius="0, 8, 0, 0">
-                                <Grid>
-                                    <Border
-                                        Width="46"
-                                        Height="30"
-                                        Margin="0,0,46,0"
-                                        HorizontalAlignment="Right"
-                                        VerticalAlignment="Top"
-                                        Background="#20AAAAAA" />
-                                    <FontIcon
-                                        Width="46"
-                                        Margin="0,10"
-                                        HorizontalAlignment="Right"
-                                        VerticalAlignment="Top"
-                                        FontSize="10"
-                                        Glyph="" />
-                                    <FontIcon
-                                        Width="46"
-                                        Margin="0,10,46,0"
-                                        HorizontalAlignment="Right"
-                                        VerticalAlignment="Top"
-                                        FontSize="10"
-                                        Glyph="&#xE922;" />
-                                    <FontIcon
-                                        Width="46"
-                                        Margin="0,10,92,0"
-                                        HorizontalAlignment="Right"
-                                        VerticalAlignment="Top"
-                                        FontSize="10"
-                                        Glyph="&#xE921;" />
-                                </Grid>
-                            </Border>
-                        </Grid>
-                    </Grid>
-                    <Grid
-                        Grid.Column="2"
-                        Margin="0,48,48,0"
-                        VerticalAlignment="Stretch"
-                        RequestedTheme="Dark">
-                        <Grid>
-                            <Border
-                                Background="{ThemeResource ApplicationPageBackgroundThemeBrush}"
-                                BorderBrush="#66757575"
-                                BorderThickness="0,1,1,0"
-                                CornerRadius="0, 8, 0, 0">
-                                <Grid>
-                                    <Border
-                                        Width="46"
-                                        Height="30"
-                                        Margin="0,0,46,0"
-                                        HorizontalAlignment="Right"
-                                        VerticalAlignment="Top"
-                                        Background="#20AAAAAA" />
-                                    <FontIcon
-                                        Width="46"
-                                        Margin="0,10"
-                                        HorizontalAlignment="Right"
-                                        VerticalAlignment="Top"
-                                        FontSize="10"
-                                        Glyph="" />
-                                    <FontIcon
-                                        Width="46"
-                                        Margin="0,10,46,0"
-                                        HorizontalAlignment="Right"
-                                        VerticalAlignment="Top"
-                                        FontSize="10"
-                                        Glyph="&#xE922;" />
-                                    <FontIcon
-                                        Width="46"
-                                        Margin="0,10,92,0"
-                                        HorizontalAlignment="Right"
-                                        VerticalAlignment="Top"
-                                        FontSize="10"
-                                        Glyph="&#xE921;" />
-                                </Grid>
-                            </Border>
-                        </Grid>
-                    </Grid>
-                </Grid>
-
-                <Grid>
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="*" />
-                        <ColumnDefinition Width="64" />
-                        <ColumnDefinition Width="*" />
-                    </Grid.ColumnDefinitions>
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="Auto" />
-                        <RowDefinition Height="48" />
-                    </Grid.RowDefinitions>
-
-                    <StackPanel Grid.Column="0" Spacing="24">
-                        <TextBlock Style="{StaticResource TitleTextBlockStyle}" Text="Replacing old UI controls." />
-                        <TextBlock Text="Rebound 11 replaces old UI controls in the new apps and uses WinUI 3 standard controls." TextWrapping="WrapWholeWords" />
-                    </StackPanel>
-                    <Grid Grid.Column="2" VerticalAlignment="Stretch">
-                        <Grid
-                            Height="288"
-                            VerticalAlignment="Top"
-                            Shadow="{ThemeResource SharedShadow}"
-                            Translation="0,0,36">
-                            <Border
-                                Background="{ThemeResource ApplicationPageBackgroundThemeBrush}"
-                                BorderBrush="#66757575"
-                                BorderThickness="1"
-                                CornerRadius="8">
-                                <Grid>
-                                    <TextBlock
-                                        Margin="10,7,0,0"
-                                        FontSize="12"
-                                        Text="Controls" />
-                                    <FontIcon
-                                        Margin="10"
-                                        HorizontalAlignment="Right"
-                                        VerticalAlignment="Top"
-                                        FontSize="10"
-                                        Glyph="" />
-                                    <Border
-                                        Height="30"
-                                        Margin="25,50,25,0"
-                                        VerticalAlignment="Top"
-                                        Background="White"
-                                        BorderBrush="#abafda"
-                                        BorderThickness="1">
-                                        <Grid>
-                                            <Border Width="22" HorizontalAlignment="Left">
-                                                <Border.Background>
-                                                    <LinearGradientBrush StartPoint="0, 1" EndPoint="0, 0">
-                                                        <GradientStop Offset="1" Color="#ac0100" />
-                                                        <GradientStop Offset="0" Color="#dc0100" />
-                                                    </LinearGradientBrush>
-                                                </Border.Background>
-                                            </Border>
-                                            <Image
-                                                Width="24"
-                                                Margin="25,0,0,0"
-                                                HorizontalAlignment="Left"
-                                                Source="ms-appx:///AppRT/Exported/imageres_105.ico" />
-                                            <TextBlock
-                                                Margin="55,2,0,2"
-                                                FontSize="18"
-                                                FontWeight="Light"
-                                                Foreground="#003399"
-                                                Text="Old" />
-                                            <TextBlock
-                                                Margin="0,2,40,2"
-                                                HorizontalAlignment="Right"
-                                                FontSize="18"
-                                                FontWeight="Light"
-                                                Foreground="#003399"
-                                                Text="Win32" />
-                                            <FontIcon
-                                                Margin="10"
-                                                HorizontalAlignment="Right"
-                                                VerticalAlignment="Top"
-                                                FontSize="16"
-                                                Foreground="#555555"
-                                                Glyph="&#xE011;" />
-                                        </Grid>
-                                    </Border>
-                                    <InfoBar
-                                        Title="New"
-                                        Margin="25,100,25,0"
-                                        HorizontalContentAlignment="Stretch"
-                                        IsClosable="False"
-                                        IsOpen="True"
-                                        Message="WinUI"
-                                        Severity="Error">
-                                        <Expander
-                                            Margin="-35,0,10,10"
-                                            HorizontalAlignment="Stretch"
-                                            Header="View more" />
-                                    </InfoBar>
-                                </Grid>
-                            </Border>
-                        </Grid>
-                    </Grid>
-                </Grid>
-
-                <Grid>
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="*" />
-                        <ColumnDefinition Width="64" />
-                        <ColumnDefinition Width="*" />
-                    </Grid.ColumnDefinitions>
-
-                    <StackPanel Grid.Column="0" Spacing="24">
-                        <TextBlock Style="{StaticResource TitleTextBlockStyle}" Text="Make Windows 11 consistent without risks." />
-                        <TextBlock Text="Modernize Windows 11 with actual WinUI 3 apps, as intended by Microsoft. Rebound 11 keeps Windows updates enabled, does not modify the system, and aims to be as consistent as possible without changing system files." TextWrapping="WrapWholeWords" />
-                    </StackPanel>
-                    <Grid
-                        Grid.Column="2"
-                        Height="240"
-                        VerticalAlignment="Stretch"
-                        RequestedTheme="Dark">
-                        <Border
-                            Background="{ThemeResource ApplicationPageBackgroundThemeBrush}"
-                            BorderBrush="#66757575"
-                            BorderThickness="0,1,1,0"
-                            CornerRadius="0, 8, 0, 0"
-                            Shadow="{ThemeResource SharedShadow}"
-                            Translation="0,0,36">
-                            <Grid>
-                                <Border Margin="0,30,0,0" Background="Black" />
-                                <TextBlock
-                                    Margin="-20,7,0,0"
-                                    FontSize="12"
-                                    Text="Windows PowerShell" />
-                                <TextBlock
-                                    Margin="-20,35,0,0"
-                                    FontFamily="Consolas"
-                                    Foreground="LimeGreen"
-                                    Text="C:\Windows&gt; Underlying Windows APIs: INTACT" />
-                                <FontIcon
-                                    Width="46"
-                                    Margin="0,10"
-                                    HorizontalAlignment="Right"
-                                    VerticalAlignment="Top"
-                                    FontSize="10"
-                                    Glyph="" />
-                                <FontIcon
-                                    Width="46"
-                                    Margin="0,10,46,0"
-                                    HorizontalAlignment="Right"
-                                    VerticalAlignment="Top"
-                                    FontSize="10"
-                                    Glyph="&#xE922;" />
-                                <FontIcon
-                                    Width="46"
-                                    Margin="0,10,92,0"
-                                    HorizontalAlignment="Right"
-                                    VerticalAlignment="Top"
-                                    FontSize="10"
-                                    Glyph="&#xE921;" />
-                                <ScrollViewer
-                                    Margin="0,30,0,0"
-                                    HorizontalAlignment="Right"
-                                    VerticalScrollBarVisibility="Visible"
-                                    VerticalScrollMode="Enabled">
-                                    <Border Height="300" />
-                                </ScrollViewer>
-                            </Grid>
-                        </Border>
-                    </Grid>
-                </Grid>
-            </StackPanel>
-
-            <controls:WrapPanel HorizontalSpacing="8" VerticalSpacing="8" Grid.Row="6" Margin="48">
+                HorizontalAlignment="Left"
+                ColumnSpacing="8"
+                DesiredColumnWidth="400"
+                RowSpacing="8">
                 <Grid
                     Width="400"
                     Padding="12"
@@ -1160,83 +383,6 @@
                         <RowDefinition Height="Auto" />
                         <RowDefinition Height="8" />
                         <RowDefinition Height="Auto" />
-                    </Grid.RowDefinitions>
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="Auto" />
-                        <ColumnDefinition Width="16" />
-                        <ColumnDefinition Width="*" />
-                        <ColumnDefinition Width="16" />
-                        <ColumnDefinition Width="Auto" />
-                    </Grid.ColumnDefinitions>
-                    <Border
-                        Grid.RowSpan="3"
-                        Padding="4"
-                        VerticalAlignment="Center"
-                        Background="{ThemeResource ControlOnImageFillColorDefaultBrush}"
-                        BorderBrush="{ThemeResource AccentFillColorDefaultBrush}"
-                        BorderThickness="1"
-                        CornerRadius="4">
-                        <Image
-                            Width="64"
-                            Height="64"
-                            Source="/Assets/AppIcons/ManagementConsole.png" />
-                    </Border>
-                    <TextBlock
-                        Grid.Column="2"
-                        FontSize="18"
-                        FontWeight="SemiBold"
-                        Text="Management Console"
-                        TextWrapping="WrapWholeWords" />
-                    <StackPanel
-                        Grid.Column="4"
-                        Margin="0,-4,0,0"
-                        Orientation="Horizontal"
-                        Spacing="8">
-                        <Button
-                            Padding="6"
-                            Background="Transparent"
-                            BorderBrush="Transparent">
-                            <FontIcon FontSize="16" Glyph="&#xE90F;" />
-                        </Button>
-                        <Button
-                            Padding="6"
-                            Background="Transparent"
-                            BorderBrush="Transparent">
-                            <FontIcon FontSize="16" Glyph="&#xE713;" />
-                        </Button>
-                        <ToggleSwitch
-                            Margin="0,-2,-108,-2"
-                            OffContent=""
-                            OnContent="" />
-                    </StackPanel>
-                    <TextBlock
-                        Grid.Row="2"
-                        Grid.Column="2"
-                        Grid.ColumnSpan="3"
-                        Margin="0,-44,0,0"
-                        Text="The Management Console is used to manage Windows hardware and security."
-                        TextWrapping="WrapWholeWords" />
-                    <InfoBar
-                        Title="This will do the following:"
-                        Grid.Row="4"
-                        Grid.ColumnSpan="5"
-                        IsClosable="False"
-                        IsOpen="True"
-                        Message="- Redirect app launch&#x0a;- Change shortcut icon&#x0a;- Install Rebound Management Console" />
-                </Grid>
-                <Grid
-                    Width="400"
-                    Padding="12"
-                    HorizontalAlignment="Left"
-                    Background="{ThemeResource CardBackgroundFillColorDefault}"
-                    BorderBrush="{ThemeResource ControlElevationBorderBrush}"
-                    BorderThickness="1"
-                    CornerRadius="4">
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="Auto" />
-                        <RowDefinition Height="8" />
-                        <RowDefinition Height="Auto" />
-                        <RowDefinition Height="8" />
                         <RowDefinition Height="Auto" />
                     </Grid.RowDefinitions>
                     <Grid.ColumnDefinitions>
@@ -1270,18 +416,6 @@
                         Margin="0,-4,0,0"
                         Orientation="Horizontal"
                         Spacing="8">
-                        <Button
-                            Padding="6"
-                            Background="Transparent"
-                            BorderBrush="Transparent">
-                            <FontIcon FontSize="16" Glyph="&#xE90F;" />
-                        </Button>
-                        <Button
-                            Padding="6"
-                            Background="Transparent"
-                            BorderBrush="Transparent">
-                            <FontIcon FontSize="16" Glyph="&#xE713;" />
-                        </Button>
                         <ToggleSwitch
                             Margin="0,-2,-108,-2"
                             IsOn="{x:Bind WinverInstructions.IsInstalled, Mode=TwoWay}"
@@ -1302,8 +436,106 @@
                         IsClosable="False"
                         IsOpen="True"
                         Message="- Redirect app launch&#x0a;- Install Rebound About" />
+                    <InfoBar
+                        Margin="0, 8, 0, 0"
+                        Title="This mod is corrupted and needs to be repaired."
+                        Grid.Row="5"
+                        Grid.ColumnSpan="5"
+                        IsClosable="False"
+                        IsOpen="True"
+                        Visibility="{x:Bind WinverInstructions.IsIntact, Mode=OneWay, Converter={StaticResource BoolToReverseVisibilityConverter}}"
+                        Severity="Error">
+                        <InfoBar.ActionButton>
+                            <Button
+                                Command="{x:Bind WinverInstructions.RepairCommand}"
+                                Content="Repair" />
+                        </InfoBar.ActionButton>
+                    </InfoBar>
                 </Grid>
-            </controls:WrapPanel>
+                <Grid
+                    Width="400"
+                    Padding="12"
+                    HorizontalAlignment="Left"
+                    Background="{ThemeResource CardBackgroundFillColorDefault}"
+                    BorderBrush="{ThemeResource ControlElevationBorderBrush}"
+                    BorderThickness="1"
+                    CornerRadius="4">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="8" />
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="8" />
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                    </Grid.RowDefinitions>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="16" />
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="16" />
+                        <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
+                    <Border
+                        Grid.RowSpan="3"
+                        Padding="4"
+                        VerticalAlignment="Center"
+                        Background="{ThemeResource ControlOnImageFillColorDefaultBrush}"
+                        BorderBrush="{ThemeResource AccentFillColorDefaultBrush}"
+                        BorderThickness="1"
+                        CornerRadius="4">
+                        <Image
+                            Width="64"
+                            Height="64"
+                            Source="/Assets/AppIcons/rosk_130.ico" />
+                    </Border>
+                    <TextBlock
+                        Grid.Column="2"
+                        FontSize="18"
+                        FontWeight="SemiBold"
+                        Text="On-screen Keyboard"
+                        TextWrapping="WrapWholeWords" />
+                    <StackPanel
+                        Grid.Column="4"
+                        Margin="0,-4,0,0"
+                        Orientation="Horizontal"
+                        Spacing="8">
+                        <ToggleSwitch
+                            Margin="0,-2,-108,-2"
+                            IsOn="{x:Bind OnScreenKeyboardInstructions.IsInstalled, Mode=TwoWay}"
+                            OffContent=""
+                            OnContent="" />
+                    </StackPanel>
+                    <TextBlock
+                        Grid.Row="2"
+                        Grid.Column="2"
+                        Grid.ColumnSpan="3"
+                        Margin="0,-44,0,0"
+                        Text="The classic On-screen Keyboard."
+                        TextWrapping="WrapWholeWords" />
+                    <InfoBar
+                        Title="This will do the following:"
+                        Grid.Row="4"
+                        Grid.ColumnSpan="5"
+                        IsClosable="False"
+                        IsOpen="True"
+                        Message="Redirect app launch" />
+                    <InfoBar
+                        Margin="0, 8, 0, 0"
+                        Title="This mod is corrupted and needs to be repaired."
+                        Grid.Row="5"
+                        Grid.ColumnSpan="5"
+                        IsClosable="False"
+                        IsOpen="True"
+                        Visibility="{x:Bind OnScreenKeyboardInstructions.IsIntact, Mode=OneWay, Converter={StaticResource BoolToReverseVisibilityConverter}}"
+                        Severity="Error">
+                        <InfoBar.ActionButton>
+                            <Button
+                                Command="{x:Bind OnScreenKeyboardInstructions.RepairCommand}"
+                                Content="Repair" />
+                        </InfoBar.ActionButton>
+                    </InfoBar>
+                </Grid>
+            </controls:StaggeredPanel>
         </Grid>
     </ScrollViewer>
 

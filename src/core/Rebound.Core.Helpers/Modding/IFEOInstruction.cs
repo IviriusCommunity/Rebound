@@ -8,7 +8,7 @@ public class IFEOInstruction : IReboundAppInstruction
 
     public required string OriginalExecutableName { get; set; }
 
-    public required string LauncherName { get; set; }
+    public required string LauncherPath { get; set; }
 
     public IFEOInstruction()
     {
@@ -17,29 +17,50 @@ public class IFEOInstruction : IReboundAppInstruction
 
     public void Apply()
     {
-        string registryPath = $@"{BaseRegistryPath}\{OriginalExecutableName}";
-        string debuggerValue = $"%PROGRAMFILES%\\Rebound\\{LauncherName}";
+        try
+        {
+            string registryPath = $@"{BaseRegistryPath}\{OriginalExecutableName}";
+            string debuggerValue = $"{LauncherPath}";
 
-        using RegistryKey? key = Microsoft.Win32.Registry.LocalMachine.CreateSubKey(registryPath, true);
-        key?.SetValue("Debugger", debuggerValue, RegistryValueKind.String);
+            using RegistryKey? key = Microsoft.Win32.Registry.LocalMachine.CreateSubKey(registryPath, true);
+            key?.SetValue("Debugger", debuggerValue, RegistryValueKind.String);
+        }
+        catch
+        {
+
+        }
     }
 
     public void Remove()
     {
-        string registryPath = $@"{BaseRegistryPath}\{OriginalExecutableName}";
-        Microsoft.Win32.Registry.LocalMachine.DeleteSubKeyTree(registryPath, false);
+        try
+        {
+            string registryPath = $@"{BaseRegistryPath}\{OriginalExecutableName}";
+            Microsoft.Win32.Registry.LocalMachine.DeleteSubKeyTree(registryPath, false);
+        }
+        catch
+        {
+
+        }
     }
 
     public bool IsApplied()
     {
-        string registryPath = $@"{BaseRegistryPath}\{OriginalExecutableName}";
+        try
+        {
+            string registryPath = $@"{BaseRegistryPath}\{OriginalExecutableName}";
 
-        using RegistryKey? key = Microsoft.Win32.Registry.LocalMachine.OpenSubKey(registryPath);
-        if (key == null) return false;
+            using RegistryKey? key = Microsoft.Win32.Registry.LocalMachine.OpenSubKey(registryPath);
+            if (key == null) return false;
 
-        string? debuggerValue = key.GetValue("Debugger") as string;
-        string expectedValue = $"%PROGRAMFILES%\\Rebound\\{LauncherName}";
+            string? debuggerValue = key.GetValue("Debugger") as string;
+            string expectedValue = $"{LauncherPath}";
 
-        return debuggerValue == expectedValue;
+            return debuggerValue == expectedValue;
+        }
+        catch
+        {
+            return false;
+        }
     }
 }

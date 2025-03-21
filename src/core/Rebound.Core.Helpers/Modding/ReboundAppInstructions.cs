@@ -1,6 +1,7 @@
 ﻿using System.Collections.ObjectModel;
 using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Input;
 
 namespace Rebound.Helpers.Modding;
 
@@ -8,6 +9,9 @@ public abstract partial class ReboundAppInstructions : ObservableObject
 {
     [ObservableProperty]
     public partial bool IsInstalled { get; set; } = false;
+
+    [ObservableProperty]
+    public partial bool IsIntact { get; set; } = true;
 
     async partial void OnIsInstalledChanged(bool oldValue, bool newValue)
     {
@@ -22,6 +26,13 @@ public abstract partial class ReboundAppInstructions : ObservableObject
     public ReboundAppInstructions()
     {
         IsInstalled = GetIntegrity() == ReboundAppIntegrity.Installed;
+        IsIntact = GetIntegrity() != ReboundAppIntegrity.Corrupt;
+    }
+
+    [RelayCommand]
+    public async Task Repair()
+    {
+        await Install();
     }
 
     public async Task Install()
@@ -35,6 +46,7 @@ public abstract partial class ReboundAppInstructions : ObservableObject
         });
 
         IsInstalled = GetIntegrity() == ReboundAppIntegrity.Installed;
+        IsIntact = GetIntegrity() != ReboundAppIntegrity.Corrupt;
     }
 
     public async Task Uninstall()
@@ -48,6 +60,7 @@ public abstract partial class ReboundAppInstructions : ObservableObject
         });
 
         IsInstalled = GetIntegrity() == ReboundAppIntegrity.Installed;
+        IsIntact = GetIntegrity() != ReboundAppIntegrity.Corrupt;
     }
 
     public ReboundAppIntegrity GetIntegrity()
