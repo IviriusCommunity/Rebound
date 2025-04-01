@@ -10,6 +10,7 @@ using IWshRuntimeLibrary;
 using Microsoft.UI.Xaml.Media.Imaging;
 using Windows.Storage;
 using Windows.Storage.FileProperties;
+using System.Diagnostics.CodeAnalysis;
 
 #nullable enable
 
@@ -69,7 +70,7 @@ public partial class DesktopItem : ObservableObject
     public async void Load(string filePath)
     {
         // Run file checks in parallel
-        var checkTasks = new List<Task>
+        /*var checkTasks = new List<Task>
     {
         Task.Run(() => IsShortcut = CheckIfShortcut(filePath)),
         Task.Run(() => IsSystemFile = CheckIfSystemFile(filePath)),
@@ -78,7 +79,7 @@ public partial class DesktopItem : ObservableObject
         Task.Run(() => IsExe = IsProgramFile(filePath))
     };
 
-        await Task.WhenAll(checkTasks); // Wait for all checks to complete
+        await Task.WhenAll(checkTasks).ConfigureAwait(true); // Wait for all checks to complete*/
     }
 
     public static bool IsFileHidden(string path)
@@ -94,7 +95,7 @@ public partial class DesktopItem : ObservableObject
         var programExtensions = new[] { ".exe", ".com", ".bat", ".msi", ".cmd", ".vbs", ".ps1" };
 
         // Get the file extension from the file path (case-insensitive comparison)
-        string fileExtension = Path.GetExtension(filePath)?.ToLower();
+        var fileExtension = Path.GetExtension(filePath)?.ToLower(System.Globalization.CultureInfo.CurrentCulture);
 
         // Check if the file extension matches any of the executable extensions
         return Array.Exists(programExtensions, ext => ext.Equals(fileExtension, StringComparison.OrdinalIgnoreCase));
@@ -102,9 +103,9 @@ public partial class DesktopItem : ObservableObject
     public static async Task<BitmapImage?> GetFileIconAsync(string path)
     {
         const int maxRetries = 3;
-        int attempt = 0;
+        var attempt = 0;
 
-        while (attempt < maxRetries)
+        /*while (attempt < maxRetries)
         {
             try
             {
@@ -116,27 +117,26 @@ public partial class DesktopItem : ObservableObject
                 }
 
                 // Fetch file/folder info asynchronously
-                var item = await GetStorageItemAsync(path);
+                var item = await GetStorageItemAsync(path).ConfigureAwait(true);
                 if (item == null) return null;
 
-                var thumbnail = await GetThumbnailAsync(item);
+                var thumbnail = await GetThumbnailAsync(item).ConfigureAwait(true);
                 if (thumbnail == null || thumbnail.Size == 0) return null;
 
                 // Return the BitmapImage of the thumbnail
-                return await ConvertThumbnailToBitmapImageAsync(thumbnail);
+                return await ConvertThumbnailToBitmapImageAsync(thumbnail).ConfigureAwait(true);
             }
-            catch (Exception ex)
+            catch
             {
-                Debug.WriteLine($"Error loading icon: {ex.Message}");
                 attempt++;
                 if (attempt >= maxRetries) return null;
 
                 // Exponential backoff for retries
-                await Task.Delay(TimeSpan.FromMilliseconds(100 * Math.Pow(2, attempt)));
+                await Task.Delay(TimeSpan.FromMilliseconds(100 * Math.Pow(2, attempt))).ConfigureAwait(true);
             }
-        }
+        }*/
 
-        return null;
+        return new();
     }
 
     // Fetch the storage item asynchronously (file or folder)
@@ -172,7 +172,7 @@ public partial class DesktopItem : ObservableObject
         var videoExtensions = new[] { ".mp4", ".avi", ".mov", ".mkv", ".flv", ".wmv", ".webm", ".mpeg", ".mpg", ".3gp" };
 
         // Get the file extension from the file path (case-insensitive comparison)
-        string fileExtension = Path.GetExtension(filePath)?.ToLower();
+        var fileExtension = Path.GetExtension(filePath)?.ToLower(System.Globalization.CultureInfo.CurrentCulture);
 
         // Check if the file extension matches any of the video extensions
         return Array.Exists(videoExtensions, ext => ext.Equals(fileExtension, StringComparison.OrdinalIgnoreCase));
@@ -190,12 +190,12 @@ public partial class DesktopItem : ObservableObject
     {
         if (IsThumbnailLoading) return;  // Prevent multiple simultaneous loads
 
-        try
+        /*try
         {
             IsThumbnailLoading = true;
             FilePath ??= "";
 
-            string targetPath = FilePath;
+            var targetPath = FilePath;
 
             // Resolve shortcut target asynchronously
             if (CheckIfShortcut(FilePath))
@@ -205,18 +205,18 @@ public partial class DesktopItem : ObservableObject
                     var shortcut = await Task.Run(() => {
                         var wshShell = new WshShell();
                         return wshShell.CreateShortcut(FilePath);
-                    });
-                    targetPath = shortcut?.TargetPath;
+                    }).ConfigureAwait(true);
+                    targetPath = shortcut?.TargetPath ?? "";
+                    targetPath = "";
                 }
-                catch (Exception ex)
+                catch
                 {
-                    Debug.WriteLine($"Error resolving shortcut target: {ex.Message}");
                     return;
                 }
             }
 
             // Load the thumbnail asynchronously
-            var thumbnail = await GetFileIconAsync(targetPath);
+            var thumbnail = await GetFileIconAsync(targetPath).ConfigureAwait(true);
             if (thumbnail != null)
             {
                 // Efficiently scale while preserving aspect ratio
@@ -228,13 +228,13 @@ public partial class DesktopItem : ObservableObject
         finally
         {
             IsThumbnailLoading = false;
-        }
+        }*/
     }
 
     // Set the thumbnail dimensions efficiently while preserving aspect ratio
     private static void SetThumbnailDimensions(BitmapImage thumbnail)
     {
-        int maxDimension = 100;
+        var maxDimension = 100;
         if (thumbnail.PixelHeight > thumbnail.PixelWidth)
         {
             thumbnail.DecodePixelHeight = maxDimension;

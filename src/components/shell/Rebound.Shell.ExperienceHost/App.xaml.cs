@@ -31,10 +31,9 @@ public partial class App : Application
 
         // Desktop window
         DesktopWindow = new DesktopWindow();
-        DesktopWindow.SetWindowOpacity(0);
         DesktopWindow.Activate();
         await Task.Delay(1000);
-        DesktopWindow.AttachToProgMan();
+        //DesktopWindow.AttachToProgMan();
     }
 
     private void OnSingleInstanceLaunched(object? sender, Helpers.Services.SingleInstanceLaunchEventArgs e)

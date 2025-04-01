@@ -25,15 +25,77 @@ namespace Rebound.Shell.Desktop;
 [ObservableObject]
 public sealed partial class DesktopPage : Page
 {
-    [ObservableProperty]
-    public partial ObservableCollection<DesktopItem> Items { get; set; } = new();
+    public ObservableCollection<DesktopItem> Items { get; set; } = new();
 
     public DesktopPage()
     {
         InitializeComponent();
+
+        Initialize();
     }
 
-    public static async Task GetDesktopFilesAsync(ObservableCollection<DesktopItem> items)
+    private async void Initialize()
+    {
+        DispatcherQueue.TryEnqueue(async () =>
+        {
+            var path = GetWallpaperPath();
+            if (File.Exists(path))
+            {
+                WallpaperImage.Source = new BitmapImage(new Uri(path));
+            }
+
+            // Clear items before loading to avoid adding duplicates
+            Items.Clear();
+
+            // Run GetDesktopFilesAsync to add items one-by-one
+            await GetDesktopFilesAsync().ConfigureAwait(true);
+
+            foreach (var item in Items)
+            {
+                var contentControl = new ContentControl()
+                {
+                    ContentTemplate = (DataTemplate)Resources["DesktopItemTemplate"], // Use ContentTemplate instead of Template
+                    Content = item // Set the content to the current item
+                };
+                contentControl.PointerPressed += ContentControl_PointerPressed;
+                contentControl.PointerMoved += ContentControl_PointerMoved;
+                contentControl.PointerReleased += ContentControl_PointerReleased;
+
+                if (item.X is -1 || item.Y is -1)
+
+                {
+                    var freeSpot = FindFreeSpot();
+                    if (freeSpot.X != -1 && freeSpot.Y != -1)
+                    {
+                        // Assign the free spot coordinates to the item
+                        Canvas.SetLeft(contentControl, freeSpot.X);
+                        Canvas.SetTop(contentControl, freeSpot.Y);
+
+                        item.X = freeSpot.X;
+                        item.Y = freeSpot.Y;
+
+                        // Add it to the canvas
+                        CanvasControl.Children.Add(contentControl);
+                    }
+                    else
+                    {
+
+                    }
+                }
+                else
+                {
+                    // Assign the free spot coordinates to the item
+                    Canvas.SetLeft(contentControl, (double)item.X);
+                    Canvas.SetTop(contentControl, (double)item.Y);
+
+                    // Add it to the canvas
+                    CanvasControl.Children.Add(contentControl);
+                }
+            }
+        });
+    }
+
+    public async Task GetDesktopFilesAsync()
     {
         var desktopPath = Environment.GetFolderPath(Environment.SpecialFolder.Desktop);
 
@@ -43,86 +105,24 @@ public sealed partial class DesktopPage : Page
             var files = Directory.GetFiles(desktopPath);
             var folders = Directory.GetDirectories(desktopPath);
 
-            // Create tasks for loading files and folders concurrently
-            var tasks = files.Concat(folders)
-                             .Select(path => LoadFileAsync(path, items))
-                             .ToList();
-
-            await Task.WhenAll(tasks);
+            foreach ( var file in files)
+            {
+                await LoadFileAsync(file).ConfigureAwait(true);
+            }
+            foreach ( var folder in folders)
+            {
+                await LoadFileAsync(folder).ConfigureAwait(true);
+            }
         }
     }
 
-    private static async Task LoadFileAsync(string filePath, ObservableCollection<DesktopItem> items)
+    private async Task LoadFileAsync(string filePath)
     {
         var desktopFile = new DesktopItem(filePath);
-        await desktopFile.LoadThumbnailAsync();
+        await desktopFile.LoadThumbnailAsync().ConfigureAwait(true);
 
         // Add directly to ObservableCollection for real-time UI update
-        items.Add(desktopFile);
-    }
-
-    private async void LoadingGrid_Loaded(object sender, RoutedEventArgs e)
-    {
-        CanvasControl.ContextFlyout.ShowAt(CanvasControl);
-        var path = GetWallpaperPath();
-        if (File.Exists(path))
-        {
-            WallpaperImage.Source = new BitmapImage(new Uri(path));
-        }
-
-        await Task.Delay(50);
-
-        // Clear items before loading to avoid adding duplicates
-        Items.Clear();
-
-        // Run GetDesktopFilesAsync to add items one-by-one
-        await GetDesktopFilesAsync(Items);
-
-        foreach (var item in Items)
-        {
-            var contentControl = new ContentControl()
-            {
-                ContentTemplate = (DataTemplate)Resources["DesktopItemTemplate"], // Use ContentTemplate instead of Template
-                Content = item // Set the content to the current item
-            };
-            contentControl.PointerPressed += ContentControl_PointerPressed;
-            contentControl.PointerMoved += ContentControl_PointerMoved;
-            contentControl.PointerReleased += ContentControl_PointerReleased;
-
-            if (item.X is -1 || item.Y is -1)
-
-            {
-                var freeSpot = FindFreeSpot();
-                if (freeSpot.X != -1 && freeSpot.Y != -1)
-                {
-                    // Assign the free spot coordinates to the item
-                    Canvas.SetLeft(contentControl, freeSpot.X);
-                    Canvas.SetTop(contentControl, freeSpot.Y);
-
-                    item.X = freeSpot.X;
-                    item.Y = freeSpot.Y;
-
-                    // Add it to the canvas
-                    CanvasControl.Children.Add(contentControl);
-                }
-                else
-                {
-
-                }
-            }
-            else
-            {
-                // Assign the free spot coordinates to the item
-                Canvas.SetLeft(contentControl, (double)item.X);
-                Canvas.SetTop(contentControl, (double)item.Y);
-
-                // Add it to the canvas
-                CanvasControl.Children.Add(contentControl);
-            }
-        }
-
-        LoadingGrid.Visibility = Visibility.Collapsed;
-        CanvasControl.ContextFlyout.Hide();
+        Items.Add(desktopFile);
     }
 
     private void ContentControl_PointerReleased(object sender, PointerRoutedEventArgs e)
@@ -178,9 +178,7 @@ public sealed partial class DesktopPage : Page
         Items.Clear();
 
         // Run GetDesktopFilesAsync to add items one-by-one
-        await GetDesktopFilesAsync(Items);
-
-        LoadingGrid.Visibility = Visibility.Collapsed;
+        await GetDesktopFilesAsync();
     }
 
     private void Grid_DoubleTapped(object sender, DoubleTappedRoutedEventArgs e)
