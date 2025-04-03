@@ -1,18 +1,13 @@
 ﻿using Rebound.Shell.ExperiencePack;
 using System;
-using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO;
-using System.Text;
 using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.ComponentModel;
-using IWshRuntimeLibrary;
 using Microsoft.UI.Xaml.Media.Imaging;
 using Windows.Storage;
 using Windows.Storage.FileProperties;
-using System.Diagnostics.CodeAnalysis;
-
-#nullable enable
+using System.Collections.Generic;
+using IWshRuntimeLibrary;
 
 namespace Rebound.Shell.Desktop;
 
@@ -70,7 +65,7 @@ public partial class DesktopItem : ObservableObject
     public async void Load(string filePath)
     {
         // Run file checks in parallel
-        /*var checkTasks = new List<Task>
+        var checkTasks = new List<Task>
     {
         Task.Run(() => IsShortcut = CheckIfShortcut(filePath)),
         Task.Run(() => IsSystemFile = CheckIfSystemFile(filePath)),
@@ -79,7 +74,7 @@ public partial class DesktopItem : ObservableObject
         Task.Run(() => IsExe = IsProgramFile(filePath))
     };
 
-        await Task.WhenAll(checkTasks).ConfigureAwait(true); // Wait for all checks to complete*/
+        await Task.WhenAll(checkTasks).ConfigureAwait(true); // Wait for all checks to complete
     }
 
     public static bool IsFileHidden(string path)
@@ -105,7 +100,7 @@ public partial class DesktopItem : ObservableObject
         const int maxRetries = 3;
         var attempt = 0;
 
-        /*while (attempt < maxRetries)
+        while (attempt < maxRetries)
         {
             try
             {
@@ -134,7 +129,7 @@ public partial class DesktopItem : ObservableObject
                 // Exponential backoff for retries
                 await Task.Delay(TimeSpan.FromMilliseconds(100 * Math.Pow(2, attempt))).ConfigureAwait(true);
             }
-        }*/
+        }
 
         return new();
     }
@@ -190,7 +185,7 @@ public partial class DesktopItem : ObservableObject
     {
         if (IsThumbnailLoading) return;  // Prevent multiple simultaneous loads
 
-        /*try
+        try
         {
             IsThumbnailLoading = true;
             FilePath ??= "";
@@ -228,7 +223,7 @@ public partial class DesktopItem : ObservableObject
         finally
         {
             IsThumbnailLoading = false;
-        }*/
+        }
     }
 
     // Set the thumbnail dimensions efficiently while preserving aspect ratio

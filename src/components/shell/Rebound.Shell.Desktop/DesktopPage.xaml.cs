@@ -7,35 +7,24 @@ using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
-using CommunityToolkit.Mvvm.ComponentModel;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Input;
 using Microsoft.UI.Xaml.Media.Imaging;
-using Rebound.Shell.ExperiencePack;
 using Windows.ApplicationModel.DataTransfer;
 using Windows.Foundation;
 using Windows.Storage;
-using WinUIEx;
-
-#nullable enable
 
 namespace Rebound.Shell.Desktop;
 
-[ObservableObject]
 public sealed partial class DesktopPage : Page
 {
-    public ObservableCollection<DesktopItem> Items { get; set; } = new();
+    public List<DesktopItem> Items { get; set; } = new();
 
     public DesktopPage()
     {
         InitializeComponent();
 
-        Initialize();
-    }
-
-    private async void Initialize()
-    {
         DispatcherQueue.TryEnqueue(async () =>
         {
             var path = GetWallpaperPath();
@@ -47,56 +36,56 @@ public sealed partial class DesktopPage : Page
             // Clear items before loading to avoid adding duplicates
             Items.Clear();
 
-            // Run GetDesktopFilesAsync to add items one-by-one
-            await GetDesktopFilesAsync().ConfigureAwait(true);
+            // Fetch files first, then update UI safely
+            var newItems = await GetDesktopFilesAsync().ConfigureAwait(true);
 
-            foreach (var item in Items)
+            // Ensure UI updates happen on UI thread
+            DispatcherQueue.TryEnqueue(() =>
             {
-                var contentControl = new ContentControl()
+                foreach (var item in newItems)
                 {
-                    ContentTemplate = (DataTemplate)Resources["DesktopItemTemplate"], // Use ContentTemplate instead of Template
-                    Content = item // Set the content to the current item
-                };
-                contentControl.PointerPressed += ContentControl_PointerPressed;
-                contentControl.PointerMoved += ContentControl_PointerMoved;
-                contentControl.PointerReleased += ContentControl_PointerReleased;
+                    Items.Add(item);
+                }
 
-                if (item.X is -1 || item.Y is -1)
-
+                // Now safely process items
+                foreach (var item in Items)
                 {
-                    var freeSpot = FindFreeSpot();
-                    if (freeSpot.X != -1 && freeSpot.Y != -1)
+                    var contentControl = new ContentControl()
                     {
-                        // Assign the free spot coordinates to the item
-                        Canvas.SetLeft(contentControl, freeSpot.X);
-                        Canvas.SetTop(contentControl, freeSpot.Y);
+                        ContentTemplate = (DataTemplate)Resources["DesktopItemTemplate"],
+                        Content = item
+                    };
 
-                        item.X = freeSpot.X;
-                        item.Y = freeSpot.Y;
+                    contentControl.PointerPressed += ContentControl_PointerPressed;
+                    contentControl.PointerMoved += ContentControl_PointerMoved;
+                    contentControl.PointerReleased += ContentControl_PointerReleased;
 
-                        // Add it to the canvas
-                        CanvasControl.Children.Add(contentControl);
+                    if (item.X is -1 || item.Y is -1)
+                    {
+                        var freeSpot = FindFreeSpot();
+                        if (freeSpot.X != -1 && freeSpot.Y != -1)
+                        {
+                            Canvas.SetLeft(contentControl, freeSpot.X);
+                            Canvas.SetTop(contentControl, freeSpot.Y);
+                            item.X = freeSpot.X;
+                            item.Y = freeSpot.Y;
+                        }
                     }
                     else
                     {
-
+                        Canvas.SetLeft(contentControl, item.X);
+                        Canvas.SetTop(contentControl, item.Y);
                     }
-                }
-                else
-                {
-                    // Assign the free spot coordinates to the item
-                    Canvas.SetLeft(contentControl, (double)item.X);
-                    Canvas.SetTop(contentControl, (double)item.Y);
 
-                    // Add it to the canvas
                     CanvasControl.Children.Add(contentControl);
                 }
-            }
+            });
         });
     }
 
-    public async Task GetDesktopFilesAsync()
+    public async Task<List<DesktopItem>> GetDesktopFilesAsync()
     {
+        List<DesktopItem> items = [];
         var desktopPath = Environment.GetFolderPath(Environment.SpecialFolder.Desktop);
 
         if (Directory.Exists(desktopPath))
@@ -107,22 +96,24 @@ public sealed partial class DesktopPage : Page
 
             foreach ( var file in files)
             {
-                await LoadFileAsync(file).ConfigureAwait(true);
+                await LoadFileAsync(items, file).ConfigureAwait(true);
             }
             foreach ( var folder in folders)
             {
-                await LoadFileAsync(folder).ConfigureAwait(true);
+                await LoadFileAsync(items, folder).ConfigureAwait(true);
             }
         }
+
+        return items;
     }
 
-    private async Task LoadFileAsync(string filePath)
+    private async Task LoadFileAsync(List<DesktopItem> items, string filePath)
     {
         var desktopFile = new DesktopItem(filePath);
         await desktopFile.LoadThumbnailAsync().ConfigureAwait(true);
 
         // Add directly to ObservableCollection for real-time UI update
-        Items.Add(desktopFile);
+        items.Add(desktopFile);
     }
 
     private void ContentControl_PointerReleased(object sender, PointerRoutedEventArgs e)

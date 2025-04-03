@@ -33,7 +33,7 @@ public partial class App : Application
         DesktopWindow = new DesktopWindow();
         DesktopWindow.Activate();
         await Task.Delay(1000);
-        //DesktopWindow.AttachToProgMan();
+        DesktopWindow.AttachToProgMan();
     }
 
     private void OnSingleInstanceLaunched(object? sender, Helpers.Services.SingleInstanceLaunchEventArgs e)
