@@ -10,7 +10,7 @@
     mc:Ignorable="d"
     Title="ProgmanWinUI">
     <winuiex:WindowEx.SystemBackdrop>
-        <MicaBackdrop />
+        <winuiex:TransparentTintBackdrop />
     </winuiex:WindowEx.SystemBackdrop>
     <Frame x:Name="RootFrame"/>
 </winuiex:WindowEx>

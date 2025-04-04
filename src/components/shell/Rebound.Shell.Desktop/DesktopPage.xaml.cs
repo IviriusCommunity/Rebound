@@ -27,12 +27,6 @@ public sealed partial class DesktopPage : Page
 
         DispatcherQueue.TryEnqueue(async () =>
         {
-            var path = GetWallpaperPath();
-            if (File.Exists(path))
-            {
-                WallpaperImage.Source = new BitmapImage(new Uri(path));
-            }
-
             // Clear items before loading to avoid adding duplicates
             Items.Clear();
 
