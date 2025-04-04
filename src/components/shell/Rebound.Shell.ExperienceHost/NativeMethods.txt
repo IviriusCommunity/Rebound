@@ -11,3 +11,5 @@ GetWindowRect
 GetSystemMetrics
 EnumWindows
 ShowWindow
+CallWindowProc
+WTSRegisterSessionNotification

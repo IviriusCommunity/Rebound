@@ -152,11 +152,6 @@ public sealed partial class DesktopPage : Page
         }
     }
 
-    private void MenuFlyoutItem_Click(object sender, RoutedEventArgs e)
-    {
-        Process.GetCurrentProcess().Kill();
-    }
-
     private async void MenuFlyoutItem_Click_1(object sender, RoutedEventArgs e)
     {
         // Clear items before loading to avoid adding duplicates

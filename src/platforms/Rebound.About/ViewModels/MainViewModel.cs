@@ -5,13 +5,13 @@ using Microsoft.Win32;
 
 namespace Rebound.About;
 
-public partial class MainViewModel : ObservableObject
+internal partial class MainViewModel : ObservableObject
 {
     [ObservableProperty]
-    public partial string WindowsVersionTitle { get; set; } = GetWMIValue("Caption").Replace("Microsoft ", "");
+    public partial string WindowsVersionTitle { get; set; } = GetWMIValue("Caption")?.Replace("Microsoft ", "") ?? "Windows 11";
 
     [ObservableProperty]
-    public partial string WindowsVersionName { get; set; } = GetWMIValue("Caption").Contains("10") ? "Windows 10" : "Windows 11";
+    public partial string WindowsVersionName { get; set; } = GetWMIValue("Caption")?.Contains("10") ?? false ? "Windows 10" : "Windows 11";
 
     [ObservableProperty]
     public partial string DetailedWindowsVersion { get; set; } = GetDetailedWindowsVersion();
@@ -58,22 +58,21 @@ public partial class MainViewModel : ObservableObject
     public static string GetInformation()
         => $"The {
             // Simplified name for Windows without the Microsoft branding
-            GetWMIValue("Caption")?.Replace("Microsoft ", "")
+            GetWMIValue("Caption")?.Replace("Microsoft ", "", System.StringComparison.CurrentCultureIgnoreCase)
             } operating system and its user interface are protected by trademark and other pending or existing intellectual property rights in the United States and other countries/regions.";
 
-    private static string? GetWMIValue(string value) => 
+    private static string? GetWMIValue(string value)
+    {
         // Query WMI
-        new ManagementObjectSearcher(WMI_WIN32OPERATINGSYSTEM)
-        
+        using var searcher = new ManagementObjectSearcher(WMI_WIN32OPERATINGSYSTEM);
+
         // Obtain collection
-        .Get()?
-        
+        var collection = searcher.Get();
+
         // Cast to ManagementObject
-        .Cast<ManagementObject?>()?
-        
-        // Get the first object available
-        .First()?
-        
+        var managementObject = collection.Cast<ManagementObject?>().FirstOrDefault();
+
         // Obtain the required value
-        [value]?.ToString();
+        return managementObject?[value]?.ToString();
+    }
 }

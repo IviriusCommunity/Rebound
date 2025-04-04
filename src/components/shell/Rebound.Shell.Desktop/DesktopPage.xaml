@@ -690,11 +690,6 @@
                             <MenuFlyoutItem />
                         </MenuFlyoutSubItem.Items>
                     </MenuFlyoutSubItem>
-                    <MenuFlyoutItem Click="MenuFlyoutItem_Click" Text="Exit Rebound Desktop">
-                        <MenuFlyoutItem.Icon>
-                            <FontIcon Glyph="&#xE894;" />
-                        </MenuFlyoutItem.Icon>
-                    </MenuFlyoutItem>
                 </MenuFlyout>
             </Canvas.ContextFlyout>
         </Canvas>
