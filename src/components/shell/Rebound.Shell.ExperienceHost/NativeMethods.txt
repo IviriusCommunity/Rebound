@@ -13,3 +13,5 @@ EnumWindows
 ShowWindow
 CallWindowProc
 WTSRegisterSessionNotification
+SetWindowPos
+SetParent

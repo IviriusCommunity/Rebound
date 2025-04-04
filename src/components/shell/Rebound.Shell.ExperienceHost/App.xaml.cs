@@ -32,7 +32,6 @@ public partial class App : Application
         // Desktop window
         DesktopWindow = new DesktopWindow();
         DesktopWindow.Activate();
-        await Task.Delay(1000);
         DesktopWindow.AttachToProgMan();
     }
 

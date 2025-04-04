@@ -630,67 +630,46 @@
             PointerPressed="CanvasControl_PointerPressed"
             PointerReleased="CanvasControl_PointerReleased">
             <Canvas.ContextFlyout>
-                <MenuFlyout>
-                    <MenuFlyoutSubItem MinWidth="250" Text="View">
-                        <MenuFlyoutSubItem.Icon>
-                            <FontIcon Glyph="&#xF0E2;" />
-                        </MenuFlyoutSubItem.Icon>
-                        <MenuFlyoutSubItem.Items>
-                            <MenuFlyoutItem />
-                        </MenuFlyoutSubItem.Items>
-                    </MenuFlyoutSubItem>
-                    <MenuFlyoutSubItem Text="Sort by">
-                        <MenuFlyoutSubItem.Icon>
-                            <FontIcon Glyph="&#xE8CB;" />
-                        </MenuFlyoutSubItem.Icon>
-                        <MenuFlyoutSubItem.Items>
-                            <MenuFlyoutItem />
-                        </MenuFlyoutSubItem.Items>
-                    </MenuFlyoutSubItem>
-                    <MenuFlyoutItem Click="MenuFlyoutItem_Click_1" Text="Refresh">
-                        <MenuFlyoutItem.Icon>
-                            <FontIcon Glyph="&#xE72C;" />
-                        </MenuFlyoutItem.Icon>
-                    </MenuFlyoutItem>
-                    <MenuFlyoutSeparator />
-                    <MenuFlyoutSubItem Text="New">
-                        <MenuFlyoutSubItem.Icon>
-                            <FontIcon Glyph="&#xECC8;" />
-                        </MenuFlyoutSubItem.Icon>
-                        <MenuFlyoutSubItem.Items>
-                            <MenuFlyoutItem />
-                        </MenuFlyoutSubItem.Items>
-                    </MenuFlyoutSubItem>
-                    <MenuFlyoutSeparator />
-                    <MenuFlyoutItem Text="Display settings">
-                        <MenuFlyoutItem.Icon>
-                            <FontIcon Glyph="&#xE7F4;" />
-                        </MenuFlyoutItem.Icon>
-                    </MenuFlyoutItem>
-                    <MenuFlyoutItem Text="Personalize">
-                        <MenuFlyoutItem.Icon>
-                            <FontIcon Glyph="&#xE771;" />
-                        </MenuFlyoutItem.Icon>
-                    </MenuFlyoutItem>
-                    <MenuFlyoutSeparator />
-                    <MenuFlyoutSubItem Text="Open in CLI">
-                        <MenuFlyoutSubItem.Icon>
-                            <FontIcon Glyph="&#xE756;" />
-                        </MenuFlyoutSubItem.Icon>
-                        <MenuFlyoutSubItem.Items>
-                            <MenuFlyoutItem />
-                        </MenuFlyoutSubItem.Items>
-                    </MenuFlyoutSubItem>
-                    <MenuFlyoutSeparator />
-                    <MenuFlyoutSubItem Text="More options">
-                        <MenuFlyoutSubItem.Icon>
-                            <FontIcon Glyph="&#xE712;" />
-                        </MenuFlyoutSubItem.Icon>
-                        <MenuFlyoutSubItem.Items>
-                            <MenuFlyoutItem />
-                        </MenuFlyoutSubItem.Items>
-                    </MenuFlyoutSubItem>
-                </MenuFlyout>
+                <Flyout Placement="BottomEdgeAlignedLeft">
+                    <StackPanel Spacing="4" Margin="-12, -12, -12, -14">
+                        <Button Padding="8" BorderThickness="0" Background="Transparent">
+                            <StackPanel Orientation="Horizontal" Spacing="8">
+                                <FontIcon Glyph="&#xECC8;" FontSize="16"/>
+                                <TextBlock Text="New"/>
+                            </StackPanel>
+                        </Button>
+                        <Button Padding="8" BorderThickness="0" Background="Transparent">
+                            <StackPanel Orientation="Horizontal" Spacing="8">
+                                <FontIcon Glyph="&#xECC8;" FontSize="16"/>
+                                <TextBlock Text="New"/>
+                            </StackPanel>
+                        </Button>
+                        <Button Padding="8" BorderThickness="0" Background="Transparent">
+                            <StackPanel Orientation="Horizontal" Spacing="8">
+                                <FontIcon Glyph="&#xECC8;" FontSize="16"/>
+                                <TextBlock Text="New"/>
+                            </StackPanel>
+                        </Button>
+                        <Button Padding="8" BorderThickness="0" Background="Transparent">
+                            <StackPanel Orientation="Horizontal" Spacing="8">
+                                <FontIcon Glyph="&#xECC8;" FontSize="16"/>
+                                <TextBlock Text="New"/>
+                            </StackPanel>
+                        </Button>
+                        <Button Padding="8" BorderThickness="0" Background="Transparent">
+                            <StackPanel Orientation="Horizontal" Spacing="8">
+                                <FontIcon Glyph="&#xECC8;" FontSize="16"/>
+                                <TextBlock Text="New"/>
+                            </StackPanel>
+                        </Button>
+                        <Button Padding="8" BorderThickness="0" Background="Transparent">
+                            <StackPanel Orientation="Horizontal" Spacing="8">
+                                <FontIcon Glyph="&#xECC8;" FontSize="16"/>
+                                <TextBlock Text="New"/>
+                            </StackPanel>
+                        </Button>
+                    </StackPanel>
+                </Flyout>
             </Canvas.ContextFlyout>
         </Canvas>
         <Border
