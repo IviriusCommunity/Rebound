@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Diagnostics;
+using System.Runtime.InteropServices;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.UI.Xaml;
@@ -8,6 +9,7 @@ using Windows.Win32;
 using Windows.Win32.Foundation;
 using Windows.Win32.UI.WindowsAndMessaging;
 using WinUIEx;
+using static Rebound.Helpers.User32;
 
 namespace Rebound.Shell.ExperienceHost;
 
@@ -33,13 +35,11 @@ internal static class ProgManHook
         // Variables
         var version = GetWindowsBuildNumberFromRegistry();
         HWND hWndProgman;
-        HWND hWndProgmanWinUI;
         HWND hWorkerW;
-        HWND hSHELLDLL_DefView = new();
+        HWND hSHELLDLL_DefView;
 
         // Get progman handle
         hWndProgman = PInvoke.FindWindow("Progman", null);
-        hWndProgmanWinUI = PInvoke.FindWindow("WinUIDesktopWin32WindowClass", "ProgmanWinUI");
 
         // Get SHELLDLL_DefView handle
         hSHELLDLL_DefView = PInvoke.FindWindowEx(hWndProgman, new(null), "SHELLDLL_DefView", null);
@@ -54,8 +54,14 @@ internal static class ProgManHook
         _ = PInvoke.SetWindowLongPtr(hWorkerW, WINDOW_LONG_PTR_INDEX.GWL_STYLE, unchecked((nint)0x96000000));
         _ = PInvoke.SetWindowLongPtr(hWorkerW, WINDOW_LONG_PTR_INDEX.GWL_EXSTYLE, 0x20000880);
 
+        // Set the parent of WorkerW to Progman
+        _ = PInvoke.SetParent(hWorkerW, hWndProgman);
+
         // Set the parent of SHELLDLL_DefView to WorkerW
-        _ = PInvoke.SetWindowLongPtr(hSHELLDLL_DefView, WINDOW_LONG_PTR_INDEX.GWL_HWNDPARENT, hWorkerW);
+        _ = PInvoke.SetParent(hSHELLDLL_DefView, hWorkerW);
+
+        // Set the parent of Rebound Desktop to SHELLDLL_DefView
+        _ = PInvoke.SetParent(new(window.GetWindowHandle()), hSHELLDLL_DefView);
 
         // Find SysListView32 handle and hide it
         var hSysListView32 = PInvoke.FindWindowEx(hSHELLDLL_DefView, new(null), "SysListView32", "FolderView");
@@ -64,15 +70,10 @@ internal static class ProgManHook
             _ = PInvoke.ShowWindow(hSysListView32, SHOW_WINDOW_CMD.SW_HIDE);
         }
 
-        Thread.Sleep(250);
-
-        // Set the parent of Rebound Desktop to SHELLDLL_DefView
-        _ = PInvoke.SetParent(hWndProgmanWinUI, hSHELLDLL_DefView);
-
         if (version >= 26100)
         {
             // Register for session notifications
-            _ = PInvoke.WTSRegisterSessionNotification(hWndProgmanWinUI, NOTIFY_FOR_THIS_SESSION);
+            _ = PInvoke.WTSRegisterSessionNotification(new(window.GetWindowHandle()), NOTIFY_FOR_THIS_SESSION);
 
             // WndProc
             var winManager = WindowManager.Get(window);
@@ -88,29 +89,66 @@ internal static class ProgManHook
                     _ = PInvoke.SetWindowLongPtr(hWorkerW, WINDOW_LONG_PTR_INDEX.GWL_STYLE, unchecked((nint)0x96000000));
                     _ = PInvoke.SetWindowLongPtr(hWorkerW, WINDOW_LONG_PTR_INDEX.GWL_EXSTYLE, 0x20000880);
 
-                    // Set the parent of SHELLDLL_DefView to WorkerW
-                    _ = PInvoke.SetWindowLongPtr(hSHELLDLL_DefView, WINDOW_LONG_PTR_INDEX.GWL_HWNDPARENT, hWorkerW);
+                    // Set the parent of WorkerW to Progman
+                    _ = PInvoke.SetParent(hWorkerW, hWndProgman);
 
-                    Thread.Sleep(250);
+                    // Set the parent of SHELLDLL_DefView to WorkerW
+                    _ = PInvoke.SetParent(hSHELLDLL_DefView, hWorkerW);
 
                     // Set the parent of Rebound Desktop to SHELLDLL_DefView
-                    _ = PInvoke.SetParent(hWndProgmanWinUI, hSHELLDLL_DefView);
+                    _ = PInvoke.SetParent(new(window.GetWindowHandle()), hSHELLDLL_DefView);
                 }
             };
         }
 
-        window.ZOrderChanged += Window_ZOrderChanged;
+        /*// Store the old window procedure
+        var oldWndProc = Marshal.GetDelegateForFunctionPointer<WNDPROC>(PInvoke.GetWindowLongPtr(hWndProgman, WINDOW_LONG_PTR_INDEX.GWL_WNDPROC));
 
-        static void Window_ZOrderChanged(object? sender, ZOrderInfo e)
+        // Define the new window procedure
+        LRESULT WndProc(HWND hWnd, uint msg, WPARAM wParam, LPARAM lParam)
         {
-            var hWndTaskbar = PInvoke.FindWindow("Shell_TrayWnd", null);
-            PInvoke.SetWindowPos(hWndTaskbar, new HWND(0), 0, 0, 0, 0, SET_WINDOW_POS_FLAGS.SWP_NOMOVE | SET_WINDOW_POS_FLAGS.SWP_NOSIZE);
+            if (msg == 0x0047)
+            {
+                var hWndTaskbar = PInvoke.FindWindow("Shell_TrayWnd", null);
+                PInvoke.SetWindowPos(hWndTaskbar, hWndProgman, 0, 0, 0, 0, SET_WINDOW_POS_FLAGS.SWP_NOMOVE | SET_WINDOW_POS_FLAGS.SWP_NOSIZE);
+            }
+
+            return PInvoke.CallWindowProc(oldWndProc, hWnd, msg, wParam, lParam);
         }
+
+        // Ensure the delegate remains alive
+        var newWndProc = new WNDPROC(WndProc);
+
+        // Set the new window procedure
+        PInvoke.SetWindowLongPtr(hWndProgman, WINDOW_LONG_PTR_INDEX.GWL_WNDPROC, Marshal.GetFunctionPointerForDelegate(newWndProc));*/
+
+        /*var manager = WindowManager.Get(window);
+        manager.WindowMessageReceived += (sender, e) =>
+        {
+            if (e.Message.MessageId == 0x0047)
+            {
+                var hWndTaskbar = PInvoke.FindWindow("Shell_TrayWnd", null);
+                PInvoke.SetWindowPos(hWndTaskbar, hWndProgman, 0, 0, 0, 0, SET_WINDOW_POS_FLAGS.SWP_NOMOVE | SET_WINDOW_POS_FLAGS.SWP_NOSIZE);
+            }
+        };*/
+
+        /*var hook = PInvoke.SetWindowsHookEx(WINDOWS_HOOK_ID.WH_SHELL, new HOOKPROC(ShellProc), HINSTANCE.Null, 0);
+
+        LRESULT ShellProc(int nCode, WPARAM wParam, LPARAM lParam)
+        {
+            if (nCode == 0x0047)
+            {
+                //var hWndTaskbar = PInvoke.FindWindow("Shell_TrayWnd", null);
+                //PInvoke.SetWindowPos(hWndTaskbar, hSHELLDLL_DefView, 0, 0, 0, 0, SET_WINDOW_POS_FLAGS.SWP_NOMOVE | SET_WINDOW_POS_FLAGS.SWP_NOSIZE);
+            }
+            return PInvoke.CallNextHookEx(HHOOK.Null, nCode, wParam, lParam);
+        };*/
 
         // On closed, restart explorer to revert changes
         window.Closed += Window_Closed;
-        static void Window_Closed(object sender, WindowEventArgs args)
+        void Window_Closed(object sender, WindowEventArgs args)
         {
+            //PInvoke.UnhookWindowsHookEx(hook);
             Process.GetProcessesByName("explorer")[0].Kill();
         }
     }
@@ -154,7 +192,6 @@ internal static class ProgManHook
 
                 if (rect.right >= screenRight && rect.bottom >= screenBottom)
                 {
-                    param1 = new((nint)param0.Value);
                     return false; // Stop enumeration
                 }
             }
