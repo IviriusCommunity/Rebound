@@ -668,6 +668,12 @@
                                 <TextBlock Text="New"/>
                             </StackPanel>
                         </Button>
+                        <Button Click="Button_Click" Padding="8" BorderThickness="0" Background="Transparent">
+                            <StackPanel Orientation="Horizontal" Spacing="8">
+                                <FontIcon Glyph="&#xECC8;" FontSize="16"/>
+                                <TextBlock Text="Exit Rebound Desktop"/>
+                            </StackPanel>
+                        </Button>
                     </StackPanel>
                 </Flyout>
             </Canvas.ContextFlyout>

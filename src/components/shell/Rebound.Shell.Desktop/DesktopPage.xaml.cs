@@ -11,6 +11,7 @@ using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Input;
 using Microsoft.UI.Xaml.Media.Imaging;
+using Microsoft.UI.Xaml.Navigation;
 using Windows.ApplicationModel.DataTransfer;
 using Windows.Foundation;
 using Windows.Storage;
@@ -697,5 +698,18 @@ public sealed partial class DesktopPage : Page
     private void Grid_PointerExited(object sender, PointerRoutedEventArgs e)
     {
         _isInItem = false;
+    }
+
+    DesktopWindow win;
+
+    protected override void OnNavigatedTo(NavigationEventArgs e)
+    {
+        base.OnNavigatedTo(e);
+        win = (DesktopWindow)e.Parameter;
+    }
+
+    private void Button_Click(object sender, RoutedEventArgs e)
+    {
+        win.RestoreExplorerDesktop();
     }
 }

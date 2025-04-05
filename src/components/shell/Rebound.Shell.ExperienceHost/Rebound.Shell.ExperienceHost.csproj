@@ -21,5 +21,6 @@
 		<ProjectReference Include="..\..\..\core\Rebound.Core.SourceGeneratorAttributes\Rebound.Core.SourceGeneratorAttributes.csproj" />
 		<ProjectReference Include="..\Rebound.Shell.Desktop\Rebound.Shell.Desktop.csproj" />
 		<ProjectReference Include="..\Rebound.Shell.ExperiencePack\Rebound.Shell.ExperiencePack.csproj" />
+		<ProjectReference Include="..\Rebound.Shell.ShutdownDialog\Rebound.Shell.ShutdownDialog.csproj" />
 	</ItemGroup>
 </Project>

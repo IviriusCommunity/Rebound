@@ -22,4 +22,3 @@ EnumChildWindows
 IsWindowVisible
 SetWinEventHook
 GetParent
-DestroyWindow

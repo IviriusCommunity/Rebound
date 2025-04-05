@@ -59,6 +59,9 @@
       <Platform Solution="*|x86" Project="x86" />
       <Deploy />
     </Project>
+    <Project Path="src/components/shell/Rebound.Shell.ShutdownDialog/Rebound.Shell.ShutdownDialog.csproj" Id="f86bd699-d1fb-4722-bede-0bfd5be82dc1">
+      <Platform Project="x64" />
+    </Project>
   </Folder>
   <Folder Name="/src/core/" Id="fb5d6fae-fad5-4679-aec2-b8fb3878993e">
     <Project Path="src/core/Rebound.Core.Helpers/Rebound.Core.Helpers.csproj">

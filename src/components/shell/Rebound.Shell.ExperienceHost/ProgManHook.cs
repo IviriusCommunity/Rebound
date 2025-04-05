@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Diagnostics;
 using System.Runtime.InteropServices;
+using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.UI.Xaml;
@@ -24,6 +25,12 @@ internal static class ProgManHook
         }
         return -1;
     }
+
+    // Event constants for SetWinEventHook
+    public const uint EVENT_OBJECT_CREATE = 0x8000;  // Object creation event
+
+    // Constants for the WinEventHook function
+    public const uint WINEVENT_OUTOFCONTEXT = 0x0000;  // Out of context event (no callback filtering based on the context)
 
     public static async void AttachToProgMan(this WindowEx window)
     {
@@ -52,25 +59,52 @@ internal static class ProgManHook
         {
             _ = PInvoke.SendMessageTimeout(hWndProgman, 0x052C, 0, 0, SEND_MESSAGE_TIMEOUT_FLAGS.SMTO_NORMAL, 250, null);
         }
-        Thread.Sleep(250);
 
-        unsafe
+        await Task.Delay(250);
+
+        if (version >= 26100)
         {
-            // Find WorkerW handle
-            hWorkerW = version >= 26100 ? PInvoke.FindWindowEx(hWndProgman, new(null), "WorkerW", null) : GetWorkerW(out _, out _);
+            unsafe
+            {
+                // Find WorkerW handle
+                hWorkerW = PInvoke.FindWindowEx(hWndProgman, new(null), "WorkerW", null);
+            }
+
+            _ = PInvoke.SetWindowLongPtr(hWorkerW, WINDOW_LONG_PTR_INDEX.GWL_STYLE, unchecked((nint)0x96000000));
+            _ = PInvoke.SetWindowLongPtr(hWorkerW, WINDOW_LONG_PTR_INDEX.GWL_EXSTYLE, 0x20000880);
+
+            // Set the parent of WorkerW to Progman
+            _ = PInvoke.SetParent(hWorkerW, hWndProgman);
+
+            // Set the parent of Rebound Desktop to SHELLDLL_DefView
+            _ = PInvoke.SetParent(new(window.GetWindowHandle()), hSHELLDLL_DefView);
+
+            // Set the parent of SHELLDLL_DefView to WorkerW
+            _ = PInvoke.SetParent(hSHELLDLL_DefView, hWorkerW);
         }
+        else
+        {
+            // Send message to Progman to create WorkerW
+            unsafe
+            {
+                _ = PInvoke.SendMessageTimeout(hWndProgman, 0x052C, 0, 0, SEND_MESSAGE_TIMEOUT_FLAGS.SMTO_NORMAL, 250, null);
+            }
 
-        _ = PInvoke.SetWindowLongPtr(hWorkerW, WINDOW_LONG_PTR_INDEX.GWL_STYLE, unchecked((nint)0x96000000));
-        _ = PInvoke.SetWindowLongPtr(hWorkerW, WINDOW_LONG_PTR_INDEX.GWL_EXSTYLE, 0x20000880);
+            await Task.Delay(250);
 
-        // Set the parent of WorkerW to Progman
-        _ = PInvoke.SetParent(hWorkerW, hWndProgman);
+            // Find the parent of SHELLDLL_DefView (which should be WorkerW)
+            unsafe
+            {
+                hWorkerW = PInvoke.GetParent(hSHELLDLL_DefView);
+            }
 
-        // Set the parent of Rebound Desktop to SHELLDLL_DefView
-        _ = PInvoke.SetParent(new(window.GetWindowHandle()), hSHELLDLL_DefView);
+            if (hWorkerW != HWND.Null)
+            {
+                _ = PInvoke.SetParent(new(window.GetWindowHandle()), hSHELLDLL_DefView);
 
-        // Set the parent of SHELLDLL_DefView to WorkerW
-        _ = PInvoke.SetParent(hSHELLDLL_DefView, hWorkerW);
+                _ = PInvoke.SetParent(hSHELLDLL_DefView, hWorkerW);
+            }
+        }
 
         unsafe
         {
@@ -106,8 +140,11 @@ internal static class ProgManHook
                             {
                                 lastSettingChangeTime = DateTime.Now; // Update the timestamp
 
-                                // Obtain the new visible WorkerW handle
-                                hWorkerW = GetVisibleWorkerW(hWndProgman);
+                                unsafe
+                                {
+                                    // Obtain the new visible WorkerW handle
+                                    hWorkerW = PInvoke.FindWindowEx(hWndProgman, new(null), "WorkerW", null);
+                                }
 
                                 _ = PInvoke.SetWindowLongPtr(hWorkerW, WINDOW_LONG_PTR_INDEX.GWL_STYLE, unchecked((nint)0x96000000));
                                 _ = PInvoke.SetWindowLongPtr(hWorkerW, WINDOW_LONG_PTR_INDEX.GWL_EXSTYLE, 0x20000880);
@@ -121,14 +158,6 @@ internal static class ProgManHook
                         }
                 }
             };
-        }
-
-        // On closed, restart explorer to revert changes
-        window.Closed += Window_Closed;
-        void Window_Closed(object sender, WindowEventArgs args)
-        {
-            //PInvoke.UnhookWindowsHookEx(hook);
-            Process.GetProcessesByName("explorer")[0].Kill();
         }
     }
 
