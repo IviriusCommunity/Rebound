@@ -22,8 +22,4 @@ EnumChildWindows
 IsWindowVisible
 SetWinEventHook
 GetParent
-DestroyWindow
-MsgWaitForMultipleObjects
-GetMessage
-TranslateMessage
-DispatchMessage
+DwmSetWindowAttribute

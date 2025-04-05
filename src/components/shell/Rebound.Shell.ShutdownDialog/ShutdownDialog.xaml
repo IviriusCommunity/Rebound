@@ -6,14 +6,105 @@
     xmlns:local="using:Rebound.Shell.ShutdownDialog"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:toolkit="using:CommunityToolkit.WinUI.Controls"
     xmlns:winuiex="using:WinUIEx"
     mc:Ignorable="d"
-    Width="500"
+    Width="600"
     Closed="WindowEx_Closed"
-    Height="200"
-    Title="ShutdownDialog">
-
+    Height="452"
+    IsResizable="False"
+    IsMaximizable="False"
+    IsMinimizable="False"
+    Title="Shut Down Windows">
+    <winuiex:WindowEx.SystemBackdrop>
+        <MicaBackdrop/>
+    </winuiex:WindowEx.SystemBackdrop>
     <Grid>
-
+        <StackPanel
+            Margin="20"
+            x:Name="WinverPanel"
+            HorizontalAlignment="Center"
+            VerticalAlignment="Top"
+            Orientation="Horizontal"
+            Spacing="24"
+            Grid.Row="0">
+            <Path VerticalAlignment="Center" Data="M 0 6 C 0 3 3 0 6 0 L 36 0 L 36 36 L 0 36 M 40 0 L 70 0 C 73 0 76 3 76 6 L 76 36 L 40 36 M 36 40 L 0 40 L 0 70 C 0 73 3 76 6 76 L 36 76 M 40 40 L 76 40 L 76 70 C 76 73 73 76 70 76 L 40 76">
+                <Path.Fill>
+                    <LinearGradientBrush StartPoint="0, 0" EndPoint="1, 1">
+                        <LinearGradientBrush.GradientStops>
+                            <GradientStop Color="#a8f4ff" />
+                            <GradientStop Offset="1" Color="#0073d5" />
+                        </LinearGradientBrush.GradientStops>
+                    </LinearGradientBrush>
+                </Path.Fill>
+            </Path>
+            <TextBlock
+                x:Name="WindowsVer"
+                VerticalAlignment="Center"
+                FontFamily="Segoe UI Semibold"
+                FontSize="60"
+                FontWeight="SemiBold"
+                Text="Windows 11"/>
+        </StackPanel>
+        <StackPanel Margin="20, 100, 20, 0" Spacing="8">
+            <SelectorBar HorizontalAlignment="Center">
+                <SelectorBarItem>
+                    <SelectorBarItem.Icon>
+                        <FontIcon Glyph="&#xE7E8;"/>
+                    </SelectorBarItem.Icon>
+                </SelectorBarItem>
+                <SelectorBarItem>
+                    <SelectorBarItem.Icon>
+                        <FontIcon Glyph="&#xE72C;"/>
+                    </SelectorBarItem.Icon>
+                </SelectorBarItem>
+                <SelectorBarItem>
+                    <SelectorBarItem.Icon>
+                        <FontIcon Glyph="&#xEC46;"/>
+                    </SelectorBarItem.Icon>
+                </SelectorBarItem>
+                <SelectorBarItem>
+                    <SelectorBarItem.Icon>
+                        <FontIcon Glyph="&#xE748;"/>
+                    </SelectorBarItem.Icon>
+                </SelectorBarItem>
+                <SelectorBarItem>
+                    <SelectorBarItem.Icon>
+                        <FontIcon Glyph="&#xE8F8;"/>
+                    </SelectorBarItem.Icon>
+                </SelectorBarItem>
+                <SelectorBarItem>
+                    <SelectorBarItem.Icon>
+                        <FontIcon Glyph="&#xE72E;"/>
+                    </SelectorBarItem.Icon>
+                </SelectorBarItem>
+            </SelectorBar>
+            <InfoBar IsOpen="True" IsClosable="False" Title="Shutdown:" Message="Turn off your PC."/>
+            <ComboBox Header="Server - Reason" HorizontalAlignment="Stretch">
+                <ComboBoxItem Content="Other"/>
+            </ComboBox>
+            <TextBox PlaceholderText="More information"/>
+        </StackPanel>
+        <Grid
+            Padding="24"
+            Height="80"
+            VerticalAlignment="Bottom"
+            Background="{ThemeResource SystemControlBackgroundAltMediumLowBrush}">
+            <StackPanel
+                HorizontalAlignment="Right" Orientation="Horizontal" Spacing="8">
+                <Button
+                Style="{ThemeResource AccentButtonStyle}"
+                Width="120"
+                Content="OK">
+                </Button>
+                <Button
+                Width="120"
+                Content="Cancel">
+                    <Button.KeyboardAccelerators>
+                        <KeyboardAccelerator Key="Escape"/>
+                    </Button.KeyboardAccelerators>
+                </Button>
+            </StackPanel>
+        </Grid>
     </Grid>
 </winuiex:WindowEx>
