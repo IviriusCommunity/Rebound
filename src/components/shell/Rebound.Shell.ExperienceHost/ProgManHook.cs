@@ -57,11 +57,11 @@ internal static class ProgManHook
         // Set the parent of WorkerW to Progman
         _ = PInvoke.SetParent(hWorkerW, hWndProgman);
 
-        // Set the parent of SHELLDLL_DefView to WorkerW
-        _ = PInvoke.SetParent(hSHELLDLL_DefView, hWorkerW);
-
         // Set the parent of Rebound Desktop to SHELLDLL_DefView
         _ = PInvoke.SetParent(new(window.GetWindowHandle()), hSHELLDLL_DefView);
+
+        // Set the parent of SHELLDLL_DefView to WorkerW
+        _ = PInvoke.SetParent(hSHELLDLL_DefView, hWorkerW);
 
         // Find SysListView32 handle and hide it
         var hSysListView32 = PInvoke.FindWindowEx(hSHELLDLL_DefView, new(null), "SysListView32", "FolderView");
@@ -70,7 +70,7 @@ internal static class ProgManHook
             _ = PInvoke.ShowWindow(hSysListView32, SHOW_WINDOW_CMD.SW_HIDE);
         }
 
-        if (version >= 26100)
+        /*if (version >= 26100)
         {
             // Register for session notifications
             _ = PInvoke.WTSRegisterSessionNotification(new(window.GetWindowHandle()), NOTIFY_FOR_THIS_SESSION);
@@ -92,14 +92,14 @@ internal static class ProgManHook
                     // Set the parent of WorkerW to Progman
                     _ = PInvoke.SetParent(hWorkerW, hWndProgman);
 
-                    // Set the parent of SHELLDLL_DefView to WorkerW
-                    _ = PInvoke.SetParent(hSHELLDLL_DefView, hWorkerW);
-
                     // Set the parent of Rebound Desktop to SHELLDLL_DefView
                     _ = PInvoke.SetParent(new(window.GetWindowHandle()), hSHELLDLL_DefView);
+
+                    // Set the parent of SHELLDLL_DefView to WorkerW
+                    _ = PInvoke.SetParent(hSHELLDLL_DefView, hWorkerW);
                 }
             };
-        }
+        }*/
 
         /*// Store the old window procedure
         var oldWndProc = Marshal.GetDelegateForFunctionPointer<WNDPROC>(PInvoke.GetWindowLongPtr(hWndProgman, WINDOW_LONG_PTR_INDEX.GWL_WNDPROC));
