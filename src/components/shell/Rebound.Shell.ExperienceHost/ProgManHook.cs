@@ -25,7 +25,7 @@ internal static class ProgManHook
         return -1;
     }
 
-    public static unsafe void AttachToProgMan(this WindowEx window)
+    public static async void AttachToProgMan(this WindowEx window)
     {
         // Constants
         const int WM_WTSSESSION_CHANGE = 0x02B1;
@@ -41,15 +41,24 @@ internal static class ProgManHook
         // Get progman handle
         hWndProgman = PInvoke.FindWindow("Progman", null);
 
-        // Get SHELLDLL_DefView handle
-        hSHELLDLL_DefView = PInvoke.FindWindowEx(hWndProgman, new(null), "SHELLDLL_DefView", null);
+        unsafe
+        {
+            // Get SHELLDLL_DefView handle
+            hSHELLDLL_DefView = PInvoke.FindWindowEx(hWndProgman, new(null), "SHELLDLL_DefView", null);
+        }
 
         // Send message to progman to create WorkerW
-        _ = PInvoke.SendMessageTimeout(hWndProgman, 0x052C, 0, 0, SEND_MESSAGE_TIMEOUT_FLAGS.SMTO_NORMAL, 250, null);
+        unsafe
+        {
+            _ = PInvoke.SendMessageTimeout(hWndProgman, 0x052C, 0, 0, SEND_MESSAGE_TIMEOUT_FLAGS.SMTO_NORMAL, 250, null);
+        }
         Thread.Sleep(250);
 
-        // Find WorkerW handle
-        hWorkerW = version >= 26100 ? PInvoke.FindWindowEx(hWndProgman, new(null), "WorkerW", null) : GetWorkerW(out _, out _);
+        unsafe
+        {
+            // Find WorkerW handle
+            hWorkerW = version >= 26100 ? PInvoke.FindWindowEx(hWndProgman, new(null), "WorkerW", null) : GetWorkerW(out _, out _);
+        }
 
         _ = PInvoke.SetWindowLongPtr(hWorkerW, WINDOW_LONG_PTR_INDEX.GWL_STYLE, unchecked((nint)0x96000000));
         _ = PInvoke.SetWindowLongPtr(hWorkerW, WINDOW_LONG_PTR_INDEX.GWL_EXSTYLE, 0x20000880);
@@ -63,86 +72,56 @@ internal static class ProgManHook
         // Set the parent of SHELLDLL_DefView to WorkerW
         _ = PInvoke.SetParent(hSHELLDLL_DefView, hWorkerW);
 
-        // Find SysListView32 handle and hide it
-        var hSysListView32 = PInvoke.FindWindowEx(hSHELLDLL_DefView, new(null), "SysListView32", "FolderView");
-        if (hSysListView32 != HWND.Null)
+        unsafe
         {
-            _ = PInvoke.ShowWindow(hSysListView32, SHOW_WINDOW_CMD.SW_HIDE);
+            // Find SysListView32 handle and hide it
+            var hSysListView32 = PInvoke.FindWindowEx(hSHELLDLL_DefView, new(null), "SysListView32", "FolderView");
+            if (hSysListView32 != HWND.Null)
+            {
+                _ = PInvoke.ShowWindow(hSysListView32, SHOW_WINDOW_CMD.SW_HIDE);
+            }
         }
 
-        /*if (version >= 26100)
+        if (version >= 26100)
         {
             // Register for session notifications
             _ = PInvoke.WTSRegisterSessionNotification(new(window.GetWindowHandle()), NOTIFY_FOR_THIS_SESSION);
 
-            // WndProc
+            // WndProc with delay
             var winManager = WindowManager.Get(window);
-            winManager.WindowMessageReceived += (sender, e) =>
+
+            // Introduce a delay of 5 seconds
+            await Task.Delay(5000);
+
+            // After the delay, subscribe to the window message handler
+            winManager.WindowMessageReceived += async (sender, e) =>
             {
-                if (e.Message.MessageId is WM_WTSSESSION_CHANGE or WM_SETTINGCHANGE)
+                switch (e.Message.MessageId)
                 {
-                    Thread.Sleep(250);
+                    case WM_WTSSESSION_CHANGE:
+                    case WM_SETTINGCHANGE:
+                        {
+                            // Only run the logic if at least 2 seconds have passed
+                            if (DateTime.Now - lastSettingChangeTime >= TimeSpan.FromSeconds(2))
+                            {
+                                lastSettingChangeTime = DateTime.Now; // Update the timestamp
 
-                    // Obtain new WorkerW handle
-                    hWorkerW = GetWorkerW(out _, out _);
+                                // Obtain the new visible WorkerW handle
+                                hWorkerW = GetVisibleWorkerW(hWndProgman);
 
-                    _ = PInvoke.SetWindowLongPtr(hWorkerW, WINDOW_LONG_PTR_INDEX.GWL_STYLE, unchecked((nint)0x96000000));
-                    _ = PInvoke.SetWindowLongPtr(hWorkerW, WINDOW_LONG_PTR_INDEX.GWL_EXSTYLE, 0x20000880);
+                                _ = PInvoke.SetWindowLongPtr(hWorkerW, WINDOW_LONG_PTR_INDEX.GWL_STYLE, unchecked((nint)0x96000000));
+                                _ = PInvoke.SetWindowLongPtr(hWorkerW, WINDOW_LONG_PTR_INDEX.GWL_EXSTYLE, 0x20000880);
 
-                    // Set the parent of WorkerW to Progman
-                    _ = PInvoke.SetParent(hWorkerW, hWndProgman);
+                                await Task.Delay(500);
 
-                    // Set the parent of Rebound Desktop to SHELLDLL_DefView
-                    _ = PInvoke.SetParent(new(window.GetWindowHandle()), hSHELLDLL_DefView);
-
-                    // Set the parent of SHELLDLL_DefView to WorkerW
-                    _ = PInvoke.SetParent(hSHELLDLL_DefView, hWorkerW);
+                                // Set the parent of SHELLDLL_DefView to WorkerW
+                                _ = PInvoke.SetParent(hSHELLDLL_DefView, hWorkerW);
+                            }
+                            break;
+                        }
                 }
             };
-        }*/
-
-        /*// Store the old window procedure
-        var oldWndProc = Marshal.GetDelegateForFunctionPointer<WNDPROC>(PInvoke.GetWindowLongPtr(hWndProgman, WINDOW_LONG_PTR_INDEX.GWL_WNDPROC));
-
-        // Define the new window procedure
-        LRESULT WndProc(HWND hWnd, uint msg, WPARAM wParam, LPARAM lParam)
-        {
-            if (msg == 0x0047)
-            {
-                var hWndTaskbar = PInvoke.FindWindow("Shell_TrayWnd", null);
-                PInvoke.SetWindowPos(hWndTaskbar, hWndProgman, 0, 0, 0, 0, SET_WINDOW_POS_FLAGS.SWP_NOMOVE | SET_WINDOW_POS_FLAGS.SWP_NOSIZE);
-            }
-
-            return PInvoke.CallWindowProc(oldWndProc, hWnd, msg, wParam, lParam);
         }
-
-        // Ensure the delegate remains alive
-        var newWndProc = new WNDPROC(WndProc);
-
-        // Set the new window procedure
-        PInvoke.SetWindowLongPtr(hWndProgman, WINDOW_LONG_PTR_INDEX.GWL_WNDPROC, Marshal.GetFunctionPointerForDelegate(newWndProc));*/
-
-        /*var manager = WindowManager.Get(window);
-        manager.WindowMessageReceived += (sender, e) =>
-        {
-            if (e.Message.MessageId == 0x0047)
-            {
-                var hWndTaskbar = PInvoke.FindWindow("Shell_TrayWnd", null);
-                PInvoke.SetWindowPos(hWndTaskbar, hWndProgman, 0, 0, 0, 0, SET_WINDOW_POS_FLAGS.SWP_NOMOVE | SET_WINDOW_POS_FLAGS.SWP_NOSIZE);
-            }
-        };*/
-
-        /*var hook = PInvoke.SetWindowsHookEx(WINDOWS_HOOK_ID.WH_SHELL, new HOOKPROC(ShellProc), HINSTANCE.Null, 0);
-
-        LRESULT ShellProc(int nCode, WPARAM wParam, LPARAM lParam)
-        {
-            if (nCode == 0x0047)
-            {
-                //var hWndTaskbar = PInvoke.FindWindow("Shell_TrayWnd", null);
-                //PInvoke.SetWindowPos(hWndTaskbar, hSHELLDLL_DefView, 0, 0, 0, 0, SET_WINDOW_POS_FLAGS.SWP_NOMOVE | SET_WINDOW_POS_FLAGS.SWP_NOSIZE);
-            }
-            return PInvoke.CallNextHookEx(HHOOK.Null, nCode, wParam, lParam);
-        };*/
 
         // On closed, restart explorer to revert changes
         window.Closed += Window_Closed;
@@ -150,6 +129,32 @@ internal static class ProgManHook
         {
             //PInvoke.UnhookWindowsHookEx(hook);
             Process.GetProcessesByName("explorer")[0].Kill();
+        }
+    }
+
+    private static DateTime lastSettingChangeTime = DateTime.MinValue; // Store the last time
+
+    public static unsafe HWND GetVisibleWorkerW(HWND hWndProgman)
+    {
+        HWND hWorkerW = HWND.Null;
+
+        PInvoke.EnumChildWindows(hWndProgman, EnumChildWindowsProc, IntPtr.Zero);
+
+        return hWorkerW;
+
+        unsafe BOOL EnumChildWindowsProc(HWND hwnd, LPARAM param)
+        {
+            Span<char> className = new char[64];
+
+            _ = PInvoke.GetClassName(hwnd, className);
+
+            // Check if it's a WorkerW and it's not hidden
+            if (className.ToString() == "WorkerW" && PInvoke.IsWindowVisible(hwnd))
+            {
+                hWorkerW = hwnd;
+                return false; // Stop enumeration once we find the visible WorkerW
+            }
+            return true; // Continue enumeration
         }
     }
 

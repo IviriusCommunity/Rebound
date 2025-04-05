@@ -18,3 +18,5 @@ SetParent
 SetWindowsHookEx
 CallNextHookEx
 UnhookWindowsHookEx
+EnumChildWindows
+IsWindowVisible
