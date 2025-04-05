@@ -23,7 +23,7 @@ public partial class App : Application
     {
         await Task.Run(() =>
         {
-            var hook = new WindowHook("32770", "Shut Down Windows");
+            var hook = new WindowHook("#32770", "Shut Down Windows", "explorer");
             hook.WindowDetected += Hook_WindowDetected;
         }).ConfigureAwait(true);
 
@@ -49,7 +49,7 @@ public partial class App : Application
         ShutdownDialog.Minimize();
     }
 
-    private void Hook_WindowDetected(object? sender, WindowDetectedEventArgs e)
+    private async void Hook_WindowDetected(object? sender, WindowDetectedEventArgs e)
     {
         PInvoke.DestroyWindow(new(e.Handle));
         DesktopWindow?.DispatcherQueue.TryEnqueue(() =>
