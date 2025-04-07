@@ -1,44 +1,22 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 	<PropertyGroup>
-		<OutputType>WinExe</OutputType>
-		<RootNamespace>Rebound.Run</RootNamespace>
-		<EnableMsixTooling>true</EnableMsixTooling>
+		<RootNamespace>Rebound.Shell.Run</RootNamespace>
+		<OutputType>Library</OutputType>
 	</PropertyGroup>
 	<ItemGroup>
-	  <None Remove="Assets\Administrator.ico" />
-	  <None Remove="Assets\ClassicEXE.ico" />
-	  <None Remove="Assets\EXE.ico" />
-	  <None Remove="Assets\RunBox.ico" />
-	  <None Remove="Assets\RunBox.png" />
+	  <None Remove="RunWindow.xaml" />
 	</ItemGroup>
-
+	
 	<ItemGroup>
-		<Content Include="Assets\SplashScreen.scale-200.png" />
-		<Content Include="Assets\LockScreenLogo.scale-200.png" />
-		<Content Include="Assets\Square150x150Logo.scale-200.png" />
-		<Content Include="Assets\Square44x44Logo.scale-200.png" />
-		<Content Include="Assets\Square44x44Logo.targetsize-24_altform-unplated.png" />
-		<Content Include="Assets\Wide310x150Logo.scale-200.png" />
+		<ProjectReference Include="..\..\..\core\Rebound.Core.Helpers\Rebound.Core.Helpers.csproj" />
+		<ProjectReference Include="..\..\..\core\Rebound.Core.SourceGenerator\Rebound.Core.SourceGenerator.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
+		<ProjectReference Include="..\..\..\core\Rebound.Core.SourceGeneratorAttributes\Rebound.Core.SourceGeneratorAttributes.csproj" />
+		<ProjectReference Include="..\Rebound.Shell.ExperiencePack\Rebound.Shell.ExperiencePack.csproj" />
 	</ItemGroup>
-
+	
 	<ItemGroup>
-		<None Include="..\Rebound\Assets\AppIcons\Rebound11Icon.png">
-			<Pack>True</Pack>
-			<PackagePath>\</PackagePath>
-		</None>
-	</ItemGroup>
-
-	<ItemGroup>
-		<None Include="..\Rebound\Assets\AppIcons\Rebound11Icon.png">
-			<Pack>True</Pack>
-			<PackagePath>\</PackagePath>
-		</None>
-	</ItemGroup>
-	<ItemGroup>
-		<None Include="..\.github\README.md" Pack="true" PackagePath="\" />
-	</ItemGroup>
-	<ItemGroup>
-	  <ProjectReference Include="..\..\..\core\Rebound.Core.Helpers\Rebound.Core.Helpers.csproj" />
-	  <ProjectReference Include="..\..\..\core\Rebound.Core.SourceGenerator\Rebound.Core.SourceGenerator.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
+	  <Page Update="RunWindow.xaml">
+	    <Generator>MSBuild:Compile</Generator>
+	  </Page>
 	</ItemGroup>
 </Project>

@@ -1,4 +1,6 @@
-﻿using Rebound.Shell.ExperiencePack;
+﻿// Copyright (C) Ivirius(TM) Community 2020 - 2025. All Rights Reserved.
+// Licensed under the MIT License.
+
 using System;
 using System.IO;
 using System.Threading.Tasks;
@@ -8,6 +10,7 @@ using Windows.Storage;
 using Windows.Storage.FileProperties;
 using System.Collections.Generic;
 using IWshRuntimeLibrary;
+using Rebound.Shell.ExperiencePack;
 
 namespace Rebound.Shell.Desktop;
 

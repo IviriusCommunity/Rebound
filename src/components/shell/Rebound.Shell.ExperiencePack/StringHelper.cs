@@ -1,7 +1,5 @@
 ﻿using System.Text;
 
-#nullable enable
-
 namespace Rebound.Shell.ExperiencePack;
 
 public static class StringHelper

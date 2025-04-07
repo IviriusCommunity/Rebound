@@ -1,7 +1,9 @@
-﻿using System;
+﻿// Copyright (C) Ivirius(TM) Community 2020 - 2025. All Rights Reserved.
+// Licensed under the MIT License.
+
+using System;
 using System.Diagnostics;
 using System.Linq;
-using System.Threading.Tasks;
 using Rebound.Helpers;
 using Windows.Win32;
 using WinUIEx;
@@ -10,18 +12,22 @@ namespace Rebound.Shell.Desktop;
 
 public sealed partial class DesktopWindow : WindowEx
 {
-    private WindowEx ShutdownDialog { get; set; }
+    private readonly Action? onClosedCallback;
 
-    public DesktopWindow(WindowEx shutdownDialog)
+    public DesktopWindow(Action? onClosed = null)
     {
-        ShutdownDialog = shutdownDialog;
+        onClosedCallback = onClosed;
         InitializeComponent();
-        this.ToggleWindowStyle(false, WindowStyle.SizeBox | WindowStyle.Caption | WindowStyle.MaximizeBox | WindowStyle.MinimizeBox | WindowStyle.Border | WindowStyle.Iconic | WindowStyle.SysMenu);
-        this.MoveAndResize(0, 0, Display.GetDisplayRect(this).Width, Display.GetDisplayRect(this).Height);
+        this.ToggleWindowStyle(false, 
+            WindowStyle.SizeBox | WindowStyle.Caption | 
+            WindowStyle.MaximizeBox | WindowStyle.MinimizeBox | 
+            WindowStyle.Border | WindowStyle.Iconic | 
+            WindowStyle.SysMenu);
+        this.MoveAndResize(0, 0, Display.GetDisplayRect(this).Width, Display.GetDPIAwareDisplayRect(this).Height);
         RootFrame.Navigate(typeof(DesktopPage), this);
     }
 
-    bool canClose;
+    private bool canClose;
 
     public void RestoreExplorerDesktop()
     {
@@ -34,8 +40,7 @@ public sealed partial class DesktopWindow : WindowEx
         args.Handled = true;
         if (!canClose)
         {
-            ShutdownDialog.Activate();
-            ShutdownDialog.BringToFront();
+            onClosedCallback?.Invoke();
         }
         else
         {

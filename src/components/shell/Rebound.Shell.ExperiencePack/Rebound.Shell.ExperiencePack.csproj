@@ -1,6 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 	<PropertyGroup>
-		<RootNamespace>Rebound.ShellExperiencePack</RootNamespace>
+		<RootNamespace>Rebound.Shell.ExperiencePack</RootNamespace>
 		<OutputType>Library</OutputType>
 	</PropertyGroup>
 	<ItemGroup>

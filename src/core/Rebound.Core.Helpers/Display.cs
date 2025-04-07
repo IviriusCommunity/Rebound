@@ -5,7 +5,7 @@ namespace Rebound.Helpers;
 
 public static class Display
 {
-    public static double Scale(WindowEx win)
+    public static double GetScale(WindowEx win)
     {
         // Get the handle to the current window
         var hWnd = WinRT.Interop.WindowNative.GetWindowHandle(win);
@@ -55,8 +55,8 @@ public static class Display
         var hdc = Win32.GetDC(hWnd);
 
         // Get the width and height of the display
-        var width = Win32.GetDeviceCaps(hdc, Win32.HORZRES) / Scale(win);
-        var height = Win32.GetDeviceCaps(hdc, Win32.VERTRES) / Scale(win);
+        var width = Win32.GetDeviceCaps(hdc, Win32.HORZRES) / GetScale(win);
+        var height = Win32.GetDeviceCaps(hdc, Win32.VERTRES) / GetScale(win);
 
         // Release the device context
         _ = Win32.ReleaseDC(hWnd, hdc);

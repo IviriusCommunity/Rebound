@@ -1,10 +1,13 @@
-﻿using System;
+﻿// Copyright (C) Ivirius(TM) Community 2020 - 2025. All Rights Reserved.
+// Licensed under the MIT License.
+
+using System;
 using System.Diagnostics;
 using Windows.Win32;
 using Windows.Win32.Foundation;
 using Windows.Win32.UI.Accessibility;
 
-namespace Rebound.ShellExperiencePack;
+namespace Rebound.Shell.ExperiencePack;
 
 public class WindowDetectedEventArgs(IntPtr handle) : EventArgs
 {
@@ -22,7 +25,7 @@ public class WindowHook
     private const uint EVENT_OBJECT_CREATE = 0x8000;
     private const uint WINEVENT_OUTOFCONTEXT = 0;
 
-    private HWINEVENTHOOK _hookHandle;
+    private readonly HWINEVENTHOOK _hookHandle;
 
     public WindowHook(string? lpClassName, string? lpName, string lpProcessName)
     {
@@ -85,7 +88,7 @@ public class ChildWindowHook
     private const uint EVENT_OBJECT_CREATE = 0x8000;
     private const uint WINEVENT_OUTOFCONTEXT = 0;
 
-    private HWINEVENTHOOK _hookHandle;
+    private readonly HWINEVENTHOOK _hookHandle;
 
     public ChildWindowHook(IntPtr parent, string? lpClassName, string? lpName, string lpProcessName)
     {

@@ -1,14 +1,17 @@
-﻿using System;
+﻿// Copyright (C) Ivirius(TM) Community 2020 - 2025. All Rights Reserved.
+// Licensed under the MIT License.
+
 using System.Threading;
-using System.Threading.Tasks;
 using Microsoft.UI.Xaml;
 using Rebound.Generators;
 using Rebound.Helpers;
 using Rebound.Shell.Desktop;
-using Rebound.ShellExperiencePack;
-using Windows.Storage;
+using Rebound.Shell.ExperiencePack;
 using Windows.Win32;
 using WinUIEx;
+
+#pragma warning disable IDE0079 // Remove unnecessary suppression
+#pragma warning disable CA1515  // Consider making public types internal
 
 namespace Rebound.Shell.ExperienceHost;
 
@@ -20,7 +23,7 @@ public partial class App : Application
 
     }
 
-    private async void Run()
+    private void Run()
     {
         var thread = new Thread(() =>
         {
@@ -47,20 +50,24 @@ public partial class App : Application
         BackgroundWindow.Minimize();
         BackgroundWindow.SetWindowOpacity(0);
 
-        RunWindow = new WindowEx();
+        RunWindow = new Run.RunWindow(() =>
+        {
+            RunWindow = null;
+        });
+        RunWindow.SetDarkMode();
+        RunWindow.RemoveIcon();
 
-        ShutdownDialog = new ShutdownDialog.ShutdownDialog();
+        ShutdownDialog = new ShutdownDialog.ShutdownDialog(() =>
+        {
+            ShutdownDialog = null;
+        });
         ShutdownDialog.SetDarkMode();
         ShutdownDialog.RemoveIcon();
 
         // Desktop window
-        DesktopWindow = new DesktopWindow(ShutdownDialog);
+        DesktopWindow = new DesktopWindow(ShowShutdownDialog);
         DesktopWindow.Activate();
         DesktopWindow.AttachToProgMan();
-
-        await Task.Delay(1000).ConfigureAwait(true);
-
-        ShutdownDialog.Minimize();
     }
 
     private const uint WM_CLOSE = 0x10; // WM_CLOSE constant
@@ -73,8 +80,17 @@ public partial class App : Application
         // Make sure to update the UI (run window activation) on the UI thread
         BackgroundWindow?.DispatcherQueue.TryEnqueue(() =>
         {
-            RunWindow?.Activate();
-            RunWindow?.Restore();
+            if (RunWindow is null)
+            {
+                RunWindow = new Run.RunWindow(() =>
+                {
+                    RunWindow = null;
+                });
+                RunWindow.SetDarkMode();
+                RunWindow.RemoveIcon();
+            }
+            RunWindow.Activate();
+            RunWindow.BringToFront();
         });
     }
 
@@ -83,9 +99,23 @@ public partial class App : Application
         PInvoke.DestroyWindow(new(e.Handle));
         BackgroundWindow?.DispatcherQueue.TryEnqueue(() =>
         {
-            ShutdownDialog?.Activate();
-            ShutdownDialog?.Restore();
+            ShowShutdownDialog();
         });
+    }
+
+    public static void ShowShutdownDialog()
+    {
+        if (ShutdownDialog is null)
+        {
+            ShutdownDialog = new ShutdownDialog.ShutdownDialog(() =>
+            {
+                ShutdownDialog = null;
+            });
+            ShutdownDialog.SetDarkMode();
+            ShutdownDialog.RemoveIcon();
+        }
+        ShutdownDialog.Activate();
+        ShutdownDialog.BringToFront();
     }
 
     private static void NativeMessageLoop()

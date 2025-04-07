@@ -235,52 +235,52 @@ public class TitleBarService
         {
             if (Minimize != null && MaxRes != null && Close != null)
             {
-                minButtonLeftPos = (Minimize.Width + MaxRes.Width + Close.Width) * Display.Scale(CurrentWindow);
-                maxButtonLeftPos = (MaxRes.Width + Close.Width) * Display.Scale(CurrentWindow);
-                closeButtonLeftPos = Close.Width * Display.Scale(CurrentWindow);
-                buttonsMinY = (Close.Margin.Top * Display.Scale(CurrentWindow)) + 2;
-                buttonsMaxY = (Close.Height + Close.Margin.Top) * Display.Scale(CurrentWindow);
+                minButtonLeftPos = (Minimize.Width + MaxRes.Width + Close.Width) * Display.GetScale(CurrentWindow);
+                maxButtonLeftPos = (MaxRes.Width + Close.Width) * Display.GetScale(CurrentWindow);
+                closeButtonLeftPos = Close.Width * Display.GetScale(CurrentWindow);
+                buttonsMinY = (Close.Margin.Top * Display.GetScale(CurrentWindow)) + 2;
+                buttonsMaxY = (Close.Height + Close.Margin.Top) * Display.GetScale(CurrentWindow);
 
                 // Gets the X positions from: Window X + Window border + (Window size +/- button size)
                 xMinimizeMin =
                     CurrentWindow.AppWindow.Position.X +
-                    (7 * Display.Scale(CurrentWindow)) +
-                    ((CurrentWindow.Bounds.Width * Display.Scale(CurrentWindow)) - minButtonLeftPos);
+                    (7 * Display.GetScale(CurrentWindow)) +
+                    ((CurrentWindow.Bounds.Width * Display.GetScale(CurrentWindow)) - minButtonLeftPos);
 
                 xMinimizeMax =
                     CurrentWindow.AppWindow.Position.X +
-                    (7 * Display.Scale(CurrentWindow)) +
-                    ((CurrentWindow.Bounds.Width * Display.Scale(CurrentWindow)) - maxButtonLeftPos);
+                    (7 * Display.GetScale(CurrentWindow)) +
+                    ((CurrentWindow.Bounds.Width * Display.GetScale(CurrentWindow)) - maxButtonLeftPos);
 
                 xMaximizeMin =
                     CurrentWindow.AppWindow.Position.X +
-                    (7 * Display.Scale(CurrentWindow)) +
-                    ((CurrentWindow.Bounds.Width * Display.Scale(CurrentWindow)) - maxButtonLeftPos);
+                    (7 * Display.GetScale(CurrentWindow)) +
+                    ((CurrentWindow.Bounds.Width * Display.GetScale(CurrentWindow)) - maxButtonLeftPos);
 
                 xMaximizeMax =
                     CurrentWindow.AppWindow.Position.X +
-                    (7 * Display.Scale(CurrentWindow)) +
-                    ((CurrentWindow.Bounds.Width * Display.Scale(CurrentWindow)) - closeButtonLeftPos);
+                    (7 * Display.GetScale(CurrentWindow)) +
+                    ((CurrentWindow.Bounds.Width * Display.GetScale(CurrentWindow)) - closeButtonLeftPos);
 
                 xCloseMin =
                     CurrentWindow.AppWindow.Position.X +
-                    (7 * Display.Scale(CurrentWindow)) +
-                    ((CurrentWindow.Bounds.Width * Display.Scale(CurrentWindow)) - closeButtonLeftPos);
+                    (7 * Display.GetScale(CurrentWindow)) +
+                    ((CurrentWindow.Bounds.Width * Display.GetScale(CurrentWindow)) - closeButtonLeftPos);
 
                 xCloseMax =
                     CurrentWindow.AppWindow.Position.X +
-                    (7 * Display.Scale(CurrentWindow)) +
-                    (CurrentWindow.Bounds.Width * Display.Scale(CurrentWindow));
+                    (7 * Display.GetScale(CurrentWindow)) +
+                    (CurrentWindow.Bounds.Width * Display.GetScale(CurrentWindow));
 
                 // Gets the Y positions from: Window Y + Window border + (Window size +/- button size)
                 yMin =
                     CurrentWindow.AppWindow.Position.Y +
-                    (AdditionalHeight * Display.Scale(CurrentWindow)) +
+                    (AdditionalHeight * Display.GetScale(CurrentWindow)) +
                     buttonsMinY;
 
                 yMax =
                     CurrentWindow.AppWindow.Position.Y +
-                    (AdditionalHeight * Display.Scale(CurrentWindow)) +
+                    (AdditionalHeight * Display.GetScale(CurrentWindow)) +
                     buttonsMaxY;
             }
         }
@@ -540,7 +540,7 @@ public class TitleBarService
             {
                 var titleBar = appWindow.TitleBar;
 
-                var rect = new RectInt32(0, 0, (int)(CurrentWindow.Bounds.Width * Display.Scale(CurrentWindow)), (int)(31 * Display.Scale(CurrentWindow)));
+                var rect = new RectInt32(0, 0, (int)(CurrentWindow.Bounds.Width * Display.GetScale(CurrentWindow)), (int)(31 * Display.GetScale(CurrentWindow)));
 
                 RectInt32[] rects = [rect];
 

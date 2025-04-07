@@ -1,4 +1,7 @@
-﻿namespace Rebound.Shell.Desktop;
+﻿// Copyright (C) Ivirius(TM) Community 2020 - 2025. All Rights Reserved.
+// Licensed under the MIT License.
+
+namespace Rebound.Shell.Desktop;
 
 public static partial class DesktopSettingsHelper
 {

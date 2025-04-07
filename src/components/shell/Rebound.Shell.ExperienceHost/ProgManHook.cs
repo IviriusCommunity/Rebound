@@ -1,16 +1,13 @@
-﻿using System;
-using System.Diagnostics;
-using System.Runtime.InteropServices;
-using System.Text;
-using System.Threading;
+﻿// Copyright (C) Ivirius(TM) Community 2020 - 2025. All Rights Reserved.
+// Licensed under the MIT License.
+
+using System;
 using System.Threading.Tasks;
-using Microsoft.UI.Xaml;
 using Microsoft.Win32;
 using Windows.Win32;
 using Windows.Win32.Foundation;
 using Windows.Win32.UI.WindowsAndMessaging;
 using WinUIEx;
-using static Rebound.Helpers.User32;
 
 namespace Rebound.Shell.ExperienceHost;
 
@@ -26,10 +23,8 @@ internal static class ProgManHook
         return -1;
     }
 
-    // Event constants for SetWinEventHook
     public const uint EVENT_OBJECT_CREATE = 0x8000;  // Object creation event
 
-    // Constants for the WinEventHook function
     public const uint WINEVENT_OUTOFCONTEXT = 0x0000;  // Out of context event (no callback filtering based on the context)
 
     public static async void AttachToProgMan(this WindowEx window)
@@ -60,7 +55,7 @@ internal static class ProgManHook
             _ = PInvoke.SendMessageTimeout(hWndProgman, 0x052C, 0, 0, SEND_MESSAGE_TIMEOUT_FLAGS.SMTO_NORMAL, 250, null);
         }
 
-        await Task.Delay(250);
+        await Task.Delay(250).ConfigureAwait(true);
 
         if (version >= 26100)
         {
@@ -90,7 +85,7 @@ internal static class ProgManHook
                 _ = PInvoke.SendMessageTimeout(hWndProgman, 0x052C, 0, 0, SEND_MESSAGE_TIMEOUT_FLAGS.SMTO_NORMAL, 250, null);
             }
 
-            await Task.Delay(250);
+            await Task.Delay(250).ConfigureAwait(true);
 
             // Find the parent of SHELLDLL_DefView (which should be WorkerW)
             unsafe
@@ -125,7 +120,7 @@ internal static class ProgManHook
             var winManager = WindowManager.Get(window);
 
             // Introduce a delay of 5 seconds
-            await Task.Delay(5000);
+            await Task.Delay(5000).ConfigureAwait(true);
 
             // After the delay, subscribe to the window message handler
             winManager.WindowMessageReceived += async (sender, e) =>
@@ -149,7 +144,7 @@ internal static class ProgManHook
                                 _ = PInvoke.SetWindowLongPtr(hWorkerW, WINDOW_LONG_PTR_INDEX.GWL_STYLE, unchecked((nint)0x96000000));
                                 _ = PInvoke.SetWindowLongPtr(hWorkerW, WINDOW_LONG_PTR_INDEX.GWL_EXSTYLE, 0x20000880);
 
-                                await Task.Delay(500);
+                                await Task.Delay(500).ConfigureAwait(true);
 
                                 // Set the parent of SHELLDLL_DefView to WorkerW
                                 _ = PInvoke.SetParent(hSHELLDLL_DefView, hWorkerW);
@@ -165,7 +160,7 @@ internal static class ProgManHook
 
     public static unsafe HWND GetVisibleWorkerW(HWND hWndProgman)
     {
-        HWND hWorkerW = HWND.Null;
+        var hWorkerW = HWND.Null;
 
         PInvoke.EnumChildWindows(hWndProgman, EnumChildWindowsProc, IntPtr.Zero);
 

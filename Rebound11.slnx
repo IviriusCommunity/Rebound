@@ -53,11 +53,8 @@
       <Platform Solution="*|x86" Project="x86" />
       <Deploy />
     </Project>
-    <Project Path="src/components/shell/Rebound.Shell.Run/Rebound.Shell.Run.csproj">
-      <Platform Solution="*|ARM64" Project="ARM64" />
-      <Platform Solution="*|x64" Project="x64" />
-      <Platform Solution="*|x86" Project="x86" />
-      <Deploy />
+    <Project Path="src/components/shell/Rebound.Shell.Run/Rebound.Shell.Run.csproj" Id="2a28a5a2-1825-4bcd-b7fd-266b8e82a73a">
+      <Platform Project="x64" />
     </Project>
     <Project Path="src/components/shell/Rebound.Shell.ShutdownDialog/Rebound.Shell.ShutdownDialog.csproj" Id="f86bd699-d1fb-4722-bede-0bfd5be82dc1">
       <Platform Project="x64" />

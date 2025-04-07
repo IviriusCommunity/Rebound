@@ -4,6 +4,10 @@
 		<EnableMsixTooling>true</EnableMsixTooling>
 		<RootNamespace>Rebound.Shell.ExperienceHost</RootNamespace>
 	</PropertyGroup>
+	<ItemGroup>
+	  <None Remove="Assets\RunBox.ico" />
+	  <None Remove="Assets\RunBox.png" />
+	</ItemGroup>
 
 	<ItemGroup>
 		<Content Include="Assets\SplashScreen.scale-200.png" />
@@ -21,6 +25,16 @@
 		<ProjectReference Include="..\..\..\core\Rebound.Core.SourceGeneratorAttributes\Rebound.Core.SourceGeneratorAttributes.csproj" />
 		<ProjectReference Include="..\Rebound.Shell.Desktop\Rebound.Shell.Desktop.csproj" />
 		<ProjectReference Include="..\Rebound.Shell.ExperiencePack\Rebound.Shell.ExperiencePack.csproj" />
+		<ProjectReference Include="..\Rebound.Shell.Run\Rebound.Shell.Run.csproj" />
 		<ProjectReference Include="..\Rebound.Shell.ShutdownDialog\Rebound.Shell.ShutdownDialog.csproj" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <Content Update="Assets\RunBox.ico">
+	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	  </Content>
+	  <Content Update="Assets\RunBox.png">
+	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	  </Content>
 	</ItemGroup>
 </Project>
