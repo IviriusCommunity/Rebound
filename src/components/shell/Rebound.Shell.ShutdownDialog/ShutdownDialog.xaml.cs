@@ -23,8 +23,8 @@ public sealed partial class ShutdownDialog : WindowEx
 
     private void Manager_WindowMessageReceived(object? sender, WinUIEx.Messaging.WindowMessageEventArgs e)
     {
-        if (e.Message.MessageId == WM_ACTIVATE && e.Message.WParam == WA_INACTIVE) 
-            Close();
+        /*if (e.Message.MessageId == WM_ACTIVATE && e.Message.WParam == WA_INACTIVE) 
+            Close();*/
     }
 
     private unsafe void WindowEx_Closed(object sender, Microsoft.UI.Xaml.WindowEventArgs args)

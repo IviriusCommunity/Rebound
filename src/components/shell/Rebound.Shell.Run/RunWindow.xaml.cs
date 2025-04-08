@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using Microsoft.UI.Xaml;
+using Rebound.Helpers;
 using System;
 using WinUIEx;
 
@@ -15,13 +16,18 @@ public sealed partial class RunWindow : WindowEx
     {
         onClosedCallback = onClosed;
         InitializeComponent();
-        var scale = Helpers.Display.GetScale(this);
-        this.Move((int)(25 * scale), (int)(Helpers.Display.GetDPIAwareDisplayRect(this).Height - (48 + 25) * scale - Height * scale));
-        this.SetTaskBarIcon(Icon.FromFile($"{AppContext.BaseDirectory}\\Assets\\RunBox.ico"));
+        var scale = Display.GetScale(this);
+        this.Move((int)(25 * scale), (int)(Display.GetDPIAwareDisplayRect(this).Height - (48 + 25) * scale - Height * scale));
     }
 
     private void WindowEx_Closed(object sender, WindowEventArgs args)
     {
         onClosedCallback?.Invoke();
+    }
+
+    private void WindowEx_Activated(object sender, WindowActivatedEventArgs args)
+    {
+        this.SetTaskBarIcon(Icon.FromFile($"{AppContext.BaseDirectory}\\Assets\\RunBox.ico"));
+        this.RemoveIcon();
     }
 }

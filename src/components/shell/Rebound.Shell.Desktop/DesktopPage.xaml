@@ -465,7 +465,7 @@
                         <ui:Effects.Shadow>
                             <ui:AttachedDropShadow
                                 BlurRadius="10"
-                                CastTo="{Binding ThumbnailImage}"
+                                CastTo="{x:Bind ThumbnailImage}"
                                 Opacity="0.25" />
                         </ui:Effects.Shadow>
                     </Image>
@@ -562,7 +562,7 @@
                     <ui:Effects.Shadow>
                         <ui:AttachedDropShadow
                             BlurRadius="7"
-                            CastTo="{Binding FileNameControl1}"
+                            CastTo="{x:Bind FileNameControl1}"
                             IsMasked="True"
                             Opacity="1"
                             Offset="1" />
@@ -581,7 +581,7 @@
                     <ui:Effects.Shadow>
                         <ui:AttachedDropShadow
                             BlurRadius="3"
-                            CastTo="{Binding FileNameControl2}"
+                            CastTo="{x:Bind FileNameControl2}"
                             IsMasked="True"
                             Opacity="1" />
                     </ui:Effects.Shadow>
