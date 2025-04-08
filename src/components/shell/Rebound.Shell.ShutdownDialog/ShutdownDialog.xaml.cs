@@ -36,7 +36,10 @@ public sealed partial class ShutdownDialog : WindowEx
     private void WindowEx_Activated(object sender, Microsoft.UI.Xaml.WindowActivatedEventArgs args)
     {
         this.CenterOnScreen();
-        windowManager = WindowManager.Get(this);
-        windowManager.WindowMessageReceived += Manager_WindowMessageReceived;
+        if (windowManager == null)
+        {
+            windowManager = WindowManager.Get(this);
+            windowManager.WindowMessageReceived += Manager_WindowMessageReceived;
+        }
     }
 }

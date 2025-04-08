@@ -17,6 +17,7 @@ public sealed partial class RunWindow : WindowEx
         InitializeComponent();
         var scale = Helpers.Display.GetScale(this);
         this.Move((int)(25 * scale), (int)(Helpers.Display.GetDPIAwareDisplayRect(this).Height - (48 + 25) * scale - Height * scale));
+        this.SetTaskBarIcon(Icon.FromFile($"{AppContext.BaseDirectory}\\Assets\\RunBox.ico"));
     }
 
     private void WindowEx_Closed(object sender, WindowEventArgs args)
