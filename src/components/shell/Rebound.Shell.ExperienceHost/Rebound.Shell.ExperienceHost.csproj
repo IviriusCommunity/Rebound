@@ -3,6 +3,7 @@
 		<OutputType>WinExe</OutputType>
 		<EnableMsixTooling>true</EnableMsixTooling>
 		<RootNamespace>Rebound.Shell.ExperienceHost</RootNamespace>
+		<ApplicationIcon>Assets\ReboundIcon.ico</ApplicationIcon>
 	</PropertyGroup>
 	<ItemGroup>
 	  <None Remove="Assets\RunBox.ico" />
