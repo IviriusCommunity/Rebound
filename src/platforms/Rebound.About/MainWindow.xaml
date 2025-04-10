@@ -4,35 +4,35 @@
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:environment="using:Rebound.Helpers.Environment"
     xmlns:local="using:Rebound.About"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:winuiex="using:WinUIEx"
-    xmlns:environment="using:Rebound.Helpers.Environment"
-    mc:Ignorable="d"
-    IsMaximizable="False"
-    IsMinimizable="False"
+    Title="About Windows"
     Width="520"
     Height="640"
-    Title="About Windows"
-    IsResizable="False">
+    IsMaximizable="False"
+    IsMinimizable="False"
+    IsResizable="False"
+    mc:Ignorable="d">
     <winuiex:WindowEx.SystemBackdrop>
-        <MicaBackdrop/>
+        <MicaBackdrop />
     </winuiex:WindowEx.SystemBackdrop>
     <Grid>
         <Grid.RowDefinitions>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="*"/>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
         </Grid.RowDefinitions>
         <StackPanel
-            Margin="0, 20, 0, 24"
             x:Name="WinverPanel"
+            Grid.Row="0"
+            Margin="0,20,0,24"
             HorizontalAlignment="Center"
             VerticalAlignment="Top"
             Orientation="Horizontal"
-            Spacing="24"
-            Grid.Row="0">
+            Spacing="24">
             <Path VerticalAlignment="Center" Data="M 0 4 C 0 2 2 0 4 0 L 33 0 L 33 33 L 0 33 M 35 0 L 64 0 C 66 0 68 2 68 4 L 68 33 L 35 33 M 33 35 L 0 35 L 0 64 C 0 66 2 68 4 68 L 33 68 M 35 35 L 68 35 L 68 64 C 68 66 66 68 64 68 L 35 68">
                 <Path.Fill>
                     <LinearGradientBrush StartPoint="0, 0" EndPoint="1, 1">
@@ -45,10 +45,10 @@
             </Path>
             <TextBlock
                 x:Name="WindowsVer"
+                Margin="0,-8,0,0"
                 VerticalAlignment="Center"
                 FontFamily="Segoe UI Variable"
                 FontSize="54"
-                Margin="0, -8, 0, 0"
                 FontWeight="SemiBold"
                 Text="{x:Bind ViewModel.WindowsVersionName}">
                 <TextBlock.Foreground>
@@ -61,27 +61,27 @@
                 </TextBlock.Foreground>
             </TextBlock>
         </StackPanel>
-        <Border
-            Background="{ThemeResource CardBackgroundFillColorDefault}"
-            Grid.Row="1">
+        <Border Grid.Row="1" Background="{ThemeResource CardBackgroundFillColorDefault}">
             <Grid Padding="16">
                 <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="Auto"/>
-                    <ColumnDefinition Width="16"/>
-                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="16" />
+                    <ColumnDefinition Width="*" />
                 </Grid.ColumnDefinitions>
-                <FontIcon Glyph="&#xF167;" FontSize="16" VerticalAlignment="Top" Foreground="{ThemeResource AccentTextFillColorPrimaryBrush}"/>
-                <StackPanel Spacing="10" Grid.Column="2">
+                <FontIcon
+                    VerticalAlignment="Top"
+                    FontSize="16"
+                    Foreground="{ThemeResource AccentTextFillColorPrimaryBrush}"
+                    Glyph="&#xF167;" />
+                <StackPanel Grid.Column="2" Spacing="10">
                     <TextBlock
-                        Text="Microsoft Windows"
-                        TextWrapping="WrapWholeWords"
+                        Margin="0,-3,0,8"
                         FontWeight="SemiBold"
-                        Margin="0, -3, 0, 8"/>
-                    <TextBlock TextWrapping="WrapWholeWords" Text="{x:Bind ViewModel.DetailedWindowsVersion}"/>
-                    <TextBlock Text="Copyright ©️ Microsoft Corporation. All rights reserved." />
-                    <TextBlock
-                        Text="{x:Bind ViewModel.LegalInfo}"
+                        Text="Microsoft Windows"
                         TextWrapping="WrapWholeWords" />
+                    <TextBlock Text="{x:Bind ViewModel.DetailedWindowsVersion}" TextWrapping="WrapWholeWords" />
+                    <TextBlock Text="Copyright ©️ Microsoft Corporation. All rights reserved." />
+                    <TextBlock Text="{x:Bind ViewModel.LegalInfo}" TextWrapping="WrapWholeWords" />
                     <TextBlock>
                         <Run Text="This product is licensed under the" />
                         <Hyperlink NavigateUri="https://support.microsoft.com/en-us/windows/microsoft-software-license-terms-e26eedad-97a2-5250-2670-aad156b654bd">
@@ -91,51 +91,72 @@
                     </TextBlock>
                     <TextBlock x:Name="User" Text="{x:Bind ViewModel.LicenseOwners}" />
                 </StackPanel>
-                <Button Grid.Column="2" Background="Transparent" BorderBrush="Transparent" HorizontalAlignment="Right" VerticalAlignment="Top" Padding="8" Margin="-8">
-                    <FontIcon Glyph="&#xE8C8;" FontSize="16"/>
+                <Button
+                    Grid.Column="2"
+                    Margin="-8"
+                    Padding="8"
+                    HorizontalAlignment="Right"
+                    VerticalAlignment="Top"
+                    Background="Transparent"
+                    BorderBrush="Transparent">
+                    <FontIcon FontSize="16" Glyph="&#xE8C8;" />
                     <Button.Flyout>
                         <MenuFlyout>
-                            <MenuFlyoutItem Text="Copy Windows version" Command="{x:Bind CopyWindowsVersionCommand}"/>
-                            <MenuFlyoutItem Text="Copy license owners" Command="{x:Bind CopyLicenseOwnersCommand}"/>
+                            <MenuFlyoutItem Command="{x:Bind CopyWindowsVersionCommand}" Text="Copy Windows version" />
+                            <MenuFlyoutItem Command="{x:Bind CopyLicenseOwnersCommand}" Text="Copy license owners" />
                         </MenuFlyout>
                     </Button.Flyout>
                 </Button>
             </Grid>
         </Border>
-        <Border
-            Grid.Row="2">
+        <Border Grid.Row="2">
             <Grid Padding="16">
                 <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="Auto"/>
-                    <ColumnDefinition Width="16"/>
-                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="16" />
+                    <ColumnDefinition Width="*" />
                 </Grid.ColumnDefinitions>
-                <FontIcon Glyph="&#xF167;" FontSize="16" VerticalAlignment="Top" Foreground="{ThemeResource AccentTextFillColorPrimaryBrush}"/>
-                <StackPanel Spacing="10" Grid.Column="2">
+                <FontIcon
+                    VerticalAlignment="Top"
+                    FontSize="16"
+                    Foreground="{ThemeResource AccentTextFillColorPrimaryBrush}"
+                    Glyph="&#xF167;" />
+                <StackPanel Grid.Column="2" Spacing="10">
                     <TextBlock
-                        Text="Rebound"
-                        TextWrapping="WrapWholeWords"
+                        Margin="0,-3,0,8"
                         FontWeight="SemiBold"
-                        Margin="0, -3, 0, 8"/>
+                        Text="Rebound"
+                        TextWrapping="WrapWholeWords" />
                     <TextBlock Text="{x:Bind environment:ReboundVersion.REBOUND_VERSION}" />
                     <TextBlock Text="Rebound is a Windows mod that does not modify system files. The current Windows installation contains additional apps to run Rebound." TextWrapping="WrapWholeWords" />
                 </StackPanel>
-                <Button Grid.Column="2" Background="Transparent" BorderBrush="Transparent" HorizontalAlignment="Right" VerticalAlignment="Top" Padding="8" Margin="-8" Command="{x:Bind CopyReboundVersionCommand}">
-                    <FontIcon Glyph="&#xE8C8;" FontSize="16"/>
+                <Button
+                    Grid.Column="2"
+                    Margin="-8"
+                    Padding="8"
+                    HorizontalAlignment="Right"
+                    VerticalAlignment="Top"
+                    Background="Transparent"
+                    BorderBrush="Transparent"
+                    Command="{x:Bind CopyReboundVersionCommand}">
+                    <FontIcon FontSize="16" Glyph="&#xE8C8;" />
                 </Button>
             </Grid>
         </Border>
-        <Grid Grid.Row="3" Height="80" Padding="24"
+        <Grid
+            Grid.Row="3"
+            Height="80"
+            Padding="24"
             Background="{ThemeResource SystemControlBackgroundAltMediumLowBrush}">
             <Button
-                Style="{ThemeResource AccentButtonStyle}"
+                Width="140"
                 HorizontalAlignment="Right"
                 VerticalAlignment="Center"
-                Width="140"
+                Command="{x:Bind CloseWindowCommand}"
                 Content="OK"
-                Command="{x:Bind CloseWindowCommand}">
+                Style="{ThemeResource AccentButtonStyle}">
                 <Button.KeyboardAccelerators>
-                    <KeyboardAccelerator Key="Escape"/>
+                    <KeyboardAccelerator Key="Escape" />
                 </Button.KeyboardAccelerators>
             </Button>
         </Grid>
