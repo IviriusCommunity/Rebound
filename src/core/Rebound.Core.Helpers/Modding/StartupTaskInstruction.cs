@@ -20,25 +20,34 @@ public class StartupTaskInstruction : IReboundAppInstruction
         {
             using TaskService ts = new();
 
-            // Specify the path to the task in Task Scheduler
-            var defragFolder = ts.GetFolder(@"Rebound") ?? ts.RootFolder.CreateFolder(@"Rebound");
-
-            // Retrieve the scheduled task
-            var task = defragFolder.GetTasks().Exists("Shell") ? defragFolder.GetTasks()["Shell"] : defragFolder.RegisterTaskDefinition(@"Shell", default);
-
-            task.Definition.Triggers.Clear();
-            task.Definition.Triggers.Add(Trigger.CreateTrigger(TaskTriggerType.Logon));
-            task.Definition.Actions.Clear();
-            task.Definition.Actions.Add(Microsoft.Win32.TaskScheduler.Action.CreateAction(TaskActionType.Execute));
-            if (task.Definition.Actions[0] is ExecAction execTask)
+            // Create or get "Rebound" folder
+            TaskFolder defragFolder;
+            try
             {
-                execTask.Path = TargetPath;
+                defragFolder = ts.GetFolder("Rebound");
             }
-            task.Enabled = true;
+            catch
+            {
+                defragFolder = ts.RootFolder.CreateFolder("Rebound");
+            }
+
+            // Create new task definition
+            TaskDefinition td = ts.NewTask();
+            td.RegistrationInfo.Description = "Rebound Shell Task";
+
+            // Add Logon trigger
+            td.Triggers.Add(new LogonTrigger());
+
+            // Add Exec action
+            td.Actions.Add(new ExecAction(TargetPath, null, null));
+
+            // Register the task or overwrite if exists
+            defragFolder.RegisterTaskDefinition("Shell", td, TaskCreation.CreateOrUpdate, null, null, TaskLogonType.InteractiveToken);
+
         }
-        catch(Exception ex)
+        catch (Exception ex)
         {
-            Debug.WriteLine(ex.Message);
+            Debug.WriteLine($"Task Scheduler error: {ex.Message}");
         }
     }
 
