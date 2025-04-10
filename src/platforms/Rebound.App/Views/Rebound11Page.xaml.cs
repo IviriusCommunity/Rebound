@@ -12,6 +12,8 @@ public partial class Rebound11Page : Page
 
     public OnScreenKeyboardInstructions OnScreenKeyboardInstructions { get; set; } = new();
 
+    public ShellInstructions ShellInstructions { get; set; } = new();
+
     public Rebound11Page()
     {
         InitializeComponent();

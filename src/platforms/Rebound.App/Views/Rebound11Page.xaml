@@ -535,6 +535,89 @@
                         </InfoBar.ActionButton>
                     </InfoBar>
                 </Grid>
+                <Grid
+                    Width="400"
+                    Padding="12"
+                    HorizontalAlignment="Left"
+                    Background="{ThemeResource CardBackgroundFillColorDefault}"
+                    BorderBrush="{ThemeResource ControlElevationBorderBrush}"
+                    BorderThickness="1"
+                    CornerRadius="4">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="8" />
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="8" />
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                    </Grid.RowDefinitions>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="16" />
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="16" />
+                        <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
+                    <Border
+                        Grid.RowSpan="3"
+                        Padding="4"
+                        VerticalAlignment="Center"
+                        Background="{ThemeResource ControlOnImageFillColorDefaultBrush}"
+                        BorderBrush="{ThemeResource AccentFillColorDefaultBrush}"
+                        BorderThickness="1"
+                        CornerRadius="4">
+                        <Image
+                            Width="64"
+                            Height="64"
+                            Source="/Assets/AppIcons/Rebound.ico" />
+                    </Border>
+                    <TextBlock
+                        Grid.Column="2"
+                        FontSize="18"
+                        FontWeight="SemiBold"
+                        Text="Shell"
+                        TextWrapping="WrapWholeWords" />
+                    <StackPanel
+                        Grid.Column="4"
+                        Margin="0,-4,0,0"
+                        Orientation="Horizontal"
+                        Spacing="8">
+                        <ToggleSwitch
+                            Margin="0,-2,-108,-2"
+                            IsOn="{x:Bind ShellInstructions.IsInstalled, Mode=TwoWay}"
+                            OffContent=""
+                            OnContent="" />
+                    </StackPanel>
+                    <TextBlock
+                        Grid.Row="2"
+                        Grid.Column="2"
+                        Grid.ColumnSpan="3"
+                        Margin="0,-44,0,0"
+                        Text="Desktop, run box, etc."
+                        TextWrapping="WrapWholeWords" />
+                    <InfoBar
+                        Title="This will do the following:"
+                        Grid.Row="4"
+                        Grid.ColumnSpan="5"
+                        IsClosable="False"
+                        IsOpen="True"
+                        Message="Redirect app launch" />
+                    <InfoBar
+                        Margin="0, 8, 0, 0"
+                        Title="This mod is corrupted and needs to be repaired."
+                        Grid.Row="5"
+                        Grid.ColumnSpan="5"
+                        IsClosable="False"
+                        IsOpen="True"
+                        Visibility="{x:Bind ShellInstructions.IsIntact, Mode=OneWay, Converter={StaticResource BoolToReverseVisibilityConverter}}"
+                        Severity="Error">
+                        <InfoBar.ActionButton>
+                            <Button
+                                Command="{x:Bind ShellInstructions.RepairCommand}"
+                                Content="Repair" />
+                        </InfoBar.ActionButton>
+                    </InfoBar>
+                </Grid>
             </controls:StaggeredPanel>
         </Grid>
     </ScrollViewer>
