@@ -4,7 +4,10 @@
         <RootNamespace>Rebound</RootNamespace>
         <EnableMsixTooling>true</EnableMsixTooling>
         <Version>0.0.3</Version>
-    </PropertyGroup>
+		
+		<!-- Application Manifest -->
+		<ApplicationManifest>app.manifest</ApplicationManifest>
+	</PropertyGroup>
 
     <ItemGroup>
         <Content Include="Assets\SplashScreen.scale-200.png" />

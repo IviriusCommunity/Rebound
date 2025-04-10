@@ -50,9 +50,6 @@
 		<WebView2EnableCsWinRTProjection>False</WebView2EnableCsWinRTProjection>
 		<WebView2LoaderPreference>Static</WebView2LoaderPreference>
 
-		<!-- Application Manifest -->
-		<ApplicationManifest>app.manifest</ApplicationManifest>
-
 		<!-- Publishing Settings -->
 		<PublishProfile>win-$(Platform).pubxml</PublishProfile>
 
