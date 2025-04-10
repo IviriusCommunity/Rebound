@@ -1,12 +1,12 @@
 using System;
 using CommunityToolkit.Mvvm.Input;
-using Microsoft.UI.Xaml.Media;
+using Rebound.Helpers;
 using Windows.ApplicationModel.DataTransfer;
 using WinUIEx;
 
 namespace Rebound.About;
 
-public sealed partial class MainWindow : WindowEx
+internal sealed partial class MainWindow : WindowEx
 {
     private readonly MainViewModel ViewModel;
 
@@ -14,9 +14,10 @@ public sealed partial class MainWindow : WindowEx
     {
         InitializeComponent();
         ViewModel = new MainViewModel();
-        this.MoveAndResize(25, 25, 650, 690);
-        SystemBackdrop = new MicaBackdrop();
-        this.SetIcon($"{AppContext.BaseDirectory}\\Assets\\Rebound.ico");
+        this.Move(25, 25);
+        this.SetDarkMode();
+        this.SetTaskBarIcon(Icon.FromFile($"{AppContext.BaseDirectory}\\Assets\\Rebound.ico"));
+        this.RemoveIcon();
     }
 
     [RelayCommand]
@@ -26,7 +27,7 @@ public sealed partial class MainWindow : WindowEx
     private void CopyLicenseOwners() => CopyToClipboard(ViewModel.LicenseOwners);
 
     [RelayCommand]
-    private void CopyReboundVersion() => CopyToClipboard(Helpers.Environment.ReboundVersion.REBOUND_VERSION);
+    private static void CopyReboundVersion() => CopyToClipboard(Helpers.Environment.ReboundVersion.REBOUND_VERSION);
 
     [RelayCommand]
     private void CloseWindow() => Close();

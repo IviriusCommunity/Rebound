@@ -11,31 +11,34 @@
     mc:Ignorable="d"
     IsMaximizable="False"
     IsMinimizable="False"
+    Width="520"
+    Height="640"
     Title="About Windows"
     IsResizable="False">
+    <winuiex:WindowEx.SystemBackdrop>
+        <MicaBackdrop/>
+    </winuiex:WindowEx.SystemBackdrop>
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
-            <RowDefinition Height="16"/>
             <RowDefinition Height="Auto"/>
-            <RowDefinition Height="16"/>
             <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
         <StackPanel
-            Margin="32"
+            Margin="0, 20, 0, 24"
             x:Name="WinverPanel"
             HorizontalAlignment="Center"
             VerticalAlignment="Top"
             Orientation="Horizontal"
             Spacing="24"
             Grid.Row="0">
-            <Path VerticalAlignment="Center" Data="M 0 6 C 0 3 3 0 6 0 L 36 0 L 36 36 L 0 36 M 40 0 L 70 0 C 73 0 76 3 76 6 L 76 36 L 40 36 M 36 40 L 0 40 L 0 70 C 0 73 3 76 6 76 L 36 76 M 40 40 L 76 40 L 76 70 C 76 73 73 76 70 76 L 40 76">
+            <Path VerticalAlignment="Center" Data="M 0 4 C 0 2 2 0 4 0 L 33 0 L 33 33 L 0 33 M 35 0 L 64 0 C 66 0 68 2 68 4 L 68 33 L 35 33 M 33 35 L 0 35 L 0 64 C 0 66 2 68 4 68 L 33 68 M 35 35 L 68 35 L 68 64 C 68 66 66 68 64 68 L 35 68">
                 <Path.Fill>
                     <LinearGradientBrush StartPoint="0, 0" EndPoint="1, 1">
                         <LinearGradientBrush.GradientStops>
-                            <GradientStop Color="#a8f4ff" />
-                            <GradientStop Offset="1" Color="#0073d5" />
+                            <GradientStop Color="#6cdfef" />
+                            <GradientStop Offset="1" Color="#109efc" />
                         </LinearGradientBrush.GradientStops>
                     </LinearGradientBrush>
                 </Path.Fill>
@@ -43,17 +46,23 @@
             <TextBlock
                 x:Name="WindowsVer"
                 VerticalAlignment="Center"
-                FontFamily="Segoe UI Semibold"
-                FontSize="60"
+                FontFamily="Segoe UI Variable"
+                FontSize="54"
+                Margin="0, -8, 0, 0"
                 FontWeight="SemiBold"
-                Text="{x:Bind ViewModel.WindowsVersionName}"/>
+                Text="{x:Bind ViewModel.WindowsVersionName}">
+                <TextBlock.Foreground>
+                    <LinearGradientBrush StartPoint="0, 0" EndPoint="1, 1">
+                        <LinearGradientBrush.GradientStops>
+                            <GradientStop Offset="1" Color="#49c6f5" />
+                            <GradientStop Color="#109efc" />
+                        </LinearGradientBrush.GradientStops>
+                    </LinearGradientBrush>
+                </TextBlock.Foreground>
+            </TextBlock>
         </StackPanel>
         <Border
-            Margin="16, 0"
             Background="{ThemeResource CardBackgroundFillColorDefault}"
-            BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
-            CornerRadius="4"
-            BorderThickness="1"
             Grid.Row="1">
             <Grid Padding="16">
                 <Grid.ColumnDefinitions>
@@ -94,12 +103,7 @@
             </Grid>
         </Border>
         <Border
-            Margin="16, 0"
-            Background="{ThemeResource CardBackgroundFillColorDefault}"
-            BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
-            CornerRadius="4"
-            BorderThickness="1"
-            Grid.Row="3">
+            Grid.Row="2">
             <Grid Padding="16">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="Auto"/>
@@ -114,24 +118,20 @@
                         FontWeight="SemiBold"
                         Margin="0, -3, 0, 8"/>
                     <TextBlock Text="{x:Bind environment:ReboundVersion.REBOUND_VERSION}" />
-                    <TextBlock Text="Rebound is a Windows mod that does not interfere with the system. The current Windows installation contains additional apps to run Rebound." TextWrapping="WrapWholeWords" />
+                    <TextBlock Text="Rebound is a Windows mod that does not modify system files. The current Windows installation contains additional apps to run Rebound." TextWrapping="WrapWholeWords" />
                 </StackPanel>
                 <Button Grid.Column="2" Background="Transparent" BorderBrush="Transparent" HorizontalAlignment="Right" VerticalAlignment="Top" Padding="8" Margin="-8" Command="{x:Bind CopyReboundVersionCommand}">
                     <FontIcon Glyph="&#xE8C8;" FontSize="16"/>
                 </Button>
             </Grid>
         </Border>
-        <Border
-            Grid.Row="5"
-            Height="80"
-            VerticalAlignment="Bottom"
-            Background="{ThemeResource SystemControlBackgroundAltMediumLowBrush}" />
-        <Grid Grid.Row="5" Height="80" Padding="24">
+        <Grid Grid.Row="3" Height="80" Padding="24"
+            Background="{ThemeResource SystemControlBackgroundAltMediumLowBrush}">
             <Button
                 Style="{ThemeResource AccentButtonStyle}"
                 HorizontalAlignment="Right"
                 VerticalAlignment="Center"
-                Width="160"
+                Width="140"
                 Content="OK"
                 Command="{x:Bind CloseWindowCommand}">
                 <Button.KeyboardAccelerators>

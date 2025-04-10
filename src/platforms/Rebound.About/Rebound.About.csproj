@@ -6,6 +6,9 @@
 		<ApplicationIcon>Assets\Rebound.ico</ApplicationIcon>
 		<AssemblyName>Rebound About</AssemblyName>
 		<EnableMsixTooling>true</EnableMsixTooling>
+		
+		<!-- Application Manifest -->
+		<ApplicationManifest>app.manifest</ApplicationManifest>
 	</PropertyGroup>
 
 	<!-- Package content -->
