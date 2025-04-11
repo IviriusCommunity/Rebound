@@ -11,12 +11,12 @@ public partial class OnScreenKeyboardInstructions : ReboundAppInstructions
         new IFEOInstruction()
         {
             OriginalExecutableName = "osk.exe",
-            LauncherPath = $"%PROGRAMFILES%\\Rebound\\rosk.exe"
+            LauncherPath = $"{Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles)}\\Rebound\\rosk.exe"
         },
         new LauncherInstruction()
         {
             Path = $"{AppContext.BaseDirectory}\\Modding\\Launchers\\rosk.exe",
-            TargetPath = $"%PROGRAMFILES%\\Rebound\\rosk.exe"
+            TargetPath = $"{Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles)}\\Rebound\\rosk.exe"
         }
     };
 

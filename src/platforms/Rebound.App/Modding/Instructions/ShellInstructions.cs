@@ -11,11 +11,11 @@ public partial class ShellInstructions : ReboundAppInstructions
         new LauncherInstruction()
         {
             Path = $"{AppContext.BaseDirectory}\\Modding\\Launchers\\rshell.exe",
-            TargetPath = $"%PROGRAMFILES%\\Rebound\\rshell.exe"
+            TargetPath = $"{Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles)}\\Rebound\\rshell.exe"
         },
         new StartupTaskInstruction()
         {
-            TargetPath = $"%PROGRAMFILES%\\Rebound\\rshell.exe"
+            TargetPath = $"{Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles)}\\Rebound\\rshell.exe"
         }
     };
 
