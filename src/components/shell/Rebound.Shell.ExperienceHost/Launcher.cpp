@@ -111,7 +111,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
 
     std::wstring argument(lpCmdLine);
     // Define the PowerShell command to execute
-    std::string command = "Start-Process 'shell:AppsFolder\Rebound.Shell.ExperienceHost_34rd76tfyvk3e!App' -ArgumentList @(' ')";
+    std::string command = "Start-Process 'shell:AppsFolder\\Rebound.Shell.ExperienceHost_34rd76tfyvk3e!App' -ArgumentList @(' ')";
 
     // Run the PowerShell command
     RunPowerShellCommand(command, isAdmin);
