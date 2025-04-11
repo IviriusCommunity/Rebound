@@ -1,5 +1,4 @@
-﻿using System;
-using System.IO;
+﻿using System.IO;
 
 namespace Rebound.Helpers.Modding;
 
@@ -18,15 +17,14 @@ public class LauncherInstruction : IReboundAppInstruction
     {
         try
         {
-            ReboundFolder.EnsureIntegrity();
+            ReboundWorkingEnvironment.EnsureFolderIntegrity();
 
             // Copy the file to the directory
             File.Copy(Path, TargetPath, true);
         }
-        catch (Exception ex)
+        catch
         {
-            // Log the error or handle it
-            Console.WriteLine($"Error: {ex.Message}");
+
         }
     }
 

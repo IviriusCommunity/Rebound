@@ -5,15 +5,22 @@
     xmlns:SettingsControls="using:CommunityToolkit.WinUI.Controls"
     xmlns:behaviors="using:CommunityToolkit.WinUI.Behaviors"
     xmlns:controls="using:CommunityToolkit.WinUI.Controls"
+    xmlns:converters="using:CommunityToolkit.WinUI.Converters"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:header="using:WinUIGallery.Controls"
-    xmlns:converters="using:CommunityToolkit.WinUI.Converters"
     xmlns:interactivity="using:Microsoft.Xaml.Interactivity"
     xmlns:local="using:Rebound.Views"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     mc:Ignorable="d">
     <Page.Resources>
-        <converters:BoolToObjectConverter x:Key="BoolToReverseVisibilityConverter" FalseValue="Visible" TrueValue="Collapsed" />
+        <converters:BoolToObjectConverter
+            x:Key="BoolToReverseVisibilityConverter"
+            FalseValue="Visible"
+            TrueValue="Collapsed" />
+        <converters:BoolToObjectConverter x:Key="BoolToOpacityConverter"
+                                          FalseValue="0.5"
+                                          TrueValue="1" />
+        <converters:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter" />
     </Page.Resources>
     <ScrollViewer CornerRadius="8,0,0,0">
         <Grid>
@@ -362,9 +369,39 @@
                 </StackPanel>
             </ScrollViewer>
 
+            <Grid
+                Grid.Row="3"
+                Margin="48,12"
+                Padding="8"
+                Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
+                BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                BorderThickness="1"
+                CornerRadius="6">
+                <CommandBar DefaultLabelPosition="Right">
+                    <AppBarButton Label="Templates" IsEnabled="{x:Bind ReboundViewModel.IsReboundEnabled, Mode=OneWay}">
+                        <AppBarButton.Icon>
+                            <FontIcon FontSize="16" Glyph="&#xF158;" />
+                        </AppBarButton.Icon>
+                    </AppBarButton>
+                    <AppBarButton Label="Update or Repair all" IsEnabled="{x:Bind ReboundViewModel.IsReboundEnabled, Mode=OneWay}">
+                        <AppBarButton.Icon>
+                            <FontIcon FontSize="16" Glyph="&#xE777;" />
+                        </AppBarButton.Icon>
+                    </AppBarButton>
+                </CommandBar>
+                <StackPanel
+                    Margin="8,0"
+                    Orientation="Horizontal"
+                    Spacing="4">
+                    <Button Content="Enable Rebound" Command="{x:Bind ReboundViewModel.EnableReboundCommand}" Style="{ThemeResource AccentButtonStyle}" Visibility="{x:Bind ReboundViewModel.IsReboundEnabled, Mode=OneWay, Converter={StaticResource BoolToReverseVisibilityConverter}}" />
+                    <Button Content="Disable Rebound" Command="{x:Bind ReboundViewModel.DisableReboundCommand}" Visibility="{x:Bind ReboundViewModel.IsReboundEnabled, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}" />
+                </StackPanel>
+            </Grid>
+
             <controls:StaggeredPanel
-                Grid.Row="6"
-                Margin="48"
+                Opacity="{x:Bind ReboundViewModel.IsReboundEnabled, Mode=OneWay, Converter={StaticResource BoolToOpacityConverter}}"
+                Grid.Row="4"
+                Margin="48,12"
                 HorizontalAlignment="Left"
                 ColumnSpacing="8"
                 DesiredColumnWidth="400"
@@ -418,7 +455,8 @@
                         Spacing="8">
                         <ToggleSwitch
                             Margin="0,-2,-108,-2"
-                            IsOn="{x:Bind WinverInstructions.IsInstalled, Mode=TwoWay}"
+                            IsEnabled="{x:Bind ReboundViewModel.IsReboundEnabled, Mode=OneWay}"
+                            IsOn="{x:Bind ReboundViewModel.WinverInstructions.IsInstalled, Mode=TwoWay}"
                             OffContent=""
                             OnContent="" />
                     </StackPanel>
@@ -437,18 +475,19 @@
                         IsOpen="True"
                         Message="- Redirect app launch&#x0a;- Install Rebound About" />
                     <InfoBar
-                        Margin="0, 8, 0, 0"
                         Title="This mod is corrupted and needs to be repaired."
                         Grid.Row="5"
                         Grid.ColumnSpan="5"
+                        Margin="0,8,0,0"
                         IsClosable="False"
                         IsOpen="True"
-                        Visibility="{x:Bind WinverInstructions.IsIntact, Mode=OneWay, Converter={StaticResource BoolToReverseVisibilityConverter}}"
-                        Severity="Error">
+                        Severity="Error"
+                        Visibility="{x:Bind ReboundViewModel.WinverInstructions.IsIntact, Mode=OneWay, Converter={StaticResource BoolToReverseVisibilityConverter}}">
                         <InfoBar.ActionButton>
                             <Button
-                                Command="{x:Bind WinverInstructions.RepairCommand}"
-                                Content="Repair" />
+                                Command="{x:Bind ReboundViewModel.WinverInstructions.RepairCommand}"
+                                Content="Repair"
+                                IsEnabled="{x:Bind ReboundViewModel.IsReboundEnabled, Mode=OneWay}" />
                         </InfoBar.ActionButton>
                     </InfoBar>
                 </Grid>
@@ -501,7 +540,8 @@
                         Spacing="8">
                         <ToggleSwitch
                             Margin="0,-2,-108,-2"
-                            IsOn="{x:Bind OnScreenKeyboardInstructions.IsInstalled, Mode=TwoWay}"
+                            IsEnabled="{x:Bind ReboundViewModel.IsReboundEnabled, Mode=OneWay}"
+                            IsOn="{x:Bind ReboundViewModel.OnScreenKeyboardInstructions.IsInstalled, Mode=TwoWay}"
                             OffContent=""
                             OnContent="" />
                     </StackPanel>
@@ -520,18 +560,19 @@
                         IsOpen="True"
                         Message="Redirect app launch" />
                     <InfoBar
-                        Margin="0, 8, 0, 0"
                         Title="This mod is corrupted and needs to be repaired."
                         Grid.Row="5"
                         Grid.ColumnSpan="5"
+                        Margin="0,8,0,0"
                         IsClosable="False"
                         IsOpen="True"
-                        Visibility="{x:Bind OnScreenKeyboardInstructions.IsIntact, Mode=OneWay, Converter={StaticResource BoolToReverseVisibilityConverter}}"
-                        Severity="Error">
+                        Severity="Error"
+                        Visibility="{x:Bind ReboundViewModel.OnScreenKeyboardInstructions.IsIntact, Mode=OneWay, Converter={StaticResource BoolToReverseVisibilityConverter}}">
                         <InfoBar.ActionButton>
                             <Button
-                                Command="{x:Bind OnScreenKeyboardInstructions.RepairCommand}"
-                                Content="Repair" />
+                                Command="{x:Bind ReboundViewModel.OnScreenKeyboardInstructions.RepairCommand}"
+                                Content="Repair"
+                                IsEnabled="{x:Bind ReboundViewModel.IsReboundEnabled, Mode=OneWay}" />
                         </InfoBar.ActionButton>
                     </InfoBar>
                 </Grid>
@@ -584,7 +625,8 @@
                         Spacing="8">
                         <ToggleSwitch
                             Margin="0,-2,-108,-2"
-                            IsOn="{x:Bind ShellInstructions.IsInstalled, Mode=TwoWay}"
+                            IsEnabled="{x:Bind ReboundViewModel.IsReboundEnabled, Mode=OneWay}"
+                            IsOn="{x:Bind ReboundViewModel.ShellInstructions.IsInstalled, Mode=TwoWay}"
                             OffContent=""
                             OnContent="" />
                     </StackPanel>
@@ -601,20 +643,21 @@
                         Grid.ColumnSpan="5"
                         IsClosable="False"
                         IsOpen="True"
-                        Message="Redirect app launch" />
+                        Message="- Register startup task&#x0a;- Install Rebound Shell (Experience Host)" />
                     <InfoBar
-                        Margin="0, 8, 0, 0"
                         Title="This mod is corrupted and needs to be repaired."
                         Grid.Row="5"
                         Grid.ColumnSpan="5"
+                        Margin="0,8,0,0"
                         IsClosable="False"
                         IsOpen="True"
-                        Visibility="{x:Bind ShellInstructions.IsIntact, Mode=OneWay, Converter={StaticResource BoolToReverseVisibilityConverter}}"
-                        Severity="Error">
+                        Severity="Error"
+                        Visibility="{x:Bind ReboundViewModel.ShellInstructions.IsIntact, Mode=OneWay, Converter={StaticResource BoolToReverseVisibilityConverter}}">
                         <InfoBar.ActionButton>
                             <Button
-                                Command="{x:Bind ShellInstructions.RepairCommand}"
-                                Content="Repair" />
+                                Command="{x:Bind ReboundViewModel.ShellInstructions.RepairCommand}"
+                                Content="Repair"
+                                IsEnabled="{x:Bind ReboundViewModel.IsReboundEnabled, Mode=OneWay}" />
                         </InfoBar.ActionButton>
                     </InfoBar>
                 </Grid>

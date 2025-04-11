@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Diagnostics;
-using System.IO;
 using Microsoft.Win32.TaskScheduler;
 
 namespace Rebound.Helpers.Modding;
@@ -61,9 +60,14 @@ public class StartupTaskInstruction : IReboundAppInstruction
             var defragFolder = ts.GetFolder(@"Rebound") ?? ts.RootFolder.CreateFolder(@"Rebound");
 
             // Retrieve the scheduled task
-            var task = defragFolder.GetTasks().Exists("Shell") ? defragFolder.GetTasks()["Shell"] : defragFolder.RegisterTaskDefinition(@"Rebound\Shell", default);
-
-            task.Enabled = false;
+            if (defragFolder.GetTasks().Exists("Shell"))
+            {
+                defragFolder.DeleteTask("Shell", false); // Delete the task
+            }
+            else
+            {
+                return;
+            }
         }
         catch
         {
