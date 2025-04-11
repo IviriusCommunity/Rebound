@@ -23,7 +23,7 @@ public abstract partial class ReboundAppInstructions : ObservableObject
 
     public virtual ObservableCollection<IReboundAppInstruction>? Instructions { get; set; }
 
-    public ReboundAppInstructions()
+    protected ReboundAppInstructions()
     {
         IsInstalled = GetIntegrity() == ReboundAppIntegrity.Installed;
         IsIntact = GetIntegrity() != ReboundAppIntegrity.Corrupt;

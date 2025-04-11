@@ -1,8 +1,4 @@
-﻿using System.Collections.Generic;
-
-#nullable enable
-
-namespace Rebound.Helpers.Modding;
+﻿namespace Rebound.Helpers.Modding;
 
 public enum ReboundAppIntegrity
 {

@@ -19,10 +19,10 @@ public class IFEOInstruction : IReboundAppInstruction
     {
         try
         {
-            string registryPath = $@"{BaseRegistryPath}\{OriginalExecutableName}";
-            string debuggerValue = $"{LauncherPath}";
+            var registryPath = $@"{BaseRegistryPath}\{OriginalExecutableName}";
+            var debuggerValue = $"{LauncherPath}";
 
-            using RegistryKey? key = Microsoft.Win32.Registry.LocalMachine.CreateSubKey(registryPath, true);
+            using var key = Microsoft.Win32.Registry.LocalMachine.CreateSubKey(registryPath, true);
             key?.SetValue("Debugger", debuggerValue, RegistryValueKind.String);
         }
         catch
@@ -35,7 +35,7 @@ public class IFEOInstruction : IReboundAppInstruction
     {
         try
         {
-            string registryPath = $@"{BaseRegistryPath}\{OriginalExecutableName}";
+            var registryPath = $@"{BaseRegistryPath}\{OriginalExecutableName}";
             Microsoft.Win32.Registry.LocalMachine.DeleteSubKeyTree(registryPath, false);
         }
         catch
@@ -48,13 +48,14 @@ public class IFEOInstruction : IReboundAppInstruction
     {
         try
         {
-            string registryPath = $@"{BaseRegistryPath}\{OriginalExecutableName}";
+            var registryPath = $@"{BaseRegistryPath}\{OriginalExecutableName}";
 
-            using RegistryKey? key = Microsoft.Win32.Registry.LocalMachine.OpenSubKey(registryPath);
-            if (key == null) return false;
+            using var key = Microsoft.Win32.Registry.LocalMachine.OpenSubKey(registryPath);
+            if (key == null) 
+                return false;
 
-            string? debuggerValue = key.GetValue("Debugger") as string;
-            string expectedValue = $"{LauncherPath}";
+            var debuggerValue = key.GetValue("Debugger") as string;
+            var expectedValue = $"{LauncherPath}";
 
             return debuggerValue == expectedValue;
         }
