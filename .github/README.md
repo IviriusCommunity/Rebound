@@ -7,7 +7,26 @@
     <img src="https://img.shields.io/discord/1137161703000375336?label=Discord&color=7289da" alt="Discord" /></a>
 </p>-->
 
-**Windows 11 done right.** Rebound is a comprehensive enhancement project designed to modernize Windows 11 by replacing legacy Win32 applications with consistent, native WinUI 3 alternatives. It delivers a unified experience without modifying system files, ensuring proper stability, compatibility, and security.
+**Modernizing Windows 11 the right way.** Rebound is a comprehensive enhancement project designed to modernize Windows 11 by replacing legacy Win32 applications with consistent, native WinUI 3 alternatives. It delivers a unified experience without modifying system files, ensuring proper stability, compatibility, and security.
+
+---
+
+## 🤔 General Information
+
+Rebound is a modern enhancement layer for Windows 11, combining a suite of WinUI 3 applications into a unified modding experience. Instead of modifying system files or using intrusive patches, Rebound offers standalone, first-party apps that integrate cleanly with the operating system.
+
+All official Rebound apps are included in this repository and can be installed individually using Rebound Hub, a dedicated app that manages the entire ecosystem. Each app is built to function independently, but together they form a consistent and future-friendly alternative to legacy Windows components.
+
+> [!NOTE]
+> Rebound uses its own lightweight mod runtime, built on low-level hooks, Image File Execution Options (IFEO), and icon overrides to replace legacy Win32 apps in a non-invasive way. It **does not** patch or modify system files, ensuring maximum compatibility and safety.
+
+## 🎁 Getting started
+
+1. **Download Rebound Hub** online [on GitHub](https://github.com/IviriusCommunity/ReboundHub/releases/latest) (download `ReboundHubInstaller.exe`).
+2. **Run the Installer**: Follow the on-screen instructions to install Rebound Hub.
+3. **Launch Rebound Hub** : go to `Rebound`, press `Enable Rebound`, and start exploring!
+
+## 🧰 Apps list
 
 _Included in Rebound:_
 - **Defragment and Optimize Drives**
@@ -25,21 +44,6 @@ _Can be installed via Rebound Hub:_ (optional)
 - **Screenbox**
 - **FluentHub**
 
----
-
-## 🎁 Getting started
-
-1. **Download Rebound Hub** online [on GitHub](https://github.com/IviriusCommunity/ReboundHub/releases/latest) (download `ReboundHubInstaller.exe`).
-2. **Run the Installer**: Follow the on-screen instructions to install Rebound Hub.
-3. **Launch Rebound Hub** : go to `Rebound`, press `Enable Rebound`, and start exploring!
-
-## 🤔 General Information
-
-Rebound aims to enhance the Windows 11 experience by making it more cohesive, leveraging the modern UI capabilities of WinUI 3 and the Windows App SDK. It offers a range of apps that integrate seamlessly with your system while maintaining compatibility with both Win32 and UWP applications.
-
-> [!NOTE]
-> Rebound **does not** modify system files or use patchers like SecureUxTheme, making it a safer alternative to other system mods.
-
 ## 🖼️ Screenshots
 
 Thoughtfully designed light mode | Thoughtfully designed dark mode
@@ -48,16 +52,16 @@ Thoughtfully designed light mode | Thoughtfully designed dark mode
 
 ## 🛠️ Key Features Comparison
 
-| **Feature**                  | **Classic Windows Mods** | **Rebound**         | **Remarks** |
-|------------------------------|---------------------------|------------------------|-------------|
-| System-wide customization     | ✔️                         | ❌                      | No `msstyles` modifications (no SecureUxThemePatcher used) |
-| Fully reversible changes      | ❌                         | ✔️                      | No need for system restore points |
-| Compatible with all software  | ❌                         | ✔️                      | Works with both Win32 APIs and Microsoft Store apps |
-| Windows Updates enabled       | ⚠️                         | ✔️                      | Updates are enabled by default, ensuring your system remains secure |
-| Backwards compatibility       | ❌                         | ✔️                      | Win32 system apps remain functional even if Rebound 11 apps malfunction |
-| Safe for home users           | ❌                         | ✔️                      | While no mod is 100% safe, Rebound 11 is generally safer than most mods |
-| Open source                   | ⚠️                         | ✔️                      | Fully open-source, including dedicated Rebound apps |
-| Additional features over Win32 apps | ⚠️                  | ✔️                      | Rebound apps offer enhanced features compared to legacy Win32 applets |
+| **Feature**                         | **Classic Windows Mods** | **Rebound** | **Remarks** |
+|-------------------------------------|--------------------------|-------------|-------------|
+| System-wide customization           | ✔️                       | ❌         | No `msstyles` modifications (no SecureUxThemePatcher used) |
+| Fully reversible changes            | ❌                       | ✔️         | No need for system restore points |
+| Compatible with all software        | ❌                       | ✔️         | Works with both Win32 APIs and Microsoft Store apps |
+| Windows Updates enabled             | ⚠️                       | ✔️         | Updates are enabled by default, ensuring your system remains secure |
+| Backwards compatibility             | ❌                       | ✔️         | Win32 system apps remain functional even if Rebound 11 apps malfunction |
+| Safe for home users                 | ❌                       | ✔️         | While no mod is 100% safe, Rebound 11 is generally safer than most mods |
+| Open source                         | ⚠️                       | ✔️         | Fully open-source, including dedicated Rebound apps |
+| Additional features over Win32 apps | ⚠️                       | ✔️         | Rebound apps offer enhanced features compared to legacy Win32 applets |
 
 ## 🎛️ Minimum Requirements
 
