@@ -20,6 +20,12 @@ All official Rebound apps are included in this repository and can be installed i
 > [!NOTE]
 > Rebound uses its own lightweight mod runtime, built on low-level hooks, Image File Execution Options (IFEO), and icon overrides to replace legacy Win32 apps in a non-invasive way. It **does not** patch or modify system files, ensuring maximum compatibility and safety.
 
+## 🖼️ Screenshots
+
+Thoughtfully designed light mode | Thoughtfully designed dark mode
+---|---
+![Thoughtfully designed light mode](https://github.com/user-attachments/assets/d87e9fc1-fe1c-461a-a128-6e970b45d9a0)|![Thoughtfully designed dark mode](https://github.com/user-attachments/assets/b578a82d-6386-46cf-b395-0f98e75fbb8a)
+
 ## 🎁 Getting started
 
 1. **Download Rebound Hub** online [on GitHub](https://github.com/IviriusCommunity/ReboundHub/releases/latest) (download `ReboundHubInstaller.exe`).
@@ -44,11 +50,8 @@ _Can be installed via Rebound Hub:_ (optional)
 - **Screenbox**
 - **FluentHub**
 
-## 🖼️ Screenshots
-
-Thoughtfully designed light mode | Thoughtfully designed dark mode
----|---
-![Thoughtfully designed light mode](https://github.com/user-attachments/assets/d87e9fc1-fe1c-461a-a128-6e970b45d9a0)|![Thoughtfully designed dark mode](https://github.com/user-attachments/assets/b578a82d-6386-46cf-b395-0f98e75fbb8a)
+_Featured:_
+- **Rectify11**
 
 ## 🛠️ Key Features Comparison
 
@@ -59,7 +62,7 @@ Thoughtfully designed light mode | Thoughtfully designed dark mode
 | Compatible with all software        | ❌                       | ✔️         | Works with both Win32 APIs and Microsoft Store apps |
 | Windows Updates enabled             | ⚠️                       | ✔️         | Updates are enabled by default, ensuring your system remains secure |
 | Backwards compatibility             | ❌                       | ✔️         | Win32 system apps remain functional even if Rebound 11 apps malfunction |
-| Safe for home users                 | ❌                       | ✔️         | While no mod is 100% safe, Rebound 11 is generally safer than most mods |
+| Safe for home users                 | ❌                       | ✔️         | While no mod is 100% safe, Rebound is generally safer than most mods |
 | Open source                         | ⚠️                       | ✔️         | Fully open-source, including dedicated Rebound apps |
 | Additional features over Win32 apps | ⚠️                       | ✔️         | Rebound apps offer enhanced features compared to legacy Win32 applets |
 
@@ -74,14 +77,18 @@ Thoughtfully designed light mode | Thoughtfully designed dark mode
 | **Version**          | Build 22000 or higher         |
 | **Processor**        | 2 GHz or faster, 64-bit CPU   |
 | **Memory**           | 8 GB                          |
-| **Storage**          | 512 MB of free disk space     |
+| **Storage**          | 256 MB of free disk space (or more, depending on how much of the mod you wish to install) |
 
-## 🛡️ Safety Information
+## 🛡️ Modding And Security Information
 
-Rebound complies with Microsoft's guidelines and does **not** patch system files, ensuring continued compatibility with future Windows updates.
+Rebound is built with security and system integrity in mind. It complies with Microsoft's guidelines and does not patch, replace, or tamper with protected system files. Instead, Rebound relies on a custom modding engine that operates through safe, runtime-level techniques such as low-level hooks, Image File Execution Options (IFEO), and resource overrides.
 
-> [!WARNING]
-> While Rebound is safe for most users, as with any system modification, absolute security cannot be guaranteed. Always back up important data before installing new software.
+At the core of this system is an abstract instruction layer used to define mod behavior for each Rebound app. These instructions are applied dynamically at runtime, validated for safety, and built to support fallback and error handling when unsupported conditions are detected. This method limits the potential impact on system stability while still allowing meaningful enhancements.
+
+Importantly, Rebound does not rely on third-party patchers like SecureUxTheme or system-wide shell replacements. Every mod is fully reversible and sandboxed to avoid permanent changes or data loss.
+
+> [!NOTE]
+> While Rebound is safe for home users and has been tested extensively, no modification method is entirely risk-free. Always back up important data and ensure you're running a supported version of Windows 11 before installing new software.
 
 Rebound has been tested and is compatible with the following security software:
 
