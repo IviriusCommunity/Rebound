@@ -9,6 +9,9 @@
 
 **Modernizing Windows 11 the right way.** Rebound is a comprehensive enhancement project designed to modernize Windows 11 by replacing legacy Win32 applications with consistent, native WinUI 3 alternatives. It delivers a unified experience without modifying system files, ensuring proper stability, compatibility, and security.
 
+> [!WARNING]
+> The project is still in its early stages of development and the `ALPHA` versions are considered unstable. A Developer Preview version will be released soon with major improvements.
+
 ---
 
 ## 🤔 General Information
