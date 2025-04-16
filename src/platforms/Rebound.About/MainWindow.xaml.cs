@@ -1,5 +1,7 @@
 using System;
+using System.Threading;
 using CommunityToolkit.Mvvm.Input;
+using Microsoft.UI;
 using Rebound.Helpers;
 using Windows.ApplicationModel.DataTransfer;
 using WinUIEx;
@@ -16,7 +18,6 @@ internal sealed partial class MainWindow : WindowEx
         ViewModel = new MainViewModel();
         this.Move(25, 25);
         this.SetDarkMode();
-        this.SetTaskBarIcon(Icon.FromFile($"{AppContext.BaseDirectory}\\Assets\\Rebound.ico"));
         this.RemoveIcon();
     }
 

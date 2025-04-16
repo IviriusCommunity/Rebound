@@ -12,7 +12,13 @@ public static class WindowHelper
 {
     public static void RemoveIcon(this WindowEx window)
     {
-        PInvoke.SetWindowLongPtr(new HWND(window.GetWindowHandle()), WINDOW_LONG_PTR_INDEX.GWL_EXSTYLE, (nint)0x00000001L);
+        var style = PInvoke.GetWindowLongPtr(new HWND(window.GetWindowHandle()), WINDOW_LONG_PTR_INDEX.GWL_EXSTYLE);
+        PInvoke.SetWindowLongPtr(new HWND(window.GetWindowHandle()), WINDOW_LONG_PTR_INDEX.GWL_EXSTYLE, style | (nint)WINDOW_EX_STYLE.WS_EX_DLGMODALFRAME);
+        PInvoke.SetWindowPos(new HWND(window.GetWindowHandle()), HWND.Null, 0, 0, 0, 0, 
+            SET_WINDOW_POS_FLAGS.SWP_NOMOVE | 
+            SET_WINDOW_POS_FLAGS.SWP_NOSIZE | 
+            SET_WINDOW_POS_FLAGS.SWP_NOZORDER | 
+            SET_WINDOW_POS_FLAGS.SWP_FRAMECHANGED);
     }
 
     public static void SetDarkMode(this WindowEx window)
