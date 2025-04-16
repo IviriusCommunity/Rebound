@@ -23,3 +23,6 @@ IsWindowVisible
 SetWinEventHook
 GetParent
 DwmSetWindowAttribute
+LoadImage
+PostMessage
+CreateIcon

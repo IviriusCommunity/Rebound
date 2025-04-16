@@ -1,7 +1,7 @@
 using System;
-using System.Threading;
+using System.IO;
+using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.Input;
-using Microsoft.UI;
 using Rebound.Helpers;
 using Windows.ApplicationModel.DataTransfer;
 using WinUIEx;
@@ -17,8 +17,9 @@ internal sealed partial class MainWindow : WindowEx
         InitializeComponent();
         ViewModel = new MainViewModel();
         this.Move(25, 25);
-        this.SetDarkMode();
-        this.RemoveIcon();
+        var iconPath = Path.Combine(AppContext.BaseDirectory, "Assets", "Rebound.ico");
+        this.SetTaskBarIcon(Icon.FromFile(iconPath));
+        this.ConfigureTitleBar();
     }
 
     [RelayCommand]

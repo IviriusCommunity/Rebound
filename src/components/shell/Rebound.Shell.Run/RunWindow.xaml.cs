@@ -28,6 +28,6 @@ public sealed partial class RunWindow : WindowEx
     private void WindowEx_Activated(object sender, WindowActivatedEventArgs args)
     {
         this.SetTaskBarIcon(Icon.FromFile($"{AppContext.BaseDirectory}\\Assets\\RunBox.ico"));
-        this.RemoveIcon();
+        this.RemoveTitleBarIcon();
     }
 }

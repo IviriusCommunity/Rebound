@@ -25,10 +25,11 @@
             <RowDefinition Height="Auto" />
             <RowDefinition Height="Auto" />
         </Grid.RowDefinitions>
+        <TitleBar Title="About Windows" VerticalAlignment="Top" />
         <StackPanel
             x:Name="WinverPanel"
             Grid.Row="0"
-            Margin="0,20,0,24"
+            Margin="0,52,0,24"
             HorizontalAlignment="Center"
             VerticalAlignment="Top"
             Orientation="Horizontal"
