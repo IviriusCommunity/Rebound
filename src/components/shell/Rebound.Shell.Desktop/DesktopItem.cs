@@ -11,6 +11,7 @@ using Windows.Storage.FileProperties;
 using System.Collections.Generic;
 using IWshRuntimeLibrary;
 using Rebound.Shell.ExperiencePack;
+using Microsoft.UI.Xaml;
 
 namespace Rebound.Shell.Desktop;
 
@@ -52,19 +53,32 @@ public partial class DesktopItem : ObservableObject
     [ObservableProperty]
     public partial double Y { get; set; } = -1;
 
-    partial void OnXChanged(double oldValue, double newValue) => DesktopSettingsHelper.SetValue($"X{(FilePath ?? "").ConvertStringToNumericString()}", newValue);
+    [ObservableProperty]
+    public partial Thickness Margin { get; set; } = new(0);
 
-    partial void OnYChanged(double oldValue, double newValue) => DesktopSettingsHelper.SetValue($"Y{(FilePath ?? "").ConvertStringToNumericString()}", newValue);
+    partial void OnXChanged(double oldValue, double newValue)
+    {
+        DesktopSettingsHelper.SetValue($"X{(FilePath ?? "").ConvertStringToNumericString()}", newValue);
+        Margin = new Thickness(newValue, Y, 0, 0);
+    }
+
+    partial void OnYChanged(double oldValue, double newValue)
+    {
+        DesktopSettingsHelper.SetValue($"Y{(FilePath ?? "").ConvertStringToNumericString()}", newValue);
+        Margin = new Thickness(X, newValue, 0, 0);
+    }
 
     public DesktopItem(string filePath)
     {
         FilePath = filePath;
         X = DesktopSettingsHelper.GetDoubleValue($"X{filePath.ConvertStringToNumericString()}");
         Y = DesktopSettingsHelper.GetDoubleValue($"Y{filePath.ConvertStringToNumericString()}");
+        Margin = new Thickness(X, Y, 0, 0);
         FileName = Path.GetFileName(filePath);
         IsThumbnailLoading = false; // Set initially
         Load(filePath);
     }
+
     public async void Load(string filePath)
     {
         // Run file checks in parallel

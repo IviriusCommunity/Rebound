@@ -15,7 +15,7 @@ using WinUIEx;
 
 namespace Rebound.Shell.ExperienceHost;
 
-[ReboundApp("Rebound.ShellExperienceHost", "Legacy Shell")]
+[ReboundApp("Rebound.ShellExperienceHost", "")]
 public partial class App : Application
 {
     public App()

@@ -10,7 +10,6 @@ using System.Threading.Tasks;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Input;
-using Microsoft.UI.Xaml.Media.Imaging;
 using Microsoft.UI.Xaml.Navigation;
 using Windows.ApplicationModel.DataTransfer;
 using Windows.Foundation;
@@ -20,7 +19,7 @@ namespace Rebound.Shell.Desktop;
 
 public sealed partial class DesktopPage : Page
 {
-    public List<DesktopItem> Items { get; set; } = new();
+    public ObservableCollection<DesktopItem> Items { get; set; } = new();
 
     public DesktopPage()
     {
@@ -45,7 +44,7 @@ public sealed partial class DesktopPage : Page
                 // Now safely process items
                 foreach (var item in Items)
                 {
-                    var contentControl = new ContentControl()
+                    /*var contentControl = new ContentControl()
                     {
                         ContentTemplate = (DataTemplate)Resources["DesktopItemTemplate"],
                         Content = item
@@ -53,26 +52,26 @@ public sealed partial class DesktopPage : Page
 
                     contentControl.PointerPressed += ContentControl_PointerPressed;
                     contentControl.PointerMoved += ContentControl_PointerMoved;
-                    contentControl.PointerReleased += ContentControl_PointerReleased;
+                    contentControl.PointerReleased += ContentControl_PointerReleased;*/
 
                     if (item.X is -1 || item.Y is -1)
                     {
                         var freeSpot = FindFreeSpot();
                         if (freeSpot.X != -1 && freeSpot.Y != -1)
                         {
-                            Canvas.SetLeft(contentControl, freeSpot.X);
-                            Canvas.SetTop(contentControl, freeSpot.Y);
+                            /*Canvas.SetLeft(contentControl, freeSpot.X);
+                            Canvas.SetTop(contentControl, freeSpot.Y);*/
                             item.X = freeSpot.X;
                             item.Y = freeSpot.Y;
                         }
                     }
                     else
                     {
-                        Canvas.SetLeft(contentControl, item.X);
-                        Canvas.SetTop(contentControl, item.Y);
+                        /*Canvas.SetLeft(contentControl, item.X);
+                        Canvas.SetTop(contentControl, item.Y);*/
                     }
 
-                    CanvasControl.Children.Add(contentControl);
+                    /*CanvasControl.Children.Add(contentControl);*/
                 }
             });
         });
@@ -267,6 +266,7 @@ public sealed partial class DesktopPage : Page
 
     private async void CanvasControl_Drop(object sender, DragEventArgs e)
     {
+        PlacementBorder.Visibility = Visibility.Collapsed;
         _isDragging = false;
         if (e.DataView.Contains(StandardDataFormats.StorageItems))
         {
@@ -341,7 +341,7 @@ public sealed partial class DesktopPage : Page
                 {
                     foreach (var file in existingFiles)
                     {
-                        var contentControl = GetContentControlFromDesktopFile(file);
+                        //var contentControl = GetContentControlFromDesktopFile(file);
 
                         // Eliminate pointer position errors
                         var oldPointerPos = FindSpotCoordinates(oldPoint.X, oldPoint.Y);
@@ -362,8 +362,8 @@ public sealed partial class DesktopPage : Page
                         if (CheckIfSpotIsFree(newItemPos.X, newItemPos.Y))
                         {
                             // Apply new position in canvas
-                            Canvas.SetLeft(contentControl, newItemPos.X);
-                            Canvas.SetTop(contentControl, newItemPos.Y);
+                            /*Canvas.SetLeft(contentControl, newItemPos.X);
+                            Canvas.SetTop(contentControl, newItemPos.Y);*/
 
                             // Write new position to items
                             file.X = newItemPos.X;
@@ -376,8 +376,8 @@ public sealed partial class DesktopPage : Page
                             var definitivePos = FindNextFreeSpot(point.X, point.Y);
 
                             // Apply new position in canvas
-                            Canvas.SetLeft(contentControl, definitivePos.X);
-                            Canvas.SetTop(contentControl, definitivePos.Y);
+                            /*Canvas.SetLeft(contentControl, definitivePos.X);
+                            Canvas.SetTop(contentControl, definitivePos.Y);*/
 
                             // Write new position to items
                             file.X = definitivePos.X;
@@ -408,7 +408,7 @@ public sealed partial class DesktopPage : Page
                     file.Y = freeSpot.Y;
 
                     Items.Add(file);
-                    CanvasControl.Children.Add(contentControl);
+                    //CanvasControl.Children.Add(contentControl);
                 }
             }
         }
@@ -416,77 +416,55 @@ public sealed partial class DesktopPage : Page
 
     public Point FindNextFreeSpot(double startX, double startY)
     {
-        const int cellWidth = 82;
-        const int cellHeight = 102;
+        if (CanvasControl.ActualWidth < CELL_WIDTH || CanvasControl.ActualHeight < CELL_HEIGHT)
+            return new Point(-1, -1); // No room for even one item
 
-        var x = Math.Floor(startX / cellWidth) * cellWidth;
-        var y = Math.Floor(startY / cellHeight) * cellHeight;
+        int col = (int)(Math.Max(0, startX) / CELL_WIDTH);
+        int row = (int)(Math.Max(0, startY) / CELL_HEIGHT);
 
-        while (true) // Keep searching for the next available spot
+        while (true)
         {
-            var spotTaken = Items.Any(item => item.X == x && item.Y == y);
+            double x = col * CELL_WIDTH;
+            double y = row * CELL_HEIGHT;
 
+            bool spotTaken = Items.Any(item => item.X == x && item.Y == y);
             if (!spotTaken)
+                return new Point(x, y);
+
+            row++;
+            if ((row + 1) * CELL_HEIGHT > CanvasControl.ActualHeight)
             {
-                return new Point(x, y); // Return the first available spot found
+                row = 0;
+                col++;
             }
 
-            // Move to the next slot
-            y += cellHeight;
-            if (y + cellHeight > CanvasControl.ActualHeight) // If we reach the end of the row, go to the next row
-            {
-                y = 0;
-                x += cellWidth;
-            }
-
-            // Break out if we exceed the canvas size (optional safeguard)
-            if (x + cellWidth > CanvasControl.ActualWidth)
+            if ((col + 1) * CELL_WIDTH > CanvasControl.ActualWidth)
             {
                 Debug.WriteLine("No space available!");
-                return new Point(-1, -1); // Fallback if no space found
+                return FindFreeSpot();
             }
         }
     }
 
     public Point FindFreeSpot()
     {
-        const int cellWidth = 82;
-        const int cellHeight = 102;
+        int maxCols = (int)(CanvasControl.ActualWidth / CELL_WIDTH);
+        int maxRows = (int)(CanvasControl.ActualHeight / CELL_HEIGHT);
 
-        // Iterate over columns and rows to find a free spot
-        for (var col = 0; col < (CanvasControl.ActualWidth - cellWidth) / cellWidth; col++)
+        for (int col = 0; col < maxCols; col++)
         {
-            for (var row = 0; row < (CanvasControl.ActualHeight - cellHeight) / cellHeight; row++)
+            for (int row = 0; row < maxRows; row++)
             {
-                // Calculate the potential spot (top-left corner of the "cell")
-                double x = col * cellWidth;
-                double y = row * cellHeight;
+                double x = col * CELL_WIDTH;
+                double y = row * CELL_HEIGHT;
 
-                // Check if the spot is occupied by any of the items
-                var spotTaken = false;
-                foreach (var item in Items)
-                {
-                    // Get the item's position (assumes the item has a way to track position, e.g., a Canvas.Left/Top)
-                    var itemPosition = new Point((float)item.X, (float)item.Y);
-
-                    // Check if the item intersects with the potential spot
-                    if (itemPosition.X == x && itemPosition.Y == y)
-                    {
-                        spotTaken = true;
-                        break;
-                    }
-                }
-
-                // If the spot is not taken, return it
+                bool spotTaken = Items.Any(item => item.X == x && item.Y == y);
                 if (!spotTaken)
-                {
                     return new Point(x, y);
-                }
             }
         }
 
-        // Return a default point (or indicate no free spot found) if needed
-        return new Point(-1, -1);  // Or another way of signaling no space found
+        return new Point(-1, -1);
     }
 
     private const int CELL_WIDTH = 82;
@@ -494,64 +472,35 @@ public sealed partial class DesktopPage : Page
 
     public bool CheckIfSpotIsFree(double x, double y)
     {
-        // Calculate the "grid position" by flooring the coordinates to the nearest cell
-        var snappedX = Math.Floor(x / CELL_WIDTH) * CELL_WIDTH;
-        var snappedY = Math.Floor(y / CELL_HEIGHT) * CELL_HEIGHT;
+        int col = (int)(Math.Max(0, x) / CELL_WIDTH);
+        int row = (int)(Math.Max(0, y) / CELL_HEIGHT);
 
-        // Check if this snapped position is already occupied
-        foreach (var item in Items)
-        {
-            // Get the item's position (assumes the item has a way to track position)
-            var itemPosition = new Point((float)item.X, (float)item.Y);
+        double snappedX = col * CELL_WIDTH;
+        double snappedY = row * CELL_HEIGHT;
 
-            // If the item occupies this spot, return false (it's taken)
-            if (itemPosition.X == snappedX && itemPosition.Y == snappedY)
-            {
-                return false;  // Spot is occupied
-            }
-        }
-
-        // If no items are in the spot, return true (it's free)
-        return true;
+        return !Items.Any(item => item.X == snappedX && item.Y == snappedY);
     }
 
     public Point? FindFreeSpotCoordinates(double x, double y)
     {
-        const int cellWidth = 82;
-        const int cellHeight = 102;
+        int col = (int)(Math.Max(0, x) / CELL_WIDTH);
+        int row = (int)(Math.Max(0, y) / CELL_HEIGHT);
 
-        // Calculate the "grid position" by flooring the coordinates to the nearest cell
-        var snappedX = Math.Floor(x / cellWidth) * cellWidth;
-        var snappedY = Math.Floor(y / cellHeight) * cellHeight;
+        double snappedX = col * CELL_WIDTH;
+        double snappedY = row * CELL_HEIGHT;
 
-        // Check if this snapped position is already occupied
-        foreach (var item in Items)
-        {
-            // Get the item's position (assumes the item has a way to track position)
-            var itemPosition = new Point((float)item.X, (float)item.Y);
+        if (Items.Any(item => item.X == snappedX && item.Y == snappedY))
+            return null;
 
-            // If the item occupies this spot, return null (spot is occupied)
-            if (itemPosition.X == snappedX && itemPosition.Y == snappedY)
-            {
-                return null;  // Spot is occupied
-            }
-        }
-
-        // If no items are in the spot, return the snapped coordinates (it's free)
         return new Point(snappedX, snappedY);
     }
 
     public static Point FindSpotCoordinates(double x, double y)
     {
-        const int cellWidth = 82;
-        const int cellHeight = 102;
+        int col = (int)(Math.Max(0, x) / CELL_WIDTH);
+        int row = (int)(Math.Max(0, y) / CELL_HEIGHT);
 
-        // Calculate the "grid position" by flooring the coordinates to the nearest cell
-        var snappedX = Math.Floor(x / cellWidth) * cellWidth;
-        var snappedY = Math.Floor(y / cellHeight) * cellHeight;
-
-        // If no items are in the spot, return the snapped coordinates (it's free)
-        return new Point(snappedX, snappedY);
+        return new Point(col * CELL_WIDTH, row * CELL_HEIGHT);
     }
 
     public static async Task CopyStorageFolderAsync(StorageFolder sourceFolder, StorageFolder destinationFolder)
@@ -574,7 +523,7 @@ public sealed partial class DesktopPage : Page
         }
     }
 
-    private ContentControl? GetContentControlFromDesktopFile(DesktopItem desktopFile)
+    /*private ContentControl? GetContentControlFromDesktopFile(DesktopItem desktopFile)
     {
         // Iterate through all children of the canvas (fff)
         foreach (var child in CanvasControl.Children)
@@ -593,10 +542,11 @@ public sealed partial class DesktopPage : Page
 
         // Return null if no matching ContentControl is found
         return null;
-    }
+    }*/
 
     private async void Grid_DragStarting(UIElement sender, DragStartingEventArgs args)
     {
+        PlacementBorder.Visibility = Visibility.Visible;
         var storageItems = new Collection<IStorageItem>();
 
         foreach (var item in Items)
