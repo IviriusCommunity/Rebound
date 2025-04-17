@@ -1,24 +1,18 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-// To learn more about WinUI, the WinUI project structure,
-// and more about our project templates, see: http://aka.ms/winui-project-info.
 
 namespace Rebound.Generators;
 
 [AttributeUsage(AttributeTargets.Class, Inherited = false, AllowMultiple = false)]
-public class ReboundAppAttribute : Attribute
+public class ReboundAppAttribute(string singleProcessTaskName, List<LegacyLaunchItem> legacyLaunchItems) : Attribute
 {
-    public string SingleProcessTaskName { get; }
-    public string LegacyLaunchCommandTitle { get; }
-
-    public ReboundAppAttribute(string singleProcessTaskName, string legacyLaunchCommandTitle)
-    {
-        SingleProcessTaskName = singleProcessTaskName;
-        LegacyLaunchCommandTitle = legacyLaunchCommandTitle;
-    }
+    public string SingleProcessTaskName { get; } = singleProcessTaskName;
+    public List<LegacyLaunchItem> LegacyLaunchItems { get; } = legacyLaunchItems;
 }
 
+public class LegacyLaunchItem(string name, string launchArg, string iconPath)
+{
+    public string Name { get; } = name;
+    public string LaunchArg { get; } = launchArg;
+    public string IconPath { get; } = iconPath;
+}

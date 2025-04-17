@@ -31,7 +31,7 @@ namespace Rebound.Generators
 
                     // Extract the parameters from the attribute's constructor
                     var singleProcessTaskName = attribute?.ConstructorArguments[0].Value?.ToString() ?? "";
-                    var legacyLaunchCommandTitle = attribute?.ConstructorArguments[1].Value?.ToString() ?? "";
+                    var legacyLaunchCommandTitle = attribute?.ConstructorArguments[1].Value as List<LegacyLaunchItem>;
 
                     // Get the namespace of the class
                     var namespaceSymbol = classSymbol.ContainingNamespace;
@@ -79,7 +79,7 @@ namespace Rebound.Generators
             }
         }
 
-        private ClassDeclarationSyntax GenerateClass(INamedTypeSymbol classSymbol, string singleProcessTaskName, string legacyLaunchCommandTitle)
+        private ClassDeclarationSyntax GenerateClass(INamedTypeSymbol classSymbol, string singleProcessTaskName, List<LegacyLaunchItem> legacyLaunchItems)
         {
             var className = classSymbol.Name;
 
@@ -102,6 +102,16 @@ namespace Rebound.Generators
                     ))
                 : null;
 
+            string legacyLaunchCode = string.Empty;
+
+            foreach (var x in legacyLaunchItems)
+            {
+                legacyLaunchCode += $@"
+    var item = Windows.UI.StartScreen.JumpListItem.CreateWithArguments(""{x.Name}"", ""{x.LaunchArg}"");
+    item.Logo = new Uri(""{x.IconPath}"");
+    jumpList.Items.Add(item);
+";
+            }
             // Check if the InitializeJumpList method already exists
             var existingInitializeJumpListMethod = classSymbol.GetMembers()
                 .OfType<IMethodSymbol>()
@@ -115,9 +125,7 @@ namespace Rebound.Generators
     var jumpList = await Windows.UI.StartScreen.JumpList.LoadCurrentAsync();
     jumpList.SystemGroupKind = Windows.UI.StartScreen.JumpListSystemGroupKind.None;
     jumpList.Items.Clear();
-    var item = Windows.UI.StartScreen.JumpListItem.CreateWithArguments(""legacy"", ""{legacyLaunchCommandTitle}"");
-    item.Logo = new Uri(""ms-appx:///Assets/Computer disk.png"");
-    jumpList.Items.Add(item);
+    {legacyLaunchCode}
     await jumpList.SaveAsync();")
                     ))
                 : null;
@@ -178,11 +186,18 @@ internal class SyntaxReceiver : ISyntaxContextReceiver
     {
         if (context.Node is ClassDeclarationSyntax classDecl)
         {
-            var symbol = context.SemanticModel.GetDeclaredSymbol(classDecl) as INamedTypeSymbol;
+            var symbol = context.SemanticModel.GetDeclaredSymbol(classDecl);
             if (symbol?.GetAttributes().Any(attr => attr.AttributeClass?.Name == "ReboundAppAttribute") == true)
             {
                 CandidateClasses.Add(symbol);
             }
         }
     }
+}
+
+public class LegacyLaunchItem(string name, string launchArg, string iconPath)
+{
+    public string Name { get; } = name;
+    public string LaunchArg { get; } = launchArg;
+    public string IconPath { get; } = iconPath;
 }
