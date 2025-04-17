@@ -2,8 +2,8 @@
     x:Class="Rebound.Views.HomePage"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-    xmlns:controls="using:CommunityToolkit.WinUI.Controls"
     xmlns:behaviors="using:CommunityToolkit.WinUI.Behaviors"
+    xmlns:controls="using:CommunityToolkit.WinUI.Controls"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:header="using:WinUIGallery.Controls"
     xmlns:interactivity="using:Microsoft.Xaml.Interactivity"
@@ -46,7 +46,7 @@
                         Source="/Assets/AppIcons/IviriusCommunityIcon.png" />
 
                     <StackPanel Grid.Column="2">
-                        <TextBlock Style="{ThemeResource TitleLargeTextBlockStyle}" Text="This is Ivirius" />
+                        <TextBlock Style="{ThemeResource TitleLargeTextBlockStyle}" Text="This is Ivirius Community." />
                         <TextBlock
                             FontSize="18"
                             Text="We made apps and tools for you to have the best experience with Windows 11."
@@ -64,13 +64,13 @@
                 HorizontalScrollMode="Enabled"
                 VerticalScrollBarVisibility="Hidden"
                 VerticalScrollMode="Disabled">
-                <StackPanel
-                    VerticalAlignment="Top"
-                    Orientation="Horizontal"
-                    Spacing="15">
-                    <StackPanel.Resources>
+                <ItemsRepeater ItemsSource="{x:Bind LinkCards}">
+                    <ItemsRepeater.Layout>
+                        <StackLayout Orientation="Horizontal" Spacing="16" />
+                    </ItemsRepeater.Layout>
+                    <ItemsRepeater.Resources>
                         <Style TargetType="Button">
-                            <Setter Property="Background" Value="{ThemeResource SystemControlAcrylicElementBrush}" />
+                            <Setter Property="Background" Value="{ThemeResource AcrylicInAppFillColorBaseBrush}" />
                             <Setter Property="BackgroundSizing" Value="InnerBorderEdge" />
                             <Setter Property="Foreground" Value="{ThemeResource ButtonForeground}" />
                             <Setter Property="BorderBrush" Value="{ThemeResource ButtonBorderBrush}" />
@@ -116,7 +116,7 @@
 
                                                         <Storyboard>
                                                             <ObjectAnimationUsingKeyFrames Storyboard.TargetName="ContentPresenter" Storyboard.TargetProperty="Background">
-                                                                <DiscreteObjectKeyFrame KeyTime="0" Value="{ThemeResource SystemControlAcrylicElementMediumHighBrush}" />
+                                                                <DiscreteObjectKeyFrame KeyTime="0" Value="{ThemeResource AcrylicInAppFillColorDefaultBrush}" />
                                                             </ObjectAnimationUsingKeyFrames>
                                                             <ObjectAnimationUsingKeyFrames Storyboard.TargetName="ContentPresenter" Storyboard.TargetProperty="BorderBrush">
                                                                 <DiscreteObjectKeyFrame KeyTime="0" Value="{ThemeResource ButtonBorderBrushPointerOver}" />
@@ -131,13 +131,13 @@
 
                                                         <Storyboard>
                                                             <ObjectAnimationUsingKeyFrames Storyboard.TargetName="ContentPresenter" Storyboard.TargetProperty="Background">
-                                                                <DiscreteObjectKeyFrame KeyTime="0" Value="{ThemeResource SystemControlAcrylicWindowMediumHighBrush}" />
+                                                                <DiscreteObjectKeyFrame KeyTime="0" Value="{ThemeResource AcrylicInAppFillColorBaseBrush}" />
                                                             </ObjectAnimationUsingKeyFrames>
                                                             <ObjectAnimationUsingKeyFrames Storyboard.TargetName="ContentPresenter" Storyboard.TargetProperty="BorderBrush">
                                                                 <DiscreteObjectKeyFrame KeyTime="0" Value="{ThemeResource ButtonBorderBrushPressed}" />
                                                             </ObjectAnimationUsingKeyFrames>
                                                             <ObjectAnimationUsingKeyFrames Storyboard.TargetName="ContentPresenter" Storyboard.TargetProperty="Foreground">
-                                                                <DiscreteObjectKeyFrame KeyTime="0" Value="{ThemeResource ButtonForegroundPressed}" />
+                                                                <DiscreteObjectKeyFrame KeyTime="0" Value="{ThemeResource TextFillColorDisabledBrush}" />
                                                             </ObjectAnimationUsingKeyFrames>
                                                         </Storyboard>
                                                     </VisualState>
@@ -166,633 +166,127 @@
                                 </Setter.Value>
                             </Setter>
                         </Style>
-                    </StackPanel.Resources>
-                    <Button
-                        Width="225"
-                        Height="225"
-                        HorizontalContentAlignment="Stretch"
-                        CornerRadius="8">
-                        <StackPanel
-                            Margin="10"
-                            HorizontalAlignment="Stretch"
-                            VerticalAlignment="Top">
-                            <Image
-                                Width="75"
-                                Height="75"
-                                Margin="-5,0"
-                                HorizontalAlignment="Left"
-                                Source="/Assets/AppIcons/Ivrfree.png" />
-                            <TextBlock
-                                Margin="0,15,0,0"
-                                FontSize="20"
-                                Text="Ivirius Text Editor" />
-                            <TextBlock
-                                Margin="0,5,0,0"
-                                FontSize="11"
-                                Opacity="0.7"
-                                Text="Fluent WordPad app for Windows 10 and 11.&#x0a;"
-                                TextWrapping="WrapWholeWords" />
-                            <FontIcon
-                                Margin="0,10,0,0"
-                                HorizontalAlignment="Right"
-                                FontSize="15"
-                                Glyph="" />
-                        </StackPanel>
-                        <interactivity:Interaction.Behaviors>
-                            <interactivity:EventTriggerBehavior EventName="Click">
-                                <behaviors:NavigateToUriAction NavigateUri="https://ivirius.com/ivirius-text-editor" />
-                            </interactivity:EventTriggerBehavior>
-                        </interactivity:Interaction.Behaviors>
-                    </Button>
-                    <Button
-                        Width="245"
-                        Height="225"
-                        HorizontalContentAlignment="Stretch"
-                        CornerRadius="8">
-                        <StackPanel
-                            Margin="10"
-                            HorizontalAlignment="Stretch"
-                            VerticalAlignment="Top">
-                            <Image
-                                Width="75"
-                                Height="75"
-                                Margin="-5,0"
-                                HorizontalAlignment="Left"
-                                Source="/Assets/AppIcons/Ivr+.png" />
-                            <TextBlock
-                                Margin="0,15,0,0"
-                                FontSize="20"
-                                Text="Ivirius Text Editor Plus" />
-                            <TextBlock
-                                Margin="0,5,0,0"
-                                FontSize="11"
-                                Opacity="0.7"
-                                Text="Fluent WordPad app with advanced features and beautiful UI.&#x0a;"
-                                TextWrapping="WrapWholeWords" />
-                            <FontIcon
-                                Margin="0,10,0,0"
-                                HorizontalAlignment="Right"
-                                FontSize="15"
-                                Glyph="" />
-                        </StackPanel>
-                        <interactivity:Interaction.Behaviors>
-                            <interactivity:EventTriggerBehavior EventName="Click">
-                                <behaviors:NavigateToUriAction NavigateUri="https://ivirius.com/ivirius-text-editor-plus" />
-                            </interactivity:EventTriggerBehavior>
-                        </interactivity:Interaction.Behaviors>
-                    </Button>
-                    <Button
-                        Width="225"
-                        Height="225"
-                        HorizontalContentAlignment="Stretch"
-                        CornerRadius="8">
-                        <StackPanel
-                            Margin="10"
-                            HorizontalAlignment="Stretch"
-                            VerticalAlignment="Top">
-                            <Image
-                                Width="65"
-                                Height="75"
-                                HorizontalAlignment="Left"
-                                Source="/Assets/AppIcons/ReboundIcon.ico" />
-                            <TextBlock
-                                Margin="0,15,0,0"
-                                FontSize="20"
-                                Text="Rebound" />
-                            <TextBlock
-                                Margin="0,5,0,0"
-                                FontSize="11"
-                                Opacity="0.7"
-                                Text="The first WinUI 3 Windows mod that aims to bring consistency to the OS."
-                                TextWrapping="WrapWholeWords" />
-                            <FontIcon
-                                Margin="0,10,0,0"
-                                HorizontalAlignment="Right"
-                                FontSize="15"
-                                Glyph="" />
-                        </StackPanel>
-                    </Button>
-                    <Button
-                        Width="225"
-                        Height="225"
-                        HorizontalContentAlignment="Stretch"
-                        CornerRadius="8">
-                        <StackPanel
-                            Margin="10"
-                            HorizontalAlignment="Stretch"
-                            VerticalAlignment="Top">
-                            <Image
-                                Width="75"
-                                Height="75"
-                                HorizontalAlignment="Left"
-                                Source="/Assets/AppIcons/CrimsonUIGlyph.png" />
-                            <TextBlock
-                                Margin="0,15,0,0"
-                                FontSize="20"
-                                Text="CubeKit" />
-                            <TextBlock
-                                Margin="0,5,0,0"
-                                FontSize="11"
-                                Opacity="0.7"
-                                Text="Add a little bit of light to your Windows build using CrimsonUI.&#x0a;"
-                                TextWrapping="WrapWholeWords" />
-                            <FontIcon
-                                Margin="0,10,0,0"
-                                HorizontalAlignment="Right"
-                                FontSize="15"
-                                Glyph="" />
-                        </StackPanel>
-                        <interactivity:Interaction.Behaviors>
-                            <interactivity:EventTriggerBehavior EventName="Click">
-                                <behaviors:NavigateToUriAction NavigateUri="https://ivirius.com/crimsonui" />
-                            </interactivity:EventTriggerBehavior>
-                        </interactivity:Interaction.Behaviors>
-                    </Button>
-                    <Button
-                        Width="225"
-                        Height="225"
-                        HorizontalContentAlignment="Stretch"
-                        CornerRadius="8">
-                        <StackPanel
-                            Margin="10"
-                            HorizontalAlignment="Stretch"
-                            VerticalAlignment="Top">
-                            <Grid>
-                                <TextBlock
-                                    Width="75"
-                                    Height="85"
-                                    Margin="-10,-10,0,0"
-                                    HorizontalAlignment="Left"
-                                    FontSize="65"
-                                    Text="📓" />
-                            </Grid>
-                            <TextBlock
-                                Margin="0,15,0,0"
-                                FontSize="20"
-                                Text="Docs" />
-                            <TextBlock
-                                Margin="0,5,0,0"
-                                FontSize="11"
-                                Opacity="0.7"
-                                Text="Learn more about how to use Ivirius apps and contribute to projects.&#x0a;"
-                                TextWrapping="WrapWholeWords" />
-                            <FontIcon
-                                Margin="0,10,0,0"
-                                HorizontalAlignment="Right"
-                                FontSize="15"
-                                Glyph="" />
-                        </StackPanel>
-                        <interactivity:Interaction.Behaviors>
-                            <interactivity:EventTriggerBehavior EventName="Click">
-                                <behaviors:NavigateToUriAction NavigateUri="https://ivirius.com/docs" />
-                            </interactivity:EventTriggerBehavior>
-                        </interactivity:Interaction.Behaviors>
-                    </Button>
-                    <Button
-                        Width="225"
-                        Height="225"
-                        HorizontalContentAlignment="Stretch"
-                        CornerRadius="8">
-                        <Grid>
-                            <StackPanel
-                                Margin="10"
-                                HorizontalAlignment="Stretch"
-                                VerticalAlignment="Top">
-                                <PathIcon
-                                    Width="100"
-                                    Height="75"
-                                    HorizontalAlignment="Left"
-                                    Data="M13.545 2.907a13.2 13.2 0 0 0-3.257-1.011.05.05 0 0 0-.052.025c-.141.25-.297.577-.406.833a12.2 12.2 0 0 0-3.658 0 8 8 0 0 0-.412-.833.05.05 0 0 0-.052-.025c-1.125.194-2.22.534-3.257 1.011a.04.04 0 0 0-.021.018C.356 6.024-.213 9.047.066 12.032q.003.022.021.037a13.3 13.3 0 0 0 3.995 2.02.05.05 0 0 0 .056-.019q.463-.63.818-1.329a.05.05 0 0 0-.01-.059l-.018-.011a9 9 0 0 1-1.248-.595.05.05 0 0 1-.02-.066l.015-.019q.127-.095.248-.195a.05.05 0 0 1 .051-.007c2.619 1.196 5.454 1.196 8.041 0a.05.05 0 0 1 .053.007q.121.1.248.195a.05.05 0 0 1-.004.085 8 8 0 0 1-1.249.594.05.05 0 0 0-.03.03.05.05 0 0 0 .003.041c.24.465.515.909.817 1.329a.05.05 0 0 0 .056.019 13.2 13.2 0 0 0 4.001-2.02.05.05 0 0 0 .021-.037c.334-3.451-.559-6.449-2.366-9.106a.03.03 0 0 0-.02-.019m-8.198 7.307c-.789 0-1.438-.724-1.438-1.612s.637-1.613 1.438-1.613c.807 0 1.45.73 1.438 1.613 0 .888-.637 1.612-1.438 1.612m5.316 0c-.788 0-1.438-.724-1.438-1.612s.637-1.613 1.438-1.613c.807 0 1.451.73 1.438 1.613 0 .888-.631 1.612-1.438 1.612"
-                                    RenderTransformOrigin="0, -0.025">
-                                    <PathIcon.Foreground>
-                                        <LinearGradientBrush StartPoint="0, 0" EndPoint="1, 1">
-                                            <LinearGradientBrush.GradientStops>
-                                                <GradientStop Offset="0" Color="#7797FF" />
-                                                <GradientStop Offset="1" Color="#6803F6" />
-                                            </LinearGradientBrush.GradientStops>
-                                        </LinearGradientBrush>
-                                    </PathIcon.Foreground>
-                                    <PathIcon.RenderTransform>
-                                        <CompositeTransform ScaleX="4" ScaleY="4" />
-                                    </PathIcon.RenderTransform>
-                                </PathIcon>
-                                <TextBlock
-                                    Margin="0,15,0,0"
-                                    FontSize="20"
-                                    Text="Discord Server" />
-                                <TextBlock
-                                    Margin="0,5,0,0"
-                                    FontSize="11"
-                                    Opacity="0.7"
-                                    Text="Invite link to our Discord server.&#x0a;&#x0a;"
-                                    TextWrapping="WrapWholeWords" />
-                                <FontIcon
-                                    Margin="0,10,0,0"
-                                    HorizontalAlignment="Right"
-                                    FontSize="15"
-                                    Glyph="" />
-                            </StackPanel>
-                        </Grid>
-                        <interactivity:Interaction.Behaviors>
-                            <interactivity:EventTriggerBehavior EventName="Click">
-                                <behaviors:NavigateToUriAction NavigateUri="https://dsc.gg/Ivirius" />
-                            </interactivity:EventTriggerBehavior>
-                        </interactivity:Interaction.Behaviors>
-                    </Button>
-                </StackPanel>
+                    </ItemsRepeater.Resources>
+                    <ItemsRepeater.ItemTemplate>
+                        <DataTemplate x:DataType="local:LinkCard">
+                            <Button
+                                Width="240"
+                                Height="220"
+                                HorizontalContentAlignment="Stretch"
+                                VerticalContentAlignment="Stretch"
+                                Click="OnCardClick"
+                                CornerRadius="6">
+                                <Grid>
+                                    <StackPanel
+                                        Margin="8,16"
+                                        HorizontalAlignment="Stretch"
+                                        VerticalAlignment="Top">
+                                        <Grid
+                                            Width="72"
+                                            Height="72"
+                                            HorizontalAlignment="Left"
+                                            VerticalAlignment="Top">
+                                            <Image
+                                                HorizontalAlignment="Stretch"
+                                                VerticalAlignment="Stretch"
+                                                Source="{x:Bind IconPath}" />
+                                        </Grid>
+                                        <TextBlock
+                                            Margin="0,16,0,0"
+                                            FontSize="20"
+                                            Text="{x:Bind Title}" />
+                                        <TextBlock
+                                            Margin="0,5,0,0"
+                                            FontSize="11"
+                                            Opacity="0.7"
+                                            Text="{x:Bind Description}"
+                                            TextWrapping="WrapWholeWords" />
+                                    </StackPanel>
+                                    <FontIcon
+                                        Margin="8,12"
+                                        HorizontalAlignment="Right"
+                                        VerticalAlignment="Bottom"
+                                        FontSize="15"
+                                        Glyph="" />
+                                </Grid>
+                            </Button>
+                        </DataTemplate>
+                    </ItemsRepeater.ItemTemplate>
+                </ItemsRepeater>
             </ScrollViewer>
 
             <TextBlock
                 Grid.Row="2"
-                Margin="48,48,0,32"
+                Margin="48,32,0,24"
                 FontSize="28"
                 Style="{ThemeResource SubtitleTextBlockStyle}"
-                Text="Rebound apps docs" />
+                Text="Rebound apps" />
 
-            <controls:WrapPanel
+            <ItemsRepeater
                 Grid.Row="3"
                 Margin="48,0"
-                Padding="0,0,0,48"
-                HorizontalSpacing="12"
-                VerticalSpacing="12">
-                <Button
-                    Width="450"
-                    Padding="8"
-                    HorizontalContentAlignment="Stretch">
-                    <Grid>
-                        <Border
-                            HorizontalAlignment="Left"
-                            VerticalAlignment="Top"
-                            Background="{ThemeResource SolidBackgroundFillColorBaseBrush}"
-                            BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
-                            BorderThickness="1"
-                            CornerRadius="4">
-                            <Image
-                                Width="64"
-                                Height="64"
-                                Margin="12"
-                                Source="/Assets/AppIcons/rcontrol.ico" />
-                        </Border>
-                        <TextBlock
-                            Margin="110,0,0,0"
-                            Style="{ThemeResource SubtitleTextBlockStyle}"
-                            Text="Control Panel" />
-                        <TextBlock
-                            Margin="110,30,0,0"
-                            Text="Manage system settings and configurations"
-                            TextWrapping="Wrap" />
-                    </Grid>
-                    <interactivity:Interaction.Behaviors>
-                        <interactivity:EventTriggerBehavior EventName="Click">
-                            <behaviors:NavigateToUriAction NavigateUri="https://ivirius.com/docs/rebound11/control-panel" />
-                        </interactivity:EventTriggerBehavior>
-                    </interactivity:Interaction.Behaviors>
-                </Button>
-                <Button
-                    Width="450"
-                    Padding="8"
-                    HorizontalContentAlignment="Stretch">
-                    <Grid>
-                        <Border
-                            HorizontalAlignment="Left"
-                            VerticalAlignment="Top"
-                            Background="{ThemeResource SolidBackgroundFillColorBaseBrush}"
-                            BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
-                            BorderThickness="1"
-                            CornerRadius="4">
-                            <Image
-                                Width="64"
-                                Height="64"
-                                Margin="12"
-                                Source="/Assets/AppIcons/rdfrgui.ico" />
-                        </Border>
-                        <TextBlock
-                            Margin="110,0,0,0"
-                            Style="{ThemeResource SubtitleTextBlockStyle}"
-                            Text="Defragment and Optimize Drives" />
-                        <TextBlock
-                            Margin="110,30,0,0"
-                            Text="Optimize and defragment your drives"
-                            TextWrapping="Wrap" />
-                    </Grid>
-                    <interactivity:Interaction.Behaviors>
-                        <interactivity:EventTriggerBehavior EventName="Click">
-                            <behaviors:NavigateToUriAction NavigateUri="https://ivirius.com/docs/rebound11/defragment-and-optimize-drives" />
-                        </interactivity:EventTriggerBehavior>
-                    </interactivity:Interaction.Behaviors>
-                </Button>
-                <Button
-                    Width="450"
-                    Padding="8"
-                    HorizontalContentAlignment="Stretch">
-                    <Grid>
-                        <Border
-                            HorizontalAlignment="Left"
-                            VerticalAlignment="Top"
-                            Background="{ThemeResource SolidBackgroundFillColorBaseBrush}"
-                            BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
-                            BorderThickness="1"
-                            CornerRadius="4">
-                            <Image
-                                Width="64"
-                                Height="64"
-                                Margin="12"
-                                Source="/Assets/AppIcons/cleanmgr.ico" />
-                        </Border>
-                        <TextBlock
-                            Margin="110,0,0,0"
-                            Style="{ThemeResource SubtitleTextBlockStyle}"
-                            Text="Disk Cleanup" />
-                        <TextBlock
-                            Margin="110,30,0,0"
-                            Text="Free up space by removing unnecessary files"
-                            TextWrapping="Wrap" />
-                    </Grid>
-                    <interactivity:Interaction.Behaviors>
-                        <interactivity:EventTriggerBehavior EventName="Click">
-                            <behaviors:NavigateToUriAction NavigateUri="https://ivirius.com/docs/rebound11/disk-cleanup" />
-                        </interactivity:EventTriggerBehavior>
-                    </interactivity:Interaction.Behaviors>
-                </Button>
-                <Button
-                    Width="450"
-                    Padding="8"
-                    HorizontalContentAlignment="Stretch"
-                    IsEnabled="False">
-                    <Grid>
-                        <Border
-                            HorizontalAlignment="Left"
-                            VerticalAlignment="Top"
-                            Background="{ThemeResource SolidBackgroundFillColorBaseBrush}"
-                            BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
-                            BorderThickness="1"
-                            CornerRadius="4">
-                            <Image
-                                Width="64"
-                                Height="64"
-                                Margin="12"
-                                Source="/Assets/AppIcons/EventViewer.png" />
-                        </Border>
-                        <TextBlock
-                            Margin="110,0,0,0"
-                            Style="{ThemeResource SubtitleTextBlockStyle}"
-                            Text="Event Viewer" />
-                        <TextBlock
-                            Margin="110,30,0,0"
-                            Text="View detailed logs of system events"
-                            TextWrapping="Wrap" />
-                    </Grid>
-                    <interactivity:Interaction.Behaviors>
-                        <interactivity:EventTriggerBehavior EventName="Click">
-                            <behaviors:NavigateToUriAction NavigateUri="https://ivirius.com/docs/rebound11/event-viewer" />
-                        </interactivity:EventTriggerBehavior>
-                    </interactivity:Interaction.Behaviors>
-                </Button>
-                <Button
-                    Width="450"
-                    Padding="8"
-                    HorizontalContentAlignment="Stretch">
-                    <Grid>
-                        <Border
-                            HorizontalAlignment="Left"
-                            VerticalAlignment="Top"
-                            Background="{ThemeResource SolidBackgroundFillColorBaseBrush}"
-                            BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
-                            BorderThickness="1"
-                            CornerRadius="4">
-                            <Image
-                                Width="64"
-                                Height="64"
-                                Margin="12"
-                                Source="/Assets/AppIcons/FilesLogo.ico" />
-                        </Border>
-                        <TextBlock
-                            Margin="110,0,0,0"
-                            Style="{ThemeResource SubtitleTextBlockStyle}"
-                            Text="Files" />
-                        <TextBlock
-                            Margin="110,30,0,0"
-                            Text="Modern file explorer for Windows 11"
-                            TextWrapping="Wrap" />
-                        <Border
-                            Padding="12,5"
-                            HorizontalAlignment="Right"
-                            VerticalAlignment="Bottom"
-                            Background="{ThemeResource LayerOnMicaBaseAltFillColorSecondaryBrush}"
-                            CornerRadius="14">
-                            <TextBlock
-                                FontWeight="Bold"
-                                Opacity="0.5"
-                                Text="3rd Party" />
-                        </Border>
-                    </Grid>
-                    <interactivity:Interaction.Behaviors>
-                        <interactivity:EventTriggerBehavior EventName="Click">
-                            <behaviors:NavigateToUriAction NavigateUri="https://files.community/docs" />
-                        </interactivity:EventTriggerBehavior>
-                    </interactivity:Interaction.Behaviors>
-                </Button>
-                <Button
-                    Width="450"
-                    Padding="8"
-                    HorizontalContentAlignment="Stretch">
-                    <Grid>
-                        <Border
-                            HorizontalAlignment="Left"
-                            VerticalAlignment="Top"
-                            Background="{ThemeResource SolidBackgroundFillColorBaseBrush}"
-                            BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
-                            BorderThickness="1"
-                            CornerRadius="4">
-                            <Image
-                                Width="64"
-                                Height="64"
-                                Margin="12"
-                                Source="/Assets/AppIcons/ivrfree.png" />
-                        </Border>
-                        <TextBlock
-                            Margin="110,0,0,0"
-                            Style="{ThemeResource SubtitleTextBlockStyle}"
-                            Text="Ivirius Text Editor" />
-                        <TextBlock
-                            Margin="110,30,0,0"
-                            Text="Modern WordPad app for Windows 11"
-                            TextWrapping="Wrap" />
-                    </Grid>
-                    <interactivity:Interaction.Behaviors>
-                        <interactivity:EventTriggerBehavior EventName="Click">
-                            <behaviors:NavigateToUriAction NavigateUri="https://ivirius.com/ivirius-text-editor" />
-                        </interactivity:EventTriggerBehavior>
-                    </interactivity:Interaction.Behaviors>
-                </Button>
-                <Button
-                    Width="450"
-                    Padding="8"
-                    HorizontalContentAlignment="Stretch">
-                    <Grid>
-                        <Border
-                            HorizontalAlignment="Left"
-                            VerticalAlignment="Top"
-                            Background="{ThemeResource SolidBackgroundFillColorBaseBrush}"
-                            BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
-                            BorderThickness="1"
-                            CornerRadius="4">
-                            <Image
-                                Width="64"
-                                Height="64"
-                                Margin="12"
-                                Source="/Assets/AppIcons/rosk_130.ico" />
-                        </Border>
-                        <TextBlock
-                            Margin="110,0,0,0"
-                            Style="{ThemeResource SubtitleTextBlockStyle}"
-                            Text="On-Screen Keyboard" />
-                        <TextBlock
-                            Margin="110,30,0,0"
-                            Text="Access a virtual keyboard on screen"
-                            TextWrapping="Wrap" />
-                    </Grid>
-                    <interactivity:Interaction.Behaviors>
-                        <interactivity:EventTriggerBehavior EventName="Click">
-                            <behaviors:NavigateToUriAction NavigateUri="https://ivirius.com/docs/rebound11/on-screen-keyboard" />
-                        </interactivity:EventTriggerBehavior>
-                    </interactivity:Interaction.Behaviors>
-                </Button>
-                <Button
-                    Width="450"
-                    Padding="8"
-                    HorizontalContentAlignment="Stretch">
-                    <Grid>
-                        <Border
-                            HorizontalAlignment="Left"
-                            VerticalAlignment="Top"
-                            Background="{ThemeResource SolidBackgroundFillColorBaseBrush}"
-                            BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
-                            BorderThickness="1"
-                            CornerRadius="4">
-                            <Image
-                                Width="64"
-                                Height="64"
-                                Margin="12"
-                                Source="/Assets/AppIcons/RunBox.ico" />
-                        </Border>
-                        <TextBlock
-                            Margin="110,0,0,0"
-                            Style="{ThemeResource SubtitleTextBlockStyle}"
-                            Text="Run" />
-                        <TextBlock
-                            Margin="110,30,0,0"
-                            Text="Quickly launch programs or commands"
-                            TextWrapping="Wrap" />
-                    </Grid>
-                    <interactivity:Interaction.Behaviors>
-                        <interactivity:EventTriggerBehavior EventName="Click">
-                            <behaviors:NavigateToUriAction NavigateUri="https://ivirius.com/docs/rebound11/run" />
-                        </interactivity:EventTriggerBehavior>
-                    </interactivity:Interaction.Behaviors>
-                </Button>
-                <Button
-                    Width="450"
-                    Padding="8"
-                    HorizontalContentAlignment="Stretch"
-                    IsEnabled="False">
-                    <Grid>
-                        <Border
-                            HorizontalAlignment="Left"
-                            VerticalAlignment="Top"
-                            Background="{ThemeResource SolidBackgroundFillColorBaseBrush}"
-                            BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
-                            BorderThickness="1"
-                            CornerRadius="4">
-                            <Image
-                                Width="64"
-                                Height="64"
-                                Margin="12"
-                                Source="/Assets/AppIcons/TaskScheduler.png" />
-                        </Border>
-                        <TextBlock
-                            Margin="110,0,0,0"
-                            Style="{ThemeResource SubtitleTextBlockStyle}"
-                            Text="Task Scheduler" />
-                        <TextBlock
-                            Margin="110,30,0,0"
-                            Text="Automate tasks on your PC"
-                            TextWrapping="Wrap" />
-                    </Grid>
-                    <interactivity:Interaction.Behaviors>
-                        <interactivity:EventTriggerBehavior EventName="Click">
-                            <behaviors:NavigateToUriAction NavigateUri="https://ivirius.com/docs/rebound11/task-scheduler" />
-                        </interactivity:EventTriggerBehavior>
-                    </interactivity:Interaction.Behaviors>
-                </Button>
-                <Button
-                    Width="450"
-                    Padding="8"
-                    HorizontalContentAlignment="Stretch">
-                    <Grid>
-                        <Border
-                            HorizontalAlignment="Left"
-                            VerticalAlignment="Top"
-                            Background="{ThemeResource SolidBackgroundFillColorBaseBrush}"
-                            BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
-                            BorderThickness="1"
-                            CornerRadius="4">
-                            <Image
-                                Width="64"
-                                Height="64"
-                                Margin="12"
-                                Source="/Assets/AppIcons/rtpm_130.ico" />
-                        </Border>
-                        <TextBlock
-                            Margin="110,0,0,0"
-                            Style="{ThemeResource SubtitleTextBlockStyle}"
-                            Text="TPM" />
-                        <TextBlock
-                            Margin="110,30,0,0"
-                            Text="Manage the Trusted Platform Module"
-                            TextWrapping="Wrap" />
-                    </Grid>
-                    <interactivity:Interaction.Behaviors>
-                        <interactivity:EventTriggerBehavior EventName="Click">
-                            <behaviors:NavigateToUriAction NavigateUri="https://ivirius.com/docs/rebound11/tpm" />
-                        </interactivity:EventTriggerBehavior>
-                    </interactivity:Interaction.Behaviors>
-                </Button>
-                <Button
-                    Width="450"
-                    Padding="8"
-                    HorizontalContentAlignment="Stretch">
-                    <Grid>
-                        <Border
-                            HorizontalAlignment="Left"
-                            VerticalAlignment="Top"
-                            Background="{ThemeResource SolidBackgroundFillColorBaseBrush}"
-                            BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
-                            BorderThickness="1"
-                            CornerRadius="4">
-                            <Image
-                                Width="64"
-                                Height="64"
-                                Margin="12"
-                                Source="/Assets/AppIcons/Rebound.ico" />
-                        </Border>
-                        <TextBlock
-                            Margin="110,0,0,0"
-                            Style="{ThemeResource SubtitleTextBlockStyle}"
-                            Text="Winver" />
-                        <TextBlock
-                            Margin="110,30,0,0"
-                            Text="View details about your Windows version"
-                            TextWrapping="Wrap" />
-                    </Grid>
-                    <interactivity:Interaction.Behaviors>
-                        <interactivity:EventTriggerBehavior EventName="Click">
-                            <behaviors:NavigateToUriAction NavigateUri="https://ivirius.com/docs/rebound11/winver" />
-                        </interactivity:EventTriggerBehavior>
-                    </interactivity:Interaction.Behaviors>
-                </Button>
-            </controls:WrapPanel>
+                HorizontalAlignment="Stretch"
+                VerticalAlignment="Stretch"
+                ItemsSource="{x:Bind AppCards}">
+                <ItemsRepeater.Layout>
+                    <controls:WrapLayout HorizontalSpacing="8" VerticalSpacing="8" />
+                </ItemsRepeater.Layout>
+                <ItemsRepeater.ItemTemplate>
+                    <DataTemplate x:DataType="local:AppCard">
+                        <Button
+                            Width="320"
+                            Padding="12"
+                            HorizontalContentAlignment="Stretch">
+                            <Grid>
+                                <Grid HorizontalAlignment="Left" VerticalAlignment="Top">
+                                    <Image
+                                        Width="64"
+                                        Height="64"
+                                        Source="{x:Bind IconPath}"
+                                        Stretch="Fill" />
+                                    <Border Background="{ThemeResource AcrylicBackgroundFillColorBaseBrush}" CornerRadius="4">
+                                        <Image
+                                            Width="48"
+                                            Height="48"
+                                            Margin="8"
+                                            Source="{x:Bind IconPath}" />
+                                    </Border>
+                                </Grid>
+                                <TextBlock
+                                    Margin="76,0,0,0"
+                                    FontSize="16"
+                                    FontWeight="SemiBold"
+                                    Text="{x:Bind Title}" />
+                                <TextBlock
+                                    Margin="76,24,0,0"
+                                    FontSize="12"
+                                    Opacity="0.5"
+                                    Text="{x:Bind Description}"
+                                    TextWrapping="Wrap" />
+                                <Grid
+                                    Height="160"
+                                    Margin="0,80,0,0"
+                                    HorizontalAlignment="Stretch"
+                                    VerticalAlignment="Top"
+                                    CornerRadius="4">
+                                    <Image Source="{x:Bind PicturePath}" Stretch="Fill" />
+                                    <Border Background="{ThemeResource AcrylicBackgroundFillColorBaseBrush}">
+                                        <Image
+                                            Margin="16"
+                                            Source="{x:Bind PicturePath}"
+                                            Stretch="Uniform" />
+                                    </Border>
+                                </Grid>
+                            </Grid>
+                            <interactivity:Interaction.Behaviors>
+                                <interactivity:EventTriggerBehavior EventName="Click">
+                                    <behaviors:NavigateToUriAction NavigateUri="{x:Bind Link}" />
+                                </interactivity:EventTriggerBehavior>
+                            </interactivity:Interaction.Behaviors>
+                        </Button>
+                    </DataTemplate>
+                </ItemsRepeater.ItemTemplate>
+            </ItemsRepeater>
         </Grid>
     </ScrollViewer>
-
 </Page>

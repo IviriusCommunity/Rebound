@@ -1,30 +1,16 @@
-﻿#include <windows.h>
-#include <string>
+﻿// Copyright (C) Ivirius(TM) Community 2020 - 2025. All Rights Reserved.
+// Licensed under the MIT License.
+
+#include <windows.h>
+#include <shobjidl.h>
+#include <shlobj_core.h>
+#include <combaseapi.h>
 #include <iostream>
-#include <vector>
 
-// Function to convert std::string to std::wstring
-std::wstring StringToWString(const std::string& str) {
-    int len;
-    int slength = (int)str.length() + 1;
-    len = MultiByteToWideChar(CP_ACP, 0, str.c_str(), slength, NULL, 0);
-    std::wstring wstr(len, 0);
-    MultiByteToWideChar(CP_ACP, 0, str.c_str(), slength, &wstr[0], len);
-    return wstr;
-}
+#pragma comment(lib, "Ole32.lib")
 
-// Function to convert std::wstring to std::string
-std::string WStringToString(const std::wstring& wstr) {
-    int len;
-    int wlength = (int)wstr.length() + 1;
-    len = WideCharToMultiByte(CP_ACP, 0, wstr.c_str(), wlength, NULL, 0, NULL, NULL);
-    std::string str(len, 0);
-    WideCharToMultiByte(CP_ACP, 0, wstr.c_str(), wlength, &str[0], len, NULL, NULL);
-    return str;
-}
-
-// Function to check if the application is running as admin
-BOOL IsRunningAsAdmin() {
+bool IsRunningAsAdmin()
+{
     BOOL isAdmin = FALSE;
     PSID adminGroup = NULL;
     SID_IDENTIFIER_AUTHORITY NtAuthority = SECURITY_NT_AUTHORITY;
@@ -42,63 +28,46 @@ BOOL IsRunningAsAdmin() {
     return isAdmin;
 }
 
-// Function to run a PowerShell command
-void RunPowerShellCommand(const std::string& command, BOOL runAsAdmin) {
-    std::string powershellCommand = command;
-
-    if (runAsAdmin) {
-        powershellCommand = "powershell.exe -Command \"" + powershellCommand + "\" -Verb RunAs";
-    }
-    else {
-        powershellCommand = "powershell.exe -Command \"" + powershellCommand + "\"";
+bool LaunchPackagedApp(const std::wstring& appUserModelID, const std::wstring& arguments)
+{
+    HRESULT hr = CoInitializeEx(nullptr, COINIT_APARTMENTTHREADED);
+    if (FAILED(hr)) {
+        std::wcerr << L"CoInitializeEx failed: 0x" << std::hex << hr << std::endl;
+        return false;
     }
 
-    std::string ansiCommand = powershellCommand;
-    std::vector<char> commandBuffer(ansiCommand.begin(), ansiCommand.end());
-    commandBuffer.push_back('\0'); // Null-terminate the string
+    IApplicationActivationManager* pActivator = nullptr;
+    hr = CoCreateInstance(
+        CLSID_ApplicationActivationManager,
+        nullptr,
+        CLSCTX_LOCAL_SERVER,
+        IID_PPV_ARGS(&pActivator)
+    );
 
-    STARTUPINFOA si = { sizeof(STARTUPINFOA) };
-    si.dwFlags |= STARTF_USESHOWWINDOW;
-    si.wShowWindow = SW_HIDE; // Hide the PowerShell window
-
-    PROCESS_INFORMATION pi;
-    ZeroMemory(&pi, sizeof(pi));
-
-    BOOL result = CreateProcessA(
-        nullptr,                     // No module name (use command line)
-        commandBuffer.data(),        // Command line (ANSI char array)
-        nullptr,                     // Process handle not inheritable
-        nullptr,                     // Thread handle not inheritable
-        FALSE,                       // Set handle inheritance to FALSE
-        0,                           // No creation flags
-        nullptr,                     // Use parent's environment block
-        nullptr,                     // Use parent's starting directory 
-        &si,                         // Pointer to STARTUPINFOA structure
-        &pi);                        // Pointer to PROCESS_INFORMATION structure
-
-    if (result) {
-        // Successfully created the process
-        std::cout << "Process started successfully.\n";
-
-        // Wait until the PowerShell process exits
-        WaitForSingleObject(pi.hProcess, INFINITE);
-
-        // Close process and thread handles
-        CloseHandle(pi.hProcess);
-        CloseHandle(pi.hThread);
+    if (FAILED(hr)) {
+        std::wcerr << L"CoCreateInstance failed: 0x" << std::hex << hr << std::endl;
+        CoUninitialize();
+        return false;
     }
-    else {
-        // Error occurred
-        DWORD error = GetLastError();
-        std::cerr << "CreateProcess failed with error code " << error << ".\n";
 
-        // Convert error code to a message
-        LPVOID msgBuffer;
-        FormatMessageA(FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM,
-            nullptr, error, 0, (LPSTR)&msgBuffer, 0, nullptr);
-        std::cerr << "Error message: " << (LPSTR)msgBuffer << std::endl;
-        LocalFree(msgBuffer);
+    DWORD pid = 0;
+    hr = pActivator->ActivateApplication(
+        appUserModelID.c_str(),
+        arguments.c_str(),
+        IsRunningAsAdmin() ? (ACTIVATEOPTIONS)0x20000000 : AO_NONE,
+        &pid
+    );
+
+    pActivator->Release();
+    CoUninitialize();
+
+    if (FAILED(hr)) {
+        std::wcerr << L"ActivateApplication failed: 0x" << std::hex << hr << std::endl;
+        return false;
     }
+
+    std::wcout << L"Launched packaged app with PID: " << pid << std::endl;
+    return true;
 }
 
 int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
@@ -106,14 +75,10 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
     _In_ LPWSTR lpCmdLine,
     _In_ int nCmdShow)
 {
-    // Check if the application is running as admin
-    BOOL isAdmin = IsRunningAsAdmin();
+    std::wstring appId = L"ReboundAbout_yejd587sfa94t!App";
+    std::wstring args = L"";
 
-    std::wstring argument(lpCmdLine);
-    // Define the PowerShell command to execute
-    std::string command = "Start-Process 'shell:AppsFolder\\ReboundAbout_yejd587sfa94t!App' -ArgumentList @(' ')";
+    LaunchPackagedApp(appId, args);
 
-    // Run the PowerShell command
-    RunPowerShellCommand(command, isAdmin);
     return 0;
 }

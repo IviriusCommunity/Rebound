@@ -3,45 +3,6 @@
 #include <iostream>
 #include <vector>
 
-// Function to convert std::string to std::wstring
-std::wstring StringToWString(const std::string& str) {
-    int len;
-    int slength = (int)str.length() + 1;
-    len = MultiByteToWideChar(CP_ACP, 0, str.c_str(), slength, NULL, 0);
-    std::wstring wstr(len, 0);
-    MultiByteToWideChar(CP_ACP, 0, str.c_str(), slength, &wstr[0], len);
-    return wstr;
-}
-
-// Function to convert std::wstring to std::string
-std::string WStringToString(const std::wstring& wstr) {
-    int len;
-    int wlength = (int)wstr.length() + 1;
-    len = WideCharToMultiByte(CP_ACP, 0, wstr.c_str(), wlength, NULL, 0, NULL, NULL);
-    std::string str(len, 0);
-    WideCharToMultiByte(CP_ACP, 0, wstr.c_str(), wlength, &str[0], len, NULL, NULL);
-    return str;
-}
-
-// Function to check if the application is running as admin
-BOOL IsRunningAsAdmin() {
-    BOOL isAdmin = FALSE;
-    PSID adminGroup = NULL;
-    SID_IDENTIFIER_AUTHORITY NtAuthority = SECURITY_NT_AUTHORITY;
-
-    if (AllocateAndInitializeSid(&NtAuthority, 2,
-        SECURITY_BUILTIN_DOMAIN_RID, DOMAIN_ALIAS_RID_ADMINS,
-        0, 0, 0, 0, 0, 0,
-        &adminGroup)) {
-        if (CheckTokenMembership(NULL, adminGroup, &isAdmin)) {
-            isAdmin = isAdmin ? TRUE : FALSE;
-        }
-        FreeSid(adminGroup);
-    }
-
-    return isAdmin;
-}
-
 void RunShellCommand() {
     // Define the path with %PROGRAMFILES% environment variable
     std::string command = "%PROGRAMFILES%\\Common Files\\Microsoft Shared\\ink\\TabTip.exe";

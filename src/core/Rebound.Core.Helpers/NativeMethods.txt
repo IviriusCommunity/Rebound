@@ -26,3 +26,5 @@ DwmSetWindowAttribute
 LoadImage
 PostMessage
 CreateIcon
+CoCreateInstance
+IApplicationActivationManager

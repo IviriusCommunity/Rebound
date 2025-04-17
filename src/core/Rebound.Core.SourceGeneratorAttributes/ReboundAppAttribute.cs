@@ -1,13 +1,12 @@
 ﻿using System;
-using System.Collections.Generic;
 
 namespace Rebound.Generators;
 
 [AttributeUsage(AttributeTargets.Class, Inherited = false, AllowMultiple = false)]
-public class ReboundAppAttribute(string singleProcessTaskName, List<LegacyLaunchItem> legacyLaunchItems) : Attribute
+public class ReboundAppAttribute(string singleProcessTaskName, string legacyLaunchItems) : Attribute
 {
     public string SingleProcessTaskName { get; } = singleProcessTaskName;
-    public List<LegacyLaunchItem> LegacyLaunchItems { get; } = legacyLaunchItems;
+    public string LegacyLaunchItems { get; } = legacyLaunchItems;
 }
 
 public class LegacyLaunchItem(string name, string launchArg, string iconPath)

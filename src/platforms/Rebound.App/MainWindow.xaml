@@ -6,112 +6,36 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:winuiex="using:WinUIEx"
-    PositionChanged="WindowEx_PositionChanged"
-    SizeChanged="WindowEx_SizeChanged"
+    Title="Rebound Hub"
     mc:Ignorable="d">
-
-    <Grid
-        PointerExited="Grid_PointerExited"
-        PointerMoved="Grid_PointerMoved"
-        PointerReleased="Grid_PointerReleased">
-
-        <Grid.RowDefinitions>
-            <RowDefinition Height="48" />
-            <RowDefinition Height="*" />
-        </Grid.RowDefinitions>
-
-        <Grid x:Name="TitleBarGrid">
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="16" />
-                <ColumnDefinition Width="Auto" />
-                <ColumnDefinition Width="12" />
-                <ColumnDefinition Width="Auto" />
-                <ColumnDefinition Width="Auto" />
-                <ColumnDefinition Width="*" />
-                <ColumnDefinition Width="Auto" />
-                <ColumnDefinition Width="Auto" />
-                <ColumnDefinition Width="Auto" />
-            </Grid.ColumnDefinitions>
-
+    <winuiex:WindowEx.SystemBackdrop>
+        <MicaBackdrop />
+    </winuiex:WindowEx.SystemBackdrop>
+    <Grid>
+        <StackPanel
+            Margin="20,16"
+            VerticalAlignment="Top"
+            Orientation="Horizontal"
+            Spacing="8">
             <Image
-                x:Name="TitleBarIcon"
                 Grid.Column="1"
                 Width="16"
                 VerticalAlignment="Center"
                 x:FieldModifier="public"
                 Source="/Assets/AppIcons/Rebound.ico" />
-
-            <TextBlock
-                x:Name="WindowTitle"
-                Grid.Column="3"
-                VerticalAlignment="Center"
-                x:FieldModifier="public"
-                FontFamily="Segoe UI"
-                FontSize="12"
-                FontWeight="Normal"
-                Foreground="{ThemeResource TextFillColorPrimaryBrush}"
-                TextTrimming="CharacterEllipsis" />
-
+            <TextBlock FontSize="12" Text="Rebound Hub" />
             <Border
-                Grid.Column="4"
-                Margin="10,0,0,0"
-                Padding="4,2"
+                Padding="6,2,6,3"
                 VerticalAlignment="Center"
-                Background="{ThemeResource AccentFillColorSecondaryBrush}"
-                CornerRadius="4">
+                Background="{ThemeResource AccentFillColorDefaultBrush}"
+                CornerRadius="2">
                 <TextBlock
                     FontSize="10"
                     FontWeight="SemiBold"
-                    Foreground="{ThemeResource TextFillColorInverseBrush}"
-                    Text="PREVIEW" />
+                    Foreground="{ThemeResource TextOnAccentFillColorPrimaryBrush}"
+                    Text="BETA" />
             </Border>
-
-            <Button
-                x:Name="Minimize"
-                Grid.Column="6"
-                Width="48"
-                Height="48"
-                IsTabStop="False"
-                Style="{ThemeResource Minimize}">
-                <FontIcon FontSize="10" Glyph="&#xE921;" />
-            </Button>
-
-            <Button
-                x:Name="CrimsonMaxRes"
-                Grid.Column="7"
-                Width="48"
-                Height="48"
-                Click="CrimsonMaxRes_Click"
-                IsTabStop="False"
-                PointerEntered="CrimsonMaxRes_PointerEntered"
-                PointerExited="CrimsonMaxRes_PointerExited"
-                PointerMoved="CrimsonMaxRes_PointerMoved"
-                PointerPressed="CrimsonMaxRes_PointerPressed"
-                Style="{ThemeResource MaxRes}">
-                <FontIcon
-                    x:Name="MaxResGlyph"
-                    FontSize="10"
-                    Glyph="&#xE922;" />
-            </Button>
-
-            <Button
-                x:Name="Close"
-                Grid.Column="8"
-                Width="48"
-                Height="48"
-                IsTabStop="False"
-                PointerEntered="CrimsonMaxRes_PointerEntered"
-                PointerExited="CrimsonMaxRes_PointerExited"
-                PointerMoved="CrimsonMaxRes_PointerMoved"
-                PointerPressed="CrimsonMaxRes_PointerPressed"
-                Style="{ThemeResource Close}">
-                <FontIcon FontSize="10" Glyph="&#xE8BB;" />
-            </Button>
-
-        </Grid>
-
-        <Frame x:Name="RootFrame" Grid.Row="1" />
-
+        </StackPanel>
+        <Frame x:Name="RootFrame" Margin="0,46,0,0" />
     </Grid>
-
 </winuiex:WindowEx>

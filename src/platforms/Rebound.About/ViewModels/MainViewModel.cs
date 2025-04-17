@@ -3,7 +3,7 @@ using System.Management;
 using CommunityToolkit.Mvvm.ComponentModel;
 using Microsoft.Win32;
 
-namespace Rebound.About;
+namespace Rebound.About.ViewModels;
 
 internal partial class MainViewModel : ObservableObject
 {
