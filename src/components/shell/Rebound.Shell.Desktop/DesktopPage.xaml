@@ -433,236 +433,277 @@
             x:Key="BoolToInverseVisibilityConverter"
             FalseValue="Visible"
             TrueValue="Collapsed" />
+        <converters:BoolToObjectConverter
+            x:Key="NullableBoolToBoolConverter"
+            FalseValue="False"
+            TrueValue="True" />
 
     </Page.Resources>
-    <Grid
-        Background="#00000000"
-        DragOver="CanvasControl_DragOver"
-        Drop="CanvasControl_Drop"
-        PointerMoved="CanvasControl_PointerMoved"
-        PointerPressed="CanvasControl_PointerPressed"
-        PointerReleased="CanvasControl_PointerReleased">
-        <ItemsRepeater
-            x:Name="CanvasControl"
-            HorizontalAlignment="Stretch"
-            VerticalAlignment="Stretch"
-            AllowDrop="True"
-            Background="Transparent"
+    <Grid>
+        <Grid
+            Padding="4"
+            Background="#01000000"
             DragOver="CanvasControl_DragOver"
             Drop="CanvasControl_Drop"
-            ItemsSource="{x:Bind Items, Mode=OneWay}"
             PointerMoved="CanvasControl_PointerMoved"
             PointerPressed="CanvasControl_PointerPressed"
             PointerReleased="CanvasControl_PointerReleased">
-            <ItemsRepeater.Layout>
-                <local:GridLayout />
-            </ItemsRepeater.Layout>
-            <ItemsRepeater.ItemTemplate>
-                <DataTemplate x:DataType="local:DesktopItem">
-                    <Grid
-                        Width="80"
-                        Height="100"
-                        ui:UIElementExtensions.ClipToBounds="False"
-                        AllowDrop="True"
-                        Background="Transparent"
-                        CanDrag="True"
-                        DataContext="{x:Bind}"
-                        DoubleTapped="Grid_DoubleTapped"
-                        DragStarting="Grid_DragStarting"
-                        PointerEntered="Grid_PointerEntered"
-                        PointerExited="Grid_PointerExited"
-                        PointerPressed="Grid_PointerPressed"
-                        PointerReleased="Grid_PointerReleased_1">
-                        <!--  Thumbnail  -->
+            <ItemsRepeater
+                x:Name="CanvasControl"
+                HorizontalAlignment="Stretch"
+                VerticalAlignment="Stretch"
+                AllowDrop="True"
+                Background="#01000000"
+                DragOver="CanvasControl_DragOver"
+                Drop="CanvasControl_Drop"
+                ItemsSource="{x:Bind Items, Mode=OneWay}"
+                PointerMoved="CanvasControl_PointerMoved"
+                PointerPressed="CanvasControl_PointerPressed"
+                PointerReleased="CanvasControl_PointerReleased">
+                <ItemsRepeater.Layout>
+                    <local:GridLayout />
+                </ItemsRepeater.Layout>
+                <ItemsRepeater.ItemTemplate>
+                    <DataTemplate x:DataType="local:DesktopItem">
                         <Grid
-                            Width="48"
-                            Height="48"
-                            Margin="0,8,0,0"
-                            VerticalAlignment="Top"
-                            ui:UIElementExtensions.ClipToBounds="False">
-                            <Image
-                                x:Name="ThumbnailImage"
-                                VerticalAlignment="Center"
-                                ui:UIElementExtensions.ClipToBounds="False"
-                                Source="{x:Bind Thumbnail}"
-                                Visibility="{x:Bind IsHidden, Mode=OneWay, Converter={StaticResource BoolToInverseVisibilityConverter}}">
-                                <ui:Effects.Shadow>
-                                    <ui:AttachedDropShadow
-                                        BlurRadius="10"
-                                        CastTo="{x:Bind ThumbnailImage}"
-                                        Opacity="0.25" />
-                                </ui:Effects.Shadow>
-                            </Image>
-                            <Viewbox>
-                                <ImageIcon
-                                    Width="256"
-                                    Height="256"
-                                    VerticalAlignment="Center"
-                                    Opacity="{x:Bind IsHidden, Mode=OneWay, Converter={StaticResource BoolToObjectConverter}}"
-                                    Source="{x:Bind Thumbnail}" />
+                            x:Name="RootGrid"
+                            Width="80"
+                            Height="100"
+                            ui:UIElementExtensions.ClipToBounds="False"
+                            AllowDrop="True"
+                            Background="Transparent"
+                            CanDrag="True"
+                            DataContext="{x:Bind}"
+                            DoubleTapped="Grid_DoubleTapped"
+                            DragStarting="Grid_DragStarting"
+                            PointerEntered="Grid_PointerEntered"
+                            PointerExited="Grid_PointerExited"
+                            PointerPressed="Grid_PointerPressed"
+                            PointerReleased="Grid_PointerReleased_1">
+                            <ItemContainer
+                                Padding="0"
+                                HorizontalAlignment="Stretch"
+                                VerticalAlignment="Stretch"
+                                HorizontalContentAlignment="Stretch"
+                                VerticalContentAlignment="Stretch"
+                                Background="Transparent"
+                                BorderThickness="0"
+                                IsSelected="{x:Bind IsSelected, Mode=TwoWay, Converter={StaticResource NullableBoolToBoolConverter}}">
+                                <Grid>
+                                    <!--  Thumbnail  -->
+                                    <Grid
+                                        Width="48"
+                                        Height="48"
+                                        Margin="0,8,0,0"
+                                        VerticalAlignment="Top"
+                                        ui:UIElementExtensions.ClipToBounds="False">
+                                        <Image
+                                            x:Name="ThumbnailImage"
+                                            VerticalAlignment="Center"
+                                            ui:UIElementExtensions.ClipToBounds="False"
+                                            Source="{x:Bind Thumbnail}"
+                                            Visibility="{x:Bind IsHidden, Mode=OneWay, Converter={StaticResource BoolToInverseVisibilityConverter}}">
+                                            <ui:Effects.Shadow>
+                                                <ui:AttachedDropShadow
+                                                    BlurRadius="10"
+                                                    CastTo="{x:Bind ThumbnailImage}"
+                                                    Opacity="0.25" />
+                                            </ui:Effects.Shadow>
+                                        </Image>
+                                        <Viewbox>
+                                            <ImageIcon
+                                                Width="256"
+                                                Height="256"
+                                                VerticalAlignment="Center"
+                                                Opacity="{x:Bind IsHidden, Mode=OneWay, Converter={StaticResource BoolToObjectConverter}}"
+                                                Source="{x:Bind Thumbnail}" />
 
-                            </Viewbox>
+                                        </Viewbox>
+                                    </Grid>
+
+                                    <Border
+                                        Width="20"
+                                        Height="20"
+                                        Margin="4,0,0,0"
+                                        HorizontalAlignment="Left"
+                                        Background="{ThemeResource ControlOnImageFillColorDefaultBrush}"
+                                        BorderBrush="{ThemeResource ControlElevationBorderBrush}"
+                                        BorderThickness="1"
+                                        CornerRadius="4"
+                                        ToolTipService.ToolTip="Shortcut"
+                                        Visibility="{x:Bind IsShortcut, Converter={StaticResource BoolToVisibilityConverter}, Mode=OneWay}">
+                                        <FontIcon
+                                            FontSize="8"
+                                            Foreground="{ThemeResource AccentTextFillColorPrimaryBrush}"
+                                            Glyph="&#xE8AD;" />
+                                    </Border>
+
+                                    <Border
+                                        Width="20"
+                                        Height="20"
+                                        Margin="4,0,0,0"
+                                        HorizontalAlignment="Left"
+                                        Background="{ThemeResource ControlOnImageFillColorDefaultBrush}"
+                                        BorderBrush="{ThemeResource ControlElevationBorderBrush}"
+                                        BorderThickness="1"
+                                        CornerRadius="4"
+                                        ToolTipService.ToolTip="System file"
+                                        Visibility="{x:Bind IsSystemFile, Converter={StaticResource BoolToVisibilityConverter}, Mode=OneWay}">
+                                        <FontIcon
+                                            FontSize="10"
+                                            Foreground="{ThemeResource AccentTextFillColorPrimaryBrush}"
+                                            Glyph="&#xF8B0;" />
+                                    </Border>
+
+                                    <Border
+                                        Width="20"
+                                        Height="20"
+                                        Margin="4,0,0,0"
+                                        HorizontalAlignment="Left"
+                                        Background="{ThemeResource ControlOnImageFillColorDefaultBrush}"
+                                        BorderBrush="{ThemeResource ControlElevationBorderBrush}"
+                                        BorderThickness="1"
+                                        CornerRadius="4"
+                                        ToolTipService.ToolTip="Video file"
+                                        Visibility="{x:Bind IsVideoFile, Converter={StaticResource BoolToVisibilityConverter}, Mode=OneWay}">
+                                        <FontIcon
+                                            FontSize="10"
+                                            Foreground="{ThemeResource AccentTextFillColorPrimaryBrush}"
+                                            Glyph="&#xF5B0;" />
+                                    </Border>
+
+                                    <Border
+                                        Width="20"
+                                        Height="20"
+                                        Margin="4,0,0,0"
+                                        HorizontalAlignment="Left"
+                                        Background="{ThemeResource ControlOnImageFillColorDefaultBrush}"
+                                        BorderBrush="{ThemeResource ControlElevationBorderBrush}"
+                                        BorderThickness="1"
+                                        CornerRadius="4"
+                                        ToolTipService.ToolTip="Program"
+                                        Visibility="{x:Bind IsExe, Converter={StaticResource BoolToVisibilityConverter}, Mode=OneWay}">
+                                        <FontIcon
+                                            FontSize="12"
+                                            Foreground="{ThemeResource AccentTextFillColorPrimaryBrush}"
+                                            Glyph="&#xE74C;" />
+                                    </Border>
+
+                                    <!--  File Details  -->
+                                    <TextBlock
+                                        x:Name="FileNameControl1"
+                                        Margin="8,60,8,8"
+                                        HorizontalAlignment="Stretch"
+                                        FontSize="12"
+                                        Foreground="White"
+                                        Text="{x:Bind FileName}"
+                                        TextAlignment="Center"
+                                        TextTrimming="CharacterEllipsis"
+                                        TextWrapping="WrapWholeWords">
+                                        <ui:Effects.Shadow>
+                                            <ui:AttachedDropShadow
+                                                BlurRadius="7"
+                                                CastTo="{x:Bind FileNameControl1}"
+                                                IsMasked="True"
+                                                Opacity="1"
+                                                Offset="1" />
+                                        </ui:Effects.Shadow>
+                                    </TextBlock>
+                                    <TextBlock
+                                        x:Name="FileNameControl2"
+                                        Margin="8,60,8,8"
+                                        HorizontalAlignment="Stretch"
+                                        FontSize="12"
+                                        Foreground="White"
+                                        Text="{x:Bind FileName}"
+                                        TextAlignment="Center"
+                                        TextTrimming="CharacterEllipsis"
+                                        TextWrapping="WrapWholeWords">
+                                        <ui:Effects.Shadow>
+                                            <ui:AttachedDropShadow
+                                                BlurRadius="3"
+                                                CastTo="{x:Bind FileNameControl2}"
+                                                IsMasked="True"
+                                                Opacity="1" />
+                                        </ui:Effects.Shadow>
+                                    </TextBlock>
+                                    <TextBlock
+                                        Margin="8,60,8,8"
+                                        HorizontalAlignment="Stretch"
+                                        FontSize="12"
+                                        Foreground="White"
+                                        Text="{x:Bind FileName}"
+                                        TextAlignment="Center"
+                                        TextTrimming="CharacterEllipsis"
+                                        TextWrapping="WrapWholeWords" />
+                                    <TextBlock
+                                        FontSize="12"
+                                        Foreground="Gray"
+                                        Text="{x:Bind FilePath}"
+                                        Visibility="Collapsed" />
+                                    <TextBox
+                                        Margin="0,60,0,0"
+                                        FontSize="12"
+                                        TextWrapping="Wrap"
+                                        Visibility="Collapsed" />
+                                    <CheckBox
+                                        MinWidth="0"
+                                        MinHeight="0"
+                                        Margin="4"
+                                        VerticalAlignment="Top"
+                                        IsChecked="{x:Bind IsSelected, Mode=TwoWay}" />
+                                </Grid>
+                            </ItemContainer>
+
                         </Grid>
-
-                        <Border
-                            Width="20"
-                            Height="20"
-                            Margin="4,0,0,0"
-                            HorizontalAlignment="Left"
-                            Background="{ThemeResource ControlOnImageFillColorDefaultBrush}"
-                            BorderBrush="{ThemeResource ControlElevationBorderBrush}"
-                            BorderThickness="1"
-                            CornerRadius="4"
-                            ToolTipService.ToolTip="Shortcut"
-                            Visibility="{x:Bind IsShortcut, Converter={StaticResource BoolToVisibilityConverter}, Mode=OneWay}">
-                            <FontIcon
-                                FontSize="8"
-                                Foreground="{ThemeResource AccentTextFillColorPrimaryBrush}"
-                                Glyph="&#xE8AD;" />
-                        </Border>
-
-                        <Border
-                            Width="20"
-                            Height="20"
-                            Margin="4,0,0,0"
-                            HorizontalAlignment="Left"
-                            Background="{ThemeResource ControlOnImageFillColorDefaultBrush}"
-                            BorderBrush="{ThemeResource ControlElevationBorderBrush}"
-                            BorderThickness="1"
-                            CornerRadius="4"
-                            ToolTipService.ToolTip="System file"
-                            Visibility="{x:Bind IsSystemFile, Converter={StaticResource BoolToVisibilityConverter}, Mode=OneWay}">
-                            <FontIcon
-                                FontSize="10"
-                                Foreground="{ThemeResource AccentTextFillColorPrimaryBrush}"
-                                Glyph="&#xF8B0;" />
-                        </Border>
-
-                        <Border
-                            Width="20"
-                            Height="20"
-                            Margin="4,0,0,0"
-                            HorizontalAlignment="Left"
-                            Background="{ThemeResource ControlOnImageFillColorDefaultBrush}"
-                            BorderBrush="{ThemeResource ControlElevationBorderBrush}"
-                            BorderThickness="1"
-                            CornerRadius="4"
-                            ToolTipService.ToolTip="Video file"
-                            Visibility="{x:Bind IsVideoFile, Converter={StaticResource BoolToVisibilityConverter}, Mode=OneWay}">
-                            <FontIcon
-                                FontSize="10"
-                                Foreground="{ThemeResource AccentTextFillColorPrimaryBrush}"
-                                Glyph="&#xF5B0;" />
-                        </Border>
-
-                        <Border
-                            Width="20"
-                            Height="20"
-                            Margin="4,0,0,0"
-                            HorizontalAlignment="Left"
-                            Background="{ThemeResource ControlOnImageFillColorDefaultBrush}"
-                            BorderBrush="{ThemeResource ControlElevationBorderBrush}"
-                            BorderThickness="1"
-                            CornerRadius="4"
-                            ToolTipService.ToolTip="Program"
-                            Visibility="{x:Bind IsExe, Converter={StaticResource BoolToVisibilityConverter}, Mode=OneWay}">
-                            <FontIcon
-                                FontSize="12"
-                                Foreground="{ThemeResource AccentTextFillColorPrimaryBrush}"
-                                Glyph="&#xE74C;" />
-                        </Border>
-
-                        <!--  File Details  -->
-                        <TextBlock
-                            x:Name="FileNameControl1"
-                            Margin="8,60,8,8"
-                            HorizontalAlignment="Stretch"
-                            FontSize="12"
-                            Foreground="White"
-                            Text="{x:Bind FileName}"
-                            TextAlignment="Center"
-                            TextTrimming="CharacterEllipsis"
-                            TextWrapping="WrapWholeWords">
-                            <ui:Effects.Shadow>
-                                <ui:AttachedDropShadow
-                                    BlurRadius="7"
-                                    CastTo="{x:Bind FileNameControl1}"
-                                    IsMasked="True"
-                                    Opacity="1"
-                                    Offset="1" />
-                            </ui:Effects.Shadow>
-                        </TextBlock>
-                        <TextBlock
-                            x:Name="FileNameControl2"
-                            Margin="8,60,8,8"
-                            HorizontalAlignment="Stretch"
-                            FontSize="12"
-                            Foreground="White"
-                            Text="{x:Bind FileName}"
-                            TextAlignment="Center"
-                            TextTrimming="CharacterEllipsis"
-                            TextWrapping="WrapWholeWords">
-                            <ui:Effects.Shadow>
-                                <ui:AttachedDropShadow
-                                    BlurRadius="3"
-                                    CastTo="{x:Bind FileNameControl2}"
-                                    IsMasked="True"
-                                    Opacity="1" />
-                            </ui:Effects.Shadow>
-                        </TextBlock>
-                        <TextBlock
-                            Margin="8,60,8,8"
-                            HorizontalAlignment="Stretch"
-                            FontSize="12"
-                            Foreground="White"
-                            Text="{x:Bind FileName}"
-                            TextAlignment="Center"
-                            TextTrimming="CharacterEllipsis"
-                            TextWrapping="WrapWholeWords" />
-                        <TextBlock
-                            FontSize="12"
-                            Foreground="Gray"
-                            Text="{x:Bind FilePath}"
-                            Visibility="Collapsed" />
-                        <TextBox
-                            Margin="0,60,0,0"
-                            FontSize="12"
-                            TextWrapping="Wrap"
-                            Visibility="Collapsed" />
-                        <CheckBox
-                            MinWidth="0"
-                            MinHeight="0"
-                            Margin="4"
-                            VerticalAlignment="Top"
-                            IsChecked="{x:Bind IsSelected, Mode=TwoWay}" />
-                    </Grid>
-                </DataTemplate>
-            </ItemsRepeater.ItemTemplate>
-        </ItemsRepeater>
-        <Border
-            AllowDrop="True"
-            x:Name="PlacementBorder"
-            HorizontalAlignment="Stretch"
-            VerticalAlignment="Stretch"
-            Background="{ThemeResource SmokeFillColorDefaultBrush}"
-            DragOver="CanvasControl_DragOver"
-            Drop="CanvasControl_Drop"
-            Visibility="Collapsed" />
-        <Border
-            x:Name="SelectionBorder"
-            Width="0"
-            Height="0"
-            Margin="0"
-            HorizontalAlignment="Left"
-            VerticalAlignment="Top"
-            BorderBrush="{ThemeResource AccentFillColorDefaultBrush}"
-            BorderThickness="1"
-            PointerMoved="CanvasControl_PointerMoved"
-            PointerReleased="CanvasControl_PointerReleased">
+                    </DataTemplate>
+                </ItemsRepeater.ItemTemplate>
+            </ItemsRepeater>
             <Border
-                Background="{ThemeResource AccentFillColorDefaultBrush}"
-                Opacity="0.2"
-                PointerReleased="CanvasControl_PointerReleased" />
-        </Border>
+                x:Name="PlacementBorder"
+                Margin="-4"
+                HorizontalAlignment="Stretch"
+                VerticalAlignment="Stretch"
+                AllowDrop="True"
+                Background="{ThemeResource SmokeFillColorDefaultBrush}"
+                DragOver="CanvasControl_DragOver"
+                Drop="CanvasControl_Drop"
+                Visibility="Collapsed" />
+            <Border
+                x:Name="SelectionBorder"
+                Width="0"
+                Height="0"
+                HorizontalAlignment="Left"
+                VerticalAlignment="Top"
+                BorderBrush="{ThemeResource AccentFillColorDefaultBrush}"
+                BorderThickness="1"
+                CornerRadius="4"
+                PointerMoved="CanvasControl_PointerMoved"
+                PointerReleased="CanvasControl_PointerReleased">
+                <Border
+                    Background="{ThemeResource AccentFillColorDefaultBrush}"
+                    CornerRadius="4"
+                    Opacity="0.2"
+                    PointerReleased="CanvasControl_PointerReleased" />
+            </Border>
+        </Grid>
+        <Grid
+            x:Name="LoadingGrid"
+            Background="{ThemeResource SmokeFillColorDefaultBrush}"
+            Visibility="Visible">
+            <TextBlock
+                Margin="0,0,0,100"
+                HorizontalAlignment="Center"
+                VerticalAlignment="Center"
+                FontSize="24"
+                FontWeight="Bold"
+                Text="Loading Rebound Desktop..." />
+            <ProgressRing
+                Width="48"
+                Height="48"
+                HorizontalAlignment="Center"
+                VerticalAlignment="Center"
+                IsIndeterminate="True" />
+        </Grid>
     </Grid>
 </Page>

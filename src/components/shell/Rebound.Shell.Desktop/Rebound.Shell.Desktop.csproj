@@ -2,6 +2,7 @@
 	<PropertyGroup>
 		<RootNamespace>Rebound.Shell.Desktop</RootNamespace>
 		<OutputType>Library</OutputType>
+		<CodePage>65001</CodePage>
 	</PropertyGroup>
 	<ItemGroup>
 	  <None Remove="ContextMenuWindow.xaml" />

@@ -4,9 +4,8 @@ using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using System.Runtime.InteropServices;
-using System.Text;
 using System.Threading.Tasks;
+using CommunityToolkit.WinUI;
 using Microsoft.UI.Input;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
@@ -20,12 +19,23 @@ namespace Rebound.Shell.Desktop;
 
 public sealed partial class DesktopPage : Page
 {
-    public ObservableCollection<DesktopItem> Items { get; set; } = new();
+    public ObservableCollection<DesktopItem> Items { get; set; } = [];
+
+    private DesktopWindow? Window;
+
+    private const int CELL_WIDTH = 82;
+    private const int CELL_HEIGHT = 102;
+
+    private bool _selectionOn;
+    private double initialMarginX;
+    private double initialMarginY;
+    private Point oldPoint;
+    private bool _isDragging;
+    private bool _isInItem;
 
     public DesktopPage()
     {
         InitializeComponent();
-
         DispatcherQueue.TryEnqueue(async () =>
         {
             // Clear items before loading to avoid adding duplicates
@@ -45,163 +55,99 @@ public sealed partial class DesktopPage : Page
                 // Now safely process items
                 foreach (var item in Items)
                 {
-                    /*var contentControl = new ContentControl()
-                    {
-                        ContentTemplate = (DataTemplate)Resources["DesktopItemTemplate"],
-                        Content = item
-                    };
-
-                    contentControl.PointerPressed += ContentControl_PointerPressed;
-                    contentControl.PointerMoved += ContentControl_PointerMoved;
-                    contentControl.PointerReleased += ContentControl_PointerReleased;*/
-
                     if (item.X is -1 || item.Y is -1)
                     {
                         var freeSpot = FindFreeSpot();
                         if (freeSpot.X != -1 && freeSpot.Y != -1)
                         {
-                            /*Canvas.SetLeft(contentControl, freeSpot.X);
-                            Canvas.SetTop(contentControl, freeSpot.Y);*/
                             item.X = freeSpot.X;
                             item.Y = freeSpot.Y;
                         }
                     }
-                    else
-                    {
-                        /*Canvas.SetLeft(contentControl, item.X);
-                        Canvas.SetTop(contentControl, item.Y);*/
-                    }
-
-                    /*CanvasControl.Children.Add(contentControl);*/
                 }
             });
+
+            LoadingGrid.Visibility = Visibility.Collapsed;
         });
     }
 
-    public async Task<List<DesktopItem>> GetDesktopFilesAsync()
+    public static async Task<List<DesktopItem>> GetDesktopFilesAsync()
     {
-        List<DesktopItem> items = [];
+        var items = new List<DesktopItem>();
         var desktopPath = Environment.GetFolderPath(Environment.SpecialFolder.Desktop);
 
-        if (Directory.Exists(desktopPath))
+        if (!Directory.Exists(desktopPath))
         {
-            // Get both files and folders
-            var files = Directory.GetFiles(desktopPath);
-            var folders = Directory.GetDirectories(desktopPath);
-
-            foreach ( var file in files)
-            {
-                await LoadFileAsync(items, file).ConfigureAwait(true);
-            }
-            foreach ( var folder in folders)
-            {
-                await LoadFileAsync(items, folder).ConfigureAwait(true);
-            }
+            return items;
         }
 
+        // Combine files and folders into a single list
+        var entries = Directory.GetFiles(desktopPath).Concat(Directory.GetDirectories(desktopPath)).ToList();
+
+        // Load all entries in parallel
+        var loadTasks = entries.Select(async path =>
+        {
+            var desktopFile = new DesktopItem(path);
+            await desktopFile.LoadThumbnailAsync().ConfigureAwait(false);
+            return desktopFile;
+        });
+
+        // Wait for all to complete
+        var loadedItems = await Task.WhenAll(loadTasks).ConfigureAwait(false);
+
+        items.AddRange(loadedItems);
         return items;
-    }
-
-    private async Task LoadFileAsync(List<DesktopItem> items, string filePath)
-    {
-        var desktopFile = new DesktopItem(filePath);
-        await desktopFile.LoadThumbnailAsync().ConfigureAwait(true);
-
-        // Add directly to ObservableCollection for real-time UI update
-        items.Add(desktopFile);
-    }
-
-    private void ContentControl_PointerReleased(object sender, PointerRoutedEventArgs e)
-    {
-
-    }
-
-    private void ContentControl_PointerMoved(object sender, PointerRoutedEventArgs e)
-    {
-
-    }
-
-    private void ContentControl_PointerPressed(object sender, PointerRoutedEventArgs e)
-    {
-
-    }
-
-    private const int SPI_GETDESKWALLPAPER = 0x0073;
-    private const int MAX_PATH = 260;
-
-    // P/Invoke declaration for SystemParametersInfo to get the wallpaper
-    [DllImport("user32.dll", CharSet = CharSet.Unicode)]
-    public static extern bool SystemParametersInfo(int uAction, int uParam, StringBuilder lpvParam, int fuWinIni);
-
-    // P/Invoke to set the parent of the window
-    [DllImport("user32.dll", CharSet = CharSet.Auto)]
-    public static extern IntPtr SetParent(IntPtr hWndChild, IntPtr hWndNewParent);
-
-    public static string GetWallpaperPath()
-    {
-        var wallpaperPath = new StringBuilder(MAX_PATH);
-        var result = SystemParametersInfo(SPI_GETDESKWALLPAPER, MAX_PATH, wallpaperPath, 0);
-
-        if (result)
-        {
-            return wallpaperPath.ToString();
-        }
-        else
-        {
-            // Handle error case where SystemParametersInfo fails
-            throw new InvalidOperationException("Failed to retrieve the desktop wallpaper path.");
-        }
-    }
-
-    private async void MenuFlyoutItem_Click_1(object sender, RoutedEventArgs e)
-    {
-        // Clear items before loading to avoid adding duplicates
-        Items.Clear();
-
-        // Run GetDesktopFilesAsync to add items one-by-one
-        await GetDesktopFilesAsync();
     }
 
     private void Grid_DoubleTapped(object sender, DoubleTappedRoutedEventArgs e)
     {
-        // Get the Grid that was double-tapped
-        var grid = sender as Grid;
-
-        // Retrieve the DesktopFile from the DataContext
-        var desktopFile = (DesktopItem?)grid?.DataContext;
-        if (desktopFile == null)
+        if (sender is not Grid grid || grid.DataContext is not DesktopItem desktopFile)
         {
             return;
         }
 
-        // Open the file
-        Process.Start(new ProcessStartInfo
+        try
         {
-            FileName = desktopFile.FilePath,
-            UseShellExecute = true // Ensure the shell is used to launch the file
-        });
+            Process.Start(new ProcessStartInfo
+            {
+                FileName = desktopFile.FilePath,
+                UseShellExecute = true
+            });
+        }
+        catch (Exception ex)
+        {
+            // Optional: log or show an error to the user
+            Debug.WriteLine($"Failed to open file: {ex.Message}");
+        }
     }
 
     private void CanvasControl_PointerReleased(object sender, PointerRoutedEventArgs e)
     {
+        // Hide the placement preview border (used for item placement feedback)
+        PlacementBorder.Visibility = Visibility.Collapsed;
+        PlacementBorder.Opacity = 1;
+
+        // Get the pointer position relative to the canvas
         var point = e.GetCurrentPoint(null);
 
+        // If the right mouse button was released, show the context menu at that position
         if (point.Properties.PointerUpdateKind == PointerUpdateKind.RightButtonReleased)
         {
-            win.CreateContextMenuAtPosition(point.Position);
+            Window.CreateContextMenuAtPosition(point.Position);
         }
-        SelectionBorder.Margin = new(0);
-        SelectionBorder.Width = 0;
-        SelectionBorder.Height = 0;
-        _selectionOn = false;
-    }
 
-    private bool _selectionOn = false;
-    private double initialMarginX;
-    private double initialMarginY;
+        // Reset selection state and visual selector box
+        _selectionOn = false;
+        SelectionBorder.Margin = new(0); // Reset margin to top-left
+        SelectionBorder.Width = SelectionBorder.Height = 0; // Clear selection box dimensions
+    }
 
     private void CanvasControl_PointerPressed(object sender, PointerRoutedEventArgs e)
     {
+        // Get pointer position relative to the canvas once to avoid repeated calls
+        var position = e.GetCurrentPoint(CanvasControl).Position;
+
+        // If Ctrl is not held and the pointer is not over an item, deselect all
         if (e.KeyModifiers != Windows.System.VirtualKeyModifiers.Control && !_isInItem)
         {
             foreach (var item in Items)
@@ -209,67 +155,74 @@ public sealed partial class DesktopPage : Page
                 item.IsSelected = false;
             }
         }
+
+        // Begin selection drag mode
         _selectionOn = true;
-        initialMarginX = e.GetCurrentPoint(CanvasControl).Position.X;
-        initialMarginY = e.GetCurrentPoint(CanvasControl).Position.Y;
-        SelectionBorder.Margin = new(e.GetCurrentPoint(CanvasControl).Position.X, e.GetCurrentPoint(CanvasControl).Position.Y, 0, 0);
-        SelectionBorder.Width = 0;
-        SelectionBorder.Height = 0;
+
+        // Store initial position for later drag tracking
+        initialMarginX = position.X;
+        initialMarginY = position.Y;
+
+        // Set selection box's initial position and clear its size
+        SelectionBorder.Margin = new(position.X, position.Y, 0, 0);
+        SelectionBorder.Width = SelectionBorder.Height = 0;
     }
-
-    private Point lastPos;
-
-    private double left;
-    private double top;
 
     private void CanvasControl_PointerMoved(object sender, PointerRoutedEventArgs e)
     {
-        var Pos = e.GetCurrentPoint(CanvasControl).Position;
+        var currentPos = e.GetCurrentPoint(CanvasControl).Position;
+
         try
         {
-            if (e.Pointer.IsInContact && _selectionOn && !_isDragging)
+            // Only proceed if dragging for selection and not moving an item
+            if (!e.Pointer.IsInContact || !_selectionOn || _isDragging)
             {
-                left = SelectionBorder.Margin.Left;
-                top = SelectionBorder.Margin.Top;
+                return;
+            }
 
-                if (Pos.X < initialMarginX)
-                {
-                    left = Pos.X;
-                    SelectionBorder.Width = initialMarginX - Pos.X;
-                }
-                else
-                {
-                    left = initialMarginX;
-                    SelectionBorder.Width = Pos.X - lastPos.X - initialMarginX;
+            const double itemWidth = 80;
+            const double itemHeight = 100;
 
-                }
-                if (Pos.Y < initialMarginY)
-                {
-                    top = Pos.Y;
-                    SelectionBorder.Height = initialMarginY - Pos.Y;
-                }
-                else
-                {
-                    top = initialMarginY;
-                    SelectionBorder.Height = Pos.Y - lastPos.Y - initialMarginY;
-                }
+            // Show placement border for feedback
+            PlacementBorder.Visibility = Visibility.Visible;
 
-                SelectionBorder.Margin = new(left, top, 0, 0);
+            // Opacity trick to force layout/interaction visuals
+            PlacementBorder.Opacity = 0.01;
+
+            // Calculate new selection rectangle dimensions
+            var left = Math.Min(currentPos.X, initialMarginX);
+            var top = Math.Min(currentPos.Y, initialMarginY);
+            var width = Math.Abs(currentPos.X - initialMarginX);
+            var height = Math.Abs(currentPos.Y - initialMarginY);
+
+            // Apply margin and size to selection UI
+            SelectionBorder.Margin = new Thickness(left, top, -4, -4);
+            SelectionBorder.Width = width;
+            SelectionBorder.Height = height;
+
+            // Define selection rectangle for hit testing
+            var selectionRect = new Rect(left, top, width, height);
+
+            // Update selection state based on intersection
+            foreach (var item in Items)
+            {
+                var itemRect = new Rect(item.X, item.Y, itemWidth, itemHeight);
+                item.IsSelected = selectionRect.IntersectsWith(itemRect);
             }
         }
-        catch
+        catch (Exception ex)
         {
-
+            // Optional: Log or debug exception
+            Debug.WriteLine("PointerMoved error: " + ex.Message);
         }
     }
 
     private void CanvasControl_DragOver(object sender, DragEventArgs e)
     {
+        PlacementBorder.Visibility = Visibility.Visible;
         e.AcceptedOperation = DataPackageOperation.Move;
         e.DragUIOverride.Caption = "Move on Desktop";
     }
-
-    private Point oldPoint;
 
     private async void CanvasControl_Drop(object sender, DragEventArgs e)
     {
@@ -310,7 +263,7 @@ public sealed partial class DesktopPage : Page
                             await file.CopyAndReplaceAsync(destinationFile);
 
                             desktopFile = new DesktopItem(destinationFile.Path);
-                            await desktopFile.LoadThumbnailAsync();
+                            await desktopFile.LoadThumbnailAsync().ConfigureAwait(true);
                             newFiles.Add(desktopFile);
                         }
                         else if (storageFile is StorageFolder folder)
@@ -328,10 +281,10 @@ public sealed partial class DesktopPage : Page
                                 destinationFolder = await desktopFolder.CreateFolderAsync(Path.GetFileName(storageFile.Path), CreationCollisionOption.ReplaceExisting);
                             }
 
-                            await CopyStorageFolderAsync(folder, destinationFolder);
+                            await CopyStorageFolderAsync(folder, destinationFolder).ConfigureAwait(true);
 
                             desktopFile = new DesktopItem(destinationFolder.Path);
-                            await desktopFile.LoadThumbnailAsync();
+                            await desktopFile.LoadThumbnailAsync().ConfigureAwait(true);
                             newFiles.Add(desktopFile);
                         }
 
@@ -368,10 +321,6 @@ public sealed partial class DesktopPage : Page
                         // If it can occupy it, proceed to occupy it
                         if (CheckIfSpotIsFree(newItemPos.X, newItemPos.Y))
                         {
-                            // Apply new position in canvas
-                            /*Canvas.SetLeft(contentControl, newItemPos.X);
-                            Canvas.SetTop(contentControl, newItemPos.Y);*/
-
                             // Write new position to items
                             file.X = newItemPos.X;
                             file.Y = newItemPos.Y;
@@ -381,10 +330,6 @@ public sealed partial class DesktopPage : Page
                         {
                             // Get the definitive position
                             var definitivePos = FindNextFreeSpot(point.X, point.Y);
-
-                            // Apply new position in canvas
-                            /*Canvas.SetLeft(contentControl, definitivePos.X);
-                            Canvas.SetTop(contentControl, definitivePos.Y);*/
 
                             // Write new position to items
                             file.X = definitivePos.X;
@@ -399,53 +344,47 @@ public sealed partial class DesktopPage : Page
                 {
                     freeSpot = FindNextFreeSpot(freeSpot.X, freeSpot.Y); // Find next available space
 
-                    var contentControl = new ContentControl()
-                    {
-                        ContentTemplate = (DataTemplate)Resources["DesktopItemTemplate"],
-                        Content = file
-                    };
-                    contentControl.PointerPressed += ContentControl_PointerPressed;
-                    contentControl.PointerMoved += ContentControl_PointerMoved;
-                    contentControl.PointerReleased += ContentControl_PointerReleased;
-
-                    Canvas.SetLeft(contentControl, freeSpot.X);
-                    Canvas.SetTop(contentControl, freeSpot.Y);
-
                     file.X = freeSpot.X;
                     file.Y = freeSpot.Y;
 
                     Items.Add(file);
-                    //CanvasControl.Children.Add(contentControl);
                 }
             }
         }
     }
 
+    private static (int col, int row, double snappedX, double snappedY) SnapToGrid(double x, double y)
+    {
+        var col = (int)(Math.Max(0, x) / CELL_WIDTH);
+        var row = (int)(Math.Max(0, y) / CELL_HEIGHT);
+        return (col, row, col * CELL_WIDTH, row * CELL_HEIGHT);
+    }
+
     public Point FindNextFreeSpot(double startX, double startY)
     {
         if (CanvasControl.ActualWidth < CELL_WIDTH || CanvasControl.ActualHeight < CELL_HEIGHT)
-            return new Point(-1, -1); // No room for even one item
+            return new Point(-1, -1);
 
-        int col = (int)(Math.Max(0, startX) / CELL_WIDTH);
-        int row = (int)(Math.Max(0, startY) / CELL_HEIGHT);
+        var (col, row, _, _) = SnapToGrid(startX, startY);
+
+        var maxCols = (int)(CanvasControl.ActualWidth / CELL_WIDTH);
+        var maxRows = (int)(CanvasControl.ActualHeight / CELL_HEIGHT);
 
         while (true)
         {
             double x = col * CELL_WIDTH;
             double y = row * CELL_HEIGHT;
 
-            bool spotTaken = Items.Any(item => item.X == x && item.Y == y);
-            if (!spotTaken)
+            if (!Items.Any(item => item.X == x && item.Y == y))
                 return new Point(x, y);
 
-            row++;
-            if ((row + 1) * CELL_HEIGHT > CanvasControl.ActualHeight)
+            if (++row >= maxRows)
             {
                 row = 0;
                 col++;
             }
 
-            if ((col + 1) * CELL_WIDTH > CanvasControl.ActualWidth)
+            if (col >= maxCols)
             {
                 Debug.WriteLine("No space available!");
                 return FindFreeSpot();
@@ -455,8 +394,8 @@ public sealed partial class DesktopPage : Page
 
     public Point FindFreeSpot()
     {
-        int maxCols = (int)(CanvasControl.ActualWidth / CELL_WIDTH);
-        int maxRows = (int)(CanvasControl.ActualHeight / CELL_HEIGHT);
+        var maxCols = (int)(CanvasControl.ActualWidth / CELL_WIDTH);
+        var maxRows = (int)(CanvasControl.ActualHeight / CELL_HEIGHT);
 
         for (int col = 0; col < maxCols; col++)
         {
@@ -465,8 +404,7 @@ public sealed partial class DesktopPage : Page
                 double x = col * CELL_WIDTH;
                 double y = row * CELL_HEIGHT;
 
-                bool spotTaken = Items.Any(item => item.X == x && item.Y == y);
-                if (!spotTaken)
+                if (!Items.Any(item => item.X == x && item.Y == y))
                     return new Point(x, y);
             }
         }
@@ -474,126 +412,121 @@ public sealed partial class DesktopPage : Page
         return new Point(-1, -1);
     }
 
-    private const int CELL_WIDTH = 82;
-    private const int CELL_HEIGHT = 102;
-
     public bool CheckIfSpotIsFree(double x, double y)
     {
-        int col = (int)(Math.Max(0, x) / CELL_WIDTH);
-        int row = (int)(Math.Max(0, y) / CELL_HEIGHT);
-
-        double snappedX = col * CELL_WIDTH;
-        double snappedY = row * CELL_HEIGHT;
-
+        var (_, _, snappedX, snappedY) = SnapToGrid(x, y);
         return !Items.Any(item => item.X == snappedX && item.Y == snappedY);
     }
 
     public Point? FindFreeSpotCoordinates(double x, double y)
     {
-        int col = (int)(Math.Max(0, x) / CELL_WIDTH);
-        int row = (int)(Math.Max(0, y) / CELL_HEIGHT);
-
-        double snappedX = col * CELL_WIDTH;
-        double snappedY = row * CELL_HEIGHT;
-
-        if (Items.Any(item => item.X == snappedX && item.Y == snappedY))
-            return null;
-
-        return new Point(snappedX, snappedY);
+        var (_, _, snappedX, snappedY) = SnapToGrid(x, y);
+        return Items.Any(item => item.X == snappedX && item.Y == snappedY)
+            ? null
+            : new Point(snappedX, snappedY);
     }
 
     public static Point FindSpotCoordinates(double x, double y)
     {
-        int col = (int)(Math.Max(0, x) / CELL_WIDTH);
-        int row = (int)(Math.Max(0, y) / CELL_HEIGHT);
-
-        return new Point(col * CELL_WIDTH, row * CELL_HEIGHT);
+        var (_, _, snappedX, snappedY) = SnapToGrid(x, y);
+        return new Point(snappedX, snappedY);
     }
 
     public static async Task CopyStorageFolderAsync(StorageFolder sourceFolder, StorageFolder destinationFolder)
     {
-        // Create a new folder in the destination folder
-        var copiedFolder = await destinationFolder.CreateFolderAsync(sourceFolder.Name, CreationCollisionOption.ReplaceExisting);
-
-        // Copy all files from the source to the copied folder
-        var files = await sourceFolder.GetFilesAsync();
-        foreach (var file in files)
+        if (sourceFolder == null || destinationFolder == null)
         {
-            await file.CopyAsync(copiedFolder, file.Name, NameCollisionOption.ReplaceExisting);
+            return;
         }
 
-        // Copy all subfolders from the source to the copied folder
-        var subfolders = await sourceFolder.GetFoldersAsync();
-        foreach (var subfolder in subfolders)
+        try
         {
-            await CopyStorageFolderAsync(subfolder, copiedFolder); // Recursively copy subfolders
+            // Create a new folder in the destination folder
+            var copiedFolder = await destinationFolder.CreateFolderAsync(sourceFolder.Name, CreationCollisionOption.ReplaceExisting);
+
+            // Copy all files from the source to the copied folder
+            var files = await sourceFolder.GetFilesAsync();
+            var fileCopyTasks = files.Select(file =>
+                file.CopyAsync(copiedFolder, file.Name, NameCollisionOption.ReplaceExisting)
+            ).ToList();
+
+            // Await all file copy tasks concurrently
+            await Task.WhenAll((IEnumerable<Task>)fileCopyTasks).ConfigureAwait(false);
+
+            // Copy all subfolders from the source to the copied folder
+            var subfolders = await sourceFolder.GetFoldersAsync();
+            var subfolderCopyTasks = subfolders.Select(subfolder =>
+                CopyStorageFolderAsync(subfolder, copiedFolder) // Recursively copy subfolders
+            ).ToList();
+
+            // Await all subfolder copy tasks concurrently
+            await Task.WhenAll(subfolderCopyTasks).ConfigureAwait(false);
+        }
+        catch (Exception ex)
+        {
+            // Log or handle the error as necessary
+            Debug.WriteLine($"Error copying folder: {ex.Message}");
         }
     }
-
-    /*private ContentControl? GetContentControlFromDesktopFile(DesktopItem desktopFile)
-    {
-        // Iterate through all children of the canvas (fff)
-        foreach (var child in CanvasControl.Children)
-        {
-            // Check if the child is a ContentControl
-            if (child is ContentControl contentControl)
-            {
-                // Compare the Content of the ContentControl with the DesktopFile
-                if (contentControl.Content is DesktopItem item && (item.FilePath ?? "").Equals(desktopFile.FilePath, StringComparison.OrdinalIgnoreCase))
-                {
-                    // Return the matching ContentControl
-                    return contentControl;
-                }
-            }
-        }
-
-        // Return null if no matching ContentControl is found
-        return null;
-    }*/
 
     private async void Grid_DragStarting(UIElement sender, DragStartingEventArgs args)
     {
         PlacementBorder.Visibility = Visibility.Visible;
-        var storageItems = new Collection<IStorageItem>();
 
-        foreach (var item in Items)
+        var storageItems = new List<IStorageItem>();
+
+        // Iterate through selected items
+        foreach (var item in Items.Where(i => i.IsSelected == true))
         {
-            if (item.IsSelected == true)
+            try
             {
-                try
+                IStorageItem? storageItem = null;
+
+                // Check if the item is a folder or file
+                var filePath = item.FilePath ?? string.Empty;
+                if (File.Exists(filePath))
                 {
-                    // Check if the item is a folder
-                    var attributes = File.GetAttributes(item.FilePath ?? "");
+                    var attributes = File.GetAttributes(filePath);
                     if (attributes.HasFlag(System.IO.FileAttributes.Directory))
                     {
-                        var storageFolder = await StorageFolder.GetFolderFromPathAsync(item.FilePath);
-                        storageItems.Add(storageFolder);
+                        storageItem = await StorageFolder.GetFolderFromPathAsync(filePath);
                     }
                     else
                     {
-                        var storageFile = await StorageFile.GetFileFromPathAsync(item.FilePath);
-                        storageItems.Add(storageFile);
+                        storageItem = await StorageFile.GetFileFromPathAsync(filePath);
                     }
                 }
-                catch (Exception ex)
+
+                if (storageItem != null)
                 {
-                    Debug.WriteLine($"Error processing {item.FilePath}: {ex.Message}");
+                    storageItems.Add(storageItem);
                 }
+            }
+            catch (Exception ex)
+            {
+                // Log the error with more details
+                Debug.WriteLine($"Error processing {item.FilePath}: {ex.Message}");
             }
         }
 
-        args.Data.SetStorageItems(storageItems);
+        // Set the storage items for the drag operation
+        if (storageItems.Count != 0)
+        {
+            args.Data.SetStorageItems(storageItems);
+        }
+        else
+        {
+            Debug.WriteLine("No valid items selected for drag operation.");
+        }
     }
-
-    private bool _isDragging;
 
     private void Grid_PointerPressed(object sender, PointerRoutedEventArgs e)
     {
-        // Get the Grid that was double-tapped
-        var grid = sender as Grid;
+        _isInItem = true;
 
-        // Retrieve the DesktopFile from the DataContext
-        var desktopFile = (DesktopItem?)grid?.DataContext;
+        var grid1 = sender as Grid;
+        var desktopFile = (DesktopItem?)grid1?.DataContext;
+
         if (desktopFile == null)
         {
             return;
@@ -601,72 +534,51 @@ public sealed partial class DesktopPage : Page
 
         oldPoint = e.GetCurrentPoint(CanvasControl).Position;
 
-        if (e.KeyModifiers == Windows.System.VirtualKeyModifiers.Control)
-        {
-            desktopFile.IsSelected = true;
-        }
-        else
+        // Handle selection based on modifier keys
+        HandleSelection(desktopFile, e.KeyModifiers == Windows.System.VirtualKeyModifiers.Control);
 
-        {
-            if (desktopFile.IsSelected != true)
-            {
-                foreach (var item in Items)
-                {
-                    item.IsSelected = false;
-                }
-
-                desktopFile.IsSelected = true;
-            }
-        }
         _isDragging = true;
     }
 
     private void Grid_PointerReleased_1(object sender, PointerRoutedEventArgs e)
     {
-        // Get the Grid that was double-tapped
-        var grid = sender as Grid;
+        _isInItem = true;
 
-        // Retrieve the DesktopFile from the DataContext
-        var desktopFile = (DesktopItem?)grid?.DataContext;
+        var grid1 = sender as Grid;
+        var desktopFile = (DesktopItem?)grid1?.DataContext;
+
         if (desktopFile == null)
         {
             return;
         }
 
         _isDragging = false;
-        if (e.KeyModifiers != Windows.System.VirtualKeyModifiers.Control)
+
+        // Deselect all items if control is not pressed and select the released item
+        HandleSelection(desktopFile, e.KeyModifiers == Windows.System.VirtualKeyModifiers.Control);
+    }
+
+    private void HandleSelection(DesktopItem desktopFile, bool isControlPressed)
+    {
+        // If Control is not pressed, deselect all items
+        if (!isControlPressed)
         {
-            foreach (var item in Items)
+            foreach (var item1 in Items)
             {
-                item.IsSelected = false;
+                item1.IsSelected = false;
             }
-
-            desktopFile.IsSelected = true;
         }
+
+        desktopFile.IsSelected = true;
     }
 
-    private bool _isInItem = false;
+    private void Grid_PointerEntered(object sender, PointerRoutedEventArgs e) => _isInItem = true;
 
-    private void Grid_PointerEntered(object sender, PointerRoutedEventArgs e)
-    {
-        _isInItem = true;
-    }
-
-    private void Grid_PointerExited(object sender, PointerRoutedEventArgs e)
-    {
-        _isInItem = false;
-    }
-
-    DesktopWindow win;
+    private void Grid_PointerExited(object sender, PointerRoutedEventArgs e) => _isInItem = true;
 
     protected override void OnNavigatedTo(NavigationEventArgs e)
     {
         base.OnNavigatedTo(e);
-        win = (DesktopWindow)e.Parameter;
-    }
-
-    private void Button_Click(object sender, RoutedEventArgs e)
-    {
-        win.RestoreExplorerDesktop();
+        Window = (DesktopWindow?)e?.Parameter;
     }
 }
