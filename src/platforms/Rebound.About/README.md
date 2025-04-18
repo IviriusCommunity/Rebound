@@ -11,7 +11,9 @@ Rebound About is the replacement for winver (aka About Windows). Featuring the W
 ## Public APIs
 
 **Launchers:** 
+
     - `rwinver` - launch the main module
 
 **Arguments:** 
+
     - `legacy` - launch the old winter while Rebound About is enabled
