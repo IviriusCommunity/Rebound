@@ -1,7 +1,11 @@
-﻿using System;
+﻿// Copyright (C) Ivirius(TM) Community 2020 - 2025. All Rights Reserved.
+// Licensed under the MIT License.
+
+using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
@@ -71,6 +75,7 @@ public sealed partial class DesktopPage : Page
         });
     }
 
+    [RequiresUnreferencedCode("Requires unreferenced code to load thumbnails")]
     public static async Task<List<DesktopItem>> GetDesktopFilesAsync()
     {
         var items = new List<DesktopItem>();
@@ -85,7 +90,7 @@ public sealed partial class DesktopPage : Page
         var entries = Directory.GetFiles(desktopPath).Concat(Directory.GetDirectories(desktopPath)).ToList();
 
         // Load all entries in parallel
-        var loadTasks = entries.Select(async path =>
+        var loadTasks = entries.Select(static async path =>
         {
             var desktopFile = new DesktopItem(path);
             await desktopFile.LoadThumbnailAsync().ConfigureAwait(false);
@@ -133,7 +138,7 @@ public sealed partial class DesktopPage : Page
         // If the right mouse button was released, show the context menu at that position
         if (point.Properties.PointerUpdateKind == PointerUpdateKind.RightButtonReleased)
         {
-            Window.CreateContextMenuAtPosition(point.Position);
+            Window?.CreateContextMenuAtPosition(point.Position);
         }
 
         // Reset selection state and visual selector box
@@ -207,7 +212,11 @@ public sealed partial class DesktopPage : Page
             foreach (var item in Items)
             {
                 var itemRect = new Rect(item.X, item.Y, itemWidth, itemHeight);
-                item.IsSelected = selectionRect.IntersectsWith(itemRect);
+                var intersects = selectionRect.IntersectsWith(itemRect);
+                if (item.IsSelected != intersects)
+                {
+                    item.IsSelected = intersects;
+                }
             }
         }
         catch (Exception ex)
@@ -363,7 +372,9 @@ public sealed partial class DesktopPage : Page
     public Point FindNextFreeSpot(double startX, double startY)
     {
         if (CanvasControl.ActualWidth < CELL_WIDTH || CanvasControl.ActualHeight < CELL_HEIGHT)
+        {
             return new Point(-1, -1);
+        }
 
         var (col, row, _, _) = SnapToGrid(startX, startY);
 
@@ -376,7 +387,9 @@ public sealed partial class DesktopPage : Page
             double y = row * CELL_HEIGHT;
 
             if (!Items.Any(item => item.X == x && item.Y == y))
+            {
                 return new Point(x, y);
+            }
 
             if (++row >= maxRows)
             {
@@ -397,15 +410,17 @@ public sealed partial class DesktopPage : Page
         var maxCols = (int)(CanvasControl.ActualWidth / CELL_WIDTH);
         var maxRows = (int)(CanvasControl.ActualHeight / CELL_HEIGHT);
 
-        for (int col = 0; col < maxCols; col++)
+        for (var col = 0; col < maxCols; col++)
         {
-            for (int row = 0; row < maxRows; row++)
+            for (var row = 0; row < maxRows; row++)
             {
                 double x = col * CELL_WIDTH;
                 double y = row * CELL_HEIGHT;
 
                 if (!Items.Any(item => item.X == x && item.Y == y))
+                {
                     return new Point(x, y);
+                }
             }
         }
 

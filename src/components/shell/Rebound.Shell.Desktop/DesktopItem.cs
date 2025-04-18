@@ -3,12 +3,12 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.ComponentModel;
 using IWshRuntimeLibrary;
 using Microsoft.UI.Xaml;
-using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Media.Imaging;
 using Rebound.Shell.ExperiencePack;
 using Windows.Storage;
@@ -97,12 +97,16 @@ public partial class DesktopItem : ObservableObject
 
     public static bool IsFileHidden(string path)
     {
-        if (!System.IO.File.Exists(path) && !Directory.Exists(path)) return false;
+        if (!System.IO.File.Exists(path) && !Directory.Exists(path))
+        {
+            return false;
+        }
 
         var attributes = System.IO.File.GetAttributes(path);
         return (attributes.HasFlag(System.IO.FileAttributes.Hidden) || attributes.HasFlag(System.IO.FileAttributes.System));
     }
-    public bool IsProgramFile(string filePath)
+
+    public static bool IsProgramFile(string filePath)
     {
         // Define a list of common executable file extensions
         var programExtensions = new[] { ".exe", ".com", ".bat", ".msi", ".cmd", ".vbs", ".ps1" };
@@ -113,6 +117,7 @@ public partial class DesktopItem : ObservableObject
         // Check if the file extension matches any of the executable extensions
         return Array.Exists(programExtensions, ext => ext.Equals(fileExtension, StringComparison.OrdinalIgnoreCase));
     }
+
     public static async Task<BitmapImage?> GetFileIconAsync(string path)
     {
         const int maxRetries = 3;
@@ -131,10 +136,16 @@ public partial class DesktopItem : ObservableObject
 
                 // Fetch file/folder info asynchronously
                 var item = await GetStorageItemAsync(path).ConfigureAwait(true);
-                if (item == null) return null;
+                if (item == null)
+                {
+                    return null;
+                }
 
                 var thumbnail = await GetThumbnailAsync(item).ConfigureAwait(true);
-                if (thumbnail == null || thumbnail.Size == 0) return null;
+                if (thumbnail == null || thumbnail.Size == 0)
+                {
+                    return null;
+                }
 
                 // Return the BitmapImage of the thumbnail
                 return await ConvertThumbnailToBitmapImageAsync(thumbnail).ConfigureAwait(true);
@@ -142,7 +153,10 @@ public partial class DesktopItem : ObservableObject
             catch
             {
                 attempt++;
-                if (attempt >= maxRetries) return null;
+                if (attempt >= maxRetries)
+                {
+                    return null;
+                }
 
                 // Exponential backoff for retries
                 await Task.Delay(TimeSpan.FromMilliseconds(100 * Math.Pow(2, attempt))).ConfigureAwait(true);
@@ -179,7 +193,8 @@ public partial class DesktopItem : ObservableObject
         }
         return null;
     }
-    public bool CheckIfVideoFile(string filePath)
+
+    public static bool CheckIfVideoFile(string filePath)
     {
         // Define a list of common video file extensions
         var videoExtensions = new[] { ".mp4", ".avi", ".mov", ".mkv", ".flv", ".wmv", ".webm", ".mpeg", ".mpg", ".3gp" };
@@ -190,6 +205,7 @@ public partial class DesktopItem : ObservableObject
         // Check if the file extension matches any of the video extensions
         return Array.Exists(videoExtensions, ext => ext.Equals(fileExtension, StringComparison.OrdinalIgnoreCase));
     }
+
     // Convert thumbnail stream to BitmapImage
     private static async Task<BitmapImage> ConvertThumbnailToBitmapImageAsync(StorageItemThumbnail thumbnail)
     {
@@ -199,9 +215,13 @@ public partial class DesktopItem : ObservableObject
         return bitmapImage;
     }
 
+    [RequiresUnreferencedCode("WshRuntimeLibrary is not supported in .NET 6+")]
     public async Task LoadThumbnailAsync()
     {
-        if (IsThumbnailLoading) return;  // Prevent multiple simultaneous loads
+        if (IsThumbnailLoading)
+        {
+            return;  // Prevent multiple simultaneous loads
+        }
 
         try
         {

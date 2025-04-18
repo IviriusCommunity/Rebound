@@ -1,4 +1,7 @@
-﻿using System;
+﻿// Copyright (C) Ivirius(TM) Community 2020 - 2025. All Rights Reserved.
+// Licensed under the MIT License.
+
+using System;
 using System.ComponentModel;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
@@ -37,22 +40,30 @@ public partial class GridLayout : VirtualizingLayout
 
     protected override Size ArrangeOverride(VirtualizingLayoutContext context, Size finalSize)
     {
-        for (int i = 0; i < context.ItemCount; i++)
+        for (var i = 0; i < context?.ItemCount; i++)
         {
             var element = (FrameworkElement)context.GetOrCreateElementAt(i);
 
             if (element.DataContext is DesktopItem desktopItem)
             {
-                // Subscribe to property changes if not already subscribed
+                // Subscribe only once
                 if (!IsSubscribedToPropertyChanges(element))
                 {
                     desktopItem.PropertyChanged += OnDesktopItemPropertyChanged;
                     MarkAsSubscribedToPropertyChanges(element);
                 }
 
-                // Arrange the element at the specified position
-                var position = new Point(desktopItem.X, desktopItem.Y);
-                element.Arrange(new Rect(position, element.DesiredSize));
+                // Clamp negative positions if needed (optional)
+                var x = Math.Max(0, desktopItem.X);
+                var y = Math.Max(0, desktopItem.Y);
+
+                // Align to layout rounding if desired
+                x = Math.Floor(x);
+                y = Math.Floor(y);
+
+                // Arrange the item
+                var arrangeRect = new Rect(new Point(x, y), element.DesiredSize);
+                element.Arrange(arrangeRect);
             }
         }
 
@@ -61,22 +72,16 @@ public partial class GridLayout : VirtualizingLayout
 
     private void OnDesktopItemPropertyChanged(object? sender, PropertyChangedEventArgs e)
     {
-        if (e.PropertyName == nameof(DesktopItem.X) || e.PropertyName == nameof(DesktopItem.Y))
+        if (e.PropertyName is (nameof(DesktopItem.X)) or (nameof(DesktopItem.Y)))
         {
             // Invalidate the layout to trigger re-arrangement
             InvalidateArrange();
         }
     }
 
-    private bool IsSubscribedToPropertyChanges(FrameworkElement element)
-    {
-        return LayoutHelper.GetIsSubscribed(element);
-    }
+    private static bool IsSubscribedToPropertyChanges(FrameworkElement element) => LayoutHelper.GetIsSubscribed(element);
 
-    private void MarkAsSubscribedToPropertyChanges(FrameworkElement element)
-    {
-        LayoutHelper.SetIsSubscribed(element, true);
-    }
+    private static void MarkAsSubscribedToPropertyChanges(FrameworkElement element) => LayoutHelper.SetIsSubscribed(element, true);
 }
 
 public static class LayoutHelper
@@ -88,6 +93,6 @@ public static class LayoutHelper
             typeof(LayoutHelper),
             new PropertyMetadata(false));
 
-    public static bool GetIsSubscribed(DependencyObject obj) => (bool)obj.GetValue(IsSubscribedProperty);
-    public static void SetIsSubscribed(DependencyObject obj, bool value) => obj.SetValue(IsSubscribedProperty, value);
+    public static bool GetIsSubscribed(DependencyObject obj) => (bool?)obj?.GetValue(IsSubscribedProperty) ?? false;
+    public static void SetIsSubscribed(DependencyObject obj, bool value) => obj?.SetValue(IsSubscribedProperty, value);
 }

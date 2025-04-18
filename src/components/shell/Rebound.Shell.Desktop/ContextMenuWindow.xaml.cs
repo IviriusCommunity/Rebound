@@ -1,4 +1,7 @@
-﻿using System.Diagnostics;
+﻿// Copyright (C) Ivirius(TM) Community 2020 - 2025. All Rights Reserved.
+// Licensed under the MIT License.
+
+using System.Diagnostics;
 using System.Threading.Tasks;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls.Primitives;
@@ -9,41 +12,42 @@ namespace Rebound.Shell.Desktop;
 
 public sealed partial class ContextMenuWindow : WindowEx
 {
-    DesktopWindow desktopWindow;
+    private DesktopWindow DesktopWindow { get; set; }
 
     public ContextMenuWindow(DesktopWindow win)
     {
-        desktopWindow = win;
-        this.InitializeComponent();
-        this.SystemBackdrop = new TransparentTintBackdrop();
-        this.ExtendsContentIntoTitleBar = true;
-        this.AppWindow.TitleBar.PreferredHeightOption = Microsoft.UI.Windowing.TitleBarHeightOption.Collapsed;
+        DesktopWindow = win;
+        InitializeComponent();
+        SystemBackdrop = new TransparentTintBackdrop();
+        ExtendsContentIntoTitleBar = true;
+        IsShownInSwitchers = false;
+        AppWindow.TitleBar.PreferredHeightOption = Microsoft.UI.Windowing.TitleBarHeightOption.Collapsed;
         this.MoveAndResize(0, 0, 0, 0);
         this.ToggleWindowStyle(false,
             WindowStyle.SizeBox | WindowStyle.Caption |
             WindowStyle.MaximizeBox | WindowStyle.MinimizeBox |
             WindowStyle.Border | WindowStyle.Iconic |
             WindowStyle.SysMenu);
-        this.ToggleExtendedWindowStyle(false, ExtendedWindowStyle.AppWindow);
+        this.ToggleExtendedWindowStyle(true, ExtendedWindowStyle.ToolWindow);
     }
 
     public void ShowContextMenu(Point pos)
     {
         this.MoveAndResize(pos.X, pos.Y - 36, 0, 0);
-        this.BringToFront();
+        BringToFront();
         Menu.ShowAt(StartPoint, new FlyoutShowOptions()
         {
             Placement = FlyoutPlacementMode.BottomEdgeAlignedLeft,
         });
     }
 
-    bool canClose = false;
+    private bool canClose;
 
     private void AppBarButton_Click(object sender, RoutedEventArgs e)
     {
         canClose = true;
-        this.Close();
-        desktopWindow.RestoreExplorerDesktop();
+        Close();
+        DesktopWindow.RestoreExplorerDesktop();
     }
 
     private void WindowEx_Closed(object sender, WindowEventArgs args)
@@ -54,9 +58,9 @@ public sealed partial class ContextMenuWindow : WindowEx
     private async void AppBarButton_Click_1(object sender, RoutedEventArgs e)
     {
         canClose = true;
-        this.Close();
-        desktopWindow.RestoreExplorerDesktop();
-        await Task.Delay(250);
+        Close();
+        DesktopWindow.RestoreExplorerDesktop();
+        await Task.Delay(250).ConfigureAwait(true);
         Process.GetCurrentProcess().Kill();
     }
 }

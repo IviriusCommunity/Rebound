@@ -497,19 +497,6 @@
                                         Margin="0,8,0,0"
                                         VerticalAlignment="Top"
                                         ui:UIElementExtensions.ClipToBounds="False">
-                                        <Image
-                                            x:Name="ThumbnailImage"
-                                            VerticalAlignment="Center"
-                                            ui:UIElementExtensions.ClipToBounds="False"
-                                            Source="{x:Bind Thumbnail}"
-                                            Visibility="{x:Bind IsHidden, Mode=OneWay, Converter={StaticResource BoolToInverseVisibilityConverter}}">
-                                            <ui:Effects.Shadow>
-                                                <ui:AttachedDropShadow
-                                                    BlurRadius="10"
-                                                    CastTo="{x:Bind ThumbnailImage}"
-                                                    Opacity="0.25" />
-                                            </ui:Effects.Shadow>
-                                        </Image>
                                         <Viewbox>
                                             <ImageIcon
                                                 Width="256"
@@ -597,50 +584,42 @@
                                         FontSize="12"
                                         Foreground="White"
                                         Text="{x:Bind FileName}"
+                                        FontWeight="SemiBold"
                                         TextAlignment="Center"
                                         TextTrimming="CharacterEllipsis"
                                         TextWrapping="WrapWholeWords">
                                         <ui:Effects.Shadow>
                                             <ui:AttachedDropShadow
-                                                BlurRadius="7"
+                                                BlurRadius="8"
                                                 CastTo="{x:Bind FileNameControl1}"
                                                 IsMasked="True"
                                                 Opacity="1"
+                                                Color="Black"
                                                 Offset="1" />
                                         </ui:Effects.Shadow>
                                     </TextBlock>
                                     <TextBlock
-                                        x:Name="FileNameControl2"
-                                        Margin="8,60,8,8"
+                                        Margin="9, 61, 7, 7"
                                         HorizontalAlignment="Stretch"
                                         FontSize="12"
-                                        Foreground="White"
+                                        FontWeight="SemiBold"
+                                        Foreground="Black"
                                         Text="{x:Bind FileName}"
                                         TextAlignment="Center"
                                         TextTrimming="CharacterEllipsis"
-                                        TextWrapping="WrapWholeWords">
-                                        <ui:Effects.Shadow>
-                                            <ui:AttachedDropShadow
-                                                BlurRadius="3"
-                                                CastTo="{x:Bind FileNameControl2}"
-                                                IsMasked="True"
-                                                Opacity="1" />
-                                        </ui:Effects.Shadow>
-                                    </TextBlock>
+                                        TextWrapping="WrapWholeWords"
+                                        Shadow="{ThemeResource CommandBarFlyoutOverflowShadow}"/>
                                     <TextBlock
-                                        Margin="8,60,8,8"
+                                        Margin="8, 60, 8, 8"
                                         HorizontalAlignment="Stretch"
                                         FontSize="12"
+                                        FontWeight="SemiBold"
                                         Foreground="White"
                                         Text="{x:Bind FileName}"
+                                        ToolTipService.ToolTip="{x:Bind FileName}"
                                         TextAlignment="Center"
                                         TextTrimming="CharacterEllipsis"
                                         TextWrapping="WrapWholeWords" />
-                                    <TextBlock
-                                        FontSize="12"
-                                        Foreground="Gray"
-                                        Text="{x:Bind FilePath}"
-                                        Visibility="Collapsed" />
                                     <TextBox
                                         Margin="0,60,0,0"
                                         FontSize="12"
@@ -697,6 +676,7 @@
                 VerticalAlignment="Center"
                 FontSize="24"
                 FontWeight="Bold"
+                Foreground="White"
                 Text="Loading Rebound Desktop..." />
             <ProgressRing
                 Width="48"
