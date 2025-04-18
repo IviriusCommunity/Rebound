@@ -10,8 +10,8 @@ Rebound About is the replacement for winver (aka About Windows). Featuring the W
 
 ## Public APIs
 
-**Launchers:** 
-
+**Launchers:**
+ 
     - `rwinver` - launch the main module
 
 **Arguments:** 
