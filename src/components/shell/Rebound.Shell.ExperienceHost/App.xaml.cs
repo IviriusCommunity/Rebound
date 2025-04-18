@@ -7,6 +7,7 @@ using Rebound.Generators;
 using Rebound.Helpers;
 using Rebound.Shell.Desktop;
 using Rebound.Shell.ExperiencePack;
+using Windows.Foundation;
 using Windows.Win32;
 using WinUIEx;
 
@@ -65,9 +66,17 @@ public partial class App : Application
         ShutdownDialog.RemoveTitleBarIcon();
 
         // Desktop window
-        DesktopWindow = new DesktopWindow(ShowShutdownDialog);
+        DesktopWindow = new DesktopWindow(ShowShutdownDialog, CreateContextMenu);
         DesktopWindow.Activate();
         DesktopWindow.AttachToProgMan();
+
+        ContextMenuWindow = new ContextMenuWindow(DesktopWindow as DesktopWindow);
+        ContextMenuWindow.Activate();
+    }
+
+    private void CreateContextMenu(Point pos)
+    {
+        (ContextMenuWindow as ContextMenuWindow).ShowContextMenu(pos);
     }
 
     private const uint WM_CLOSE = 0x10; // WM_CLOSE constant
@@ -137,6 +146,7 @@ public partial class App : Application
     }
 
     public static WindowEx? RunWindow { get; set; }
+    public static WindowEx? ContextMenuWindow { get; set; }
     public static WindowEx? DesktopWindow { get; set; }
     public static WindowEx? ShutdownDialog { get; set; }
     public static WindowEx? BackgroundWindow { get; set; }

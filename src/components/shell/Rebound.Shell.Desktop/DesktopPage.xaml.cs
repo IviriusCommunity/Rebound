@@ -7,6 +7,7 @@ using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
+using Microsoft.UI.Input;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Input;
@@ -183,6 +184,12 @@ public sealed partial class DesktopPage : Page
 
     private void CanvasControl_PointerReleased(object sender, PointerRoutedEventArgs e)
     {
+        var point = e.GetCurrentPoint(null);
+
+        if (point.Properties.PointerUpdateKind == PointerUpdateKind.RightButtonReleased)
+        {
+            win.CreateContextMenuAtPosition(point.Position);
+        }
         SelectionBorder.Margin = new(0);
         SelectionBorder.Width = 0;
         SelectionBorder.Height = 0;

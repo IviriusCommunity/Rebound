@@ -5,6 +5,7 @@ using System;
 using System.Diagnostics;
 using System.Linq;
 using Rebound.Helpers;
+using Windows.Foundation;
 using Windows.Win32;
 using WinUIEx;
 
@@ -14,9 +15,12 @@ public sealed partial class DesktopWindow : WindowEx
 {
     private readonly Action? onClosedCallback;
 
-    public DesktopWindow(Action? onClosed = null)
+    private readonly Action<Point>? createContextMenuCallback;
+
+    public DesktopWindow(Action? onClosed = null, Action<Point>? createContextMenu = null)
     {
         onClosedCallback = onClosed;
+        createContextMenuCallback = createContextMenu;
         InitializeComponent();
         this.ToggleWindowStyle(false, 
             WindowStyle.SizeBox | WindowStyle.Caption | 
@@ -28,6 +32,11 @@ public sealed partial class DesktopWindow : WindowEx
     }
 
     private bool canClose;
+
+    public void CreateContextMenuAtPosition(Point position)
+    {
+        createContextMenuCallback?.Invoke(position);
+    }
 
     public void RestoreExplorerDesktop()
     {

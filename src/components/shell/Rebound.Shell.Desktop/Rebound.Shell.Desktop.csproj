@@ -4,6 +4,7 @@
 		<OutputType>Library</OutputType>
 	</PropertyGroup>
 	<ItemGroup>
+	  <None Remove="ContextMenuWindow.xaml" />
 	  <None Remove="DesktopPage.xaml" />
 	  <None Remove="DesktopWindow.xaml" />
 	</ItemGroup>
@@ -14,6 +15,12 @@
 		<ProjectReference Include="..\..\..\core\Rebound.Core.SourceGeneratorAttributes\Rebound.Core.SourceGeneratorAttributes.csproj" />
 		<ProjectReference Include="..\Rebound.Shell.ExperiencePack\Rebound.Shell.ExperiencePack.csproj" />
 		<ProjectReference Include="..\Rebound.Shell.ShutdownDialog\Rebound.Shell.ShutdownDialog.csproj" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <Page Update="ContextMenuWindow.xaml">
+	    <Generator>MSBuild:Compile</Generator>
+	  </Page>
 	</ItemGroup>
 
 	<ItemGroup>
