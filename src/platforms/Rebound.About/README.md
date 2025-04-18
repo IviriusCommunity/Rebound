@@ -12,5 +12,5 @@ Rebound About is the replacement for winver (aka About Windows). Featuring the W
 
 | Name | Type | Description |
 |------|------|-------------|
-| rwinver | Launcher | Launch the main module |
+| rwinver.exe | Launcher | Launch the main module |
 | legacy | Argument | Launch the legacy winver while Rebound About is installed |
