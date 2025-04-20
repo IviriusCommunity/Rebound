@@ -21,11 +21,9 @@
         </Content>
         <Content Include="Modding\Launchers\rosk.exe" />
         <Content Include="Modding\Launchers\rshell.exe" />
+        <Content Include="Modding\Launchers\rwinver.exe" />
     </ItemGroup>
 	
-    <ItemGroup>
-        <CustomAdditionalCompileInputs Remove="Views\HomePage.xaml" />
-    </ItemGroup>
     <ItemGroup>
         <Resource Remove="Views\HomePage.xaml" />
     </ItemGroup>
@@ -51,6 +49,7 @@
       <None Remove="Launcher_OSK.obj" />
       <None Remove="Modding\Launchers\rosk.exe" />
       <None Remove="Modding\Launchers\rshell.exe" />
+      <None Remove="Modding\Launchers\rwinver.exe" />
     </ItemGroup>
     <ItemGroup>
       <ProjectReference Include="..\..\core\Rebound.Core.Helpers\Rebound.Core.Helpers.csproj" />
@@ -107,7 +106,7 @@
     </ItemGroup>
 
 	<!-- Custom task to compile C++ file -->
-	<Target Name="CompileCppFile" AfterTargets="Build">
+	<!--<Target Name="CompileCppFile" AfterTargets="Build">
 		<ItemGroup>
 			<CppFiles Include="Launcher.cpp" />
 		</ItemGroup>
@@ -115,6 +114,6 @@
 			<CppOutputPath>$(MSBuildThisFileDirectory)</CppOutputPath>
 		</PropertyGroup>
 		<Exec Command="&quot;C:\Program Files\Microsoft Visual Studio\2022\Preview\VC\Tools\MSVC\14.44.34918\bin\Hostx64\x64\cl.exe&quot; /EHsc /I&quot;C:\Program Files (x86)\Windows Kits\10\Include\10.0.19041.0\um&quot; /I&quot;C:\Program Files (x86)\Windows Kits\10\Include\10.0.19041.0\shared&quot; /I&quot;C:\Program Files (x86)\Windows Kits\10\Include\10.0.19041.0\ucrt&quot; /I&quot;C:\Program Files\Microsoft Visual Studio\2022\Preview\VC\Tools\MSVC\14.44.34918\include&quot; &quot;$(MSBuildThisFileDirectory)Launcher_OSK.cpp&quot; /Fo&quot;$(CppOutputPath)Launcher_OSK.obj&quot; /Fe&quot;$(CppOutputPath)rosk.exe&quot; /link /LIBPATH:&quot;C:\Program Files (x86)\Windows Kits\10\Lib\10.0.19041.0\um\x64&quot; /LIBPATH:&quot;C:\Program Files (x86)\Windows Kits\10\Lib\10.0.19041.0\ucrt\x64&quot; /LIBPATH:&quot;C:\Program Files\Microsoft Visual Studio\2022\Preview\VC\Tools\MSVC\14.44.34918\lib\x64&quot; uuid.lib libcpmt.lib libucrt.lib Advapi32.lib Shell32.lib" />
-	</Target>
+	</Target>-->
 
 </Project>

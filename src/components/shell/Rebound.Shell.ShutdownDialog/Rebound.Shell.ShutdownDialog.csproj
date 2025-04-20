@@ -6,6 +6,9 @@
 	<ItemGroup>
 	  <None Remove="ShutdownDialog.xaml" />
 	</ItemGroup>
+	<ItemGroup>
+	  <PackageReference Include="Microsoft.WindowsAppSDK" Version="1.8.250410001-experimental1" />
+	</ItemGroup>
 
 	<ItemGroup>
 		<ProjectReference Include="..\..\..\core\Rebound.Core.Helpers\Rebound.Core.Helpers.csproj" />

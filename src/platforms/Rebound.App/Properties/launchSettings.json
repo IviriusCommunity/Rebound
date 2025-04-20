@@ -1,7 +1,8 @@
 {
   "profiles": {
     "Rebound (Package)": {
-      "commandName": "MsixPackage"
+      "commandName": "MsixPackage",
+      "nativeDebugging": true
     },
     "Rebound (Unpackaged)": {
       "commandName": "Project"
