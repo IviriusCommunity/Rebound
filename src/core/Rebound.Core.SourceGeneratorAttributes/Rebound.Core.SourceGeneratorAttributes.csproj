@@ -5,5 +5,14 @@
 		<OutputType>Library</OutputType>
 		<UseWinUI>true</UseWinUI>
 		<PublishAot>false</PublishAot>
+		<EnableMsixTooling>true</EnableMsixTooling>
+		<SelfContained>true</SelfContained>
+		<WindowsAppSDKSelfContained>true</WindowsAppSDKSelfContained>
+		<WindowsPackageType>None</WindowsPackageType>
+		<IncludeNativeLibrariesForSelfExtract>true</IncludeNativeLibrariesForSelfExtract>
+		<PublishAot>false</PublishAot>
+		<PublishTrimmed>false</PublishTrimmed>
+		<CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
+		<WindowsAppSdkUndockedRegFreeWinRTInitialize>true</WindowsAppSdkUndockedRegFreeWinRTInitialize>
 	</PropertyGroup>
 </Project>

@@ -64,6 +64,7 @@
     <Project Path="src/core/Rebound.Core.Helpers/Rebound.Core.Helpers.csproj">
       <Platform Solution="*|x64" Project="x64" />
     </Project>
+    <Project Path="src/core/Rebound.Core.HelpersUnpackaged/Rebound.Core.HelpersUnpackaged.shproj" Id="804e23ca-c19e-416d-8998-64ca5efc4f35" />
     <Project Path="src/core/Rebound.Core.SourceGenerator/Rebound.Core.SourceGenerator.csproj">
       <Platform Solution="*|x64" Project="x64" />
     </Project>
@@ -71,6 +72,14 @@
       <Platform Project="x64" />
     </Project>
     <Project Path="src/core/Rebound.Delivery/Rebound.Delivery.shproj" Id="b6c8c1f3-644e-475f-84c6-214243620014" />
+  </Folder>
+  <Folder Name="/src/core/packaged/" Id="4ec41458-d783-4ff2-b3a5-4baf78f04948">
+    <Project Path="src/core/packaged/Rebound.Core.SourceGenerator/Rebound.Core.SourceGenerator.csproj" Id="9582510d-6853-4202-9ac2-3fce1a852ea2">
+      <Platform Project="x64" />
+    </Project>
+    <Project Path="src/core/packaged/Rebound.Core.SourceGeneratorAttributes/Rebound.Core.SourceGeneratorAttributes.csproj" Id="10309709-89eb-48d0-9c29-ffd6ea800caa">
+      <Platform Project="x64" />
+    </Project>
   </Folder>
   <Folder Name="/src/platforms/" Id="cbff53eb-5ead-4b57-8ed6-53491d4790e6">
     <Project Path="src/platforms/Rebound.About/Rebound.About.csproj">

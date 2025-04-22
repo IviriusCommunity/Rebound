@@ -19,6 +19,7 @@
         <Content Include="Fonts\FluentIcons.ttf">
           <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
         </Content>
+        <Content Include="Modding\Launchers\rwinver.exe" />
         <Content Include="Modding\Launchers\rosk.exe" />
         <Content Include="Modding\Launchers\rshell.exe" />
     </ItemGroup>
@@ -53,9 +54,9 @@
       <None Remove="Modding\Launchers\rshell.exe" />
     </ItemGroup>
     <ItemGroup>
+      <ProjectReference Include="..\..\core\packaged\Rebound.Core.SourceGeneratorAttributes\Rebound.Core.SourceGeneratorAttributes.csproj" />
+      <ProjectReference Include="..\..\core\packaged\Rebound.Core.SourceGenerator\Rebound.Core.SourceGenerator.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
       <ProjectReference Include="..\..\core\Rebound.Core.Helpers\Rebound.Core.Helpers.csproj" />
-      <ProjectReference Include="..\..\core\Rebound.Core.SourceGeneratorAttributes\Rebound.Core.SourceGeneratorAttributes.csproj" />
-      <ProjectReference Include="..\..\core\Rebound.Core.SourceGenerator\Rebound.Core.SourceGenerator.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
     </ItemGroup>
 	
     <ItemGroup>
@@ -106,8 +107,50 @@
       </Page>
     </ItemGroup>
 
+	<!-- Package References - These will only apply to projects that compile ahead-of-time (apps and libraries) -->
+	<ItemGroup>
+
+		<!-- WebView2 -->
+		<PackageReference Include="Microsoft.Web.WebView2" Version="1.0.3116-prerelease" />
+
+		<!-- Windows App SDK and WinUI -->
+		<PackageReference Include="Microsoft.Windows.SDK.BuildTools" Version="10.0.26100.1742" />
+		<PackageReference Update="Microsoft.WindowsAppSDK" Version="1.8.250410001-experimental1" />
+		<PackageReference Include="WinUIEx" Version="2.5.1" />
+
+		<!-- Windows Interop -->
+		<PackageReference Include="Microsoft.Windows.CsWinRT" Version="2.2.0" />
+		<PackageReference Include="Microsoft.Windows.CsWin32" Version="0.3.183">
+			<PrivateAssets>all</PrivateAssets>
+			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+		</PackageReference>
+
+		<!-- System and Management Libraries -->
+		<PackageReference Include="System.Drawing.Common" Version="9.0.2" />
+		<PackageReference Include="System.Management" Version="10.0.0-preview.2.25163.2" />
+
+		<!-- Task Scheduler -->
+		<PackageReference Include="TaskScheduler" Version="2.11.0" />
+
+		<!-- CommunityToolkit Libraries -->
+		<PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.0" />
+		<PackageReference Include="CommunityToolkit.WinUI.Converters" Version="8.2.250129-preview2" />
+		<PackageReference Include="CommunityToolkit.WinUI.Media" Version="8.2.250129-preview2" />
+		<PackageReference Include="CommunityToolkit.WinUI.Animations" Version="8.2.250129-preview2" />
+		<PackageReference Include="CommunityToolkit.WinUI.Behaviors" Version="8.2.250129-preview2" />
+		<PackageReference Include="CommunityToolkit.WinUI.Controls.Primitives" Version="8.2.250129-preview2" />
+		<PackageReference Include="CommunityToolkit.WinUI.Extensions" Version="8.2.250129-preview2" />
+		<PackageReference Include="CommunityToolkit.WinUI.Helpers" Version="8.2.250129-preview2" />
+		<PackageReference Include="CommunityToolkit.WinUI.Triggers" Version="8.2.250129-preview2" />
+		<PackageReference Include="CommunityToolkit.WinUI.Controls.SettingsControls" Version="8.2.250129-preview2" />
+
+		<!-- 3rd Party -->
+		<PackageReference Include="H.NotifyIcon" Version="2.2.0" />
+
+	</ItemGroup>
+
 	<!-- Custom task to compile C++ file -->
-	<Target Name="CompileCppFile" AfterTargets="Build">
+	<!--<Target Name="CompileCppFile" AfterTargets="Build">
 		<ItemGroup>
 			<CppFiles Include="Launcher.cpp" />
 		</ItemGroup>
@@ -115,6 +158,6 @@
 			<CppOutputPath>$(MSBuildThisFileDirectory)</CppOutputPath>
 		</PropertyGroup>
 		<Exec Command="&quot;C:\Program Files\Microsoft Visual Studio\2022\Preview\VC\Tools\MSVC\14.44.34918\bin\Hostx64\x64\cl.exe&quot; /EHsc /I&quot;C:\Program Files (x86)\Windows Kits\10\Include\10.0.19041.0\um&quot; /I&quot;C:\Program Files (x86)\Windows Kits\10\Include\10.0.19041.0\shared&quot; /I&quot;C:\Program Files (x86)\Windows Kits\10\Include\10.0.19041.0\ucrt&quot; /I&quot;C:\Program Files\Microsoft Visual Studio\2022\Preview\VC\Tools\MSVC\14.44.34918\include&quot; &quot;$(MSBuildThisFileDirectory)Launcher_OSK.cpp&quot; /Fo&quot;$(CppOutputPath)Launcher_OSK.obj&quot; /Fe&quot;$(CppOutputPath)rosk.exe&quot; /link /LIBPATH:&quot;C:\Program Files (x86)\Windows Kits\10\Lib\10.0.19041.0\um\x64&quot; /LIBPATH:&quot;C:\Program Files (x86)\Windows Kits\10\Lib\10.0.19041.0\ucrt\x64&quot; /LIBPATH:&quot;C:\Program Files\Microsoft Visual Studio\2022\Preview\VC\Tools\MSVC\14.44.34918\lib\x64&quot; uuid.lib libcpmt.lib libucrt.lib Advapi32.lib Shell32.lib" />
-	</Target>
+	</Target>-->
 
 </Project>
