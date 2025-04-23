@@ -39,6 +39,12 @@
         <PRIResource Remove="Assets\Wallpapers\**" />
     </ItemGroup>
     <ItemGroup>
+      <None Remove="Assets\AppBanners\FilesDark.png" />
+      <None Remove="Assets\AppBanners\FilesLight.png" />
+      <None Remove="Assets\AppBanners\IviriusTextEditorDark.png" />
+      <None Remove="Assets\AppBanners\IviriusTextEditorLight.png" />
+      <None Remove="Assets\AppBanners\WinverDark.png" />
+      <None Remove="Assets\AppBanners\WinverLight.png" />
       <None Remove="Assets\AppIcons\AboutWindows.ico" />
       <None Remove="Assets\AppIcons\CubeKit.png" />
       <None Remove="Assets\AppIcons\DiscordLogo.png" />

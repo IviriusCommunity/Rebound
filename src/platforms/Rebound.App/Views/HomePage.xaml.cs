@@ -74,10 +74,10 @@ internal sealed partial class HomePage : Page
     [
         new AppCard
         {
-            Title = "Ivirius Text Editor",
-            Description = "Fluent WordPad app for Windows 10 and 11.",
-            IconPath = "/Assets/AppIcons/IviriusTextEditorFree.png",
-            PicturePath = "/Assets/Backgrounds/BackgroundDarkNew.png",
+            Title = "Files",
+            Description = "Fluent file explorer app for Windows 10 and 11. [3rd party]",
+            IconPath = "/Assets/AppIcons/FilesLogo.ico",
+            PicturePath = "/Assets/AppBanners/Files.png",
             Link = "https://ivirius.com/ivirius-text-editor/"
         },
         new AppCard
@@ -85,71 +85,15 @@ internal sealed partial class HomePage : Page
             Title = "Ivirius Text Editor",
             Description = "Fluent WordPad app for Windows 10 and 11.",
             IconPath = "/Assets/AppIcons/IviriusTextEditorFree.png",
-            PicturePath = "/Assets/Backgrounds/BackgroundDarkNew.png",
+            PicturePath = "/Assets/AppBanners/IviriusTextEditor.png",
             Link = "https://ivirius.com/ivirius-text-editor/"
         },
         new AppCard
         {
-            Title = "Ivirius Text Editor",
-            Description = "Fluent WordPad app for Windows 10 and 11.",
-            IconPath = "/Assets/AppIcons/IviriusTextEditorFree.png",
-            PicturePath = "/Assets/Backgrounds/BackgroundDarkNew.png",
-            Link = "https://ivirius.com/ivirius-text-editor/"
-        },
-        new AppCard
-        {
-            Title = "Ivirius Text Editor",
-            Description = "Fluent WordPad app for Windows 10 and 11.",
-            IconPath = "/Assets/AppIcons/IviriusTextEditorFree.png",
-            PicturePath = "/Assets/Backgrounds/BackgroundDarkNew.png",
-            Link = "https://ivirius.com/ivirius-text-editor/"
-        },
-        new AppCard
-        {
-            Title = "Ivirius Text Editor",
-            Description = "Fluent WordPad app for Windows 10 and 11.",
-            IconPath = "/Assets/AppIcons/IviriusTextEditorFree.png",
-            PicturePath = "/Assets/Backgrounds/BackgroundDarkNew.png",
-            Link = "https://ivirius.com/ivirius-text-editor/"
-        },
-        new AppCard
-        {
-            Title = "Ivirius Text Editor",
-            Description = "Fluent WordPad app for Windows 10 and 11.",
-            IconPath = "/Assets/AppIcons/IviriusTextEditorFree.png",
-            PicturePath = "/Assets/Backgrounds/BackgroundDarkNew.png",
-            Link = "https://ivirius.com/ivirius-text-editor/"
-        },
-        new AppCard
-        {
-            Title = "Ivirius Text Editor",
-            Description = "Fluent WordPad app for Windows 10 and 11.",
-            IconPath = "/Assets/AppIcons/IviriusTextEditorFree.png",
-            PicturePath = "/Assets/Backgrounds/BackgroundDarkNew.png",
-            Link = "https://ivirius.com/ivirius-text-editor/"
-        },
-        new AppCard
-        {
-            Title = "Ivirius Text Editor",
-            Description = "Fluent WordPad app for Windows 10 and 11.",
-            IconPath = "/Assets/AppIcons/IviriusTextEditorFree.png",
-            PicturePath = "/Assets/Backgrounds/BackgroundDarkNew.png",
-            Link = "https://ivirius.com/ivirius-text-editor/"
-        },
-        new AppCard
-        {
-            Title = "Ivirius Text Editor",
-            Description = "Fluent WordPad app for Windows 10 and 11.",
-            IconPath = "/Assets/AppIcons/IviriusTextEditorFree.png",
-            PicturePath = "/Assets/Backgrounds/BackgroundDarkNew.png",
-            Link = "https://ivirius.com/ivirius-text-editor/"
-        },
-        new AppCard
-        {
-            Title = "Ivirius Text Editor",
-            Description = "Fluent WordPad app for Windows 10 and 11.",
-            IconPath = "/Assets/AppIcons/IviriusTextEditorFree.png",
-            PicturePath = "/Assets/Backgrounds/BackgroundDarkNew.png",
+            Title = "winver",
+            Description = "Fluent winver app for Windows 10 and 11.",
+            IconPath = "/Assets/AppIcons/AboutWindows.ico",
+            PicturePath = "/Assets/AppBanners/Winver.png",
             Link = "https://ivirius.com/ivirius-text-editor/"
         },
     ];

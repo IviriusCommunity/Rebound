@@ -17,16 +17,7 @@ public static class ReboundWorkingEnvironment
             Directory.CreateDirectory(directoryPath);
         }
 
-        // Set attributes for the directory
-        var currentAttributes = File.GetAttributes(directoryPath);
-
-        // Ensure directory attributes are set (optional but ensures directory is recognized)
-        if (!currentAttributes.HasFlag(FileAttributes.Directory))
-        {
-            File.SetAttributes(directoryPath, FileAttributes.Directory);
-        }
-
-        File.SetAttributes(directoryPath, currentAttributes | FileAttributes.System | FileAttributes.Hidden);
+        File.SetAttributes(directoryPath, FileAttributes.Directory);
     }
 
     public static void RemoveFolder()
