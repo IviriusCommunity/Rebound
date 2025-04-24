@@ -1,6 +1,6 @@
 # ℹ️ Rebound About
 
-Replacement for: **winver**
+Replacement for: **winver.exe**
 
 ## Information
 
