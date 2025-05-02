@@ -17,11 +17,6 @@
       <Deploy />
     </Project>
   </Folder>
-  <Folder Name="/src/components/platform/" Id="119afa20-c57f-41f1-9bbf-bf3a94a49119">
-    <Project Path="src/components/platform/Rebound.Launcher/Rebound.Launcher.vcxproj" Id="6dc0afcf-f1cf-498c-93dc-9714325f45c7">
-      <Platform Solution="*|ARM64" Project="x64" />
-    </Project>
-  </Folder>
   <Folder Name="/src/components/shell/" Id="14547d38-0320-4d63-88ef-3352e4e46d22">
     <Project Path="src/components/shell/Rebound.Shell.ControlPanel/Rebound.Shell.ControlPanel.csproj">
       <Platform Solution="*|ARM64" Project="ARM64" />
