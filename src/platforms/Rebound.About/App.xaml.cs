@@ -22,7 +22,14 @@ public partial class App : Application
         {
             if (!this.IsRunningAsAdmin())
             {
-                this.RelaunchAsAdmin("ReboundAbout_yejd587sfa94t!App", "legacy");
+                Process.Start(new ProcessStartInfo
+                {
+                    FileName = Environment.ProcessPath,
+                    UseShellExecute = true,
+                    Verb = "runas",
+                    Arguments = "legacy"
+                });
+                Process.GetCurrentProcess().Kill();
                 Process.GetCurrentProcess().Kill();
                 return;
             }

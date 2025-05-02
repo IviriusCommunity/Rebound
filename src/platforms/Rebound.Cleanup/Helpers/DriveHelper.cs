@@ -1,105 +1,103 @@
-﻿using System.Collections.Generic;
-using System.Text;
+﻿using System;
+using System.Collections.ObjectModel;
+using Rebound.Cleanup.Items;
 using Rebound.Helpers;
+using Windows.Win32;
 
 namespace Rebound.Cleanup.Helpers;
 
-public partial class DriveComboBoxItem
-{
-    public string DriveName { get; set; }
-
-    public string DrivePath { get; set; }
-
-    public string ImagePath { get; set; }
-
-    public string MediaType { get; set; }
-}
-
-public partial class DriveHelper
+internal static partial class DriveHelper
 {
     public static string GetDriveTypeDescription(string driveRoot)
     {
-        var driveType = Win32Helper.GetDriveType(driveRoot);
+        var driveType = PInvoke.GetDriveType(driveRoot);
 
         return driveType switch
         {
-            Win32Helper.DriveType.DRIVE_REMOVABLE => "Removable",
-            Win32Helper.DriveType.DRIVE_FIXED => "Fixed",
-            Win32Helper.DriveType.DRIVE_REMOTE => "Network",
-            Win32Helper.DriveType.DRIVE_CDROM => "CD-ROM",
-            Win32Helper.DriveType.DRIVE_RAMDISK => "RAM Disk",
-            Win32Helper.DriveType.DRIVE_NO_ROOT_DIR => "No Root Directory",
+            2u => "Removable",         // DRIVE_REMOVABLE
+            3u => "Fixed",             // DRIVE_FIXED
+            4u => "Network",           // DRIVE_REMOTE
+            5u => "CD-ROM",            // DRIVE_CDROM
+            6u => "RAM Disk",          // DRIVE_RAMDISK
+            1u => "No Root Directory", // DRIVE_NO_ROOT_DIR
             _ => "Unknown",
         };
     }
 
-    public static List<DriveComboBoxItem> GetDriveItems()
+    public static unsafe ObservableCollection<DriveComboBoxItem> GetDriveItems()
     {
-        // The drive items
-        List<DriveComboBoxItem> items = [];
+        // Initialize the collection of drive items to return
+        ObservableCollection<DriveComboBoxItem> items = [];
 
-        // Get the logical drives bitmask
-        var drivesBitMask = Win32Helper.GetLogicalDrives();
-
-        // If there are no drives return
-        if (drivesBitMask is 0)
+        // Get a bitmask representing all logical drives
+        var drivesBitMask = PInvoke.GetLogicalDrives();
+        if (drivesBitMask == 0)
         {
-            return [];
+            // No drives found, return empty list
+            return items;
         }
 
-        // Obtain each drive
-        for (var singularDriveLetter = 'A'; singularDriveLetter <= 'Z'; singularDriveLetter++)
-        {
-            // Get mask
-            var mask = 1u << (singularDriveLetter - 'A');
+        // Allocate stack space for volume and file system names
+        Span<char> volumeName = stackalloc char[261];
+        Span<char> fileSystemName = stackalloc char[261];
 
-            if ((drivesBitMask & mask) != 0)
+        uint serialNumber, maxComponentLength, fsFlags;
+
+        // Iterate over all possible drive letters (A-Z)
+        for (var letter = 'A'; letter <= 'Z'; letter++)
+        {
+            var mask = 1u << (letter - 'A');
+
+            // Skip this letter if it's not set in the drive bitmask
+            if ((drivesBitMask & mask) == 0)
             {
-                // Convert single drive letter into drive path of format C:\
-                var drive = $"{singularDriveLetter}:\\";
-
-                // Create string builders
-                StringBuilder volumeName = new(261);
-                StringBuilder fileSystemName = new(261);
-
-                // Obtain volume information using P/Invoke
-                if (Win32Helper.GetVolumeInformation(drive, volumeName, volumeName.Capacity, out _, out _, out _, fileSystemName, fileSystemName.Capacity))
-                {
-                    // Convert singular drive letter of format C into drive letter of format C:
-                    var driveLetter = $"{singularDriveLetter}:";
-
-                    // Obtain the drive media type for drive path
-                    var mediaType = GetDriveTypeDescription(drive);
-
-                    // Create the drive item
-                    var item = new DriveComboBoxItem
-                    {
-                        // Set the friendly name of format Local Disk (C:)
-                        DriveName = volumeName.ToString() == string.Empty ? $"({driveLetter})" : $"{volumeName} ({driveLetter})",
-                        ImagePath = "ms-appx:///Assets/Drive.png",
-                        MediaType = mediaType,
-                        DrivePath = drive,
-                    };
-
-                    // Set the icon for the drive
-                    item.ImagePath = item.MediaType switch
-                    {
-                        "Removable" => "ms-appx:///Assets/DriveRemovable.png",
-                        "Unknown" => "ms-appx:///Assets/DriveUnknown.png",
-                        "CD-ROM" => "ms-appx:///Assets/DriveOptical.png",
-                        _ => "ms-appx:///Assets/Drive.png"
-                    };
-
-                    // If the drive is the Windows installation drive use the Windows drive icon
-                    item.ImagePath = driveLetter == EnvironmentHelper.GetWindowsInstallationDrivePath().DrivePathToLetter() ? "ms-appx:///Assets/DriveWindows.png" : item.ImagePath;
-
-                    // Add to collection
-                    items.Add(item);
-                }
+                continue;
             }
+
+            // Format the full drive path (e.g., "C:\")
+            var drivePath = $"{letter}:\\";
+
+            // Attempt to retrieve volume information for the drive
+            if (!PInvoke.GetVolumeInformation(drivePath, volumeName, &serialNumber, &maxComponentLength, &fsFlags, fileSystemName))
+            {
+                continue; // Skip if unable to read volume info
+            }
+
+            // Create a formatted drive letter (e.g., "C:")
+            var driveLetter = $"{letter}:";
+
+            // Determine the media type of the drive (e.g., "Removable", "CD-ROM", etc.)
+            var mediaType = GetDriveTypeDescription(drivePath);
+
+            // Create the display name for the drive
+            var name = volumeName.IsEmpty ? $"({driveLetter})" : $"{volumeName} ({driveLetter})";
+
+            // Select an icon based on media type
+            var imagePath = mediaType switch
+            {
+                "Removable" => "ms-appx:///Assets/DriveRemovable.png",
+                "CD-ROM" => "ms-appx:///Assets/DriveOptical.png",
+                "Unknown" => "ms-appx:///Assets/DriveUnknown.png",
+                _ => "ms-appx:///Assets/Drive.png"
+            };
+
+            // Use a special icon if this is the Windows installation drive
+            if (driveLetter == EnvironmentHelper.GetWindowsInstallationDrivePath().DrivePathToLetter())
+            {
+                imagePath = "ms-appx:///Assets/DriveWindows.png";
+            }
+
+            // Add the fully constructed drive item to the collection
+            items.Add(new DriveComboBoxItem
+            {
+                DriveName = name,
+                ImagePath = imagePath,
+                MediaType = mediaType,
+                DrivePath = drivePath,
+            });
         }
 
-        // Return the drives list
+        // Return the populated collection of drive items
         return items;
     }
 }

@@ -1,44 +1,56 @@
-﻿using System;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.UI.Xaml;
+﻿// Copyright (C) Ivirius(TM) Community 2020 - 2025. All Rights Reserved.
+// Licensed under the MIT License.
 
-// To learn more about WinUI, the WinUI project structure,
-// and more about our project templates, see: http://aka.ms/winui-project-info.
+using System;
+using System.Diagnostics;
+using Microsoft.UI.Xaml;
+using Rebound.Generators;
+using Rebound.Helpers.AppEnvironment;
+using Rebound.Helpers.Modding;
 
 namespace Rebound.Cleanup;
 
-/// <summary>
-/// Provides application-specific behavior to supplement the default Application class.
-/// </summary>
+#pragma warning disable IDE0079 // Remove unnecessary suppression
+#pragma warning disable CA1515 // Consider making public types internal
+
+[ReboundApp("Rebound.Cleanup", "Legacy Disk Cleanup*legacy*ms-appx:///Assets/cleanmgr.ico")]
 public partial class App : Application
 {
-    /// <summary>
-    /// Initializes the singleton application object.  This is the first line of authored code
-    /// executed, and as such is the logical equivalent of main() or WinMain().
-    /// </summary>
-    public App()
+    private async void OnSingleInstanceLaunched(object? sender, Rebound.Helpers.Services.SingleInstanceLaunchEventArgs e)
     {
-        this.InitializeComponent();
-    }
-
-    /// <summary>
-    /// Invoked when the application is launched.
-    /// </summary>
-    /// <param name="args">Details about the launch request and process.</param>
-    protected async override void OnLaunched(Microsoft.UI.Xaml.LaunchActivatedEventArgs args)
-    {
-        var commandArgs = string.Join(" ", Environment.GetCommandLineArgs().Skip(1));
-
-        m_window = new MainWindow();
-        m_window.Activate();
-
-        if (string.IsNullOrEmpty(commandArgs) != true)
+        if (e.Arguments == "legacy")
         {
-            await Task.Delay(100);
-            await (m_window as MainWindow).ArgumentsLaunch(commandArgs[..2]);
+            if (!this.IsRunningAsAdmin())
+            {
+                Process.Start(new ProcessStartInfo
+                {
+                    FileName = Environment.ProcessPath,
+                    UseShellExecute = true,
+                    Verb = "runas",
+                    Arguments = "legacy"
+                });
+                Process.GetCurrentProcess().Kill();
+                return;
+            }
+            await IFEOEngine.PauseIFEOEntryAsync("cleanmgr.exe").ConfigureAwait(true);
+            Process.Start(new ProcessStartInfo
+            {
+                FileName = "cleanmgr.exe",
+                UseShellExecute = true
+            });
+            await IFEOEngine.ResumeIFEOEntryAsync("cleanmgr.exe").ConfigureAwait(true);
+            Process.GetCurrentProcess().Kill();
+            return;
+        }
+
+        if (e.IsFirstLaunch)
+        {
+            MainAppWindow = new MainWindow();
+            MainAppWindow.Activate();
+        }
+        else
+        {
+            MainAppWindow.BringToFront();
         }
     }
-
-    private Window m_window;
 }

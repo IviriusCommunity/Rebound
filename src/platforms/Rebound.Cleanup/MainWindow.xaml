@@ -7,55 +7,15 @@
     xmlns:local="using:Rebound.Cleanup"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:winuiex="using:WinUIEx"
+    Title="Disk Cleanup"
+    Width="400"
+    Height="600"
+    IsMaximizable="False"
+    IsMinimizable="False"
+    IsResizable="False"
     mc:Ignorable="d">
-
-    <Grid>
-        <Grid Visibility="Collapsed">
-            <Grid.RowDefinitions>
-                <RowDefinition Height="*"/>
-                <RowDefinition Height="Auto"/>
-                <RowDefinition Height="Auto"/>
-            </Grid.RowDefinitions>
-            <ComboBox
-            x:Name="DrivesBox"
-            Margin="20, 8, 20, 16"
-            HorizontalAlignment="Stretch"
-            VerticalAlignment="Center"
-            Header="Select the drive you want to clean up." />
-            <Border
-            Grid.Row="2"
-            Height="75"
-            VerticalAlignment="Bottom"
-            Background="{ThemeResource SystemControlBackgroundAltMediumLowBrush}" />
-            <Grid Grid.Row="2" Margin="20" VerticalAlignment="Center">
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition />
-                    <ColumnDefinition Width="8" />
-                    <ColumnDefinition />
-                </Grid.ColumnDefinitions>
-                <Button
-                x:Name="OkButton"
-                HorizontalAlignment="Stretch"
-                Click="Button_Click"
-                Content="OK"
-                Style="{ThemeResource AccentButtonStyle}" />
-                <Button
-                x:Name="CancelButton"
-                Grid.Column="2"
-                HorizontalAlignment="Stretch"
-                Click="CancelButton_Click"
-                Content="Exit">
-                    <Button.KeyboardAccelerators>
-                        <KeyboardAccelerator Key="Escape"/>
-                    </Button.KeyboardAccelerators>
-                </Button>
-            </Grid>
-            <ProgressBar
-            x:Name="Working"
-            Grid.Row="1"
-            VerticalAlignment="Bottom"
-            Background="Transparent" />
-        </Grid>
-        <Frame x:Name="RootFrame"/>
-    </Grid>
+    <winuiex:WindowEx.SystemBackdrop>
+        <MicaBackdrop />
+    </winuiex:WindowEx.SystemBackdrop>
+    <Frame x:Name="RootFrame" />
 </winuiex:WindowEx>

@@ -66,10 +66,6 @@
 		<PackageReference Include="CommunityToolkit.WinUI.Helpers" Version="8.2.250129-preview2" />
 		<PackageReference Include="CommunityToolkit.WinUI.Triggers" Version="8.2.250129-preview2" />
 		<PackageReference Include="CommunityToolkit.WinUI.Controls.SettingsControls" Version="8.2.250129-preview2" />
-
-		<!-- 3rd Party -->
-		<PackageReference Include="H.NotifyIcon" Version="2.2.0" />
-
 	</ItemGroup>
 
 	<!-- App assets -->
@@ -93,16 +89,5 @@
 	  </Page>
 	</ItemGroup>
 	<Import Project="..\..\core\Rebound.Core.HelpersUnpackaged\Rebound.Core.HelpersUnpackaged.projitems" Label="Shared" />
-
-	<!-- Custom task to compile C++ file -->
-	<!--<Target Name="CompileCppFile" AfterTargets="Build">
-		<ItemGroup>
-		    <CppFiles Include="Launcher.cpp" />
-		</ItemGroup>
-		<PropertyGroup>
-		    <CppOutputPath>$(MSBuildThisFileDirectory)</CppOutputPath>
-		</PropertyGroup>
-		<Exec Command="&quot;C:\Program Files\Microsoft Visual Studio\2022\Preview\VC\Tools\MSVC\14.44.34918\bin\Hostx64\x64\cl.exe&quot; /EHsc /I&quot;C:\Program Files (x86)\Windows Kits\10\Include\10.0.19041.0\um&quot; /I&quot;C:\Program Files (x86)\Windows Kits\10\Include\10.0.19041.0\shared&quot; /I&quot;C:\Program Files (x86)\Windows Kits\10\Include\10.0.19041.0\ucrt&quot; /I&quot;C:\Program Files\Microsoft Visual Studio\2022\Preview\VC\Tools\MSVC\14.44.34918\include&quot; &quot;$(MSBuildThisFileDirectory)Launcher.cpp&quot; /Fo&quot;$(CppOutputPath)Launcher.obj&quot; /Fe&quot;$(CppOutputPath)rwinver.exe&quot; /link /LIBPATH:&quot;C:\Program Files (x86)\Windows Kits\10\Lib\10.0.19041.0\um\x64&quot; /LIBPATH:&quot;C:\Program Files (x86)\Windows Kits\10\Lib\10.0.19041.0\ucrt\x64&quot; /LIBPATH:&quot;C:\Program Files\Microsoft Visual Studio\2022\Preview\VC\Tools\MSVC\14.44.34918\lib\x64&quot; uuid.lib libcpmt.lib libucrt.lib Advapi32.lib" />
-	</Target>-->
 
 </Project>

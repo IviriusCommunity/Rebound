@@ -1,0 +1,4 @@
+﻿GetDriveType
+GetLogicalDrives
+GetVolumeInformation
+SHQueryRecycleBin
