@@ -26,7 +26,6 @@
 		<None Remove="Assets\Administrator.png" />
 		<None Remove="Assets\cleanmgr.ico" />
 		<None Remove="Assets\cleanmgr.png" />
-		<None Remove="Assets\DDORes_2001.ico" />
 		<None Remove="Assets\Drive.png" />
 		<None Remove="Assets\DriveFloppy.png" />
 		<None Remove="Assets\DriveOptical.png" />
@@ -41,7 +40,6 @@
 		<None Remove="Assets\imageres_5364.ico" />
 		<None Remove="Assets\imageres_54.ico" />
 		<None Remove="Assets\imageres_59.ico" />
-		<None Remove="Assets\r11imageres_101.ico" />
 		<None Remove="DiskWindow.xaml" />
 	</ItemGroup>
 
@@ -56,6 +54,7 @@
 
 		<!-- Windows App SDK and WinUI -->
 		<PackageReference Include="Microsoft.Windows.SDK.BuildTools" Version="10.0.26100.1742" />
+		<PackageReference Include="System.ServiceProcess.ServiceController" Version="9.0.4" />
 		<PackageReference Update="Microsoft.WindowsAppSDK" Version="1.8.250410001-experimental1" />
 		<PackageReference Include="WinUIEx" Version="2.5.1" />
 

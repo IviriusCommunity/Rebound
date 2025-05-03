@@ -78,13 +78,13 @@ internal static partial class DriveHelper
                 "Removable" => "ms-appx:///Assets/DriveRemovable.png",
                 "CD-ROM" => "ms-appx:///Assets/DriveOptical.png",
                 "Unknown" => "ms-appx:///Assets/DriveUnknown.png",
-                _ => "ms-appx:///Assets/Drive.png"
+                _ => "ms-appx:///Assets/Drive.ico"
             };
 
             // Use a special icon if this is the Windows installation drive
             if (driveLetter == EnvironmentHelper.GetWindowsInstallationDrivePath().DrivePathToLetter())
             {
-                imagePath = "ms-appx:///Assets/DriveWindows.png";
+                imagePath = "ms-appx:///Assets/DriveWindows.ico";
             }
 
             // Add the fully constructed drive item to the collection

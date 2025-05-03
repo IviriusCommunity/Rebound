@@ -23,6 +23,20 @@ public static class AppHelper
         }
     }
 
+    public static bool IsRunningAsAdmin()
+    {
+        try
+        {
+            var identity = WindowsIdentity.GetCurrent();
+            var principal = new WindowsPrincipal(identity);
+            return principal.IsInRole(WindowsBuiltInRole.Administrator);
+        }
+        catch (ArgumentException)
+        {
+            return false;
+        }
+    }
+
     // Credit: https://github.com/HotCakeX/
     public static unsafe void RelaunchAsAdmin(this Application application, string package, string args)
     {

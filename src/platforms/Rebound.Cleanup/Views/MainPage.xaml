@@ -13,6 +13,8 @@
     xmlns:winuiex="using:WinUIEx"
     mc:Ignorable="d">
     <Page.Resources>
+        <converters:FileSizeToFriendlyStringConverter x:Key="FileSizeToFriendlyStringConverter" />
+        <converters:BoolNegationConverter x:Key="BoolNegationConverter" />
         <converters:BoolToObjectConverter
             x:Key="BoolToInverseVisibilityConverter"
             FalseValue="Visible"
@@ -37,6 +39,7 @@
                     Foreground="{ThemeResource TextOnAccentFillColorPrimaryBrush}"
                     Text="BETA" />
             </Border>
+            <ProgressRing Width="16" Height="16" IsIndeterminate="{x:Bind ViewModel.CanItemsBeClicked, Mode=OneWay, Converter={StaticResource BoolNegationConverter}}"/>
         </StackPanel>
         <Grid
             Margin="0,32,0,0"
@@ -72,6 +75,7 @@
                     Margin="24,0"
                     HorizontalAlignment="Stretch"
                     VerticalAlignment="Center"
+                    IsEnabled="{x:Bind ViewModel.CanItemsBeClicked, Mode=OneWay}"
                     ItemsSource="{x:Bind ViewModel.ComboBoxItems, Mode=OneWay}"
                     SelectedIndex="0">
                     <ComboBox.ItemTemplate>
@@ -99,18 +103,21 @@
                     IsClosable="False"
                     IsOpen="True" />
                 <ListView
+                    x:Name="ItemsListView"
+                    SelectedIndex="0"
                     Grid.Row="2"
                     Margin="24,0"
                     Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
                     BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
                     CornerRadius="4"
+                    IsEnabled="{x:Bind ViewModel.CanItemsBeClicked, Mode=OneWay}"
                     ItemsSource="{x:Bind ViewModel.CleanItems, Mode=OneWay}">
                     <ListView.ItemTemplate>
                         <DataTemplate x:DataType="items:CleanItem">
                             <Grid ToolTipService.ToolTip="{x:Bind Description, Mode=OneWay}">
                                 <CheckBox
                                     Width="24"
-                                    Margin="0,0,-90,0"
+                                    MinWidth="0"
                                     IsChecked="{x:Bind IsChecked, Mode=TwoWay}" />
                                 <ImageIcon
                                     Width="20"
@@ -132,11 +139,14 @@
                     </ListView.ItemTemplate>
                 </ListView>
                 <Grid Grid.Row="3" Margin="24,0">
-                    <TextBlock Opacity="0.5" Text="0 files" />
+                    <TextBlock Opacity="0.5">
+                        <Run Text="{x:Bind ViewModel.FilesCount, Mode=OneWay}" />
+                        <Run Text=" files" />
+                    </TextBlock>
                     <TextBlock
                         HorizontalAlignment="Right"
                         Opacity="0.5"
-                        Text="0 B" />
+                        Text="{x:Bind ViewModel.FilesSize, Mode=OneWay}" />
                 </Grid>
                 <StackPanel
                     Grid.Row="4"
@@ -148,13 +158,19 @@
                         Background="Transparent"
                         BorderBrush="Transparent"
                         Command="{x:Bind ViewModel.RelaunchAsAdminCommand}"
+                        IsEnabled="{x:Bind ViewModel.CanItemsBeClicked, Mode=OneWay}"
                         Visibility="{x:Bind ViewModel.IsRunningAsAdmin, Converter={StaticResource BoolToInverseVisibilityConverter}}">
                         <StackPanel Orientation="Horizontal" Spacing="8">
                             <ImageIcon Width="16" Source="ms-appx:///Assets/Administrator.png" />
                             <TextBlock Text="Clean up system files" />
                         </StackPanel>
                     </Button>
-                    <Button Background="Transparent" BorderBrush="Transparent">
+                    <Button
+                        Background="Transparent"
+                        BorderBrush="Transparent"
+                        Command="{x:Bind ViewModel.ViewFilesCommand}"
+                        CommandParameter="{x:Bind ItemsListView.SelectedIndex, Mode=OneWay}"
+                        IsEnabled="{x:Bind ViewModel.CanItemsBeClicked, Mode=OneWay}">
                         <StackPanel Orientation="Horizontal" Spacing="8">
                             <FontIcon FontSize="16" Glyph="&#xE838;" />
                             <TextBlock Text="View files" />
@@ -173,12 +189,15 @@
                     </Grid.ColumnDefinitions>
                     <Button
                         HorizontalAlignment="Stretch"
+                        Command="{x:Bind ViewModel.DeleteCommand}"
                         Content="Clean"
+                        IsEnabled="{x:Bind ViewModel.CanItemsBeClicked, Mode=OneWay}"
                         Style="{ThemeResource AccentButtonStyle}" />
                     <Button
                         Grid.Column="2"
                         HorizontalAlignment="Stretch"
-                        Content="Cancel">
+                        Content="Close"
+                        IsEnabled="{x:Bind ViewModel.CanItemsBeClicked, Mode=OneWay}">
                         <Button.KeyboardAccelerators>
                             <KeyboardAccelerator Key="Escape" />
                         </Button.KeyboardAccelerators>
@@ -214,7 +233,7 @@
                         Header="Optimize drives"
                         IsClickEnabled="True">
                         <toolkit:SettingsCard.HeaderIcon>
-                            <FontIcon Glyph="&#xE621;" />
+                            <ImageIcon Source="/Assets/dfrgui.ico" />
                         </toolkit:SettingsCard.HeaderIcon>
                         <toolkit:SettingsCard.ActionIcon>
                             <FontIcon Glyph="&#xE8A7;" />
@@ -236,6 +255,7 @@
                         Grid.Column="2"
                         HorizontalAlignment="Stretch"
                         Content="OK"
+                        IsEnabled="{x:Bind ViewModel.CanItemsBeClicked, Mode=OneWay}"
                         Style="{ThemeResource AccentButtonStyle}">
                         <Button.KeyboardAccelerators>
                             <KeyboardAccelerator Key="Escape" />

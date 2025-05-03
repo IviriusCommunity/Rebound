@@ -2,3 +2,4 @@
 GetLogicalDrives
 GetVolumeInformation
 SHQueryRecycleBin
+SHEmptyRecycleBin

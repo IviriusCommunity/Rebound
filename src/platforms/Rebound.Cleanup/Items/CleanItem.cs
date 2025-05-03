@@ -1,8 +1,9 @@
 ﻿using System;
 using System.Collections.ObjectModel;
 using System.IO;
+using System.Text;
 using CommunityToolkit.Mvvm.ComponentModel;
-using Windows.Win32.UI.Shell;
+using Windows.Win32;
 
 namespace Rebound.Cleanup.Items;
 
@@ -36,11 +37,11 @@ internal partial class CleanItem : ObservableObject
     [ObservableProperty]
     public partial bool IsChecked { get; set; } = false;
 
-    private ObservableCollection<string> FilePaths { get; set; } = [];
+    public ObservableCollection<string> FilePaths { get; set; } = [];
 
     partial void OnIsCheckedChanged(bool oldValue, bool newValue)
     {
-        Helpers.SettingsHelper.SetValue($"IsChecked{ItemPath}", newValue);
+        Helpers.SettingsHelper.SetValue($"IsChecked{ConvertStringToNumericString(ItemPath)}", newValue);
     }
 
     partial void OnSizeChanged(long oldValue, long newValue)
@@ -57,7 +58,7 @@ internal partial class CleanItem : ObservableObject
         Description = description;
         _itemType = itemType;
         ItemPath = itemPath;
-        IsChecked = Helpers.SettingsHelper.GetValue($"IsChecked{ItemPath}", defaultIsChecked);
+        IsChecked = Helpers.SettingsHelper.GetValue($"IsChecked{ConvertStringToNumericString(ItemPath)}", defaultIsChecked);
         Refresh();
     }
 
@@ -90,26 +91,33 @@ internal partial class CleanItem : ObservableObject
 
     public void Delete()
     {
-        foreach (var file in FilePaths)
+        if (_itemType == ItemType.RecycleBin)
         {
-            try
+            PInvoke.SHEmptyRecycleBin(new Windows.Win32.Foundation.HWND(0), ItemPath[..3], 0x00000007);
+        }
+        else
+        {
+            foreach (var file in FilePaths)
             {
-                if (File.Exists(file))
+                try
                 {
-                    File.Delete(file);
+                    if (File.Exists(file))
+                    {
+                        File.Delete(file);
+                    }
                 }
-            }
-            catch (UnauthorizedAccessException)
-            {
+                catch (UnauthorizedAccessException)
+                {
 
-            }
-            catch (PathTooLongException)
-            {
+                }
+                catch (PathTooLongException)
+                {
 
-            }
-            catch (IOException)
-            {
+                }
+                catch (IOException)
+                {
 
+                }
             }
         }
 
@@ -118,18 +126,18 @@ internal partial class CleanItem : ObservableObject
 
     private void Refresh()
     {
-        if (_itemType is ItemType.RecycleBin)
+        FilePaths = GetFilesFromFolders(_itemType);
+        Size = CalculateTotalFileSize();
+    }
+
+    public static string ConvertStringToNumericString(string input)
+    {
+        var numericString = new StringBuilder();
+        foreach (var c in input)
         {
-            SHQUERYRBINFO info = new();
-            FilePaths = GetFilesFromFolders(_itemType);
-            Windows.Win32.PInvoke.SHQueryRecycleBin(ItemPath[..3], ref info);
-            Size = info.i64Size;
+            numericString.Append((int)c);
         }
-        else
-        {
-            FilePaths = GetFilesFromFolders(_itemType);
-            Size = CalculateTotalFileSize();
-        }
+        return numericString.ToString();
     }
 
     public ObservableCollection<string> GetFilesFromFolders(ItemType itemType)

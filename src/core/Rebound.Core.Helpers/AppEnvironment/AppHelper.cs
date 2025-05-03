@@ -23,6 +23,20 @@ public static class AppHelper
         }
     }
 
+    public static bool IsRunningAsAdmin()
+    {
+        try
+        {
+            var identity = WindowsIdentity.GetCurrent();
+            var principal = new WindowsPrincipal(identity);
+            return principal.IsInRole(WindowsBuiltInRole.Administrator);
+        }
+        catch (ArgumentException)
+        {
+            return false;
+        }
+    }
+
     // Credit: https://github.com/HotCakeX/
     public static unsafe void RelaunchAsAdmin(this Application application, string package, string args)
     {
@@ -49,8 +63,8 @@ public static class AppHelper
 
         activationManager.ActivateApplication(
             new PCWSTR((char*)packagePtr),
-            new PCWSTR((char*)argsPtr), 
-            (Windows.Win32.UI.Shell.ACTIVATEOPTIONS)0x20000000, 
+            new PCWSTR((char*)argsPtr),
+            (Windows.Win32.UI.Shell.ACTIVATEOPTIONS)0x20000000,
             out _);
     }
 }

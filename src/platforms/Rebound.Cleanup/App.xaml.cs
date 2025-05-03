@@ -13,7 +13,7 @@ namespace Rebound.Cleanup;
 #pragma warning disable IDE0079 // Remove unnecessary suppression
 #pragma warning disable CA1515 // Consider making public types internal
 
-[ReboundApp("Rebound.Cleanup", "Legacy Disk Cleanup*legacy*ms-appx:///Assets/cleanmgr.ico")]
+[ReboundApp("Rebound.Cleanup", "Legacy Disk Cleanup*legacy*ms-appx:///Assets/cleanmgrLegacy.ico")]
 public partial class App : Application
 {
     private async void OnSingleInstanceLaunched(object? sender, Rebound.Helpers.Services.SingleInstanceLaunchEventArgs e)
