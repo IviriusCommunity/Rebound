@@ -40,7 +40,6 @@
 		<None Remove="Assets\imageres_5364.ico" />
 		<None Remove="Assets\imageres_54.ico" />
 		<None Remove="Assets\imageres_59.ico" />
-		<None Remove="DiskWindow.xaml" />
 	</ItemGroup>
 
 	<!-- App assets -->
@@ -86,11 +85,6 @@
 	</ItemGroup>
 
 	<!-- XAML Windows -->
-	<ItemGroup>
-		<Page Update="DiskWindow.xaml">
-			<Generator>MSBuild:Compile</Generator>
-		</Page>
-	</ItemGroup>
 
 	<!-- XAML Pages -->
 	<ItemGroup>

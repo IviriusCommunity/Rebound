@@ -11,7 +11,11 @@ internal enum ItemType
 {
     Normal,
     ThumbnailCache,
-    RecycleBin
+    RecycleBin,
+    FirefoxCookies,
+    FirefoxHistory,
+    ChromiumCookies,
+    ChromiumHistory
 }
 
 internal partial class CleanItem : ObservableObject
@@ -24,6 +28,9 @@ internal partial class CleanItem : ObservableObject
 
     [ObservableProperty]
     public partial string ItemPath { get; set; }
+
+    [ObservableProperty]
+    public partial string ItemID { get; set; }
 
     [ObservableProperty]
     public partial string Description { get; set; }
@@ -41,7 +48,7 @@ internal partial class CleanItem : ObservableObject
 
     partial void OnIsCheckedChanged(bool oldValue, bool newValue)
     {
-        Helpers.SettingsHelper.SetValue($"IsChecked{ConvertStringToNumericString(ItemPath)}", newValue);
+        Helpers.SettingsHelper.SetValue($"IsChecked{ConvertStringToNumericString(ItemID)}", newValue);
     }
 
     partial void OnSizeChanged(long oldValue, long newValue)
@@ -51,14 +58,15 @@ internal partial class CleanItem : ObservableObject
 
     private readonly ItemType _itemType;
 
-    public CleanItem(string name, string imagePath, string description, string itemPath, bool defaultIsChecked, ItemType itemType = ItemType.Normal)
+    public CleanItem(string name, string imagePath, string description, string itemPath, string id, bool defaultIsChecked, ItemType itemType = ItemType.Normal)
     {
         Name = name;
         ImagePath = imagePath;
         Description = description;
         _itemType = itemType;
         ItemPath = itemPath;
-        IsChecked = Helpers.SettingsHelper.GetValue($"IsChecked{ConvertStringToNumericString(ItemPath)}", defaultIsChecked);
+        ItemID = id;
+        IsChecked = Helpers.SettingsHelper.GetValue($"IsChecked{ConvertStringToNumericString(ItemID)}", defaultIsChecked);
         Refresh();
     }
 
@@ -149,18 +157,47 @@ internal partial class CleanItem : ObservableObject
             var files = Directory.EnumerateFiles(ItemPath, "*", SearchOption.AllDirectories);
             foreach (var file in files)
             {
-                if (itemType == ItemType.ThumbnailCache)
+                var fileInfo = new FileInfo(file);
+
+                switch (itemType)
                 {
-                    var fileInfo = new FileInfo(file);
-                    if (fileInfo.Extension.Contains("db", StringComparison.OrdinalIgnoreCase) &&
-                        fileInfo.Name.Contains("thumbcache", StringComparison.OrdinalIgnoreCase))
-                    {
+                    case ItemType.ThumbnailCache:
+                        if (fileInfo.Extension.Contains("db", StringComparison.OrdinalIgnoreCase) &&
+                            fileInfo.Name.Contains("thumbcache", StringComparison.OrdinalIgnoreCase))
+                        {
+                            allFiles.Add(file);
+                        }
+                        break;
+
+                    case ItemType.FirefoxCookies:
+                        if (fileInfo.Name.Equals("cookies.sqlite", StringComparison.OrdinalIgnoreCase))
+                        {
+                            allFiles.Add(file);
+                        }
+                        break;
+
+                    case ItemType.FirefoxHistory:
+                        if (fileInfo.Name.Equals("places.sqlite", StringComparison.OrdinalIgnoreCase))
+                        {
+                            allFiles.Add(file);
+                        }
+                        break;
+                    case ItemType.ChromiumCookies:
+                        if (fileInfo.Name.Equals("Cookies", StringComparison.OrdinalIgnoreCase))
+                        {
+                            allFiles.Add(file);
+                        }
+                        break;
+
+                    case ItemType.ChromiumHistory:
+                        if (fileInfo.Name.Equals("History", StringComparison.OrdinalIgnoreCase))
+                        {
+                            allFiles.Add(file);
+                        }
+                        break;
+                    default:
                         allFiles.Add(file);
-                    }
-                }
-                else
-                {
-                    allFiles.Add(file);
+                        break;
                 }
             }
         }

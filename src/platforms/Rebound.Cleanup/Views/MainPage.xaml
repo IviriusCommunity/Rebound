@@ -4,8 +4,10 @@
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:appEnvironment="using:Rebound.Helpers.AppEnvironment"
+    xmlns:behaviors="using:CommunityToolkit.WinUI.Behaviors"
     xmlns:converters="using:CommunityToolkit.WinUI.Converters"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:interactivity="using:Microsoft.Xaml.Interactivity"
     xmlns:items="using:Rebound.Cleanup.Items"
     xmlns:local="using:Rebound.Cleanup.Views"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
@@ -39,7 +41,10 @@
                     Foreground="{ThemeResource TextOnAccentFillColorPrimaryBrush}"
                     Text="BETA" />
             </Border>
-            <ProgressRing Width="16" Height="16" IsIndeterminate="{x:Bind ViewModel.CanItemsBeClicked, Mode=OneWay, Converter={StaticResource BoolNegationConverter}}"/>
+            <ProgressRing
+                Width="16"
+                Height="16"
+                IsIndeterminate="{x:Bind ViewModel.CanItemsBeClicked, Mode=OneWay, Converter={StaticResource BoolNegationConverter}}" />
         </StackPanel>
         <Grid
             Margin="0,32,0,0"
@@ -49,7 +54,7 @@
                 <RowDefinition Height="Auto" />
                 <RowDefinition Height="*" />
             </Grid.RowDefinitions>
-            <toolkit:Segmented Margin="16,0" Style="{StaticResource PivotSegmentedStyle}">
+            <toolkit:Segmented IsEnabled="{x:Bind ViewModel.CanItemsBeClicked, Mode=OneWay}" Margin="16,0" Style="{StaticResource PivotSegmentedStyle}">
                 <toolkit:SegmentedItem
                     x:Name="DiskCleanupItem"
                     Content="Disk Cleanup"
@@ -66,6 +71,7 @@
                 <Grid.RowDefinitions>
                     <RowDefinition Height="Auto" />
                     <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
                     <RowDefinition Height="*" />
                     <RowDefinition Height="Auto" />
                     <RowDefinition Height="Auto" />
@@ -77,7 +83,8 @@
                     VerticalAlignment="Center"
                     IsEnabled="{x:Bind ViewModel.CanItemsBeClicked, Mode=OneWay}"
                     ItemsSource="{x:Bind ViewModel.ComboBoxItems, Mode=OneWay}"
-                    SelectedIndex="0">
+                    SelectedIndex="{x:Bind ViewModel.SelectedDriveIndex, Mode=TwoWay}"
+                    SelectionChanged="ComboBox_SelectionChanged">
                     <ComboBox.ItemTemplate>
                         <DataTemplate x:DataType="items:DriveComboBoxItem">
                             <Grid>
@@ -97,28 +104,47 @@
                     </ComboBox.ItemTemplate>
                 </ComboBox>
                 <InfoBar
-                    Title="Hover over an item for a description."
+                    Title="Hover over an item for its description."
                     Grid.Row="1"
                     Margin="24,0"
                     IsClosable="False"
                     IsOpen="True" />
+                <Grid Grid.Row="2" Margin="24,0">
+                    <CheckBox
+                        Content="Select all"
+                        IsChecked="{x:Bind ViewModel.IsEverythingSelected, Mode=TwoWay}"
+                        IsEnabled="{x:Bind ViewModel.CanItemsBeClicked, Mode=OneWay}" />
+                    <Button
+                        HorizontalAlignment="Right"
+                        Background="Transparent"
+                        BorderBrush="Transparent"
+                        Command="{x:Bind RefreshCommand}"
+                        IsEnabled="{x:Bind ViewModel.CanItemsBeClicked, Mode=OneWay}">
+                        <StackPanel Orientation="Horizontal" Spacing="8">
+                            <FontIcon FontSize="16" Glyph="&#xE72C;" />
+                            <TextBlock Text="Refresh" />
+                        </StackPanel>
+                    </Button>
+                </Grid>
                 <ListView
                     x:Name="ItemsListView"
-                    SelectedIndex="0"
-                    Grid.Row="2"
+                    Grid.Row="3"
                     Margin="24,0"
                     Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
                     BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
                     CornerRadius="4"
                     IsEnabled="{x:Bind ViewModel.CanItemsBeClicked, Mode=OneWay}"
-                    ItemsSource="{x:Bind ViewModel.CleanItems, Mode=OneWay}">
+                    ItemsSource="{x:Bind ViewModel.CleanItems, Mode=OneWay}"
+                    SelectedIndex="0">
                     <ListView.ItemTemplate>
                         <DataTemplate x:DataType="items:CleanItem">
                             <Grid ToolTipService.ToolTip="{x:Bind Description, Mode=OneWay}">
                                 <CheckBox
                                     Width="24"
                                     MinWidth="0"
-                                    IsChecked="{x:Bind IsChecked, Mode=TwoWay}" />
+                                    Checked="CheckBox_Checked"
+                                    IsChecked="{x:Bind IsChecked, Mode=TwoWay}"
+                                    Unchecked="CheckBox_Checked" />
                                 <ImageIcon
                                     Width="20"
                                     Margin="28,0,0,0"
@@ -138,7 +164,7 @@
                         </DataTemplate>
                     </ListView.ItemTemplate>
                 </ListView>
-                <Grid Grid.Row="3" Margin="24,0">
+                <Grid Grid.Row="4" Margin="24,0">
                     <TextBlock Opacity="0.5">
                         <Run Text="{x:Bind ViewModel.FilesCount, Mode=OneWay}" />
                         <Run Text=" files" />
@@ -149,7 +175,7 @@
                         Text="{x:Bind ViewModel.FilesSize, Mode=OneWay}" />
                 </Grid>
                 <StackPanel
-                    Grid.Row="4"
+                    Grid.Row="5"
                     Margin="24,4,24,8"
                     HorizontalAlignment="Right"
                     Orientation="Horizontal"
@@ -178,7 +204,7 @@
                     </Button>
                 </StackPanel>
                 <Grid
-                    Grid.Row="5"
+                    Grid.Row="6"
                     Height="80"
                     Padding="24"
                     Background="{ThemeResource SystemControlBackgroundAltMediumLowBrush}">
@@ -196,6 +222,7 @@
                     <Button
                         Grid.Column="2"
                         HorizontalAlignment="Stretch"
+                        Command="{x:Bind CloseCommand}"
                         Content="Close"
                         IsEnabled="{x:Bind ViewModel.CanItemsBeClicked, Mode=OneWay}">
                         <Button.KeyboardAccelerators>
@@ -207,6 +234,7 @@
             <Grid Grid.Row="2" Visibility="{x:Bind MoreOptionsItem.IsSelected, Mode=OneWay}">
                 <StackPanel Margin="24,0" Spacing="8">
                     <toolkit:SettingsCard
+                        Command="{x:Bind ViewModel.DeleteOldRestorePointsAndShadowCopiesCommand}"
                         Description="Remove all but the latest restore point and all shadow copies."
                         Header="Delete shadow copies"
                         IsClickEnabled="True">
@@ -221,6 +249,11 @@
                         Description="Remove programs you no longer need."
                         Header="Programs and features"
                         IsClickEnabled="True">
+                        <interactivity:Interaction.Behaviors>
+                            <interactivity:EventTriggerBehavior EventName="Click">
+                                <behaviors:NavigateToUriAction NavigateUri="ms-settings:appsfeatures" />
+                            </interactivity:EventTriggerBehavior>
+                        </interactivity:Interaction.Behaviors>
                         <toolkit:SettingsCard.HeaderIcon>
                             <FontIcon Glyph="&#xE74C;" />
                         </toolkit:SettingsCard.HeaderIcon>
@@ -229,6 +262,7 @@
                         </toolkit:SettingsCard.ActionIcon>
                     </toolkit:SettingsCard>
                     <toolkit:SettingsCard
+                        Command="{x:Bind ViewModel.LaunchDefragCommand}"
                         Description="Defragment or trim your drives to speed them up."
                         Header="Optimize drives"
                         IsClickEnabled="True">
@@ -254,6 +288,7 @@
                     <Button
                         Grid.Column="2"
                         HorizontalAlignment="Stretch"
+                        Command="{x:Bind CloseCommand}"
                         Content="OK"
                         IsEnabled="{x:Bind ViewModel.CanItemsBeClicked, Mode=OneWay}"
                         Style="{ThemeResource AccentButtonStyle}">
