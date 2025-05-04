@@ -11,15 +11,17 @@
     xmlns:interactivity="using:Microsoft.Xaml.Interactivity"
     xmlns:local="using:Rebound.Views"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:modding="using:Rebound.Modding"
     mc:Ignorable="d">
     <Page.Resources>
         <converters:BoolToObjectConverter
             x:Key="BoolToReverseVisibilityConverter"
             FalseValue="Visible"
             TrueValue="Collapsed" />
-        <converters:BoolToObjectConverter x:Key="BoolToOpacityConverter"
-                                          FalseValue="0.5"
-                                          TrueValue="1" />
+        <converters:BoolToObjectConverter
+            x:Key="BoolToOpacityConverter"
+            FalseValue="0.5"
+            TrueValue="1" />
         <converters:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter" />
     </Page.Resources>
     <ScrollViewer CornerRadius="8,0,0,0">
@@ -78,295 +80,59 @@
                 HorizontalScrollMode="Enabled"
                 VerticalScrollBarVisibility="Hidden"
                 VerticalScrollMode="Disabled">
-                <StackPanel
-                    VerticalAlignment="Top"
-                    Orientation="Horizontal"
-                    Spacing="15">
-                    <StackPanel.Resources>
-                        <Style TargetType="Button">
-                            <Setter Property="Background" Value="{ThemeResource SystemControlAcrylicElementBrush}" />
-                            <Setter Property="BackgroundSizing" Value="InnerBorderEdge" />
-                            <Setter Property="Foreground" Value="{ThemeResource ButtonForeground}" />
-                            <Setter Property="BorderBrush" Value="{ThemeResource ButtonBorderBrush}" />
-                            <Setter Property="BorderThickness" Value="{ThemeResource ButtonBorderThemeThickness}" />
-                            <Setter Property="Padding" Value="{StaticResource ButtonPadding}" />
-                            <Setter Property="HorizontalAlignment" Value="Left" />
-                            <Setter Property="VerticalAlignment" Value="Center" />
-                            <Setter Property="FontFamily" Value="{ThemeResource ContentControlThemeFontFamily}" />
-                            <Setter Property="FontWeight" Value="Normal" />
-                            <Setter Property="FontSize" Value="{ThemeResource ControlContentThemeFontSize}" />
-                            <Setter Property="UseSystemFocusVisuals" Value="{StaticResource UseSystemFocusVisuals}" />
-                            <Setter Property="FocusVisualMargin" Value="-3" />
-                            <Setter Property="CornerRadius" Value="{ThemeResource ControlCornerRadius}" />
-                            <Setter Property="Template">
-                                <Setter.Value>
-                                    <ControlTemplate TargetType="Button">
-                                        <ContentPresenter
-                                            xmlns:local="using:Microsoft.UI.Xaml.Controls"
-                                            x:Name="ContentPresenter"
-                                            Padding="{TemplateBinding Padding}"
-                                            HorizontalContentAlignment="{TemplateBinding HorizontalContentAlignment}"
-                                            VerticalContentAlignment="{TemplateBinding VerticalContentAlignment}"
-                                            local:AnimatedIcon.State="Normal"
-                                            AutomationProperties.AccessibilityView="Raw"
-                                            Background="{TemplateBinding Background}"
-                                            BackgroundSizing="{TemplateBinding BackgroundSizing}"
-                                            BorderBrush="{TemplateBinding BorderBrush}"
-                                            BorderThickness="{TemplateBinding BorderThickness}"
-                                            Content="{TemplateBinding Content}"
-                                            ContentTemplate="{TemplateBinding ContentTemplate}"
-                                            ContentTransitions="{TemplateBinding ContentTransitions}"
-                                            CornerRadius="{TemplateBinding CornerRadius}"
-                                            Foreground="{TemplateBinding Foreground}">
-                                            <ContentPresenter.BackgroundTransition>
-                                                <BrushTransition Duration="0:0:0.083" />
-                                            </ContentPresenter.BackgroundTransition>
-
-                                            <VisualStateManager.VisualStateGroups>
-                                                <VisualStateGroup x:Name="CommonStates">
-                                                    <VisualState x:Name="Normal" />
-
-                                                    <VisualState x:Name="PointerOver">
-
-                                                        <Storyboard>
-                                                            <ObjectAnimationUsingKeyFrames Storyboard.TargetName="ContentPresenter" Storyboard.TargetProperty="Background">
-                                                                <DiscreteObjectKeyFrame KeyTime="0" Value="{ThemeResource SystemControlAcrylicElementMediumHighBrush}" />
-                                                            </ObjectAnimationUsingKeyFrames>
-                                                            <ObjectAnimationUsingKeyFrames Storyboard.TargetName="ContentPresenter" Storyboard.TargetProperty="BorderBrush">
-                                                                <DiscreteObjectKeyFrame KeyTime="0" Value="{ThemeResource ButtonBorderBrushPointerOver}" />
-                                                            </ObjectAnimationUsingKeyFrames>
-                                                            <ObjectAnimationUsingKeyFrames Storyboard.TargetName="ContentPresenter" Storyboard.TargetProperty="Foreground">
-                                                                <DiscreteObjectKeyFrame KeyTime="0" Value="{ThemeResource ButtonForegroundPointerOver}" />
-                                                            </ObjectAnimationUsingKeyFrames>
-                                                        </Storyboard>
-                                                    </VisualState>
-
-                                                    <VisualState x:Name="Pressed">
-
-                                                        <Storyboard>
-                                                            <ObjectAnimationUsingKeyFrames Storyboard.TargetName="ContentPresenter" Storyboard.TargetProperty="Background">
-                                                                <DiscreteObjectKeyFrame KeyTime="0" Value="{ThemeResource SystemControlAcrylicWindowMediumHighBrush}" />
-                                                            </ObjectAnimationUsingKeyFrames>
-                                                            <ObjectAnimationUsingKeyFrames Storyboard.TargetName="ContentPresenter" Storyboard.TargetProperty="BorderBrush">
-                                                                <DiscreteObjectKeyFrame KeyTime="0" Value="{ThemeResource ButtonBorderBrushPressed}" />
-                                                            </ObjectAnimationUsingKeyFrames>
-                                                            <ObjectAnimationUsingKeyFrames Storyboard.TargetName="ContentPresenter" Storyboard.TargetProperty="Foreground">
-                                                                <DiscreteObjectKeyFrame KeyTime="0" Value="{ThemeResource ButtonForegroundPressed}" />
-                                                            </ObjectAnimationUsingKeyFrames>
-                                                        </Storyboard>
-                                                    </VisualState>
-
-                                                    <VisualState x:Name="Disabled">
-
-                                                        <Storyboard>
-                                                            <ObjectAnimationUsingKeyFrames Storyboard.TargetName="ContentPresenter" Storyboard.TargetProperty="Background">
-                                                                <DiscreteObjectKeyFrame KeyTime="0" Value="{ThemeResource SolidBackgroundFillColorBase}" />
-                                                            </ObjectAnimationUsingKeyFrames>
-                                                            <ObjectAnimationUsingKeyFrames Storyboard.TargetName="ContentPresenter" Storyboard.TargetProperty="BorderBrush">
-                                                                <DiscreteObjectKeyFrame KeyTime="0" Value="{ThemeResource ButtonBorderBrushDisabled}" />
-                                                            </ObjectAnimationUsingKeyFrames>
-                                                            <ObjectAnimationUsingKeyFrames Storyboard.TargetName="ContentPresenter" Storyboard.TargetProperty="Foreground">
-                                                                <DiscreteObjectKeyFrame KeyTime="0" Value="{ThemeResource ButtonForegroundDisabled}" />
-                                                            </ObjectAnimationUsingKeyFrames>
-                                                        </Storyboard>
-                                                    </VisualState>
-
-                                                </VisualStateGroup>
-
-                                            </VisualStateManager.VisualStateGroups>
-                                        </ContentPresenter>
-
-                                    </ControlTemplate>
-                                </Setter.Value>
-                            </Setter>
-                        </Style>
-                    </StackPanel.Resources>
-                    <Button
-                        Width="225"
-                        Height="225"
-                        HorizontalContentAlignment="Stretch"
-                        CornerRadius="8">
-                        <StackPanel
-                            Margin="10"
-                            HorizontalAlignment="Stretch"
-                            VerticalAlignment="Top">
-                            <Image
-                                Width="75"
-                                Height="75"
-                                HorizontalAlignment="Left"
-                                Source="ms-appx:///AppRT/Exported/imageres_149.ico" />
-                            <TextBlock
-                                Margin="0,15,0,0"
-                                FontSize="20"
-                                Text="Get Started" />
-                            <TextBlock
-                                Margin="0,5,0,0"
-                                FontSize="11"
-                                Opacity="0.7"
-                                Text="See a short guide on how to install and use Rebound 11.&#x0a;"
-                                TextWrapping="WrapWholeWords" />
-                            <FontIcon
-                                Margin="0,10,0,0"
-                                HorizontalAlignment="Right"
-                                FontSize="15"
-                                Glyph="" />
-                        </StackPanel>
-                        <interactivity:Interaction.Behaviors>
-                            <interactivity:EventTriggerBehavior EventName="Click">
-                                <behaviors:NavigateToUriAction NavigateUri="https://www.youtube.com/watch?v=tJ8AnfZP4EU" />
-                            </interactivity:EventTriggerBehavior>
-                        </interactivity:Interaction.Behaviors>
-                    </Button>
-                    <Button
-                        Width="225"
-                        Height="225"
-                        HorizontalContentAlignment="Stretch"
-                        CornerRadius="8">
-                        <StackPanel
-                            Margin="10"
-                            HorizontalAlignment="Stretch"
-                            VerticalAlignment="Top">
-                            <Image
-                                Width="75"
-                                Height="75"
-                                HorizontalAlignment="Left"
-                                Source="/Assets/AppIcons/logo-winui.png" />
-                            <TextBlock
-                                Margin="0,15,0,0"
-                                FontSize="20"
-                                Text="WinUI 3 apps" />
-                            <TextBlock
-                                Margin="0,5,0,0"
-                                FontSize="11"
-                                Opacity="0.7"
-                                Text="Rebound 11 uses WinUI 3 apps instead of .msstyles files to make Windows 11 truly consistent."
-                                TextWrapping="WrapWholeWords" />
-                            <FontIcon
-                                Margin="0,10,0,0"
-                                HorizontalAlignment="Right"
-                                FontSize="15"
-                                Glyph=""
-                                Opacity="0" />
-                        </StackPanel>
-                    </Button>
-                    <Button
-                        Width="225"
-                        Height="225"
-                        HorizontalContentAlignment="Stretch"
-                        CornerRadius="8">
-                        <StackPanel
-                            Margin="10"
-                            HorizontalAlignment="Stretch"
-                            VerticalAlignment="Top">
-                            <FontIcon
-                                Width="75"
-                                Height="75"
-                                HorizontalAlignment="Left"
-                                FontSize="60"
-                                Foreground="{ThemeResource AccentFillColorDefaultBrush}"
-                                Glyph="" />
-                            <TextBlock
-                                Margin="0,15,0,0"
-                                FontSize="20"
-                                Text="Windows updates" />
-                            <TextBlock
-                                Margin="0,5,0,0"
-                                FontSize="11"
-                                Opacity="0.7"
-                                Text="Rebound 11 does not block Windows updates.&#x0a;"
-                                TextWrapping="WrapWholeWords" />
-                            <FontIcon
-                                Margin="0,10,0,0"
-                                HorizontalAlignment="Right"
-                                FontSize="15"
-                                Glyph=""
-                                Opacity="0" />
-                        </StackPanel>
-                    </Button>
-                    <Button
-                        Width="225"
-                        Height="225"
-                        HorizontalContentAlignment="Stretch"
-                        CornerRadius="8">
-                        <StackPanel
-                            Margin="10"
-                            HorizontalAlignment="Stretch"
-                            VerticalAlignment="Top">
-                            <Grid>
-                                <FontIcon
-                                    Width="75"
-                                    Height="75"
-                                    HorizontalAlignment="Left"
-                                    FontSize="60"
-                                    Foreground="{ThemeResource AccentFillColorDefaultBrush}"
-                                    Glyph="" />
-                                <TextBlock
-                                    Margin="0,0,105,0"
-                                    HorizontalAlignment="Right"
-                                    FontSize="25"
-                                    Text="✨" />
-                                <TextBlock
-                                    HorizontalAlignment="Left"
-                                    VerticalAlignment="Bottom"
-                                    FontSize="25"
-                                    Text="✨" />
+                <ItemsRepeater ItemsSource="{x:Bind LinkCards}">
+                    <ItemsRepeater.Layout>
+                        <StackLayout Orientation="Horizontal" Spacing="16" />
+                    </ItemsRepeater.Layout>
+                    <ItemsRepeater.ItemTemplate>
+                        <DataTemplate x:DataType="local:LinkCard">
+                            <Grid Background="{ThemeResource AcrylicInAppFillColorBaseBrush}" CornerRadius="6">
+                                <Button
+                                    Background="Transparent"
+                                    Width="240"
+                                    Height="220"
+                                    HorizontalContentAlignment="Stretch"
+                                    VerticalContentAlignment="Stretch"
+                                    Click="OnCardClick"
+                                    CornerRadius="6">
+                                    <Grid>
+                                        <StackPanel
+                                            Margin="8,16"
+                                            HorizontalAlignment="Stretch"
+                                            VerticalAlignment="Top">
+                                            <Grid
+                                                Width="72"
+                                                Height="72"
+                                                HorizontalAlignment="Left"
+                                                VerticalAlignment="Top">
+                                                <Image
+                                                    HorizontalAlignment="Stretch"
+                                                    VerticalAlignment="Stretch"
+                                                    Source="{x:Bind IconPath}" />
+                                            </Grid>
+                                            <TextBlock
+                                                Margin="0,16,0,0"
+                                                FontSize="20"
+                                                Text="{x:Bind Title}" />
+                                            <TextBlock
+                                                Margin="0,5,0,0"
+                                                FontSize="11"
+                                                Opacity="0.7"
+                                                Text="{x:Bind Description}"
+                                                TextWrapping="WrapWholeWords" />
+                                        </StackPanel>
+                                        <FontIcon
+                                            Margin="8,12"
+                                            HorizontalAlignment="Right"
+                                            VerticalAlignment="Bottom"
+                                            FontSize="15"
+                                            Glyph="" />
+                                    </Grid>
+                                </Button>
                             </Grid>
-                            <TextBlock
-                                Margin="0,15,0,0"
-                                FontSize="20"
-                                Text="Rebound 11 updates" />
-                            <TextBlock
-                                Margin="0,5,0,0"
-                                FontSize="11"
-                                Opacity="0.7"
-                                Text="All Rebound 11 updates are done through the Rebound Hub.&#x0a;"
-                                TextWrapping="WrapWholeWords" />
-                            <FontIcon
-                                Margin="0,10,0,0"
-                                HorizontalAlignment="Right"
-                                FontSize="15"
-                                Glyph=""
-                                Opacity="0" />
-                        </StackPanel>
-                    </Button>
-                    <Button
-                        Width="225"
-                        Height="225"
-                        HorizontalContentAlignment="Stretch"
-                        CornerRadius="8">
-                        <StackPanel
-                            Margin="10"
-                            HorizontalAlignment="Stretch"
-                            VerticalAlignment="Top">
-                            <BitmapIcon
-                                Width="75"
-                                Height="75"
-                                HorizontalAlignment="Left"
-                                Foreground="{ThemeResource AccentFillColorDefaultBrush}"
-                                UriSource="/Assets/AppIcons/GitHub_Invertocat_Logo.svg.png" />
-                            <TextBlock
-                                Margin="0,15,0,0"
-                                FontSize="20"
-                                Text="GitHub" />
-                            <TextBlock
-                                Margin="0,5,0,0"
-                                FontSize="11"
-                                Opacity="0.7"
-                                Text="See the project details on GitHub.&#x0a;&#x0a; "
-                                TextWrapping="WrapWholeWords" />
-                            <FontIcon
-                                Margin="0,10,0,0"
-                                HorizontalAlignment="Right"
-                                FontSize="15"
-                                Glyph="" />
-                        </StackPanel>
-                        <interactivity:Interaction.Behaviors>
-                            <interactivity:EventTriggerBehavior EventName="Click">
-                                <behaviors:NavigateToUriAction NavigateUri="https://github.com/IviriusCommunity/Rebound" />
-                            </interactivity:EventTriggerBehavior>
-                        </interactivity:Interaction.Behaviors>
-                    </Button>
-                </StackPanel>
+                        </DataTemplate>
+                    </ItemsRepeater.ItemTemplate>
+                </ItemsRepeater>
             </ScrollViewer>
 
             <Grid
@@ -378,12 +144,12 @@
                 BorderThickness="1"
                 CornerRadius="6">
                 <CommandBar DefaultLabelPosition="Right">
-                    <AppBarButton Label="Templates" IsEnabled="{x:Bind ReboundViewModel.IsReboundEnabled, Mode=OneWay}">
+                    <AppBarButton IsEnabled="{x:Bind ReboundViewModel.IsReboundEnabled, Mode=OneWay}" Label="Templates">
                         <AppBarButton.Icon>
                             <FontIcon FontSize="16" Glyph="&#xF158;" />
                         </AppBarButton.Icon>
                     </AppBarButton>
-                    <AppBarButton Label="Update or Repair all" IsEnabled="{x:Bind ReboundViewModel.IsReboundEnabled, Mode=OneWay}">
+                    <AppBarButton IsEnabled="{x:Bind ReboundViewModel.IsReboundEnabled, Mode=OneWay}" Label="Update or Repair all">
                         <AppBarButton.Icon>
                             <FontIcon FontSize="16" Glyph="&#xE777;" />
                         </AppBarButton.Icon>
@@ -393,275 +159,125 @@
                     Margin="8,0"
                     Orientation="Horizontal"
                     Spacing="4">
-                    <Button Content="Enable Rebound" Command="{x:Bind ReboundViewModel.EnableReboundCommand}" Style="{ThemeResource AccentButtonStyle}" Visibility="{x:Bind ReboundViewModel.IsReboundEnabled, Mode=OneWay, Converter={StaticResource BoolToReverseVisibilityConverter}}" />
-                    <Button Content="Disable Rebound" Command="{x:Bind ReboundViewModel.DisableReboundCommand}" Visibility="{x:Bind ReboundViewModel.IsReboundEnabled, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}" />
+                    <Button
+                        Command="{x:Bind ReboundViewModel.EnableReboundCommand}"
+                        Content="Enable Rebound"
+                        Style="{ThemeResource AccentButtonStyle}"
+                        Visibility="{x:Bind ReboundViewModel.IsReboundEnabled, Mode=OneWay, Converter={StaticResource BoolToReverseVisibilityConverter}}" />
+                    <Button
+                        Command="{x:Bind ReboundViewModel.DisableReboundCommand}"
+                        Content="Disable Rebound"
+                        Visibility="{x:Bind ReboundViewModel.IsReboundEnabled, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}" />
                 </StackPanel>
             </Grid>
 
-            <controls:StaggeredPanel
-                Opacity="{x:Bind ReboundViewModel.IsReboundEnabled, Mode=OneWay, Converter={StaticResource BoolToOpacityConverter}}"
+            <ItemsRepeater
                 Grid.Row="4"
                 Margin="48,12"
                 HorizontalAlignment="Left"
-                ColumnSpacing="8"
-                DesiredColumnWidth="400"
-                RowSpacing="8">
-                <Grid
-                    Width="400"
-                    Padding="12"
-                    HorizontalAlignment="Left"
-                    Background="{ThemeResource CardBackgroundFillColorDefault}"
-                    BorderBrush="{ThemeResource ControlElevationBorderBrush}"
-                    BorderThickness="1"
-                    CornerRadius="4">
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="Auto" />
-                        <RowDefinition Height="8" />
-                        <RowDefinition Height="Auto" />
-                        <RowDefinition Height="8" />
-                        <RowDefinition Height="Auto" />
-                        <RowDefinition Height="Auto" />
-                    </Grid.RowDefinitions>
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="Auto" />
-                        <ColumnDefinition Width="16" />
-                        <ColumnDefinition Width="*" />
-                        <ColumnDefinition Width="16" />
-                        <ColumnDefinition Width="Auto" />
-                    </Grid.ColumnDefinitions>
-                    <Border
-                        Grid.RowSpan="3"
-                        Padding="4"
-                        VerticalAlignment="Center"
-                        Background="{ThemeResource ControlOnImageFillColorDefaultBrush}"
-                        BorderBrush="{ThemeResource AccentFillColorDefaultBrush}"
-                        BorderThickness="1"
-                        CornerRadius="4">
-                        <Image
-                            Width="64"
-                            Height="64"
-                            Source="/Assets/AppIcons/Rebound.ico" />
-                    </Border>
-                    <TextBlock
-                        Grid.Column="2"
-                        FontSize="18"
-                        FontWeight="SemiBold"
-                        Text="About Windows"
-                        TextWrapping="WrapWholeWords" />
-                    <StackPanel
-                        Grid.Column="4"
-                        Margin="0,-4,0,0"
-                        Orientation="Horizontal"
-                        Spacing="8">
-                        <ToggleSwitch
-                            Margin="0,-2,-108,-2"
-                            IsEnabled="{x:Bind ReboundViewModel.IsReboundEnabled, Mode=OneWay}"
-                            IsOn="{x:Bind ReboundViewModel.WinverInstructions.IsInstalled, Mode=TwoWay}"
-                            OffContent=""
-                            OnContent="" />
-                    </StackPanel>
-                    <TextBlock
-                        Grid.Row="2"
-                        Grid.Column="2"
-                        Grid.ColumnSpan="3"
-                        Margin="0,-44,0,0"
-                        Text="The About Windows applet, also known as winver."
-                        TextWrapping="WrapWholeWords" />
-                    <InfoBar
-                        Title="This will do the following:"
-                        Grid.Row="4"
-                        Grid.ColumnSpan="5"
-                        IsClosable="False"
-                        IsOpen="True"
-                        Message="- Redirect app launch&#x0a;- Install Rebound About" />
-                    <InfoBar
-                        Title="This mod is corrupted and needs to be repaired."
-                        Grid.Row="5"
-                        Grid.ColumnSpan="5"
-                        Margin="0,8,0,0"
-                        IsClosable="False"
-                        IsOpen="True"
-                        Severity="Error"
-                        Visibility="{x:Bind ReboundViewModel.WinverInstructions.IsIntact, Mode=OneWay, Converter={StaticResource BoolToReverseVisibilityConverter}}">
-                        <InfoBar.ActionButton>
-                            <Button
-                                Command="{x:Bind ReboundViewModel.WinverInstructions.RepairCommand}"
-                                Content="Repair"
-                                IsEnabled="{x:Bind ReboundViewModel.IsReboundEnabled, Mode=OneWay}" />
-                        </InfoBar.ActionButton>
-                    </InfoBar>
-                </Grid>
-                <Grid
-                    Width="400"
-                    Padding="12"
-                    HorizontalAlignment="Left"
-                    Background="{ThemeResource CardBackgroundFillColorDefault}"
-                    BorderBrush="{ThemeResource ControlElevationBorderBrush}"
-                    BorderThickness="1"
-                    CornerRadius="4">
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="Auto" />
-                        <RowDefinition Height="8" />
-                        <RowDefinition Height="Auto" />
-                        <RowDefinition Height="8" />
-                        <RowDefinition Height="Auto" />
-                        <RowDefinition Height="Auto" />
-                    </Grid.RowDefinitions>
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="Auto" />
-                        <ColumnDefinition Width="16" />
-                        <ColumnDefinition Width="*" />
-                        <ColumnDefinition Width="16" />
-                        <ColumnDefinition Width="Auto" />
-                    </Grid.ColumnDefinitions>
-                    <Border
-                        Grid.RowSpan="3"
-                        Padding="4"
-                        VerticalAlignment="Center"
-                        Background="{ThemeResource ControlOnImageFillColorDefaultBrush}"
-                        BorderBrush="{ThemeResource AccentFillColorDefaultBrush}"
-                        BorderThickness="1"
-                        CornerRadius="4">
-                        <Image
-                            Width="64"
-                            Height="64"
-                            Source="/Assets/AppIcons/rosk_130.ico" />
-                    </Border>
-                    <TextBlock
-                        Grid.Column="2"
-                        FontSize="18"
-                        FontWeight="SemiBold"
-                        Text="On-screen Keyboard"
-                        TextWrapping="WrapWholeWords" />
-                    <StackPanel
-                        Grid.Column="4"
-                        Margin="0,-4,0,0"
-                        Orientation="Horizontal"
-                        Spacing="8">
-                        <ToggleSwitch
-                            Margin="0,-2,-108,-2"
-                            IsEnabled="{x:Bind ReboundViewModel.IsReboundEnabled, Mode=OneWay}"
-                            IsOn="{x:Bind ReboundViewModel.OnScreenKeyboardInstructions.IsInstalled, Mode=TwoWay}"
-                            OffContent=""
-                            OnContent="" />
-                    </StackPanel>
-                    <TextBlock
-                        Grid.Row="2"
-                        Grid.Column="2"
-                        Grid.ColumnSpan="3"
-                        Margin="0,-44,0,0"
-                        Text="The classic On-screen Keyboard."
-                        TextWrapping="WrapWholeWords" />
-                    <InfoBar
-                        Title="This will do the following:"
-                        Grid.Row="4"
-                        Grid.ColumnSpan="5"
-                        IsClosable="False"
-                        IsOpen="True"
-                        Message="Redirect app launch" />
-                    <InfoBar
-                        Title="This mod is corrupted and needs to be repaired."
-                        Grid.Row="5"
-                        Grid.ColumnSpan="5"
-                        Margin="0,8,0,0"
-                        IsClosable="False"
-                        IsOpen="True"
-                        Severity="Error"
-                        Visibility="{x:Bind ReboundViewModel.OnScreenKeyboardInstructions.IsIntact, Mode=OneWay, Converter={StaticResource BoolToReverseVisibilityConverter}}">
-                        <InfoBar.ActionButton>
-                            <Button
-                                Command="{x:Bind ReboundViewModel.OnScreenKeyboardInstructions.RepairCommand}"
-                                Content="Repair"
-                                IsEnabled="{x:Bind ReboundViewModel.IsReboundEnabled, Mode=OneWay}" />
-                        </InfoBar.ActionButton>
-                    </InfoBar>
-                </Grid>
-                <Grid
-                    Width="400"
-                    Padding="12"
-                    HorizontalAlignment="Left"
-                    Background="{ThemeResource CardBackgroundFillColorDefault}"
-                    BorderBrush="{ThemeResource ControlElevationBorderBrush}"
-                    BorderThickness="1"
-                    CornerRadius="4">
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="Auto" />
-                        <RowDefinition Height="8" />
-                        <RowDefinition Height="Auto" />
-                        <RowDefinition Height="8" />
-                        <RowDefinition Height="Auto" />
-                        <RowDefinition Height="Auto" />
-                    </Grid.RowDefinitions>
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="Auto" />
-                        <ColumnDefinition Width="16" />
-                        <ColumnDefinition Width="*" />
-                        <ColumnDefinition Width="16" />
-                        <ColumnDefinition Width="Auto" />
-                    </Grid.ColumnDefinitions>
-                    <Border
-                        Grid.RowSpan="3"
-                        Padding="4"
-                        VerticalAlignment="Center"
-                        Background="{ThemeResource ControlOnImageFillColorDefaultBrush}"
-                        BorderBrush="{ThemeResource AccentFillColorDefaultBrush}"
-                        BorderThickness="1"
-                        CornerRadius="4">
-                        <Image
-                            Width="64"
-                            Height="64"
-                            Source="/Assets/AppIcons/Rebound.ico" />
-                    </Border>
-                    <TextBlock
-                        Grid.Column="2"
-                        FontSize="18"
-                        FontWeight="SemiBold"
-                        Text="Shell"
-                        TextWrapping="WrapWholeWords" />
-                    <StackPanel
-                        Grid.Column="4"
-                        Margin="0,-4,0,0"
-                        Orientation="Horizontal"
-                        Spacing="8">
-                        <ToggleSwitch
-                            Margin="0,-2,-108,-2"
-                            IsEnabled="{x:Bind ReboundViewModel.IsReboundEnabled, Mode=OneWay}"
-                            IsOn="{x:Bind ReboundViewModel.ShellInstructions.IsInstalled, Mode=TwoWay}"
-                            OffContent=""
-                            OnContent="" />
-                    </StackPanel>
-                    <TextBlock
-                        Grid.Row="2"
-                        Grid.Column="2"
-                        Grid.ColumnSpan="3"
-                        Margin="0,-44,0,0"
-                        Text="Desktop, run box, etc."
-                        TextWrapping="WrapWholeWords" />
-                    <InfoBar
-                        Title="This will do the following:"
-                        Grid.Row="4"
-                        Grid.ColumnSpan="5"
-                        IsClosable="False"
-                        IsOpen="True"
-                        Message="- Register startup task&#x0a;- Install Rebound Shell (Experience Host)" />
-                    <InfoBar
-                        Title="This mod is corrupted and needs to be repaired."
-                        Grid.Row="5"
-                        Grid.ColumnSpan="5"
-                        Margin="0,8,0,0"
-                        IsClosable="False"
-                        IsOpen="True"
-                        Severity="Error"
-                        Visibility="{x:Bind ReboundViewModel.ShellInstructions.IsIntact, Mode=OneWay, Converter={StaticResource BoolToReverseVisibilityConverter}}">
-                        <InfoBar.ActionButton>
-                            <Button
-                                Command="{x:Bind ReboundViewModel.ShellInstructions.RepairCommand}"
-                                Content="Repair"
-                                IsEnabled="{x:Bind ReboundViewModel.IsReboundEnabled, Mode=OneWay}" />
-                        </InfoBar.ActionButton>
-                    </InfoBar>
-                </Grid>
-            </controls:StaggeredPanel>
+                ItemsSource="{x:Bind ReboundViewModel.Instructions, Mode=OneWay}">
+                <ItemsRepeater.Layout>
+                    <controls:StaggeredLayout
+                        ColumnSpacing="8"
+                        DesiredColumnWidth="400"
+                        RowSpacing="8" />
+                </ItemsRepeater.Layout>
+                <ItemsRepeater.ItemTemplate>
+                    <DataTemplate x:DataType="modding:UserInterfaceReboundAppInstructions">
+                        <Grid
+                            Width="400"
+                            Padding="12"
+                            HorizontalAlignment="Left"
+                            Background="{ThemeResource CardBackgroundFillColorDefault}"
+                            BorderBrush="{ThemeResource ControlElevationBorderBrush}"
+                            BorderThickness="1"
+                            CornerRadius="4">
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="8" />
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="8" />
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="Auto" />
+                            </Grid.RowDefinitions>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto" />
+                                <ColumnDefinition Width="16" />
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="16" />
+                                <ColumnDefinition Width="Auto" />
+                            </Grid.ColumnDefinitions>
+                            <Grid
+                                Grid.RowSpan="3"
+                                HorizontalAlignment="Left"
+                                VerticalAlignment="Top">
+                                <Image
+                                    Width="64"
+                                    Height="64"
+                                    Source="{x:Bind Icon}"
+                                    Stretch="Fill" />
+                                <Border Background="{ThemeResource AcrylicBackgroundFillColorBaseBrush}" CornerRadius="4">
+                                    <Image
+                                        Width="48"
+                                        Height="48"
+                                        Margin="8"
+                                        Source="{x:Bind Icon}" />
+                                </Border>
+                            </Grid>
+                            <TextBlock
+                                Grid.Column="2"
+                                FontSize="18"
+                                FontWeight="SemiBold"
+                                Text="{x:Bind Name, Mode=OneWay}"
+                                TextWrapping="WrapWholeWords" />
+                            <StackPanel
+                                Grid.Column="4"
+                                Margin="0,-4,0,0"
+                                Orientation="Horizontal"
+                                Spacing="8">
+                                <ToggleSwitch
+                                    Margin="0,-2,-108,-2"
+                                    IsEnabled="{Binding ReboundViewModel.IsReboundEnabled, Mode=OneWay}"
+                                    IsOn="{x:Bind IsInstalled, Mode=TwoWay}"
+                                    OffContent=""
+                                    OnContent="" />
+                            </StackPanel>
+                            <TextBlock
+                                Grid.Row="2"
+                                Grid.Column="2"
+                                Grid.ColumnSpan="3"
+                                Margin="0,-36,0,0"
+                                FontSize="12"
+                                Opacity="0.5"
+                                Text="{x:Bind Description, Mode=OneWay}"
+                                TextWrapping="WrapWholeWords" />
+                            <InfoBar
+                                Title="This will do the following:"
+                                Grid.Row="4"
+                                Grid.ColumnSpan="5"
+                                IsClosable="False"
+                                IsOpen="True"
+                                Message="{x:Bind InstallationSteps, Mode=OneWay}" />
+                            <InfoBar
+                                Title="This mod is corrupted and needs to be repaired."
+                                Grid.Row="5"
+                                Grid.ColumnSpan="5"
+                                Margin="0,8,0,0"
+                                IsClosable="False"
+                                IsOpen="True"
+                                Severity="Error"
+                                Visibility="{x:Bind IsIntact, Mode=OneWay, Converter={StaticResource BoolToReverseVisibilityConverter}}">
+                                <InfoBar.ActionButton>
+                                    <Button
+                                        Command="{x:Bind RepairCommand}"
+                                        Content="Repair"
+                                        IsEnabled="{Binding ReboundViewModel.IsReboundEnabled, Mode=OneWay}" />
+                                </InfoBar.ActionButton>
+                            </InfoBar>
+                        </Grid>
+                    </DataTemplate>
+                </ItemsRepeater.ItemTemplate>
+            </ItemsRepeater>
         </Grid>
     </ScrollViewer>
 

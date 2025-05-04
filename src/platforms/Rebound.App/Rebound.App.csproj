@@ -4,6 +4,8 @@
         <RootNamespace>Rebound</RootNamespace>
         <EnableMsixTooling>true</EnableMsixTooling>
         <Version>0.0.3</Version>
+
+		<PublishTrimmed>false</PublishTrimmed>
 		
 		<!-- Application Manifest -->
 		<ApplicationManifest>app.manifest</ApplicationManifest>
@@ -19,6 +21,7 @@
         <Content Include="Fonts\FluentIcons.ttf">
           <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
         </Content>
+        <Content Include="Modding\Launchers\rcleanmgr.exe" />
         <Content Include="Modding\Launchers\rosk.exe" />
         <Content Include="Modding\Launchers\rshell.exe" />
         <Content Include="Modding\Launchers\rwinver.exe" />
@@ -56,6 +59,7 @@
       <None Remove="Assets\Backgrounds\WallpaperDark.png" />
       <None Remove="Assets\Backgrounds\WallpaperLight.png" />
       <None Remove="Launcher_OSK.obj" />
+      <None Remove="Modding\Launchers\rcleanmgr.exe" />
       <None Remove="Modding\Launchers\rosk.exe" />
       <None Remove="Modding\Launchers\rshell.exe" />
       <None Remove="Modding\Launchers\rwinver.exe" />

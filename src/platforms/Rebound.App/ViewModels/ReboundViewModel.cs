@@ -1,17 +1,21 @@
-﻿using CommunityToolkit.Mvvm.ComponentModel;
+﻿using System.Collections.ObjectModel;
+using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Rebound.Helpers.Modding;
+using Rebound.Modding;
 using Rebound.Modding.Instructions;
 
 namespace Rebound.ViewModels;
 
 public partial class ReboundViewModel : ObservableObject
 {
-    public WinverInstructions WinverInstructions { get; set; } = new();
-
-    public OnScreenKeyboardInstructions OnScreenKeyboardInstructions { get; set; } = new();
-
-    public ShellInstructions ShellInstructions { get; set; } = new();
+    public ObservableCollection<UserInterfaceReboundAppInstructions> Instructions { get; } =
+    [
+        new WinverInstructions(),
+        new OnScreenKeyboardInstructions(),
+        new DiskCleanupInstructions(),
+        new ShellInstructions()
+    ];
 
     [ObservableProperty]
     public partial bool IsReboundEnabled { get; set; }
@@ -30,9 +34,10 @@ public partial class ReboundViewModel : ObservableObject
         }
         else
         {
-            await WinverInstructions.Uninstall();
-            await OnScreenKeyboardInstructions.Uninstall();
-            await ShellInstructions.Uninstall();
+            foreach (var instruction in Instructions)
+            {
+                await instruction.Uninstall();
+            }
             ReboundWorkingEnvironment.RemoveFolder();
             ReboundWorkingEnvironment.RemoveTasksFolder();
         }
