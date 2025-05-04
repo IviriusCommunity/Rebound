@@ -52,6 +52,7 @@ public partial class Rebound11Page : Page
     public Rebound11Page()
     {
         InitializeComponent();
+        DataContext = ReboundViewModel;
     }
 
     private void OnCardClick(object sender, RoutedEventArgs e)

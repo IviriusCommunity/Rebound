@@ -12,6 +12,7 @@
     xmlns:local="using:Rebound.Views"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:modding="using:Rebound.Modding"
+    x:Name="ReboundView"
     mc:Ignorable="d">
     <Page.Resources>
         <converters:BoolToObjectConverter
@@ -88,11 +89,11 @@
                         <DataTemplate x:DataType="local:LinkCard">
                             <Grid Background="{ThemeResource AcrylicInAppFillColorBaseBrush}" CornerRadius="6">
                                 <Button
-                                    Background="Transparent"
                                     Width="240"
                                     Height="220"
                                     HorizontalContentAlignment="Stretch"
                                     VerticalContentAlignment="Stretch"
+                                    Background="Transparent"
                                     Click="OnCardClick"
                                     CornerRadius="6">
                                     <Grid>
@@ -171,113 +172,112 @@
                 </StackPanel>
             </Grid>
 
-            <ItemsRepeater
+            <ContentControl
                 Grid.Row="4"
                 Margin="48,12"
                 HorizontalAlignment="Left"
-                ItemsSource="{x:Bind ReboundViewModel.Instructions, Mode=OneWay}">
-                <ItemsRepeater.Layout>
-                    <controls:StaggeredLayout
-                        ColumnSpacing="8"
-                        DesiredColumnWidth="400"
-                        RowSpacing="8" />
-                </ItemsRepeater.Layout>
-                <ItemsRepeater.ItemTemplate>
-                    <DataTemplate x:DataType="modding:UserInterfaceReboundAppInstructions">
-                        <Grid
-                            Width="400"
-                            Padding="12"
-                            HorizontalAlignment="Left"
-                            Background="{ThemeResource CardBackgroundFillColorDefault}"
-                            BorderBrush="{ThemeResource ControlElevationBorderBrush}"
-                            BorderThickness="1"
-                            CornerRadius="4">
-                            <Grid.RowDefinitions>
-                                <RowDefinition Height="Auto" />
-                                <RowDefinition Height="8" />
-                                <RowDefinition Height="Auto" />
-                                <RowDefinition Height="8" />
-                                <RowDefinition Height="Auto" />
-                                <RowDefinition Height="Auto" />
-                            </Grid.RowDefinitions>
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="Auto" />
-                                <ColumnDefinition Width="16" />
-                                <ColumnDefinition Width="*" />
-                                <ColumnDefinition Width="16" />
-                                <ColumnDefinition Width="Auto" />
-                            </Grid.ColumnDefinitions>
+                IsEnabled="{x:Bind ReboundViewModel.IsReboundEnabled, Mode=OneWay}">
+                <ItemsRepeater ItemsSource="{x:Bind ReboundViewModel.Instructions, Mode=OneWay}">
+                    <ItemsRepeater.Layout>
+                        <controls:StaggeredLayout
+                            ColumnSpacing="8"
+                            DesiredColumnWidth="400"
+                            RowSpacing="8" />
+                    </ItemsRepeater.Layout>
+                    <ItemsRepeater.ItemTemplate>
+                        <DataTemplate x:DataType="modding:UserInterfaceReboundAppInstructions">
                             <Grid
-                                Grid.RowSpan="3"
+                                Width="400"
+                                Padding="12"
                                 HorizontalAlignment="Left"
-                                VerticalAlignment="Top">
-                                <Image
-                                    Width="64"
-                                    Height="64"
-                                    Source="{x:Bind Icon}"
-                                    Stretch="Fill" />
-                                <Border Background="{ThemeResource AcrylicBackgroundFillColorBaseBrush}" CornerRadius="4">
+                                Background="{ThemeResource CardBackgroundFillColorDefault}"
+                                BorderBrush="{ThemeResource ControlElevationBorderBrush}"
+                                BorderThickness="1"
+                                CornerRadius="4">
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto" />
+                                    <RowDefinition Height="8" />
+                                    <RowDefinition Height="Auto" />
+                                    <RowDefinition Height="8" />
+                                    <RowDefinition Height="Auto" />
+                                    <RowDefinition Height="Auto" />
+                                </Grid.RowDefinitions>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto" />
+                                    <ColumnDefinition Width="16" />
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="16" />
+                                    <ColumnDefinition Width="Auto" />
+                                </Grid.ColumnDefinitions>
+                                <Grid
+                                    Grid.RowSpan="3"
+                                    HorizontalAlignment="Left"
+                                    VerticalAlignment="Top">
                                     <Image
-                                        Width="48"
-                                        Height="48"
-                                        Margin="8"
-                                        Source="{x:Bind Icon}" />
-                                </Border>
+                                        Width="64"
+                                        Height="64"
+                                        Source="{x:Bind Icon}"
+                                        Stretch="Fill" />
+                                    <Border Background="{ThemeResource AcrylicBackgroundFillColorBaseBrush}" CornerRadius="4">
+                                        <Image
+                                            Width="48"
+                                            Height="48"
+                                            Margin="8"
+                                            Source="{x:Bind Icon}" />
+                                    </Border>
+                                </Grid>
+                                <TextBlock
+                                    Grid.Column="2"
+                                    FontSize="18"
+                                    FontWeight="SemiBold"
+                                    Text="{x:Bind Name, Mode=OneWay}"
+                                    TextWrapping="WrapWholeWords" />
+                                <StackPanel
+                                    Grid.Column="4"
+                                    Margin="0,-4,0,0"
+                                    Orientation="Horizontal"
+                                    Spacing="8">
+                                    <ToggleSwitch
+                                        Margin="0,-2,-108,-2"
+                                        IsOn="{x:Bind IsInstalled, Mode=TwoWay}"
+                                        OffContent=""
+                                        OnContent="" />
+                                </StackPanel>
+                                <TextBlock
+                                    Grid.Row="2"
+                                    Grid.Column="2"
+                                    Grid.ColumnSpan="3"
+                                    Margin="0,-36,0,0"
+                                    FontSize="12"
+                                    Opacity="0.5"
+                                    Text="{x:Bind Description, Mode=OneWay}"
+                                    TextWrapping="WrapWholeWords" />
+                                <InfoBar
+                                    Title="This will do the following:"
+                                    Grid.Row="4"
+                                    Grid.ColumnSpan="5"
+                                    IsClosable="False"
+                                    IsOpen="True"
+                                    Message="{x:Bind InstallationSteps, Mode=OneWay}" />
+                                <InfoBar
+                                    Title="This mod is corrupted and needs to be repaired."
+                                    Grid.Row="5"
+                                    Grid.ColumnSpan="5"
+                                    Margin="0,8,0,0"
+                                    IsClosable="False"
+                                    IsOpen="True"
+                                    Severity="Error"
+                                    Visibility="{x:Bind IsIntact, Mode=OneWay, Converter={StaticResource BoolToReverseVisibilityConverter}}">
+                                    <InfoBar.ActionButton>
+                                        <Button Command="{x:Bind RepairCommand}" Content="Repair" />
+                                    </InfoBar.ActionButton>
+                                </InfoBar>
                             </Grid>
-                            <TextBlock
-                                Grid.Column="2"
-                                FontSize="18"
-                                FontWeight="SemiBold"
-                                Text="{x:Bind Name, Mode=OneWay}"
-                                TextWrapping="WrapWholeWords" />
-                            <StackPanel
-                                Grid.Column="4"
-                                Margin="0,-4,0,0"
-                                Orientation="Horizontal"
-                                Spacing="8">
-                                <ToggleSwitch
-                                    Margin="0,-2,-108,-2"
-                                    IsEnabled="{Binding ReboundViewModel.IsReboundEnabled, Mode=OneWay}"
-                                    IsOn="{x:Bind IsInstalled, Mode=TwoWay}"
-                                    OffContent=""
-                                    OnContent="" />
-                            </StackPanel>
-                            <TextBlock
-                                Grid.Row="2"
-                                Grid.Column="2"
-                                Grid.ColumnSpan="3"
-                                Margin="0,-36,0,0"
-                                FontSize="12"
-                                Opacity="0.5"
-                                Text="{x:Bind Description, Mode=OneWay}"
-                                TextWrapping="WrapWholeWords" />
-                            <InfoBar
-                                Title="This will do the following:"
-                                Grid.Row="4"
-                                Grid.ColumnSpan="5"
-                                IsClosable="False"
-                                IsOpen="True"
-                                Message="{x:Bind InstallationSteps, Mode=OneWay}" />
-                            <InfoBar
-                                Title="This mod is corrupted and needs to be repaired."
-                                Grid.Row="5"
-                                Grid.ColumnSpan="5"
-                                Margin="0,8,0,0"
-                                IsClosable="False"
-                                IsOpen="True"
-                                Severity="Error"
-                                Visibility="{x:Bind IsIntact, Mode=OneWay, Converter={StaticResource BoolToReverseVisibilityConverter}}">
-                                <InfoBar.ActionButton>
-                                    <Button
-                                        Command="{x:Bind RepairCommand}"
-                                        Content="Repair"
-                                        IsEnabled="{Binding ReboundViewModel.IsReboundEnabled, Mode=OneWay}" />
-                                </InfoBar.ActionButton>
-                            </InfoBar>
-                        </Grid>
-                    </DataTemplate>
-                </ItemsRepeater.ItemTemplate>
-            </ItemsRepeater>
+                        </DataTemplate>
+                    </ItemsRepeater.ItemTemplate>
+                </ItemsRepeater>
+            </ContentControl>
+
         </Grid>
     </ScrollViewer>
 

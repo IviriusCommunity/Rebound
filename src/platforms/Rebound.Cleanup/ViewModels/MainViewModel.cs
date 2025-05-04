@@ -275,16 +275,23 @@ internal partial class MainViewModel : ObservableObject
 
         foreach (var item in CleanItems)
         {
-            // Check if the path matches and if the item is checked
-            if (item.ItemPath.Equals($@"{systemRoot}Windows\SoftwareDistribution", StringComparison.OrdinalIgnoreCase) && item.IsChecked)
+            try
             {
-                StopWindowsUpdateService();
-                item.Delete();
-                StartWindowsUpdateService();
+                // Check if the path matches and if the item is checked
+                if (item.ItemPath.Equals($@"{systemRoot}Windows\SoftwareDistribution", StringComparison.OrdinalIgnoreCase) && item.IsChecked)
+                {
+                    StopWindowsUpdateService();
+                    item.Delete();
+                    StartWindowsUpdateService();
+                }
+                else
+                {
+                    item.Delete();
+                }
             }
-            else
+            catch
             {
-                item.Delete();
+
             }
         }
 
