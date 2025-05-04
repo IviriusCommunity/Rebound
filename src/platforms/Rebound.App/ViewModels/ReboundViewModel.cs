@@ -1,7 +1,7 @@
 ﻿using System.Collections.ObjectModel;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using Rebound.Helpers.Modding;
+using Rebound.Forge;
 using Rebound.Modding;
 using Rebound.Modding.Instructions;
 

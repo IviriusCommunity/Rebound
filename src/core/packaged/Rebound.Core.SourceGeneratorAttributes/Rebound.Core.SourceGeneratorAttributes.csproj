@@ -11,4 +11,6 @@
 		<PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="4.12.0" PrivateAssets="all" />
 		<PackageReference Include="Microsoft.CodeAnalysis.Common" Version="4.12.0" PrivateAssets="all" />
 	</ItemGroup>
+
+	<Import Project="..\..\shared\Rebound.Core.SourceGeneratorAttributes\Rebound.Core.SourceGeneratorAttributes.projitems" Label="Shared" />
 </Project>

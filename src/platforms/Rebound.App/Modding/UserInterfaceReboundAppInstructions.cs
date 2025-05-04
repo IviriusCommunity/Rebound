@@ -1,5 +1,5 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
-using Rebound.Helpers.Modding;
+using Rebound.Forge;
 
 namespace Rebound.Modding;
 

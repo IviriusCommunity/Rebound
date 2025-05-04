@@ -55,24 +55,28 @@
       <Platform Project="x64" />
     </Project>
   </Folder>
-  <Folder Name="/src/core/" Id="fb5d6fae-fad5-4679-aec2-b8fb3878993e">
-    <Project Path="src/core/Rebound.Core.Helpers/Rebound.Core.Helpers.csproj">
-      <Platform Solution="*|x64" Project="x64" />
-    </Project>
-    <Project Path="src/core/Rebound.Core.HelpersUnpackaged/Rebound.Core.HelpersUnpackaged.shproj" Id="804e23ca-c19e-416d-8998-64ca5efc4f35" />
-    <Project Path="src/core/Rebound.Core.SourceGenerator/Rebound.Core.SourceGenerator.csproj">
-      <Platform Solution="*|x64" Project="x64" />
-    </Project>
-    <Project Path="src/core/Rebound.Core.SourceGeneratorAttributes/Rebound.Core.SourceGeneratorAttributes.csproj" Id="395b0f3b-b45f-4076-9070-a06ff89c307c">
-      <Platform Project="x64" />
-    </Project>
-    <Project Path="src/core/Rebound.Delivery/Rebound.Delivery.shproj" Id="b6c8c1f3-644e-475f-84c6-214243620014" />
+  <Folder Name="/src/core/" Id="fb5d6fae-fad5-4679-aec2-b8fb3878993e" />
+  <Folder Name="/src/core/forge/" Id="473f543c-1a05-4310-bf4c-f1df3286f45b">
+    <Project Path="src/core/forge/Rebound.Forge/Rebound.Forge.shproj" Id="60e629d7-383d-4e80-baae-d1358fe3265b" />
   </Folder>
   <Folder Name="/src/core/packaged/" Id="4ec41458-d783-4ff2-b3a5-4baf78f04948">
     <Project Path="src/core/packaged/Rebound.Core.SourceGenerator/Rebound.Core.SourceGenerator.csproj" Id="9582510d-6853-4202-9ac2-3fce1a852ea2">
       <Platform Project="x64" />
     </Project>
     <Project Path="src/core/packaged/Rebound.Core.SourceGeneratorAttributes/Rebound.Core.SourceGeneratorAttributes.csproj" Id="10309709-89eb-48d0-9c29-ffd6ea800caa">
+      <Platform Project="x64" />
+    </Project>
+  </Folder>
+  <Folder Name="/src/core/shared/" Id="b45e0c30-0fe3-4881-b946-282baee5c13e">
+    <Project Path="src/core/shared/Rebound.Core.Helpers/Rebound.Core.Helpers.shproj" Id="5ef9adda-84fc-457d-815d-3331d2757d12" />
+    <Project Path="src/core/shared/Rebound.Core.SourceGenerator/Rebound.Core.SourceGenerator.shproj" Id="904676c0-e578-4a96-9f64-5b908b7d1182" />
+    <Project Path="src/core/shared/Rebound.Core.SourceGeneratorAttributes/Rebound.Core.SourceGeneratorAttributes.shproj" Id="a9c01609-e251-4a70-a6d4-d55a50acee63" />
+  </Folder>
+  <Folder Name="/src/core/unpackaged/" Id="57465d4c-1363-409c-b738-4df4ff26be94">
+    <Project Path="src/core/unpackaged/Rebound.Core.SourceGenerator/Rebound.Core.SourceGenerator.csproj" Id="d24ddf50-d913-4c6e-ba52-a84f21472c5f">
+      <Platform Project="x64" />
+    </Project>
+    <Project Path="src/core/unpackaged/Rebound.Core.SourceGeneratorAttributes/Rebound.Core.SourceGeneratorAttributes.csproj" Id="c29972d8-5efe-4a5b-913d-f291eadf2047">
       <Platform Project="x64" />
     </Project>
   </Folder>
@@ -108,14 +112,6 @@
       <Deploy />
     </Project>
     <Project Path="src/platforms/Rebound.Keyboard/Rebound.Keyboard.csproj" Id="823868ad-9d47-4552-ad05-5148036e71cf">
-      <Platform Solution="*|ARM64" Project="ARM64" />
-      <Platform Solution="*|x64" Project="x64" />
-      <Platform Solution="*|x86" Project="x86" />
-      <Deploy />
-    </Project>
-  </Folder>
-  <Folder Name="/tests/" Id="73e99a73-057a-449b-b2ca-03877cfd1e88">
-    <Project Path="tests/Rebound.InteractionTests/Rebound.InteractionTests.csproj">
       <Platform Solution="*|ARM64" Project="ARM64" />
       <Platform Solution="*|x64" Project="x64" />
       <Platform Solution="*|x86" Project="x86" />

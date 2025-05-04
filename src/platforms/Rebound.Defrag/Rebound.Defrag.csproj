@@ -38,10 +38,6 @@
 	</ItemGroup>
 
 	<!-- Helpers project -->
-	<ItemGroup>
-		<ProjectReference Include="..\..\core\Rebound.Core.Helpers\Rebound.Core.Helpers.csproj" />
-		<ProjectReference Include="..\..\core\Rebound.Core.SourceGenerator\Rebound.Core.SourceGenerator.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
-	</ItemGroup>
 
 	<!-- XAML Windows -->
 	<ItemGroup>

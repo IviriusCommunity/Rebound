@@ -6,7 +6,7 @@ using System.Diagnostics;
 using Microsoft.UI.Xaml;
 using Rebound.Generators;
 using Rebound.Helpers.AppEnvironment;
-using Rebound.Helpers.Modding;
+using Rebound.Forge;
 
 namespace Rebound.Cleanup;
 

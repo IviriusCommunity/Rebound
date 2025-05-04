@@ -6,7 +6,7 @@ using System.Diagnostics;
 using Microsoft.UI.Xaml;
 using Rebound.Generators;
 using Rebound.Helpers.AppEnvironment;
-using Rebound.Helpers.Modding;
+using Rebound.Forge;
 
 #pragma warning disable IDE0079 // Remove unnecessary suppression
 #pragma warning disable CA1515 // Consider making public types internal

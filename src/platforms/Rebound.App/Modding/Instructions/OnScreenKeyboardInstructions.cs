@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Collections.ObjectModel;
-using Rebound.Helpers.Modding;
+using Rebound.Forge;
 
 namespace Rebound.Modding.Instructions;
 

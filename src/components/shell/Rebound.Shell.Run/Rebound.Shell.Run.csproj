@@ -8,9 +8,6 @@
 	</ItemGroup>
 	
 	<ItemGroup>
-		<ProjectReference Include="..\..\..\core\Rebound.Core.Helpers\Rebound.Core.Helpers.csproj" />
-		<ProjectReference Include="..\..\..\core\Rebound.Core.SourceGenerator\Rebound.Core.SourceGenerator.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
-		<ProjectReference Include="..\..\..\core\Rebound.Core.SourceGeneratorAttributes\Rebound.Core.SourceGeneratorAttributes.csproj" />
 		<ProjectReference Include="..\Rebound.Shell.ExperiencePack\Rebound.Shell.ExperiencePack.csproj" />
 	</ItemGroup>
 	

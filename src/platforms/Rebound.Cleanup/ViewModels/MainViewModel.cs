@@ -61,12 +61,12 @@ internal partial class MainViewModel : ObservableObject
 
     partial void OnSelectedDriveIndexChanged(int oldValue, int newValue)
     {
-        Helpers.SettingsHelper.SetValue("SelectedDriveIndex", newValue);
+        SettingsHelper.SetValue("SelectedDriveIndex", "cleanmgr", newValue);
     }
 
     public MainViewModel()
     {
-        SelectedDriveIndex = Helpers.SettingsHelper.GetValue("SelectedDriveIndex", 0);
+        SelectedDriveIndex = SettingsHelper.GetValue("SelectedDriveIndex", "cleanmgr", 0);
     }
 
     [RelayCommand]

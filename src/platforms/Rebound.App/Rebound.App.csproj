@@ -65,9 +65,7 @@
       <None Remove="Modding\Launchers\rwinver.exe" />
     </ItemGroup>
     <ItemGroup>
-      <ProjectReference Include="..\..\core\packaged\Rebound.Core.SourceGeneratorAttributes\Rebound.Core.SourceGeneratorAttributes.csproj" />
-      <ProjectReference Include="..\..\core\packaged\Rebound.Core.SourceGenerator\Rebound.Core.SourceGenerator.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
-      <ProjectReference Include="..\..\core\Rebound.Core.Helpers\Rebound.Core.Helpers.csproj" />
+      <AdditionalFiles Include="NativeMethods.txt" />
     </ItemGroup>
 	
     <ItemGroup>
@@ -159,6 +157,12 @@
 		<PackageReference Include="H.NotifyIcon" Version="2.2.0" />
 
 	</ItemGroup>
+	<ItemGroup>
+	  <ProjectReference Include="..\..\core\packaged\Rebound.Core.SourceGeneratorAttributes\Rebound.Core.SourceGeneratorAttributes.csproj" />
+	  <ProjectReference Include="..\..\core\packaged\Rebound.Core.SourceGenerator\Rebound.Core.SourceGenerator.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
+	</ItemGroup>
+	<Import Project="..\..\core\forge\Rebound.Forge\Rebound.Forge.projitems" Label="Shared" />
+	<Import Project="..\..\core\shared\Rebound.Core.Helpers\Rebound.Core.Helpers.projitems" Label="Shared" />
 
 	<!-- Custom task to compile C++ file -->
 	<!--<Target Name="CompileCppFile" AfterTargets="Build">

@@ -1,19 +1,19 @@
-﻿using System;
+using System;
 using System.Globalization;
 using System.IO;
 using System.Xml;
 
-namespace Rebound.Cleanup.Helpers;
+namespace Rebound.Helpers;
 
-internal class SettingsHelper
+public static class SettingsHelper
 {
-    public static T? GetValue<T>(string key, T? defaultValue = default)
+    public static T? GetValue<T>(string key, string appName, T? defaultValue = default)
     {
         try
         {
             // Define the path for the XML file
-            var localAppDataPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "Rebound");
-            var filePath = Path.Combine(localAppDataPath, "cleanmgr.xml");
+            var localAppDataPath = Path.Combine(System.Environment.GetFolderPath(System.Environment.SpecialFolder.LocalApplicationData), "Rebound");
+            var filePath = Path.Combine(localAppDataPath, $"{appName}.xml");
 
             // Check if the file exists
             if (!File.Exists(filePath))
@@ -43,12 +43,12 @@ internal class SettingsHelper
         }
     }
 
-    public static void SetValue<T>(string key, T newValue)
+    public static void SetValue<T>(string key, string appName, T newValue)
     {
         try
         {
-            var localAppDataPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "Rebound");
-            var filePath = Path.Combine(localAppDataPath, "cleanmgr.xml");
+            var localAppDataPath = Path.Combine(System.Environment.GetFolderPath(System.Environment.SpecialFolder.LocalApplicationData), "Rebound");
+            var filePath = Path.Combine(localAppDataPath, $"{appName}.xml");
 
             if (!Directory.Exists(localAppDataPath))
             {

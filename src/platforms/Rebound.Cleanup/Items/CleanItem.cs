@@ -3,6 +3,7 @@ using System.Collections.ObjectModel;
 using System.IO;
 using System.Text;
 using CommunityToolkit.Mvvm.ComponentModel;
+using Rebound.Helpers;
 using Windows.Win32;
 
 namespace Rebound.Cleanup.Items;
@@ -48,7 +49,7 @@ internal partial class CleanItem : ObservableObject
 
     partial void OnIsCheckedChanged(bool oldValue, bool newValue)
     {
-        Helpers.SettingsHelper.SetValue($"IsChecked{ConvertStringToNumericString(ItemID)}", newValue);
+        SettingsHelper.SetValue($"IsChecked{ConvertStringToNumericString(ItemID)}", "cleanmgr", newValue);
     }
 
     partial void OnSizeChanged(long oldValue, long newValue)
@@ -66,7 +67,7 @@ internal partial class CleanItem : ObservableObject
         _itemType = itemType;
         ItemPath = itemPath;
         ItemID = id;
-        IsChecked = Helpers.SettingsHelper.GetValue($"IsChecked{ConvertStringToNumericString(ItemID)}", defaultIsChecked);
+        IsChecked = SettingsHelper.GetValue($"IsChecked{ConvertStringToNumericString(ItemID)}", "cleanmgr", defaultIsChecked);
         Refresh();
     }
 
