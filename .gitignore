@@ -372,3 +372,4 @@ FodyWeavers.xsd
 /src/components/shell/Rebound.Shell.ExperienceHost/rshell.exe
 /src/platforms/Rebound.App/Modding/Launchers/Rebound About.exe
 /src/platforms/Rebound.App/Modding/Launchers/rwinver.exe
+/src/platforms/Rebound.App/Modding/Launchers/rcleanmgr.exe
