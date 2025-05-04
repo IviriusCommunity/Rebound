@@ -1,4 +1,6 @@
-﻿namespace Rebound.Helpers.Modding;
+﻿using System.Diagnostics.CodeAnalysis;
+
+namespace Rebound.Helpers.Modding;
 
 public enum ReboundAppIntegrity
 {
@@ -17,9 +19,9 @@ public enum InstallationTemplate
 
 public interface IReboundAppInstruction
 {
-    public void Apply();
+    void Apply();
 
-    public void Remove();
+    void Remove();
 
-    public bool IsApplied();
+    bool IsApplied();
 }

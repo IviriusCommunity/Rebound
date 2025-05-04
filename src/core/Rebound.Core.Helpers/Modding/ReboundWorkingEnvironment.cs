@@ -11,13 +11,22 @@ public static class ReboundWorkingEnvironment
         var programFilesPath = System.Environment.GetFolderPath(System.Environment.SpecialFolder.ProgramFiles);
         var directoryPath = Path.Combine(programFilesPath, "Rebound");
 
+        // Get the start menu folder of Rebound
+        var startMenuFolder = Path.Combine(System.Environment.GetFolderPath(System.Environment.SpecialFolder.CommonStartMenu), "Programs", "Rebound");
+
         // Create the directory if it doesn't exist
         if (!Directory.Exists(directoryPath))
         {
             Directory.CreateDirectory(directoryPath);
         }
 
+        if (!Directory.Exists(startMenuFolder))
+        {
+            Directory.CreateDirectory(startMenuFolder);
+        }
+
         File.SetAttributes(directoryPath, FileAttributes.Directory);
+        File.SetAttributes(startMenuFolder, FileAttributes.Directory);
     }
 
     public static void RemoveFolder()
@@ -25,10 +34,19 @@ public static class ReboundWorkingEnvironment
         var programFilesPath = System.Environment.GetFolderPath(System.Environment.SpecialFolder.ProgramFiles);
         var directoryPath = Path.Combine(programFilesPath, "Rebound");
 
+        // Get the start menu folder of Rebound
+        var startMenuFolder = Path.Combine(System.Environment.GetFolderPath(System.Environment.SpecialFolder.CommonStartMenu), "Programs", "Rebound");
+
         // Create the directory if it doesn't exist
         if (Directory.Exists(directoryPath))
         {
             Directory.Delete(directoryPath, true);
+        }
+
+        // Create the directory if it doesn't exist
+        if (Directory.Exists(startMenuFolder))
+        {
+            Directory.Delete(startMenuFolder, true);
         }
     }
 
