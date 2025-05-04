@@ -107,6 +107,12 @@
       <Platform Solution="*|x86" Project="x86" />
       <Deploy />
     </Project>
+    <Project Path="src/platforms/Rebound.Keyboard/Rebound.Keyboard.csproj" Id="823868ad-9d47-4552-ad05-5148036e71cf">
+      <Platform Solution="*|ARM64" Project="ARM64" />
+      <Platform Solution="*|x64" Project="x64" />
+      <Platform Solution="*|x86" Project="x86" />
+      <Deploy />
+    </Project>
   </Folder>
   <Folder Name="/tests/" Id="73e99a73-057a-449b-b2ca-03877cfd1e88">
     <Project Path="tests/Rebound.InteractionTests/Rebound.InteractionTests.csproj">

@@ -1,0 +1,10 @@
+{
+  "profiles": {
+    "Rebound.Keyboard (Package)": {
+      "commandName": "MsixPackage"
+    },
+    "Rebound.Keyboard (Unpackaged)": {
+      "commandName": "Project"
+    }
+  }
+}
