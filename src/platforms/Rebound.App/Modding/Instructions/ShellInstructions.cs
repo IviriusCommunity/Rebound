@@ -4,8 +4,16 @@ using Rebound.Helpers.Modding;
 
 namespace Rebound.Modding.Instructions;
 
-public partial class ShellInstructions : ReboundAppInstructions
+public partial class ShellInstructions : UserInterfaceReboundAppInstructions
 {
+    public override string Name { get; set; } = "Rebound Shell";
+
+    public override string Icon { get; set; } = "ms-appx:///Assets/AppIcons/ReboundIcon.ico";
+
+    public override string Description { get; set; } = "Replacement for the shell and its components such as the run box, shutdown dialog, desktop, etc.";
+
+    public override string InstallationSteps { get; set; } = "- Install Rebound Shell\n- Register a startup task";
+
     public override ObservableCollection<IReboundAppInstruction>? Instructions { get; set; } = new()
     {
         new LauncherInstruction()
