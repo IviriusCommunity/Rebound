@@ -55,6 +55,7 @@ public partial class App : Application
 
     private const uint WM_SPAWN_WORKER = 0x052C;
     private const int SW_HIDE = 0;
+    private const int SW_SHOW = 5;
     private const int GWLP_HWNDPARENT = -8;
 
     public App()
@@ -128,6 +129,16 @@ public partial class App : Application
                 IntPtr hReboundDesktop = DesktopWindow.GetWindowHandle();
                 Debug.WriteLine($"Rebound Desktop handle: 0x{hReboundDesktop.ToInt64():X}");
 
+                // Ensure input is enabled for the Rebound Desktop window
+                if (!EnableInputForDesktopWindow(hReboundDesktop))
+                {
+                    Debug.WriteLine("Failed to enable input for Rebound Desktop window using primary method. Trying alternatives...");
+                    if (!EnableInputAlternativeMethods(hReboundDesktop))
+                    {
+                        throw new Exception("All attempts to enable input for Rebound Desktop window failed.");
+                    }
+                }
+
                 // Verify if the Rebound Desktop window is valid
                 if (!IsWindowVisible(hReboundDesktop))
                 {
@@ -182,6 +193,9 @@ public partial class App : Application
                 Debug.WriteLine("\nWindow handles summary:");
                 Debug.WriteLine($"WorkerW: 0x{hWorkerW.ToInt64():X}");
                 Debug.WriteLine($"Rebound Desktop: 0x{hReboundDesktop.ToInt64():X}");
+
+                // Ensure the Rebound Desktop can receive input
+                EnsureDesktopInputEnabled(hReboundDesktop);
             }
             catch (Exception ex)
             {
@@ -236,6 +250,140 @@ public partial class App : Application
         Debug.WriteLine($"{windowName} window text: {windowText}");
     }
 
+    private void EnsureDesktopInputEnabled(IntPtr hReboundDesktop)
+    {
+        // Enable the window to receive input
+        bool enableResult = EnableWindow(hReboundDesktop, true);
+        if (enableResult)
+        {
+            Debug.WriteLine("Successfully enabled input for Rebound Desktop window.");
+        }
+        else
+        {
+            Debug.WriteLine("Failed to enable input for Rebound Desktop window.");
+        }
+
+        // Remove the WS_DISABLED style if present
+        int style = GetWindowLong(hReboundDesktop, GWL_STYLE);
+        if ((style & WS_DISABLED) == WS_DISABLED)
+        {
+            style &= ~WS_DISABLED;
+            int setStyleResult = SetWindowLong(hReboundDesktop, GWL_STYLE, style);
+            if (setStyleResult != 0)
+            {
+                Debug.WriteLine("Successfully removed WS_DISABLED style from Rebound Desktop window.");
+            }
+            else
+            {
+                Debug.WriteLine("Failed to remove WS_DISABLED style from Rebound Desktop window.");
+            }
+        }
+    }
+
+    private bool EnableInputForDesktopWindow(IntPtr hWnd)
+    {
+        if (!IsWindowEnabled(hWnd))
+        {
+            if (!EnableWindow(hWnd, true))
+            {
+                Debug.WriteLine($"EnableWindow failed. Error: {Marshal.GetLastWin32Error()}");
+                return false;
+            }
+        }
+
+        int style = GetWindowLong(hWnd, GWL_STYLE);
+        if ((style & WS_DISABLED) == WS_DISABLED)
+        {
+            style &= ~WS_DISABLED;
+            if (SetWindowLong(hWnd, GWL_STYLE, style) == 0)
+            {
+                Debug.WriteLine($"SetWindowLong failed to remove WS_DISABLED. Error: {Marshal.GetLastWin32Error()}");
+                return false;
+            }
+        }
+
+        // Verify if the window is now enabled
+        if (IsWindowEnabled(hWnd))
+        {
+            Debug.WriteLine("Successfully enabled input for Rebound Desktop window.");
+            return true;
+        }
+        else
+        {
+            Debug.WriteLine("Failed to enable input for Rebound Desktop window.");
+            return false;
+        }
+    }
+
+    private bool EnableInputAlternativeMethods(IntPtr hWnd)
+    {
+        // Alternative 1: Try to bring the window to the foreground
+        if (SetForegroundWindow(hWnd))
+        {
+            Debug.WriteLine("Brought Rebound Desktop window to foreground.");
+            if (IsWindowEnabled(hWnd)) return true;
+        }
+
+        // Alternative 2: Try to activate the window
+        if (SetActiveWindow(hWnd) != IntPtr.Zero)
+        {
+            Debug.WriteLine("Activated Rebound Desktop window.");
+            if (IsWindowEnabled(hWnd)) return true;
+        }
+
+        // Alternative 3: Try to force the window to redraw
+        if (RedrawWindow(hWnd, IntPtr.Zero, IntPtr.Zero, RedrawWindowFlags.Invalidate | RedrawWindowFlags.Erase | RedrawWindowFlags.Frame))
+        {
+            Debug.WriteLine("Forced Rebound Desktop window to redraw.");
+            if (IsWindowEnabled(hWnd)) return true;
+        }
+
+        return false;
+    }
+
+    [DllImport("user32.dll")]
+    static extern bool EnableWindow(IntPtr hWnd, bool bEnable);
+
+    [DllImport("user32.dll")]
+    static extern int SetWindowLong(IntPtr hWnd, int nIndex, int dwNewLong);
+
+    [DllImport("user32.dll")]
+    static extern int GetWindowLong(IntPtr hWnd, int nIndex);
+
+    private const int GWL_STYLE = -16;
+    private const int WS_DISABLED = 0x08000000;
+
+    [DllImport("user32.dll")]
+    [return: MarshalAs(UnmanagedType.Bool)]
+    static extern bool IsWindowEnabled(IntPtr hWnd);
+
+    [DllImport("user32.dll")]
+    [return: MarshalAs(UnmanagedType.Bool)]
+    static extern bool SetForegroundWindow(IntPtr hWnd);
+
+    [DllImport("user32.dll")]
+    static extern IntPtr SetActiveWindow(IntPtr hWnd);
+
+    [DllImport("user32.dll")]
+    static extern bool RedrawWindow(IntPtr hWnd, IntPtr lprcUpdate, IntPtr hrgnUpdate, RedrawWindowFlags flags);
+
+    [Flags]
+    enum RedrawWindowFlags : uint
+    {
+        Invalidate = 0x1,
+        InternalPaint = 0x2,
+        Erase = 0x4,
+        Validate = 0x8,
+        NoInternalPaint = 0x10,
+        NoErase = 0x20,
+        NoChildren = 0x40,
+        AllChildren = 0x80,
+        UpdateNow = 0x100,
+        EraseNow = 0x200,
+        Frame = 0x400,
+        NoFrame = 0x800
+    }
+
     private void OnSingleInstanceLaunched(object? sender, SingleInstanceLaunchEventArgs e)
     {
         if (e.IsFirstLaunch)
@@ -249,3 +397,4 @@ public partial class App : Application
     public static WindowEx? ShutdownDialog { get; set; }
     public static WindowEx? BackgroundWindow { get; set; }
 }
+
