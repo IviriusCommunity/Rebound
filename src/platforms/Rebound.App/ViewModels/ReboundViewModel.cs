@@ -1,4 +1,5 @@
 ﻿using System.Collections.ObjectModel;
+using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Rebound.Forge;
@@ -40,6 +41,15 @@ public partial class ReboundViewModel : ObservableObject
             }
             ReboundWorkingEnvironment.RemoveFolder();
             ReboundWorkingEnvironment.RemoveTasksFolder();
+        }
+    }
+
+    [RelayCommand]
+    public async Task UpdateOrRepairAllAsync()
+    {
+        foreach (var instruction in Instructions)
+        {
+            if (instruction.IsInstalled) await instruction.Install().ConfigureAwait(true);
         }
     }
 

@@ -278,15 +278,18 @@ internal partial class MainViewModel : ObservableObject
             try
             {
                 // Check if the path matches and if the item is checked
-                if (item.ItemPath.Equals($@"{systemRoot}Windows\SoftwareDistribution", StringComparison.OrdinalIgnoreCase) && item.IsChecked)
+                if (item.IsChecked)
                 {
-                    StopWindowsUpdateService();
-                    item.Delete();
-                    StartWindowsUpdateService();
-                }
-                else
-                {
-                    item.Delete();
+                    if (item.ItemPath.Equals($@"{systemRoot}Windows\SoftwareDistribution", StringComparison.OrdinalIgnoreCase))
+                    {
+                        StopWindowsUpdateService();
+                        item.Delete();
+                        StartWindowsUpdateService();
+                    }
+                    else
+                    {
+                        item.Delete();
+                    }
                 }
             }
             catch

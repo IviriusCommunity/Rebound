@@ -21,7 +21,7 @@ public partial class Rebound11Page : Page
         {
             Title = "WinUI apps",
             Description = "Rebound uses only WinUI apps to ensure a consistent experience.",
-            IconPath = "/Assets/AppIcons/IviriusTextEditorPaid.png",
+            IconPath = "/Assets/AppIcons/WinUI.png",
             Link = string.Empty
         },
         new LinkCard

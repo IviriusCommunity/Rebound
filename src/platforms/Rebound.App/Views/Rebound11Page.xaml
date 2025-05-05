@@ -150,7 +150,10 @@
                             <FontIcon FontSize="16" Glyph="&#xF158;" />
                         </AppBarButton.Icon>
                     </AppBarButton>
-                    <AppBarButton IsEnabled="{x:Bind ReboundViewModel.IsReboundEnabled, Mode=OneWay}" Label="Update or Repair all">
+                    <AppBarButton
+                        Command="{x:Bind ReboundViewModel.UpdateOrRepairAllCommand}"
+                        IsEnabled="{x:Bind ReboundViewModel.IsReboundEnabled, Mode=OneWay}"
+                        Label="Update or Repair all">
                         <AppBarButton.Icon>
                             <FontIcon FontSize="16" Glyph="&#xE777;" />
                         </AppBarButton.Icon>
