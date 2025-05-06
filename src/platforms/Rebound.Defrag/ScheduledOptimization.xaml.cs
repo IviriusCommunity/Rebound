@@ -94,7 +94,6 @@ public sealed partial class ScheduledOptimization : WindowEx
         IsResizable = false;
         Title = "Scheduled optimization";
         SystemBackdrop = new MicaBackdrop();
-        AppWindow.DefaultTitleBarShouldMatchAppModeTheme = true;
         //LoadData();
         if (GetTaskFrequency() is not "Off")
         {

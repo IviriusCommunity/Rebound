@@ -1,6 +1,7 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using Microsoft.UI.Dispatching;
 using Rebound.Defrag.Helpers;
+using Rebound.Helpers;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -62,12 +63,12 @@ public partial class DriveListViewItem : ObservableObject
         // Load the value from the settings
         get => SettingsHelper.GetValue<bool>(
             // Use the numerical representation of the drive letter to avoid conflicts
-            GenericHelpers.ConvertStringToNumericRepresentation(DrivePath));
+            GenericHelpers.ConvertStringToNumericRepresentation(DrivePath), "dfrgui");
 
         // Set the value to the settings
         set => SettingsHelper.SetValue(
             // Use the numerical representation of the drive letter to avoid conflicts
-            GenericHelpers.ConvertStringToNumericRepresentation(DrivePath), value);
+            GenericHelpers.ConvertStringToNumericRepresentation(DrivePath), "dfrgui", value);
     }
 
     // Defrag events

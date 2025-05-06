@@ -2,6 +2,7 @@
 using Rebound.Helpers;
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 using System.Management;
 using System.Text;
@@ -85,10 +86,10 @@ public static class DriveHelper
         return volumes;
     }
 
-    public static List<DriveListViewItem> GetDriveItems(bool loadSystemPartitions)
+    public static ObservableCollection<DriveListViewItem> GetDriveItems(bool loadSystemPartitions)
     {
         // The drive items
-        List<DriveListViewItem> items = [];
+        ObservableCollection<DriveListViewItem> items = [];
 
         // Get the logical drives bitmask
         var drivesBitMask = Win32Helper.GetLogicalDrives();
@@ -131,7 +132,7 @@ public static class DriveHelper
                         ImagePath = "ms-appx:///Assets/Drive.png",
                         MediaType = mediaType,
                         DrivePath = drive,
-                        IsChecked = SettingsHelper.GetValue<bool>(GenericHelpers.ConvertStringToNumericRepresentation(drive))
+                        IsChecked = SettingsHelper.GetValue<bool>(GenericHelpers.ConvertStringToNumericRepresentation(drive), "dfrgui")
                     };
 
                     // Set the icon for the drive
@@ -182,7 +183,7 @@ public static class DriveHelper
                     ImagePath = "ms-appx:///Assets/DriveSystem.png",
                     MediaType = driveMediaType,
                     DrivePath = result.GUID,
-                    IsChecked = result.GUID != null && SettingsHelper.GetValue<bool>(GenericHelpers.ConvertStringToNumericRepresentation(result.GUID))
+                    IsChecked = result.GUID != null && SettingsHelper.GetValue<bool>(GenericHelpers.ConvertStringToNumericRepresentation(result.GUID), "dfrgui")
                 };
 
                 // Check if it needs to be optimized
