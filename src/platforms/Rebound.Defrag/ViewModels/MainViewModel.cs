@@ -1,8 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
+﻿using System.Collections.ObjectModel;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.ComponentModel;
 using Rebound.Defrag.Controls;
@@ -10,10 +7,11 @@ using Rebound.Defrag.Helpers;
 using Rebound.Helpers;
 
 namespace Rebound.Defrag.ViewModels;
-public partial class MainViewModel : ObservableObject
+
+internal partial class MainViewModel : ObservableObject
 {
     [ObservableProperty]
-    public partial bool ShowAdvanced { get; set; } = false;
+    public partial bool ShowAdvanced { get; set; }
 
     [ObservableProperty]
     public partial bool AreItemsEnabled { get; set; } = true;
@@ -29,63 +27,60 @@ public partial class MainViewModel : ObservableObject
 
     public MainViewModel()
     {
-        ShowAdvanced = SettingsHelper.GetValue<bool?>("ViewAdvanced", "dfrgui") != null && SettingsHelper.GetValue<bool>("ViewAdvanced", "dfrgui");
+        ShowAdvanced = SettingsHelper.GetValue("ViewAdvanced", "dfrgui", false);
         DriveItems = DriveHelper.GetDriveItems(ShowAdvanced);
     }
 
     public async void ReloadListItems()
     {
-        IsOptimizeEnabled = false;
-        IsStopEnabled = false;
-        AreItemsEnabled = false;
-        IsLoading = true;
-        await Task.Delay(75);
-        DriveItems = DriveHelper.GetDriveItems(ShowAdvanced);
-        AreItemsEnabled = true;
-        IsLoading = false;
-        CheckA();
+        SetLoadingState(true);
+        await Task.Delay(75).ConfigureAwait(true);
+
+        var items = DriveHelper.GetDriveItems(ShowAdvanced);
+        DriveItems.Clear();
+
+        foreach (var item in items)
+        {
+            DriveItems.Add(item);
+        }
+
+        SetLoadingState(false);
+        CheckEnabledActions();
     }
 
-    public async void CheckA()
+    private void SetLoadingState(bool isLoading)
     {
-        await Task.Delay(10); // Small delay to allow UI updates
+        AreItemsEnabled = !isLoading;
+        IsLoading = isLoading;
+        DisableActions();
+    }
 
-        if (DriveItems is null)
+    public async void CheckEnabledActions()
+    {
+        await Task.Delay(10).ConfigureAwait(true);
+
+        if (DriveItems is null || DriveItems.Count == 0)
         {
-            IsOptimizeEnabled = false;
-            IsStopEnabled = false;
+            DisableActions();
             return;
         }
 
-        var canOptimize = true;
-        var canStop = true;
-        var selectedItems = 0;
+        var selectedItems = DriveItems.Where(item => item.IsChecked).ToList();
 
-        foreach (var item in DriveItems)
+        if (selectedItems.Count == 0)
         {
-            if (item.IsChecked)
-            {
-                selectedItems++;
-                if (!item.CanBeOptimized || item.PowerShellProcess != null)
-                {
-                    canOptimize = false;
-                }
-
-                if (!item.CanBeOptimized || item.PowerShellProcess == null)
-                {
-                    canStop = false;
-                }
-            }
+            DisableActions();
+            return;
         }
 
-        if (selectedItems == 0)
-        {
-            canOptimize = false;
-            canStop = false;
-        }
+        IsOptimizeEnabled = selectedItems.All(item => item.CanBeOptimized && item.PowerShellProcess == null);
+        IsStopEnabled = selectedItems.All(item => item.CanBeOptimized && item.PowerShellProcess != null);
+    }
 
-        IsOptimizeEnabled = canOptimize;
-        IsStopEnabled = canStop;
+    private void DisableActions()
+    {
+        IsOptimizeEnabled = false;
+        IsStopEnabled = false;
     }
 
     partial void OnShowAdvancedChanged(bool oldValue, bool newValue)

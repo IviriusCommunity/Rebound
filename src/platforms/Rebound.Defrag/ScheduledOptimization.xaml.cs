@@ -87,7 +87,6 @@ public sealed partial class ScheduledOptimization : WindowEx
     public ScheduledOptimization(int parentX, int parentY)
     {
         this.InitializeComponent();
-        Win32Helper.RemoveIcon(this);
         IsMaximizable = false;
         IsMinimizable = false;
         this.MoveAndResize(parentX + 50, parentY + 50, 550, 600);
@@ -243,7 +242,7 @@ public sealed partial class ScheduledOptimization : WindowEx
         scheduledDefrag.Enabled = false;
     }
 
-    public static string GetDriveTypeDescription(string driveRoot)
+    /*public static string GetDriveTypeDescription(string driveRoot)
     {
         var driveType = Win32Helper.GetDriveType(driveRoot);
 
@@ -327,7 +326,7 @@ public sealed partial class ScheduledOptimization : WindowEx
 
         // Return the drives list
         return items;
-    }
+    }*/
 
     private void Button_Click(object sender, Microsoft.UI.Xaml.RoutedEventArgs e)
     {

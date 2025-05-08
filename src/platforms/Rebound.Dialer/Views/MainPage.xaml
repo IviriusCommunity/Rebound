@@ -1,0 +1,211 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Page
+    x:Class="Rebound.Dialer.Views.MainPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:Rebound.Dialer.Views"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    mc:Ignorable="d">
+
+    <Grid>
+        <MenuBar VerticalAlignment="Top" Grid.ColumnSpan="2">
+            <MenuBarItem Title="File"/>
+            <MenuBarItem Title="Edit"/>
+            <MenuBarItem Title="Tools"/>
+            <MenuBarItem Title="Help"/>
+        </MenuBar>
+        <Grid Margin="16, 40, 16, 16" RowSpacing="8" ColumnSpacing="16">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="1.5*"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+            <TextBlock Text="Number to dial"/>
+            <ComboBox IsEditable="True" Grid.Row="1" HorizontalAlignment="Stretch"/>
+            <Button Grid.Row="2" Content="Dial" HorizontalAlignment="Stretch" Style="{StaticResource AccentButtonStyle}"/>
+            <Grid Grid.Row="3" ColumnSpacing="4" RowSpacing="4">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+                <Button HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                        </Grid.RowDefinitions>
+                        <TextBlock Text="" HorizontalTextAlignment="Center"/>
+                        <TextBlock Text="1" Grid.Row="1" HorizontalTextAlignment="Center"/>
+                    </Grid>
+                </Button>
+                <Button HorizontalAlignment="Stretch" Grid.Column="1" VerticalAlignment="Stretch">
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                        </Grid.RowDefinitions>
+                        <TextBlock Text="ABC" HorizontalTextAlignment="Center"/>
+                        <TextBlock Text="2" Grid.Row="1" HorizontalTextAlignment="Center"/>
+                    </Grid>
+                </Button>
+                <Button HorizontalAlignment="Stretch" Grid.Column="2" VerticalAlignment="Stretch">
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                        </Grid.RowDefinitions>
+                        <TextBlock Text="DEF" HorizontalTextAlignment="Center"/>
+                        <TextBlock Text="3" Grid.Row="1" HorizontalTextAlignment="Center"/>
+                    </Grid>
+                </Button>
+                <Button HorizontalAlignment="Stretch" Grid.Row="1" VerticalAlignment="Stretch">
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                        </Grid.RowDefinitions>
+                        <TextBlock Text="GHI" HorizontalTextAlignment="Center"/>
+                        <TextBlock Text="4" Grid.Row="1" HorizontalTextAlignment="Center"/>
+                    </Grid>
+                </Button>
+                <Button HorizontalAlignment="Stretch" Grid.Row="1" Grid.Column="1" VerticalAlignment="Stretch">
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                        </Grid.RowDefinitions>
+                        <TextBlock Text="JKL" HorizontalTextAlignment="Center"/>
+                        <TextBlock Text="5" Grid.Row="1" HorizontalTextAlignment="Center"/>
+                    </Grid>
+                </Button>
+                <Button HorizontalAlignment="Stretch" Grid.Row="1" Grid.Column="2" VerticalAlignment="Stretch">
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                        </Grid.RowDefinitions>
+                        <TextBlock Text="MNO" HorizontalTextAlignment="Center"/>
+                        <TextBlock Text="6" Grid.Row="1" HorizontalTextAlignment="Center"/>
+                    </Grid>
+                </Button>
+                <Button HorizontalAlignment="Stretch" Grid.Row="2" VerticalAlignment="Stretch">
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                        </Grid.RowDefinitions>
+                        <TextBlock Text="PRS" HorizontalTextAlignment="Center"/>
+                        <TextBlock Text="7" Grid.Row="1" HorizontalTextAlignment="Center"/>
+                    </Grid>
+                </Button>
+                <Button HorizontalAlignment="Stretch" Grid.Row="2" Grid.Column="1" VerticalAlignment="Stretch">
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                        </Grid.RowDefinitions>
+                        <TextBlock Text="TUV" HorizontalTextAlignment="Center"/>
+                        <TextBlock Text="8" Grid.Row="1" HorizontalTextAlignment="Center"/>
+                    </Grid>
+                </Button>
+                <Button HorizontalAlignment="Stretch" Grid.Row="2" Grid.Column="2" VerticalAlignment="Stretch">
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                        </Grid.RowDefinitions>
+                        <TextBlock Text="WXY" HorizontalTextAlignment="Center"/>
+                        <TextBlock Text="9" Grid.Row="1" HorizontalTextAlignment="Center"/>
+                    </Grid>
+                </Button>
+                <Button HorizontalAlignment="Stretch" Grid.Row="3" VerticalAlignment="Stretch">
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                        </Grid.RowDefinitions>
+                        <TextBlock Text="PRS" HorizontalTextAlignment="Center"/>
+                        <TextBlock Text="7" Grid.Row="1" HorizontalTextAlignment="Center"/>
+                    </Grid>
+                </Button>
+                <Button HorizontalAlignment="Stretch" Grid.Row="3" Grid.Column="1" VerticalAlignment="Stretch">
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                        </Grid.RowDefinitions>
+                        <TextBlock Text="TUV" HorizontalTextAlignment="Center"/>
+                        <TextBlock Text="8" Grid.Row="1" HorizontalTextAlignment="Center"/>
+                    </Grid>
+                </Button>
+                <Button HorizontalAlignment="Stretch" Grid.Row="3" Grid.Column="2" VerticalAlignment="Stretch">
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                        </Grid.RowDefinitions>
+                        <TextBlock Text="WXY" HorizontalTextAlignment="Center"/>
+                        <TextBlock Text="9" Grid.Row="1" HorizontalTextAlignment="Center"/>
+                    </Grid>
+                </Button>
+                <Button HorizontalAlignment="Stretch" Grid.Row="4" VerticalAlignment="Stretch">
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                        </Grid.RowDefinitions>
+                        <TextBlock Text="" HorizontalTextAlignment="Center"/>
+                        <TextBlock Text="*" Grid.Row="1" HorizontalTextAlignment="Center"/>
+                    </Grid>
+                </Button>
+                <Button HorizontalAlignment="Stretch" Grid.Row="4" Grid.Column="1" VerticalAlignment="Stretch">
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                        </Grid.RowDefinitions>
+                        <TextBlock Text="Z" HorizontalTextAlignment="Center"/>
+                        <TextBlock Text="0" Grid.Row="1" HorizontalTextAlignment="Center"/>
+                    </Grid>
+                </Button>
+                <Button HorizontalAlignment="Stretch" Grid.Row="4" Grid.Column="2" VerticalAlignment="Stretch">
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                        </Grid.RowDefinitions>
+                        <TextBlock Text="" HorizontalTextAlignment="Center"/>
+                        <TextBlock Text="#" Grid.Row="1" HorizontalTextAlignment="Center"/>
+                    </Grid>
+                </Button>
+            </Grid>
+            <StackPanel Spacing="8" Grid.Column="1" Grid.RowSpan="4">
+                <TextBlock Text="Speed dial"/>
+                <Button HorizontalAlignment="Stretch" Content=" "/>
+                <Button HorizontalAlignment="Stretch" Content=" "/>
+                <Button HorizontalAlignment="Stretch" Content=" "/>
+                <Button HorizontalAlignment="Stretch" Content=" "/>
+                <Button HorizontalAlignment="Stretch" Content=" "/>
+                <Button HorizontalAlignment="Stretch" Content=" "/>
+                <Button HorizontalAlignment="Stretch" Content=" "/>
+                <Button HorizontalAlignment="Stretch" Content=" "/>
+                <Button HorizontalAlignment="Stretch" Content=" "/>
+            </StackPanel>
+        </Grid>
+    </Grid>
+</Page>

@@ -1,0 +1,10 @@
+{
+  "profiles": {
+    "Rebound.Dialer (Package)": {
+      "commandName": "MsixPackage"
+    },
+    "Rebound.Dialer (Unpackaged)": {
+      "commandName": "Project"
+    }
+  }
+}

@@ -1,81 +1,178 @@
-﻿using CommunityToolkit.Mvvm.ComponentModel;
-using Microsoft.UI.Dispatching;
-using Rebound.Defrag.Helpers;
-using Rebound.Helpers;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Diagnostics.Eventing.Reader;
 using System.Linq;
+using System.Management;
+using System.ServiceProcess;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
-
-#nullable enable
+using CommunityToolkit.Mvvm.ComponentModel;
+using Microsoft.UI.Dispatching;
+using Rebound.Defrag.Helpers;
+using Rebound.Helpers;
 
 namespace Rebound.Defrag.Controls;
 
-/// <summary>
-/// The drive items themselves seen in the main window
-/// </summary>
-
-public partial class DriveListViewItem : ObservableObject
+internal partial class DriveListViewItem : ObservableObject
 {
-    // The name of the drive
-    public string? DriveName { get; set; }
-
-    // Image path for the disk
-    public string? ImagePath { get; set; }
-
-    // Drive path (C:/ or {GUID}/)
-    public string? DrivePath { get; set; }
-
-    // Optical drive, SSD, HDD, etc.
-    public string? MediaType { get; set; }
-
-    // The defragmentation process
-    public Process? PowerShellProcess { get; set; }
-
-    // Determines whether or not the drive should be optimized
-    public bool NeedsOptimization => CheckNeedsOptimization();
-
-    // Determines whether or not the drive can be optimized
-    public bool CanBeOptimized => DriveName is not "EFI System Partition" and not "Recovery Partition" && MediaType is not "CD-ROM" and not "Removable";
-
-    // The last time it was optimized
     [ObservableProperty]
-    public partial string? LastOptimized { get; set; }
+    public partial string DriveName { get; set; }
 
-    // How much of the operation is finished
+    [ObservableProperty]
+    public partial string ImagePath { get; set; }
+
+    [ObservableProperty]
+    public partial string DrivePath { get; set; }
+
+    [ObservableProperty]
+    public partial string MediaType { get; set; }
+
+    [ObservableProperty]
+    public partial Process? PowerShellProcess { get; set; }
+
+    [ObservableProperty]
+    public partial bool NeedsOptimization { get; set; }
+
+    [ObservableProperty]
+    public partial bool CanBeOptimized { get; set; }
+
+    [ObservableProperty]
+    public partial string LastOptimized { get; set; }
+
     [ObservableProperty]
     public partial int OperationProgress { get; set; }
 
-    // Information to be displayed about the operation
     [ObservableProperty]
-    public partial string? OperationInformation { get; set; }
+    public partial string OperationInformation { get; set; }
 
-    // Information to be displayed about the operation
     [ObservableProperty]
     public partial bool IsLoading { get; set; } = false;
 
-    // Item selected value
-    public bool IsChecked
-    {
-        // Load the value from the settings
-        get => SettingsHelper.GetValue<bool>(
-            // Use the numerical representation of the drive letter to avoid conflicts
-            GenericHelpers.ConvertStringToNumericRepresentation(DrivePath), "dfrgui");
+    [ObservableProperty]
+    public partial bool IsChecked { get; set; }
 
-        // Set the value to the settings
-        set => SettingsHelper.SetValue(
-            // Use the numerical representation of the drive letter to avoid conflicts
-            GenericHelpers.ConvertStringToNumericRepresentation(DrivePath), "dfrgui", value);
+    partial void OnIsCheckedChanged(bool oldValue, bool newValue)
+    {
+        SettingsHelper.SetValue(GenericHelpers.ConvertStringToSafeKey(DrivePath), "dfrgui", newValue);
+    }
+
+    internal DriveListViewItem(string driveName, string drivePath, string image, string mediaType)
+    {
+        DriveName = driveName;
+        DrivePath = drivePath;
+        ImagePath = image;
+        MediaType = mediaType;
+        IsChecked = SettingsHelper.GetValue(GenericHelpers.ConvertStringToSafeKey(DrivePath), "dfrgui", false);
+        NeedsOptimization = CheckNeedsOptimization();
+        CanBeOptimized = DriveName is not "EFI System Partition" and not "Recovery Partition" && MediaType is not "CD-ROM" and not "Removable";
+        getstuff();
+        /*OperationInformation = !CanBeOptimized ? "Cannot be optimized" : NeedsOptimization ? "Needs optimization" : "OK";*/
+    }
+
+    async void getstuff()
+    {
+            var analysis = GetVolumeFragmentationAnalysis(DrivePath?.DrivePathToLetter());
+
+            OperationInformation = analysis.ToString();
+    }
+
+    public class Fragmentation
+    {
+        public double Percent { get; set; }
+        public string VolumeName { get; set; }
+        public bool DefragNeeded { get; set; }
+
+        // Optionally, you can add more properties depending on what you want to track
+        public long TotalClusters { get; set; }
+        public long FragmentedClusters { get; set; }
+
+        // Constructor for initialization
+        public Fragmentation()
+        {
+            Percent = 0.0;
+            DefragNeeded = false;
+            TotalClusters = 0;
+            FragmentedClusters = 0;
+        }
+
+        // Optionally, a method to display the fragmentation details
+        public void DisplayDetails()
+        {
+            Console.WriteLine("Volume: {0}", VolumeName);
+            Console.WriteLine("Fragmentation Percentage: {0}%", Percent);
+            Console.WriteLine("Defrag Needed: {0}", DefragNeeded ? "Yes" : "No");
+            Console.WriteLine("Total Clusters: {0}", TotalClusters);
+            Console.WriteLine("Fragmented Clusters: {0}", FragmentedClusters);
+        }
+    }
+
+    public static string GetVolumeFragmentationAnalysis(string drive)
+    {
+        // For some reason this is one of the most well kept secrets at Microsoft apparently
+        /*var comType = Type.GetTypeFromCLSID(new Guid("87CB4E0D-2E2F-4235-BC0A-7C62308011F6"));
+        var instance = Activator.CreateInstance(comType);*/
+        return "A";
+        /*try
+        {
+            // Query for the specific volume by DriveLetter
+            var query = new ObjectQuery($@"SELECT * FROM Win32_Volume WHERE DriveLetter = '{drive}'");
+
+            using var searcher = new ManagementObjectSearcher(query);
+
+            var moVolume = searcher.Get().Cast<ManagementObject>().FirstOrDefault();
+
+                if (moVolume is ManagementObject obj)
+                {
+                    // Prepare output arguments for DefragAnalysis method
+                    var outputArgs = new object[2];  // [0] - DefragRecommended, [1] - DefragAnalysis
+
+                    // Call DefragAnalysis method on the volume
+                    var result = (uint)obj.InvokeMethod("DefragAnalysis", outputArgs);
+
+                    // Check if the method call was successful (result == 0)
+                    if (result == 0)
+                    {
+                        if (outputArgs[1] is ManagementBaseObject mboDefragAnalysis)
+                        {
+                            // Extract fragmentation information
+                            var fragmentationPercent = mboDefragAnalysis["TotalPercentFragmentation"]?.ToString() ?? "Unknown";
+                            return $"Fragmentation Percentage: {fragmentationPercent}";
+                        }
+                        else
+                        {
+                            return "Failed to cast DefragAnalysis result.";
+                        }
+                    }
+                    else
+                    {
+                        return $"DefragAnalysis failed with result code {result}.";
+                    }
+                }
+            return "a";
+        }
+        catch (ManagementException ex)
+        {
+            // WMI specific exception
+            return $"WMI Error: {ex.Message}";
+        }
+        catch (UnauthorizedAccessException ex)
+        {
+            // Permission issue (e.g., not enough privileges)
+            return $"Permission Error: {ex.Message}";
+        }
+        catch (Exception ex)
+        {
+            // General exception handler
+            return $"Error: {ex.Message}";
+        }*/
     }
 
     // Defrag events
     private const int EventID = 258;
 
     // Caching
-    private static List<string>? cachedEventMessages = null;
+    private static List<string>? cachedEventMessages;
     private static DateTime lastCacheTime = DateTime.MinValue;
     private static readonly TimeSpan cacheDuration = TimeSpan.FromMinutes(1); // Cache duration of 1 minute
 
@@ -231,25 +328,15 @@ public partial class DriveListViewItem : ObservableObject
     {
         try
         {
-            var lastOptimizedDate = GetLastOptimizationDate();
-
-            // If no optimization date is available, assume optimization is needed
-            if (!lastOptimizedDate.HasValue)
-            {
-                return true;
-            }
-
-            // Calculate days passed since the last optimization
-            var daysPassed = (DateTime.Now - lastOptimizedDate.Value).Days;
-
-            // Return true if 50 or more days have passed, otherwise false
-            return daysPassed >= 50;
+            var analysis = GetVolumeFragmentationAnalysis(DrivePath?.DrivePathToLetter());
+            return true;
         }
         catch
         {
             // Assume optimization is needed on error
-            return true; 
         }
+
+        return false;
     }
 
     private DateTime? GetLastOptimizationDate()

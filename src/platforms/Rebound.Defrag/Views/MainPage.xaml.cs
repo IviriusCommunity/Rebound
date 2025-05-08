@@ -1,29 +1,20 @@
-using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
-using Rebound.Defrag.Controls;
-using Rebound.Defrag.Helpers;
 using Rebound.Defrag.ViewModels;
-using Rebound.Helpers;
-using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Windows.Devices.Enumeration;
-
-#nullable enable
 
 namespace Rebound.Defrag.Views;
 
 public sealed partial class MainPage : Page
 {
-    public MainViewModel ViewModel { get; } = new MainViewModel();
+    internal MainViewModel ViewModel { get; } = new MainViewModel();
 
     public MainPage()
     {
         InitializeComponent();
-        ViewModel.ShowAdvanced = SettingsHelper.GetValue<bool?>("ViewAdvanced", "dfrgui") != null && SettingsHelper.GetValue<bool>("ViewAdvanced", "dfrgui");
-        ViewModel.DriveItems ??= DriveHelper.GetDriveItems(ViewModel.ShowAdvanced);
 
         // Begin monitoring window messages (such as device changes)
         var deviceWatcher = DeviceInformation.CreateWatcher(DeviceClass.PortableStorageDevice);
@@ -70,8 +61,8 @@ public sealed partial class MainPage : Page
             .ToList();
 
         // Await all optimization tasks to complete
-        await Task.WhenAll(optimizationTasks);
-        ViewModel.CheckA();
+        await Task.WhenAll(optimizationTasks).ConfigureAwait(false);
+        ViewModel.CheckEnabledActions();
     }
 
     [RelayCommand]
@@ -90,6 +81,6 @@ public sealed partial class MainPage : Page
 
     private void ItemCheckBox_Toggled(object sender, RoutedEventArgs e)
     {
-        ViewModel.CheckA();
+        ViewModel.CheckEnabledActions();
     }
 }

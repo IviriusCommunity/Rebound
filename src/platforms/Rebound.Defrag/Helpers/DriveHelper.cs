@@ -1,25 +1,20 @@
-﻿using Rebound.Defrag.Controls;
-using Rebound.Helpers;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Management;
-using System.Text;
 using System.Threading.Tasks;
-
-#nullable enable
+using IWshRuntimeLibrary;
+using Rebound.Defrag.Controls;
+using Rebound.Helpers;
+using Windows.Win32;
 
 namespace Rebound.Defrag.Helpers;
 
-/// <summary>
-/// Contains helpers for identifying drives, media types, etc.
-/// </summary>
-
-public static class DriveHelper
+internal static class DriveHelper
 {
     // For system drives
-    public class VolumeInfo
+    internal class VolumeInfo
     {
         public string? GUID { get; set; }
 
@@ -30,7 +25,7 @@ public static class DriveHelper
         public string? FriendlyName { get; set; }
     }
 
-    public static List<VolumeInfo> GetSystemVolumes()
+    internal static List<VolumeInfo> GetSystemVolumes()
     {
         // Initialize collection
         List<VolumeInfo> volumes = [];
@@ -86,13 +81,13 @@ public static class DriveHelper
         return volumes;
     }
 
-    public static ObservableCollection<DriveListViewItem> GetDriveItems(bool loadSystemPartitions)
+    public static unsafe ObservableCollection<DriveListViewItem> GetDriveItems(bool loadSystemPartitions)
     {
         // The drive items
         ObservableCollection<DriveListViewItem> items = [];
 
         // Get the logical drives bitmask
-        var drivesBitMask = Win32Helper.GetLogicalDrives();
+        var drivesBitMask = PInvoke.GetLogicalDrives();
 
         // If there are no drives return
         if (drivesBitMask is 0)
@@ -111,12 +106,15 @@ public static class DriveHelper
                 // Convert single drive letter into drive path of format C:\
                 var drive = $"{singularDriveLetter}:\\";
 
-                // Create string builders
-                StringBuilder volumeName = new(261);
-                StringBuilder fileSystemName = new(261);
+                uint serialNumber,
+                    maxComponentLength,
+                    fileSystemFlags;
+
+                Span<char> volumeName = new char[261];
+                Span<char> fileSystemName = new char[261];
 
                 // Obtain volume information using P/Invoke
-                if (Win32Helper.GetVolumeInformation(drive, volumeName, volumeName.Capacity, out _, out _, out _, fileSystemName, fileSystemName.Capacity))
+                if (PInvoke.GetVolumeInformation(drive, volumeName, &serialNumber, &maxComponentLength, &fileSystemFlags, fileSystemName))
                 {
                     // Convert singular drive letter of format C into drive letter of format C:
                     var driveLetter = $"{singularDriveLetter}:";
@@ -124,19 +122,8 @@ public static class DriveHelper
                     // Obtain the drive media type for drive path
                     var mediaType = GetDriveTypeDescriptionAsync(drive);
 
-                    // Create the drive item
-                    var item = new DriveListViewItem
-                    {
-                        // Set the friendly name of format Local Disk (C:)
-                        DriveName = volumeName.ToString() == string.Empty ? $"({driveLetter})" : $"{volumeName} ({driveLetter})",
-                        ImagePath = "ms-appx:///Assets/Drive.png",
-                        MediaType = mediaType,
-                        DrivePath = drive,
-                        IsChecked = SettingsHelper.GetValue<bool>(GenericHelpers.ConvertStringToNumericRepresentation(drive), "dfrgui")
-                    };
-
                     // Set the icon for the drive
-                    item.ImagePath = item.MediaType switch
+                    var imagePath = mediaType switch
                     {
                         "Removable" => "ms-appx:///Assets/DriveRemovable.png",
                         "Unknown" => "ms-appx:///Assets/DriveUnknown.png",
@@ -144,12 +131,14 @@ public static class DriveHelper
                         _ => "ms-appx:///Assets/Drive.png"
                     };
 
-                    // If the drive is the Windows installation drive use the Windows drive icon
-                    item.ImagePath = driveLetter == EnvironmentHelper.GetWindowsInstallationDrivePath().DrivePathToLetter() ? "ms-appx:///Assets/DriveWindows.png" : item.ImagePath;
+                    imagePath = driveLetter == EnvironmentHelper.GetWindowsInstallationDrivePath().DrivePathToLetter() ? "ms-appx:///Assets/DriveWindows.png" : imagePath;
 
-                    // Check if it needs to be optimized
-                    item.OperationInformation = !item.CanBeOptimized ? "Cannot be optimized" : item.NeedsOptimization ? "Needs optimization" :
-                        item.OperationProgress == 0 ? "OK" : item.OperationInformation;
+                    // Create the drive item
+                    var item = new DriveListViewItem(
+                        string.IsNullOrEmpty(volumeName.ToString()) ? $"({driveLetter})" : $"{volumeName} ({driveLetter})",
+                        drive,
+                        imagePath,
+                        mediaType);
 
                     item.LastOptimized = item.GetLastOptimized();
 
@@ -177,18 +166,11 @@ public static class DriveHelper
                 }
 
                 // Create the drive item
-                var item = new DriveListViewItem
-                {
-                    DriveName = result.FriendlyName,
-                    ImagePath = "ms-appx:///Assets/DriveSystem.png",
-                    MediaType = driveMediaType,
-                    DrivePath = result.GUID,
-                    IsChecked = result.GUID != null && SettingsHelper.GetValue<bool>(GenericHelpers.ConvertStringToNumericRepresentation(result.GUID), "dfrgui")
-                };
-
-                // Check if it needs to be optimized
-                item.OperationInformation = !item.CanBeOptimized ? "Cannot be optimized" : item.NeedsOptimization ? "Needs optimization" :
-                    item.OperationProgress == 0 ? "OK" : item.OperationInformation;
+                var item = new DriveListViewItem(
+                    result.FriendlyName,
+                    result.GUID,
+                    "ms-appx:///Assets/DriveSystem.png",
+                    driveMediaType);
 
                 item.LastOptimized = item.GetLastOptimized();
 
@@ -203,16 +185,16 @@ public static class DriveHelper
 
     public static string GetDriveTypeDescriptionAsync(string driveRoot)
     {
-        var driveType = Win32Helper.GetDriveType(driveRoot);
+        var driveType = PInvoke.GetDriveType(driveRoot);
 
         return driveType switch
         {
-            Win32Helper.DriveType.DRIVE_REMOVABLE => "Removable",
-            Win32Helper.DriveType.DRIVE_FIXED => GetDiskDriveFromLetter(driveRoot),
-            Win32Helper.DriveType.DRIVE_REMOTE => "Network",
-            Win32Helper.DriveType.DRIVE_CDROM => "CD-ROM",
-            Win32Helper.DriveType.DRIVE_RAMDISK => "RAM Disk",
-            Win32Helper.DriveType.DRIVE_NO_ROOT_DIR => "No Root Directory",
+            2 => "Removable",        // DRIVE_REMOVABLE = 2
+            3 => GetDiskDriveFromLetter(driveRoot),  // DRIVE_FIXED = 3
+            4 => "Network",          // DRIVE_REMOTE = 4
+            5 => "CD-ROM",           // DRIVE_CDROM = 5
+            6 => "RAM Disk",         // DRIVE_RAMDISK = 6
+            1 => "No Root Directory", // DRIVE_NO_ROOT_DIR = 1
             _ => "Unknown",
         };
     }
@@ -224,7 +206,7 @@ public static class DriveHelper
     private static DateTime lastCacheUpdate;
     private static readonly TimeSpan CacheRefreshInterval = TimeSpan.FromMinutes(1);
 
-    public class PhysicalDisk
+    internal class PhysicalDisk
     {
         public string? MediaType { get; set; }
         public string? DeviceID { get; set; }
@@ -234,7 +216,7 @@ public static class DriveHelper
     {
         try
         {
-            var normalizedDriveLetter = driveLetter.Replace(@"\", "").ToUpperInvariant();
+            var normalizedDriveLetter = driveLetter.Replace(@"\", "", StringComparison.Ordinal).ToUpperInvariant();
 
             // Refresh cache if needed
             EnsureCacheIsUpToDate();
@@ -242,7 +224,7 @@ public static class DriveHelper
             // Use cached data for disk and logical mappings
             if (cachedDiskMappings != null && cachedDiskMappings.TryGetValue(normalizedDriveLetter, out var deviceID))
             {
-                var matchedDisk = cachedPhysicalDisks?.FirstOrDefault(disk => deviceID.Contains(disk.DeviceID ??= string.Empty));
+                var matchedDisk = cachedPhysicalDisks?.FirstOrDefault(disk => deviceID.Contains(disk.DeviceID ?? string.Empty, StringComparison.Ordinal));
                 if (matchedDisk != null)
                 {
                     return matchedDisk.MediaType switch

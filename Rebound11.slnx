@@ -105,6 +105,12 @@
       <Platform Solution="*|x86" Project="x86" />
       <Deploy />
     </Project>
+    <Project Path="src/platforms/Rebound.Dialer/Rebound.Dialer.csproj" Id="1d2b96d5-bf0d-4971-9bd0-9cf207895b1c">
+      <Platform Solution="*|ARM64" Project="ARM64" />
+      <Platform Solution="*|x64" Project="x64" />
+      <Platform Solution="*|x86" Project="x86" />
+      <Deploy />
+    </Project>
     <Project Path="src/platforms/Rebound.Installer/Rebound.Installer.csproj">
       <Platform Solution="*|ARM64" Project="ARM64" />
       <Platform Solution="*|x64" Project="x64" />
