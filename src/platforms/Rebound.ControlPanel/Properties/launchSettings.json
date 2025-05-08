@@ -1,0 +1,10 @@
+{
+  "profiles": {
+    "Rebound.ControlPanel (Package)": {
+      "commandName": "MsixPackage"
+    },
+    "Rebound.ControlPanel (Unpackaged)": {
+      "commandName": "Project"
+    }
+  }
+}

@@ -1,0 +1,177 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<Page
+    x:Class="Rebound.ControlPanel.Views.HomePage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:header="using:WinUIGallery.Controls"
+    xmlns:local="using:Rebound.ControlPanel.Views"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:toolkit="using:CommunityToolkit.WinUI.Controls"
+    mc:Ignorable="d">
+
+    <Grid>
+        <NavigationView IsBackButtonVisible="Collapsed" IsSettingsVisible="False" PaneTitle="Rebound">
+            <NavigationView.MenuItems>
+                <NavigationViewItem Content="Home">
+                    <NavigationViewItem.Icon>
+                        <FontIcon Glyph="&#xE80F;" />
+                    </NavigationViewItem.Icon>
+                </NavigationViewItem>
+                <NavigationViewItem Content="System and Security">
+                    <NavigationViewItem.Icon>
+                        <FontIcon Glyph="&#xEA18;" />
+                    </NavigationViewItem.Icon>
+                    <NavigationViewItem.MenuItems>
+                        <NavigationViewItem Content="Security and Maintenance">
+                            <NavigationViewItem.Icon>
+                                <FontIcon Glyph="&#xEA18;" />
+                            </NavigationViewItem.Icon>
+                        </NavigationViewItem>
+                    </NavigationViewItem.MenuItems>
+                </NavigationViewItem>
+                <NavigationViewItem Content="Network and Internet">
+                    <NavigationViewItem.Icon>
+                        <FontIcon Glyph="&#xE701;" />
+                    </NavigationViewItem.Icon>
+                </NavigationViewItem>
+                <NavigationViewItem Content="Hardware and Sound">
+                    <NavigationViewItem.Icon>
+                        <FontIcon Glyph="&#xE749;" />
+                    </NavigationViewItem.Icon>
+                    <NavigationViewItem.MenuItems>
+                        <NavigationViewItem Content="Security and Maintenance">
+                            <NavigationViewItem.Icon>
+                                <FontIcon Glyph="&#xEA18;" />
+                            </NavigationViewItem.Icon>
+                        </NavigationViewItem>
+                    </NavigationViewItem.MenuItems>
+                </NavigationViewItem>
+                <NavigationViewItem Content="Apps and Programs">
+                    <NavigationViewItem.Icon>
+                        <FontIcon Glyph="&#xECAA;" />
+                    </NavigationViewItem.Icon>
+                </NavigationViewItem>
+                <NavigationViewItem Content="User Accounts">
+                    <NavigationViewItem.Icon>
+                        <FontIcon Glyph="&#xE77B;" />
+                    </NavigationViewItem.Icon>
+                    <NavigationViewItem.MenuItems>
+                        <NavigationViewItem Content="Security and Maintenance">
+                            <NavigationViewItem.Icon>
+                                <FontIcon Glyph="&#xEA18;" />
+                            </NavigationViewItem.Icon>
+                        </NavigationViewItem>
+                    </NavigationViewItem.MenuItems>
+                </NavigationViewItem>
+                <NavigationViewItem Content="Appearance and Personalization">
+                    <NavigationViewItem.Icon>
+                        <FontIcon Glyph="&#xE771;" />
+                    </NavigationViewItem.Icon>
+                </NavigationViewItem>
+                <NavigationViewItem Content="Clock and Region">
+                    <NavigationViewItem.Icon>
+                        <FontIcon Glyph="&#xF49A;" />
+                    </NavigationViewItem.Icon>
+                    <NavigationViewItem.MenuItems>
+                        <NavigationViewItem Content="Security and Maintenance">
+                            <NavigationViewItem.Icon>
+                                <FontIcon Glyph="&#xEA18;" />
+                            </NavigationViewItem.Icon>
+                        </NavigationViewItem>
+                    </NavigationViewItem.MenuItems>
+                </NavigationViewItem>
+                <NavigationViewItem Content="Accessibility">
+                    <NavigationViewItem.Icon>
+                        <FontIcon Glyph="&#xE776;" />
+                    </NavigationViewItem.Icon>
+                </NavigationViewItem>
+                <NavigationViewItem Content="Rebound Settings">
+                    <NavigationViewItem.Icon>
+                        <FontIcon Glyph="&#xE713;" />
+                    </NavigationViewItem.Icon>
+                </NavigationViewItem>
+            </NavigationView.MenuItems>
+            <ScrollViewer>
+                <StackPanel Spacing="4">
+                    <Grid>
+                        <header:HomePageHeaderImage
+                            x:Name="BKGImage"
+                            Height="250"
+                            MinWidth="100"
+                            HorizontalAlignment="Stretch"
+                            VerticalAlignment="Top"
+                            Image="{ThemeResource HeroBackgroundBitmapImage}"
+                            Opacity="0.8" />
+                        <StackPanel Margin="40,24" Spacing="8">
+                            <TextBlock
+                                FontSize="40"
+                                FontWeight="SemiBold"
+                                Text="Desktop Ivirius" />
+                            <StackPanel
+                                Margin="0,16,0,0" Orientation="Horizontal" Spacing="16">
+                                <FontIcon FontSize="16" Glyph="&#xE964;" />
+                                <TextBlock FontWeight="SemiBold" Text="OS" />
+                                <TextBlock Text="Windows 11 Pro" />
+                                <TextBlock>
+                                    <Hyperlink>View more</Hyperlink>
+                                </TextBlock>
+                            </StackPanel>
+                            <StackPanel
+                                Orientation="Horizontal"
+                                Spacing="16">
+                                <FontIcon FontSize="16" Glyph="&#xE950;" />
+                                <TextBlock FontWeight="SemiBold" Text="CPU" />
+                                <TextBlock Text="11th gen Intel(R) Core(TM)  i5-11600K" />
+                            </StackPanel>
+                            <StackPanel Orientation="Horizontal" Spacing="16">
+                                <FontIcon FontSize="16" Glyph="&#xE964;" />
+                                <TextBlock FontWeight="SemiBold" Text="Memory" />
+                                <TextBlock Text="32 GB" />
+                            </StackPanel>
+                            <StackPanel Orientation="Horizontal" Spacing="16">
+                                <FontIcon FontSize="16" Glyph="&#xE77B;" />
+                                <TextBlock FontWeight="SemiBold" Text="Current user" />
+                                <TextBlock Text="Ivirius" />
+                            </StackPanel>
+                        </StackPanel>
+                    </Grid>
+                    <toolkit:SettingsCard Margin="40, 0" Header="Rebound Hub" Description="Manage your Rebound installation." IsClickEnabled="True">
+                        <toolkit:SettingsCard.HeaderIcon>
+                            <FontIcon Glyph="&#xE80F;"/>
+                        </toolkit:SettingsCard.HeaderIcon>
+                        <toolkit:SettingsCard.ActionIcon>
+                            <FontIcon Glyph="&#xE8AD;"/>
+                        </toolkit:SettingsCard.ActionIcon>
+                    </toolkit:SettingsCard>
+                    <toolkit:SettingsCard Margin="40, 0" Header="Settings" Description="Open Windows Settings." IsClickEnabled="True">
+                        <toolkit:SettingsCard.HeaderIcon>
+                            <FontIcon Glyph="&#xE713;"/>
+                        </toolkit:SettingsCard.HeaderIcon>
+                        <toolkit:SettingsCard.ActionIcon>
+                            <FontIcon Glyph="&#xE8AD;"/>
+                        </toolkit:SettingsCard.ActionIcon>
+                    </toolkit:SettingsCard>
+                    <toolkit:SettingsCard Margin="40, 0" Header="Telemetry options" Description="Turn on or off telemetry features in Windows." IsClickEnabled="True">
+                        <toolkit:SettingsCard.HeaderIcon>
+                            <FontIcon Glyph="&#xE9D9;"/>
+                        </toolkit:SettingsCard.HeaderIcon>
+                    </toolkit:SettingsCard>
+                    <toolkit:SettingsCard Margin="40, 0" Header="Cleanup" Description="Clean junk files on your PC." IsClickEnabled="True">
+                        <toolkit:SettingsCard.HeaderIcon>
+                            <FontIcon Glyph="&#xEA99;"/>
+                        </toolkit:SettingsCard.HeaderIcon>
+                        <toolkit:SettingsCard.ActionIcon>
+                            <FontIcon Glyph="&#xE8AD;"/>
+                        </toolkit:SettingsCard.ActionIcon>
+                    </toolkit:SettingsCard>
+                    <toolkit:SettingsCard Margin="40, 0" Header="Modding" Description="Change modding options in Rebound and Windowss." IsClickEnabled="True">
+                        <toolkit:SettingsCard.HeaderIcon>
+                            <FontIcon Glyph="&#xE9E9;"/>
+                        </toolkit:SettingsCard.HeaderIcon>
+                    </toolkit:SettingsCard>
+                </StackPanel>
+            </ScrollViewer>
+        </NavigationView>
+    </Grid>
+</Page>
