@@ -373,3 +373,6 @@ FodyWeavers.xsd
 /src/platforms/Rebound.App/Modding/Launchers/Rebound About.exe
 /src/platforms/Rebound.App/Modding/Launchers/rwinver.exe
 /src/platforms/Rebound.App/Modding/Launchers/rcleanmgr.exe
+/src/platforms/Rebound.App/Modding/Launchers/Rebound User Account Control Settings.exe
+/src/platforms/Rebound.App/Modding/Launchers/rcontrol.exe
+/src/platforms/Rebound.App/Modding/Launchers/ruseraccountcontrolsettings.exe
