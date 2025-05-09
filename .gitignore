@@ -376,3 +376,5 @@ FodyWeavers.xsd
 /src/platforms/Rebound.App/Modding/Launchers/Rebound User Account Control Settings.exe
 /src/platforms/Rebound.App/Modding/Launchers/rcontrol.exe
 /src/platforms/Rebound.App/Modding/Launchers/ruseraccountcontrolsettings.exe
+/src/platforms/Rebound.Installer/Package.msix
+/src/platforms/Rebound.Installer/Certificate.cer
