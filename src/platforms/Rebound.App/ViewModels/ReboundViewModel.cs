@@ -15,7 +15,9 @@ public partial class ReboundViewModel : ObservableObject
         new WinverInstructions(),
         new OnScreenKeyboardInstructions(),
         new DiskCleanupInstructions(),
-        new ShellInstructions()
+        new UserAccountControlSettingsInstructions(),
+        new ControlPanelInstructions(),
+        /*new ShellInstructions()*/ // To be reimplemented Soon™
     ];
 
     [ObservableProperty]

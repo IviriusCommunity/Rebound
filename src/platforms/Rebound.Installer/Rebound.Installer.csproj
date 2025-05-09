@@ -20,6 +20,10 @@
 	</PropertyGroup>
 	<ItemGroup>
 	  <None Remove="Assets\ReboundHubInstaller.ico" />
+	  <None Remove="Certificate.pfx" />
+	</ItemGroup>
+	<ItemGroup>
+	  <Content Include="Certificate.pfx" />
 	</ItemGroup>
 
 	<!-- Package References - These will only apply to projects that compile ahead-of-time (apps and libraries) -->

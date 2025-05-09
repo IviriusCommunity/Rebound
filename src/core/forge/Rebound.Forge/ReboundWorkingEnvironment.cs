@@ -8,81 +8,123 @@ public static class ReboundWorkingEnvironment
     // Folder
     public static void EnsureFolderIntegrity()
     {
-        var programFilesPath = System.Environment.GetFolderPath(System.Environment.SpecialFolder.ProgramFiles);
-        var directoryPath = Path.Combine(programFilesPath, "Rebound");
-
-        // Get the start menu folder of Rebound
-        var startMenuFolder = Path.Combine(System.Environment.GetFolderPath(System.Environment.SpecialFolder.CommonStartMenu), "Programs", "Rebound");
-
-        // Create the directory if it doesn't exist
-        if (!Directory.Exists(directoryPath))
+        try
         {
-            Directory.CreateDirectory(directoryPath);
-        }
+            var programFilesPath = System.Environment.GetFolderPath(System.Environment.SpecialFolder.ProgramFiles);
+            var directoryPath = Path.Combine(programFilesPath, "Rebound");
 
-        if (!Directory.Exists(startMenuFolder))
+            // Get the start menu folder of Rebound
+            var startMenuFolder = Path.Combine(System.Environment.GetFolderPath(System.Environment.SpecialFolder.CommonStartMenu), "Programs", "Rebound");
+
+            // Create the directory if it doesn't exist
+            if (!Directory.Exists(directoryPath))
+            {
+                Directory.CreateDirectory(directoryPath);
+            }
+
+            if (!Directory.Exists(startMenuFolder))
+            {
+                Directory.CreateDirectory(startMenuFolder);
+            }
+
+            File.SetAttributes(directoryPath, FileAttributes.Directory);
+            File.SetAttributes(startMenuFolder, FileAttributes.Directory);
+        }
+        catch
         {
-            Directory.CreateDirectory(startMenuFolder);
-        }
 
-        File.SetAttributes(directoryPath, FileAttributes.Directory);
-        File.SetAttributes(startMenuFolder, FileAttributes.Directory);
+        }
     }
 
     public static void RemoveFolder()
     {
-        var programFilesPath = System.Environment.GetFolderPath(System.Environment.SpecialFolder.ProgramFiles);
-        var directoryPath = Path.Combine(programFilesPath, "Rebound");
-
-        // Get the start menu folder of Rebound
-        var startMenuFolder = Path.Combine(System.Environment.GetFolderPath(System.Environment.SpecialFolder.CommonStartMenu), "Programs", "Rebound");
-
-        // Create the directory if it doesn't exist
-        if (Directory.Exists(directoryPath))
+        try
         {
-            Directory.Delete(directoryPath, true);
+            var programFilesPath = System.Environment.GetFolderPath(System.Environment.SpecialFolder.ProgramFiles);
+            var directoryPath = Path.Combine(programFilesPath, "Rebound");
+
+            // Get the start menu folder of Rebound
+            var startMenuFolder = Path.Combine(System.Environment.GetFolderPath(System.Environment.SpecialFolder.CommonStartMenu), "Programs", "Rebound");
+
+            // Create the directory if it doesn't exist
+            if (Directory.Exists(directoryPath))
+            {
+                Directory.Delete(directoryPath, true);
+            }
+
+            // Create the directory if it doesn't exist
+            if (Directory.Exists(startMenuFolder))
+            {
+                Directory.Delete(startMenuFolder, true);
+            }
         }
-
-        // Create the directory if it doesn't exist
-        if (Directory.Exists(startMenuFolder))
+        catch
         {
-            Directory.Delete(startMenuFolder, true);
+
         }
     }
 
     public static bool FolderExists()
     {
-        var programFilesPath = System.Environment.GetFolderPath(System.Environment.SpecialFolder.ProgramFiles);
-        var directoryPath = Path.Combine(programFilesPath, "Rebound");
+        try
+        {
+            var programFilesPath = System.Environment.GetFolderPath(System.Environment.SpecialFolder.ProgramFiles);
+            var directoryPath = Path.Combine(programFilesPath, "Rebound");
 
-        return Directory.Exists(directoryPath);
+            return Directory.Exists(directoryPath);
+        }
+        catch
+        {
+            return false;
+        }
     }
 
     // Tasks Folder
     public static void EnsureTasksFolderIntegrity()
     {
-        using TaskService ts = new();
+        try
+        {
+            using TaskService ts = new();
 
-        // Specify the path to the task in Task Scheduler
-        _ = ts.GetFolder(@"Rebound") ?? ts.RootFolder.CreateFolder(@"Rebound");
+            // Specify the path to the task in Task Scheduler
+            _ = ts.GetFolder(@"Rebound") ?? ts.RootFolder.CreateFolder(@"Rebound");
+        }
+        catch
+        {
+
+        }
     }
 
     public static void RemoveTasksFolder()
     {
-        using TaskService ts = new();
-
-        // Specify the path to the task in Task Scheduler
-        if (ts.GetFolder(@"Rebound") != null)
+        try
         {
-            ts.RootFolder.DeleteFolder(@"Rebound", false);
+            using TaskService ts = new();
+
+            // Specify the path to the task in Task Scheduler
+            if (ts.GetFolder(@"Rebound") != null)
+            {
+                ts.RootFolder.DeleteFolder(@"Rebound", false);
+            }
+        }
+        catch
+        {
+
         }
     }
 
     public static bool TaskFolderExists()
     {
-        using TaskService ts = new();
+        try
+        {
+            using TaskService ts = new();
 
-        return ts.GetFolder(@"Rebound") != null;
+            return ts.GetFolder(@"Rebound") != null;
+        }
+        catch
+        {
+            return false;
+        }
     }
 
     // General methods

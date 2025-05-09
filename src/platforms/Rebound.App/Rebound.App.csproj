@@ -22,8 +22,10 @@
           <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
         </Content>
         <Content Include="Modding\Launchers\rcleanmgr.exe" />
+        <Content Include="Modding\Launchers\rcontrol.exe" />
         <Content Include="Modding\Launchers\rosk.exe" />
         <Content Include="Modding\Launchers\rshell.exe" />
+        <Content Include="Modding\Launchers\ruseraccountcontrolsettings.exe" />
         <Content Include="Modding\Launchers\rwinver.exe" />
     </ItemGroup>
 	
@@ -55,8 +57,10 @@
       <None Remove="Assets\Backgrounds\WallpaperLight.png" />
       <None Remove="Launcher_OSK.obj" />
       <None Remove="Modding\Launchers\rcleanmgr.exe" />
+      <None Remove="Modding\Launchers\rcontrol.exe" />
       <None Remove="Modding\Launchers\rosk.exe" />
       <None Remove="Modding\Launchers\rshell.exe" />
+      <None Remove="Modding\Launchers\ruseraccountcontrolsettings.exe" />
       <None Remove="Modding\Launchers\rwinver.exe" />
     </ItemGroup>
     <ItemGroup>
