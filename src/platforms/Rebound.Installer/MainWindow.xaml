@@ -7,12 +7,12 @@
     xmlns:local="using:ReboundHubInstaller"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:winuiex="using:WinUIEx"
+    Title="Rebound Hub Installer"
     Width="600"
     Height="600"
     Closed="WindowEx_Closed"
     IsMaximizable="False"
     IsResizable="False"
-    Title="Rebound Hub Installer"
     mc:Ignorable="d">
     <winuiex:WindowEx.SystemBackdrop>
         <MicaBackdrop />
@@ -258,7 +258,7 @@
                         FontWeight="SemiBold"
                         Text="Proper DPI scaling"
                         TextWrapping="WrapWholeWords" />
-                    <TextBlock Text="WinUI apps use vector based graphics so they can adapt to DPI scaling perfectly." TextWrapping="WrapWholeWords" />
+                    <TextBlock Text="WinUI apps use modern graphics so they can adapt to DPI scaling perfectly." TextWrapping="WrapWholeWords" />
                     <Grid
                         Width="480"
                         Height="320"
@@ -321,6 +321,14 @@
             Height="80"
             VerticalAlignment="Bottom"
             Background="{ThemeResource SystemControlBackgroundAltMediumLowBrush}">
+            <ProgressRing
+                x:Name="InstallingProgressRing"
+                Width="24"
+                Height="24"
+                Margin="24"
+                HorizontalAlignment="Left"
+                VerticalAlignment="Center"
+                IsIndeterminate="False" />
             <StackPanel
                 Margin="24"
                 HorizontalAlignment="Right"
@@ -328,9 +336,14 @@
                 Spacing="8">
                 <Button
                     Width="160"
+                    Command="{x:Bind InstallCommand}"
                     Content="Install"
                     Style="{StaticResource AccentButtonStyle}" />
-                <Button Width="160" Content="Close" />
+                <Button
+                    x:Name="CloseButton"
+                    Width="160"
+                    Command="{x:Bind CloseAppCommand}"
+                    Content="Close" />
             </StackPanel>
         </Grid>
     </Grid>

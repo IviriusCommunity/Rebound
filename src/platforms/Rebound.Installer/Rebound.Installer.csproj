@@ -20,10 +20,12 @@
 	</PropertyGroup>
 	<ItemGroup>
 	  <None Remove="Assets\ReboundHubInstaller.ico" />
-	  <None Remove="Certificate.pfx" />
+	  <None Remove="Certificate.cer" />
+	  <None Remove="Package.msix" />
 	</ItemGroup>
 	<ItemGroup>
-	  <Content Include="Certificate.pfx" />
+	  <Content Include="Certificate.cer" />
+	  <Content Include="Package.msix" />
 	</ItemGroup>
 
 	<!-- Package References - These will only apply to projects that compile ahead-of-time (apps and libraries) -->

@@ -3,12 +3,22 @@
         <OutputType>WinExe</OutputType>
         <RootNamespace>Rebound</RootNamespace>
         <EnableMsixTooling>true</EnableMsixTooling>
-        <Version>0.0.3</Version>
+        <Version>0.0.4</Version>
 
 		<PublishTrimmed>false</PublishTrimmed>
-		
+		<PublishAot>false</PublishAot>
 		<!-- Application Manifest -->
 		<ApplicationManifest>app.manifest</ApplicationManifest>
+		<PackageCertificateKeyFile>Rebound.App_TemporaryKey.pfx</PackageCertificateKeyFile>
+		<AppxPackageSigningEnabled>True</AppxPackageSigningEnabled>
+		<GenerateAppInstallerFile>True</GenerateAppInstallerFile>
+		<AppxPackageSigningTimestampDigestAlgorithm>SHA256</AppxPackageSigningTimestampDigestAlgorithm>
+		<AppxAutoIncrementPackageRevision>False</AppxAutoIncrementPackageRevision>
+		<AppxSymbolPackageEnabled>False</AppxSymbolPackageEnabled>
+		<GenerateTestArtifacts>True</GenerateTestArtifacts>
+		<AppxBundle>Never</AppxBundle>
+		<AppInstallerUri>C:\Users\Desktop Ivirius\Desktop</AppInstallerUri>
+		<HoursBetweenUpdateChecks>0</HoursBetweenUpdateChecks>
 	</PropertyGroup>
 
     <ItemGroup>
@@ -113,7 +123,7 @@
 
 		<!-- Windows App SDK and WinUI -->
 		<PackageReference Include="Microsoft.Windows.SDK.BuildTools" Version="10.0.26100.1742" />
-		<PackageReference Update="Microsoft.WindowsAppSDK" Version="1.8.250410001-experimental1" />
+		<PackageReference Include="Microsoft.WindowsAppSDK" Version="1.7.250401001" />
 		<PackageReference Include="WinUIEx" Version="2.5.1" />
 
 		<!-- Windows Interop -->
