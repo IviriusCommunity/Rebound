@@ -1,0 +1,10 @@
+{
+  "profiles": {
+    "Rebound.UserAccountControlSettings (Package)": {
+      "commandName": "MsixPackage"
+    },
+    "Rebound.UserAccountControlSettings (Unpackaged)": {
+      "commandName": "Project"
+    }
+  }
+}

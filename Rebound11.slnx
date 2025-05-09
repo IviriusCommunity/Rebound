@@ -123,5 +123,11 @@
       <Platform Solution="*|x86" Project="x86" />
       <Deploy />
     </Project>
+    <Project Path="src/platforms/Rebound.UserAccountControlSettings/Rebound.UserAccountControlSettings.csproj" Id="be51e8d6-4424-4666-85ee-1b2b82282205">
+      <Platform Solution="*|ARM64" Project="ARM64" />
+      <Platform Solution="*|x64" Project="x64" />
+      <Platform Solution="*|x86" Project="x86" />
+      <Deploy />
+    </Project>
   </Folder>
 </Solution>

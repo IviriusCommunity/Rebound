@@ -34,11 +34,6 @@
         <Resource Remove="Views\HomePage.xaml" />
     </ItemGroup>
     <ItemGroup>
-        <Page Update="InstallationWindow.xaml">
-            <Generator>MSBuild:Compile</Generator>
-        </Page>
-    </ItemGroup>
-    <ItemGroup>
         <PRIResource Remove="Assets\Wallpapers\**" />
     </ItemGroup>
     <ItemGroup>
@@ -99,16 +94,6 @@
       <Page Update="Styles\Images.xaml">
         <Generator>MSBuild:Compile</Generator>
       </Page>
-    </ItemGroup>
-    <ItemGroup>
-        <Page Update="UninstallationWindow.xaml">
-            <Generator>MSBuild:Compile</Generator>
-        </Page>
-    </ItemGroup>
-    <ItemGroup>
-        <Page Update="RegionBlock.xaml">
-            <Generator>MSBuild:Compile</Generator>
-        </Page>
     </ItemGroup>
     <ItemGroup>
       <Page Update="Styles\NavigationViews.xaml">

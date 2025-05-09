@@ -1,7 +1,9 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
-	<PropertyGroup>
+  <PropertyGroup>
+    <RootNamespace>Rebound.UserAccountControlSettings</RootNamespace>
+
+	  <ApplicationIcon>Assets\Admin.ico</ApplicationIcon>
 		<OutputType>WinExe</OutputType>
-		<AssemblyName>Rebound Hub Installer</AssemblyName>
 		<EnableMsixTooling>true</EnableMsixTooling>
 		<SelfContained>true</SelfContained>
 		<PublishSingleFile>true</PublishSingleFile>
@@ -16,23 +18,27 @@
 
 		<!-- Application Manifest -->
 		<ApplicationManifest>app.manifest</ApplicationManifest>
-		<ApplicationIcon>Assets\ReboundHubInstaller.ico</ApplicationIcon>
-	</PropertyGroup>
-	<ItemGroup>
-	  <None Remove="Assets\ReboundHubInstaller.ico" />
-	</ItemGroup>
+		<AssemblyName>Rebound User Account Control Settings</AssemblyName>
+  </PropertyGroup>
+  <ItemGroup>
+    <None Remove="Views\MainPage.xaml" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Manifest Include="$(ApplicationManifest)" />
+  </ItemGroup>
 
 	<!-- Package References - These will only apply to projects that compile ahead-of-time (apps and libraries) -->
 	<ItemGroup>
 
 		<!-- WebView2 -->
 		<PackageReference Include="CommunityToolkit.WinUI.Controls.Segmented" Version="8.2.250402" />
-		<PackageReference Include="Microsoft.Web.WebView2" Version="1.0.3240.44" />
+		<PackageReference Include="Microsoft.Web.WebView2" Version="1.0.3230-prerelease" />
 
 		<!-- Windows App SDK and WinUI -->
-		<PackageReference Include="Microsoft.Windows.SDK.BuildTools" Version="10.0.26100.3916" />
-		<PackageReference Include="System.ServiceProcess.ServiceController" Version="10.0.0-preview.3.25171.5" />
-		<PackageReference Include="Microsoft.WindowsAppSDK" Version="1.8.250410001-experimental1" />
+		<PackageReference Include="Microsoft.Windows.SDK.BuildTools" Version="10.0.26100.1742" />
+		<PackageReference Include="System.ServiceProcess.ServiceController" Version="9.0.4" />
+		<PackageReference Update="Microsoft.WindowsAppSDK" Version="1.8.250410001-experimental1" />
 		<PackageReference Include="WinUIEx" Version="2.5.1" />
 
 		<!-- Windows Interop -->
@@ -61,10 +67,19 @@
 		<PackageReference Include="CommunityToolkit.WinUI.Triggers" Version="8.2.250402" />
 		<PackageReference Include="CommunityToolkit.WinUI.Controls.SettingsControls" Version="8.2.250402" />
 	</ItemGroup>
-
 	<ItemGroup>
 		<ProjectReference Include="..\..\core\unpackaged\Rebound.Core.SourceGeneratorAttributes\Rebound.Core.SourceGeneratorAttributes.csproj" />
 		<ProjectReference Include="..\..\core\unpackaged\Rebound.Core.SourceGenerator\Rebound.Core.SourceGenerator.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
+	</ItemGroup>
+	<ItemGroup>
+		<Page Update="Views\MainPage.xaml">
+			<Generator>MSBuild:Compile</Generator>
+		</Page>
+	</ItemGroup>
+	<ItemGroup>
+	  <Page Update="Views\MainPage.xaml">
+	    <Generator>MSBuild:Compile</Generator>
+	  </Page>
 	</ItemGroup>
 
 	<Import Project="..\..\core\forge\Rebound.Forge\Rebound.Forge.projitems" Label="Shared" />

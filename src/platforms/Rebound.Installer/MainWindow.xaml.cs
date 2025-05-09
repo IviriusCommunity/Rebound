@@ -5,7 +5,7 @@ using System.Runtime.InteropServices;
 using System.Security.Cryptography.X509Certificates;
 using System.Threading.Tasks;
 using Microsoft.UI.Xaml;
-using Microsoft.UI.Xaml.Media;
+using Rebound.Helpers.Windowing;
 using WinUIEx;
 
 namespace ReboundHubInstaller;
@@ -15,14 +15,9 @@ public sealed partial class MainWindow : WindowEx
     public MainWindow()
     {
         InitializeComponent();
-        SystemBackdrop = new MicaBackdrop();
-        this.SetIcon($"{AppContext.BaseDirectory}\\Assets\\ReboundHub.ico");
-        Title = $"Install Rebound Hub";
-        this.SetWindowSize(475, 335);
+        this.SetWindowIcon($"{AppContext.BaseDirectory}\\Assets\\ReboundHubInstaller.ico");
         this.CenterOnScreen();
-        IsMaximizable = false;
-        IsResizable = false;
-        SetDarkMode(this);
+        ExtendsContentIntoTitleBar = true;
     }
 
     // Get the directory of the current process
@@ -78,7 +73,6 @@ public sealed partial class MainWindow : WindowEx
 
     private async void Install_Click(object sender, RoutedEventArgs e)
     {
-        Install.IsEnabled = false;
         try
         {
             // Load the certificate from file
@@ -105,7 +99,6 @@ public sealed partial class MainWindow : WindowEx
         {
             await Task.Delay(50);
         }
-        Progress.Value++;
 
         try
         {
@@ -144,8 +137,6 @@ public sealed partial class MainWindow : WindowEx
             // Handle exceptions as necessary, e.g., log the error or show a message to the user
         }
 
-        Progress.Value++;
-
         if (Directory.Exists(@"C:\Rebound11Temp") != true)
         {
             _ = Directory.CreateDirectory(@"C:\Rebound11Temp");
@@ -174,7 +165,6 @@ public sealed partial class MainWindow : WindowEx
 
         // Wait for the process to exit
         await resFolder.WaitForExitAsync();
-        Progress.Value++;
 
         File.Delete("C:\\Rebound11Temp\\Runtime.msix");
 
@@ -203,7 +193,6 @@ public sealed partial class MainWindow : WindowEx
 
         // Wait for the process to exit
         await resFolder2.WaitForExitAsync();
-        Progress.Value++;
 
         File.Delete("C:\\Rebound11Temp\\ReboundHub.msix");
 

@@ -5,12 +5,12 @@ using Rebound.Forge;
 using Rebound.Generators;
 using Rebound.Helpers.AppEnvironment;
 
-namespace Rebound.ControlPanel;
+namespace Rebound.UserAccountControlSettings;
 
-[ReboundApp("Rebound.Control", "Legacy Control Panel*legacy*ms-appx:///Assets/ControlPanelLegacy.ico")]
+[ReboundApp("Rebound.UACSettings", "Legacy User Account Control Settings*legacy*ms-appx:///Assets/ActionCenterLegacy.ico")]
 public partial class App : Application
 {
-    private async void OnSingleInstanceLaunched(object? sender, Rebound.Helpers.Services.SingleInstanceLaunchEventArgs e)
+    private async void OnSingleInstanceLaunched(object? sender, Helpers.Services.SingleInstanceLaunchEventArgs e)
     {
         if (e.Arguments == "legacy")
         {
@@ -26,13 +26,13 @@ public partial class App : Application
                 Process.GetCurrentProcess().Kill();
                 return;
             }
-            await IFEOEngine.PauseIFEOEntryAsync("control.exe").ConfigureAwait(true);
+            await IFEOEngine.PauseIFEOEntryAsync("useraccountcontrolsettings.exe").ConfigureAwait(true);
             Process.Start(new ProcessStartInfo
             {
-                FileName = "control.exe",
+                FileName = "useraccountcontrolsettings.exe",
                 UseShellExecute = true
             });
-            await IFEOEngine.ResumeIFEOEntryAsync("control.exe").ConfigureAwait(true);
+            await IFEOEngine.ResumeIFEOEntryAsync("useraccountcontrolsettings.exe").ConfigureAwait(true);
             Process.GetCurrentProcess().Kill();
             return;
         }

@@ -1,5 +1,4 @@
-﻿using System.Threading.Tasks;
-using Microsoft.UI.Xaml;
+﻿using Microsoft.UI.Xaml;
 using Rebound.Generators;
 
 namespace Rebound;
@@ -7,11 +6,11 @@ namespace Rebound;
 [ReboundApp("Rebound.Hub", "")]
 public partial class App : Application
 {
-    private async void OnSingleInstanceLaunched(object? sender, Helpers.Services.SingleInstanceLaunchEventArgs e)
+    private void OnSingleInstanceLaunched(object? sender, Helpers.Services.SingleInstanceLaunchEventArgs e)
     {
         if (e.IsFirstLaunch)
         {
-            await LaunchWork();
+            CreateMainWindow();
         }
         else
         {
@@ -21,15 +20,15 @@ public partial class App : Application
             }
             else
             {
-                await LaunchWork();
+                CreateMainWindow();
             }
             return;
         }
     }
 
-    public async Task LaunchWork()
+    public static void CreateMainWindow()
     {
-            MainAppWindow = new MainWindow();
-            MainAppWindow.Activate();
+        MainAppWindow = new MainWindow();
+        MainAppWindow.Activate();
     }
 }

@@ -1,6 +1,8 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <RootNamespace>Rebound.ControlPanel</RootNamespace>
+	  <AssemblyName>Rebound Control Panel</AssemblyName>
+	  <ApplicationIcon>Assets\ControlPanel.ico</ApplicationIcon>
 	  <OutputType>WinExe</OutputType>
 	  <EnableMsixTooling>true</EnableMsixTooling>
 	  <SelfContained>true</SelfContained>
@@ -18,18 +20,10 @@
 	  <ApplicationManifest>app.manifest</ApplicationManifest>
   </PropertyGroup>
   <ItemGroup>
+    <None Remove="Assets\ControlPanel.ico" />
     <None Remove="Views\HomePage.xaml" />
     <None Remove="Views\MainPage.xaml" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Content Include="Assets\SplashScreen.scale-200.png" />
-    <Content Include="Assets\LockScreenLogo.scale-200.png" />
-    <Content Include="Assets\Square150x150Logo.scale-200.png" />
-    <Content Include="Assets\Square44x44Logo.scale-200.png" />
-    <Content Include="Assets\Square44x44Logo.targetsize-24_altform-unplated.png" />
-    <Content Include="Assets\StoreLogo.png" />
-    <Content Include="Assets\Wide310x150Logo.scale-200.png" />
+    <None Remove="Views\RootPage.xaml" />
   </ItemGroup>
 
   <ItemGroup>
@@ -41,12 +35,12 @@
 
 		<!-- WebView2 -->
 		<PackageReference Include="CommunityToolkit.WinUI.Controls.Segmented" Version="8.2.250402" />
-		<PackageReference Include="Microsoft.Web.WebView2" Version="1.0.3230-prerelease" />
+		<PackageReference Include="Microsoft.Web.WebView2" Version="1.0.3240.44" />
 
 		<!-- Windows App SDK and WinUI -->
-		<PackageReference Include="Microsoft.Windows.SDK.BuildTools" Version="10.0.26100.1742" />
-		<PackageReference Include="System.ServiceProcess.ServiceController" Version="9.0.4" />
-		<PackageReference Update="Microsoft.WindowsAppSDK" Version="1.8.250410001-experimental1" />
+		<PackageReference Include="Microsoft.Windows.SDK.BuildTools" Version="10.0.26100.3916" />
+		<PackageReference Include="System.ServiceProcess.ServiceController" Version="10.0.0-preview.3.25171.5" />
+		<PackageReference Include="Microsoft.WindowsAppSDK" Version="1.8.250410001-experimental1" />
 		<PackageReference Include="WinUIEx" Version="2.5.1" />
 
 		<!-- Windows Interop -->
@@ -86,6 +80,11 @@
 	  <Content Update="Assets\Backgrounds\BackgroundLightNew.png">
 	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 	  </Content>
+	</ItemGroup>
+	<ItemGroup>
+	  <Page Update="Views\RootPage.xaml">
+	    <Generator>MSBuild:Compile</Generator>
+	  </Page>
 	</ItemGroup>
 	<ItemGroup>
 	  <Page Update="Views\HomePage.xaml">
