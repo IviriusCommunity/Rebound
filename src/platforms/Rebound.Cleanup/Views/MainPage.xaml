@@ -54,7 +54,10 @@
                 <RowDefinition Height="Auto" />
                 <RowDefinition Height="*" />
             </Grid.RowDefinitions>
-            <toolkit:Segmented IsEnabled="{x:Bind ViewModel.CanItemsBeClicked, Mode=OneWay}" Margin="16,0" Style="{StaticResource PivotSegmentedStyle}">
+            <toolkit:Segmented
+                Margin="16,0"
+                IsEnabled="{x:Bind ViewModel.CanItemsBeClicked, Mode=OneWay}"
+                Style="{StaticResource PivotSegmentedStyle}">
                 <toolkit:SegmentedItem
                     x:Name="DiskCleanupItem"
                     Content="Disk Cleanup"
@@ -233,46 +236,121 @@
             </Grid>
             <Grid Grid.Row="2" Visibility="{x:Bind MoreOptionsItem.IsSelected, Mode=OneWay}">
                 <StackPanel Margin="24,0" Spacing="8">
-                    <toolkit:SettingsCard
-                        Command="{x:Bind ViewModel.DeleteOldRestorePointsAndShadowCopiesCommand}"
-                        Description="Remove all but the latest restore point and all shadow copies."
-                        Header="Delete shadow copies"
-                        IsClickEnabled="True">
-                        <toolkit:SettingsCard.HeaderIcon>
-                            <FontIcon Glyph="&#xED62;" />
-                        </toolkit:SettingsCard.HeaderIcon>
-                        <toolkit:SettingsCard.ActionIcon>
-                            <FontIcon />
-                        </toolkit:SettingsCard.ActionIcon>
-                    </toolkit:SettingsCard>
-                    <toolkit:SettingsCard
-                        Description="Remove programs you no longer need."
-                        Header="Programs and features"
-                        IsClickEnabled="True">
+                    <Button
+                        Padding="18,16,14,16"
+                        HorizontalAlignment="Stretch"
+                        HorizontalContentAlignment="Stretch"
+                        Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
+                        BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                        Command="{x:Bind ViewModel.DeleteOldRestorePointsAndShadowCopiesCommand}">
+                        <Grid ColumnSpacing="20">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto" />
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="Auto" />
+                            </Grid.ColumnDefinitions>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="Auto" />
+                            </Grid.RowDefinitions>
+                            <FontIcon Grid.RowSpan="2" Glyph="&#xED62;" />
+                            <TextBlock
+                                Grid.Column="1"
+                                Text="Delete shadow copies"
+                                TextWrapping="WrapWholeWords" />
+                            <TextBlock
+                                Grid.Row="1"
+                                Grid.Column="1"
+                                FontSize="12"
+                                Opacity="0.75"
+                                Text="Remove all but the latest restore point and all shadow copies."
+                                TextWrapping="WrapWholeWords" />
+                            <FontIcon
+                                Grid.RowSpan="2"
+                                Grid.Column="2"
+                                FontSize="14"
+                                Glyph="" />
+                        </Grid>
+                    </Button>
+                    <Button
+                        Padding="18,16,14,16"
+                        HorizontalAlignment="Stretch"
+                        HorizontalContentAlignment="Stretch"
+                        Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
+                        BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}">
                         <interactivity:Interaction.Behaviors>
                             <interactivity:EventTriggerBehavior EventName="Click">
                                 <behaviors:NavigateToUriAction NavigateUri="ms-settings:appsfeatures" />
                             </interactivity:EventTriggerBehavior>
                         </interactivity:Interaction.Behaviors>
-                        <toolkit:SettingsCard.HeaderIcon>
-                            <FontIcon Glyph="&#xE74C;" />
-                        </toolkit:SettingsCard.HeaderIcon>
-                        <toolkit:SettingsCard.ActionIcon>
-                            <FontIcon Glyph="&#xE8A7;" />
-                        </toolkit:SettingsCard.ActionIcon>
-                    </toolkit:SettingsCard>
-                    <toolkit:SettingsCard
-                        Command="{x:Bind ViewModel.LaunchDefragCommand}"
-                        Description="Defragment or trim your drives to speed them up."
-                        Header="Optimize drives"
-                        IsClickEnabled="True">
-                        <toolkit:SettingsCard.HeaderIcon>
-                            <ImageIcon Source="/Assets/dfrgui.ico" />
-                        </toolkit:SettingsCard.HeaderIcon>
-                        <toolkit:SettingsCard.ActionIcon>
-                            <FontIcon Glyph="&#xE8A7;" />
-                        </toolkit:SettingsCard.ActionIcon>
-                    </toolkit:SettingsCard>
+                        <Grid ColumnSpacing="20">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto" />
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="Auto" />
+                            </Grid.ColumnDefinitions>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="Auto" />
+                            </Grid.RowDefinitions>
+                            <FontIcon Grid.RowSpan="2" Glyph="&#xE74C;" />
+                            <TextBlock
+                                Grid.Column="1"
+                                Text="Programs and features"
+                                TextWrapping="WrapWholeWords" />
+                            <TextBlock
+                                Grid.Row="1"
+                                Grid.Column="1"
+                                FontSize="12"
+                                Opacity="0.75"
+                                Text="Remove programs you no longer need."
+                                TextWrapping="WrapWholeWords" />
+                            <FontIcon
+                                Grid.RowSpan="2"
+                                Grid.Column="2"
+                                FontSize="14"
+                                Glyph="&#xE8A7;" />
+                        </Grid>
+                    </Button>
+                    <Button
+                        Padding="18,16,14,16"
+                        HorizontalAlignment="Stretch"
+                        HorizontalContentAlignment="Stretch"
+                        Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
+                        BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                        Command="{x:Bind ViewModel.LaunchDefragCommand}">
+                        <Grid ColumnSpacing="20">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto" />
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="Auto" />
+                            </Grid.ColumnDefinitions>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="Auto" />
+                            </Grid.RowDefinitions>
+                            <ImageIcon
+                                Grid.RowSpan="2"
+                                Width="20"
+                                Source="/Assets/dfrgui.ico" />
+                            <TextBlock
+                                Grid.Column="1"
+                                Text="Optimize drives"
+                                TextWrapping="WrapWholeWords" />
+                            <TextBlock
+                                Grid.Row="1"
+                                Grid.Column="1"
+                                FontSize="12"
+                                Opacity="0.75"
+                                Text="Defragment or trim your drives to speed them up."
+                                TextWrapping="WrapWholeWords" />
+                            <FontIcon
+                                Grid.RowSpan="2"
+                                Grid.Column="2"
+                                FontSize="14"
+                                Glyph="&#xE8A7;" />
+                        </Grid>
+                    </Button>
                 </StackPanel>
                 <Grid
                     Grid.Row="5"

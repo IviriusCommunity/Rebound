@@ -72,21 +72,28 @@ internal partial class MainViewModel : ObservableObject
     [RelayCommand]
     public static void DeleteOldRestorePointsAndShadowCopies()
     {
-        Process.Start(new ProcessStartInfo
+        try
         {
-            FileName = "vssadmin",
-            Arguments = $"delete shadows /for={EnvironmentHelper.GetWindowsInstallationDrivePath()[..1]}: /oldest",
-            CreateNoWindow = true,
-            UseShellExecute = false
-        });
+            Process.Start(new ProcessStartInfo
+            {
+                FileName = "vssadmin",
+                Arguments = $"delete shadows /for={EnvironmentHelper.GetWindowsInstallationDrivePath()[..1]}: /oldest",
+                CreateNoWindow = true,
+                UseShellExecute = false
+            });
 
-        Process.Start(new ProcessStartInfo
+            Process.Start(new ProcessStartInfo
+            {
+                FileName = "wmic",
+                Arguments = "shadowcopy delete",
+                CreateNoWindow = true,
+                UseShellExecute = false
+            });
+        }
+        catch
         {
-            FileName = "wmic",
-            Arguments = "shadowcopy delete",
-            CreateNoWindow = true,
-            UseShellExecute = false
-        });
+
+        }
     }
 
     [RelayCommand]

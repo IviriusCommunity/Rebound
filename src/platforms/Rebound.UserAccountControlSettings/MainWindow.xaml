@@ -8,8 +8,8 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:winuiex="using:WinUIEx"
     Title="User Account Control Settings"
-    Width="640"
-    Height="540"
+    Width="680"
+    Height="480"
     IsMaximizable="False"
     IsResizable="False"
     mc:Ignorable="d">

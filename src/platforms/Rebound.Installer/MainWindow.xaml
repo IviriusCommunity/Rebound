@@ -8,7 +8,7 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:winuiex="using:WinUIEx"
     Title="Rebound Hub Installer"
-    Width="600"
+    Width="720"
     Height="600"
     Closed="WindowEx_Closed"
     IsMaximizable="False"
@@ -328,8 +328,10 @@
                 Margin="24"
                 HorizontalAlignment="Left"
                 VerticalAlignment="Center"
-                IsIndeterminate="False" />
+                IsIndeterminate="False"
+                Maximum="100"/>
             <StackPanel
+                x:Name="ButtonsStackPanel"
                 Margin="24"
                 HorizontalAlignment="Right"
                 Orientation="Horizontal"
@@ -339,12 +341,26 @@
                     Command="{x:Bind InstallCommand}"
                     Content="Install"
                     Style="{StaticResource AccentButtonStyle}" />
+                <DropDownButton Width="160" Content="More options">
+                    <DropDownButton.Flyout>
+                        <MenuFlyout>
+                            <MenuFlyoutItem Text="Remove Rebound" Command="{x:Bind RemoveReboundCommand}" />
+                            <MenuFlyoutItem Text="Repair Rebound Hub" Command="{x:Bind RepairReboundHubCommand}" />
+                        </MenuFlyout>
+                    </DropDownButton.Flyout>
+                </DropDownButton>
                 <Button
-                    x:Name="CloseButton"
                     Width="160"
                     Command="{x:Bind CloseAppCommand}"
                     Content="Close" />
             </StackPanel>
+            <TextBlock
+                x:Name="DescriptionBox"
+                Margin="64,16,24,16"
+                VerticalAlignment="Center"
+                Visibility="Collapsed"
+                Text="Installing: Rebound Hub MSIX Package. This may take a while."
+                TextWrapping="WrapWholeWords" />
         </Grid>
     </Grid>
 </winuiex:WindowEx>

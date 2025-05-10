@@ -10,7 +10,7 @@
   <Identity
     Name="Rebound.Hub"
     Publisher="CN=Ivirius Community"
-    Version="0.0.4.0" />
+    Version="0.0.5.0" />
 
   <mp:PhoneIdentity PhoneProductId="d6ef5e04-e9da-4e22-9782-8031af8beae7" PhonePublisherId="00000000-0000-0000-0000-000000000000"/>
 
