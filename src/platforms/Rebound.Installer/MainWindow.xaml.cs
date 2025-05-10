@@ -48,6 +48,7 @@ public sealed partial class MainWindow : WindowEx
     [RelayCommand]
     public async Task RemoveReboundAsync()
     {
+        InstallingProgressRing.IsIndeterminate = true;
         ShowProgress("Removing Rebound...");
         await Task.Delay(1000);
 
@@ -62,6 +63,7 @@ public sealed partial class MainWindow : WindowEx
     [RelayCommand]
     public async Task RepairReboundHubAsync()
     {
+        InstallingProgressRing.IsIndeterminate = true;
         ShowProgress("Repairing Rebound Hub...");
         await Task.Delay(1000);
 
@@ -82,9 +84,11 @@ public sealed partial class MainWindow : WindowEx
     [RelayCommand]
     private async Task InstallAsync()
     {
+        InstallingProgressRing.IsIndeterminate = true;
         ShowProgress("Installing Rebound Hub...");
         await Task.Delay(1000);
 
+        InstallingProgressRing.IsIndeterminate = false;
         PrepareDirectories();
 
         await InstallCertificateAsync();
@@ -101,7 +105,6 @@ public sealed partial class MainWindow : WindowEx
 
     private void ShowProgress(string message)
     {
-        InstallingProgressRing.IsIndeterminate = true;
         ButtonsStackPanel.Visibility = Visibility.Collapsed;
         DescriptionBox.Visibility = Visibility.Visible;
         DescriptionBox.Text = message;
