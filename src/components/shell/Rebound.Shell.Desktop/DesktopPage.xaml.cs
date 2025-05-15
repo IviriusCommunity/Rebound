@@ -272,7 +272,7 @@ public sealed partial class DesktopPage : Page
                             await file.CopyAndReplaceAsync(destinationFile);
 
                             desktopFile = new DesktopItem(destinationFile.Path);
-                            await desktopFile.LoadThumbnailAsync().ConfigureAwait(true);
+                            await desktopFile.LoadThumbnailAsync().ConfigureAwait(false);
                             newFiles.Add(desktopFile);
                         }
                         else if (storageFile is StorageFolder folder)
@@ -293,7 +293,7 @@ public sealed partial class DesktopPage : Page
                             await CopyStorageFolderAsync(folder, destinationFolder).ConfigureAwait(true);
 
                             desktopFile = new DesktopItem(destinationFolder.Path);
-                            await desktopFile.LoadThumbnailAsync().ConfigureAwait(true);
+                            await desktopFile.LoadThumbnailAsync().ConfigureAwait(false);
                             newFiles.Add(desktopFile);
                         }
 

@@ -32,4 +32,17 @@
 	    <Generator>MSBuild:Compile</Generator>
 	  </Page>
 	</ItemGroup>
+
+	<!-- Project references -->
+	<ItemGroup>
+		<ProjectReference Include="..\..\..\core\unpackaged\Rebound.Core.SourceGeneratorAttributes\Rebound.Core.SourceGeneratorAttributes.csproj" />
+		<ProjectReference Include="..\..\..\core\unpackaged\Rebound.Core.SourceGenerator\Rebound.Core.SourceGenerator.csproj"
+						 OutputItemType="Analyzer"
+						 ReferenceOutputAssembly="false" />
+	</ItemGroup>
+
+	<!-- Shared project imports -->
+	<Import Project="..\..\..\core\forge\Rebound.Forge\Rebound.Forge.projitems" Label="Shared" />
+	<Import Project="..\..\..\core\shared\Rebound.Core.Helpers\Rebound.Core.Helpers.projitems" Label="Shared" />
+
 </Project>

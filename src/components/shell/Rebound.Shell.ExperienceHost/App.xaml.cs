@@ -55,15 +55,11 @@ public partial class App : Application
         {
             RunWindow = null;
         });
-        RunWindow.SetDarkMode();
-        RunWindow.RemoveTitleBarIcon();
 
         ShutdownDialog = new ShutdownDialog.ShutdownDialog(() =>
         {
             ShutdownDialog = null;
         });
-        ShutdownDialog.SetDarkMode();
-        ShutdownDialog.RemoveTitleBarIcon();
 
         // Desktop window
         DesktopWindow = new DesktopWindow(ShowShutdownDialog, CreateContextMenu);
@@ -95,8 +91,6 @@ public partial class App : Application
                 {
                     RunWindow = null;
                 });
-                RunWindow.SetDarkMode();
-                RunWindow.RemoveTitleBarIcon();
             }
             RunWindow.Activate();
             RunWindow.BringToFront();
@@ -120,8 +114,6 @@ public partial class App : Application
             {
                 ShutdownDialog = null;
             });
-            ShutdownDialog.SetDarkMode();
-            ShutdownDialog.RemoveTitleBarIcon();
         }
         ShutdownDialog.Activate();
         ShutdownDialog.BringToFront();

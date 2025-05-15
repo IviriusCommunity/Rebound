@@ -3,16 +3,22 @@
 
 using System;
 using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
+using System.Drawing;
 using System.IO;
+using System.Runtime.InteropServices;
 using System.Threading.Tasks;
+using System.Xml.Xsl;
 using CommunityToolkit.Mvvm.ComponentModel;
-using IWshRuntimeLibrary;
+using Microsoft.UI.Dispatching;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Media.Imaging;
+using Rebound.Helpers;
 using Rebound.Shell.ExperiencePack;
 using Windows.Storage;
 using Windows.Storage.FileProperties;
+using Windows.Win32;
+using Windows.Win32.Storage.FileSystem;
+using Windows.Win32.System.Com;
 
 namespace Rebound.Shell.Desktop;
 
@@ -59,21 +65,21 @@ public partial class DesktopItem : ObservableObject
 
     partial void OnXChanged(double oldValue, double newValue)
     {
-        DesktopSettingsHelper.SetValue($"X{(FilePath ?? "").ConvertStringToNumericString()}", newValue);
+        SettingsHelper.SetValue($"X{(FilePath ?? "").ConvertStringToNumericString()}", "rshell.desktop", newValue);
         Margin = new Thickness(newValue, Y, 0, 0);
     }
 
     partial void OnYChanged(double oldValue, double newValue)
     {
-        DesktopSettingsHelper.SetValue($"Y{(FilePath ?? "").ConvertStringToNumericString()}", newValue);
+        SettingsHelper.SetValue($"Y{(FilePath ?? "").ConvertStringToNumericString()}", "rshell.desktop", newValue);
         Margin = new Thickness(X, newValue, 0, 0);
     }
 
     public DesktopItem(string filePath)
     {
         FilePath = filePath;
-        X = DesktopSettingsHelper.GetDoubleValue($"X{filePath.ConvertStringToNumericString()}");
-        Y = DesktopSettingsHelper.GetDoubleValue($"Y{filePath.ConvertStringToNumericString()}");
+        X = SettingsHelper.GetValue($"X{filePath.ConvertStringToNumericString()}", "rshell.desktop", -1);
+        Y = SettingsHelper.GetValue($"Y{filePath.ConvertStringToNumericString()}", "rshell.desktop", -1);
         Margin = new Thickness(X, Y, 0, 0);
         FileName = Path.GetFileName(filePath);
         IsThumbnailLoading = false; // Set initially
@@ -215,52 +221,90 @@ public partial class DesktopItem : ObservableObject
         return bitmapImage;
     }
 
-    [RequiresUnreferencedCode("WshRuntimeLibrary is not supported in .NET 6+")]
     public async Task LoadThumbnailAsync()
     {
-        if (IsThumbnailLoading)
-        {
-            return;  // Prevent multiple simultaneous loads
-        }
-
         try
         {
-            IsThumbnailLoading = true;
             FilePath ??= "";
-
-            var targetPath = FilePath;
 
             // Resolve shortcut target asynchronously
             if (CheckIfShortcut(FilePath))
             {
-                try
+                unsafe
                 {
-                    var shortcut = await Task.Run(() => {
-                        var wshShell = new WshShell();
-                        return wshShell.CreateShortcut(FilePath);
-                    }).ConfigureAwait(true);
-                    targetPath = shortcut?.TargetPath ?? "";
-                    targetPath = "";
+                    const int MAX_PATH = 260;
+                    var clsidShellLink = new Guid("00021401-0000-0000-C000-000000000046");
+                    var iidShellLink = new Guid("000214F9-0000-0000-C000-000000000046");
+
+                    PInvoke.CoCreateInstance(in clsidShellLink, null, CLSCTX.CLSCTX_INPROC_SERVER, in iidShellLink, out var shellLinkObj);
+                    var shellLink = (Windows.Win32.UI.Shell.IShellLinkW)shellLinkObj;
+                    ((IPersistFile)shellLink).Load(FilePath, 0);
+
+                    var iconPathBuffer = (char*)Marshal.AllocHGlobal(MAX_PATH * sizeof(char));
+                    string iconPath;
+                    int iconIndex;
+
+                    try
+                    {
+                        shellLink.GetIconLocation(new Windows.Win32.Foundation.PWSTR(iconPathBuffer), MAX_PATH, out iconIndex);
+                        iconPath = new string(iconPathBuffer).TrimEnd('\0');
+                        iconPath = Environment.ExpandEnvironmentVariables(iconPath);
+
+                        if (string.IsNullOrWhiteSpace(iconPath) || !File.Exists(iconPath))
+                        {
+                            WIN32_FIND_DATAW findData;
+                            shellLink.GetPath(new Windows.Win32.Foundation.PWSTR(iconPathBuffer), MAX_PATH, &findData, 0);
+                            iconPath = new string(iconPathBuffer).TrimEnd('\0');
+                            iconIndex = 0;
+                        }
+
+                        if (!File.Exists(iconPath))
+                            return;
+
+                        // Extract icon
+                        PInvoke.ExtractIconEx(iconPath, iconIndex, out var largeIcon, out _, 1);
+                        if (!largeIcon.IsInvalid)
+                        {
+                            // Clone icon properly
+                            using var sysIcon = Icon.FromHandle(largeIcon.DangerousGetHandle());
+                            using var iconCopy = (Icon)sysIcon.Clone(); // clone to avoid destroying original handle
+                            var bitmap = iconCopy.ToBitmap();
+                            using var ms = new MemoryStream();
+                            bitmap.Save(ms, System.Drawing.Imaging.ImageFormat.Png);
+                            ms.Position = 0;
+
+                            DispatcherQueue.GetForCurrentThread().TryEnqueue(() =>
+                            {
+                                var image = new BitmapImage();
+                                image.SetSource(ms.AsRandomAccessStream());
+                                Thumbnail = image;
+                            });
+
+                            PInvoke.DestroyIcon((Windows.Win32.UI.WindowsAndMessaging.HICON)largeIcon.DangerousGetHandle());
+                        }
+                    }
+                    finally
+                    {
+                        Marshal.FreeHGlobal((IntPtr)iconPathBuffer);
+                    }
                 }
-                catch
+            }
+            else
+            {
+                // Load the thumbnail asynchronously
+                var thumbnail = await GetFileIconAsync(FilePath);
+                if (thumbnail != null)
                 {
+                    // Efficiently scale while preserving aspect ratio
+                    SetThumbnailDimensions(thumbnail);
+                    Thumbnail = thumbnail;
                     return;
                 }
             }
-
-            // Load the thumbnail asynchronously
-            var thumbnail = await GetFileIconAsync(targetPath).ConfigureAwait(true);
-            if (thumbnail != null)
-            {
-                // Efficiently scale while preserving aspect ratio
-                SetThumbnailDimensions(thumbnail);
-
-                Thumbnail = thumbnail;
-            }
         }
-        finally
+        catch
         {
-            IsThumbnailLoading = false;
+
         }
     }
 

@@ -27,3 +27,6 @@ MsgWaitForMultipleObjects
 GetMessage
 TranslateMessage
 DispatchMessage
+IPersistFile
+ShellLink
+ExtractIconEx

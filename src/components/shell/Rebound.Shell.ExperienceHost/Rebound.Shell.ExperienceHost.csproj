@@ -1,10 +1,34 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
+
+	<!-- Properties -->
 	<PropertyGroup>
+
+		<!-- General -->
 		<OutputType>WinExe</OutputType>
-		<EnableMsixTooling>true</EnableMsixTooling>
+		<AssemblyName>Rebound Shell</AssemblyName>
 		<RootNamespace>Rebound.Shell.ExperienceHost</RootNamespace>
 		<ApplicationIcon>Assets\ReboundIcon.ico</ApplicationIcon>
+		<ApplicationManifest>app.manifest</ApplicationManifest>
+
+		<!-- Deployment -->
+		<EnableMsixTooling>true</EnableMsixTooling>
+		<WindowsPackageType>None</WindowsPackageType>
+
+		<!-- Self-contained settings -->
+		<SelfContained>true</SelfContained>
+		<PublishSingleFile>true</PublishSingleFile>
+		<WindowsAppSDKSelfContained>true</WindowsAppSDKSelfContained>
+		<IncludeNativeLibrariesForSelfExtract>true</IncludeNativeLibrariesForSelfExtract>
+		<CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
+		<PublishAot>false</PublishAot>
+		<IncludeWinAppSDKNativeDlls>false</IncludeWinAppSDKNativeDlls>
+		<IncludeWinAppSDKMsixContent>false</IncludeWinAppSDKMsixContent>
+
+		<!-- Trimmming -->
+		<PublishTrimmed>false</PublishTrimmed>
+
 	</PropertyGroup>
+
 	<ItemGroup>
 	  <None Remove="Assets\RunBox.ico" />
 	  <None Remove="Assets\RunBox.png" />
@@ -37,15 +61,16 @@
 	  </Content>
 	</ItemGroup>
 
-	<!-- Custom task to compile C++ file -->
-	<!--<Target Name="CompileCppFile" AfterTargets="Build">
-		<ItemGroup>
-		    <CppFiles Include="Launcher.cpp" />
-		</ItemGroup>
-		<PropertyGroup>
-		    <CppOutputPath>$(MSBuildThisFileDirectory)</CppOutputPath>
-		</PropertyGroup>
-		<Exec Command="&quot;C:\Program Files\Microsoft Visual Studio\2022\Preview\VC\Tools\MSVC\14.44.34918\bin\Hostx64\x64\cl.exe&quot; /EHsc /I&quot;C:\Program Files (x86)\Windows Kits\10\Include\10.0.19041.0\um&quot; /I&quot;C:\Program Files (x86)\Windows Kits\10\Include\10.0.19041.0\shared&quot; /I&quot;C:\Program Files (x86)\Windows Kits\10\Include\10.0.19041.0\ucrt&quot; /I&quot;C:\Program Files\Microsoft Visual Studio\2022\Preview\VC\Tools\MSVC\14.44.34918\include&quot; &quot;$(MSBuildThisFileDirectory)Launcher.cpp&quot; /Fo&quot;$(CppOutputPath)Launcher.obj&quot; /Fe&quot;$(CppOutputPath)rshell.exe&quot; /link /LIBPATH:&quot;C:\Program Files (x86)\Windows Kits\10\Lib\10.0.19041.0\um\x64&quot; /LIBPATH:&quot;C:\Program Files (x86)\Windows Kits\10\Lib\10.0.19041.0\ucrt\x64&quot; /LIBPATH:&quot;C:\Program Files\Microsoft Visual Studio\2022\Preview\VC\Tools\MSVC\14.44.34918\lib\x64&quot; uuid.lib libcpmt.lib libucrt.lib Advapi32.lib" />
-	</Target>-->
+	<!-- Project references -->
+	<ItemGroup>
+		<ProjectReference Include="..\..\..\core\unpackaged\Rebound.Core.SourceGeneratorAttributes\Rebound.Core.SourceGeneratorAttributes.csproj" />
+		<ProjectReference Include="..\..\..\core\unpackaged\Rebound.Core.SourceGenerator\Rebound.Core.SourceGenerator.csproj"
+						 OutputItemType="Analyzer"
+						 ReferenceOutputAssembly="false" />
+	</ItemGroup>
+
+	<!-- Shared project imports -->
+	<Import Project="..\..\..\core\forge\Rebound.Forge\Rebound.Forge.projitems" Label="Shared" />
+	<Import Project="..\..\..\core\shared\Rebound.Core.Helpers\Rebound.Core.Helpers.projitems" Label="Shared" />
 
 </Project>

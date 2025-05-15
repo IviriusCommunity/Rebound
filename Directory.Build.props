@@ -39,7 +39,7 @@
 	</PropertyGroup>
 
 	<!-- Package references -->
-	<ItemGroup Condition="'$(OutputType)' == 'WinExe'">
+	<ItemGroup Condition="'$(MSBuildProjectName)' != 'Rebound.Core.SourceGenerator' and '$(MSBuildProjectName)' != 'Rebound.Core.SourceGeneratorAttributes'">
 		
 		<!-- WebView2 -->
 		<PackageReference Include="Microsoft.Web.WebView2" Version="1.0.3240.44" />
@@ -57,6 +57,7 @@
 		</PackageReference>
 
 		<!-- System and Management -->
+		<PackageReference Include="System.Drawing.Common" Version="9.0.5" />
 		<PackageReference Include="System.Management" Version="9.0.4" />
 		<PackageReference Include="System.ServiceProcess.ServiceController" Version="9.0.4" />
 

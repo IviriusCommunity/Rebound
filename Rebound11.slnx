@@ -16,6 +16,7 @@
     </Project>
   </Folder>
   <Folder Name="/src/components/shell/" Id="14547d38-0320-4d63-88ef-3352e4e46d22">
+    <File Path="Directory.Build.props" />
     <Project Path="src/components/shell/Rebound.Shell.ControlPanel/Rebound.Shell.ControlPanel.csproj">
       <Platform Solution="*|ARM64" Project="ARM64" />
       <Platform Solution="*|x64" Project="x64" />
