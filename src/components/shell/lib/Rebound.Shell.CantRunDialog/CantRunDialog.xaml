@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<winuiex:WindowEx
+    x:Class="Rebound.Shell.CantRunDialog.CantRunDialog"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:animatedvisuals="using:Microsoft.UI.Xaml.Controls.AnimatedVisuals"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:local="using:Rebound.Shell.CantRunDialog"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:winuiex="using:WinUIEx"
+    Title="This app can't run on your PC"
+    Width="600"
+    Closed="WindowEx_Closed"
+    Height="220"
+    IsMaximizable="False"
+    IsMinimizable="False"
+    IsResizable="False"
+    mc:Ignorable="d">
+    <winuiex:WindowEx.SystemBackdrop>
+        <MicaBackdrop />
+    </winuiex:WindowEx.SystemBackdrop>
+    <Grid>
+        <Grid>
+            <TextBlock Margin="32, 28" Style="{StaticResource SubtitleTextBlockStyle}" Text="This app can't run on your PC"/>
+            <TextBlock Margin="32, 72, 32, 96" Text="The file may be corrupted or incompatible with your PC's configuration."/>
+            <Grid
+                Padding="24"
+                VerticalAlignment="Bottom"
+                Background="{ThemeResource SystemControlBackgroundAltMediumLowBrush}">
+                <StackPanel
+                    HorizontalAlignment="Right"
+                    Orientation="Horizontal"
+                    Spacing="8">
+                    <Button
+                        Width="120"
+                        Style="{StaticResource AccentButtonStyle}"
+                        Command="{x:Bind CancelCommand}"
+                        Content="Close">
+                        <Button.KeyboardAccelerators>
+                            <KeyboardAccelerator Key="Escape" />
+                        </Button.KeyboardAccelerators>
+                    </Button>
+                </StackPanel>
+            </Grid>
+        </Grid>
+    </Grid>
+</winuiex:WindowEx>

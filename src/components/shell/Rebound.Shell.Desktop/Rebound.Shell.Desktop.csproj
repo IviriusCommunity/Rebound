@@ -3,6 +3,16 @@
 		<RootNamespace>Rebound.Shell.Desktop</RootNamespace>
 		<OutputType>Library</OutputType>
 		<CodePage>65001</CodePage>
+		<!-- Important for analyzers -->
+		<EnableMsixTooling>true</EnableMsixTooling>
+		<SelfContained>true</SelfContained>
+		<WindowsAppSDKSelfContained>true</WindowsAppSDKSelfContained>
+		<WindowsPackageType>None</WindowsPackageType>
+		<IncludeNativeLibrariesForSelfExtract>true</IncludeNativeLibrariesForSelfExtract>
+		<PublishAot>false</PublishAot>
+		<PublishTrimmed>false</PublishTrimmed>
+		<CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
+		<WindowsAppSdkUndockedRegFreeWinRTInitialize>true</WindowsAppSdkUndockedRegFreeWinRTInitialize>
 	</PropertyGroup>
 	<ItemGroup>
 	  <None Remove="ContextMenuWindow.xaml" />

@@ -3,11 +3,11 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Drawing;
 using System.IO;
 using System.Runtime.InteropServices;
 using System.Threading.Tasks;
-using System.Xml.Xsl;
 using CommunityToolkit.Mvvm.ComponentModel;
 using Microsoft.UI.Dispatching;
 using Microsoft.UI.Xaml;
@@ -28,13 +28,16 @@ public partial class DesktopItem : ObservableObject
     public partial string? FileName { get; set; }
 
     [ObservableProperty]
+    public partial double Opacity { get; set; } = 1;
+
+    [ObservableProperty]
+    public partial bool IsDragging { get; set; } = false;
+
+    [ObservableProperty]
     public partial string? FilePath { get; set; }
 
     [ObservableProperty]
     public partial BitmapImage? Thumbnail { get; set; } = null;
-
-    [ObservableProperty]
-    public partial bool IsThumbnailLoading { get; set; } = true;
 
     [ObservableProperty]
     public partial bool IsShortcut { get; set; } = false;
@@ -82,7 +85,6 @@ public partial class DesktopItem : ObservableObject
         Y = SettingsHelper.GetValue($"Y{filePath.ConvertStringToNumericString()}", "rshell.desktop", -1);
         Margin = new Thickness(X, Y, 0, 0);
         FileName = Path.GetFileName(filePath);
-        IsThumbnailLoading = false; // Set initially
         Load(filePath);
     }
 
@@ -230,64 +232,64 @@ public partial class DesktopItem : ObservableObject
             // Resolve shortcut target asynchronously
             if (CheckIfShortcut(FilePath))
             {
-                unsafe
-                {
-                    const int MAX_PATH = 260;
-                    var clsidShellLink = new Guid("00021401-0000-0000-C000-000000000046");
-                    var iidShellLink = new Guid("000214F9-0000-0000-C000-000000000046");
+                //unsafe
+                //{
+                //    const int MAX_PATH = 260;
+                //    var clsidShellLink = new Guid("00021401-0000-0000-C000-000000000046");
+                //    var iidShellLink = new Guid("000214F9-0000-0000-C000-000000000046");
 
-                    PInvoke.CoCreateInstance(in clsidShellLink, null, CLSCTX.CLSCTX_INPROC_SERVER, in iidShellLink, out var shellLinkObj);
-                    var shellLink = (Windows.Win32.UI.Shell.IShellLinkW)shellLinkObj;
-                    ((IPersistFile)shellLink).Load(FilePath, 0);
+                //    PInvoke.CoCreateInstance(in clsidShellLink, null, CLSCTX.CLSCTX_INPROC_SERVER, in iidShellLink, out var shellLinkObj);
+                //    var shellLink = (Windows.Win32.UI.Shell.IShellLinkW)shellLinkObj;
+                //    ((IPersistFile)shellLink).Load(FilePath, 0);
 
-                    var iconPathBuffer = (char*)Marshal.AllocHGlobal(MAX_PATH * sizeof(char));
-                    string iconPath;
-                    int iconIndex;
+                //    var iconPathBuffer = (char*)Marshal.AllocHGlobal(MAX_PATH * sizeof(char));
+                //    string iconPath;
+                //    int iconIndex;
 
-                    try
-                    {
-                        shellLink.GetIconLocation(new Windows.Win32.Foundation.PWSTR(iconPathBuffer), MAX_PATH, out iconIndex);
-                        iconPath = new string(iconPathBuffer).TrimEnd('\0');
-                        iconPath = Environment.ExpandEnvironmentVariables(iconPath);
+                //    try
+                //    {
+                //        shellLink.GetIconLocation(new Windows.Win32.Foundation.PWSTR(iconPathBuffer), MAX_PATH, out iconIndex);
+                //        iconPath = new string(iconPathBuffer).TrimEnd('\0');
+                //        iconPath = Environment.ExpandEnvironmentVariables(iconPath);
 
-                        if (string.IsNullOrWhiteSpace(iconPath) || !File.Exists(iconPath))
-                        {
-                            WIN32_FIND_DATAW findData;
-                            shellLink.GetPath(new Windows.Win32.Foundation.PWSTR(iconPathBuffer), MAX_PATH, &findData, 0);
-                            iconPath = new string(iconPathBuffer).TrimEnd('\0');
-                            iconIndex = 0;
-                        }
+                //        if (string.IsNullOrWhiteSpace(iconPath) || !File.Exists(iconPath))
+                //        {
+                //            WIN32_FIND_DATAW findData;
+                //            shellLink.GetPath(new Windows.Win32.Foundation.PWSTR(iconPathBuffer), MAX_PATH, &findData, 0);
+                //            iconPath = new string(iconPathBuffer).TrimEnd('\0');
+                //            iconIndex = 0;
+                //        }
 
-                        if (!File.Exists(iconPath))
-                            return;
+                //        if (!File.Exists(iconPath))
+                //            return;
 
-                        // Extract icon
-                        PInvoke.ExtractIconEx(iconPath, iconIndex, out var largeIcon, out _, 1);
-                        if (!largeIcon.IsInvalid)
-                        {
-                            // Clone icon properly
-                            using var sysIcon = Icon.FromHandle(largeIcon.DangerousGetHandle());
-                            using var iconCopy = (Icon)sysIcon.Clone(); // clone to avoid destroying original handle
-                            var bitmap = iconCopy.ToBitmap();
-                            using var ms = new MemoryStream();
-                            bitmap.Save(ms, System.Drawing.Imaging.ImageFormat.Png);
-                            ms.Position = 0;
+                //        // Extract icon
+                //        PInvoke.ExtractIconEx(iconPath, iconIndex, out var largeIcon, out _, 1);
+                //        if (!largeIcon.IsInvalid)
+                //        {
+                //            // Clone icon properly
+                //            using var sysIcon = Icon.FromHandle(largeIcon.DangerousGetHandle());
+                //            using var iconCopy = (Icon)sysIcon.Clone(); // clone to avoid destroying original handle
+                //            var bitmap = iconCopy.ToBitmap();
+                //            using var ms = new MemoryStream();
+                //            bitmap.Save(ms, System.Drawing.Imaging.ImageFormat.Png);
+                //            ms.Position = 0;
 
-                            DispatcherQueue.GetForCurrentThread().TryEnqueue(() =>
-                            {
-                                var image = new BitmapImage();
-                                image.SetSource(ms.AsRandomAccessStream());
-                                Thumbnail = image;
-                            });
+                //            DispatcherQueue.GetForCurrentThread().TryEnqueue(() =>
+                //            {
+                //                var image = new BitmapImage();
+                //                image.SetSource(ms.AsRandomAccessStream());
+                //                Thumbnail = image;
+                //            });
 
-                            PInvoke.DestroyIcon((Windows.Win32.UI.WindowsAndMessaging.HICON)largeIcon.DangerousGetHandle());
-                        }
-                    }
-                    finally
-                    {
-                        Marshal.FreeHGlobal((IntPtr)iconPathBuffer);
-                    }
-                }
+                //            PInvoke.DestroyIcon((Windows.Win32.UI.WindowsAndMessaging.HICON)largeIcon.DangerousGetHandle());
+                //        }
+                //    }
+                //    finally
+                //    {
+                //        Marshal.FreeHGlobal((IntPtr)iconPathBuffer);
+                //    }
+                //}
             }
             else
             {

@@ -23,17 +23,11 @@
       <Platform Solution="*|x86" Project="x86" />
       <Deploy />
     </Project>
-    <Project Path="src/components/shell/Rebound.Shell.Desktop/Rebound.Shell.Desktop.csproj" Id="acc88f1b-3bcb-4e2c-912a-d859f6f2e916">
-      <Platform Project="x64" />
-    </Project>
     <Project Path="src/components/shell/Rebound.Shell.ExperienceHost/Rebound.Shell.ExperienceHost.csproj" Id="e731f105-798f-451d-9bc3-6a998c87b6c4">
       <Platform Solution="*|ARM64" Project="ARM64" />
       <Platform Solution="*|x64" Project="x64" />
       <Platform Solution="*|x86" Project="x86" />
       <Deploy />
-    </Project>
-    <Project Path="src/components/shell/Rebound.Shell.ExperiencePack/Rebound.Shell.ExperiencePack.csproj" Id="1acd7b73-1092-4510-b40a-716ae15363d9">
-      <Platform Project="x64" />
     </Project>
     <Project Path="src/components/shell/Rebound.Shell.InteractiveDialog/Rebound.Shell.InteractiveDialog.csproj">
       <Platform Solution="*|ARM64" Project="ARM64" />
@@ -41,12 +35,13 @@
       <Platform Solution="*|x86" Project="x86" />
       <Deploy />
     </Project>
-    <Project Path="src/components/shell/Rebound.Shell.Run/Rebound.Shell.Run.csproj" Id="2a28a5a2-1825-4bcd-b7fd-266b8e82a73a">
-      <Platform Project="x64" />
-    </Project>
-    <Project Path="src/components/shell/Rebound.Shell.ShutdownDialog/Rebound.Shell.ShutdownDialog.csproj" Id="f86bd699-d1fb-4722-bede-0bfd5be82dc1">
-      <Platform Project="x64" />
-    </Project>
+  </Folder>
+  <Folder Name="/src/components/shell/lib/" Id="88401ace-7338-4eb7-89df-25a5f6f50dd7">
+    <Project Path="src/components/shell/lib/Rebound.Shell.CantRunDialog/Rebound.Shell.CantRunDialog.shproj" Id="95b0c01e-7c08-4d55-ac88-7ae5b3b6fbd5" />
+    <Project Path="src/components/shell/lib/Rebound.Shell.Desktop/Rebound.Shell.Desktop.shproj" Id="a1c1fd83-2e2a-4f68-b4b6-97b5c8deb90f" />
+    <Project Path="src/components/shell/lib/Rebound.Shell.ExperiencePack/Rebound.Shell.ExperiencePack.shproj" Id="5b0a4266-1527-467a-abc7-8aaae38eb5fa" />
+    <Project Path="src/components/shell/lib/Rebound.Shell.Run/Rebound.Shell.Run.shproj" Id="a8e65968-8e9a-4b64-b1c3-d69fc4e605b3" />
+    <Project Path="src/components/shell/lib/Rebound.Shell.ShutdownDialog/Rebound.Shell.ShutdownDialog.shproj" Id="79e065d5-90a9-4f75-bf5c-10daf62dcb66" />
   </Folder>
   <Folder Name="/src/core/" Id="fb5d6fae-fad5-4679-aec2-b8fb3878993e" />
   <Folder Name="/src/core/forge/" Id="473f543c-1a05-4310-bf4c-f1df3286f45b">

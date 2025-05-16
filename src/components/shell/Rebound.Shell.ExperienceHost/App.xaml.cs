@@ -1,7 +1,11 @@
 ﻿// Copyright (C) Ivirius(TM) Community 2020 - 2025. All Rights Reserved.
 // Licensed under the MIT License.
 
+using System;
+using System.Reflection.Metadata;
 using System.Threading;
+using System.Threading.Tasks;
+using CommunityToolkit.WinUI;
 using Microsoft.UI.Xaml;
 using Rebound.Generators;
 using Rebound.Helpers;
@@ -34,6 +38,12 @@ public partial class App : Application
             var hook2 = new WindowHook("#32770", "Run", "explorer");
             hook2.WindowDetected += Hook_WindowDetected_Run;
 
+            /*var hook3 = new WindowHook("Shell_Dialog", "This app can't run on your PC", "explorer");
+            hook3.WindowDetected += Hook_WindowDetected_CantRun;*/
+
+            var hook4 = new WindowHook("Shell_Dim", null, "explorer");
+            hook4.WindowDetected += Hook_WindowDetected_Dim;
+
             // Keep message pump alive so both hooks keep working
             NativeMessageLoop();
         });
@@ -61,13 +71,18 @@ public partial class App : Application
             ShutdownDialog = null;
         });
 
+        CantRunDialog = new CantRunDialog.CantRunDialog(() =>
+        {
+            CantRunDialog = null;
+        });
+
         // Desktop window
-        DesktopWindow = new DesktopWindow(ShowShutdownDialog, CreateContextMenu);
+        /*DesktopWindow = new DesktopWindow(ShowShutdownDialog, CreateContextMenu);
         DesktopWindow.Activate();
         DesktopWindow.AttachToProgMan();
 
         ContextMenuWindow = new ContextMenuWindow(DesktopWindow as DesktopWindow);
-        ContextMenuWindow.Activate();
+        ContextMenuWindow.Activate();*/
     }
 
     private void CreateContextMenu(Point pos)
@@ -99,10 +114,25 @@ public partial class App : Application
 
     private void Hook_WindowDetected_Shutdown(object? sender, WindowDetectedEventArgs e)
     {
-        PInvoke.DestroyWindow(new(e.Handle));
         BackgroundWindow?.DispatcherQueue.TryEnqueue(() =>
         {
+            PInvoke.DestroyWindow(new(e.Handle));
             ShowShutdownDialog();
+        });
+    }
+
+    private async void Hook_WindowDetected_Dim(object? sender, WindowDetectedEventArgs e)
+    {
+        if (PInvoke.IsWindow(new(e.Handle)))
+        {
+            // Send WM_CLOSE asynchronously, non-blocking
+            PInvoke.PostMessage(new(e.Handle), WM_CLOSE, new Windows.Win32.Foundation.WPARAM(0), IntPtr.Zero);
+        }
+        // Optional: you can check if window is still there, and if so, try again or just move on
+
+        await BackgroundWindow.DispatcherQueue.EnqueueAsync(() =>
+        {
+            ShowCantRunDialog();
         });
     }
 
@@ -117,6 +147,19 @@ public partial class App : Application
         }
         ShutdownDialog.Activate();
         ShutdownDialog.BringToFront();
+    }
+
+    public static void ShowCantRunDialog()
+    {
+        if (CantRunDialog is null)
+        {
+            CantRunDialog = new CantRunDialog.CantRunDialog(() =>
+            {
+                CantRunDialog = null;
+            });
+        }
+        CantRunDialog.Activate();
+        CantRunDialog.BringToFront();
     }
 
     private static void NativeMessageLoop()
@@ -142,4 +185,5 @@ public partial class App : Application
     public static WindowEx? DesktopWindow { get; set; }
     public static WindowEx? ShutdownDialog { get; set; }
     public static WindowEx? BackgroundWindow { get; set; }
+    public static WindowEx? CantRunDialog { get; set; }
 }

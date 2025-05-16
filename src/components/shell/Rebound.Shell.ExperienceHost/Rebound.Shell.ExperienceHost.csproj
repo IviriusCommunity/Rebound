@@ -30,6 +30,7 @@
 	</PropertyGroup>
 
 	<ItemGroup>
+	  <None Remove="Assets\r11logo.png" />
 	  <None Remove="Assets\RunBox.ico" />
 	  <None Remove="Assets\RunBox.png" />
 	  <None Remove="Launcher.obj" />
@@ -46,13 +47,6 @@
 	</ItemGroup>
 
 	<ItemGroup>
-		<ProjectReference Include="..\Rebound.Shell.Desktop\Rebound.Shell.Desktop.csproj" />
-		<ProjectReference Include="..\Rebound.Shell.ExperiencePack\Rebound.Shell.ExperiencePack.csproj" />
-		<ProjectReference Include="..\Rebound.Shell.Run\Rebound.Shell.Run.csproj" />
-		<ProjectReference Include="..\Rebound.Shell.ShutdownDialog\Rebound.Shell.ShutdownDialog.csproj" />
-	</ItemGroup>
-
-	<ItemGroup>
 	  <Content Update="Assets\RunBox.ico">
 	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
 	  </Content>
@@ -64,13 +58,16 @@
 	<!-- Project references -->
 	<ItemGroup>
 		<ProjectReference Include="..\..\..\core\unpackaged\Rebound.Core.SourceGeneratorAttributes\Rebound.Core.SourceGeneratorAttributes.csproj" />
-		<ProjectReference Include="..\..\..\core\unpackaged\Rebound.Core.SourceGenerator\Rebound.Core.SourceGenerator.csproj"
-						 OutputItemType="Analyzer"
-						 ReferenceOutputAssembly="false" />
+		<ProjectReference Include="..\..\..\core\unpackaged\Rebound.Core.SourceGenerator\Rebound.Core.SourceGenerator.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
 	</ItemGroup>
 
 	<!-- Shared project imports -->
 	<Import Project="..\..\..\core\forge\Rebound.Forge\Rebound.Forge.projitems" Label="Shared" />
 	<Import Project="..\..\..\core\shared\Rebound.Core.Helpers\Rebound.Core.Helpers.projitems" Label="Shared" />
+	<Import Project="..\lib\Rebound.Shell.Desktop\Rebound.Shell.Desktop.projitems" Label="Shared" />
+	<Import Project="..\lib\Rebound.Shell.ExperiencePack\Rebound.Shell.ExperiencePack.projitems" Label="Shared" />
+	<Import Project="..\lib\Rebound.Shell.Run\Rebound.Shell.Run.projitems" Label="Shared" />
+	<Import Project="..\lib\Rebound.Shell.ShutdownDialog\Rebound.Shell.ShutdownDialog.projitems" Label="Shared" />
+	<Import Project="..\lib\Rebound.Shell.CantRunDialog\Rebound.Shell.CantRunDialog.projitems" Label="Shared" />
 
 </Project>

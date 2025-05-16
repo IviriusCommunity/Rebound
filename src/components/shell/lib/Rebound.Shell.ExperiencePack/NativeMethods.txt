@@ -22,13 +22,3 @@ EnumChildWindows
 IsWindowVisible
 SetWinEventHook
 GetParent
-DestroyWindow
-MsgWaitForMultipleObjects
-GetMessage
-TranslateMessage
-DispatchMessage
-IPersistFile
-ShellLink
-ExtractIconEx
-SetSuspendState
-IsWindow

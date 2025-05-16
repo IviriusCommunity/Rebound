@@ -2,6 +2,16 @@
 	<PropertyGroup>
 		<RootNamespace>Rebound.Shell.ExperiencePack</RootNamespace>
 		<OutputType>Library</OutputType>
+		<!-- Important for analyzers -->
+		<EnableMsixTooling>true</EnableMsixTooling>
+		<SelfContained>true</SelfContained>
+		<WindowsAppSDKSelfContained>true</WindowsAppSDKSelfContained>
+		<WindowsPackageType>None</WindowsPackageType>
+		<IncludeNativeLibrariesForSelfExtract>true</IncludeNativeLibrariesForSelfExtract>
+		<PublishAot>false</PublishAot>
+		<PublishTrimmed>false</PublishTrimmed>
+		<CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
+		<WindowsAppSdkUndockedRegFreeWinRTInitialize>true</WindowsAppSdkUndockedRegFreeWinRTInitialize>
 	</PropertyGroup>
 	<ItemGroup>
 	  <AdditionalFiles Include="NativeMethods.txt" />

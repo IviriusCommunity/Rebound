@@ -443,23 +443,13 @@
         <Grid
             Padding="4"
             Background="#01000000"
-            DragOver="CanvasControl_DragOver"
-            Drop="CanvasControl_Drop"
-            PointerMoved="CanvasControl_PointerMoved"
-            PointerPressed="CanvasControl_PointerPressed"
-            PointerReleased="CanvasControl_PointerReleased">
+            PointerPressed="CanvasControl_PointerPressed_1">
             <ItemsRepeater
                 x:Name="CanvasControl"
                 HorizontalAlignment="Stretch"
                 VerticalAlignment="Stretch"
                 AllowDrop="True"
-                Background="#01000000"
-                DragOver="CanvasControl_DragOver"
-                Drop="CanvasControl_Drop"
-                ItemsSource="{x:Bind Items, Mode=OneWay}"
-                PointerMoved="CanvasControl_PointerMoved"
-                PointerPressed="CanvasControl_PointerPressed"
-                PointerReleased="CanvasControl_PointerReleased">
+                ItemsSource="{x:Bind Items, Mode=OneWay}">
                 <ItemsRepeater.Layout>
                     <local:GridLayout />
                 </ItemsRepeater.Layout>
@@ -469,17 +459,16 @@
                             x:Name="RootGrid"
                             Width="80"
                             Height="100"
+                            Opacity="{x:Bind Opacity, Mode=OneWay}"
                             ui:UIElementExtensions.ClipToBounds="False"
                             AllowDrop="True"
                             Background="Transparent"
-                            CanDrag="True"
                             DataContext="{x:Bind}"
-                            DoubleTapped="Grid_DoubleTapped"
                             DragStarting="Grid_DragStarting"
-                            PointerEntered="Grid_PointerEntered"
-                            PointerExited="Grid_PointerExited"
-                            PointerPressed="Grid_PointerPressed"
-                            PointerReleased="Grid_PointerReleased_1">
+                            PointerEntered="RootGrid_PointerEntered"
+                            PointerExited="RootGrid_PointerExited"
+                            PointerMoved="RootGrid_PointerMoved"
+                            PointerPressed="RootGrid_PointerPressed">
                             <ItemContainer
                                 Padding="0"
                                 HorizontalAlignment="Stretch"
@@ -497,7 +486,7 @@
                                         Margin="0,8,0,0"
                                         VerticalAlignment="Top"
                                         ui:UIElementExtensions.ClipToBounds="False">
-                                        <Viewbox>
+                                        <Viewbox DoubleTapped="Grid_DoubleTapped">
                                             <ImageIcon
                                                 Width="256"
                                                 Height="256"
@@ -582,9 +571,9 @@
                                         Margin="8,60,8,8"
                                         HorizontalAlignment="Stretch"
                                         FontSize="12"
+                                        FontWeight="SemiBold"
                                         Foreground="White"
                                         Text="{x:Bind FileName}"
-                                        FontWeight="SemiBold"
                                         TextAlignment="Center"
                                         TextTrimming="CharacterEllipsis"
                                         TextWrapping="WrapWholeWords">
@@ -594,32 +583,32 @@
                                                 CastTo="{x:Bind FileNameControl1}"
                                                 IsMasked="True"
                                                 Opacity="1"
-                                                Color="Black"
-                                                Offset="1" />
+                                                Offset="1"
+                                                Color="Black" />
                                         </ui:Effects.Shadow>
                                     </TextBlock>
                                     <TextBlock
-                                        Margin="9, 61, 7, 7"
+                                        Margin="9,61,7,7"
                                         HorizontalAlignment="Stretch"
                                         FontSize="12"
                                         FontWeight="SemiBold"
                                         Foreground="Black"
+                                        Shadow="{ThemeResource CommandBarFlyoutOverflowShadow}"
                                         Text="{x:Bind FileName}"
                                         TextAlignment="Center"
                                         TextTrimming="CharacterEllipsis"
-                                        TextWrapping="WrapWholeWords"
-                                        Shadow="{ThemeResource CommandBarFlyoutOverflowShadow}"/>
+                                        TextWrapping="WrapWholeWords" />
                                     <TextBlock
-                                        Margin="8, 60, 8, 8"
+                                        Margin="8,60,8,8"
                                         HorizontalAlignment="Stretch"
                                         FontSize="12"
                                         FontWeight="SemiBold"
                                         Foreground="White"
                                         Text="{x:Bind FileName}"
-                                        ToolTipService.ToolTip="{x:Bind FileName}"
                                         TextAlignment="Center"
                                         TextTrimming="CharacterEllipsis"
-                                        TextWrapping="WrapWholeWords" />
+                                        TextWrapping="WrapWholeWords"
+                                        ToolTipService.ToolTip="{x:Bind FileName}" />
                                     <TextBox
                                         Margin="0,60,0,0"
                                         FontSize="12"
@@ -639,6 +628,20 @@
                 </ItemsRepeater.ItemTemplate>
             </ItemsRepeater>
             <Border
+                x:Name="SelectionBorder"
+                Width="0"
+                Height="0"
+                HorizontalAlignment="Left"
+                VerticalAlignment="Top"
+                BorderBrush="{ThemeResource AccentFillColorDefaultBrush}"
+                BorderThickness="1"
+                CornerRadius="4">
+                <Border
+                    Background="{ThemeResource AccentFillColorDefaultBrush}"
+                    CornerRadius="4"
+                    Opacity="0.2" />
+            </Border>
+            <Border
                 x:Name="PlacementBorder"
                 Margin="-4"
                 HorizontalAlignment="Stretch"
@@ -647,24 +650,10 @@
                 Background="{ThemeResource SmokeFillColorDefaultBrush}"
                 DragOver="CanvasControl_DragOver"
                 Drop="CanvasControl_Drop"
+                PointerMoved="PlacementBorder_PointerMoved"
+                PointerPressed="PlacementBorder_PointerPressed"
+                PointerReleased="PlacementBorder_PointerReleased"
                 Visibility="Collapsed" />
-            <Border
-                x:Name="SelectionBorder"
-                Width="0"
-                Height="0"
-                HorizontalAlignment="Left"
-                VerticalAlignment="Top"
-                BorderBrush="{ThemeResource AccentFillColorDefaultBrush}"
-                BorderThickness="1"
-                CornerRadius="4"
-                PointerMoved="CanvasControl_PointerMoved"
-                PointerReleased="CanvasControl_PointerReleased">
-                <Border
-                    Background="{ThemeResource AccentFillColorDefaultBrush}"
-                    CornerRadius="4"
-                    Opacity="0.2"
-                    PointerReleased="CanvasControl_PointerReleased" />
-            </Border>
         </Grid>
         <Grid
             x:Name="LoadingGrid"
@@ -685,5 +674,10 @@
                 VerticalAlignment="Center"
                 IsIndeterminate="True" />
         </Grid>
+        <TextBlock
+            x:Name="statusBlock"
+            Margin="128"
+            HorizontalAlignment="Right"
+            VerticalAlignment="Bottom" />
     </Grid>
 </Page>
