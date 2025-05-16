@@ -105,9 +105,7 @@
 	<!-- Project references -->
 	<ItemGroup>
 		<ProjectReference Include="..\..\core\packaged\Rebound.Core.SourceGeneratorAttributes\Rebound.Core.SourceGeneratorAttributes.csproj" />
-		<ProjectReference Include="..\..\core\packaged\Rebound.Core.SourceGenerator\Rebound.Core.SourceGenerator.csproj"
-						 OutputItemType="Analyzer"
-						 ReferenceOutputAssembly="false" />
+		<ProjectReference Include="..\..\core\packaged\Rebound.Core.SourceGenerator\Rebound.Core.SourceGenerator.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
 	</ItemGroup>
 
 	<!-- Shared project imports -->
@@ -143,9 +141,7 @@
 
 		<Message Text="Copying and renaming executables to $(LaunchersFolder)" Importance="high" />
 
-		<Copy SourceFiles="@(PublishedExecutables->'%(FullPath)')"
-			  DestinationFiles="@(PublishedExecutables->'$(LaunchersFolder)%(DestinationFileName)')"
-			  OverwriteReadOnlyFiles="true" />
+		<Copy SourceFiles="@(PublishedExecutables->'%(FullPath)')" DestinationFiles="@(PublishedExecutables->'$(LaunchersFolder)%(DestinationFileName)')" OverwriteReadOnlyFiles="true" />
 	</Target>
 
 </Project>

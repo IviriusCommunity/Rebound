@@ -17,7 +17,7 @@ public partial class ReboundViewModel : ObservableObject
         new DiskCleanupInstructions(),
         new UserAccountControlSettingsInstructions(),
         new ControlPanelInstructions(),
-        /*new ShellInstructions()*/ // To be reimplemented Soon™
+        new ShellInstructions()
     ];
 
     [ObservableProperty]
