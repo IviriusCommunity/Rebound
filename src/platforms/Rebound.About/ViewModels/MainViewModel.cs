@@ -24,6 +24,8 @@ internal partial class MainViewModel : ObservableObject
 
     public const string WMI_WIN32OPERATINGSYSTEM = "SELECT * FROM Win32_OperatingSystem";
 
+
+
     private static string GetCurrentUserName()
     {
         // Open the registry key

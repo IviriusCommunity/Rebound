@@ -5,5 +5,5 @@ namespace Rebound.Helpers.Environment;
 
 public static class ReboundVersion
 {
-    public const string REBOUND_VERSION = "v0.0.5 Beta";
+    public const string REBOUND_VERSION = "v0.0.6 Beta";
 }
