@@ -1,5 +1,10 @@
-﻿using CommunityToolkit.Mvvm.ComponentModel;
+﻿using System;
+using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices;
+using CommunityToolkit.Mvvm.ComponentModel;
 using Microsoft.Win32;
+using Windows.Win32;
+using Windows.Win32.Graphics.Gdi;
 
 namespace Rebound.About.ViewModels;
 
@@ -18,7 +23,38 @@ internal partial class MainViewModel : ObservableObject
     public partial string LicenseOwners { get; set; } = GetCurrentUserName();
 
     [ObservableProperty]
+    public partial bool IsSidebarOn { get; set; }
+
+    [ObservableProperty]
     public partial string LegalInfo { get; set; } = GetInformation();
+
+    [ObservableProperty]
+    public partial string CPUName { get; set; } = (Registry.GetValue(@"HKEY_LOCAL_MACHINE\HARDWARE\DESCRIPTION\System\CentralProcessor\0", "ProcessorNameString", "") ?? "").ToString() ?? "Unknown";
+
+    [ObservableProperty]
+    public partial string CPUSpeed { get; set; } = (Registry.GetValue(@"HKEY_LOCAL_MACHINE\HARDWARE\DESCRIPTION\System\CentralProcessor\0", "~MHz", 0) ?? "").ToString() + " MHz" ?? "Unknown";
+
+    [ObservableProperty]
+    public partial string GPUName { get; set; } = GetGPUName();
+    
+    public static string GetGPUName()
+    {
+        string? gpuName = null;
+        using (var videoKey = Registry.LocalMachine.OpenSubKey(@"SYSTEM\CurrentControlSet\Control\Video"))
+        {
+            foreach (var subKeyName in videoKey?.GetSubKeyNames())
+            {
+                using var subKey = videoKey.OpenSubKey($@"{subKeyName}\0000");
+                var name = subKey?.GetValue("DriverDesc")?.ToString();
+                if (!string.IsNullOrEmpty(name))
+                {
+                    gpuName = name;
+                    break;
+                }
+            }
+        }
+        return gpuName ?? "Unknown";
+    }
 
     private static string GetCurrentUserName()
     {

@@ -16,6 +16,8 @@
 		<UseSourceGenerators>true</UseSourceGenerators>
 		<PublishAot>true</PublishAot>
 
+        <OptimizationPreference>Speed</OptimizationPreference>
+		
 	</PropertyGroup>
 
 	<!-- General project settings - These will apply to every project regardless of its type -->
