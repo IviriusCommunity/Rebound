@@ -41,12 +41,9 @@
 	<!-- Package references -->
 	<ItemGroup Condition="'$(MSBuildProjectName)' != 'Rebound.Core.SourceGenerator' and '$(MSBuildProjectName)' != 'Rebound.Core.SourceGeneratorAttributes'">
 		
-		<!-- WebView2 -->
-		<PackageReference Include="Microsoft.Web.WebView2" Version="1.0.3240.44" />
-
 		<!-- Windows SDK and WinUI -->
 		<PackageReference Include="Microsoft.Windows.SDK.BuildTools" Version="10.0.26100.3916" />
-		<PackageReference Include="Microsoft.WindowsAppSDK" Version="1.7.250401001" />
+		<PackageReference Include="Microsoft.WindowsAppSDK" Version="1.8.250515001-experimental2" />
 		<PackageReference Include="WinUIEx" Version="2.5.1" />
 
 		<!-- Windows Interop -->
