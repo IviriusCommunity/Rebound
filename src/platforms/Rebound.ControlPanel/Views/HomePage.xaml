@@ -181,12 +181,12 @@
                             <TextBlock
                                 FontSize="40"
                                 FontWeight="SemiBold"
-                                Text="Desktop Ivirius" />
+                                Text="{x:Bind ViewModel.ComputerName}" />
                             <StackPanel
                                 Margin="0,16,0,0"
                                 Orientation="Horizontal"
                                 Spacing="16">
-                                <FontIcon FontSize="16" Glyph="&#xE964;" />
+                                <FontIcon FontSize="16" Glyph="&#xE977;" />
                                 <TextBlock FontWeight="SemiBold" Text="OS" />
                                 <TextBlock Text="{x:Bind ViewModel.WindowsVersionTitle}" />
                                 <TextBlock>
@@ -194,12 +194,12 @@
                                 </TextBlock>
                             </StackPanel>
                             <StackPanel Orientation="Horizontal" Spacing="16">
-                                <FontIcon FontSize="16" Glyph="&#xE950;" />
+                                <FontIcon FontSize="16" Glyph="&#xEEA1;" />
                                 <TextBlock FontWeight="SemiBold" Text="CPU" />
                                 <TextBlock Text="{x:Bind viewModels:HomeViewModel.GetCpuName()}" />
                             </StackPanel>
                             <StackPanel Orientation="Horizontal" Spacing="16">
-                                <FontIcon FontSize="16" Glyph="&#xE964;" />
+                                <FontIcon FontSize="16" Glyph="&#xEEA0;" />
                                 <TextBlock FontWeight="SemiBold" Text="Memory" />
                                 <TextBlock Text="{x:Bind viewModels:HomeViewModel.GetTotalRamWmi()}" />
                             </StackPanel>
