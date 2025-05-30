@@ -1,4 +1,6 @@
 ﻿using System.Collections.ObjectModel;
+using System.Diagnostics;
+using System.Linq;
 using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
@@ -23,6 +25,8 @@ public abstract partial class ReboundAppInstructions : ObservableObject
 
     public virtual ObservableCollection<IReboundAppInstruction>? Instructions { get; set; }
 
+    public virtual string ProcessName { get; set; }
+
     protected ReboundAppInstructions()
     {
         IsInstalled = GetIntegrity() == ReboundAppIntegrity.Installed;
@@ -37,6 +41,10 @@ public abstract partial class ReboundAppInstructions : ObservableObject
 
     public async Task Install()
     {
+        Process.GetProcessesByName(ProcessName).ToList().ForEach(p => p.Kill());
+
+        await Task.Delay(200);
+
         await Task.Run(() =>
         {
             foreach (var instruction in Instructions)
@@ -51,6 +59,10 @@ public abstract partial class ReboundAppInstructions : ObservableObject
 
     public async Task Uninstall()
     {
+        Process.GetProcessesByName(ProcessName).ToList().ForEach(p => p.Kill());
+
+        await Task.Delay(200);
+
         await Task.Run(() =>
         {
             foreach (var instruction in Instructions)

@@ -2,8 +2,10 @@
     x:Class="Rebound.Views.ShellPage"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:behaviors="using:CommunityToolkit.WinUI.Behaviors"
     xmlns:converters="using:CommunityToolkit.WinUI.Converters"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:interactivity="using:Microsoft.Xaml.Interactivity"
     xmlns:local="using:Rebound.Views"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:models="using:Rebound.Models"
@@ -33,10 +35,17 @@
                     Text="BETA" />
             </Border>
         </StackPanel>
-        <Button x:Name="UpdateButton" Visibility="Collapsed" VerticalAlignment="Top" HorizontalAlignment="Center" Margin="160, 8, 120, 0" Background="Transparent" BorderBrush="Transparent">
+        <Button
+            x:Name="UpdateButton"
+            Margin="160,8,120,0"
+            HorizontalAlignment="Center"
+            VerticalAlignment="Top"
+            Background="Transparent"
+            BorderBrush="Transparent"
+            Visibility="Collapsed">
             <StackPanel Orientation="Horizontal" Spacing="8">
-                <FontIcon Glyph="&#xE777;" FontSize="16"/>
-                <TextBlock Text="A new version of Rebound Hub is available for download"/>
+                <FontIcon FontSize="16" Glyph="&#xE777;" />
+                <TextBlock Text="A new version of Rebound Hub is available for download" />
             </StackPanel>
         </Button>
         <NavigationView
@@ -72,6 +81,7 @@
                 <NavigationViewItem
                     x:Name="RectifyItem"
                     Content="Rectify11"
+                    IsEnabled="False"
                     Style="{ThemeResource CustomNavigationViewItemStyle}">
                     <NavigationViewItem.Icon>
                         <ImageIcon Margin="16,8,16,24" Source="ms-appx:///Assets/AppIcons/Rectify11.png" />
@@ -80,6 +90,7 @@
                 <NavigationViewItem
                     x:Name="PartnersItem"
                     Content="Partners"
+                    IsEnabled="False"
                     Style="{ThemeResource CustomNavigationViewItemStyle}">
                     <NavigationViewItem.Icon>
                         <FontIcon
@@ -93,6 +104,7 @@
                 <NavigationViewItem
                     x:Name="FeedbackItem"
                     Content="Feedback"
+                    SelectsOnInvoked="False"
                     Style="{ThemeResource CustomNavigationViewItemStyle}">
                     <NavigationViewItem.Icon>
                         <FontIcon
@@ -100,6 +112,11 @@
                             FontSize="12"
                             Glyph="&#xED15;" />
                     </NavigationViewItem.Icon>
+                    <interactivity:Interaction.Behaviors>
+                        <interactivity:EventTriggerBehavior EventName="Tapped">
+                            <behaviors:NavigateToUriAction NavigateUri="https://ivirius.com/contact" />
+                        </interactivity:EventTriggerBehavior>
+                    </interactivity:Interaction.Behaviors>
                 </NavigationViewItem>
             </NavigationView.FooterMenuItems>
             <NavigationView.Content>

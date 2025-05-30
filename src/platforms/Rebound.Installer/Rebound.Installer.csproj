@@ -16,15 +16,16 @@
 		<!-- Self-contained settings -->
 		<SelfContained>true</SelfContained>
 		<PublishSingleFile>true</PublishSingleFile>
+		<EnableCompressionInSingleFile>true</EnableCompressionInSingleFile>
 		<WindowsAppSDKSelfContained>true</WindowsAppSDKSelfContained>
-		<IncludeNativeLibrariesForSelfExtract>true</IncludeNativeLibrariesForSelfExtract>
 		<CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
 		<PublishAot>false</PublishAot>
-		<IncludeWinAppSDKNativeDlls>false</IncludeWinAppSDKNativeDlls>
-		<IncludeWinAppSDKMsixContent>false</IncludeWinAppSDKMsixContent>
 
 		<!-- Trimmming -->
 		<PublishTrimmed>false</PublishTrimmed>
+		<Optimize>true</Optimize>
+		<OptimizationPreference>Speed</OptimizationPreference>
+		<IlcOptimizationPreference>Speed</IlcOptimizationPreference>
 
 	</PropertyGroup>
 
@@ -33,7 +34,7 @@
 		<None Remove="Assets\ReboundHubInstaller.ico" />
 		<None Remove="dotNET9Runtime.exe" />
 		<Content Include="dotNET9Runtime.exe" />
-		<Content Include="ReboundHub.exe" />
+		<Content Include="Rebound Hub.exe" />
 	</ItemGroup>
 
 	<!-- Project references -->
@@ -54,7 +55,7 @@
 
 		<ItemGroup>
 			<PublishedExecutables Include="..\Rebound.App\bin\Release\Publish\Rebound Hub.exe">
-				<DestinationFileName>ReboundHub.exe</DestinationFileName>
+				<DestinationFileName>Rebound Hub.exe</DestinationFileName>
 			</PublishedExecutables>
 		</ItemGroup>
 

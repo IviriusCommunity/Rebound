@@ -6,6 +6,8 @@ namespace Rebound.Modding.Instructions;
 
 public partial class WinverInstructions : UserInterfaceReboundAppInstructions
 {
+    public override string ProcessName { get; set; } = "rwinver";
+
     public override string Name { get; set; } = "About Windows";
 
     public override string Icon { get; set; } = "ms-appx:///Assets/AppIcons/AboutWindows.ico";

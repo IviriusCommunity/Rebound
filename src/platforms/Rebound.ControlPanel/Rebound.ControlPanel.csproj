@@ -17,20 +17,22 @@
 		<!-- Self-contained settings -->
 		<SelfContained>true</SelfContained>
 		<PublishSingleFile>true</PublishSingleFile>
-		<WindowsAppSDKSelfContained>false</WindowsAppSDKSelfContained>
-		<IncludeNativeLibrariesForSelfExtract>false</IncludeNativeLibrariesForSelfExtract>
+		<EnableCompressionInSingleFile>true</EnableCompressionInSingleFile>
+		<WindowsAppSDKSelfContained>true</WindowsAppSDKSelfContained>
 		<CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
-		<PublishAot>true</PublishAot>
-		<IncludeWinAppSDKNativeDlls>false</IncludeWinAppSDKNativeDlls>
-		<IncludeWinAppSDKMsixContent>false</IncludeWinAppSDKMsixContent>
+		<PublishAot>false</PublishAot>
 
 		<!-- Trimmming -->
-		<PublishTrimmed>true</PublishTrimmed>
+		<PublishTrimmed>false</PublishTrimmed>
+		<Optimize>true</Optimize>
+		<OptimizationPreference>Speed</OptimizationPreference>
+		<IlcOptimizationPreference>Speed</IlcOptimizationPreference>
 
 	</PropertyGroup>
-
+	
 	<!-- Project content -->
 	<ItemGroup>
+		<None Remove="Assets\cleanmgr.ico" />
 		<None Remove="Assets\ControlPanel.ico" />
 		<None Remove="Views\HomePage.xaml" />
 		<None Remove="Views\MainPage.xaml" />
@@ -56,9 +58,7 @@
 	<!-- Project references -->
 	<ItemGroup>
 		<ProjectReference Include="..\..\core\unpackaged\Rebound.Core.SourceGeneratorAttributes\Rebound.Core.SourceGeneratorAttributes.csproj" />
-		<ProjectReference Include="..\..\core\unpackaged\Rebound.Core.SourceGenerator\Rebound.Core.SourceGenerator.csproj"
-						 OutputItemType="Analyzer"
-						 ReferenceOutputAssembly="false" />
+		<ProjectReference Include="..\..\core\unpackaged\Rebound.Core.SourceGenerator\Rebound.Core.SourceGenerator.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
 	</ItemGroup>
 
 	<!-- Shared project imports -->

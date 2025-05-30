@@ -6,6 +6,8 @@ namespace Rebound.Modding.Instructions;
 
 public partial class ShellInstructions : UserInterfaceReboundAppInstructions
 {
+    public override string ProcessName { get; set; } = "rshell";
+
     public override string Name { get; set; } = "Rebound Shell";
 
     public override string Icon { get; set; } = "ms-appx:///Assets/AppIcons/ReboundIcon.ico";

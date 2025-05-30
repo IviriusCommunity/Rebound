@@ -29,7 +29,7 @@ public sealed partial class MainWindow : WindowEx
         ExtendsContentIntoTitleBar = true;
     }
 
-    public ObservableCollection<ReboundAppInstructions> Instructions { get; } =
+    /*public ObservableCollection<ReboundAppInstructions> Instructions { get; } =
     [
         new WinverInstructions(),
         new OnScreenKeyboardInstructions(),
@@ -37,7 +37,7 @@ public sealed partial class MainWindow : WindowEx
         new UserAccountControlSettingsInstructions(),
         new ControlPanelInstructions(),
         new ShellInstructions()
-    ];
+    ];*/
 
     private void WindowEx_Closed(object sender, WindowEventArgs args) => Process.GetCurrentProcess().Kill();
 
@@ -51,8 +51,8 @@ public sealed partial class MainWindow : WindowEx
         ShowProgress("Removing Rebound...");
         await Task.Delay(1000);
 
-        foreach (var instruction in Instructions)
-            await instruction.Uninstall();
+        /*foreach (var instruction in Instructions)
+            await instruction.Uninstall();*/
 
         ReboundWorkingEnvironment.RemoveFolder();
         ReboundWorkingEnvironment.RemoveTasksFolder();
@@ -183,12 +183,13 @@ public sealed partial class MainWindow : WindowEx
             InstallingProgressRing.Value = 8;
             await Task.Delay(500);
 
-            var exePath = Path.Combine(AppContext.BaseDirectory, "ReboundHub.exe");
+            var exePath = Path.Combine(AppContext.BaseDirectory, "Rebound Hub.exe");
+            var targetPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles), "ReboundHub", "Rebound Hub.exe");
 
             Directory.CreateDirectory(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles), "ReboundHub"));
             File.SetAttributes(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles), "ReboundHub"), FileAttributes.Directory);
 
-            File.Copy(exePath, Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles), "ReboundHub", "ReboundHub.exe"), true);
+            File.Copy(exePath, targetPath, true);
 
             // Ensure Rebound is properly installed
             EnsureFolderIntegrity();
@@ -203,13 +204,14 @@ public sealed partial class MainWindow : WindowEx
             var iidShellLink = new Guid("000214F9-0000-0000-C000-000000000046");  // IID_IShellLinkW
 
             Windows.Win32.PInvoke.CoCreateInstance(in clsidShellLink, null, Windows.Win32.System.Com.CLSCTX.CLSCTX_INPROC_SERVER, in iidShellLink, out var shellLinkObj);
-            var targetPathPtr = Marshal.StringToHGlobalUni(Path.GetDirectoryName(exePath));
+            var targetPathPtr = Marshal.StringToHGlobalUni(targetPath);
+            var targetDirPathPtr = Marshal.StringToHGlobalUni(Path.GetDirectoryName(targetPath));
             var exePathPtr = Marshal.StringToHGlobalUni(exePath);
             var shortcutPathPtr = Marshal.StringToHGlobalUni(shortcutPath);
 
             var shellLink = (Windows.Win32.UI.Shell.IShellLinkW)shellLinkObj;
-            unsafe { shellLink.SetPath(new Windows.Win32.Foundation.PCWSTR((char*)exePathPtr)); }
-            unsafe { shellLink.SetWorkingDirectory(new Windows.Win32.Foundation.PCWSTR((char*)targetPathPtr)); }
+            unsafe { shellLink.SetPath(new Windows.Win32.Foundation.PCWSTR((char*)targetPathPtr)); }
+            unsafe { shellLink.SetWorkingDirectory(new Windows.Win32.Foundation.PCWSTR((char*)targetDirPathPtr)); }
 
             // Save it to file using IPersistFile
             var persistFile = (Windows.Win32.System.Com.IPersistFile)shellLink;

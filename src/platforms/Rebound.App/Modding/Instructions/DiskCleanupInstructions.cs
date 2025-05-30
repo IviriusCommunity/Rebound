@@ -6,6 +6,8 @@ namespace Rebound.Modding.Instructions;
 
 public partial class DiskCleanupInstructions : UserInterfaceReboundAppInstructions
 {
+    public override string ProcessName { get; set; } = "rcleanmgr";
+
     public override string Name { get; set; } = "Disk Cleanup";
 
     public override string Icon { get; set; } = "ms-appx:///Assets/AppIcons/cleanmgr.ico";

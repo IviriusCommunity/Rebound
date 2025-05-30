@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Linq;
-using System.Management;
 using System.Runtime.InteropServices;
 using CommunityToolkit.Mvvm.ComponentModel;
 using Microsoft.Win32;

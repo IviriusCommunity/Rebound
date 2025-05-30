@@ -2,6 +2,7 @@
 using System.Collections.ObjectModel;
 using System.IO;
 using System.Text;
+using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.ComponentModel;
 using Rebound.Helpers;
 using Windows.Win32;
@@ -16,7 +17,8 @@ internal enum ItemType
     FirefoxCookies,
     FirefoxHistory,
     ChromiumCookies,
-    ChromiumHistory
+    ChromiumHistory,
+    RecentItems
 }
 
 internal partial class CleanItem : ObservableObject
@@ -68,7 +70,6 @@ internal partial class CleanItem : ObservableObject
         ItemPath = itemPath;
         ItemID = id;
         IsChecked = SettingsHelper.GetValue($"IsChecked{ConvertStringToNumericString(ItemID)}", "cleanmgr", defaultIsChecked);
-        Refresh();
     }
 
     public long CalculateTotalFileSize()
@@ -133,9 +134,15 @@ internal partial class CleanItem : ObservableObject
         Refresh();
     }
 
-    private void Refresh()
+    private async void Refresh()
     {
-        FilePaths = GetFilesFromFolders(_itemType);
+        FilePaths = await GetFilesFromFolders(_itemType);
+        Size = CalculateTotalFileSize();
+    }
+
+    public async Task RefreshAsync()
+    {
+        FilePaths = await GetFilesFromFolders(_itemType);
         Size = CalculateTotalFileSize();
     }
 
@@ -149,73 +156,77 @@ internal partial class CleanItem : ObservableObject
         return numericString.ToString();
     }
 
-    public ObservableCollection<string> GetFilesFromFolders(ItemType itemType)
+    public async Task<ObservableCollection<string>> GetFilesFromFolders(ItemType itemType)
     {
-        var allFiles = new ObservableCollection<string>();
-
-        try
+        return await Task.Run(() =>
         {
-            var files = Directory.EnumerateFiles(ItemPath, "*", SearchOption.AllDirectories);
-            foreach (var file in files)
+            var allFiles = new ObservableCollection<string>();
+
+            try
             {
-                var fileInfo = new FileInfo(file);
-
-                switch (itemType)
+                var files = Directory.EnumerateFiles(ItemPath, "*", SearchOption.AllDirectories);
+                foreach (var file in files)
                 {
-                    case ItemType.ThumbnailCache:
-                        if (fileInfo.Extension.Contains("db", StringComparison.OrdinalIgnoreCase) &&
-                            fileInfo.Name.Contains("thumbcache", StringComparison.OrdinalIgnoreCase))
-                        {
-                            allFiles.Add(file);
-                        }
-                        break;
+                    var fileInfo = new FileInfo(file);
 
-                    case ItemType.FirefoxCookies:
-                        if (fileInfo.Name.Equals("cookies.sqlite", StringComparison.OrdinalIgnoreCase))
-                        {
-                            allFiles.Add(file);
-                        }
-                        break;
+                    switch (itemType)
+                    {
+                        case ItemType.ThumbnailCache:
+                            if (fileInfo.Extension.Contains("db", StringComparison.OrdinalIgnoreCase) &&
+                                fileInfo.Name.Contains("thumbcache", StringComparison.OrdinalIgnoreCase))
+                            {
+                                allFiles.Add(file);
+                            }
+                            break;
+                        case ItemType.RecentItems:
+                            if (!fileInfo.DirectoryName.Contains("AutomaticDestinations", StringComparison.OrdinalIgnoreCase) &&
+                                !fileInfo.DirectoryName.Contains("CustomDestinations", StringComparison.OrdinalIgnoreCase) &&
+                                fileInfo.Extension.Equals(".lnk", StringComparison.OrdinalIgnoreCase))
+                            {
+                                allFiles.Add(file);
+                            }
+                            break;
 
-                    case ItemType.FirefoxHistory:
-                        if (fileInfo.Name.Equals("places.sqlite", StringComparison.OrdinalIgnoreCase))
-                        {
-                            allFiles.Add(file);
-                        }
-                        break;
-                    case ItemType.ChromiumCookies:
-                        if (fileInfo.Name.Equals("Cookies", StringComparison.OrdinalIgnoreCase))
-                        {
-                            allFiles.Add(file);
-                        }
-                        break;
+                        case ItemType.FirefoxCookies:
+                            if (fileInfo.Name.Equals("cookies.sqlite", StringComparison.OrdinalIgnoreCase))
+                            {
+                                allFiles.Add(file);
+                            }
+                            break;
 
-                    case ItemType.ChromiumHistory:
-                        if (fileInfo.Name.Equals("History", StringComparison.OrdinalIgnoreCase))
-                        {
+                        case ItemType.FirefoxHistory:
+                            if (fileInfo.Name.Equals("places.sqlite", StringComparison.OrdinalIgnoreCase))
+                            {
+                                allFiles.Add(file);
+                            }
+                            break;
+
+                        case ItemType.ChromiumCookies:
+                            if (fileInfo.Name.Equals("Cookies", StringComparison.OrdinalIgnoreCase))
+                            {
+                                allFiles.Add(file);
+                            }
+                            break;
+
+                        case ItemType.ChromiumHistory:
+                            if (fileInfo.Name.Equals("History", StringComparison.OrdinalIgnoreCase))
+                            {
+                                allFiles.Add(file);
+                            }
+                            break;
+
+                        default:
                             allFiles.Add(file);
-                        }
-                        break;
-                    default:
-                        allFiles.Add(file);
-                        break;
+                            break;
+                    }
                 }
             }
-        }
-        catch (UnauthorizedAccessException)
-        {
+            catch (UnauthorizedAccessException) { }
+            catch (PathTooLongException) { }
+            catch (IOException) { }
 
-        }
-        catch (PathTooLongException)
-        {
-
-        }
-        catch (IOException)
-        {
-
-        }
-
-        return allFiles;
+            return allFiles;
+        });
     }
 
     public static string FormatSize(long sizeInBytes)

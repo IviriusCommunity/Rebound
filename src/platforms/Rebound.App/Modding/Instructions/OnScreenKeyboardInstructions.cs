@@ -6,6 +6,8 @@ namespace Rebound.Modding.Instructions;
 
 public partial class OnScreenKeyboardInstructions : UserInterfaceReboundAppInstructions
 {
+    public override string ProcessName { get; set; } = "rosk";
+
     public override string Name { get; set; } = "On-Screen Keyboard";
 
     public override string Icon { get; set; } = "ms-appx:///Assets/AppIcons/OSK.ico";

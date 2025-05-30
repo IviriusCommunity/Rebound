@@ -18,15 +18,14 @@
 		<PublishSingleFile>true</PublishSingleFile>
 		<EnableCompressionInSingleFile>true</EnableCompressionInSingleFile>
 		<WindowsAppSDKSelfContained>true</WindowsAppSDKSelfContained>
-		<IncludeNativeLibrariesForSelfExtract>true</IncludeNativeLibrariesForSelfExtract>
 		<CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
 		<PublishAot>false</PublishAot>
-		<IncludeWinAppSDKNativeDlls>false</IncludeWinAppSDKNativeDlls>
-		<IncludeWinAppSDKMsixContent>false</IncludeWinAppSDKMsixContent>
 
 		<!-- Trimmming -->
 		<PublishTrimmed>false</PublishTrimmed>
 		<Optimize>true</Optimize>
+		<OptimizationPreference>Speed</OptimizationPreference>
+		<IlcOptimizationPreference>Speed</IlcOptimizationPreference>
 		
 	</PropertyGroup>
 
@@ -62,5 +61,11 @@
 	<!-- Shared project imports -->
 	<Import Project="..\..\core\forge\Rebound.Forge\Rebound.Forge.projitems" Label="Shared" />
 	<Import Project="..\..\core\shared\Rebound.Core.Helpers\Rebound.Core.Helpers.projitems" Label="Shared" />
+	<ItemGroup>
+	  <PRIResource Remove="Strings\ru-RU\Resources.resw" />
+	</ItemGroup>
+	<ItemGroup>
+	  <PRIResource Remove="Strings\ar-SA\Resources.resw" />
+	</ItemGroup>
 
 </Project>

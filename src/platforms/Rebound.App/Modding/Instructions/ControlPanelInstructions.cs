@@ -6,6 +6,8 @@ namespace Rebound.Modding.Instructions;
 
 public partial class ControlPanelInstructions : UserInterfaceReboundAppInstructions
 {
+    public override string ProcessName { get; set; } = "rcontrol";
+
     public override string Name { get; set; } = "Control Panel";
 
     public override string Icon { get; set; } = "ms-appx:///Assets/AppIcons/ControlPanel.ico";

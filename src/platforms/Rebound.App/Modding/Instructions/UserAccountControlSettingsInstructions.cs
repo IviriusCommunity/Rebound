@@ -6,6 +6,8 @@ namespace Rebound.Modding.Instructions;
 
 public partial class UserAccountControlSettingsInstructions : UserInterfaceReboundAppInstructions
 {
+    public override string ProcessName { get; set; } = "ruseraccountcontrolsettings";
+
     public override string Name { get; set; } = "UAC Settings";
 
     public override string Icon { get; set; } = "ms-appx:///Assets/AppIcons/Admin.ico";

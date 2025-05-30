@@ -116,6 +116,7 @@ public partial class App : Application
     {
         BackgroundWindow?.DispatcherQueue.TryEnqueue(() =>
         {
+            PInvoke.PostMessage(new(e.Handle), WM_CLOSE, new Windows.Win32.Foundation.WPARAM(0), IntPtr.Zero);
             PInvoke.DestroyWindow(new(e.Handle));
             ShowShutdownDialog();
         });

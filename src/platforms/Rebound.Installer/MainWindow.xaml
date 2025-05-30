@@ -344,7 +344,7 @@
                 <DropDownButton Width="160" Content="More options">
                     <DropDownButton.Flyout>
                         <MenuFlyout>
-                            <MenuFlyoutItem Text="Remove Rebound and Rebound Hub" Command="{x:Bind RemoveReboundCommand}" />
+                            <MenuFlyoutItem Text="Remove Rebound Hub" Command="{x:Bind RemoveReboundCommand}" />
                             <MenuFlyoutItem Text="Repair Rebound Hub" Command="{x:Bind RepairReboundHubCommand}" />
                         </MenuFlyout>
                     </DropDownButton.Flyout>
