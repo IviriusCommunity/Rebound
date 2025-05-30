@@ -47,6 +47,7 @@
 		<PackageReference Include="Microsoft.Windows.SDK.BuildTools" Version="10.0.26100.3916" />
 		<PackageReference Include="Microsoft.WindowsAppSDK" Version="1.8.250515001-experimental2" />
 		<PackageReference Include="WinUIEx" Version="2.5.1" />
+		<PackageReference Include="WinUI3Localizer" Version="2.3.0" />
 
 		<!-- Windows Interop -->
 		<PackageReference Include="Microsoft.Windows.CsWinRT" Version="2.2.0" />
@@ -57,7 +58,6 @@
 
 		<!-- System and Management -->
 		<PackageReference Include="System.Drawing.Common" Version="9.0.5" />
-		<PackageReference Include="System.Management" Version="9.0.4" />
 		<PackageReference Include="System.ServiceProcess.ServiceController" Version="9.0.4" />
 
 		<!-- Task Scheduler -->
@@ -75,7 +75,7 @@
 		<PackageReference Include="CommunityToolkit.WinUI.Helpers" Version="8.2.250402" />
 		<PackageReference Include="CommunityToolkit.WinUI.Media" Version="8.2.250402" />
 		<PackageReference Include="CommunityToolkit.WinUI.Triggers" Version="8.2.250402" />
-		
+
 	</ItemGroup>
 
 	<!-- Global App Properties - These will only apply to apps -->

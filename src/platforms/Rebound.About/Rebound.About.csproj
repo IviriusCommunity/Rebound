@@ -16,15 +16,17 @@
 		<!-- Self-contained settings -->
 		<SelfContained>true</SelfContained>
 		<PublishSingleFile>true</PublishSingleFile>
-		<WindowsAppSDKSelfContained>false</WindowsAppSDKSelfContained>
-		<IncludeNativeLibrariesForSelfExtract>false</IncludeNativeLibrariesForSelfExtract>
+		<EnableCompressionInSingleFile>true</EnableCompressionInSingleFile>
+		<WindowsAppSDKSelfContained>true</WindowsAppSDKSelfContained>
+		<IncludeNativeLibrariesForSelfExtract>true</IncludeNativeLibrariesForSelfExtract>
 		<CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
-		<PublishAot>true</PublishAot>
+		<PublishAot>false</PublishAot>
 		<IncludeWinAppSDKNativeDlls>false</IncludeWinAppSDKNativeDlls>
 		<IncludeWinAppSDKMsixContent>false</IncludeWinAppSDKMsixContent>
 
 		<!-- Trimmming -->
-		<PublishTrimmed>true</PublishTrimmed>
+		<PublishTrimmed>false</PublishTrimmed>
+		<Optimize>true</Optimize>
 		
 	</PropertyGroup>
 
@@ -38,8 +40,6 @@
 		</Content>
 		
 		<None Include="README.md" Pack="true" PackagePath="\" />
-
-		<PackageReference Include="WinUI3Localizer" Version="2.3.0" />
 
 		<Content Update="Assets\AboutWindows.ico">
 			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
