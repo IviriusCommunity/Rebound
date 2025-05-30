@@ -172,7 +172,7 @@
                                     HorizontalAlignment="Stretch"
                                     VerticalAlignment="Top"
                                     CornerRadius="4">
-                                    <Image Source="{x:Bind PicturePath}" Stretch="Fill" />
+                                    <Image Source="{x:Bind PicturePath}" Stretch="Fill" Margin="4" />
                                     <Border Background="{ThemeResource AcrylicBackgroundFillColorBaseBrush}">
                                         <Image
                                             Margin="16"

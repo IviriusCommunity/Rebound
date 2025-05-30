@@ -5,24 +5,25 @@
 
 		<!-- General -->
 		<OutputType>WinExe</OutputType>
+		<AssemblyName>Rebound Hub</AssemblyName>
+		<ApplicationIcon>Assets\AppIcons\Rebound.ico</ApplicationIcon>
 		<RootNamespace>Rebound</RootNamespace>
-		<EnableMsixTooling>true</EnableMsixTooling>
 		<ApplicationManifest>app.manifest</ApplicationManifest>
-		<Version>0.0.5</Version>
 
 		<!-- Deployment -->
 		<EnableMsixTooling>true</EnableMsixTooling>
+		<WindowsPackageType>None</WindowsPackageType>
+
+		<!-- Self-contained settings -->
+		<SelfContained>true</SelfContained>
+		<PublishSingleFile>true</PublishSingleFile>
+		<WindowsAppSDKSelfContained>true</WindowsAppSDKSelfContained>
+		<IncludeNativeLibrariesForSelfExtract>true</IncludeNativeLibrariesForSelfExtract>
+		<CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
 		<PublishAot>false</PublishAot>
-		<PackageCertificateKeyFile>Rebound.App_TemporaryKey.pfx</PackageCertificateKeyFile>
-		<AppxPackageSigningEnabled>True</AppxPackageSigningEnabled>
-		<GenerateAppInstallerFile>True</GenerateAppInstallerFile>
-		<AppxPackageSigningTimestampDigestAlgorithm>SHA256</AppxPackageSigningTimestampDigestAlgorithm>
-		<AppxAutoIncrementPackageRevision>False</AppxAutoIncrementPackageRevision>
-		<AppxSymbolPackageEnabled>False</AppxSymbolPackageEnabled>
-		<GenerateTestArtifacts>True</GenerateTestArtifacts>
-		<AppxBundle>Never</AppxBundle>
-		<AppInstallerUri>C:\Users\Desktop Ivirius\Desktop</AppInstallerUri>
-		<HoursBetweenUpdateChecks>0</HoursBetweenUpdateChecks>
+		<IncludeWinAppSDKNativeDlls>false</IncludeWinAppSDKNativeDlls>
+		<IncludeWinAppSDKMsixContent>false</IncludeWinAppSDKMsixContent>
+		<EnableDynamicDependency>true</EnableDynamicDependency>
 
 		<!-- Trimmming -->
 		<PublishTrimmed>false</PublishTrimmed>
@@ -76,6 +77,9 @@
 		<Content Update="Assets\AppIcons\AboutWindows.ico">
 			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
 		</Content>
+		<Content Update="Assets\AppIcons\RunBox.ico">
+		  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</Content>
 		<Content Update="Assets\Backgrounds\BackgroundDark.jpg">
 			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 		</Content>
@@ -104,8 +108,8 @@
 
 	<!-- Project references -->
 	<ItemGroup>
-		<ProjectReference Include="..\..\core\packaged\Rebound.Core.SourceGeneratorAttributes\Rebound.Core.SourceGeneratorAttributes.csproj" />
-		<ProjectReference Include="..\..\core\packaged\Rebound.Core.SourceGenerator\Rebound.Core.SourceGenerator.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
+		<ProjectReference Include="..\..\core\unpackaged\Rebound.Core.SourceGeneratorAttributes\Rebound.Core.SourceGeneratorAttributes.csproj" />
+		<ProjectReference Include="..\..\core\unpackaged\Rebound.Core.SourceGenerator\Rebound.Core.SourceGenerator.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
 	</ItemGroup>
 
 	<!-- Shared project imports -->
@@ -119,6 +123,7 @@
 		<MSBuild Projects="..\Rebound.Cleanup\Rebound.Cleanup.csproj" Targets="Publish" Properties="Configuration=Release;PublishDir=..\Rebound.Cleanup\bin\Release\Publish\" />
 		<MSBuild Projects="..\Rebound.ControlPanel\Rebound.ControlPanel.csproj" Targets="Publish" Properties="Configuration=Release;PublishDir=..\Rebound.ControlPanel\bin\Release\Publish\" />
 		<MSBuild Projects="..\Rebound.UserAccountControlSettings\Rebound.UserAccountControlSettings.csproj" Targets="Publish" Properties="Configuration=Release;PublishDir=..\Rebound.UserAccountControlSettings\bin\Release\Publish\" />
+		<MSBuild Projects="..\..\components\shell\Rebound.Shell.ExperienceHost\Rebound.Shell.ExperienceHost.csproj" Targets="Publish" Properties="Configuration=Release;PublishDir=..\..\components\shell\Rebound.Shell.ExperienceHost\bin\win-x64\Publish\" />
 
 		<ItemGroup>
 			<PublishedExecutables Include="..\Rebound.About\bin\Release\Publish\Rebound About.exe">
@@ -132,6 +137,9 @@
 			</PublishedExecutables>
 			<PublishedExecutables Include="..\Rebound.UserAccountControlSettings\bin\Release\Publish\Rebound User Account Control Settings.exe">
 				<DestinationFileName>ruseraccountcontrolsettings.exe</DestinationFileName>
+			</PublishedExecutables>
+			<PublishedExecutables Include="..\..\components\shell\Rebound.Shell.ExperienceHost\bin\win-x64\Publish\Rebound Shell.exe">
+				<DestinationFileName>rshell.exe</DestinationFileName>
 			</PublishedExecutables>
 		</ItemGroup>
 

@@ -1,4 +1,6 @@
-﻿using Microsoft.UI.Xaml;
+﻿using System;
+using Microsoft.UI.Xaml;
+using Microsoft.Windows.ApplicationModel.DynamicDependency;
 using Rebound.Generators;
 
 namespace Rebound;
@@ -10,6 +12,7 @@ public partial class App : Application
     {
         if (e.IsFirstLaunch)
         {
+            App.Current.UnhandledException += Current_UnhandledException;
             CreateMainWindow();
         }
         else
@@ -24,6 +27,11 @@ public partial class App : Application
             }
             return;
         }
+    }
+
+    private void Current_UnhandledException(object sender, Microsoft.UI.Xaml.UnhandledExceptionEventArgs e)
+    {
+        e.Handled = true;
     }
 
     public static void CreateMainWindow()

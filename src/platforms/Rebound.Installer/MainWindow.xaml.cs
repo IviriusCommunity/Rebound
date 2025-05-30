@@ -2,14 +2,13 @@ using System;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.IO;
-using System.Security.Cryptography.X509Certificates;
+using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.Input;
 using Microsoft.UI.Xaml;
 using Rebound.Forge;
 using Rebound.Helpers.Windowing;
 using Rebound.Modding.Instructions;
-using Windows.Management.Deployment;
 using WinUIEx;
 
 #pragma warning disable CA2007 // Consider calling ConfigureAwait on the awaited task
@@ -37,7 +36,7 @@ public sealed partial class MainWindow : WindowEx
         new DiskCleanupInstructions(),
         new UserAccountControlSettingsInstructions(),
         new ControlPanelInstructions(),
-        // new ShellInstructions() // To be reimplemented Soon™
+        new ShellInstructions()
     ];
 
     private void WindowEx_Closed(object sender, WindowEventArgs args) => Process.GetCurrentProcess().Kill();
@@ -57,6 +56,37 @@ public sealed partial class MainWindow : WindowEx
 
         ReboundWorkingEnvironment.RemoveFolder();
         ReboundWorkingEnvironment.RemoveTasksFolder();
+
+        // Remove ReboundHub folder from Program Files
+        var programFilesPath = Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles);
+        var reboundHubFolder = Path.Combine(programFilesPath, "ReboundHub");
+        if (Directory.Exists(reboundHubFolder))
+        {
+            try
+            {
+                Directory.Delete(reboundHubFolder, true);
+            }
+            catch
+            {
+
+            }
+        }
+
+        // Remove start menu shortcut
+        var startMenuFolder = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.CommonStartMenu), "Programs");
+        var shortcutPath = Path.Combine(startMenuFolder, "Rebound Hub.lnk");
+        if (File.Exists(shortcutPath))
+        {
+            try
+            {
+                File.Delete(shortcutPath);
+            }
+            catch
+            {
+
+            }
+        }
+
         Close();
     }
 
@@ -70,7 +100,7 @@ public sealed partial class MainWindow : WindowEx
         try
         {
             PrepareDirectories();
-            await InstallMsixAsync();
+            await InstallExecutableAsync();
         }
         catch
         {
@@ -91,8 +121,7 @@ public sealed partial class MainWindow : WindowEx
         InstallingProgressRing.IsIndeterminate = false;
         PrepareDirectories();
 
-        await InstallCertificateAsync();
-        await InstallMsixAsync();
+        await InstallExecutableAsync();
         await InstallDotNetRuntimeAsync();
 
         await CleanupAsync();
@@ -116,51 +145,80 @@ public sealed partial class MainWindow : WindowEx
         Directory.CreateDirectory(tempPath);
     }
 
-    private async Task InstallCertificateAsync()
+    public static void EnsureFolderIntegrity()
     {
         try
         {
-            ShowProgress("Installing Rebound Hub certificate in Trusted Root Certification Authorities...");
-            InstallingProgressRing.Value = 5;
-            await Task.Delay(50);
+            var programFilesPath = System.Environment.GetFolderPath(System.Environment.SpecialFolder.ProgramFiles);
+            var directoryPath = Path.Combine(programFilesPath, "Rebound");
 
-            var certSource = Path.Combine(AppContext.BaseDirectory, "Certificate.cer");
-            var certDest = Path.Combine(tempPath, "Certificate.cer");
-            File.Copy(certSource, certDest, true);
+            // Get the start menu folder of Rebound
+            var startMenuFolder = Path.Combine(System.Environment.GetFolderPath(System.Environment.SpecialFolder.CommonStartMenu), "Programs", "ReboundHub");
 
-            var certificate = X509CertificateLoader.LoadCertificateFromFile(certDest);
-            using var store = new X509Store(StoreName.Root, StoreLocation.LocalMachine);
-            store.Open(OpenFlags.ReadWrite);
-            store.Add(certificate);
+            // Create the directory if it doesn't exist
+            if (!Directory.Exists(directoryPath))
+            {
+                Directory.CreateDirectory(directoryPath);
+            }
+
+            if (!Directory.Exists(startMenuFolder))
+            {
+                Directory.CreateDirectory(startMenuFolder);
+            }
+
+            File.SetAttributes(directoryPath, FileAttributes.Directory);
+            File.SetAttributes(startMenuFolder, FileAttributes.Directory);
         }
         catch
         {
-            DescriptionBox.Text = "Couldn't install certificate.";
-            await Task.Delay(1000);
+
         }
     }
 
-    private async Task InstallMsixAsync()
+    private async Task InstallExecutableAsync()
     {
         try
         {
-            ShowProgress("Installing Rebound Hub MSIX package. This may take a while...");
+            ShowProgress("Copying ReboundHub.exe to the Program Files folder and creating the start menu shortcut. This may take a while...");
             InstallingProgressRing.Value = 8;
-            await Task.Delay(50);
+            await Task.Delay(500);
 
-            var msixSource = Path.Combine(AppContext.BaseDirectory, "Package.msix");
-            var msixTemp = Path.Combine(tempPath, "Package.msix");
-            File.Copy(msixSource, msixTemp, true);
+            var exePath = Path.Combine(AppContext.BaseDirectory, "ReboundHub.exe");
 
-            var packageManager = new PackageManager();
-            await packageManager.AddPackageAsync(new Uri(msixTemp), null, DeploymentOptions.ForceUpdateFromAnyVersion);
+            Directory.CreateDirectory(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles), "ReboundHub"));
+            File.SetAttributes(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles), "ReboundHub"), FileAttributes.Directory);
 
-            File.Delete(msixTemp);
+            File.Copy(exePath, Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles), "ReboundHub", "ReboundHub.exe"), true);
+
+            // Ensure Rebound is properly installed
+            EnsureFolderIntegrity();
+
+            // Get the start menu folder of Rebound
+            var startMenuFolder = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.CommonStartMenu), "Programs");
+
+            var shortcutPath = Path.Combine(startMenuFolder, $"Rebound Hub.lnk");
+
+            // Create ShellLink object
+            var clsidShellLink = new Guid("00021401-0000-0000-C000-000000000046"); // CLSID_ShellLink
+            var iidShellLink = new Guid("000214F9-0000-0000-C000-000000000046");  // IID_IShellLinkW
+
+            Windows.Win32.PInvoke.CoCreateInstance(in clsidShellLink, null, Windows.Win32.System.Com.CLSCTX.CLSCTX_INPROC_SERVER, in iidShellLink, out var shellLinkObj);
+            var targetPathPtr = Marshal.StringToHGlobalUni(Path.GetDirectoryName(exePath));
+            var exePathPtr = Marshal.StringToHGlobalUni(exePath);
+            var shortcutPathPtr = Marshal.StringToHGlobalUni(shortcutPath);
+
+            var shellLink = (Windows.Win32.UI.Shell.IShellLinkW)shellLinkObj;
+            unsafe { shellLink.SetPath(new Windows.Win32.Foundation.PCWSTR((char*)exePathPtr)); }
+            unsafe { shellLink.SetWorkingDirectory(new Windows.Win32.Foundation.PCWSTR((char*)targetPathPtr)); }
+
+            // Save it to file using IPersistFile
+            var persistFile = (Windows.Win32.System.Com.IPersistFile)shellLink;
+            unsafe { persistFile.Save(new Windows.Win32.Foundation.PCWSTR((char*)shortcutPathPtr), true); }
         }
-        catch
+        catch (Exception ex)
         {
-            DescriptionBox.Text = "Couldn't install package.";
-            await Task.Delay(50);
+            DescriptionBox.Text = $"Couldn't install Rebound Hub. {ex.Message}";
+            await Task.Delay(5000);
         }
     }
 

@@ -30,7 +30,7 @@ public partial class ControlPanelInstructions : UserInterfaceReboundAppInstructi
         {
             ShortcutName = "Control Panel",
             ExePath = $"{Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles)}\\Rebound\\rcontrol.exe"
-        }
+        },
     ];
 
     public override InstallationTemplate PreferredInstallationTemplate { get; set; } = InstallationTemplate.Basic;

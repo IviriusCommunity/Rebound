@@ -30,7 +30,7 @@ public partial class DiskCleanupInstructions : UserInterfaceReboundAppInstructio
         {
             ShortcutName = "Disk Cleanup",
             ExePath = $"{Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles)}\\Rebound\\rcleanmgr.exe"
-        }
+        },
     ];
 
     public override InstallationTemplate PreferredInstallationTemplate { get; set; } = InstallationTemplate.Basic;

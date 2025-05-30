@@ -5,6 +5,21 @@ namespace Rebound.Forge;
 
 public static class ReboundWorkingEnvironment
 {
+    public static void UpdateVersion()
+    {
+        try
+        {
+            var programFilesPath = System.Environment.GetFolderPath(System.Environment.SpecialFolder.ProgramFiles);
+            var directoryPath = Path.Combine(programFilesPath, "Rebound");
+
+            File.WriteAllText(Path.Combine(directoryPath, "version.txt"), $"{Helpers.Environment.ReboundVersion.REBOUND_VERSION}");
+        }
+        catch
+        {
+
+        }
+    }
+
     // Folder
     public static void EnsureFolderIntegrity()
     {
@@ -71,7 +86,7 @@ public static class ReboundWorkingEnvironment
             var programFilesPath = System.Environment.GetFolderPath(System.Environment.SpecialFolder.ProgramFiles);
             var directoryPath = Path.Combine(programFilesPath, "Rebound");
 
-            return Directory.Exists(directoryPath);
+            return Directory.Exists(directoryPath) && File.Exists(Path.Combine(directoryPath, "version.txt"));
         }
         catch
         {

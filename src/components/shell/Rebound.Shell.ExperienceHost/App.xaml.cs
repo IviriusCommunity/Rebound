@@ -33,16 +33,16 @@ public partial class App : Application
         var thread = new Thread(() =>
         {
             var hook1 = new WindowHook("#32770", "Shut Down Windows", "explorer");
-            hook1.WindowDetected += Hook_WindowDetected_Shutdown;
+            if (SettingsHelper.GetValue<bool>("InstallShutdownDialog", "rebound", true)) hook1.WindowDetected += Hook_WindowDetected_Shutdown;
 
             var hook2 = new WindowHook("#32770", "Run", "explorer");
-            hook2.WindowDetected += Hook_WindowDetected_Run;
+            if (SettingsHelper.GetValue<bool>("InstallRun", "rebound", true)) hook2.WindowDetected += Hook_WindowDetected_Run;
 
             /*var hook3 = new WindowHook("Shell_Dialog", "This app can't run on your PC", "explorer");
             hook3.WindowDetected += Hook_WindowDetected_CantRun;*/
 
-            var hook4 = new WindowHook("Shell_Dim", null, "explorer");
-            hook4.WindowDetected += Hook_WindowDetected_Dim;
+            var hook4 = new WindowHook("Shell_Dialog", "This app can’t run on your PC", "explorer");
+            if (SettingsHelper.GetValue<bool>("InstallThisAppCantRunOnYourPC", "rebound", true)) hook4.WindowDetected += Hook_WindowDetected_Dim;
 
             // Keep message pump alive so both hooks keep working
             NativeMessageLoop();

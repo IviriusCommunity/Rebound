@@ -30,7 +30,7 @@ public partial class UserAccountControlSettingsInstructions : UserInterfaceRebou
         {
             ShortcutName = "Change User Account Control Settings",
             ExePath = $"{Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles)}\\Rebound\\ruseraccountcontrolsettings.exe"
-        }
+        },
     };
 
     public override InstallationTemplate PreferredInstallationTemplate { get; set; } = InstallationTemplate.Basic;

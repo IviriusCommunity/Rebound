@@ -31,12 +31,9 @@
 	<!-- Project content -->
 	<ItemGroup>
 		<None Remove="Assets\ReboundHubInstaller.ico" />
-		<None Remove="Certificate.cer" />
 		<None Remove="dotNET9Runtime.exe" />
-		<None Remove="Package.msix" />
-		<Content Include="Certificate.cer" />
 		<Content Include="dotNET9Runtime.exe" />
-		<Content Include="Package.msix" />
+		<Content Include="ReboundHub.exe" />
 	</ItemGroup>
 
 	<!-- Project references -->
@@ -49,37 +46,21 @@
 	<Import Project="..\..\core\forge\Rebound.Forge\Rebound.Forge.projitems" Label="Shared" />
 	<Import Project="..\..\core\shared\Rebound.Core.Helpers\Rebound.Core.Helpers.projitems" Label="Shared" />
 
-	<!-- Publish Rebound -->
-	<Target Name="PackageReboundApp" BeforeTargets="Build" Condition="'$(Configuration)' == 'Release'">
-		<!-- Read .csproj and extract Version using regex -->
-		<ReadLinesFromFile File="..\Rebound.App\Rebound.App.csproj">
-			<Output TaskParameter="Lines" ItemName="CsprojLines" />
-		</ReadLinesFromFile>
+
+	<!-- Copy and rename launchers -->
+	<Target Name="CopyExecutablesToLaunchers" BeforeTargets="Build" Condition="'$(Configuration)' == 'Release'">
+		<!-- Publish dependent projects -->
+		<MSBuild Projects="..\Rebound.App\Rebound.App.csproj" Targets="Publish" Properties="Configuration=Release;PublishDir=..\Rebound.App\bin\Release\Publish\" />
 
 		<ItemGroup>
-			<VersionLine Include="@(CsprojLines)" Condition="$([System.Text.RegularExpressions.Regex]::IsMatch('%(Identity)', '&lt;Version&gt;(.*)&lt;/Version&gt;'))" />
+			<PublishedExecutables Include="..\Rebound.App\bin\Release\Publish\Rebound Hub.exe">
+				<DestinationFileName>ReboundHub.exe</DestinationFileName>
+			</PublishedExecutables>
 		</ItemGroup>
 
-		<PropertyGroup>
-			<!-- Extract the version string using regex -->
-			<AppVersion>$([System.Text.RegularExpressions.Regex]::Match('%(VersionLine.Identity)', '<Version>(.*)</Version>').Groups[1].Value)</AppVersion>
-			
-			<SourceMsixPath>..\Rebound.App\bin\x64\Release\net9.0-windows10.0.26100.0\AppPackages\Rebound.App_$(AppVersion).0_x64_Test\Rebound.App_$(AppVersion).0_x64.msix</SourceMsixPath>
-			<SourceCertPath>..\Rebound.App\bin\x64\Release\net9.0-windows10.0.26100.0\AppPackages\Rebound.App_$(AppVersion).0_x64_Test\Rebound.App_$(AppVersion).0_x64.cer</SourceCertPath>
-			
-			<DestinationMsixPath>$(MSBuildThisFileDirectory)Package.msix</DestinationMsixPath>
-			<DestinationCertPath>$(MSBuildThisFileDirectory)Certificate.cer</DestinationCertPath>
-		</PropertyGroup>
+		<Message Text="Copying and renaming executables to $(LaunchersFolder)" Importance="high" />
 
-		<Message Importance="high" Text="Packing MSIX version $(AppVersion)" />
-
-		<!-- Publish Rebound.App -->
-		<!--<MSBuild Projects="..\Rebound.App\Rebound.App.csproj"
-				 Targets="Publish"
-				 Properties="Configuration=Release;Platform=x64" />-->
-
-		<Copy SourceFiles="$(SourceMsixPath)" DestinationFiles="$(DestinationMsixPath)" OverwriteReadOnlyFiles="true" />
-		<Copy SourceFiles="$(SourceCertPath)" DestinationFiles="$(DestinationCertPath)" OverwriteReadOnlyFiles="true" />
+		<Copy SourceFiles="@(PublishedExecutables->'%(FullPath)')" DestinationFiles="@(PublishedExecutables->'$(MSBuildThisFileDirectory)%(DestinationFileName)')" OverwriteReadOnlyFiles="true" />
 	</Target>
 
 </Project>

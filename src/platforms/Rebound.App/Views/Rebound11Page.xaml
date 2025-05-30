@@ -35,6 +35,7 @@
                 <RowDefinition Height="Auto" />
                 <RowDefinition Height="Auto" />
                 <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
             </Grid.RowDefinitions>
 
             <header:HomePageHeaderImage
@@ -138,148 +139,177 @@
 
             <Grid
                 Grid.Row="3"
-                Margin="48,12"
-                Padding="8"
-                Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
-                BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
-                BorderThickness="1"
-                CornerRadius="6">
+                Margin="48, 16, 48, 8">
                 <CommandBar DefaultLabelPosition="Right">
-                    <AppBarButton IsEnabled="{x:Bind ReboundViewModel.IsReboundEnabled, Mode=OneWay}" Label="Templates">
+                    <AppBarButton IsEnabled="{x:Bind ReboundViewModel.IsReboundEnabled, Mode=OneWay}" Label="Options">
                         <AppBarButton.Icon>
-                            <FontIcon FontSize="16" Glyph="&#xF158;" />
+                            <FontIcon FontSize="16" Glyph="&#xE713;" />
                         </AppBarButton.Icon>
+                        <AppBarButton.Flyout>
+                            <MenuFlyout>
+                                <MenuFlyoutSubItem Text="Rebound Shell">
+                                    <MenuFlyoutSubItem.Icon>
+                                        <ImageIcon Source="/Assets/AppIcons/ReboundIcon.ico" />
+                                    </MenuFlyoutSubItem.Icon>
+                                    <MenuFlyoutSubItem.Items>
+                                        <ToggleMenuFlyoutItem IsChecked="{x:Bind ReboundViewModel.InstallRun, Mode=TwoWay}" Text="Run">
+                                            <ToggleMenuFlyoutItem.Icon>
+                                                <ImageIcon Source="/Assets/AppIcons/RunBox.ico" />
+                                            </ToggleMenuFlyoutItem.Icon>
+                                        </ToggleMenuFlyoutItem>
+                                        <ToggleMenuFlyoutItem IsChecked="{x:Bind ReboundViewModel.InstallShutdownDialog, Mode=TwoWay}" Text="Shutdown dialog">
+                                            <ToggleMenuFlyoutItem.Icon>
+                                                <FontIcon Glyph="&#xE7E8;" />
+                                            </ToggleMenuFlyoutItem.Icon>
+                                        </ToggleMenuFlyoutItem>
+                                        <ToggleMenuFlyoutItem IsChecked="{x:Bind ReboundViewModel.InstallThisAppCantRunOnYourPC, Mode=TwoWay}" Text="&quot;This app can't run on your PC&quot; dialog">
+                                            <ToggleMenuFlyoutItem.Icon>
+                                                <FontIcon Glyph="&#xEA39;" />
+                                            </ToggleMenuFlyoutItem.Icon>
+                                        </ToggleMenuFlyoutItem>
+                                    </MenuFlyoutSubItem.Items>
+                                </MenuFlyoutSubItem>
+                                <MenuFlyoutSeparator />
+                                <ToggleMenuFlyoutItem IsChecked="{x:Bind ReboundViewModel.InstallShortcuts, Mode=TwoWay}" Text="Create new shortcuts for Rebound apps">
+                                    <ToggleMenuFlyoutItem.Icon>
+                                        <FontIcon Glyph="&#xE8AD;" />
+                                    </ToggleMenuFlyoutItem.Icon>
+                                </ToggleMenuFlyoutItem>
+                            </MenuFlyout>
+                        </AppBarButton.Flyout>
                     </AppBarButton>
                     <AppBarButton
                         Command="{x:Bind ReboundViewModel.UpdateOrRepairAllCommand}"
                         IsEnabled="{x:Bind ReboundViewModel.IsReboundEnabled, Mode=OneWay}"
-                        Label="Update or Repair all">
+                        Label="Repair">
                         <AppBarButton.Icon>
-                            <FontIcon FontSize="16" Glyph="&#xE777;" />
+                            <FontIcon FontSize="16" Glyph="&#xE90F;" />
                         </AppBarButton.Icon>
                     </AppBarButton>
                 </CommandBar>
-                <StackPanel
-                    Margin="8,0"
-                    Orientation="Horizontal"
-                    Spacing="4">
-                    <Button
-                        Command="{x:Bind ReboundViewModel.EnableReboundCommand}"
-                        Content="Enable Rebound"
-                        Style="{ThemeResource AccentButtonStyle}"
-                        Visibility="{x:Bind ReboundViewModel.IsReboundEnabled, Mode=OneWay, Converter={StaticResource BoolToReverseVisibilityConverter}}" />
-                    <Button
-                        Command="{x:Bind ReboundViewModel.DisableReboundCommand}"
-                        Content="Disable Rebound"
-                        Visibility="{x:Bind ReboundViewModel.IsReboundEnabled, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}" />
-                </StackPanel>
+                <ToggleSwitch OffContent="Enable Rebound" OnContent="Disable Rebound" IsOn="{x:Bind ReboundViewModel.IsReboundEnabled, Mode=TwoWay}"/>
             </Grid>
 
-            <ContentControl
+            <InfoBar
+                Title="A new update is available for Rebound"
                 Grid.Row="4"
-                Margin="48,12"
-                HorizontalAlignment="Left"
-                IsEnabled="{x:Bind ReboundViewModel.IsReboundEnabled, Mode=OneWay}">
-                <ItemsRepeater ItemsSource="{x:Bind ReboundViewModel.Instructions, Mode=OneWay}">
-                    <ItemsRepeater.Layout>
-                        <controls:StaggeredLayout
-                            ColumnSpacing="8"
-                            DesiredColumnWidth="400"
-                            RowSpacing="8" />
-                    </ItemsRepeater.Layout>
-                    <ItemsRepeater.ItemTemplate>
-                        <DataTemplate x:DataType="modding:UserInterfaceReboundAppInstructions">
-                            <Grid
-                                Width="400"
-                                Padding="12"
-                                HorizontalAlignment="Left"
-                                Background="{ThemeResource CardBackgroundFillColorDefault}"
-                                BorderBrush="{ThemeResource ControlElevationBorderBrush}"
-                                BorderThickness="1"
-                                CornerRadius="4">
-                                <Grid.RowDefinitions>
-                                    <RowDefinition Height="Auto" />
-                                    <RowDefinition Height="8" />
-                                    <RowDefinition Height="Auto" />
-                                    <RowDefinition Height="8" />
-                                    <RowDefinition Height="Auto" />
-                                    <RowDefinition Height="Auto" />
-                                </Grid.RowDefinitions>
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="Auto" />
-                                    <ColumnDefinition Width="16" />
-                                    <ColumnDefinition Width="*" />
-                                    <ColumnDefinition Width="16" />
-                                    <ColumnDefinition Width="Auto" />
-                                </Grid.ColumnDefinitions>
+                Margin="48, 0"
+                IsOpen="{x:Bind ReboundViewModel.IsUpdateAvailable, Mode=OneWay}"
+                Message="{x:Bind ReboundViewModel.VersionText, Mode=OneWay}"
+                Severity="Success">
+                <InfoBar.ActionButton>
+                    <Button
+                        HorizontalAlignment="Right"
+                        Content="Update"
+                        Command="{x:Bind ReboundViewModel.UpdateOrRepairAllCommand}"
+                        Style="{StaticResource AccentButtonStyle}" />
+                </InfoBar.ActionButton>
+            </InfoBar>
+            <Grid
+                Grid.Row="5"
+                Padding="48, 8, 48, 48">
+                <ContentControl IsEnabled="{x:Bind ReboundViewModel.IsReboundEnabled, Mode=OneWay}">
+                    <ItemsRepeater ItemsSource="{x:Bind ReboundViewModel.Instructions, Mode=OneWay}">
+                        <ItemsRepeater.Layout>
+                            <controls:StaggeredLayout ItemsStretch="Fill"
+                                ColumnSpacing="8"
+                                DesiredColumnWidth="400"
+                                RowSpacing="8" />
+                        </ItemsRepeater.Layout>
+                        <ItemsRepeater.ItemTemplate>
+                            <DataTemplate x:DataType="modding:UserInterfaceReboundAppInstructions">
                                 <Grid
-                                    Grid.RowSpan="3"
-                                    HorizontalAlignment="Left"
-                                    VerticalAlignment="Top">
-                                    <Image
-                                        Width="64"
-                                        Height="64"
-                                        Source="{x:Bind Icon}"
-                                        Stretch="Fill" />
-                                    <Border Background="{ThemeResource AcrylicBackgroundFillColorBaseBrush}" CornerRadius="4">
+                                    Padding="12"
+                                    HorizontalAlignment="Stretch"
+                                    Background="{ThemeResource CardBackgroundFillColorDefault}"
+                                    BorderBrush="{ThemeResource ControlElevationBorderBrush}"
+                                    BorderThickness="1"
+                                    CornerRadius="4">
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="Auto" />
+                                        <RowDefinition Height="8" />
+                                        <RowDefinition Height="Auto" />
+                                        <RowDefinition Height="8" />
+                                        <RowDefinition Height="Auto" />
+                                        <RowDefinition Height="Auto" />
+                                    </Grid.RowDefinitions>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="Auto" />
+                                        <ColumnDefinition Width="16" />
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="16" />
+                                        <ColumnDefinition Width="Auto" />
+                                    </Grid.ColumnDefinitions>
+                                    <Grid
+                                        Grid.RowSpan="3"
+                                        HorizontalAlignment="Left"
+                                        VerticalAlignment="Top">
                                         <Image
-                                            Width="48"
-                                            Height="48"
-                                            Margin="8"
-                                            Source="{x:Bind Icon}" />
-                                    </Border>
+                                            Width="56"
+                                            Height="56"
+                                            Margin="4"
+                                            Source="{x:Bind Icon}"
+                                            Stretch="Fill" />
+                                        <Border Background="{ThemeResource AcrylicBackgroundFillColorBaseBrush}" CornerRadius="4">
+                                            <Image
+                                                Width="48"
+                                                Height="48"
+                                                Margin="8"
+                                                Source="{x:Bind Icon}" />
+                                        </Border>
+                                    </Grid>
+                                    <TextBlock
+                                        Grid.Column="2"
+                                        FontSize="18"
+                                        FontWeight="SemiBold"
+                                        Text="{x:Bind Name, Mode=OneWay}"
+                                        TextWrapping="WrapWholeWords" />
+                                    <StackPanel
+                                        Grid.Column="4"
+                                        Margin="0,-4,0,0"
+                                        Orientation="Horizontal"
+                                        Spacing="8">
+                                        <ToggleSwitch
+                                            Margin="0,-2,-108,-2"
+                                            IsOn="{x:Bind IsInstalled, Mode=TwoWay}"
+                                            OffContent=""
+                                            OnContent="" />
+                                    </StackPanel>
+                                    <TextBlock
+                                        Grid.Row="2"
+                                        Grid.Column="2"
+                                        Grid.ColumnSpan="3"
+                                        Margin="0,-36,0,0"
+                                        FontSize="12"
+                                        Opacity="0.5"
+                                        Text="{x:Bind Description, Mode=OneWay}"
+                                        TextWrapping="WrapWholeWords" />
+                                    <InfoBar
+                                        Title="This will do the following:"
+                                        Grid.Row="4"
+                                        Grid.ColumnSpan="5"
+                                        IsClosable="False"
+                                        IsOpen="True"
+                                        Message="{x:Bind InstallationSteps, Mode=OneWay}" />
+                                    <InfoBar
+                                        Title="This mod is corrupted and needs to be repaired."
+                                        Grid.Row="5"
+                                        Grid.ColumnSpan="5"
+                                        Margin="0,8,0,0"
+                                        IsClosable="False"
+                                        IsOpen="True"
+                                        Severity="Error"
+                                        Visibility="{x:Bind IsIntact, Mode=OneWay, Converter={StaticResource BoolToReverseVisibilityConverter}}">
+                                        <InfoBar.ActionButton>
+                                            <Button Command="{x:Bind RepairCommand}" Content="Repair" />
+                                        </InfoBar.ActionButton>
+                                    </InfoBar>
                                 </Grid>
-                                <TextBlock
-                                    Grid.Column="2"
-                                    FontSize="18"
-                                    FontWeight="SemiBold"
-                                    Text="{x:Bind Name, Mode=OneWay}"
-                                    TextWrapping="WrapWholeWords" />
-                                <StackPanel
-                                    Grid.Column="4"
-                                    Margin="0,-4,0,0"
-                                    Orientation="Horizontal"
-                                    Spacing="8">
-                                    <ToggleSwitch
-                                        Margin="0,-2,-108,-2"
-                                        IsOn="{x:Bind IsInstalled, Mode=TwoWay}"
-                                        OffContent=""
-                                        OnContent="" />
-                                </StackPanel>
-                                <TextBlock
-                                    Grid.Row="2"
-                                    Grid.Column="2"
-                                    Grid.ColumnSpan="3"
-                                    Margin="0,-36,0,0"
-                                    FontSize="12"
-                                    Opacity="0.5"
-                                    Text="{x:Bind Description, Mode=OneWay}"
-                                    TextWrapping="WrapWholeWords" />
-                                <InfoBar
-                                    Title="This will do the following:"
-                                    Grid.Row="4"
-                                    Grid.ColumnSpan="5"
-                                    IsClosable="False"
-                                    IsOpen="True"
-                                    Message="{x:Bind InstallationSteps, Mode=OneWay}" />
-                                <InfoBar
-                                    Title="This mod is corrupted and needs to be repaired."
-                                    Grid.Row="5"
-                                    Grid.ColumnSpan="5"
-                                    Margin="0,8,0,0"
-                                    IsClosable="False"
-                                    IsOpen="True"
-                                    Severity="Error"
-                                    Visibility="{x:Bind IsIntact, Mode=OneWay, Converter={StaticResource BoolToReverseVisibilityConverter}}">
-                                    <InfoBar.ActionButton>
-                                        <Button Command="{x:Bind RepairCommand}" Content="Repair" />
-                                    </InfoBar.ActionButton>
-                                </InfoBar>
-                            </Grid>
-                        </DataTemplate>
-                    </ItemsRepeater.ItemTemplate>
-                </ItemsRepeater>
-            </ContentControl>
+                            </DataTemplate>
+                        </ItemsRepeater.ItemTemplate>
+                    </ItemsRepeater>
+                </ContentControl>
+            </Grid>
 
         </Grid>
     </ScrollViewer>

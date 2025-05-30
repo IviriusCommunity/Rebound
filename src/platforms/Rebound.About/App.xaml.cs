@@ -30,7 +30,6 @@ public partial class App : Application
                     Arguments = "legacy"
                 });
                 Process.GetCurrentProcess().Kill();
-                Process.GetCurrentProcess().Kill();
                 return;
             }
             await IFEOEngine.PauseIFEOEntryAsync("winver.exe").ConfigureAwait(true);

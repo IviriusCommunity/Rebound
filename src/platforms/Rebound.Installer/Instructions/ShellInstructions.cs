@@ -16,7 +16,12 @@ public partial class ShellInstructions : ReboundAppInstructions
         new StartupTaskInstruction()
         {
             TargetPath = $"{Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles)}\\Rebound\\rshell.exe"
-        }
+        },
+        new ShortcutInstruction()
+        {
+            ShortcutName = "Rebound Shell",
+            ExePath = $"{Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles)}\\Rebound\\rshell.exe"
+        },
     };
 
     public override InstallationTemplate PreferredInstallationTemplate { get; set; } = InstallationTemplate.Extras;

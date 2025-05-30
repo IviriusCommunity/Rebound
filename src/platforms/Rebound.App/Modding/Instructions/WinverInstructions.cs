@@ -30,7 +30,7 @@ public partial class WinverInstructions : UserInterfaceReboundAppInstructions
         {
             ShortcutName = "About Windows",
             ExePath = $"{Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles)}\\Rebound\\rwinver.exe"
-        }
+        },
     };
 
     public override InstallationTemplate PreferredInstallationTemplate { get; set; } = InstallationTemplate.Basic;

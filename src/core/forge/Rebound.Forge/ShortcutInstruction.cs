@@ -1,6 +1,7 @@
 ﻿using System;
 using System.IO;
 using System.Runtime.InteropServices;
+using Rebound.Helpers;
 using Windows.Win32;
 using Windows.Win32.UI.Shell;
 
@@ -20,6 +21,11 @@ public class ShortcutInstruction : IReboundAppInstruction
     {
         try
         {
+            if (!SettingsHelper.GetValue<bool>("InstallShortcuts", "rebound", true))
+            {
+                return;
+            }
+
             // Ensure Rebound is properly installed
             ReboundWorkingEnvironment.EnsureFolderIntegrity();
 
@@ -58,6 +64,11 @@ public class ShortcutInstruction : IReboundAppInstruction
     {
         try
         {
+            if (!SettingsHelper.GetValue<bool>("InstallShortcuts", "rebound", true))
+            {
+                return;
+            }
+
             var startMenuFolder = Path.Combine(System.Environment.GetFolderPath(System.Environment.SpecialFolder.CommonStartMenu), "Programs", "Rebound");
             var shortcutPath = Path.Combine(startMenuFolder, $"{ShortcutName}.lnk");
 
@@ -76,6 +87,10 @@ public class ShortcutInstruction : IReboundAppInstruction
     {
         try
         {
+            if (!SettingsHelper.GetValue<bool>("InstallShortcuts", "rebound", true))
+            {
+                return true;
+            }
             var startMenuFolder = Path.Combine(System.Environment.GetFolderPath(System.Environment.SpecialFolder.CommonStartMenu), "Programs", "Rebound");
             var shortcutPath = Path.Combine(startMenuFolder, $"{ShortcutName}.lnk");
             return File.Exists(shortcutPath);

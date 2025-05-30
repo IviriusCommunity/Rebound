@@ -25,7 +25,7 @@ public partial class OnScreenKeyboardInstructions : UserInterfaceReboundAppInstr
         {
             Path = $"{AppContext.BaseDirectory}\\Modding\\Launchers\\rosk.exe",
             TargetPath = $"{Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles)}\\Rebound\\rosk.exe"
-        }
+        },
     };
 
     public override InstallationTemplate PreferredInstallationTemplate { get; set; } = InstallationTemplate.Extras;
