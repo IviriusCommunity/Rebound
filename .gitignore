@@ -380,3 +380,4 @@ FodyWeavers.xsd
 /src/platforms/Rebound.Installer/Certificate.cer
 /src/platforms/Rebound.Installer/dotNET9Runtime.exe
 /src/platforms/Rebound.App/Modding/Launchers/rshell.exe
+/src/platforms/Rebound.Installer/ReboundHub.exe
