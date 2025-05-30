@@ -34,3 +34,5 @@ CoCreateInstance
 GetDC
 GetDeviceCaps
 ReleaseDC
+RtlGetVersion
+OSVERSIONINFOEX

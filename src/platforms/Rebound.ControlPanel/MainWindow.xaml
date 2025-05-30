@@ -1,23 +1,23 @@
-<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8" ?>
 <winuiex:WindowEx
     x:Class="Rebound.ControlPanel.MainWindow"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-    xmlns:local="using:Rebound.ControlPanel"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:local="using:Rebound.ControlPanel"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:winuiex="using:WinUIEx"
-    mc:Ignorable="d"
     Title="Control Panel"
-    SizeChanged="WindowEx_SizeChanged"
     PositionChanged="WindowEx_PositionChanged"
-    WindowStateChanged="WindowEx_WindowStateChanged">
+    SizeChanged="WindowEx_SizeChanged"
+    WindowStateChanged="WindowEx_WindowStateChanged"
+    mc:Ignorable="d">
 
     <winuiex:WindowEx.SystemBackdrop>
         <MicaBackdrop Kind="BaseAlt" />
     </winuiex:WindowEx.SystemBackdrop>
 
     <Grid>
-        <Frame x:Name="RootFrame"/>
+        <Frame x:Name="RootFrame" />
     </Grid>
 </winuiex:WindowEx>

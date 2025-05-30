@@ -17,15 +17,15 @@
 		<!-- Self-contained settings -->
 		<SelfContained>true</SelfContained>
 		<PublishSingleFile>true</PublishSingleFile>
-		<WindowsAppSDKSelfContained>true</WindowsAppSDKSelfContained>
-		<IncludeNativeLibrariesForSelfExtract>true</IncludeNativeLibrariesForSelfExtract>
+		<WindowsAppSDKSelfContained>false</WindowsAppSDKSelfContained>
+		<IncludeNativeLibrariesForSelfExtract>false</IncludeNativeLibrariesForSelfExtract>
 		<CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
-		<PublishAot>false</PublishAot>
+		<PublishAot>true</PublishAot>
 		<IncludeWinAppSDKNativeDlls>false</IncludeWinAppSDKNativeDlls>
 		<IncludeWinAppSDKMsixContent>false</IncludeWinAppSDKMsixContent>
 
 		<!-- Trimmming -->
-		<PublishTrimmed>false</PublishTrimmed>
+		<PublishTrimmed>true</PublishTrimmed>
 
 	</PropertyGroup>
 

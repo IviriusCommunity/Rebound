@@ -1,53 +1,71 @@
 ﻿using System;
 using System.Linq;
 using System.Management;
+using System.Runtime.InteropServices;
 using CommunityToolkit.Mvvm.ComponentModel;
+using Microsoft.Win32;
+using Windows.Win32;
+using Windows.Win32.System.SystemInformation;
 
 namespace Rebound.ControlPanel.ViewModels;
 
 internal partial class HomeViewModel : ObservableObject
 {
     [ObservableProperty]
-    public partial string WindowsVersionTitle { get; set; } = GetWMIValue("Caption")?.Replace("Microsoft ", "") ?? "Windows 11";
+    public partial string WindowsVersionTitle { get; set; } = GetProductName();
 
-    public const string WMI_WIN32OPERATINGSYSTEM = "SELECT * FROM Win32_OperatingSystem";
-
-    private static string? GetWMIValue(string value)
-    {
-        // Query WMI
-        using var searcher = new ManagementObjectSearcher(WMI_WIN32OPERATINGSYSTEM);
-
-        // Obtain collection
-        var collection = searcher.Get();
-
-        // Cast to ManagementObject
-        var managementObject = collection.Cast<ManagementObject?>().FirstOrDefault();
-
-        // Obtain the required value
-        return managementObject?[value]?.ToString();
-    }
+    [ObservableProperty]
+    public partial string ComputerName { get; set; } = Environment.MachineName;
 
     public static string GetCpuName()
     {
-        using var searcher = new ManagementObjectSearcher("SELECT Name FROM Win32_Processor");
-        foreach (var item in searcher.Get())
+        return (Registry.GetValue(@"HKEY_LOCAL_MACHINE\HARDWARE\DESCRIPTION\System\CentralProcessor\0", "ProcessorNameString", "") ?? "").ToString() ?? "Unknown";
+    }
+
+    private static string GetProductName()
+    {
+        // Open the registry key
+        using var key = Registry.LocalMachine.OpenSubKey(@"SOFTWARE\Microsoft\Windows NT\CurrentVersion");
+        if (key != null)
         {
-            return item["Name"]?.ToString()?.Trim() ?? "Unknown CPU";
+            // Retrieve build number and revision
+            var productName = key.GetValue("ProductName", "Unknown") as string;
+            var buildNumber = key.GetValue("CurrentBuildNumber", "Unknown") as string;
+            if (int.Parse(buildNumber ?? "") >= 22000)
+            {
+                return productName.Replace("10", "11");
+            }
+            return productName;
         }
-        return "Unknown CPU";
+        return "Unknown version";
     }
 
     public static string GetTotalRamWmi()
     {
-        using var searcher = new ManagementObjectSearcher("Select Capacity from Win32_PhysicalMemory");
-        ulong totalBytes = 0;
-        foreach (var item in searcher.Get())
+        var lpBuffer = new MEMORYSTATUSEX
         {
-            totalBytes += (ulong)item["Capacity"];
+            dwLength = (uint)Marshal.SizeOf<MEMORYSTATUSEX>()
+        };
+
+        PInvoke.GlobalMemoryStatusEx(ref lpBuffer);
+
+        // Mimic Windows' display logic
+        int displayedSize;
+        var totalGb = lpBuffer.ullTotalPhys / 1024.0 / 1024 / 1024;
+
+        // Common marketed RAM sizes in ascending order
+        int[] commonSizes = { 1, 2, 4, 6, 8, 12, 16, 24, 32, 48, 64, 96, 128, 256 };
+
+        displayedSize = commonSizes.FirstOrDefault(size => totalGb < size);
+        if (displayedSize == 0)
+        {
+            // If it's larger than all predefined sizes, round to nearest multiple of 8
+            displayedSize = (int)Math.Round(totalGb / 8) * 8;
         }
-        var totalGB = Math.Round(totalBytes / 1024.0 / 1024 / 1024, 2);
-        return $"{totalGB} GB";
+
+        return $"{displayedSize} GB";
     }
+
     public static string GetCurrentUser()
     {
         return Environment.UserName;

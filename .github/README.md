@@ -1,4 +1,4 @@
-![image](https://github.com/user-attachments/assets/e7233bd3-710c-45d7-a50e-20c3ff234be2)
+![image](https://github.com/user-attachments/assets/887dd1ff-b5de-4a7c-ae2c-d90e65a5a12b)
 
 <!--<p align="center">
   <a style="text-decoration:none" href="https://github.com/IviriusCommunity/ReboundHub/actions/workflows/ci.yml">
@@ -27,7 +27,7 @@ All official Rebound apps are included in this repository and can be installed i
 
 Thoughtfully designed light mode | Thoughtfully designed dark mode
 ---|---
-![Thoughtfully designed light mode](https://github.com/user-attachments/assets/d87e9fc1-fe1c-461a-a128-6e970b45d9a0)|![Thoughtfully designed dark mode](https://github.com/user-attachments/assets/b578a82d-6386-46cf-b395-0f98e75fbb8a)
+![image](https://github.com/user-attachments/assets/953a4e54-3062-45c6-b224-10b0bdc0f7ef)|![image](https://github.com/user-attachments/assets/fc0957f3-910a-4fca-a854-7309f3751520)
 
 ## 🎁 Getting started
 
@@ -38,14 +38,12 @@ Thoughtfully designed light mode | Thoughtfully designed dark mode
 ## 🧰 Apps list
 
 _Included in Rebound:_
-- **Defragment and Optimize Drives**
 - **Disk Cleanup**
 - **Character Map UWP**
 - **Files**
 - **Ivirius Text Editor**
 - **About Windows** (winver)
-- **MMC** (TPM, Task Scheduler)
-- **Shell**: (Desktop, Shutdown dialog, Run, Control Panel)
+- **Shell**: (Shutdown dialog, Run, Control Panel)
 
 _Can be installed via Rebound Hub:_ (optional)
 - **Ambie**
@@ -79,8 +77,8 @@ _Featured:_
 | **Operating System** | Windows 11                    |
 | **Version**          | Build 22000 or higher         |
 | **Processor**        | 2 GHz or faster, 64-bit CPU   |
-| **Memory**           | 8 GB                          |
-| **Storage**          | 256 MB of free disk space (or more, depending on how much of the mod you wish to install) |
+| **Memory**           | 4 GB                          |
+| **Storage**          | 1.5 GB of free disk space (or more, depending on how much of the mod you wish to install) |
 
 ## 🛡️ Modding And Security Information
 

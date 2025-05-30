@@ -156,8 +156,10 @@ public sealed partial class RunWindow : WindowEx
         }
         catch
         {
-
+            return;
         }
+
+        Close();
     }
 
     private void TextBox_KeyDown(object sender, Microsoft.UI.Xaml.Input.KeyRoutedEventArgs e)

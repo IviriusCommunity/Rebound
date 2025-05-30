@@ -7,17 +7,65 @@
     xmlns:environment="using:Rebound.Helpers.Environment"
     xmlns:local="using:Rebound.About.Views"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:media="using:CommunityToolkit.WinUI.Media"
+    xmlns:ui="using:CommunityToolkit.WinUI"
     xmlns:viewModels="using:Rebound.About.ViewModels"
     d:DataContext="{d:DesignInstance Type=viewModels:MainViewModel}"
     mc:Ignorable="d">
 
     <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="504" />
+            <ColumnDefinition Width="*" />
+        </Grid.ColumnDefinitions>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
             <RowDefinition Height="*" />
             <RowDefinition Height="Auto" />
             <RowDefinition Height="Auto" />
         </Grid.RowDefinitions>
+        <StackPanel
+            Grid.Row="0"
+            Margin="0,52,0,24"
+            HorizontalAlignment="Center"
+            VerticalAlignment="Top"
+            Orientation="Horizontal"
+            Spacing="24">
+            <Grid VerticalAlignment="Center">
+                <Path Data="M 0 4 C 0 2 2 0 4 0 L 33 0 L 33 33 L 0 33 M 35 0 L 64 0 C 66 0 68 2 68 4 L 68 33 L 35 33 M 33 35 L 0 35 L 0 64 C 0 66 2 68 4 68 L 33 68 M 35 35 L 68 35 L 68 64 C 68 66 66 68 64 68 L 35 68" Fill="{StaticResource AccentFillColorDefaultBrush}" />
+                <Path Data="M 0 4 C 0 2 2 0 4 0 L 33 0 L 33 33 L 0 33 M 35 0 L 64 0 C 66 0 68 2 68 4 L 68 33 L 35 33 M 33 35 L 0 35 L 0 64 C 0 66 2 68 4 68 L 33 68 M 35 35 L 68 35 L 68 64 C 68 66 66 68 64 68 L 35 68">
+                    <Path.Fill>
+                        <LinearGradientBrush StartPoint="0, 0" EndPoint="1, 1">
+                            <LinearGradientBrush.GradientStops>
+                                <GradientStop Color="{ThemeResource SystemAccentColorLight3}" />
+                                <GradientStop Offset="1" Color="{ThemeResource SystemAccentColor}" />
+                            </LinearGradientBrush.GradientStops>
+                        </LinearGradientBrush>
+                    </Path.Fill>
+                </Path>
+            </Grid>
+            <TextBlock
+                Margin="0,-8,0,0"
+                VerticalAlignment="Center"
+                FontFamily="Segoe UI Variable"
+                FontSize="54"
+                FontWeight="SemiBold"
+                Text="{x:Bind ViewModel.WindowsVersionName}">
+                <TextBlock.Foreground>
+                    <LinearGradientBrush StartPoint="0, 0" EndPoint="1, 1">
+                        <LinearGradientBrush.GradientStops>
+                            <GradientStop Offset="1" Color="{ThemeResource SystemAccentColorLight3}" />
+                            <GradientStop Color="{ThemeResource SystemAccentColorLight1}" />
+                        </LinearGradientBrush.GradientStops>
+                    </LinearGradientBrush>
+                </TextBlock.Foreground>
+            </TextBlock>
+        </StackPanel>
+        <Grid>
+            <Grid.Background>
+                <media:BackdropBlurBrush Amount="36.0" />
+            </Grid.Background>
+        </Grid>
         <StackPanel
             Margin="12,8"
             VerticalAlignment="Top"
@@ -36,42 +84,19 @@
                     Text="BETA" />
             </Border>
         </StackPanel>
-        <StackPanel
-            x:Name="WinverPanel"
-            Grid.Row="0"
-            Margin="0,52,0,24"
-            HorizontalAlignment="Center"
-            VerticalAlignment="Top"
-            Orientation="Horizontal"
-            Spacing="24">
-            <Path VerticalAlignment="Center" Data="M 0 4 C 0 2 2 0 4 0 L 33 0 L 33 33 L 0 33 M 35 0 L 64 0 C 66 0 68 2 68 4 L 68 33 L 35 33 M 33 35 L 0 35 L 0 64 C 0 66 2 68 4 68 L 33 68 M 35 35 L 68 35 L 68 64 C 68 66 66 68 64 68 L 35 68">
-                <Path.Fill>
-                    <LinearGradientBrush StartPoint="0, 0" EndPoint="1, 1">
-                        <LinearGradientBrush.GradientStops>
-                            <GradientStop Color="#6cdfef" />
-                            <GradientStop Offset="1" Color="#109efc" />
-                        </LinearGradientBrush.GradientStops>
-                    </LinearGradientBrush>
-                </Path.Fill>
-            </Path>
-            <TextBlock
-                x:Name="WindowsVer"
-                Margin="0,-8,0,0"
-                VerticalAlignment="Center"
-                FontFamily="Segoe UI Variable"
-                FontSize="54"
-                FontWeight="SemiBold"
-                Text="{x:Bind ViewModel.WindowsVersionName}">
-                <TextBlock.Foreground>
-                    <LinearGradientBrush StartPoint="0, 0" EndPoint="1, 1">
-                        <LinearGradientBrush.GradientStops>
-                            <GradientStop Offset="1" Color="#49c6f5" />
-                            <GradientStop Color="#109efc" />
-                        </LinearGradientBrush.GradientStops>
-                    </LinearGradientBrush>
-                </TextBlock.Foreground>
-            </TextBlock>
-        </StackPanel>
+        <Grid Margin="0,142,0,0">
+            <Grid.Background>
+                <LinearGradientBrush StartPoint="0, 0" EndPoint="1, 1">
+                    <LinearGradientBrush.GradientStops>
+                        <GradientStop Color="{ThemeResource SystemAccentColorLight2}" />
+                        <GradientStop Offset="1" Color="{ThemeResource SystemAccentColor}" />
+                    </LinearGradientBrush.GradientStops>
+                </LinearGradientBrush>
+            </Grid.Background>
+            <ui:Effects.Shadow>
+                <media:AttachedCardShadow Color="{ThemeResource SystemAccentColorLight2}" />
+            </ui:Effects.Shadow>
+        </Grid>
         <Border Grid.Row="1" Background="{ThemeResource CardBackgroundFillColorDefault}">
             <Grid Padding="16">
                 <Grid.ColumnDefinitions>
@@ -156,6 +181,7 @@
         </Border>
         <Grid
             Grid.Row="3"
+            Grid.ColumnSpan="2"
             Height="80"
             Padding="24"
             Background="{ThemeResource SystemControlBackgroundAltMediumLowBrush}">
@@ -170,6 +196,128 @@
                     <KeyboardAccelerator Key="Escape" />
                 </Button.KeyboardAccelerators>
             </Button>
+            <ToggleButton
+                Padding="8"
+                HorizontalAlignment="Left"
+                VerticalAlignment="Center"
+                Background="Transparent"
+                BorderBrush="Transparent"
+                Command="{x:Bind ToggleSidebarCommand}"
+                IsChecked="{x:Bind ViewModel.IsSidebarOn, Mode=TwoWay}"
+                IsThreeState="False">
+                <FontIcon FontSize="16" Glyph="&#xE90D;" />
+            </ToggleButton>
+        </Grid>
+        <Grid
+            Grid.RowSpan="3"
+            Grid.Column="1"
+            Padding="12"
+            Background="{ThemeResource LayerFillColorDefaultBrush}"
+            RowSpacing="16">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="*" />
+                <RowDefinition Height="*" />
+                <RowDefinition Height="*" />
+                <RowDefinition Height="*" />
+            </Grid.RowDefinitions>
+            <TextBlock FontWeight="SemiBold" Text="Specifications" />
+            <Grid
+                Grid.Row="1"
+                Padding="12"
+                Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
+                BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                BorderThickness="1"
+                CornerRadius="4">
+                <StackPanel
+                    VerticalAlignment="Top"
+                    Orientation="Horizontal"
+                    Spacing="8">
+                    <FontIcon FontSize="16" Glyph="&#xEEA1;" />
+                    <TextBlock FontWeight="SemiBold" Text="CPU" />
+                </StackPanel>
+                <TextBlock
+                    VerticalAlignment="Bottom"
+                    Text="{x:Bind ViewModel.CPUName}"
+                    TextWrapping="WrapWholeWords" />
+                <TextBlock
+                    HorizontalAlignment="Right"
+                    Opacity="0.75"
+                    Text="{x:Bind ViewModel.CPUSpeed}"
+                    TextWrapping="WrapWholeWords" />
+            </Grid>
+            <Grid
+                Grid.Row="2"
+                Padding="12"
+                Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
+                BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                BorderThickness="1"
+                CornerRadius="4">
+                <StackPanel
+                    VerticalAlignment="Top"
+                    Orientation="Horizontal"
+                    Spacing="8">
+                    <FontIcon FontSize="16" Glyph="&#xE7F4;" />
+                    <TextBlock FontWeight="SemiBold" Text="GPU" />
+                </StackPanel>
+                <TextBlock
+                    VerticalAlignment="Bottom"
+                    Text="{x:Bind ViewModel.GPUName}"
+                    TextWrapping="WrapWholeWords" />
+                <TextBlock
+                    HorizontalAlignment="Right"
+                    Opacity="0.75"
+                    Text="4.90 mHz"
+                    TextWrapping="WrapWholeWords" />
+            </Grid>
+            <Grid
+                Grid.Row="3"
+                Padding="12"
+                Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
+                BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                BorderThickness="1"
+                CornerRadius="4">
+                <StackPanel
+                    VerticalAlignment="Top"
+                    Orientation="Horizontal"
+                    Spacing="8">
+                    <FontIcon FontSize="16" Glyph="&#xEEA0;" />
+                    <TextBlock FontWeight="SemiBold" Text="RAM" />
+                </StackPanel>
+                <TextBlock
+                    VerticalAlignment="Bottom"
+                    Text="Intel Core i5"
+                    TextWrapping="WrapWholeWords" />
+                <TextBlock
+                    HorizontalAlignment="Right"
+                    Opacity="0.75"
+                    Text="4.90 mHz"
+                    TextWrapping="WrapWholeWords" />
+            </Grid>
+            <Grid
+                Grid.Row="4"
+                Padding="12"
+                Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
+                BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                BorderThickness="1"
+                CornerRadius="4">
+                <StackPanel
+                    VerticalAlignment="Top"
+                    Orientation="Horizontal"
+                    Spacing="8">
+                    <FontIcon FontSize="16" Glyph="&#xE77B;" />
+                    <TextBlock FontWeight="SemiBold" Text="Current user" />
+                </StackPanel>
+                <TextBlock
+                    VerticalAlignment="Bottom"
+                    Text="Intel Core i5"
+                    TextWrapping="WrapWholeWords" />
+                <TextBlock
+                    HorizontalAlignment="Right"
+                    Opacity="0.75"
+                    Text="4.90 mHz"
+                    TextWrapping="WrapWholeWords" />
+            </Grid>
         </Grid>
     </Grid>
 </Page>
