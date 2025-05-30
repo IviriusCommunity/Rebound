@@ -33,6 +33,10 @@
 		<None Remove="Launcher.obj" />
 		<None Remove="Views\MainPage.xaml" />
 
+		<Content Include="Strings\**\*.resw">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</Content>
+		
 		<None Include="README.md" Pack="true" PackagePath="\" />
 
 		<PackageReference Include="WinUI3Localizer" Version="2.3.0" />

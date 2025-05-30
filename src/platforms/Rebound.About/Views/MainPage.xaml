@@ -5,7 +5,8 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:environment="using:Rebound.Helpers.Environment"
-    xmlns:local="using:Rebound.About.Views"
+    xmlns:l="using:WinUI3Localizer"
+    xmlns:local="using:Rebound.About"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:media="using:CommunityToolkit.WinUI.Media"
     xmlns:ui="using:CommunityToolkit.WinUI"
@@ -71,7 +72,7 @@
             VerticalAlignment="Top"
             Orientation="Horizontal"
             Spacing="8">
-            <TextBlock FontSize="12" Text="About Windows" />
+            <TextBlock l:Uids.Uid="TitleTextBlock" FontSize="12" />
             <Border
                 Padding="6,2,6,3"
                 VerticalAlignment="Center"
@@ -116,14 +117,14 @@
                         Text="Microsoft Windows"
                         TextWrapping="WrapWholeWords" />
                     <TextBlock Text="{x:Bind ViewModel.DetailedWindowsVersion}" TextWrapping="WrapWholeWords" />
-                    <TextBlock Text="Copyright ©️ Microsoft Corporation. All rights reserved." />
+                    <TextBlock l:Uids.Uid="CopyrightLabel" />
                     <TextBlock Text="{x:Bind ViewModel.LegalInfo}" TextWrapping="WrapWholeWords" />
                     <TextBlock>
-                        <Run Text="This product is licensed under the" />
+                        <Run l:Uids.Uid="LicensedUnderLabel" />
                         <Hyperlink NavigateUri="https://support.microsoft.com/en-us/windows/microsoft-software-license-terms-e26eedad-97a2-5250-2670-aad156b654bd">
-                            <Run Text="Microsoft Software License Terms" />
+                            <Run l:Uids.Uid="MicrosoftLicenseTermsLabel" />
                         </Hyperlink>
-                        <Run Text="to:" />
+                        <Run l:Uids.Uid="ToLabel" />
                     </TextBlock>
                     <TextBlock x:Name="User" Text="{x:Bind ViewModel.LicenseOwners}" />
                 </StackPanel>
@@ -138,8 +139,8 @@
                     <FontIcon FontSize="16" Glyph="&#xE8C8;" />
                     <Button.Flyout>
                         <MenuFlyout>
-                            <MenuFlyoutItem Command="{x:Bind CopyWindowsVersionCommand}" Text="Copy Windows version" />
-                            <MenuFlyoutItem Command="{x:Bind CopyLicenseOwnersCommand}" Text="Copy license owners" />
+                            <MenuFlyoutItem l:Uids.Uid="CopyWindowsVer" Command="{x:Bind CopyWindowsVersionCommand}" />
+                            <MenuFlyoutItem l:Uids.Uid="CopyLicenseOwners" Command="{x:Bind CopyLicenseOwnersCommand}" />
                         </MenuFlyout>
                     </Button.Flyout>
                 </Button>
@@ -164,7 +165,7 @@
                         Text="Rebound"
                         TextWrapping="WrapWholeWords" />
                     <TextBlock Text="{x:Bind environment:ReboundVersion.REBOUND_VERSION}" />
-                    <TextBlock Text="Rebound is a Windows mod that does not modify system files. The current Windows installation contains additional apps to run Rebound." TextWrapping="WrapWholeWords" />
+                    <TextBlock l:Uids.Uid="ReboundInfo" TextWrapping="WrapWholeWords" />
                 </StackPanel>
                 <Button
                     Grid.Column="2"
@@ -189,8 +190,8 @@
                 Width="120"
                 HorizontalAlignment="Right"
                 VerticalAlignment="Center"
+                l:Uids.Uid="OKButton"
                 Command="{x:Bind CloseWindowCommand}"
-                Content="OK"
                 Style="{StaticResource AccentButtonStyle}">
                 <Button.KeyboardAccelerators>
                     <KeyboardAccelerator Key="Escape" />
@@ -213,7 +214,7 @@
             Grid.Column="1"
             Padding="12"
             Background="{ThemeResource LayerFillColorDefaultBrush}"
-            RowSpacing="16">
+            RowSpacing="12">
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto" />
                 <RowDefinition Height="*" />
@@ -240,11 +241,6 @@
                     VerticalAlignment="Bottom"
                     Text="{x:Bind ViewModel.CPUName}"
                     TextWrapping="WrapWholeWords" />
-                <TextBlock
-                    HorizontalAlignment="Right"
-                    Opacity="0.75"
-                    Text="{x:Bind ViewModel.CPUSpeed}"
-                    TextWrapping="WrapWholeWords" />
             </Grid>
             <Grid
                 Grid.Row="2"
@@ -264,11 +260,6 @@
                     VerticalAlignment="Bottom"
                     Text="{x:Bind ViewModel.GPUName}"
                     TextWrapping="WrapWholeWords" />
-                <TextBlock
-                    HorizontalAlignment="Right"
-                    Opacity="0.75"
-                    Text="4.90 mHz"
-                    TextWrapping="WrapWholeWords" />
             </Grid>
             <Grid
                 Grid.Row="3"
@@ -286,12 +277,7 @@
                 </StackPanel>
                 <TextBlock
                     VerticalAlignment="Bottom"
-                    Text="Intel Core i5"
-                    TextWrapping="WrapWholeWords" />
-                <TextBlock
-                    HorizontalAlignment="Right"
-                    Opacity="0.75"
-                    Text="4.90 mHz"
+                    Text="{x:Bind ViewModel.RAM}"
                     TextWrapping="WrapWholeWords" />
             </Grid>
             <Grid
@@ -306,16 +292,11 @@
                     Orientation="Horizontal"
                     Spacing="8">
                     <FontIcon FontSize="16" Glyph="&#xE77B;" />
-                    <TextBlock FontWeight="SemiBold" Text="Current user" />
+                    <TextBlock l:Uids.Uid="CurrentUser" FontWeight="SemiBold" />
                 </StackPanel>
                 <TextBlock
                     VerticalAlignment="Bottom"
-                    Text="Intel Core i5"
-                    TextWrapping="WrapWholeWords" />
-                <TextBlock
-                    HorizontalAlignment="Right"
-                    Opacity="0.75"
-                    Text="4.90 mHz"
+                    Text="{x:Bind ViewModel.CurrentUser}"
                     TextWrapping="WrapWholeWords" />
             </Grid>
         </Grid>

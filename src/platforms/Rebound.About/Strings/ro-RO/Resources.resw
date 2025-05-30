@@ -118,42 +118,45 @@
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <data name="CopyLicenseOwners.Text" xml:space="preserve">
-    <value />
+    <value>Copiază deținătorii de licență</value>
   </data>
   <data name="CopyrightLabel.Text" xml:space="preserve">
-    <value />
+    <value>Copyright ©️ Microsoft Corporation. Toate drepturile rezervate.</value>
   </data>
   <data name="CopyWindowsVer.Text" xml:space="preserve">
-    <value />
+    <value>Copiază versiunea Windows</value>
   </data>
   <data name="CurrentUser.Text" xml:space="preserve">
-    <value />
+    <value>Utilizator curent</value>
   </data>
   <data name="LegalInfo" xml:space="preserve">
-    <value />
+    <value>Sistemul de operare {0} și interfața sa de utilizator sunt protejate de mărci comerciale și alte drepturi de proprietate intelectuală existente sau în curs de obținere în Statele Unite și în alte țări/regiuni.</value>
   </data>
   <data name="LicensedUnderLabel.Text" xml:space="preserve">
-    <value />
+    <value>Acest produs este licențiat sub</value>
   </data>
   <data name="MicrosoftLicenseTermsLabel.Text" xml:space="preserve">
-    <value />
+    <value>Termenii Licenței Sftware Microsoft</value>
   </data>
   <data name="OKButton.Content" xml:space="preserve">
-    <value />
+    <value>OK</value>
   </data>
   <data name="ReboundInfo.Text" xml:space="preserve">
-    <value />
+    <value>Rebound este un mod pentru Windows care nu modifică fișierele de sistem. Instalarea curentă de Windows conține aplicații suplimentare pentru a rula Rebound.</value>
+  </data>
+  <data name="TitleTextBlock.Text" xml:space="preserve">
+    <value>Despre Windows</value>
   </data>
   <data name="ToLabel.Text" xml:space="preserve">
-    <value />
+    <value>către:</value>
   </data>
   <data name="Unknown" xml:space="preserve">
-    <value />
+    <value>Necunoscut</value>
   </data>
   <data name="UnknownLicenseHolders" xml:space="preserve">
-    <value />
+    <value>Deținători de licență necunoscuți</value>
   </data>
   <data name="VersionOSBuild" xml:space="preserve">
-    <value />
+    <value>Versiunea {0} (Compilație S.O. {1}.{2})</value>
   </data>
 </root>

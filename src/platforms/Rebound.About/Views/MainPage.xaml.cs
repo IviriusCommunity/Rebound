@@ -41,9 +41,9 @@ public sealed partial class MainPage : Page
             {
                 await Task.Delay(2);
                 var radians = i * Math.PI / 180; // Convert degrees to radians
-                App.MainAppWindow.Width = 520 + 240 * Math.Sin(radians);
+                App.MainAppWindow.Width = 520 + 200 * Math.Sin(radians);
             }
-            App.MainAppWindow.Width = 760;
+            App.MainAppWindow.Width = 720;
         }
         else
         {
@@ -51,7 +51,7 @@ public sealed partial class MainPage : Page
             {
                 await Task.Delay(2);
                 var radians = i * Math.PI / 180; // Convert degrees to radians
-                App.MainAppWindow.Width = 520 + 240 * Math.Sin(radians);
+                App.MainAppWindow.Width = 520 + 200 * Math.Sin(radians);
             }
             App.MainAppWindow.Width = 520;
         }

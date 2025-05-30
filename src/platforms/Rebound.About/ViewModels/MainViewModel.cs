@@ -1,10 +1,9 @@
 ﻿using System;
-using System.Runtime.CompilerServices;
+using System.Linq;
 using System.Runtime.InteropServices;
 using CommunityToolkit.Mvvm.ComponentModel;
 using Microsoft.Win32;
-using Windows.Win32;
-using Windows.Win32.Graphics.Gdi;
+using WinUI3Localizer;
 
 namespace Rebound.About.ViewModels;
 
@@ -29,14 +28,43 @@ internal partial class MainViewModel : ObservableObject
     public partial string LegalInfo { get; set; } = GetInformation();
 
     [ObservableProperty]
-    public partial string CPUName { get; set; } = (Registry.GetValue(@"HKEY_LOCAL_MACHINE\HARDWARE\DESCRIPTION\System\CentralProcessor\0", "ProcessorNameString", "") ?? "").ToString() ?? "Unknown";
-
-    [ObservableProperty]
-    public partial string CPUSpeed { get; set; } = (Registry.GetValue(@"HKEY_LOCAL_MACHINE\HARDWARE\DESCRIPTION\System\CentralProcessor\0", "~MHz", 0) ?? "").ToString() + " MHz" ?? "Unknown";
+    public partial string CPUName { get; set; } = (Registry.GetValue(@"HKEY_LOCAL_MACHINE\HARDWARE\DESCRIPTION\System\CentralProcessor\0", "ProcessorNameString", "") ?? "").ToString() ?? "Unknown".GetLocalizedString();
 
     [ObservableProperty]
     public partial string GPUName { get; set; } = GetGPUName();
-    
+
+    [ObservableProperty]
+    public partial string CurrentUser { get; set; } = Environment.UserName;
+
+    [ObservableProperty]
+    public partial string RAM { get; set; } = GetTotalRam();
+
+    public static string GetTotalRam()
+    {
+        var lpBuffer = new Windows.Win32.System.SystemInformation.MEMORYSTATUSEX
+        {
+            dwLength = (uint)Marshal.SizeOf<Windows.Win32.System.SystemInformation.MEMORYSTATUSEX>()
+        };
+
+        Windows.Win32.PInvoke.GlobalMemoryStatusEx(ref lpBuffer);
+
+        // Mimic Windows' display logic
+        int displayedSize;
+        var totalGb = lpBuffer.ullTotalPhys / 1024.0 / 1024 / 1024;
+
+        // Common marketed RAM sizes in ascending order
+        int[] commonSizes = { 1, 2, 4, 6, 8, 12, 16, 24, 32, 48, 64, 96, 128, 256 };
+
+        displayedSize = commonSizes.FirstOrDefault(size => totalGb < size);
+        if (displayedSize == 0)
+        {
+            // If it's larger than all predefined sizes, round to nearest multiple of 8
+            displayedSize = (int)Math.Round(totalGb / 8) * 8;
+        }
+
+        return $"{displayedSize} GB";
+    }
+
     public static string GetGPUName()
     {
         string? gpuName = null;
@@ -53,7 +81,7 @@ internal partial class MainViewModel : ObservableObject
                 }
             }
         }
-        return gpuName ?? "Unknown";
+        return gpuName ?? "Unknown".GetLocalizedString();
     }
 
     private static string GetCurrentUserName()
@@ -68,7 +96,7 @@ internal partial class MainViewModel : ObservableObject
 
             return owner + (string.IsNullOrEmpty(owner2) ? string.Empty : (", " + owner2));
         }
-        return "Unknown license holders";
+        return "UnknownLicenseHolders".GetLocalizedString();
     }
 
     private static string GetDetailedWindowsVersion()
@@ -82,9 +110,9 @@ internal partial class MainViewModel : ObservableObject
             var buildNumber = key.GetValue("CurrentBuildNumber", "Unknown") as string;
             var buildLab = key.GetValue("UBR", "Unknown");
 
-            return $"Version {versionName} (OS Build {buildNumber}.{buildLab})";
+            return String.Format("VersionOSBuild".GetLocalizedString(), versionName, buildNumber, buildLab);
         }
-        return "Unknown version";
+        return "Unknown".GetLocalizedString();
     }
 
     private static string GetProductName()
@@ -102,9 +130,9 @@ internal partial class MainViewModel : ObservableObject
             }
             return productName;
         }
-        return "Unknown version";
+        return "Unknown".GetLocalizedString();
     }
 
     public static string GetInformation()
-        => $"The {GetProductName()} operating system and its user interface are protected by trademark and other pending or existing intellectual property rights in the United States and other countries/regions.";
+        => String.Format("LegalInfo".GetLocalizedString(), GetProductName());
 }
