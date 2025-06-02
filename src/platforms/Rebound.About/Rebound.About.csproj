@@ -14,9 +14,8 @@
 		<WindowsPackageType>None</WindowsPackageType>
 
 		<!-- Self-contained settings -->
-		<SelfContained>true</SelfContained>
-		<PublishSingleFile>true</PublishSingleFile>
-		<EnableCompressionInSingleFile>true</EnableCompressionInSingleFile>
+		<SelfContained>false</SelfContained>
+		<PublishSingleFile>false</PublishSingleFile>
 		<WindowsAppSDKSelfContained>true</WindowsAppSDKSelfContained>
 		<CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
 		<PublishAot>false</PublishAot>
