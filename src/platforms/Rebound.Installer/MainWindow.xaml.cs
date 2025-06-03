@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Runtime.InteropServices;
 using System.Threading.Tasks;
+using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Microsoft.UI.Xaml;
 using Rebound.Forge;
@@ -15,10 +16,51 @@ using WinUIEx;
 
 namespace ReboundHubInstaller;
 
+public partial class Option : ObservableObject
+{
+    [ObservableProperty]
+    public partial string Name { get; set; }
+
+    [ObservableProperty]
+    public partial bool IsChecked { get; set; }
+
+    public ObservableCollection<Option> Children { get; set; }
+}
+
 public sealed partial class MainWindow : WindowEx
 {
     private readonly string reboundPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "Rebound");
     private readonly string tempPath;
+
+    public ObservableCollection<Option> Options =
+    [
+        new()
+        {
+            Name = "Logs",
+            Children =
+            [
+                new()
+                {
+                    Name = "Crash logs",
+                },
+                new()
+                {
+                    Name = "Mod logs",
+                }
+            ]
+        },
+        new()
+        {
+            Name = "Modding",
+            Children =
+            [
+                new()
+                {
+                    Name = "Create shortcuts",
+                }
+            ]
+        }
+    ];
 
     public MainWindow()
     {
