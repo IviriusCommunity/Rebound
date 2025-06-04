@@ -8,8 +8,8 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:winuiex="using:WinUIEx"
     Title="Rebound Hub Installer"
-    Width="720"
-    Height="600"
+    Width="540"
+    Height="480"
     Closed="WindowEx_Closed"
     IsMaximizable="False"
     IsResizable="False"
@@ -19,7 +19,7 @@
     </winuiex:WindowEx.SystemBackdrop>
     <Grid>
         <StackPanel
-            Margin="12,8,12,0"
+            Margin="10,6,0,0"
             VerticalAlignment="Top"
             Orientation="Horizontal"
             Spacing="8">
@@ -39,7 +39,54 @@
                     Text="BETA" />
             </Border>
         </StackPanel>
-        <FlipView Margin="16,48,16,96" Background="Transparent">
+        <FlipView
+            Margin="0,32,0,80"
+            Background="{ThemeResource LayerFillColorDefaultBrush}"
+            CornerRadius="0">
+            <Grid>
+                <Border
+                    Width="200"
+                    HorizontalAlignment="Left"
+                    Background="{ThemeResource LayerFillColorDefaultBrush}" />
+                <StackPanel
+                    Margin="200,0,0,0"
+                    Padding="20,12"
+                    Spacing="8">
+                    <TextBlock
+                        HorizontalAlignment="Left"
+                        FontSize="24"
+                        FontWeight="SemiBold"
+                        HorizontalTextAlignment="Left"
+                        Text="Welcome to the Rebound Hub installer!"
+                        TextWrapping="WrapWholeWords" />
+                    <TextBlock Text="Configure and install Rebound Hub." />
+                    <RadioButtons>
+                        <RadioButton Content="Install Rebound Hub" IsChecked="True" />
+                        <RadioButton Content="Repair Rebound Hub" />
+                        <RadioButton Content="Uninstall Rebound and Rebound Hub" />
+                    </RadioButtons>
+                    <InfoBar
+                        Title="Rebound is a Windows mod. Install only if you have sufficient knowledge of Windows internals."
+                        IsClosable="False"
+                        IsOpen="True"
+                        Severity="Warning" />
+                </StackPanel>
+            </Grid>
+            <Grid Margin="16">
+                <StackPanel Spacing="12">
+                    <TextBlock
+                        FontSize="20"
+                        FontWeight="SemiBold"
+                        Text="Installing..." />
+                    <TextBlock Text="Copying [PATH] to [PATH]..." TextTrimming="CharacterEllipsis" />
+                    <ProgressBar Value="32" />
+                    <InfoBar Severity="Error" Title="We couldn't find the &quot;data.rzip&quot; file in the current directory. Please make sure it exists and try again." IsOpen="True">
+                        <InfoBar.ActionButton>
+                            <Button Content="Retry"/>
+                        </InfoBar.ActionButton>
+                    </InfoBar>
+                </StackPanel>
+            </Grid>
             <Grid Margin="32,0" VerticalAlignment="Center">
                 <StackPanel Spacing="16">
                     <Image
@@ -329,38 +376,41 @@
                 HorizontalAlignment="Left"
                 VerticalAlignment="Center"
                 IsIndeterminate="False"
-                Maximum="100"/>
+                Maximum="100" />
             <StackPanel
                 x:Name="ButtonsStackPanel"
                 Margin="24"
                 HorizontalAlignment="Right"
                 Orientation="Horizontal"
                 Spacing="8">
-                <Button
+                <DropDownButton
                     Width="160"
-                    Command="{x:Bind InstallCommand}"
-                    Content="Install"
-                    Style="{StaticResource AccentButtonStyle}" />
-                <DropDownButton Width="160" Content="More options">
+                    Content="More options"
+                    Visibility="Collapsed">
                     <DropDownButton.Flyout>
                         <MenuFlyout>
-                            <MenuFlyoutItem Text="Remove Rebound Hub" Command="{x:Bind RemoveReboundCommand}" />
-                            <MenuFlyoutItem Text="Repair Rebound Hub" Command="{x:Bind RepairReboundHubCommand}" />
+                            <MenuFlyoutItem Command="{x:Bind RemoveReboundCommand}" Text="Remove Rebound Hub" />
+                            <MenuFlyoutItem Command="{x:Bind RepairReboundHubCommand}" Text="Repair Rebound Hub" />
                         </MenuFlyout>
                     </DropDownButton.Flyout>
                 </DropDownButton>
                 <Button
-                    Width="160"
+                    Width="120"
                     Command="{x:Bind CloseAppCommand}"
-                    Content="Close" />
+                    Content="Cancel" />
+                <Button
+                    Width="120"
+                    Command="{x:Bind InstallCommand}"
+                    Content="Next"
+                    Style="{StaticResource AccentButtonStyle}" />
             </StackPanel>
             <TextBlock
                 x:Name="DescriptionBox"
                 Margin="64,16,24,16"
                 VerticalAlignment="Center"
-                Visibility="Collapsed"
                 Text="Installing: Rebound Hub MSIX Package. This may take a while."
-                TextWrapping="WrapWholeWords" />
+                TextWrapping="WrapWholeWords"
+                Visibility="Collapsed" />
         </Grid>
     </Grid>
 </winuiex:WindowEx>

@@ -15,9 +15,8 @@
 		<WindowsPackageType>None</WindowsPackageType>
 
 		<!-- Self-contained settings -->
-		<SelfContained>true</SelfContained>
-		<PublishSingleFile>true</PublishSingleFile>
-		<EnableCompressionInSingleFile>true</EnableCompressionInSingleFile>
+		<SelfContained>false</SelfContained>
+		<PublishSingleFile>false</PublishSingleFile>
 		<WindowsAppSDKSelfContained>true</WindowsAppSDKSelfContained>
 		<CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
 		<PublishAot>false</PublishAot>
@@ -32,65 +31,21 @@
 
 	<!-- Project content -->
 	<ItemGroup>
-		<Content Include="Assets\SplashScreen.scale-200.png" />
-		<Content Include="Assets\LockScreenLogo.scale-200.png" />
-		<Content Include="Assets\Square150x150Logo.scale-200.png" />
-		<Content Include="Assets\Square44x44Logo.scale-200.png" />
-		<Content Include="Assets\Square44x44Logo.targetsize-24_altform-unplated.png" />
-		<Content Include="Assets\Wide310x150Logo.scale-200.png" />
 		<Content Include="Fonts\FluentIcons.ttf">
 			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 		</Content>
-		<Content Include="Modding\Launchers\rcleanmgr.exe" />
-		<Content Include="Modding\Launchers\rcontrol.exe" />
 		<Content Include="Modding\Launchers\rosk.exe" />
-		<Content Include="Modding\Launchers\rshell.exe" />
-		<Content Include="Modding\Launchers\ruseraccountcontrolsettings.exe" />
-		<Content Include="Modding\Launchers\rwinver.exe" />
 		<CustomAdditionalCompileInputs Remove="Views\HomePage.xaml" />
 		<Resource Remove="Views\HomePage.xaml" />
 		<PRIResource Remove="Assets\Wallpapers\**" />
-		<None Remove="Assets\AppBanners\FilesDark.png" />
-		<None Remove="Assets\AppBanners\FilesLight.png" />
-		<None Remove="Assets\AppBanners\IviriusTextEditorDark.png" />
-		<None Remove="Assets\AppBanners\IviriusTextEditorLight.png" />
-		<None Remove="Assets\AppBanners\WinverDark.png" />
-		<None Remove="Assets\AppBanners\WinverLight.png" />
-		<None Remove="Assets\AppIcons\AboutWindows.ico" />
-		<None Remove="Assets\AppIcons\CubeKit.png" />
-		<None Remove="Assets\AppIcons\DiscordLogo.png" />
-		<None Remove="Assets\AppIcons\Docs.png" />
-		<None Remove="Assets\AppIcons\IviriusTextEditorFree.png" />
-		<None Remove="Assets\AppIcons\IviriusTextEditorPaid.png" />
-		<None Remove="Assets\AppIcons\ReboundIcon.ico" />
-		<None Remove="Assets\AppIcons\Rectify11.png" />
-		<None Remove="Assets\Backgrounds\WallpaperDark.png" />
-		<None Remove="Assets\Backgrounds\WallpaperLight.png" />
 		<None Remove="Launcher_OSK.obj" />
-		<None Remove="Modding\Launchers\rcleanmgr.exe" />
-		<None Remove="Modding\Launchers\rcontrol.exe" />
 		<None Remove="Modding\Launchers\rosk.exe" />
-		<None Remove="Modding\Launchers\rshell.exe" />
-		<None Remove="Modding\Launchers\ruseraccountcontrolsettings.exe" />
-		<None Remove="Modding\Launchers\rwinver.exe" />
 		<AdditionalFiles Include="NativeMethods.txt" />
-		<Content Update="Assets\AppIcons\AboutWindows.ico">
+		<None Include="Modding\Apps\**\*">
 			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
-		</Content>
-		<Content Update="Assets\AppIcons\RunBox.ico">
-		  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-		</Content>
-		<Content Update="Assets\Backgrounds\BackgroundDark.jpg">
-			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-		</Content>
-		<Content Update="Assets\Backgrounds\BackgroundDarkNew.png">
-			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-		</Content>
-		<Content Update="Assets\Backgrounds\BackgroundLight.jpg">
-			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-		</Content>
-		<Content Update="Assets\Backgrounds\BackgroundLightNew.png">
-			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</None>
+		<Content Update="Assets\**\*">
+			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
 		</Content>
 		<Page Update="Styles\CaptionButtons.xaml">
 			<Generator>MSBuild:Compile</Generator>
@@ -117,8 +72,8 @@
 	<Import Project="..\..\core\shared\Rebound.Core.Helpers\Rebound.Core.Helpers.projitems" Label="Shared" />
 
 	<!-- Copy and rename launchers -->
-	<Target Name="CopyExecutablesToLaunchers" BeforeTargets="Build" Condition="'$(Configuration)' == 'Release'">
-		<!-- Publish dependent projects -->
+
+	<!--<Target Name="CopyExecutablesToLaunchers" BeforeTargets="Build" Condition="'$(Configuration)' == 'Release'">
 		<MSBuild Projects="..\Rebound.About\Rebound.About.csproj" Targets="Publish" Properties="Configuration=Release;PublishDir=..\Rebound.About\bin\Release\Publish\" />
 		<MSBuild Projects="..\Rebound.Cleanup\Rebound.Cleanup.csproj" Targets="Publish" Properties="Configuration=Release;PublishDir=..\Rebound.Cleanup\bin\Release\Publish\" />
 		<MSBuild Projects="..\Rebound.ControlPanel\Rebound.ControlPanel.csproj" Targets="Publish" Properties="Configuration=Release;PublishDir=..\Rebound.ControlPanel\bin\Release\Publish\" />
@@ -150,6 +105,6 @@
 		<Message Text="Copying and renaming executables to $(LaunchersFolder)" Importance="high" />
 
 		<Copy SourceFiles="@(PublishedExecutables->'%(FullPath)')" DestinationFiles="@(PublishedExecutables->'$(LaunchersFolder)%(DestinationFileName)')" OverwriteReadOnlyFiles="true" />
-	</Target>
+	</Target>-->
 
 </Project>

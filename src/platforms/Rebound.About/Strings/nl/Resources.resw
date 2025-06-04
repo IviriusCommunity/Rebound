@@ -118,42 +118,45 @@
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <data name="CopyLicenseOwners.Text" xml:space="preserve">
-    <value />
+    <value>Kopieer licentie-eigenaren</value>
   </data>
   <data name="CopyrightLabel.Text" xml:space="preserve">
-    <value />
+    <value>Copyright ©️ Microsoft Corporation. Alle rechten voorbehouden.</value>
   </data>
   <data name="CopyWindowsVer.Text" xml:space="preserve">
-    <value />
+    <value>Kopiëren Windows Versie</value>
   </data>
   <data name="CurrentUser.Text" xml:space="preserve">
-    <value />
+    <value>Huidige gebruiker</value>
   </data>
   <data name="LegalInfo" xml:space="preserve">
-    <value />
+    <value>Dit product is in licentie gegeven. Het {0} besturingssysteem en de gebruikersinterface ervan worden beschermd door handelsmerken en andere hangende of bestaande intellectuele eigendomsrechten in de Verenigde Staten en andere landen/regio's.</value>
   </data>
   <data name="LicensedUnderLabel.Text" xml:space="preserve">
-    <value />
+    <value>Dit product is gelicentieerd onder de</value>
   </data>
   <data name="MicrosoftLicenseTermsLabel.Text" xml:space="preserve">
-    <value />
+    <value>Microsoft-softwarelicentievoorwaarden</value>
   </data>
   <data name="OKButton.Content" xml:space="preserve">
-    <value />
+    <value>OK</value>
   </data>
   <data name="ReboundInfo.Text" xml:space="preserve">
-    <value />
+    <value>Rebound is een Windows-mod die geen systeembestanden wijzigt. De huidige Windows-installatie bevat extra apps om Rebound te draaien.</value>
+  </data>
+  <data name="TitleTextBlock.Text" xml:space="preserve">
+    <value>Over Windows</value>
   </data>
   <data name="ToLabel.Text" xml:space="preserve">
-    <value />
+    <value>Naar</value>
   </data>
   <data name="Unknown" xml:space="preserve">
-    <value />
+    <value>Onbekend</value>
   </data>
   <data name="UnknownLicenseHolders" xml:space="preserve">
-    <value />
+    <value>Onbekende licentiehouders</value>
   </data>
   <data name="VersionOSBuild" xml:space="preserve">
-    <value />
+    <value>Versie {0} (OS-build {1}.{2})</value>
   </data>
 </root>

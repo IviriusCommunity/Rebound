@@ -382,3 +382,10 @@ FodyWeavers.xsd
 /src/platforms/Rebound.App/Modding/Launchers/rshell.exe
 /src/platforms/Rebound.Installer/ReboundHub.exe
 /src/platforms/Rebound.Installer/Rebound Hub.exe
+/src/platforms/Rebound.App/Modding/Apps/rwinver/CommunityToolkit.Common.dll
+/src/platforms/Rebound.App/Modding/Apps/rwinver/wuceffectsi.dll
+/src/platforms/Rebound.App/Modding/Apps/rwinver/CommunityToolkit.WinUI.Extensions.dll
+/src/platforms/Rebound.App/Modding/Apps/rwinver/CommunityToolkit.WinUI.Helpers.dll
+
+# Rebound build structure
+/src/platforms/Rebound.App/Modding/Apps/

@@ -6,7 +6,7 @@ namespace Rebound.Modding.Instructions;
 
 public partial class DiskCleanupInstructions : UserInterfaceReboundAppInstructions
 {
-    public override string ProcessName { get; set; } = "rcleanmgr";
+    public override string ProcessName { get; set; } = "Rebound Disk Cleanup";
 
     public override string Name { get; set; } = "Disk Cleanup";
 
@@ -14,24 +14,19 @@ public partial class DiskCleanupInstructions : UserInterfaceReboundAppInstructio
 
     public override string Description { get; set; } = "Replacement for the Disk Cleanup utility.";
 
-    public override string InstallationSteps { get; set; } = "- Install Rebound Disk Cleanup\n- Redirect app launch\n- Create a start menu shortcut";
+    public override string InstallationSteps { get; set; } = "- Redirect app launch\n- Create a start menu shortcut";
 
     public override ObservableCollection<IReboundAppInstruction>? Instructions { get; set; } =
     [
         new IFEOInstruction()
         {
             OriginalExecutableName = "cleanmgr.exe",
-            LauncherPath = $"{Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles)}\\Rebound\\rcleanmgr.exe"
-        },
-        new LauncherInstruction()
-        {
-            Path = $"{AppContext.BaseDirectory}\\Modding\\Launchers\\rcleanmgr.exe",
-            TargetPath = $"{Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles)}\\Rebound\\rcleanmgr.exe"
+            LauncherPath = $"{Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles)}\\ReboundHub\\Modding\\Apps\\rcleanmgr\\Rebound Disk Cleanup.exe"
         },
         new ShortcutInstruction()
         {
             ShortcutName = "Disk Cleanup",
-            ExePath = $"{Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles)}\\Rebound\\rcleanmgr.exe"
+            ExePath = $"{Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles)}\\ReboundHub\\Modding\\Apps\\rcleanmgr\\Rebound Disk Cleanup.exe"
         },
     ];
 
