@@ -21,12 +21,12 @@ public partial class WinverInstructions : UserInterfaceReboundAppInstructions
         new IFEOInstruction()
         {
             OriginalExecutableName = "winver.exe",
-            LauncherPath = $"{Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles)}\\ReboundHub\\Modding\\Apps\\rwinver\\Rebound About.exe"
+            LauncherPath = $"{Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles)}\\Rebound\\rwinver\\Rebound About.exe"
         },
         new ShortcutInstruction()
         {
             ShortcutName = "About Windows",
-            ExePath = $"{Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles)}\\ReboundHub\\Modding\\Apps\\rwinver\\Rebound About.exe"
+            ExePath = $"{Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles)}\\Rebound\\rwinver\\Rebound About.exe"
         },
     };
 

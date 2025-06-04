@@ -14,20 +14,6 @@
 		<EnableMsixTooling>true</EnableMsixTooling>
 		<WindowsPackageType>None</WindowsPackageType>
 
-		<!-- Self-contained settings -->
-		<SelfContained>true</SelfContained>
-		<PublishSingleFile>true</PublishSingleFile>
-		<EnableCompressionInSingleFile>true</EnableCompressionInSingleFile>
-		<WindowsAppSDKSelfContained>true</WindowsAppSDKSelfContained>
-		<CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
-		<PublishAot>false</PublishAot>
-
-		<!-- Trimmming -->
-		<PublishTrimmed>false</PublishTrimmed>
-		<Optimize>true</Optimize>
-		<OptimizationPreference>Speed</OptimizationPreference>
-		<IlcOptimizationPreference>Speed</IlcOptimizationPreference>
-
 	</PropertyGroup>
 
 	<!-- Project content -->
@@ -45,9 +31,15 @@
 	<!-- Project references -->
 	<ItemGroup>
 		<ProjectReference Include="..\..\core\unpackaged\Rebound.Core.SourceGeneratorAttributes\Rebound.Core.SourceGeneratorAttributes.csproj" />
-		<ProjectReference Include="..\..\core\unpackaged\Rebound.Core.SourceGenerator\Rebound.Core.SourceGenerator.csproj"
-						 OutputItemType="Analyzer"
-						 ReferenceOutputAssembly="false" />
+		<ProjectReference Include="..\..\core\unpackaged\Rebound.Core.SourceGenerator\Rebound.Core.SourceGenerator.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
+	</ItemGroup>
+	<ItemGroup>
+	  <Content Update="Assets\ActionCenterLegacy.ico">
+	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	  </Content>
+	  <Content Update="Assets\Admin.ico">
+	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	  </Content>
 	</ItemGroup>
 
 	<!-- Shared project imports -->

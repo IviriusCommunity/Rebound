@@ -19,11 +19,40 @@ internal sealed partial class HomePage : Page
 
     private void NavigationView_ItemInvoked(NavigationView sender, NavigationViewItemInvokedEventArgs args)
     {
-        if (args.InvokedItem is NavigationViewItem item)
+        switch (args.InvokedItem)
         {
-            if (item.Tag is "cleanmgr") Process.Start("cleanmgr");
-            if (item.Tag is "taskmgr") Process.Start("taskmgr");
-            if (item.Tag is "firewall") Process.Start("firewall.cpl");
+            case "About Windows":
+                {
+                    Process.Start("winver");
+                    break;
+                }
+            case "Disk Cleanup":
+                {
+                    Process.Start("cleanmgr");
+                    break;
+                }
+            case "Task Manager":
+                {
+                    try
+                    {
+                        Process.Start(new ProcessStartInfo()
+                        {
+                            FileName = "taskmgr",
+                            UseShellExecute = true,
+                            Verb = "runas"
+                        });
+                    }
+                    catch
+                    {
+
+                    }
+                    break;
+                }
+            case "Windows Security Firewall":
+                {
+                    Process.Start("firewall.cpl");
+                    break;
+                }
         }
     }
 

@@ -18,7 +18,7 @@ public partial class App : Application
 {
     private async void OnSingleInstanceLaunched(object? sender, Rebound.Helpers.Services.SingleInstanceLaunchEventArgs e)
     {
-        if (e.Arguments == "legacy")
+        if (!string.IsNullOrEmpty(e.Arguments))
         {
             if (!this.IsRunningAsAdmin())
             {
@@ -36,7 +36,8 @@ public partial class App : Application
             Process.Start(new ProcessStartInfo
             {
                 FileName = "cleanmgr.exe",
-                UseShellExecute = true
+                UseShellExecute = true,
+                Arguments = e.Arguments
             });
             await IFEOEngine.ResumeIFEOEntryAsync("cleanmgr.exe").ConfigureAwait(true);
             Process.GetCurrentProcess().Kill();

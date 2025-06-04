@@ -24,18 +24,6 @@ public partial class App : Application
 
     private async void OnSingleInstanceLaunched(object? sender, Helpers.Services.SingleInstanceLaunchEventArgs e)
     {
-        var stringsFolderPath = Path.Combine(AppContext.BaseDirectory, "Strings");
-
-        var stringsFolder = await StorageFolder.GetFolderFromPathAsync(stringsFolderPath);
-
-        Localizer = await new LocalizerBuilder()
-            .AddStringResourcesFolderForLanguageDictionaries(stringsFolderPath)
-            .SetOptions(options =>
-            {
-                options.DefaultLanguage = "en-US";
-            })
-            .Build();
-
         if (e.Arguments == "legacy")
         {
             if (!this.IsRunningAsAdmin())
@@ -63,6 +51,18 @@ public partial class App : Application
 
         if (e.IsFirstLaunch)
         {
+            var stringsFolderPath = Path.Combine(AppContext.BaseDirectory, "Strings");
+
+            var stringsFolder = await StorageFolder.GetFolderFromPathAsync(stringsFolderPath);
+
+            Localizer = new LocalizerBuilder()
+                .AddStringResourcesFolderForLanguageDictionaries(stringsFolderPath)
+                .SetOptions(options =>
+                {
+                    options.DefaultLanguage = "en-US";
+                })
+                .Build();
+
             MainAppWindow = new MainWindow();
             MainAppWindow.Activate();
         }

@@ -14,20 +14,6 @@
 		<EnableMsixTooling>true</EnableMsixTooling>
 		<WindowsPackageType>None</WindowsPackageType>
 
-		<!-- Self-contained settings -->
-		<SelfContained>true</SelfContained>
-		<PublishSingleFile>true</PublishSingleFile>
-		<EnableCompressionInSingleFile>true</EnableCompressionInSingleFile>
-		<WindowsAppSDKSelfContained>true</WindowsAppSDKSelfContained>
-		<CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
-		<PublishAot>false</PublishAot>
-
-		<!-- Trimmming -->
-		<PublishTrimmed>false</PublishTrimmed>
-		<Optimize>true</Optimize>
-		<OptimizationPreference>Speed</OptimizationPreference>
-		<IlcOptimizationPreference>Speed</IlcOptimizationPreference>
-
 	</PropertyGroup>
 	
 	<!-- Project content -->
@@ -38,11 +24,38 @@
 		<None Remove="Views\MainPage.xaml" />
 		<None Remove="Views\RootPage.xaml" />
 		<Manifest Include="$(ApplicationManifest)" />
+		<Content Update="Assets\Backgrounds\BackgroundDark.png">
+		  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</Content>
+		<Content Update="Assets\Backgrounds\BackgroundLight.png">
+		  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</Content>
+		<Content Update="Assets\Backgrounds\WallpaperDark.png">
+		  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</Content>
+		<Content Update="Assets\Backgrounds\WallpaperLight.png">
+		  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</Content>
+		<Content Update="Assets\cleanmgr.ico">
+		  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</Content>
+		<Content Update="Assets\ControlPanel.ico">
+		  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</Content>
+		<Content Update="Assets\ControlPanelLegacy.ico">
+		  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</Content>
+		<Content Update="Assets\taskmgr.ico">
+		  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</Content>
+		<Content Update="Assets\winver.ico">
+		  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</Content>
 		<Content Update="Assets\Backgrounds\BackgroundDarkNew.png">
-			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
 		</Content>
 		<Content Update="Assets\Backgrounds\BackgroundLightNew.png">
-			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
 		</Content>
 		<Page Update="Views\RootPage.xaml">
 			<Generator>MSBuild:Compile</Generator>

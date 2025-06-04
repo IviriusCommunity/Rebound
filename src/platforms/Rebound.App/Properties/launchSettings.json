@@ -1,9 +1,6 @@
 {
   "profiles": {
-    "Rebound (Package)": {
-      "commandName": "MsixPackage"
-    },
-    "Rebound (Unpackaged)": {
+    "Rebound Hub": {
       "commandName": "Project"
     }
   }

@@ -32,12 +32,6 @@
 	<!-- Project content -->
 	<ItemGroup>
 		<None Remove="Assets\ReboundHubInstaller.ico" />
-		<None Remove="dotNET9Runtime.exe" />
-		<None Remove="Rebound Hub.exe" />
-	</ItemGroup>
-	<ItemGroup>
-	  <Content Include="dotNET9Runtime.exe" />
-	  <Content Include="Rebound Hub.exe" />
 	</ItemGroup>
 
 	<!-- Project references -->

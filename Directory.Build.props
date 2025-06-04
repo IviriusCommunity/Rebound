@@ -14,10 +14,22 @@
 		<!-- Advanced -->
 		<EnableComInterop>true</EnableComInterop>
 		<UseSourceGenerators>true</UseSourceGenerators>
-		<PublishAot>true</PublishAot>
 
-        <OptimizationPreference>Speed</OptimizationPreference>
-		
+		<!-- Self-contained settings -->
+		<SelfContained>false</SelfContained>
+		<PublishSingleFile>false</PublishSingleFile>
+		<WindowsAppSDKSelfContained>true</WindowsAppSDKSelfContained>
+		<CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
+		<PublishReadyToRun>true</PublishReadyToRun>
+		<PublishAot>false</PublishAot>
+		<WindowsAppSDKSelfContained>false</WindowsAppSDKSelfContained>
+
+		<!-- Trimmming -->
+		<PublishTrimmed>false</PublishTrimmed>
+		<Optimize>true</Optimize>
+		<OptimizationPreference>Speed</OptimizationPreference>
+		<IlcOptimizationPreference>Speed</IlcOptimizationPreference>
+
 	</PropertyGroup>
 
 	<!-- General project settings - These will apply to every project regardless of its type -->
@@ -47,7 +59,7 @@
 		<PackageReference Include="Microsoft.Windows.SDK.BuildTools" Version="10.0.26100.3916" />
 		<PackageReference Include="Microsoft.WindowsAppSDK" Version="1.8.250515001-experimental2" />
 		<PackageReference Include="WinUIEx" Version="2.5.1" />
-		<PackageReference Include="WinUI3Localizer" Version="2.3.0" />
+		<PackageReference Include="WinUI3Localizer" Version="3.0.0-alpha" />
 
 		<!-- Windows Interop -->
 		<PackageReference Include="Microsoft.Windows.CsWinRT" Version="2.2.0" />

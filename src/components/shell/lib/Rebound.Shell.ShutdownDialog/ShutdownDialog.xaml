@@ -107,7 +107,7 @@
                         <FontIcon FontSize="16" Glyph="&#xE712;" />
                         <Button.Flyout>
                             <MenuFlyout>
-                                <MenuFlyoutItem Text="Configure">
+                                <MenuFlyoutItem IsEnabled="False" Text="Configure">
                                     <MenuFlyoutItem.Icon>
                                         <FontIcon Glyph="&#xE713;" />
                                     </MenuFlyoutItem.Icon>

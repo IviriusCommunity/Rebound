@@ -13,20 +13,6 @@
 		<EnableMsixTooling>true</EnableMsixTooling>
 		<WindowsPackageType>None</WindowsPackageType>
 
-		<!-- Self-contained settings -->
-		<SelfContained>true</SelfContained>
-		<PublishSingleFile>true</PublishSingleFile>
-		<EnableCompressionInSingleFile>true</EnableCompressionInSingleFile>
-		<WindowsAppSDKSelfContained>true</WindowsAppSDKSelfContained>
-		<CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
-		<PublishAot>false</PublishAot>
-
-		<!-- Trimmming -->
-		<PublishTrimmed>false</PublishTrimmed>
-		<Optimize>true</Optimize>
-		<OptimizationPreference>Speed</OptimizationPreference>
-		<IlcOptimizationPreference>Speed</IlcOptimizationPreference>
-
 	</PropertyGroup>
 
 	<!-- Project content -->
@@ -57,9 +43,96 @@
 	<!-- Project references -->
 	<ItemGroup>
 		<ProjectReference Include="..\..\core\unpackaged\Rebound.Core.SourceGeneratorAttributes\Rebound.Core.SourceGeneratorAttributes.csproj" />
-		<ProjectReference Include="..\..\core\unpackaged\Rebound.Core.SourceGenerator\Rebound.Core.SourceGenerator.csproj"
-						 OutputItemType="Analyzer"
-						 ReferenceOutputAssembly="false" />
+		<ProjectReference Include="..\..\core\unpackaged\Rebound.Core.SourceGenerator\Rebound.Core.SourceGenerator.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
+	</ItemGroup>
+	<ItemGroup>
+	  <Content Update="Assets\Administrator.png">
+	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	  </Content>
+	  <Content Update="Assets\Chrome.png">
+	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	  </Content>
+	  <Content Update="Assets\cleanmgr.ico">
+	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	  </Content>
+	  <Content Update="Assets\cleanmgrLegacy.ico">
+	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	  </Content>
+	  <Content Update="Assets\Desktop.ico">
+	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	  </Content>
+	  <Content Update="Assets\dfrgui.ico">
+	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	  </Content>
+	  <Content Update="Assets\DLL.ico">
+	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	  </Content>
+	  <Content Update="Assets\Downloads.ico">
+	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	  </Content>
+	  <Content Update="Assets\Drive.ico">
+	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	  </Content>
+	  <Content Update="Assets\DriveFloppy.png">
+	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	  </Content>
+	  <Content Update="Assets\DriveOptical.png">
+	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	  </Content>
+	  <Content Update="Assets\DriveRemovable.png">
+	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	  </Content>
+	  <Content Update="Assets\DriveSystem.png">
+	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	  </Content>
+	  <Content Update="Assets\DriveUnknown.png">
+	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	  </Content>
+	  <Content Update="Assets\DriveWindows.ico">
+	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	  </Content>
+	  <Content Update="Assets\Edge.png">
+	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	  </Content>
+	  <Content Update="Assets\EventViewer.ico">
+	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	  </Content>
+	  <Content Update="Assets\File.ico">
+	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	  </Content>
+	  <Content Update="Assets\Firefox.png">
+	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	  </Content>
+	  <Content Update="Assets\Folder.ico">
+	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	  </Content>
+	  <Content Update="Assets\History.ico">
+	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	  </Content>
+	  <Content Update="Assets\Internet.ico">
+	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	  </Content>
+	  <Content Update="Assets\Lock.ico">
+	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	  </Content>
+	  <Content Update="Assets\Program.ico">
+	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	  </Content>
+	  <Content Update="Assets\RecycleBin.ico">
+	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	  </Content>
+	  <Content Update="Assets\Script.ico">
+	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	  </Content>
+	  <Content Update="Assets\Thumbnail.ico">
+	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	  </Content>
+	  <Content Update="Assets\User.ico">
+	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	  </Content>
+	  <Content Update="Assets\Video.ico">
+	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	  </Content>
 	</ItemGroup>
 
 	<!-- Shared project imports -->

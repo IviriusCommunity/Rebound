@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics;
 using System.IO;
 using System.IO.Pipes;
 using System.Linq;
@@ -15,10 +16,10 @@ public class SingleInstanceLaunchEventArgs(string arguments, bool isFirstLaunch)
     public bool IsFirstLaunch { get; private set; } = isFirstLaunch;
 }
 
-public partial class SingleInstanceAppService(string appId) : IDisposable
+public partial class SingleInstanceAppService : IDisposable
 {
-    private readonly string _mutexName = "MUTEX_" + appId;
-    private readonly string _pipeName = "PIPE_" + appId;
+    private readonly string _mutexName = "";
+    private readonly string _pipeName = "";
     private readonly object _namedPiperServerThreadLock = new();
 
     private bool _isDisposed = false;
@@ -28,6 +29,12 @@ public partial class SingleInstanceAppService(string appId) : IDisposable
     private NamedPipeServerStream? _namedPipeServerStream;
 
     public event EventHandler<SingleInstanceLaunchEventArgs>? Launched;
+
+    public SingleInstanceAppService(string appId)
+    {
+        _mutexName = "MUTEX_" + appId;
+        _pipeName = "PIPE_" + appId;
+    }
 
     public void Launch(string arguments)
     {
@@ -52,16 +59,14 @@ public partial class SingleInstanceAppService(string appId) : IDisposable
         {
             SendArgumentsToRunningInstance(arguments);
 
-            Application.Current.Exit();
+            Process.GetCurrentProcess().Kill();
         }
     }
 
     public void Dispose()
     {
         if (_isDisposed)
-        {
             return;
-        }
 
         _isDisposed = true;
 
@@ -72,7 +77,10 @@ public partial class SingleInstanceAppService(string appId) : IDisposable
     private bool IsFirstApplicationInstance()
     {
         // Allow for multiple runs but only try and get the mutex once
-        _mutexApplication ??= new Mutex(true, _mutexName, out _isFirstInstance);
+        if (_mutexApplication == null)
+        {
+            _mutexApplication = new Mutex(true, _mutexName, out _isFirstInstance);
+        }
 
         return _isFirstInstance;
     }
@@ -90,7 +98,7 @@ public partial class SingleInstanceAppService(string appId) : IDisposable
             inBufferSize: 0,
             outBufferSize: 0);
 
-        _ = _namedPipeServerStream.BeginWaitForConnection(OnNamedPipeServerConnected, _namedPipeServerStream);
+        _namedPipeServerStream.BeginWaitForConnection(OnNamedPipeServerConnected, _namedPipeServerStream);
     }
 
     private void SendArgumentsToRunningInstance(string arguments)
@@ -105,7 +113,7 @@ public partial class SingleInstanceAppService(string appId) : IDisposable
         }
         catch (Exception)
         {
-            // Error connecting or sending
+
         }
     }
 
@@ -114,9 +122,7 @@ public partial class SingleInstanceAppService(string appId) : IDisposable
         try
         {
             if (_namedPipeServerStream == null)
-            {
                 return;
-            }
 
             _namedPipeServerStream.EndWaitForConnection(asyncResult);
 

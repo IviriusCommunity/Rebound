@@ -458,11 +458,11 @@
                 Margin="80,4,12,0"
                 Padding="5,3,5,4"
                 HorizontalAlignment="Stretch"
-                KeyDown="TextBox_KeyDown"
                 VerticalAlignment="Top"
                 CornerRadius="3"
                 FontSize="12"
                 Header="Type the name of a program, file, or URL."
+                KeyDown="TextBox_KeyDown"
                 Text="{x:Bind ViewModel.Path, Mode=TwoWay}" />
             <CheckBox
                 MinHeight="0"
@@ -484,6 +484,7 @@
                     Orientation="Horizontal"
                     Spacing="8">
                     <Button
+                        x:Name="RunButton"
                         Width="72"
                         Padding="3,3,3,4"
                         Command="{x:Bind RunCommand}"

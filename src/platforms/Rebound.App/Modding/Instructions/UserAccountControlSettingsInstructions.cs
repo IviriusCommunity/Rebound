@@ -21,12 +21,12 @@ public partial class UserAccountControlSettingsInstructions : UserInterfaceRebou
         new IFEOInstruction()
         {
             OriginalExecutableName = "useraccountcontrolsettings.exe",
-            LauncherPath = $"{Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles)}\\ReboundHub\\Modding\\Apps\\ruseraccountcontrolsettings\\Rebound User Account Control Settings.exe"
+            LauncherPath = $"{Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles)}\\Rebound\\ruseraccountcontrolsettings\\Rebound User Account Control Settings.exe"
         },
         new ShortcutInstruction()
         {
             ShortcutName = "Change User Account Control Settings",
-            ExePath = $"{Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles)}\\ReboundHub\\Modding\\Apps\\ruseraccountcontrolsettings\\Rebound User Account Control Settings.exe"
+            ExePath = $"{Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles)}\\Rebound\\ruseraccountcontrolsettings\\Rebound User Account Control Settings.exe"
         },
     };
 

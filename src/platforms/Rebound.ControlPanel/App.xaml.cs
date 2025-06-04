@@ -3,6 +3,7 @@ using System.Diagnostics;
 using Microsoft.UI.Xaml;
 using Rebound.Forge;
 using Rebound.Generators;
+using Rebound.Helpers;
 using Rebound.Helpers.AppEnvironment;
 
 namespace Rebound.ControlPanel;
@@ -46,5 +47,6 @@ public partial class App : Application
         {
             MainAppWindow.BringToFront();
         }
+        (MainAppWindow as MainWindow).InvokeWithArguments(e.Arguments);
     }
 }

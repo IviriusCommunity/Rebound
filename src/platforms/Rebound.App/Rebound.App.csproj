@@ -14,19 +14,6 @@
 		<EnableMsixTooling>true</EnableMsixTooling>
 		<WindowsPackageType>None</WindowsPackageType>
 
-		<!-- Self-contained settings -->
-		<SelfContained>false</SelfContained>
-		<PublishSingleFile>false</PublishSingleFile>
-		<WindowsAppSDKSelfContained>true</WindowsAppSDKSelfContained>
-		<CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
-		<PublishAot>false</PublishAot>
-
-		<!-- Trimmming -->
-		<PublishTrimmed>false</PublishTrimmed>
-		<Optimize>true</Optimize>
-		<OptimizationPreference>Speed</OptimizationPreference>
-		<IlcOptimizationPreference>Speed</IlcOptimizationPreference>
-
 	</PropertyGroup>
 
 	<!-- Project content -->

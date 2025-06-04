@@ -162,10 +162,13 @@ public sealed partial class RunWindow : WindowEx
         Close();
     }
 
-    private void TextBox_KeyDown(object sender, Microsoft.UI.Xaml.Input.KeyRoutedEventArgs e)
+    private async void TextBox_KeyDown(object sender, Microsoft.UI.Xaml.Input.KeyRoutedEventArgs e)
     {
         if (e.Key == Windows.System.VirtualKey.Enter)
         {
+            e.Handled = true;
+            RunButton.Focus(FocusState.Pointer);
+            await Task.Delay(50);
             Run();
         }
     }

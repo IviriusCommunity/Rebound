@@ -21,12 +21,12 @@ public partial class ControlPanelInstructions : UserInterfaceReboundAppInstructi
         new IFEOInstruction()
         {
             OriginalExecutableName = "control.exe",
-            LauncherPath = $"{Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles)}\\ReboundHub\\Modding\\Apps\\rcontrol\\Rebound Control Panel.exe"
+            LauncherPath = $"{Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles)}\\Rebound\\rcontrol\\Rebound Control Panel.exe"
         },
         new ShortcutInstruction()
         {
             ShortcutName = "Control Panel",
-            ExePath = $"{Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles)}\\ReboundHub\\Modding\\Apps\\rcontrol\\Rebound Control Panel.exe"
+            ExePath = $"{Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles)}\\Rebound\\rcontrol\\Rebound Control Panel.exe"
         },
     ];
 

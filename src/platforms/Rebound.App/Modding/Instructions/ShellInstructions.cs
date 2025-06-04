@@ -20,12 +20,12 @@ public partial class ShellInstructions : UserInterfaceReboundAppInstructions
     [
         new StartupTaskInstruction()
         {
-            TargetPath = $"{Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles)}\\ReboundHub\\Modding\\Apps\\rshell\\Rebound Shell.exe"
+            TargetPath = $"{Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles)}\\Rebound\\rshell\\Rebound Shell.exe"
         },
         new ShortcutInstruction()
         {
             ShortcutName = "Rebound Shell",
-            ExePath = $"{Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles)}\\ReboundHub\\Modding\\Apps\\rshell\\Rebound Shell.exe"
+            ExePath = $"{Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles)}\\Rebound\\rshell\\Rebound Shell.exe"
         },
     ];
 

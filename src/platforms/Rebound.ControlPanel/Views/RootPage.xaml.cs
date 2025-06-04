@@ -1,3 +1,4 @@
+using System.Xml.Linq;
 using CommunityToolkit.Mvvm.Input;
 using Microsoft.UI.Xaml.Controls;
 
@@ -26,6 +27,14 @@ public sealed partial class RootPage : Page
             }
         });
         RootTabView.SelectedIndex = RootTabView.TabItems.Count - 1;
+    }
+
+    public void InvokeWithArguments(string args)
+    {
+        if (args == @"/name Microsoft.AdministrativeTools")
+        {
+            // Placeholder
+        }
     }
 
     private void RootTabView_TabCloseRequested(TabView sender, TabViewTabCloseRequestedEventArgs args)

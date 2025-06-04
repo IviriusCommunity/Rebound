@@ -3,6 +3,7 @@ using System.IO;
 using System.Threading.Tasks;
 using Microsoft.UI.Xaml;
 using Rebound.ControlPanel.Views;
+using Rebound.Helpers;
 using Rebound.Helpers.Windowing;
 using WinUIEx;
 
@@ -16,6 +17,11 @@ public sealed partial class MainWindow : WindowEx
         ExtendsContentIntoTitleBar = true;
         RootFrame.Navigate(typeof(RootPage));
         this.SetWindowIcon(Path.Combine(AppContext.BaseDirectory, "Assets", "ControlPanel.ico"));
+    }
+
+    public void InvokeWithArguments(string args)
+    {
+        (RootFrame.Content as RootPage).InvokeWithArguments(args);
     }
 
     private void WindowEx_SizeChanged(object sender, WindowSizeChangedEventArgs args)

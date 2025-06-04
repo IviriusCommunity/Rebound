@@ -112,18 +112,17 @@
                                 <FontIcon Glyph="&#xECAD;" />
                             </NavigationViewItem.Icon>
                             <NavigationViewItem.MenuItems>
-                                <NavigationViewItem
-                                    Content="Disk Cleanup"
-                                    SelectsOnInvoked="False"
-                                    Tag="cleanmgr">
+                                <NavigationViewItem Content="About Windows" SelectsOnInvoked="False">
+                                    <NavigationViewItem.Icon>
+                                        <ImageIcon Source="/Assets/winver.ico" />
+                                    </NavigationViewItem.Icon>
+                                </NavigationViewItem>
+                                <NavigationViewItem Content="Disk Cleanup" SelectsOnInvoked="False">
                                     <NavigationViewItem.Icon>
                                         <ImageIcon Source="/Assets/cleanmgr.ico" />
                                     </NavigationViewItem.Icon>
                                 </NavigationViewItem>
-                                <NavigationViewItem
-                                    Content="Task Manager"
-                                    SelectsOnInvoked="False"
-                                    Tag="taskmgr">
+                                <NavigationViewItem Content="Task Manager" SelectsOnInvoked="False">
                                     <NavigationViewItem.Icon>
                                         <ImageIcon Source="/Assets/taskmgr.ico" />
                                     </NavigationViewItem.Icon>
@@ -384,10 +383,10 @@
                     </toolkit:SettingsCard>
                     <toolkit:SettingsCard
                         Margin="40,0"
-                        IsEnabled="False"
                         Description="Turn on or off telemetry features in Windows."
                         Header="Telemetry options"
-                        IsClickEnabled="True">
+                        IsClickEnabled="True"
+                        IsEnabled="False">
                         <toolkit:SettingsCard.HeaderIcon>
                             <FontIcon Glyph="&#xE9D9;" />
                         </toolkit:SettingsCard.HeaderIcon>
@@ -396,6 +395,8 @@
                         Margin="40,0"
                         Description="Clean junk files on your PC."
                         Header="Cleanup"
+                        Command="{x:Bind LaunchPathCommand}"
+                        CommandParameter="cleanmgr"
                         IsClickEnabled="True">
                         <toolkit:SettingsCard.HeaderIcon>
                             <FontIcon Glyph="&#xEA99;" />
@@ -408,8 +409,8 @@
                         Margin="40,0"
                         Description="Change modding options in Rebound and Windows."
                         Header="Modding"
-                        IsEnabled="False"
-                        IsClickEnabled="True">
+                        IsClickEnabled="True"
+                        IsEnabled="False">
                         <toolkit:SettingsCard.HeaderIcon>
                             <FontIcon Glyph="&#xE9E9;" />
                         </toolkit:SettingsCard.HeaderIcon>

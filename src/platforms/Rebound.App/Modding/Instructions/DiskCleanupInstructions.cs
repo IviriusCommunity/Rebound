@@ -21,12 +21,12 @@ public partial class DiskCleanupInstructions : UserInterfaceReboundAppInstructio
         new IFEOInstruction()
         {
             OriginalExecutableName = "cleanmgr.exe",
-            LauncherPath = $"{Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles)}\\ReboundHub\\Modding\\Apps\\rcleanmgr\\Rebound Disk Cleanup.exe"
+            LauncherPath = $"{Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles)}\\Rebound\\rcleanmgr\\Rebound Disk Cleanup.exe"
         },
         new ShortcutInstruction()
         {
             ShortcutName = "Disk Cleanup",
-            ExePath = $"{Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles)}\\ReboundHub\\Modding\\Apps\\rcleanmgr\\Rebound Disk Cleanup.exe"
+            ExePath = $"{Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles)}\\Rebound\\rcleanmgr\\Rebound Disk Cleanup.exe"
         },
     ];
 

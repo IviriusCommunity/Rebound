@@ -14,20 +14,6 @@
 		<EnableMsixTooling>true</EnableMsixTooling>
 		<WindowsPackageType>None</WindowsPackageType>
 
-		<!-- Self-contained settings -->
-		<SelfContained>true</SelfContained>
-		<PublishSingleFile>true</PublishSingleFile>
-		<EnableCompressionInSingleFile>true</EnableCompressionInSingleFile>
-		<WindowsAppSDKSelfContained>true</WindowsAppSDKSelfContained>
-		<CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
-		<PublishAot>false</PublishAot>
-
-		<!-- Trimmming -->
-		<PublishTrimmed>false</PublishTrimmed>
-		<Optimize>true</Optimize>
-		<OptimizationPreference>Speed</OptimizationPreference>
-		<IlcOptimizationPreference>Speed</IlcOptimizationPreference>
-
 	</PropertyGroup>
 
 	<ItemGroup>
@@ -38,20 +24,28 @@
 	</ItemGroup>
 
 	<ItemGroup>
-		<Content Include="Assets\SplashScreen.scale-200.png" />
-		<Content Include="Assets\LockScreenLogo.scale-200.png" />
-		<Content Include="Assets\Square150x150Logo.scale-200.png" />
-		<Content Include="Assets\Square44x44Logo.scale-200.png" />
-		<Content Include="Assets\Square44x44Logo.targetsize-24_altform-unplated.png" />
-		<Content Include="Assets\StoreLogo.png" />
-		<Content Include="Assets\Wide310x150Logo.scale-200.png" />
-	</ItemGroup>
-
-	<ItemGroup>
+	  <Content Update="Assets\r11logo.png">
+	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	  </Content>
+	  <Content Update="Assets\ReboundIcon.ico">
+	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	  </Content>
+	  <Content Update="Assets\ReboundIcon.png">
+	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	  </Content>
 	  <Content Update="Assets\RunBox.ico">
 	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
 	  </Content>
 	  <Content Update="Assets\RunBox.png">
+	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	  </Content>
+	  <Content Update="Assets\shell32_151.ico">
+	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	  </Content>
+	  <Content Update="Assets\shell32_151.png">
+	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	  </Content>
+	  <Content Update="Assets\shell32_35.png">
 	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
 	  </Content>
 	</ItemGroup>
