@@ -1,9 +1,6 @@
 {
   "profiles": {
-    "ReboundHubInstaller (Package)": {
-      "commandName": "MsixPackage"
-    },
-    "ReboundHubInstaller (Unpackaged)": {
+    "Rebound Hub Installer": {
       "commandName": "Project"
     }
   }
