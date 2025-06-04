@@ -1,4 +1,5 @@
 ﻿using System.Net.Http;
+using CommunityToolkit.WinUI.Helpers;
 using Microsoft.UI.Xaml.Controls;
 
 namespace Rebound.Views;
@@ -15,13 +16,23 @@ internal sealed partial class ShellPage : Page
 
     public async void CheckForUpdates()
     {
-        using var client = new HttpClient();
-        var url = "https://ivirius.com/reboundhubversion.txt";
-        var webContent = await client.GetStringAsync(url);
-
-        if (Helpers.Environment.ReboundVersion.REBOUND_VERSION != webContent)
+        try
         {
-            UpdateButton.Visibility = Microsoft.UI.Xaml.Visibility.Visible;
+            if (NetworkHelper.Instance.ConnectionInformation.ConnectionType != ConnectionType.Unknown)
+            {
+                using var client = new HttpClient();
+                var url = "https://ivirius.com/reboundhubversion.txt";
+                var webContent = await client.GetStringAsync(url);
+
+                if (Helpers.Environment.ReboundVersion.REBOUND_VERSION != webContent)
+                {
+                    UpdateButton.Visibility = Microsoft.UI.Xaml.Visibility.Visible;
+                }
+            }
+        }
+        catch
+        {
+
         }
     }
 
