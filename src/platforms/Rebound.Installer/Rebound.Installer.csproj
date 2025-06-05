@@ -32,12 +32,26 @@
 	<!-- Project content -->
 	<ItemGroup>
 		<None Remove="Assets\ReboundHubInstaller.ico" />
+		<None Remove="MainPage.xaml" />
 	</ItemGroup>
 
 	<!-- Project references -->
 	<ItemGroup>
 		<ProjectReference Include="..\..\core\unpackaged\Rebound.Core.SourceGeneratorAttributes\Rebound.Core.SourceGeneratorAttributes.csproj" />
 		<ProjectReference Include="..\..\core\unpackaged\Rebound.Core.SourceGenerator\Rebound.Core.SourceGenerator.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
+	</ItemGroup>
+	<ItemGroup>
+	  <Content Update="Assets\ReboundHubInstaller.ico">
+	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	  </Content>
+	  <Content Update="Assets\Splash.png">
+	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	  </Content>
+	</ItemGroup>
+	<ItemGroup>
+	  <Page Update="MainPage.xaml">
+	    <Generator>MSBuild:Compile</Generator>
+	  </Page>
 	</ItemGroup>
 
 	<!-- Shared project imports -->
@@ -46,8 +60,7 @@
 
 
 	<!-- Copy and rename launchers -->
-	<Target Name="CopyExecutablesToLaunchers" BeforeTargets="Build" Condition="'$(Configuration)' == 'Release'">
-		<!-- Publish dependent projects -->
+	<!--<Target Name="CopyExecutablesToLaunchers" BeforeTargets="Build" Condition="'$(Configuration)' == 'Release'">
 		<MSBuild Projects="..\Rebound.App\Rebound.App.csproj" Targets="Publish" Properties="Configuration=Release;PublishDir=..\Rebound.App\bin\Release\Publish\" />
 
 		<ItemGroup>
@@ -59,6 +72,6 @@
 		<Message Text="Copying and renaming executables to $(LaunchersFolder)" Importance="high" />
 
 		<Copy SourceFiles="@(PublishedExecutables->'%(FullPath)')" DestinationFiles="@(PublishedExecutables->'$(MSBuildThisFileDirectory)%(DestinationFileName)')" OverwriteReadOnlyFiles="true" />
-	</Target>
+	</Target>-->
 
 </Project>

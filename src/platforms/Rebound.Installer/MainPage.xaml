@@ -1,0 +1,169 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<Page
+    x:Class="Rebound.Installer.MainPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:local="using:Rebound.Installer"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    d:DataContext="{x:Bind ViewModel}"
+    mc:Ignorable="d">
+    <Grid>
+        <StackPanel
+            Margin="10,6,0,0"
+            VerticalAlignment="Top"
+            Orientation="Horizontal"
+            Spacing="8">
+            <TextBlock
+                VerticalAlignment="Center"
+                FontSize="12"
+                Text="Rebound Hub Installer" />
+            <Border
+                Padding="6,2,6,3"
+                VerticalAlignment="Center"
+                Background="{ThemeResource AccentFillColorDefaultBrush}"
+                CornerRadius="2">
+                <TextBlock
+                    FontSize="10"
+                    FontWeight="SemiBold"
+                    Foreground="{ThemeResource TextOnAccentFillColorPrimaryBrush}"
+                    Text="BETA" />
+            </Border>
+        </StackPanel>
+        <Grid
+            x:Name="Panel2"
+            Margin="0,32,0,0"
+            Background="{ThemeResource LayerFillColorDefaultBrush}"
+            Opacity="0">
+            <StackPanel Margin="16,16,16,80" Spacing="12">
+                <TextBlock
+                    FontSize="20"
+                    FontWeight="SemiBold"
+                    Text="{x:Bind ViewModel.Title, Mode=OneWay}" />
+                <TextBlock FontSize="10" Height="48" Text="{x:Bind ViewModel.Status, Mode=OneWay}" TextWrapping="WrapWholeWords" TextTrimming="CharacterEllipsis" />
+                <ProgressBar
+                    IsIndeterminate="{x:Bind ViewModel.IsIndeterminate, Mode=OneWay}"
+                    Maximum="{x:Bind ViewModel.Steps, Mode=OneWay}"
+                    Value="{x:Bind ViewModel.Progress, Mode=OneWay}" />
+                <InfoBar
+                    Title="{x:Bind ViewModel.ErrorMessage, Mode=OneWay}"
+                    IsOpen="{x:Bind ViewModel.IsError, Mode=TwoWay}"
+                    Severity="Error" />
+            </StackPanel>
+            <Grid
+                Height="80"
+                VerticalAlignment="Bottom"
+                Background="{ThemeResource SystemControlBackgroundAltMediumLowBrush}">
+                <ProgressRing
+                    Margin="24"
+                    HorizontalAlignment="Left"
+                    IsIndeterminate="True" />
+            </Grid>
+        </Grid>
+        <Grid
+            x:Name="Panel1"
+            Margin="0,32,0,0"
+            Background="{ThemeResource LayerFillColorDefaultBrush}"
+            Visibility="Visible">
+            <Grid Margin="0,0,0,80">
+                <Image
+                    Width="200"
+                    HorizontalAlignment="Left"
+                    Source="/Assets/Splash.png"
+                    Stretch="UniformToFill" />
+                <StackPanel
+                    Margin="200,0,0,0"
+                    Padding="20,12"
+                    Spacing="8">
+                    <TextBlock
+                        HorizontalAlignment="Left"
+                        FontSize="24"
+                        FontWeight="SemiBold"
+                        HorizontalTextAlignment="Left"
+                        Text="Welcome to the Rebound Hub installer!"
+                        TextWrapping="WrapWholeWords" />
+                    <TextBlock Text="Configure and install Rebound Hub." />
+                    <RadioButtons>
+                        <RadioButton
+                            x:Name="InstallButton"
+                            Content="Install Rebound Hub"
+                            IsChecked="True" />
+                        <RadioButton x:Name="RepairButton" Content="Repair Rebound Hub" />
+                        <RadioButton x:Name="UninstallButton" Content="Uninstall Rebound Hub" />
+                    </RadioButtons>
+                    <InfoBar
+                        Title="Rebound is a Windows mod. Install only if you have sufficient knowledge of Windows internals."
+                        IsClosable="False"
+                        IsOpen="True"
+                        Severity="Warning" />
+                </StackPanel>
+            </Grid>
+            <Grid
+                Height="80"
+                VerticalAlignment="Bottom"
+                Background="{ThemeResource SystemControlBackgroundAltMediumLowBrush}">
+                <StackPanel
+                    Margin="24"
+                    HorizontalAlignment="Right"
+                    Orientation="Horizontal"
+                    Spacing="8">
+                    <Button
+                        Width="120"
+                        Command="{x:Bind CloseAppCommand}"
+                        Content="Cancel" />
+                    <Button
+                        Width="120"
+                        Command="{x:Bind BeginCommand}"
+                        Content="Begin"
+                        Style="{StaticResource AccentButtonStyle}" />
+                </StackPanel>
+            </Grid>
+        </Grid>
+        <Grid
+            x:Name="Panel3"
+            Margin="0,32,0,0"
+            Background="{ThemeResource LayerFillColorDefaultBrush}"
+            Visibility="Collapsed">
+            <Grid Margin="0,0,0,80">
+                <Image
+                    Width="200"
+                    HorizontalAlignment="Left"
+                    Source="/Assets/Splash.png"
+                    Stretch="UniformToFill" />
+                <StackPanel
+                    Margin="200,0,0,0"
+                    Padding="20,12"
+                    Spacing="8">
+                    <TextBlock
+                        HorizontalAlignment="Left"
+                        FontSize="24"
+                        FontWeight="SemiBold"
+                        HorizontalTextAlignment="Left"
+                        Text="The installation was successful!"
+                        TextWrapping="WrapWholeWords" />
+                    <TextBlock Text="You can now use Rebound Hub on your PC." />
+                    <CheckBox
+                        x:Name="LaunchHubCheckBox"
+                        Content="Launch Rebound Hub"
+                        IsChecked="True" />
+                </StackPanel>
+            </Grid>
+            <Grid
+                Height="80"
+                VerticalAlignment="Bottom"
+                Background="{ThemeResource SystemControlBackgroundAltMediumLowBrush}">
+                <StackPanel
+                    Margin="24"
+                    HorizontalAlignment="Right"
+                    Orientation="Horizontal"
+                    Spacing="8">
+                    <Button
+                        Width="120"
+                        Command="{x:Bind FinishCommand}"
+                        Content="Finish"
+                        Style="{StaticResource AccentButtonStyle}" />
+                </StackPanel>
+            </Grid>
+        </Grid>
+    </Grid>
+</Page>
