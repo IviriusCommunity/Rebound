@@ -27,6 +27,7 @@
 		<PRIResource Remove="Assets\Wallpapers\**" />
 		<None Remove="Launcher_OSK.obj" />
 		<None Remove="Modding\Launchers\rosk.exe" />
+		<None Remove="Views\Rectify11Page.xaml" />
 		<AdditionalFiles Include="NativeMethods.txt" />
 		<None Include="Modding\Apps\**\*">
 			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
@@ -52,6 +53,11 @@
 	<ItemGroup>
 		<ProjectReference Include="..\..\core\unpackaged\Rebound.Core.SourceGeneratorAttributes\Rebound.Core.SourceGeneratorAttributes.csproj" />
 		<ProjectReference Include="..\..\core\unpackaged\Rebound.Core.SourceGenerator\Rebound.Core.SourceGenerator.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
+	</ItemGroup>
+	<ItemGroup>
+	  <Page Update="Views\Rectify11Page.xaml">
+	    <Generator>MSBuild:Compile</Generator>
+	  </Page>
 	</ItemGroup>
 
 	<!-- Shared project imports -->

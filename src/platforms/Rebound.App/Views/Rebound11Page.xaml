@@ -64,7 +64,14 @@
                         Source="/Assets/AppIcons/ReboundIcon.ico" />
 
                     <StackPanel Grid.Column="2">
-                        <TextBlock Style="{StaticResource TitleLargeTextBlockStyle}" Text="Rebound" />
+                        <TextBlock Style="{StaticResource TitleLargeTextBlockStyle}" Text="Rebound">
+                            <TextBlock.Foreground>
+                                <LinearGradientBrush StartPoint="0, 0" EndPoint="1, 1">
+                                    <GradientStop Color="#a1e0fb" />
+                                    <GradientStop Offset="1" Color="#147cd0" />
+                                </LinearGradientBrush>
+                            </TextBlock.Foreground>
+                        </TextBlock>
                         <TextBlock
                             FontSize="18"
                             Text="Windows 11 made consistent. Featuring WinUI 3 apps for your everyday tasks."
@@ -137,9 +144,7 @@
                 </ItemsRepeater>
             </ScrollViewer>
 
-            <Grid
-                Grid.Row="3"
-                Margin="48, 16, 48, 8">
+            <Grid Grid.Row="3" Margin="48,16,48,8">
                 <CommandBar DefaultLabelPosition="Right">
                     <AppBarButton IsEnabled="{x:Bind ReboundViewModel.IsReboundEnabled, Mode=OneWay}" Label="Options">
                         <AppBarButton.Icon>
@@ -187,33 +192,35 @@
                         </AppBarButton.Icon>
                     </AppBarButton>
                 </CommandBar>
-                <ToggleSwitch OffContent="Enable Rebound" OnContent="Disable Rebound" IsOn="{x:Bind ReboundViewModel.IsReboundEnabled, Mode=TwoWay}"/>
+                <ToggleSwitch
+                    IsOn="{x:Bind ReboundViewModel.IsReboundEnabled, Mode=TwoWay}"
+                    OffContent="Enable Rebound"
+                    OnContent="Disable Rebound" />
             </Grid>
 
             <InfoBar
                 Title="A new update is available for Rebound"
                 Grid.Row="4"
-                Margin="48, 0"
+                Margin="48,0"
                 IsOpen="{x:Bind ReboundViewModel.IsUpdateAvailable, Mode=OneWay}"
                 Message="{x:Bind ReboundViewModel.VersionText, Mode=OneWay}"
                 Severity="Success">
                 <InfoBar.ActionButton>
                     <Button
                         HorizontalAlignment="Right"
-                        Content="Update"
                         Command="{x:Bind ReboundViewModel.UpdateOrRepairAllCommand}"
+                        Content="Update"
                         Style="{StaticResource AccentButtonStyle}" />
                 </InfoBar.ActionButton>
             </InfoBar>
-            <Grid
-                Grid.Row="5"
-                Padding="48, 8, 48, 48">
+            <Grid Grid.Row="5" Padding="48,8,48,48">
                 <ContentControl IsEnabled="{x:Bind ReboundViewModel.IsReboundEnabled, Mode=OneWay}">
                     <ItemsRepeater ItemsSource="{x:Bind ReboundViewModel.Instructions, Mode=OneWay}">
                         <ItemsRepeater.Layout>
-                            <controls:StaggeredLayout ItemsStretch="Fill"
+                            <controls:StaggeredLayout
                                 ColumnSpacing="8"
                                 DesiredColumnWidth="400"
+                                ItemsStretch="Fill"
                                 RowSpacing="8" />
                         </ItemsRepeater.Layout>
                         <ItemsRepeater.ItemTemplate>

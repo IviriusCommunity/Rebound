@@ -45,7 +45,18 @@
                         Source="/Assets/AppIcons/IviriusCommunityIcon.png" />
 
                     <StackPanel Grid.Column="2">
-                        <TextBlock Style="{ThemeResource TitleLargeTextBlockStyle}" Text="This is Ivirius Community." />
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Style="{ThemeResource TitleLargeTextBlockStyle}" Text="This is" />
+                            <TextBlock Style="{ThemeResource TitleLargeTextBlockStyle}" Margin="12, 0, 0, 0" Text="Ivirius Community">
+                                <TextBlock.Foreground>
+                                    <LinearGradientBrush StartPoint="0, 0" EndPoint="1, 1">
+                                        <GradientStop Color="#9effd4" />
+                                        <GradientStop Offset="1" Color="#3af09f" />
+                                    </LinearGradientBrush>
+                                </TextBlock.Foreground>
+                            </TextBlock>
+                            <TextBlock Style="{ThemeResource TitleLargeTextBlockStyle}" Text="." />
+                        </StackPanel>
                         <TextBlock
                             FontSize="18"
                             Text="We made apps and tools for you to have the best experience with Windows 11."

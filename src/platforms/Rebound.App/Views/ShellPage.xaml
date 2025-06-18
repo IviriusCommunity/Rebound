@@ -81,7 +81,6 @@
                 <NavigationViewItem
                     x:Name="RectifyItem"
                     Content="Rectify11"
-                    IsEnabled="False"
                     Style="{ThemeResource CustomNavigationViewItemStyle}">
                     <NavigationViewItem.Icon>
                         <ImageIcon Margin="16,8,16,24" Source="ms-appx:///Assets/AppIcons/Rectify11.png" />

@@ -40,5 +40,6 @@ internal sealed partial class ShellPage : Page
     {
         if ((NavigationViewItem)NavigationViewControl.SelectedItem == HomeItem) MainFrame.Navigate(typeof(HomePage));
         if ((NavigationViewItem)NavigationViewControl.SelectedItem == ReboundItem) MainFrame.Navigate(typeof(Rebound11Page));
+        if ((NavigationViewItem)NavigationViewControl.SelectedItem == RectifyItem) MainFrame.Navigate(typeof(Rectify11Page));
     }
 }
