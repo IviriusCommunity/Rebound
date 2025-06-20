@@ -83,7 +83,7 @@
                     Content="Rectify11"
                     Style="{ThemeResource CustomNavigationViewItemStyle}">
                     <NavigationViewItem.Icon>
-                        <ImageIcon Margin="16,8,16,24" Source="ms-appx:///Assets/AppIcons/Rectify11.png" />
+                        <ImageIcon Margin="-32" Source="ms-appx:///Assets/AppIcons/Rectify11.png" />
                     </NavigationViewItem.Icon>
                 </NavigationViewItem>
                 <NavigationViewItem
