@@ -298,10 +298,7 @@
                         </interactivity:EventTriggerBehavior>
                     </interactivity:Interaction.Behaviors>
                 </NavigationViewItem>
-                <NavigationViewItem
-                    Content="Rebound Settings"
-                    IsEnabled="False"
-                    SelectsOnInvoked="False">
+                <NavigationViewItem Content="Rebound Settings" SelectsOnInvoked="False">
                     <NavigationViewItem.Icon>
                         <FontIcon Glyph="&#xE713;" />
                     </NavigationViewItem.Icon>
@@ -393,10 +390,10 @@
                     </toolkit:SettingsCard>
                     <toolkit:SettingsCard
                         Margin="40,0"
-                        Description="Clean junk files on your PC."
-                        Header="Cleanup"
                         Command="{x:Bind LaunchPathCommand}"
                         CommandParameter="cleanmgr"
+                        Description="Clean junk files on your PC."
+                        Header="Cleanup"
                         IsClickEnabled="True">
                         <toolkit:SettingsCard.HeaderIcon>
                             <FontIcon Glyph="&#xEA99;" />

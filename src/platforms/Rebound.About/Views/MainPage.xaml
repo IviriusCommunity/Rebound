@@ -21,8 +21,8 @@
         </Grid.ColumnDefinitions>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
-            <RowDefinition Height="*" />
             <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
             <RowDefinition Height="Auto" />
         </Grid.RowDefinitions>
         <StackPanel
@@ -77,7 +77,8 @@
                 Padding="6,2,6,3"
                 VerticalAlignment="Center"
                 Background="{ThemeResource AccentFillColorDefaultBrush}"
-                CornerRadius="2">
+                CornerRadius="2"
+                Visibility="Collapsed">
                 <TextBlock
                     FontSize="10"
                     FontWeight="SemiBold"
@@ -98,7 +99,10 @@
                 <media:AttachedCardShadow Color="{ThemeResource SystemAccentColorLight2}" />
             </ui:Effects.Shadow>
         </Grid>
-        <Border Grid.Row="1" Background="{ThemeResource CardBackgroundFillColorDefault}">
+        <Border
+            Grid.Row="1"
+            MinHeight="272"
+            Background="{ThemeResource CardBackgroundFillColorDefault}">
             <Grid Padding="16">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="Auto" />
@@ -208,6 +212,18 @@
                 IsThreeState="False">
                 <FontIcon FontSize="16" Glyph="&#xE90D;" />
             </ToggleButton>
+            <ToggleButton
+                Margin="40,0,0,0"
+                Padding="8"
+                HorizontalAlignment="Left"
+                VerticalAlignment="Center"
+                Background="Transparent"
+                BorderBrush="Transparent"
+                Command="{x:Bind ToggleReboundCommand}"
+                IsChecked="{x:Bind ViewModel.IsReboundOn, Mode=TwoWay}"
+                IsThreeState="False">
+                <FontIcon FontSize="16" Glyph="&#xE70A;" />
+            </ToggleButton>
         </Grid>
         <Grid
             Grid.RowSpan="3"
@@ -239,6 +255,8 @@
                 </StackPanel>
                 <TextBlock
                     VerticalAlignment="Bottom"
+                    FontSize="12"
+                    Opacity="0.75"
                     Text="{x:Bind ViewModel.CPUName}"
                     TextWrapping="WrapWholeWords" />
             </Grid>
@@ -258,6 +276,8 @@
                 </StackPanel>
                 <TextBlock
                     VerticalAlignment="Bottom"
+                    FontSize="12"
+                    Opacity="0.75"
                     Text="{x:Bind ViewModel.GPUName}"
                     TextWrapping="WrapWholeWords" />
             </Grid>
@@ -277,6 +297,8 @@
                 </StackPanel>
                 <TextBlock
                     VerticalAlignment="Bottom"
+                    FontSize="12"
+                    Opacity="0.75"
                     Text="{x:Bind ViewModel.RAM}"
                     TextWrapping="WrapWholeWords" />
             </Grid>
@@ -296,6 +318,8 @@
                 </StackPanel>
                 <TextBlock
                     VerticalAlignment="Bottom"
+                    FontSize="12"
+                    Opacity="0.75"
                     Text="{x:Bind ViewModel.CurrentUser}"
                     TextWrapping="WrapWholeWords" />
             </Grid>

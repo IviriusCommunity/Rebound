@@ -53,6 +53,11 @@ internal sealed partial class HomePage : Page
                     Process.Start("firewall.cpl");
                     break;
                 }
+            case "Rebound Settings":
+                {
+                    (Parent as Frame)?.Navigate(typeof(ReboundSettingsPage));
+                    break;
+                }
         }
     }
 

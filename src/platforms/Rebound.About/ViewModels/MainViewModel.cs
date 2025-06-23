@@ -3,6 +3,7 @@ using System.Linq;
 using System.Runtime.InteropServices;
 using CommunityToolkit.Mvvm.ComponentModel;
 using Microsoft.Win32;
+using Rebound.Helpers;
 using WinUI3Localizer;
 
 namespace Rebound.About.ViewModels;
@@ -25,6 +26,9 @@ internal partial class MainViewModel : ObservableObject
     public partial bool IsSidebarOn { get; set; }
 
     [ObservableProperty]
+    public partial bool IsReboundOn { get; set; }
+
+    [ObservableProperty]
     public partial string LegalInfo { get; set; } = GetInformation();
 
     [ObservableProperty]
@@ -38,6 +42,22 @@ internal partial class MainViewModel : ObservableObject
 
     [ObservableProperty]
     public partial string RAM { get; set; } = GetTotalRam();
+
+    public MainViewModel()
+    {
+        IsSidebarOn = SettingsHelper.GetValue("IsSidebarOn", "winver", false);
+        IsReboundOn = SettingsHelper.GetValue("IsReboundOn", "winver", true);
+    }
+
+    partial void OnIsSidebarOnChanged(bool value)
+    {
+        SettingsHelper.SetValue("IsSidebarOn", "winver", value);
+    }
+
+    partial void OnIsReboundOnChanged(bool value)
+    {
+        SettingsHelper.SetValue("IsReboundOn", "winver", value);
+    }
 
     public static string GetTotalRam()
     {

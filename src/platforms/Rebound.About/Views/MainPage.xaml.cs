@@ -12,11 +12,19 @@ namespace Rebound.About.Views;
 
 public sealed partial class MainPage : Page
 {
-    private MainViewModel ViewModel { get; } = new MainViewModel();
+    private MainViewModel ViewModel { get; } = new();
 
     public MainPage()
     {
         InitializeComponent();
+        Load();
+    }
+
+    public async void Load()
+    {
+        await Task.Delay(100);
+        App.MainAppWindow.Width = ViewModel.IsSidebarOn ? 720 : 520;
+        App.MainAppWindow.Height = ViewModel.IsReboundOn ? 640 : 500;
     }
 
     [RelayCommand]
@@ -54,6 +62,32 @@ public sealed partial class MainPage : Page
                 App.MainAppWindow.Width = 520 + 200 * Math.Sin(radians);
             }
             App.MainAppWindow.Width = 520;
+        }
+    }
+
+    [RelayCommand]
+    public async Task ToggleReboundAsync()
+    {
+        await Task.Delay(50);
+        if (ViewModel.IsReboundOn)
+        {
+            for (var i = 0; i <= 100; i += 3)
+            {
+                await Task.Delay(2);
+                var radians = i * Math.PI / 180; // Convert degrees to radians
+                App.MainAppWindow.Height = 500 + 140 * Math.Sin(radians);
+            }
+            App.MainAppWindow.Height = 640;
+        }
+        else
+        {
+            for (var i = 100; i >= 0; i -= 3)
+            {
+                await Task.Delay(2);
+                var radians = i * Math.PI / 180; // Convert degrees to radians
+                App.MainAppWindow.Height = 500 + 140 * Math.Sin(radians);
+            }
+            App.MainAppWindow.Height = 500;
         }
     }
 

@@ -1,0 +1,167 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<Page
+    x:Class="Rebound.ControlPanel.Views.ReboundSettingsPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:local="using:Rebound.ControlPanel.Views"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:media="using:CommunityToolkit.WinUI.Media"
+    xmlns:toolkit="using:CommunityToolkit.WinUI.Controls"
+    xmlns:ui="using:CommunityToolkit.WinUI"
+    mc:Ignorable="d">
+
+    <Grid Background="{ThemeResource LayerFillColorDefaultBrush}">
+        <Grid
+            Height="142"
+            VerticalAlignment="Top"
+            Background="{ThemeResource SolidBackgroundFillColorBaseBrush}" />
+        <StackPanel
+            Grid.Row="0"
+            Margin="36,32,0,24"
+            HorizontalAlignment="Left"
+            VerticalAlignment="Top"
+            Orientation="Horizontal"
+            Spacing="24">
+            <Image
+                Width="80"
+                Height="80"
+                Source="/Assets/ReboundIcon.ico" />
+            <TextBlock
+                Margin="0,-8,0,0"
+                VerticalAlignment="Center"
+                FontFamily="Segoe UI Variable"
+                FontSize="54"
+                FontWeight="SemiBold"
+                Text="Rebound">
+                <TextBlock.Foreground>
+                    <LinearGradientBrush StartPoint="0, 0" EndPoint="1, 1">
+                        <LinearGradientBrush.GradientStops>
+                            <GradientStop Offset="1" Color="#8edef9" />
+                            <GradientStop Color="#0a7bd7" />
+                        </LinearGradientBrush.GradientStops>
+                    </LinearGradientBrush>
+                </TextBlock.Foreground>
+            </TextBlock>
+        </StackPanel>
+        <Grid Height="142" VerticalAlignment="Top">
+            <Grid.Background>
+                <media:BackdropBlurBrush Amount="64.0" />
+            </Grid.Background>
+        </Grid>
+        <StackPanel
+            Grid.Row="0"
+            Margin="36,32,0,24"
+            HorizontalAlignment="Left"
+            VerticalAlignment="Top"
+            Orientation="Horizontal"
+            Spacing="24">
+            <Image
+                Width="80"
+                Height="80"
+                Source="/Assets/ReboundIcon.ico" />
+            <TextBlock
+                Margin="0,-8,0,0"
+                VerticalAlignment="Center"
+                FontFamily="Segoe UI Variable"
+                FontSize="54"
+                FontWeight="SemiBold"
+                Text="Rebound">
+                <TextBlock.Foreground>
+                    <LinearGradientBrush StartPoint="0, 0" EndPoint="1, 1">
+                        <LinearGradientBrush.GradientStops>
+                            <GradientStop Offset="1" Color="#8edef9" />
+                            <GradientStop Color="#0a7bd7" />
+                        </LinearGradientBrush.GradientStops>
+                    </LinearGradientBrush>
+                </TextBlock.Foreground>
+            </TextBlock>
+        </StackPanel>
+        <Grid>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="*" />
+            </Grid.ColumnDefinitions>
+            <Grid
+                Height="142"
+                VerticalAlignment="Top"
+                Visibility="Collapsed">
+                <Grid.Background>
+                    <RadialGradientBrush Center="0, 0.5" GradientOrigin="0, 0.5" RadiusX="1" RadiusY="1">
+                        <RadialGradientBrush.GradientStops>
+                            <GradientStop Color="#5030c600" />
+                            <GradientStop Offset="1" Color="#0030c600" />
+                        </RadialGradientBrush.GradientStops>
+                    </RadialGradientBrush>
+                </Grid.Background>
+            </Grid>
+            <Grid
+                Grid.Column="2"
+                Height="142"
+                VerticalAlignment="Top"
+                Visibility="Collapsed">
+                <Grid.Background>
+                    <RadialGradientBrush Center="1, 0.5" GradientOrigin="1, 0.5" RadiusX="1" RadiusY="1">
+                        <RadialGradientBrush.GradientStops>
+                            <GradientStop Color="#50006ae8" />
+                            <GradientStop Offset="1" Color="#00006ae8" />
+                        </RadialGradientBrush.GradientStops>
+                    </RadialGradientBrush>
+                </Grid.Background>
+            </Grid>
+        </Grid>
+        <Grid
+            Height="2"
+            Margin="0,142,0,0"
+            VerticalAlignment="Top">
+            <Grid.Background>
+                <LinearGradientBrush StartPoint="0, 0" EndPoint="1, 1">
+                    <LinearGradientBrush.GradientStops>
+                        <GradientStop Color="#ffb025" />
+                        <GradientStop Offset="1" Color="#ff6008" />
+                    </LinearGradientBrush.GradientStops>
+                </LinearGradientBrush>
+            </Grid.Background>
+            <ui:Effects.Shadow>
+                <media:AttachedCardShadow Color="#FFBB22" />
+            </ui:Effects.Shadow>
+        </Grid>
+        <ScrollView Margin="0,148,0,0" Padding="48">
+            <StackPanel Spacing="8">
+                <TextBlock FontWeight="SemiBold" Text="Rebound"/>
+                <toolkit:SettingsCard Description="Use blur and glow in winver, Control Panel, and the shutdown dialog." Header="Blur and glow">
+                    <toolkit:SettingsCard.HeaderIcon>
+                        <FontIcon Glyph="&#xF4A5;" />
+                    </toolkit:SettingsCard.HeaderIcon>
+                    <ToggleSwitch IsOn="True" />
+                </toolkit:SettingsCard>
+                <toolkit:SettingsCard Description="Show Rebound branding throughout apps." Header="Branding">
+                    <toolkit:SettingsCard.HeaderIcon>
+                        <FontIcon Glyph="&#xF4A5;" />
+                    </toolkit:SettingsCard.HeaderIcon>
+                    <ToggleSwitch IsOn="True" />
+                </toolkit:SettingsCard>
+                <TextBlock FontWeight="SemiBold" Margin="0, 16, 0, 0" Text="Windows installation"/>
+                <toolkit:SettingsCard Description="Turn off all telemetry, OneDrive, web search with Bing in the search menu, recommended and recent files, Windows updates. Remove Microsoft News and the Weather app. Configure the machine to use the least amount of resources. Only use this if this installation is disposable (e.g. virtual machine or testing device). THIS ACTION IS IRREVERSIBLE." Header="Apply disposable machine configuration">
+                    <toolkit:SettingsCard.HeaderIcon>
+                        <FontIcon Glyph="&#xE83B;" />
+                    </toolkit:SettingsCard.HeaderIcon>
+                    <Button Style="{StaticResource AccentButtonStyle}" Content="Apply" />
+                </toolkit:SettingsCard>
+                <toolkit:SettingsCard Description="Turn off most telemetry, OneDrive, and web search with Bing in the search menu. THIS ACTION IS IRREVERSIBLE." Header="Apply quick debloater for home PCs">
+                    <toolkit:SettingsCard.HeaderIcon>
+                        <FontIcon Glyph="&#xE977;" />
+                    </toolkit:SettingsCard.HeaderIcon>
+                    <Button Style="{StaticResource AccentButtonStyle}" Content="Apply" />
+                </toolkit:SettingsCard>
+                <toolkit:SettingsCard Description="Sysinternals, Wintoys, and PowerToys." Header="Install the power user pack">
+                    <toolkit:SettingsCard.HeaderIcon>
+                        <FontIcon Glyph="&#xE7EF;" />
+                    </toolkit:SettingsCard.HeaderIcon>
+                    <Button Style="{StaticResource AccentButtonStyle}" Content="Install" />
+                </toolkit:SettingsCard>
+            </StackPanel>
+        </ScrollView>
+    </Grid>
+</Page>

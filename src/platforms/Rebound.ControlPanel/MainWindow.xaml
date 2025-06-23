@@ -8,13 +8,10 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:winuiex="using:WinUIEx"
     Title="Control Panel"
-    PositionChanged="WindowEx_PositionChanged"
-    SizeChanged="WindowEx_SizeChanged"
-    WindowStateChanged="WindowEx_WindowStateChanged"
     mc:Ignorable="d">
 
     <winuiex:WindowEx.SystemBackdrop>
-        <MicaBackdrop Kind="BaseAlt" />
+        <MicaBackdrop />
     </winuiex:WindowEx.SystemBackdrop>
 
     <Grid>
