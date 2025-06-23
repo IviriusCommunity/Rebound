@@ -129,7 +129,7 @@
         </Grid>
         <ScrollView Margin="0,148,0,0" Padding="48">
             <StackPanel Spacing="8">
-                <TextBlock FontWeight="SemiBold" Text="Rebound"/>
+                <TextBlock FontWeight="SemiBold" Text="Rebound" />
                 <toolkit:SettingsCard Description="Use blur and glow in winver, Control Panel, and the shutdown dialog." Header="Blur and glow">
                     <toolkit:SettingsCard.HeaderIcon>
                         <FontIcon Glyph="&#xF4A5;" />
@@ -142,24 +142,27 @@
                     </toolkit:SettingsCard.HeaderIcon>
                     <ToggleSwitch IsOn="True" />
                 </toolkit:SettingsCard>
-                <TextBlock FontWeight="SemiBold" Margin="0, 16, 0, 0" Text="Windows installation"/>
+                <TextBlock
+                    Margin="0,16,0,0"
+                    FontWeight="SemiBold"
+                    Text="Windows installation" />
                 <toolkit:SettingsCard Description="Turn off all telemetry, OneDrive, web search with Bing in the search menu, recommended and recent files, Windows updates. Remove Microsoft News and the Weather app. Configure the machine to use the least amount of resources. Only use this if this installation is disposable (e.g. virtual machine or testing device). THIS ACTION IS IRREVERSIBLE." Header="Apply disposable machine configuration">
                     <toolkit:SettingsCard.HeaderIcon>
                         <FontIcon Glyph="&#xE83B;" />
                     </toolkit:SettingsCard.HeaderIcon>
-                    <Button Style="{StaticResource AccentButtonStyle}" Content="Apply" />
+                    <Button Content="Apply" Style="{StaticResource AccentButtonStyle}" />
                 </toolkit:SettingsCard>
                 <toolkit:SettingsCard Description="Turn off most telemetry, OneDrive, and web search with Bing in the search menu. THIS ACTION IS IRREVERSIBLE." Header="Apply quick debloater for home PCs">
                     <toolkit:SettingsCard.HeaderIcon>
                         <FontIcon Glyph="&#xE977;" />
                     </toolkit:SettingsCard.HeaderIcon>
-                    <Button Style="{StaticResource AccentButtonStyle}" Content="Apply" />
+                    <Button Content="Apply" Style="{StaticResource AccentButtonStyle}" />
                 </toolkit:SettingsCard>
                 <toolkit:SettingsCard Description="Sysinternals, Wintoys, and PowerToys." Header="Install the power user pack">
                     <toolkit:SettingsCard.HeaderIcon>
                         <FontIcon Glyph="&#xE7EF;" />
                     </toolkit:SettingsCard.HeaderIcon>
-                    <Button Style="{StaticResource AccentButtonStyle}" Content="Install" />
+                    <Button Content="Install" Style="{StaticResource AccentButtonStyle}" />
                 </toolkit:SettingsCard>
             </StackPanel>
         </ScrollView>
