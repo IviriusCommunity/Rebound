@@ -39,6 +39,9 @@ public partial class MainViewModel : ObservableObject
 
     public async Task InstallAsync(bool repair)
     {
+        // Kill processes
+        KillAllProcesses();
+
         // Init
         IsIndeterminate = true;
         Title = repair ? "Repairing..." : "Installing...";
@@ -121,6 +124,9 @@ public partial class MainViewModel : ObservableObject
 
     public async Task RemoveAsync()
     {
+        // Kill processes
+        KillAllProcesses();
+
         // Init
         Title = "Uninstalling...";
 
@@ -303,5 +309,20 @@ public partial class MainViewModel : ObservableObject
             Progress++;
             Status = $"Copying {filePath} to {destFile}...";
         }
+    }
+
+    public void KillAllProcesses()
+    {
+        Process.GetProcessesByName("Rebound Shell").ToList().ForEach(p =>
+        {
+            try
+            {
+                p.Kill();
+            }
+            catch (Exception ex)
+            {
+
+            }
+        });
     }
 }

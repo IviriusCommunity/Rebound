@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.Input;
 using Microsoft.UI.Xaml;
 using Rebound.Helpers;
+using Rebound.Helpers.Windowing;
 using Windows.Storage.Pickers;
 using WinUIEx;
 
@@ -25,7 +26,8 @@ public sealed partial class RunWindow : WindowEx
         onClosedCallback = onClosed;
         InitializeComponent();
         var scale = Display.GetScale(this);
-        this.Move((int)(25 * scale), (int)(Display.GetDPIAwareDisplayRect(this).Height - (48 + 25) * scale - Height * scale));
+        this.Move((int)(25 * scale), (int)(Display.GetDisplayRect(this).Height - (48 + 25) * scale - Height * scale));
+        this.TurnOffDoubleClick();
         ExtendsContentIntoTitleBar = true;
     }
 
@@ -34,9 +36,11 @@ public sealed partial class RunWindow : WindowEx
         onClosedCallback?.Invoke();
     }
 
-    private void WindowEx_Activated(object sender, WindowActivatedEventArgs args)
+    private async void WindowEx_Activated(object sender, WindowActivatedEventArgs args)
     {
-        this.SetTaskBarIcon(Icon.FromFile($"{AppContext.BaseDirectory}\\Assets\\RunBox.ico"));
+        this.SetWindowIcon($"{AppContext.BaseDirectory}\\Assets\\RunBox.ico");
+        await Task.Delay(100);
+        InputBox.Focus(FocusState.Programmatic);
     }
 
     [RelayCommand]

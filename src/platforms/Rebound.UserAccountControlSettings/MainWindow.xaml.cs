@@ -13,6 +13,7 @@ public sealed partial class MainWindow : WindowEx
         ExtendsContentIntoTitleBar = true;
         RootFrame.Navigate(typeof(MainPage));
         this.SetWindowIcon($"{AppContext.BaseDirectory}\\Assets\\Admin.ico");
+        this.TurnOffDoubleClick();
         this.CenterOnScreen();
     }
 }

@@ -53,5 +53,8 @@
 	<ItemGroup>
 	  <PRIResource Remove="Strings\ar-SA\Resources.resw" />
 	</ItemGroup>
+	<ItemGroup>
+	  <Folder Include="Strings\es-ES\" />
+	</ItemGroup>
 
 </Project>

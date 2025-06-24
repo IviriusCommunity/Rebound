@@ -4,6 +4,7 @@
 using System;
 using System.Diagnostics;
 using CommunityToolkit.Mvvm.Input;
+using Rebound.Helpers.Windowing;
 using Windows.Win32;
 using WinUIEx;
 
@@ -22,6 +23,7 @@ public sealed partial class ShutdownDialog : WindowEx
     {
         onClosedCallback = onClosed;
         InitializeComponent();
+        this.TurnOffDoubleClick();
         ExtendsContentIntoTitleBar = true;
     }
 
@@ -40,6 +42,7 @@ public sealed partial class ShutdownDialog : WindowEx
             FileName = "shutdown.exe",
             Arguments = "/r /fw /t 0",
             UseShellExecute = true,
+            CreateNoWindow = true,
             Verb = "runas"
         };
         try
@@ -62,6 +65,7 @@ public sealed partial class ShutdownDialog : WindowEx
             FileName = "shutdown.exe",
             Arguments = "/r /o /t 0",
             UseShellExecute = true,
+            CreateNoWindow = true,
             Verb = "runas"
         };
         try

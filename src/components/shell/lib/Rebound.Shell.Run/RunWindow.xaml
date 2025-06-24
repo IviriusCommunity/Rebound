@@ -454,6 +454,7 @@
                 VerticalAlignment="Top"
                 Source="/Assets/RunBox.ico" />
             <TextBox
+                x:Name="InputBox"
                 MinHeight="0"
                 Margin="80,4,12,0"
                 Padding="5,3,5,4"
