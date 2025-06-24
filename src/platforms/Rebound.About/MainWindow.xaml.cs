@@ -3,7 +3,9 @@
 
 using System;
 using System.IO;
+using Microsoft.UI.Xaml.Media;
 using Rebound.About.Views;
+using Rebound.Helpers;
 using Rebound.Helpers.Windowing;
 using WinUIEx;
 
@@ -16,6 +18,11 @@ internal sealed partial class MainWindow : WindowEx
         InitializeComponent();
         this.Move(25, 25);
         this.SetWindowIcon(Path.Combine(AppContext.BaseDirectory, "Assets", "AboutWindows.ico"));
+        this.TurnOffDoubleClick();
+        SystemBackdrop = new MicaBackdrop()
+        {
+            Kind = SettingsHelper.GetValue("ShowBlurAndGlow", "rebound", true) ? Microsoft.UI.Composition.SystemBackdrops.MicaKind.BaseAlt : Microsoft.UI.Composition.SystemBackdrops.MicaKind.Base
+        };
         ExtendsContentIntoTitleBar = true;
         RootFrame.Navigate(typeof(MainPage));
     }

@@ -19,4 +19,10 @@ public sealed partial class RootPage : Page
             // Placeholder
         }
     }
+
+    [RelayCommand]
+    public void GoBack()
+    {
+        RootFrame.GoBack();
+    }
 }

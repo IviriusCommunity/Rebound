@@ -44,7 +44,10 @@
                 </TextBlock.Foreground>
             </TextBlock>
         </StackPanel>
-        <Grid Height="142" VerticalAlignment="Top">
+        <Grid
+            Height="142"
+            VerticalAlignment="Top"
+            Visibility="{x:Bind ViewModel.ShowBlurAndGlow, Mode=OneWay}">
             <Grid.Background>
                 <media:BackdropBlurBrush Amount="64.0" />
             </Grid.Background>
@@ -114,7 +117,8 @@
         <Grid
             Height="2"
             Margin="0,142,0,0"
-            VerticalAlignment="Top">
+            VerticalAlignment="Top"
+            Visibility="{x:Bind ViewModel.ShowBlurAndGlow, Mode=OneWay}">
             <Grid.Background>
                 <LinearGradientBrush StartPoint="0, 0" EndPoint="1, 1">
                     <LinearGradientBrush.GradientStops>
@@ -134,11 +138,17 @@
                     <toolkit:SettingsCard.HeaderIcon>
                         <FontIcon Glyph="&#xF4A5;" />
                     </toolkit:SettingsCard.HeaderIcon>
-                    <ToggleSwitch IsOn="True" />
+                    <ToggleSwitch IsOn="{x:Bind ViewModel.ShowBlurAndGlow, Mode=TwoWay}" />
+                </toolkit:SettingsCard>
+                <toolkit:SettingsCard Description="Display winver information as fetch terminal output." Header="Fetch mode">
+                    <toolkit:SettingsCard.HeaderIcon>
+                        <FontIcon Glyph="&#xE756;" />
+                    </toolkit:SettingsCard.HeaderIcon>
+                    <ToggleSwitch IsOn="{x:Bind ViewModel.FetchMode, Mode=TwoWay}" />
                 </toolkit:SettingsCard>
                 <toolkit:SettingsCard Description="Show Rebound branding throughout apps." Header="Branding">
                     <toolkit:SettingsCard.HeaderIcon>
-                        <FontIcon Glyph="&#xF4A5;" />
+                        <FontIcon Glyph="&#xED56;" />
                     </toolkit:SettingsCard.HeaderIcon>
                     <ToggleSwitch IsOn="True" />
                 </toolkit:SettingsCard>

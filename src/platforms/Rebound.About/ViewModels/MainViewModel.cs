@@ -43,10 +43,14 @@ internal partial class MainViewModel : ObservableObject
     [ObservableProperty]
     public partial string RAM { get; set; } = GetTotalRam();
 
+    [ObservableProperty]
+    public partial bool ShowBlurAndGlow { get; set; }
+
     public MainViewModel()
     {
         IsSidebarOn = SettingsHelper.GetValue("IsSidebarOn", "winver", false);
         IsReboundOn = SettingsHelper.GetValue("IsReboundOn", "winver", true);
+        ShowBlurAndGlow = SettingsHelper.GetValue("ShowBlurAndGlow", "rebound", true);
     }
 
     partial void OnIsSidebarOnChanged(bool value)

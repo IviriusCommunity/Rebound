@@ -62,7 +62,7 @@
                 </TextBlock.Foreground>
             </TextBlock>
         </StackPanel>
-        <Grid>
+        <Grid Visibility="{x:Bind ViewModel.ShowBlurAndGlow, Mode=OneWay}">
             <Grid.Background>
                 <media:BackdropBlurBrush Amount="36.0" />
             </Grid.Background>
@@ -86,7 +86,7 @@
                     Text="BETA" />
             </Border>
         </StackPanel>
-        <Grid Margin="0,142,0,0">
+        <Grid Margin="0,142,0,0" Visibility="{x:Bind ViewModel.ShowBlurAndGlow, Mode=OneWay}">
             <Grid.Background>
                 <LinearGradientBrush StartPoint="0, 0" EndPoint="1, 1">
                     <LinearGradientBrush.GradientStops>
@@ -102,7 +102,9 @@
         <Border
             Grid.Row="1"
             MinHeight="272"
-            Background="{ThemeResource CardBackgroundFillColorDefault}">
+            Background="{ThemeResource LayerFillColorDefaultBrush}"
+            BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+            BorderThickness="0,1,0,0">
             <Grid Padding="16">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="Auto" />
@@ -150,7 +152,10 @@
                 </Button>
             </Grid>
         </Border>
-        <Border Grid.Row="2">
+        <Border
+            Grid.Row="2"
+            BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+            BorderThickness="0,1,0,0">
             <Grid Padding="16">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="Auto" />
@@ -189,7 +194,12 @@
             Grid.ColumnSpan="2"
             Height="80"
             Padding="24"
-            Background="{ThemeResource SystemControlBackgroundAltMediumLowBrush}">
+            Background="{ThemeResource ControlOnImageFillColorDefaultBrush}">
+            <Border
+                Height="1"
+                Margin="-24"
+                VerticalAlignment="Top"
+                Background="{ThemeResource CardStrokeColorDefaultBrush}" />
             <Button
                 Width="120"
                 HorizontalAlignment="Right"
@@ -202,6 +212,7 @@
                 </Button.KeyboardAccelerators>
             </Button>
             <ToggleButton
+                Margin="0,-4"
                 Padding="8"
                 HorizontalAlignment="Left"
                 VerticalAlignment="Center"
@@ -210,10 +221,10 @@
                 Command="{x:Bind ToggleSidebarCommand}"
                 IsChecked="{x:Bind ViewModel.IsSidebarOn, Mode=TwoWay}"
                 IsThreeState="False">
-                <FontIcon FontSize="16" Glyph="&#xE90D;" />
+                <FontIcon FontSize="16" Glyph="&#xEEA1;" />
             </ToggleButton>
             <ToggleButton
-                Margin="40,0,0,0"
+                Margin="40,-4,0,-4"
                 Padding="8"
                 HorizontalAlignment="Left"
                 VerticalAlignment="Center"
@@ -222,14 +233,16 @@
                 Command="{x:Bind ToggleReboundCommand}"
                 IsChecked="{x:Bind ViewModel.IsReboundOn, Mode=TwoWay}"
                 IsThreeState="False">
-                <FontIcon FontSize="16" Glyph="&#xE70A;" />
+                <FontIcon FontSize="16" Glyph="&#xE946;" />
             </ToggleButton>
         </Grid>
         <Grid
             Grid.RowSpan="3"
             Grid.Column="1"
             Padding="12"
-            Background="{ThemeResource LayerFillColorDefaultBrush}"
+            Background="{ThemeResource LayerOnMicaBaseAltFillColorDefaultBrush}"
+            BorderBrush="{ThemeResource DividerStrokeColorDefaultBrush}"
+            BorderThickness="1,0,0,0"
             RowSpacing="12">
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto" />
@@ -323,6 +336,48 @@
                     Text="{x:Bind ViewModel.CurrentUser}"
                     TextWrapping="WrapWholeWords" />
             </Grid>
+        </Grid>
+        <Grid
+            x:Name="FetchArea"
+            Grid.RowSpan="5"
+            Grid.ColumnSpan="5"
+            Background="Black"
+            Visibility="Collapsed">
+            <Border
+                Height="32"
+                VerticalAlignment="Top"
+                Background="{ThemeResource SolidBackgroundFillColorBaseBrush}" />
+            <StackPanel
+                Margin="12,8"
+                VerticalAlignment="Top"
+                Orientation="Horizontal"
+                Spacing="8">
+                <TextBlock l:Uids.Uid="TitleTextBlock" FontSize="12" />
+                <Border
+                    Padding="6,2,6,3"
+                    VerticalAlignment="Center"
+                    Background="{ThemeResource AccentFillColorDefaultBrush}"
+                    CornerRadius="2"
+                    Visibility="Collapsed">
+                    <TextBlock
+                        FontSize="10"
+                        FontWeight="SemiBold"
+                        Foreground="{ThemeResource TextOnAccentFillColorPrimaryBrush}"
+                        Text="BETA" />
+                </Border>
+            </StackPanel>
+            <TextBlock
+                x:Name="FetchTextBlock"
+                Margin="4,32,0,0"
+                FontFamily="Consolas"
+                IsTextSelectionEnabled="True" />
+            <TextBlock
+                Margin="0,0,8,32"
+                HorizontalAlignment="Right"
+                VerticalAlignment="Bottom"
+                FontFamily="Consolas"
+                Tapped="TextBlock_Tapped"
+                Text="[ PRESS HERE TO EXIT ]" />
         </Grid>
     </Grid>
 </Page>

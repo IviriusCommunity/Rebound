@@ -10,6 +10,7 @@ using Rebound.Forge;
 using Rebound.Generators;
 using Rebound.Helpers.AppEnvironment;
 using Windows.Storage;
+using Windows.System.UserProfile;
 using WinUI3Localizer;
 
 #pragma warning disable IDE0079 // Remove unnecessary suppression
@@ -62,6 +63,7 @@ public partial class App : Application
                     options.DefaultLanguage = "en-US";
                 })
                 .Build();
+            Localizer.SetLanguage(GlobalizationPreferences.Languages[0]);
 
             MainAppWindow = new MainWindow();
             MainAppWindow.Activate();

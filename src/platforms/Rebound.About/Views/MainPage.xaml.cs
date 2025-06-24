@@ -2,11 +2,20 @@
 // Licensed under the MIT License.
 
 using System;
+using System.Diagnostics;
 using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.Input;
+using Microsoft.UI;
+using Microsoft.UI.Windowing;
 using Microsoft.UI.Xaml.Controls;
+using Microsoft.UI.Xaml.Documents;
+using Microsoft.UI.Xaml.Media;
 using Rebound.About.ViewModels;
+using Rebound.Forge;
+using Rebound.Helpers;
+using Rebound.Helpers.Environment;
 using Windows.ApplicationModel.DataTransfer;
+using WinUIEx;
 
 namespace Rebound.About.Views;
 
@@ -25,6 +34,103 @@ public sealed partial class MainPage : Page
         await Task.Delay(100);
         App.MainAppWindow.Width = ViewModel.IsSidebarOn ? 720 : 520;
         App.MainAppWindow.Height = ViewModel.IsReboundOn ? 640 : 500;
+        if (SettingsHelper.GetValue("FetchMode", "rebound", false))
+        {
+            App.MainAppWindow.SetWindowSize(850, 480);
+            FetchArea.Visibility = Microsoft.UI.Xaml.Visibility.Visible;
+            var accentBrush = (SolidColorBrush)App.Current.Resources["AccentFillColorDefaultBrush"];
+            FetchTextBlock.Inlines.Add(new Run()
+            {
+                Foreground = accentBrush,
+                FontWeight = Microsoft.UI.Text.FontWeights.Bold,
+                Text = ViewModel.CurrentUser + "\n"
+            });
+            FetchTextBlock.Inlines.Add(new Run()
+            {
+                Foreground = new SolidColorBrush(Colors.White),
+                Text = new string('=', ViewModel.CurrentUser.Length) + "\n"
+            });
+            FetchTextBlock.Inlines.Add(new Run()
+            {
+                Foreground = accentBrush,
+                FontWeight = Microsoft.UI.Text.FontWeights.Bold,
+                Text = "OS: "
+            });
+            FetchTextBlock.Inlines.Add(new Run()
+            {
+                Foreground = new SolidColorBrush(Colors.White),
+                Text = ViewModel.WindowsVersionName + "\n"
+            });
+            FetchTextBlock.Inlines.Add(new Run()
+            {
+                Foreground = accentBrush,
+                FontWeight = Microsoft.UI.Text.FontWeights.Bold,
+                Text = "Windows Version: "
+            });
+            FetchTextBlock.Inlines.Add(new Run()
+            {
+                Foreground = new SolidColorBrush(Colors.White),
+                Text = ViewModel.DetailedWindowsVersion + "\n"
+            });
+            if (ViewModel.IsReboundOn)
+            {
+                FetchTextBlock.Inlines.Add(new Run()
+                {
+                    Foreground = accentBrush,
+                    FontWeight = Microsoft.UI.Text.FontWeights.Bold,
+                    Text = "Rebound Version: "
+                });
+                FetchTextBlock.Inlines.Add(new Run()
+                {
+                    Foreground = new SolidColorBrush(Colors.White),
+                    Text = ReboundVersion.REBOUND_VERSION + "\n"
+                });
+            }
+            FetchTextBlock.Inlines.Add(new Run()
+            {
+                Foreground = accentBrush,
+                FontWeight = Microsoft.UI.Text.FontWeights.Bold,
+                Text = "Resolution: "
+            });
+            FetchTextBlock.Inlines.Add(new Run()
+            {
+                Foreground = new SolidColorBrush(Colors.White),
+                Text = DisplayArea.GetFromWindowId(App.MainAppWindow.AppWindow.Id, DisplayAreaFallback.Primary).WorkArea.Width + "x" + DisplayArea.GetFromWindowId(App.MainAppWindow.AppWindow.Id, DisplayAreaFallback.Primary).WorkArea.Height + "\n"
+            });
+            FetchTextBlock.Inlines.Add(new Run()
+            {
+                Foreground = accentBrush,
+                FontWeight = Microsoft.UI.Text.FontWeights.Bold,
+                Text = "CPU: "
+            });
+            FetchTextBlock.Inlines.Add(new Run()
+            {
+                Foreground = new SolidColorBrush(Colors.White),
+                Text = ViewModel.CPUName + "\n"
+            });
+            FetchTextBlock.Inlines.Add(new Run()
+            {
+                Foreground = accentBrush,
+                FontWeight = Microsoft.UI.Text.FontWeights.Bold,
+                Text = "GPU: "
+            });
+            FetchTextBlock.Inlines.Add(new Run()
+            {
+                Foreground = new SolidColorBrush(Colors.White),
+                Text = ViewModel.GPUName + "\n"
+            });
+            FetchTextBlock.Inlines.Add(new Run()
+            {
+                Foreground = accentBrush,
+                FontWeight = Microsoft.UI.Text.FontWeights.Bold,
+                Text = "RAM: "
+            });
+            FetchTextBlock.Inlines.Add(new Run()
+            {
+                Foreground = new SolidColorBrush(Colors.White),
+                Text = ViewModel.RAM + "\n"
+            });
+        }
     }
 
     [RelayCommand]
@@ -96,5 +202,10 @@ public sealed partial class MainPage : Page
         var package = new DataPackage();
         package.SetText(content);
         Clipboard.SetContent(package);
+    }
+
+    private void TextBlock_Tapped(object sender, Microsoft.UI.Xaml.Input.TappedRoutedEventArgs e)
+    {
+        Process.GetCurrentProcess().Kill();
     }
 }

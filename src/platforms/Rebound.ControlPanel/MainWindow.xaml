@@ -8,6 +8,9 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:winuiex="using:WinUIEx"
     Title="Control Panel"
+    SizeChanged="WindowEx_SizeChanged"
+    PositionChanged="WindowEx_PositionChanged"
+    WindowStateChanged="WindowEx_WindowStateChanged"
     mc:Ignorable="d">
 
     <winuiex:WindowEx.SystemBackdrop>
