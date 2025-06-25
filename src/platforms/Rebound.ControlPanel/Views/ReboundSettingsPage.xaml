@@ -10,40 +10,38 @@
     xmlns:toolkit="using:CommunityToolkit.WinUI.Controls"
     xmlns:ui="using:CommunityToolkit.WinUI"
     mc:Ignorable="d">
+    <Page.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.ThemeDictionaries>
 
+                <ResourceDictionary x:Key="Default">
+                    <ImageSource x:Key="HeroBackgroundBitmapImage">ms-appx:///Assets/Backgrounds/WallpaperRebornDark.png</ImageSource>
+                    <Color x:Key="GradientStop1">#b5d1ff</Color>
+                    <Color x:Key="GradientStop2">#478dff</Color>
+                </ResourceDictionary>
+
+                <ResourceDictionary x:Key="Light">
+                    <ImageSource x:Key="HeroBackgroundBitmapImage">ms-appx:///Assets/Backgrounds/WallpaperRebornLight.png</ImageSource>
+                    <Color x:Key="GradientStop1">#1a4b99</Color>
+                    <Color x:Key="GradientStop2">#0c2347</Color>
+                </ResourceDictionary>
+
+                <ResourceDictionary x:Key="HighContrast">
+                    <ImageSource x:Key="HeroBackgroundBitmapImage">ms-appx:///Assets/Backgrounds/WallpaperRebornDark.png</ImageSource>
+                    <Color x:Key="GradientStop1">#b5d1ff</Color>
+                    <Color x:Key="GradientStop2">#478dff</Color>
+                </ResourceDictionary>
+
+            </ResourceDictionary.ThemeDictionaries>
+        </ResourceDictionary>
+    </Page.Resources>
     <Grid Background="{ThemeResource LayerFillColorDefaultBrush}">
         <Grid
             Height="142"
             VerticalAlignment="Top"
-            Background="{ThemeResource SolidBackgroundFillColorBaseBrush}" />
-        <StackPanel
-            Grid.Row="0"
-            Margin="36,32,0,24"
-            HorizontalAlignment="Left"
-            VerticalAlignment="Top"
-            Orientation="Horizontal"
-            Spacing="24">
-            <Image
-                Width="80"
-                Height="80"
-                Source="/Assets/ReboundIcon.ico" />
-            <TextBlock
-                Margin="0,-8,0,0"
-                VerticalAlignment="Center"
-                FontFamily="Segoe UI Variable"
-                FontSize="54"
-                FontWeight="SemiBold"
-                Text="Rebound">
-                <TextBlock.Foreground>
-                    <LinearGradientBrush StartPoint="0, 0" EndPoint="1, 1">
-                        <LinearGradientBrush.GradientStops>
-                            <GradientStop Offset="1" Color="#8edef9" />
-                            <GradientStop Color="#0a7bd7" />
-                        </LinearGradientBrush.GradientStops>
-                    </LinearGradientBrush>
-                </TextBlock.Foreground>
-            </TextBlock>
-        </StackPanel>
+            Background="{ThemeResource SolidBackgroundFillColorBaseBrush}">
+            <Image Source="{ThemeResource HeroBackgroundBitmapImage}" Stretch="UniformToFill" />
+        </Grid>
         <Grid
             Height="142"
             VerticalAlignment="Top"
@@ -73,8 +71,8 @@
                 <TextBlock.Foreground>
                     <LinearGradientBrush StartPoint="0, 0" EndPoint="1, 1">
                         <LinearGradientBrush.GradientStops>
-                            <GradientStop Offset="1" Color="#8edef9" />
-                            <GradientStop Color="#0a7bd7" />
+                            <GradientStop Offset="1" Color="{ThemeResource GradientStop1}" />
+                            <GradientStop Color="{ThemeResource GradientStop2}" />
                         </LinearGradientBrush.GradientStops>
                     </LinearGradientBrush>
                 </TextBlock.Foreground>
@@ -122,13 +120,13 @@
             <Grid.Background>
                 <LinearGradientBrush StartPoint="0, 0" EndPoint="1, 1">
                     <LinearGradientBrush.GradientStops>
-                        <GradientStop Color="#ffb025" />
-                        <GradientStop Offset="1" Color="#ff6008" />
+                        <GradientStop Color="{ThemeResource GradientStop1}" />
+                        <GradientStop Offset="1" Color="{ThemeResource GradientStop2}" />
                     </LinearGradientBrush.GradientStops>
                 </LinearGradientBrush>
             </Grid.Background>
             <ui:Effects.Shadow>
-                <media:AttachedCardShadow Color="#FFBB22" />
+                <media:AttachedCardShadow Color="{ThemeResource GradientStop1}" />
             </ui:Effects.Shadow>
         </Grid>
         <ScrollView Margin="0,148,0,0" Padding="48">
@@ -146,29 +144,53 @@
                     </toolkit:SettingsCard.HeaderIcon>
                     <ToggleSwitch IsOn="{x:Bind ViewModel.FetchMode, Mode=TwoWay}" />
                 </toolkit:SettingsCard>
-                <toolkit:SettingsCard Description="Show Rebound branding throughout apps." Header="Branding" IsEnabled="False">
+                <toolkit:SettingsCard
+                    Description="Show Rebound branding throughout apps."
+                    Header="Branding"
+                    IsEnabled="False">
                     <toolkit:SettingsCard.HeaderIcon>
                         <FontIcon Glyph="&#xED56;" />
                     </toolkit:SettingsCard.HeaderIcon>
                     <ToggleSwitch IsOn="True" />
                 </toolkit:SettingsCard>
+                <toolkit:SettingsCard
+                    Command="{x:Bind NavigateToWallpapersFolderCommand}"
+                    Description="View the folder containing Rebound wallpapers. You can copy them over to another location and use them as your desktop wallpapers."
+                    Header="Rebound Wallpapers"
+                    IsClickEnabled="True">
+                    <toolkit:SettingsCard.HeaderIcon>
+                        <FontIcon Glyph="&#xE8B9;" />
+                    </toolkit:SettingsCard.HeaderIcon>
+                    <toolkit:SettingsCard.ActionIcon>
+                        <FontIcon Glyph="&#xE8AD;" />
+                    </toolkit:SettingsCard.ActionIcon>
+                </toolkit:SettingsCard>
                 <TextBlock
                     Margin="0,16,0,0"
                     FontWeight="SemiBold"
                     Text="Windows installation" />
-                <toolkit:SettingsCard IsEnabled="False" Description="Turn off all telemetry, OneDrive, web search with Bing in the search menu, recommended and recent files, Windows updates. Remove Microsoft News and the Weather app. Configure the machine to use the least amount of resources. Only use this if this installation is disposable (e.g. virtual machine or testing device). THIS ACTION IS IRREVERSIBLE." Header="Apply disposable machine configuration">
+                <toolkit:SettingsCard
+                    Description="Turn off all telemetry, OneDrive, web search with Bing in the search menu, recommended and recent files, Windows updates. Remove Microsoft News and the Weather app. Configure the machine to use the least amount of resources. Only use this if this installation is disposable (e.g. virtual machine or testing device). THIS ACTION IS IRREVERSIBLE."
+                    Header="Apply disposable machine configuration"
+                    IsEnabled="False">
                     <toolkit:SettingsCard.HeaderIcon>
                         <FontIcon Glyph="&#xE83B;" />
                     </toolkit:SettingsCard.HeaderIcon>
                     <Button Content="Apply" Style="{StaticResource AccentButtonStyle}" />
                 </toolkit:SettingsCard>
-                <toolkit:SettingsCard IsEnabled="False" Description="Turn off most telemetry, OneDrive, and web search with Bing in the search menu. THIS ACTION IS IRREVERSIBLE." Header="Apply quick debloater for home PCs">
+                <toolkit:SettingsCard
+                    Description="Turn off most telemetry, OneDrive, and web search with Bing in the search menu. THIS ACTION IS IRREVERSIBLE."
+                    Header="Apply quick debloater for home PCs"
+                    IsEnabled="False">
                     <toolkit:SettingsCard.HeaderIcon>
                         <FontIcon Glyph="&#xE977;" />
                     </toolkit:SettingsCard.HeaderIcon>
                     <Button Content="Apply" Style="{StaticResource AccentButtonStyle}" />
                 </toolkit:SettingsCard>
-                <toolkit:SettingsCard IsEnabled="False" Description="Sysinternals, Wintoys, and PowerToys." Header="Install the power user pack">
+                <toolkit:SettingsCard
+                    Description="Sysinternals, Wintoys, and PowerToys."
+                    Header="Install the power user pack"
+                    IsEnabled="False">
                     <toolkit:SettingsCard.HeaderIcon>
                         <FontIcon Glyph="&#xE7EF;" />
                     </toolkit:SettingsCard.HeaderIcon>

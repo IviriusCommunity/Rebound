@@ -10,19 +10,19 @@
 
                 <ResourceDictionary x:Key="Default">
 
-                    <ImageSource x:Key="HeroBackgroundBitmapImage">ms-appx:///Assets/Backgrounds/WallpaperDark.png</ImageSource>
+                    <ImageSource x:Key="HeroBackgroundBitmapImage">ms-appx:///Assets/Backgrounds/WallpaperRebornDark.png</ImageSource>
 
                 </ResourceDictionary>
 
                 <ResourceDictionary x:Key="Light">
 
-                    <ImageSource x:Key="HeroBackgroundBitmapImage">ms-appx:///Assets/Backgrounds/WallpaperLight.png</ImageSource>
+                    <ImageSource x:Key="HeroBackgroundBitmapImage">ms-appx:///Assets/Backgrounds/WallpaperRebornLight.png</ImageSource>
 
                 </ResourceDictionary>
 
                 <ResourceDictionary x:Key="HighContrast">
 
-                    <ImageSource x:Key="HeroBackgroundBitmapImage">ms-appx:///Assets/Backgrounds/WallpaperDark.png</ImageSource>
+                    <ImageSource x:Key="HeroBackgroundBitmapImage">ms-appx:///Assets/Backgrounds/WallpaperRebornDark.png</ImageSource>
 
                 </ResourceDictionary>
 

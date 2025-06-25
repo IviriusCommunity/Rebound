@@ -1,9 +1,10 @@
 ﻿using System;
 using System.Diagnostics;
 using Microsoft.UI.Xaml;
+using Microsoft.UI.Xaml.Controls;
+using Rebound.ControlPanel.Views;
 using Rebound.Forge;
 using Rebound.Generators;
-using Rebound.Helpers;
 using Rebound.Helpers.AppEnvironment;
 
 namespace Rebound.ControlPanel;
@@ -13,7 +14,13 @@ public partial class App : Application
 {
     private async void OnSingleInstanceLaunched(object? sender, Rebound.Helpers.Services.SingleInstanceLaunchEventArgs e)
     {
-        if (e.Arguments == "legacy")
+        Type? pageToLaunch = null;
+
+        if (e.Arguments is "admintools" or "/name Microsoft.AdministrativeTools")
+        {
+            pageToLaunch = typeof(WindowsToolsPage);
+        }
+        else if (!string.IsNullOrEmpty(e.Arguments))
         {
             if (!this.IsRunningAsAdmin())
             {
@@ -42,11 +49,14 @@ public partial class App : Application
         {
             MainAppWindow = new MainWindow();
             MainAppWindow.Activate();
+            if (pageToLaunch != null)
+            {
+                _ = ((((MainAppWindow as MainWindow).Content as Frame)?.Content as RootPage)?.RootFrame.Navigate(pageToLaunch));
+            }
         }
         else
         {
             MainAppWindow.BringToFront();
         }
-        (MainAppWindow as MainWindow).InvokeWithArguments(e.Arguments);
     }
 }

@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<Page
+    x:Class="Rebound.ControlPanel.Views.WindowsToolsPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:local="using:Rebound.ControlPanel.Views"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:toolkit="using:CommunityToolkit.WinUI.Controls"
+    mc:Ignorable="d">
+
+    <Grid>
+        <ScrollViewer>
+            <toolkit:StaggeredPanel
+                Margin="16"
+                ColumnSpacing="8"
+                DesiredColumnWidth="400"
+                RowSpacing="8">
+                <toolkit:SettingsCard
+                    Command="{x:Bind LaunchAppCommand}"
+                    CommandParameter="winver"
+                    Description="View information about the current Windows version."
+                    Header="About Windows"
+                    IsClickEnabled="True">
+                    <toolkit:SettingsCard.HeaderIcon>
+                        <ImageIcon Source="/Assets/winver.ico" />
+                    </toolkit:SettingsCard.HeaderIcon>
+                    <toolkit:SettingsCard.ActionIcon>
+                        <FontIcon Glyph="&#xE8AD;" />
+                    </toolkit:SettingsCard.ActionIcon>
+                </toolkit:SettingsCard>
+                <toolkit:SettingsCard
+                    Command="{x:Bind LaunchAppCommand}"
+                    CommandParameter="cleanmgr"
+                    Description="Clean up cache and junk files."
+                    Header="Disk Cleanup"
+                    IsClickEnabled="True">
+                    <toolkit:SettingsCard.HeaderIcon>
+                        <ImageIcon Source="/Assets/cleanmgr.ico" />
+                    </toolkit:SettingsCard.HeaderIcon>
+                    <toolkit:SettingsCard.ActionIcon>
+                        <FontIcon Glyph="&#xE8AD;" />
+                    </toolkit:SettingsCard.ActionIcon>
+                </toolkit:SettingsCard>
+                <toolkit:SettingsCard
+                    Command="{x:Bind LaunchAppCommand}"
+                    CommandParameter="taskmgr"
+                    Description="Manage processes and view resource usage."
+                    Header="Task Manager"
+                    IsClickEnabled="True">
+                    <toolkit:SettingsCard.HeaderIcon>
+                        <ImageIcon Source="/Assets/taskmgr.ico" />
+                    </toolkit:SettingsCard.HeaderIcon>
+                    <toolkit:SettingsCard.ActionIcon>
+                        <FontIcon Glyph="&#xE8AD;" />
+                    </toolkit:SettingsCard.ActionIcon>
+                </toolkit:SettingsCard>
+            </toolkit:StaggeredPanel>
+        </ScrollViewer>
+    </Grid>
+</Page>

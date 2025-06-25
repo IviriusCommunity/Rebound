@@ -14,5 +14,8 @@
     IsMinimizable="False"
     IsResizable="False"
     mc:Ignorable="d">
+    <winuiex:WindowEx.SystemBackdrop>
+        <MicaBackdrop />
+    </winuiex:WindowEx.SystemBackdrop>
     <Frame x:Name="RootFrame" />
 </winuiex:WindowEx>

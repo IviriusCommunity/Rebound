@@ -194,7 +194,7 @@
             Grid.ColumnSpan="2"
             Height="80"
             Padding="24"
-            Background="{ThemeResource ControlOnImageFillColorDefaultBrush}">
+            Background="{ThemeResource SystemControlBackgroundAltMediumLowBrush}">
             <Border
                 Height="1"
                 Margin="-24"

@@ -111,23 +111,6 @@
                             <NavigationViewItem.Icon>
                                 <FontIcon Glyph="&#xECAD;" />
                             </NavigationViewItem.Icon>
-                            <NavigationViewItem.MenuItems>
-                                <NavigationViewItem Content="About Windows" SelectsOnInvoked="False">
-                                    <NavigationViewItem.Icon>
-                                        <ImageIcon Source="/Assets/winver.ico" />
-                                    </NavigationViewItem.Icon>
-                                </NavigationViewItem>
-                                <NavigationViewItem Content="Disk Cleanup" SelectsOnInvoked="False">
-                                    <NavigationViewItem.Icon>
-                                        <ImageIcon Source="/Assets/cleanmgr.ico" />
-                                    </NavigationViewItem.Icon>
-                                </NavigationViewItem>
-                                <NavigationViewItem Content="Task Manager" SelectsOnInvoked="False">
-                                    <NavigationViewItem.Icon>
-                                        <ImageIcon Source="/Assets/taskmgr.ico" />
-                                    </NavigationViewItem.Icon>
-                                </NavigationViewItem>
-                            </NavigationViewItem.MenuItems>
                         </NavigationViewItem>
                     </NavigationViewItem.MenuItems>
                 </NavigationViewItem>

@@ -23,6 +23,13 @@ public sealed partial class RootPage : Page
     [RelayCommand]
     public void GoBack()
     {
-        RootFrame.GoBack();
+        try
+        {
+            RootFrame.GoBack();
+        }
+        catch
+        {
+
+        }
     }
 }

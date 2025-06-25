@@ -32,6 +32,9 @@
 		<Content Update="Assets\Exe.ico">
 			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
 		</Content>
+		<Content Update="Strings\zh-CN\Resources.resw">
+		  <SubType>Designer</SubType>
+		</Content>
 
 		<Page Update="Views\MainPage.xaml">
 			<Generator>MSBuild:Compile</Generator>
@@ -54,7 +57,10 @@
 	  <PRIResource Remove="Strings\ar-SA\Resources.resw" />
 	</ItemGroup>
 	<ItemGroup>
-	  <Folder Include="Strings\es-ES\" />
+	  <Folder Include="Strings\es-PY\" />
+	</ItemGroup>
+	<ItemGroup>
+	  <PRIResource Remove="Strings\zh-CN\Resources.resw" />
 	</ItemGroup>
 
 </Project>

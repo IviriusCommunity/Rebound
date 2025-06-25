@@ -4,6 +4,7 @@
 using System;
 using System.Diagnostics;
 using System.IO;
+using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.UI.Xaml;
 using Rebound.Forge;
@@ -63,7 +64,18 @@ public partial class App : Application
                     options.DefaultLanguage = "en-US";
                 })
                 .Build();
-            Localizer.SetLanguage(GlobalizationPreferences.Languages[0]);
+
+            var stringFolders = await stringsFolder.GetFoldersAsync(Windows.Storage.Search.CommonFolderQuery.DefaultQuery);
+
+            if (stringFolders.Any(item =>
+                item.Name.Equals(GlobalizationPreferences.Languages[0], StringComparison.OrdinalIgnoreCase)))
+            {
+                Localizer.SetLanguage(GlobalizationPreferences.Languages[0]);
+            }
+            else
+            {
+                Localizer.SetLanguage("en-US");
+            }
 
             MainAppWindow = new MainWindow();
             MainAppWindow.Activate();

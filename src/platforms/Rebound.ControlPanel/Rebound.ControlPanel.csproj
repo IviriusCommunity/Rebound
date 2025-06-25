@@ -24,6 +24,7 @@
 		<None Remove="Views\HomePage.xaml" />
 		<None Remove="Views\ReboundSettingsPage.xaml" />
 		<None Remove="Views\RootPage.xaml" />
+		<None Remove="Views\WindowsToolsPage.xaml" />
 		<Manifest Include="$(ApplicationManifest)" />
 		<Content Update="Assets\Backgrounds\BackgroundDark.png">
 		  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
@@ -31,10 +32,34 @@
 		<Content Update="Assets\Backgrounds\BackgroundLight.png">
 		  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
 		</Content>
+		<Content Update="Assets\Backgrounds\WallpaperCrimsonDark.png">
+		  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</Content>
+		<Content Update="Assets\Backgrounds\WallpaperCrimsonLight.png">
+		  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</Content>
+		<Content Update="Assets\Backgrounds\WallpaperCyanDark.png">
+		  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</Content>
+		<Content Update="Assets\Backgrounds\WallpaperCyanLight.png">
+		  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</Content>
 		<Content Update="Assets\Backgrounds\WallpaperDark.png">
 		  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
 		</Content>
 		<Content Update="Assets\Backgrounds\WallpaperLight.png">
+		  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</Content>
+		<Content Update="Assets\Backgrounds\WallpaperPurpleDark.png">
+		  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</Content>
+		<Content Update="Assets\Backgrounds\WallpaperPurpleLight.png">
+		  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</Content>
+		<Content Update="Assets\Backgrounds\WallpaperRebornDark.png">
+		  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</Content>
+		<Content Update="Assets\Backgrounds\WallpaperRebornLight.png">
 		  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
 		</Content>
 		<Content Update="Assets\cleanmgr.ico">
@@ -44,6 +69,9 @@
 		  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
 		</Content>
 		<Content Update="Assets\ControlPanelLegacy.ico">
+		  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</Content>
+		<Content Update="Assets\ReboundIcon.ico">
 		  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
 		</Content>
 		<Content Update="Assets\taskmgr.ico">
@@ -70,6 +98,11 @@
 	<ItemGroup>
 		<ProjectReference Include="..\..\core\unpackaged\Rebound.Core.SourceGeneratorAttributes\Rebound.Core.SourceGeneratorAttributes.csproj" />
 		<ProjectReference Include="..\..\core\unpackaged\Rebound.Core.SourceGenerator\Rebound.Core.SourceGenerator.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
+	</ItemGroup>
+	<ItemGroup>
+	  <Page Update="Views\WindowsToolsPage.xaml">
+	    <Generator>MSBuild:Compile</Generator>
+	  </Page>
 	</ItemGroup>
 	<ItemGroup>
 	  <Page Update="Views\ReboundSettingsPage.xaml">

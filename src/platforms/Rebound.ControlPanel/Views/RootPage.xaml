@@ -473,20 +473,26 @@
         </Style>
     </Page.Resources>
     <Grid>
-        <Frame x:Name="RootFrame" Margin="0,32,0,0" />
+        <Frame
+            x:Name="RootFrame"
+            Margin="0,32,0,0"
+            x:FieldModifier="public" />
         <StackPanel
             Margin="12,8,12,0"
             VerticalAlignment="Top"
             Orientation="Horizontal"
             Spacing="8">
             <Button
-                IsEnabled="{x:Bind RootFrame.CanGoBack, Mode=OneWay}"
-                Command="{x:Bind GoBackCommand}"
                 Margin="-8,-12,0,-12"
                 Padding="16,4"
                 Background="Transparent"
-                BorderBrush="Transparent">
-                <AnimatedIcon Width="15" Margin="-4,0" Opacity="0.75">
+                BorderBrush="Transparent"
+                Command="{x:Bind GoBackCommand}"
+                IsEnabled="{x:Bind RootFrame.CanGoBack, Mode=OneWay}">
+                <AnimatedIcon
+                    Width="15"
+                    Margin="-4,0"
+                    Opacity="0.75">
                     <AnimatedIcon.Source>
                         <animatedvisuals:AnimatedBackVisualSource />
                     </AnimatedIcon.Source>

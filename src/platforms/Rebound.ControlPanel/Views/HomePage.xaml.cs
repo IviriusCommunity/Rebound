@@ -21,33 +21,6 @@ internal sealed partial class HomePage : Page
     {
         switch (args.InvokedItem)
         {
-            case "About Windows":
-                {
-                    Process.Start("winver");
-                    break;
-                }
-            case "Disk Cleanup":
-                {
-                    Process.Start("cleanmgr");
-                    break;
-                }
-            case "Task Manager":
-                {
-                    try
-                    {
-                        Process.Start(new ProcessStartInfo()
-                        {
-                            FileName = "taskmgr",
-                            UseShellExecute = true,
-                            Verb = "runas"
-                        });
-                    }
-                    catch
-                    {
-
-                    }
-                    break;
-                }
             case "Windows Security Firewall":
                 {
                     Process.Start("firewall.cpl");
@@ -56,6 +29,11 @@ internal sealed partial class HomePage : Page
             case "Rebound Settings":
                 {
                     (Parent as Frame)?.Navigate(typeof(ReboundSettingsPage));
+                    break;
+                }
+            case "Windows Tools":
+                {
+                    (Parent as Frame)?.Navigate(typeof(WindowsToolsPage));
                     break;
                 }
         }
