@@ -212,4 +212,13 @@ public sealed partial class ShutdownDialog : WindowEx
             }
         }
     }
+
+    private void MenuFlyoutItem_Click(object sender, Microsoft.UI.Xaml.RoutedEventArgs e)
+    {
+        Process.Start(new ProcessStartInfo()
+        {
+            FileName = "control.exe",
+            ArgumentList = { "/name Rebound.Settings" },
+        });
+    }
 }

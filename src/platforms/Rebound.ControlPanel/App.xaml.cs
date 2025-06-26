@@ -16,6 +16,10 @@ public partial class App : Application
     {
         Type? pageToLaunch = null;
 
+        if (e.Arguments is "reboundsettings" or "/name Rebound.Settings")
+        {
+            pageToLaunch = typeof(ReboundSettingsPage);
+        }
         if (e.Arguments is "admintools" or "/name Microsoft.AdministrativeTools")
         {
             pageToLaunch = typeof(WindowsToolsPage);

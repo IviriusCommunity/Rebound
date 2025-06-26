@@ -18,7 +18,7 @@ public partial class App : Application
 {
     private async void OnSingleInstanceLaunched(object? sender, Rebound.Helpers.Services.SingleInstanceLaunchEventArgs e)
     {
-        if (!string.IsNullOrEmpty(e.Arguments))
+        if (!string.IsNullOrEmpty(e.Arguments) && !e.Arguments.Equals($"{Environment.GetFolderPath(Environment.SpecialFolder.Windows)}\\System32\\cleanmgr.exe", StringComparison.OrdinalIgnoreCase))
         {
             if (!this.IsRunningAsAdmin())
             {

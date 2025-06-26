@@ -131,7 +131,7 @@
         </Grid>
         <ScrollView Margin="0,148,0,0" Padding="48">
             <StackPanel Spacing="8">
-                <TextBlock FontWeight="SemiBold" Text="Rebound" />
+                <TextBlock FontWeight="SemiBold" Text="Appearance" />
                 <toolkit:SettingsCard Description="Use blur and glow in winver, Control Panel, and the shutdown dialog." Header="Blur and glow">
                     <toolkit:SettingsCard.HeaderIcon>
                         <FontIcon Glyph="&#xF4A5;" />
@@ -168,7 +168,7 @@
                 <TextBlock
                     Margin="0,16,0,0"
                     FontWeight="SemiBold"
-                    Text="Windows installation" />
+                    Text="Power users" />
                 <toolkit:SettingsCard
                     Description="Turn off all telemetry, OneDrive, web search with Bing in the search menu, recommended and recent files, Windows updates. Remove Microsoft News and the Weather app. Configure the machine to use the least amount of resources. Only use this if this installation is disposable (e.g. virtual machine or testing device). THIS ACTION IS IRREVERSIBLE."
                     Header="Apply disposable machine configuration"
@@ -195,6 +195,16 @@
                         <FontIcon Glyph="&#xE7EF;" />
                     </toolkit:SettingsCard.HeaderIcon>
                     <Button Content="Install" Style="{StaticResource AccentButtonStyle}" />
+                </toolkit:SettingsCard>
+                <TextBlock
+                    Margin="0,16,0,0"
+                    FontWeight="SemiBold"
+                    Text="DANGER ZONE" />
+                <toolkit:SettingsCard Description="Enables the new Rebound Desktop feature of Rebound Shell. WARNING: experimental features ahead!" Header="Allow new Desktop feature">
+                    <toolkit:SettingsCard.HeaderIcon>
+                        <FontIcon Glyph="&#xF736;" />
+                    </toolkit:SettingsCard.HeaderIcon>
+                    <ToggleSwitch IsOn="{x:Bind ViewModel.AllowDesktopFeature, Mode=TwoWay}" />
                 </toolkit:SettingsCard>
             </StackPanel>
         </ScrollView>

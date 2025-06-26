@@ -76,15 +76,18 @@ public partial class App : Application
             CantRunDialog = null;
         });
 
-        // Desktop window
-        DesktopWindow = new DesktopWindow(ShowShutdownDialog, CreateContextMenu);
-        DesktopWindow.Activate();
-        DesktopWindow.AttachToProgMan();
+        if (SettingsHelper.GetValue<bool>("AllowDesktopFeature", "rebound", false))
+        {
+            // Desktop window
+            DesktopWindow = new DesktopWindow(ShowShutdownDialog, CreateContextMenu);
+            DesktopWindow.Activate();
+            DesktopWindow.AttachToProgMan();
 
-        ContextMenuWindow = new ContextMenuWindow(DesktopWindow as DesktopWindow);
-        ContextMenuWindow.Activate();
+            ContextMenuWindow = new ContextMenuWindow(DesktopWindow as DesktopWindow);
+            ContextMenuWindow.Activate();
 
-        (ContextMenuWindow as ContextMenuWindow).DesktopPage = (DesktopWindow as DesktopWindow).RootFrame.Content as DesktopPage;
+            (ContextMenuWindow as ContextMenuWindow).DesktopPage = (DesktopWindow as DesktopWindow).RootFrame.Content as DesktopPage;
+        }
     }
 
     private void CreateContextMenu(Point pos)
