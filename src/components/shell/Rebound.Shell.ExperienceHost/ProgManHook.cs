@@ -2,11 +2,13 @@
 // Licensed under the MIT License.
 
 using System;
+using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 using Microsoft.Win32;
 using Microsoft.WindowsAppSDK.Runtime;
 using Windows.Win32;
 using Windows.Win32.Foundation;
+using Windows.Win32.UI.Accessibility;
 using Windows.Win32.UI.WindowsAndMessaging;
 using WinUIEx;
 using static System.Runtime.InteropServices.JavaScript.JSType;
@@ -43,24 +45,37 @@ internal static class ProgManHook
         // Variables
         var version = GetWindowsBuildNumberFromRegistry();
 
-        // Get progman handle
-        hWndProgman = PInvoke.FindWindow("Progman", null);
-
-        unsafe
+        try
         {
-            // Get SHELLDLL_DefView handle
-            hSHELLDLL_DefView = PInvoke.FindWindowEx(hWndProgman, new(null), "SHELLDLL_DefView", null);
-        }
+            // Get progman handle
+            hWndProgman = PInvoke.FindWindow("Progman", null);
 
+            unsafe
+            {
+                // Get SHELLDLL_DefView handle
+                hSHELLDLL_DefView = PInvoke.FindWindowEx(hWndProgman, new(null), "SHELLDLL_DefView", null);
+            }
+            HWND hSysListView32;
+            unsafe
+            {
+                hSysListView32 = PInvoke.FindWindowEx(hSHELLDLL_DefView, new(null), "SysListView32", "FolderView");
+            }
+            _ = PInvoke.ShowWindow(hSysListView32, SHOW_WINDOW_CMD.SW_HIDE);
+            _ = PInvoke.SetParent(new(window.GetWindowHandle()), hWndProgman);
+        }
+        catch
+        {
+
+        }
         // Send message to progman to create WorkerW
-        unsafe
+        /*unsafe
         {
             _ = PInvoke.SendMessageTimeout(hWndProgman, 0x052C, 0, 0, SEND_MESSAGE_TIMEOUT_FLAGS.SMTO_NORMAL, 250, null);
         }
 
-        await Task.Delay(250).ConfigureAwait(true);
+        await Task.Delay(250).ConfigureAwait(true);*/
 
-        if (version >= 26100)
+        /*if (version >= 26100)
         {
             unsafe
             {
@@ -143,7 +158,7 @@ internal static class ProgManHook
                         }
                 }
             }
-        }
+        }*/
     }
 
     public static unsafe ulong WallpaperHelper24H2(HWND hWorkerW)

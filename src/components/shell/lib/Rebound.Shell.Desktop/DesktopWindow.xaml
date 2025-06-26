@@ -13,5 +13,5 @@
     <winuiex:WindowEx.SystemBackdrop>
         <winuiex:TransparentTintBackdrop />
     </winuiex:WindowEx.SystemBackdrop>
-    <Frame x:Name="RootFrame"/>
+    <Frame x:FieldModifier="public" x:Name="RootFrame"/>
 </winuiex:WindowEx>

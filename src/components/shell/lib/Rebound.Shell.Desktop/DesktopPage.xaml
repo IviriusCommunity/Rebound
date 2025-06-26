@@ -9,6 +9,7 @@
     xmlns:local="using:Rebound.Shell.Desktop"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:ui="using:CommunityToolkit.WinUI"
+    xmlns:media="using:CommunityToolkit.WinUI.Media"
     xmlns:winuiex="using:WinUIEx"
     mc:Ignorable="d">
     <Page.Resources>
@@ -440,6 +441,11 @@
 
     </Page.Resources>
     <Grid>
+        <Image x:Name="Wallpaper"/>
+        <StackPanel HorizontalAlignment="Center" VerticalAlignment="Top" Margin="160">
+            <TextBlock x:Name="TimeTextBlock" Text="12:03" FontWeight="SemiBold" FontSize="96" TextAlignment="Center"/>
+            <TextBlock x:Name="DateTextBlock" Text="Friday, 02.12.2025" FontSize="48" TextAlignment="Center"/>
+        </StackPanel>
         <Grid
             AllowDrop="True"
             Background="#01000000"

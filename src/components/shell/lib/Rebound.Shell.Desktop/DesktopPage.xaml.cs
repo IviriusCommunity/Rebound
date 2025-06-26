@@ -8,17 +8,26 @@ using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
+using System.Runtime.InteropServices;
+using System.Runtime.InteropServices.Marshalling;
+using System.Security.Claims;
 using System.Threading.Tasks;
 using CommunityToolkit.WinUI;
 using Microsoft.UI.Input;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Input;
+using Microsoft.UI.Xaml.Media;
+using Microsoft.UI.Xaml.Media.Imaging;
 using Microsoft.UI.Xaml.Navigation;
+using Microsoft.Win32;
 using Windows.ApplicationModel.DataTransfer;
 using Windows.Foundation;
 using Windows.Storage;
 using Windows.System;
+using Windows.Win32;
+using Windows.Win32.Foundation;
+using Windows.Win32.UI.Shell;
 
 namespace Rebound.Shell.Desktop;
 
@@ -37,11 +46,66 @@ public sealed partial class DesktopPage : Page
     private Point oldPoint;
     private bool _isDragging;
 
+    private readonly DispatcherTimer _timer;
+
     public DesktopPage()
     {
         InitializeComponent();
+
+        unsafe
+        {
+            var desktopWallpaper = (IDesktopWallpaper)new DesktopWallpaper();
+
+            PWSTR rawPath;
+            desktopWallpaper.GetWallpaper(null, &rawPath);
+
+            var path = new string(rawPath.Value);
+            if (!string.IsNullOrWhiteSpace(path))
+            {
+                Wallpaper.Source = new BitmapImage(new Uri(path));
+            }
+            DESKTOP_WALLPAPER_POSITION pos;
+            desktopWallpaper.GetPosition(&pos);
+            Wallpaper.Stretch = pos switch
+            { DESKTOP_WALLPAPER_POSITION.DWPOS_FILL => Stretch.Fill,
+              DESKTOP_WALLPAPER_POSITION.DWPOS_FIT => Stretch.Uniform,
+              DESKTOP_WALLPAPER_POSITION.DWPOS_STRETCH => Stretch.UniformToFill,
+              DESKTOP_WALLPAPER_POSITION.DWPOS_TILE => Stretch.None,
+              DESKTOP_WALLPAPER_POSITION.DWPOS_CENTER => Stretch.None,
+              _ => Stretch.Uniform
+            };
+
+            //Marshal.ReleaseComObject(desktopWallpaper);
+        }
         this.PointerMoved += DesktopPage_PointerMoved;
         this.PointerReleased += DesktopPage_PointerReleased;
+        Refresh();
+
+        _timer = new DispatcherTimer
+        {
+            Interval = TimeSpan.FromSeconds(1)
+        };
+        _timer.Tick += Timer_Tick;
+        _timer.Start();
+
+        UpdateClock(); // initial immediate update
+    }
+    private void Timer_Tick(object sender, object e)
+    {
+        UpdateClock();
+    }
+
+    private void UpdateClock()
+    {
+        // Example: 12:03
+        TimeTextBlock.Text = DateTime.Now.ToString("hh:mm:ss tt");
+
+        // Example: Friday, 02.12.2025
+        DateTextBlock.Text = DateTime.Now.ToString("dddd, dd.MM.yyyy");
+    }
+
+    public void Refresh()
+    {
         DispatcherQueue.TryEnqueue(async () =>
         {
             // Clear items before loading to avoid adding duplicates
@@ -110,7 +174,7 @@ public sealed partial class DesktopPage : Page
 
     private void InvokeDragBorder(PointerRoutedEventArgs e)
     {
-        var currentPos = e.GetCurrentPoint(CanvasControl).Position;
+        var currentPos = e.GetCurrentPoint(null).Position;
 
         try
         {
@@ -124,7 +188,7 @@ public sealed partial class DesktopPage : Page
             var height = Math.Abs(currentPos.Y - initialMarginY);
 
             // Apply margin and size to selection UI
-            SelectionBorder.Margin = new Thickness(left, top, -4, -4);
+            SelectionBorder.Margin = new Thickness(left, top, 0, 0);
             SelectionBorder.Width = width;
             SelectionBorder.Height = height;
 

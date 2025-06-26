@@ -4,6 +4,7 @@
 using System;
 using System.Diagnostics;
 using System.Linq;
+using Microsoft.UI.Xaml;
 using Rebound.Helpers;
 using Windows.Foundation;
 using Windows.Win32;
@@ -29,6 +30,7 @@ public sealed partial class DesktopWindow : WindowEx
             WindowStyle.SysMenu);
         this.MoveAndResize(0, 0, Display.GetDPIAwareDisplayRect(this).Width, Display.GetDPIAwareDisplayRect(this).Height);
         RootFrame.Navigate(typeof(DesktopPage), this);
+        SystemBackdrop = new TransparentTintBackdrop();
     }
 
     private bool canClose;
@@ -53,7 +55,29 @@ public sealed partial class DesktopWindow : WindowEx
         }
         else
         {
-            Process.GetProcessesByName("explorer").FirstOrDefault()?.Kill();
+            try
+            {
+                // Get progman handle
+                var hWndProgman = PInvoke.FindWindow("Progman", null);
+
+                Windows.Win32.Foundation.HWND hSHELLDLL_DefView;
+                unsafe
+                {
+                    // Get SHELLDLL_DefView handle
+                    hSHELLDLL_DefView = PInvoke.FindWindowEx(hWndProgman, new(null), "SHELLDLL_DefView", null);
+                }
+                Windows.Win32.Foundation.HWND hSysListView32;
+                unsafe
+                {
+                    hSysListView32 = PInvoke.FindWindowEx(hSHELLDLL_DefView, new(null), "SysListView32", "FolderView");
+                }
+                _ = PInvoke.ShowWindow(hSysListView32, Windows.Win32.UI.WindowsAndMessaging.SHOW_WINDOW_CMD.SW_SHOW);
+            }
+            catch
+            {
+
+            }
+            //Process.GetProcessesByName("explorer").FirstOrDefault()?.Kill();
             PInvoke.DestroyWindow(new(this.GetWindowHandle()));
         }
     }

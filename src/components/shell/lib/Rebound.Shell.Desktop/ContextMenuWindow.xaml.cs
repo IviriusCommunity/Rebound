@@ -4,6 +4,7 @@
 using System.Diagnostics;
 using System.Threading.Tasks;
 using Microsoft.UI.Xaml;
+using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Controls.Primitives;
 using Windows.Foundation;
 using WinUIEx;
@@ -13,6 +14,8 @@ namespace Rebound.Shell.Desktop;
 public sealed partial class ContextMenuWindow : WindowEx
 {
     private DesktopWindow DesktopWindow { get; set; }
+
+    public DesktopPage DesktopPage { get; set; }
 
     public ContextMenuWindow(DesktopWindow win)
     {
@@ -62,5 +65,10 @@ public sealed partial class ContextMenuWindow : WindowEx
         DesktopWindow.RestoreExplorerDesktop();
         await Task.Delay(250).ConfigureAwait(true);
         Process.GetCurrentProcess().Kill();
+    }
+
+    private void AppBarButton_Click_2(object sender, RoutedEventArgs e)
+    {
+        DesktopPage.Refresh();
     }
 }

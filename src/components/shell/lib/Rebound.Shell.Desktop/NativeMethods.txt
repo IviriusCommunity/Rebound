@@ -1,3 +1,7 @@
 DestroyWindow
 ExtractIconEx
 CreateThread
+DesktopWallpaper
+IDesktopWallpaper
+CoInitializeEx
+CoUninitialize

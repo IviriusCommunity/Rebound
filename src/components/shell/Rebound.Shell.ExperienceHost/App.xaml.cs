@@ -83,6 +83,8 @@ public partial class App : Application
 
         ContextMenuWindow = new ContextMenuWindow(DesktopWindow as DesktopWindow);
         ContextMenuWindow.Activate();
+
+        (ContextMenuWindow as ContextMenuWindow).DesktopPage = (DesktopWindow as DesktopWindow).RootFrame.Content as DesktopPage;
     }
 
     private void CreateContextMenu(Point pos)
