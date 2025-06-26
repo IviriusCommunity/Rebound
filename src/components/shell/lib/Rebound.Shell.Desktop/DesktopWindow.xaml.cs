@@ -27,7 +27,7 @@ public sealed partial class DesktopWindow : WindowEx
             WindowStyle.MaximizeBox | WindowStyle.MinimizeBox | 
             WindowStyle.Border | WindowStyle.Iconic | 
             WindowStyle.SysMenu);
-        this.MoveAndResize(0, 0, Display.GetDisplayRect(this).Width, Display.GetDPIAwareDisplayRect(this).Height);
+        this.MoveAndResize(0, 0, Display.GetDPIAwareDisplayRect(this).Width, Display.GetDPIAwareDisplayRect(this).Height);
         RootFrame.Navigate(typeof(DesktopPage), this);
     }
 

@@ -77,12 +77,12 @@ public partial class App : Application
         });
 
         // Desktop window
-        /*DesktopWindow = new DesktopWindow(ShowShutdownDialog, CreateContextMenu);
+        DesktopWindow = new DesktopWindow(ShowShutdownDialog, CreateContextMenu);
         DesktopWindow.Activate();
         DesktopWindow.AttachToProgMan();
 
         ContextMenuWindow = new ContextMenuWindow(DesktopWindow as DesktopWindow);
-        ContextMenuWindow.Activate();*/
+        ContextMenuWindow.Activate();
     }
 
     private void CreateContextMenu(Point pos)

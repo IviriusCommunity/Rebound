@@ -441,11 +441,14 @@
     </Page.Resources>
     <Grid>
         <Grid
-            Padding="4"
+            AllowDrop="True"
             Background="#01000000"
-            PointerPressed="CanvasControl_PointerPressed_1">
+            Drop="CanvasControl_Drop"
+            DragOver="CanvasControl_DragOver"
+            PointerPressed="BackgroundGrid_PointerPressed">
             <ItemsRepeater
                 x:Name="CanvasControl"
+                Margin="4"
                 HorizontalAlignment="Stretch"
                 VerticalAlignment="Stretch"
                 AllowDrop="True"
@@ -459,16 +462,14 @@
                             x:Name="RootGrid"
                             Width="80"
                             Height="100"
-                            Opacity="{x:Bind Opacity, Mode=OneWay}"
                             ui:UIElementExtensions.ClipToBounds="False"
                             AllowDrop="True"
                             Background="Transparent"
+                            CanDrag="True"
                             DataContext="{x:Bind}"
-                            DragStarting="Grid_DragStarting"
-                            PointerEntered="RootGrid_PointerEntered"
-                            PointerExited="RootGrid_PointerExited"
-                            PointerMoved="RootGrid_PointerMoved"
-                            PointerPressed="RootGrid_PointerPressed">
+                            DragStarting="Item_DragStarting"
+                            PointerPressed="RootGrid_PointerPressed"
+                            Opacity="{x:Bind Opacity, Mode=OneWay}">
                             <ItemContainer
                                 Padding="0"
                                 HorizontalAlignment="Stretch"
@@ -641,19 +642,6 @@
                     CornerRadius="4"
                     Opacity="0.2" />
             </Border>
-            <Border
-                x:Name="PlacementBorder"
-                Margin="-4"
-                HorizontalAlignment="Stretch"
-                VerticalAlignment="Stretch"
-                AllowDrop="True"
-                Background="{ThemeResource SmokeFillColorDefaultBrush}"
-                DragOver="CanvasControl_DragOver"
-                Drop="CanvasControl_Drop"
-                PointerMoved="PlacementBorder_PointerMoved"
-                PointerPressed="PlacementBorder_PointerPressed"
-                PointerReleased="PlacementBorder_PointerReleased"
-                Visibility="Collapsed" />
         </Grid>
         <Grid
             x:Name="LoadingGrid"

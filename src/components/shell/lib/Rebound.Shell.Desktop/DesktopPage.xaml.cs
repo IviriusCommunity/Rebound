@@ -18,6 +18,7 @@ using Microsoft.UI.Xaml.Navigation;
 using Windows.ApplicationModel.DataTransfer;
 using Windows.Foundation;
 using Windows.Storage;
+using Windows.System;
 
 namespace Rebound.Shell.Desktop;
 
@@ -39,6 +40,8 @@ public sealed partial class DesktopPage : Page
     public DesktopPage()
     {
         InitializeComponent();
+        this.PointerMoved += DesktopPage_PointerMoved;
+        this.PointerReleased += DesktopPage_PointerReleased;
         DispatcherQueue.TryEnqueue(async () =>
         {
             // Clear items before loading to avoid adding duplicates
@@ -74,114 +77,36 @@ public sealed partial class DesktopPage : Page
         });
     }
 
-    [RequiresUnreferencedCode("Requires unreferenced code to load thumbnails")]
-    public static async Task<List<DesktopItem>> GetDesktopFilesAsync()
+    // BEGIN
+
+    bool _isSelectingWithSelectionBox;
+    bool _isRightClickHeld;
+
+    private void DesktopPage_PointerReleased(object sender, PointerRoutedEventArgs e)
     {
-        var items = new List<DesktopItem>();
-        var desktopPath = Environment.GetFolderPath(Environment.SpecialFolder.Desktop);
-
-        if (!Directory.Exists(desktopPath))
+        if (_isRightClickHeld)
         {
-            return items;
-        }
-
-        // Combine files and folders into a single list
-        var entries = Directory.GetFiles(desktopPath).Concat(Directory.GetDirectories(desktopPath)).ToList();
-
-        // Load all entries in parallel
-        var loadTasks = entries.Select(static async path =>
-        {
-            var desktopFile = new DesktopItem(path);
-            await desktopFile.LoadThumbnailAsync().ConfigureAwait(false);
-            return desktopFile;
-        });
-
-        // Wait for all to complete
-        var loadedItems = await Task.WhenAll(loadTasks).ConfigureAwait(false);
-
-        items.AddRange(loadedItems);
-        return items;
-    }
-
-    private void Grid_DoubleTapped(object sender, DoubleTappedRoutedEventArgs e)
-    {
-        if (sender is not Grid grid || grid.DataContext is not DesktopItem desktopFile)
-        {
+            _isRightClickHeld = false;
+            Window.CreateContextMenuAtPosition(e.GetCurrentPoint(null).Position);
             return;
         }
 
-        try
-        {
-            Process.Start(new ProcessStartInfo
-            {
-                FileName = desktopFile.FilePath,
-                UseShellExecute = true
-            });
-        }
-        catch (Exception ex)
-        {
-            // Optional: log or show an error to the user
-            Debug.WriteLine($"Failed to open file: {ex.Message}");
-        }
+        _isSelectingWithSelectionBox = false;
+        SelectionBorder.Margin = new(0);
+        SelectionBorder.Width = 0;
+        SelectionBorder.Height = 0;
     }
 
-    private void CanvasControl_PointerReleased(object sender, PointerRoutedEventArgs e)
+    private void DesktopPage_PointerMoved(object sender, PointerRoutedEventArgs e)
     {
-        // Hide the placement preview border (used for item placement feedback)
-        PlacementBorder.Visibility = Visibility.Collapsed;
-        PlacementBorder.Opacity = 1;
-        toggledPaths.Clear();
-
-        // Get the pointer position relative to the canvas
-        var point = e.GetCurrentPoint(null);
-
-        // If the right mouse button was released, show the context menu at that position
-        if (point.Properties.PointerUpdateKind == PointerUpdateKind.RightButtonReleased)
+        if (_isSelectingWithSelectionBox)
         {
-            Window?.CreateContextMenuAtPosition(point.Position);
+            InvokeDragBorder(e);
         }
-
-        // Reset selection state and visual selector box
-        _selectionOn = false;
-        SelectionBorder.Margin = new(0); // Reset margin to top-left
-        SelectionBorder.Width = SelectionBorder.Height = 0; // Clear selection box dimensions
     }
 
-    private void CanvasControl_PointerPressed(object sender, PointerRoutedEventArgs e)
-    {
-        // Get pointer position relative to the canvas once to avoid repeated calls
-        var position = e.GetCurrentPoint(CanvasControl).Position;
-
-        // If Ctrl is not held and the pointer is not over an item, deselect all
-        if (!e.GetCurrentPoint(null).Properties.IsMiddleButtonPressed && !e.GetCurrentPoint(null).Properties.IsRightButtonPressed)
-        {
-            if (e.KeyModifiers != Windows.System.VirtualKeyModifiers.Control)
-            {
-                foreach (var item in Items)
-                {
-                    item.IsSelected = false;
-                }
-            }
-        }
-
-        // Begin selection drag mode
-        _selectionOn = true;
-
-        // Store initial position for later drag tracking
-        initialMarginX = position.X;
-        initialMarginY = position.Y;
-
-        // Set selection box's initial position and clear its size
-        SelectionBorder.Margin = new(position.X, position.Y, 0, 0);
-        SelectionBorder.Width = SelectionBorder.Height = 0;
-    }
-
-    List<string> toggledPaths = new();
-
-    private void CanvasControl_PointerMoved(object sender, PointerRoutedEventArgs e)
-    {
-        InvokeDragBorder(e);
-    }
+    // Declare this at class level:
+    private Dictionary<string, bool> pointerOverStates = new();
 
     private void InvokeDragBorder(PointerRoutedEventArgs e)
     {
@@ -206,64 +131,164 @@ public sealed partial class DesktopPage : Page
             // Define selection rectangle for hit testing
             var selectionRect = new Rect(left, top, width, height);
 
-            // Update selection state based on intersection
             foreach (var item in Items)
             {
                 var itemRect = new Rect(item.X, item.Y, itemWidth, itemHeight);
                 var intersects = selectionRect.IntersectsWith(itemRect);
+
                 if (e.KeyModifiers == Windows.System.VirtualKeyModifiers.Control)
                 {
-                    if (intersects)
+                    // Get previous pointer-over state, default to false
+                    pointerOverStates.TryGetValue(item.FilePath, out bool wasOver);
+
+                    if (intersects && !wasOver)
                     {
-                        if (!toggledPaths.Contains(item.FilePath))
-                        {
-                            item.IsSelected = !item.IsSelected;
-                            toggledPaths.Add(item.FilePath);
-                        }
+                        // Pointer just entered the item's rect → toggle selection
+                        item.IsSelected = !item.IsSelected;
+                        pointerOverStates[item.FilePath] = true;
                     }
-                    else
+                    else if (!intersects && wasOver)
                     {
-                        if (toggledPaths.Contains(item.FilePath))
-                        {
-                            item.IsSelected = !item.IsSelected;
-                            toggledPaths.Remove(item.FilePath);
-                        }
+                        // Pointer left the item's rect → update state
+                        pointerOverStates[item.FilePath] = false;
                     }
+                    // else: no change
                 }
                 else
                 {
-                    if (item.IsSelected != intersects)
-                    {
-                        item.IsSelected = intersects;
-                    }
+                    // Default behavior: intersecting = selected
+                    item.IsSelected = intersects;
                 }
             }
         }
         catch (Exception ex)
         {
-            // Optional: Log or debug exception
             Debug.WriteLine("PointerMoved error: " + ex.Message);
+        }
+    }
+
+    private void BackgroundGrid_PointerPressed(object sender, PointerRoutedEventArgs e)
+    {
+        var point = e.GetCurrentPoint(null);
+        if (point.Properties.IsLeftButtonPressed)
+        {
+            if (CheckIfSpotIsFree(point.Position.X, point.Position.Y))
+            {
+                _isSelectingWithSelectionBox = true;
+
+                // Get pointer position relative to the canvas once to avoid repeated calls
+                var position = e.GetCurrentPoint(CanvasControl).Position;
+
+                // If Ctrl is not held and the pointer is not over an item, deselect all
+                if (!e.GetCurrentPoint(null).Properties.IsMiddleButtonPressed && !e.GetCurrentPoint(null).Properties.IsRightButtonPressed)
+                {
+                    if (e.KeyModifiers != Windows.System.VirtualKeyModifiers.Control)
+                    {
+                        foreach (var item in Items)
+                        {
+                            item.IsSelected = false;
+                        }
+                    }
+                }
+
+                // Begin selection drag mode
+                _selectionOn = true;
+
+                // Store initial position for later drag tracking
+                initialMarginX = position.X;
+                initialMarginY = position.Y;
+
+                // Set selection box's initial position and clear its size
+                SelectionBorder.Margin = new(position.X, position.Y, 0, 0);
+                SelectionBorder.Width = SelectionBorder.Height = 0;
+            }
+            else
+            {
+                _isSelectingWithSelectionBox = false;
+            }
+        }
+        else if (point.Properties.IsRightButtonPressed)
+        {
+            _isRightClickHeld = true;
+        }
+    }
+
+    private async void Item_DragStarting(UIElement sender, DragStartingEventArgs args)
+    {
+        dragOffsets.Clear();
+        dragStartPointerPos = args.GetPosition(null); // or use e.GetPosition(CanvasControl) depending on where drag was initiated
+
+        foreach (var item in Items.Where(i => (bool)i.IsSelected))
+        {
+            var offset = new Point(item.X - dragStartPointerPos.X, item.Y - dragStartPointerPos.Y);
+            dragOffsets[item.FilePath] = offset;
+        }
+
+        var storageItems = new List<IStorageItem>();
+
+        // Iterate through selected items
+        foreach (var item in Items.Where(i => i.IsSelected == true))
+        {
+            try
+            {
+                IStorageItem? storageItem = null;
+
+                // Check if the item is a folder or file
+                var filePath = item.FilePath ?? string.Empty;
+                if (File.Exists(filePath))
+                {
+                    var attributes = File.GetAttributes(filePath);
+                    if (attributes.HasFlag(System.IO.FileAttributes.Directory))
+                    {
+                        storageItem = await StorageFolder.GetFolderFromPathAsync(filePath);
+                    }
+                    else
+                    {
+                        storageItem = await StorageFile.GetFileFromPathAsync(filePath);
+                    }
+                }
+
+                if (storageItem != null)
+                {
+                    storageItems.Add(storageItem);
+                }
+            }
+            catch (Exception ex)
+            {
+                // Log the error with more details
+                Debug.WriteLine($"Error processing {item.FilePath}: {ex.Message}");
+            }
+        }
+
+        // Set the storage items for the drag operation
+        if (storageItems.Count != 0)
+        {
+            args.Data.SetStorageItems(storageItems);
+        }
+        else
+        {
+            Debug.WriteLine("No valid items selected for drag operation.");
         }
     }
 
     private void CanvasControl_DragOver(object sender, DragEventArgs e)
     {
-        PlacementBorder.Visibility = Visibility.Visible;
+        //PlacementBorder.Visibility = Visibility.Visible;
         e.AcceptedOperation = DataPackageOperation.Move;
         e.DragUIOverride.Caption = "Move on Desktop";
     }
 
+    private Dictionary<string, Point> dragOffsets = new(); // FilePath → offset from pointer
+    private Point dragStartPointerPos;
     private async void CanvasControl_Drop(object sender, DragEventArgs e)
     {
-        PlacementBorder.Visibility = Visibility.Collapsed;
         _isDragging = false;
         if (e.DataView.Contains(StandardDataFormats.StorageItems))
         {
             var items = await e.DataView.GetStorageItemsAsync();
             if (items.Count > 0)
             {
-                var point = e.GetPosition(CanvasControl); // Get drop position
-                var freeSpot = FindFreeSpotCoordinates(point.X, point.Y) ?? FindFreeSpot(); // Find the first available spot
+                var dropPoint = e.GetPosition(CanvasControl);
 
                 List<DesktopItem> existingFiles = [];
                 List<DesktopItem> newFiles = [];
@@ -325,61 +350,208 @@ public sealed partial class DesktopPage : Page
                     }
                 }
 
-                // Move existing files together
+                // Move existing files (group move)
                 if (existingFiles.Count > 0)
                 {
-                    foreach (var file in existingFiles)
+                    // Calculate the bounding rectangle of the group
+                    var minX = existingFiles.Min(i => i.X);
+                    var minY = existingFiles.Min(i => i.Y);
+
+                    // Snap the drop point to grid
+                    var (dropCol, dropRow, snappedDropX, snappedDropY) = SnapToGrid(dropPoint.X, dropPoint.Y);
+
+                    // Calculate the offset between the pointer and the top-left of the group
+                    var pointerToGroupOffsetX = dropPoint.X - minX;
+                    var pointerToGroupOffsetY = dropPoint.Y - minY;
+
+                    // For each item, calculate its relative offset in the group, then snap to grid
+                    foreach (var item in existingFiles)
                     {
-                        //var contentControl = GetContentControlFromDesktopFile(file);
+                        var relX = item.X - minX;
+                        var relY = item.Y - minY;
 
-                        // Eliminate pointer position errors
-                        var oldPointerPos = FindSpotCoordinates(oldPoint.X, oldPoint.Y);
+                        var targetX = snappedDropX + relX;
+                        var targetY = snappedDropY + relY;
 
-                        var oldItemRelativePos = new Point(oldPoint.X - oldPoint.X % oldPointerPos.X, oldPoint.Y - oldPoint.Y % oldPointerPos.Y); // Old position of each item inside the grid relative to the position of the item the pointer was on
-                        var oldItemPos = new Point(file.X, file.Y); // Old position of the item the pointer was on
+                        // Snap each item's target position to grid
+                        var snapped = FindSpotCoordinates(targetX, targetY);
 
-                        // Obtain the differences
-                        var cellWidthDifference = oldItemPos.X - oldItemRelativePos.X;
-                        var cellHeightDifference = oldItemPos.Y - oldItemRelativePos.Y;
-
-                        // Eliminate pointer position errors
-                        var newPointerPos = FindSpotCoordinates(point.X, point.Y);
-
-                        var newItemPos = FindSpotCoordinates(point.X - point.X % newPointerPos.X + cellWidthDifference, point.Y - point.Y % newPointerPos.Y + cellHeightDifference); // Theoretical new position it could occupy
-
-                        // If it can occupy it, proceed to occupy it
-                        if (CheckIfSpotIsFree(newItemPos.X, newItemPos.Y))
+                        // If spot is occupied, find next free spot
+                        if (!CheckIfSpotIsFree(snapped.X, snapped.Y))
                         {
-                            // Write new position to items
-                            file.X = newItemPos.X;
-                            file.Y = newItemPos.Y;
-                        }
-                        // If it can't, find the immediate next one
-                        else
-                        {
-                            // Get the definitive position
-                            var definitivePos = FindNextFreeSpot(point.X, point.Y);
-
-                            // Write new position to items
-                            file.X = definitivePos.X;
-                            file.Y = definitivePos.Y;
+                            snapped = FindNextFreeSpot(snapped.X, snapped.Y);
                         }
 
+                        item.X = snapped.X;
+                        item.Y = snapped.Y;
                     }
                 }
 
                 // Stack new files in next available spots
+                var freeSpot = FindFreeSpotCoordinates(dropPoint.X, dropPoint.Y) ?? FindFreeSpot();
                 foreach (var file in newFiles)
                 {
-                    freeSpot = FindNextFreeSpot(freeSpot.X, freeSpot.Y); // Find next available space
-
+                    freeSpot = FindNextFreeSpot(freeSpot.X, freeSpot.Y);
                     file.X = freeSpot.X;
                     file.Y = freeSpot.Y;
-
                     Items.Add(file);
                 }
             }
         }
+    }
+
+    private (DesktopItem, DateTime) lastClicked;
+
+    private async void RootGrid_PointerPressed(object sender, PointerRoutedEventArgs e)
+    {
+        var control = (FrameworkElement)sender;
+        var item2 = control.DataContext as DesktopItem;
+
+        // If Ctrl is not held and the pointer is not over an item, deselect all
+        if (!e.GetCurrentPoint(null).Properties.IsMiddleButtonPressed && !e.GetCurrentPoint(null).Properties.IsRightButtonPressed)
+        {
+            if (e.KeyModifiers != Windows.System.VirtualKeyModifiers.Control)
+            {
+                foreach (var item in Items)
+                {
+                    item.IsSelected = false;
+                }
+                item2.IsSelected = true;
+            }
+            else
+            {
+                item2.IsSelected = !item2.IsSelected;
+            }
+        }
+
+        if (lastClicked.Item1 == item2 && (DateTime.Now - lastClicked.Item2).TotalMilliseconds < 800)
+        {
+            try
+            {
+                Process.Start(new ProcessStartInfo()
+                {
+                    FileName = item2.FilePath,
+                    UseShellExecute = true
+                });
+            }
+            catch
+            {
+
+            }
+        }
+
+        lastClicked = new(item2, DateTime.Now);
+    }
+
+    // END
+
+    [RequiresUnreferencedCode("Requires unreferenced code to load thumbnails")]
+    public static async Task<List<DesktopItem>> GetDesktopFilesAsync()
+    {
+        var items = new List<DesktopItem>();
+        var desktopPath = Environment.GetFolderPath(Environment.SpecialFolder.Desktop);
+
+        if (!Directory.Exists(desktopPath))
+        {
+            return items;
+        }
+
+        // Combine files and folders into a single list
+        var entries = Directory.GetFiles(desktopPath).Concat(Directory.GetDirectories(desktopPath)).ToList();
+
+        // Load all entries in parallel
+        var loadTasks = entries.Select(static async path =>
+        {
+            var desktopFile = new DesktopItem(path);
+            await desktopFile.LoadThumbnailAsync().ConfigureAwait(false);
+            return desktopFile;
+        });
+
+        // Wait for all to complete
+        var loadedItems = await Task.WhenAll(loadTasks).ConfigureAwait(false);
+
+        items.AddRange(loadedItems);
+        return items;
+    }
+
+    private void Grid_DoubleTapped(object sender, DoubleTappedRoutedEventArgs e)
+    {
+        if (sender is not Grid grid || grid.DataContext is not DesktopItem desktopFile)
+        {
+            return;
+        }
+
+        try
+        {
+            Process.Start(new ProcessStartInfo
+            {
+                FileName = desktopFile.FilePath,
+                UseShellExecute = true
+            });
+        }
+        catch (Exception ex)
+        {
+            // Optional: log or show an error to the user
+            Debug.WriteLine($"Failed to open file: {ex.Message}");
+        }
+    }
+
+    private void CanvasControl_PointerReleased(object sender, PointerRoutedEventArgs e)
+    {
+        // Hide the placement preview border (used for item placement feedback)
+        //PlacementBorder.Visibility = Visibility.Collapsed;
+        //PlacementBorder.Opacity = 1;
+        toggledPaths.Clear();
+
+        // Get the pointer position relative to the canvas
+        var point = e.GetCurrentPoint(null);
+
+        // If the right mouse button was released, show the context menu at that position
+        if (point.Properties.PointerUpdateKind == PointerUpdateKind.RightButtonReleased)
+        {
+            Window?.CreateContextMenuAtPosition(point.Position);
+        }
+
+        // Reset selection state and visual selector box
+        _selectionOn = false;
+        SelectionBorder.Margin = new(0); // Reset margin to top-left
+        SelectionBorder.Width = SelectionBorder.Height = 0; // Clear selection box dimensions
+    }
+
+    private void CanvasControl_PointerPressed(object sender, PointerRoutedEventArgs e)
+    {
+        // Get pointer position relative to the canvas once to avoid repeated calls
+        var position = e.GetCurrentPoint(CanvasControl).Position;
+
+        // If Ctrl is not held and the pointer is not over an item, deselect all
+        if (!e.GetCurrentPoint(null).Properties.IsMiddleButtonPressed && !e.GetCurrentPoint(null).Properties.IsRightButtonPressed)
+        {
+            if (e.KeyModifiers != Windows.System.VirtualKeyModifiers.Control)
+            {
+                foreach (var item in Items)
+                {
+                    item.IsSelected = false;
+                }
+            }
+        }
+
+        // Begin selection drag mode
+        _selectionOn = true;
+
+        // Store initial position for later drag tracking
+        initialMarginX = position.X;
+        initialMarginY = position.Y;
+
+        // Set selection box's initial position and clear its size
+        SelectionBorder.Margin = new(position.X, position.Y, 0, 0);
+        SelectionBorder.Width = SelectionBorder.Height = 0;
+    }
+
+    List<string> toggledPaths = new();
+
+    private void CanvasControl_PointerMoved(object sender, PointerRoutedEventArgs e)
+    {
+        InvokeDragBorder(e);
     }
 
     private static (int col, int row, double snappedX, double snappedY) SnapToGrid(double x, double y)
@@ -506,7 +678,7 @@ public sealed partial class DesktopPage : Page
 
     private async void Grid_DragStarting(UIElement sender, DragStartingEventArgs args)
     {
-        PlacementBorder.Visibility = Visibility.Visible;
+        //PlacementBorder.Visibility = Visibility.Visible;
 
         var storageItems = new List<IStorageItem>();
 
@@ -621,7 +793,7 @@ public sealed partial class DesktopPage : Page
 
     private async void CanvasControl_PointerMoved_1(object sender, PointerRoutedEventArgs e)
     {
-        PlacementBorder.Visibility = Visibility.Visible;
+        //PlacementBorder.Visibility = Visibility.Visible;
 
         if (e.GetCurrentPoint(null).Properties.IsLeftButtonPressed && SelectionBorder.Width == 0 && SelectionBorder.Height == 0 && SelectionBorder.Margin == new Thickness(0))
         {
@@ -636,46 +808,53 @@ public sealed partial class DesktopPage : Page
 
     Point previousPoint;
 
+    bool _isSelecting;
+
     private void PlacementBorder_PointerMoved(object sender, PointerRoutedEventArgs e)
     {
-        statusBlock.Text = _isInItem.ToString();
-        if (!_isInItem)
+        if (_isSelecting)
         {
-            InvokeDragBorder(e);
-        }
-        else
-        {
-            var point = e.GetCurrentPoint(null);
-
-            if (point.Properties.IsLeftButtonPressed)
+            statusBlock.Text = _isInItem.ToString();
+            if (!_isInItem)
             {
-                // If the left button is pressed and the selection border is visible, set the drag state
-                _isDragging = true;
+                InvokeDragBorder(e);
+            }
+            else
+            {
+                var point = e.GetCurrentPoint(null);
 
-                foreach (var item in Items)
+                if (point.Properties.IsLeftButtonPressed)
                 {
-                    if (item.IsSelected == true)
+                    // If the left button is pressed and the selection border is visible, set the drag state
+                    _isDragging = true;
+
+                    foreach (var item in Items)
                     {
-                        item.IsDragging = true;
-                        item.Opacity = 0.25;
-                        item.X += e.GetCurrentPoint(null).Position.X - previousPoint.X;
-                        item.Y += e.GetCurrentPoint(null).Position.Y - previousPoint.Y;
+                        if (item.IsSelected == true)
+                        {
+                            item.IsDragging = true;
+                            item.Opacity = 0.25;
+                            item.X += e.GetCurrentPoint(null).Position.X - previousPoint.X;
+                            item.Y += e.GetCurrentPoint(null).Position.Y - previousPoint.Y;
+                        }
                     }
                 }
             }
+            previousPoint = e.GetCurrentPoint(null).Position;
         }
-        previousPoint = e.GetCurrentPoint(null).Position;
     }
 
     private void PlacementBorder_PointerPressed(object sender, PointerRoutedEventArgs e)
     {
-
+        _isSelecting = true;
     }
 
     bool rightClicked;
 
     private void PlacementBorder_PointerReleased(object sender, PointerRoutedEventArgs e)
     {
+        _isSelecting = false;
+
         if (!_isInItem && rightClicked)
         {
             Window?.CreateContextMenuAtPosition(e.GetCurrentPoint(null).Position);
@@ -695,7 +874,7 @@ public sealed partial class DesktopPage : Page
                 }
             }
         }
-        PlacementBorder.Visibility = Visibility.Collapsed;
+        //PlacementBorder.Visibility = Visibility.Collapsed;
         SelectionBorder.Margin = new(0);
         SelectionBorder.Width = 0;
         SelectionBorder.Height = 0;
@@ -706,22 +885,23 @@ public sealed partial class DesktopPage : Page
         }
     }
 
-    private void RootGrid_PointerPressed(object sender, PointerRoutedEventArgs e)
-    {
-        _isInItem = true;
-        _triggeredItem = (FrameworkElement)sender;
-        rightClicked = e.GetCurrentPoint(null).Properties.IsRightButtonPressed;
-    }
-
     private void CanvasControl_PointerPressed_1(object sender, PointerRoutedEventArgs e)
     {
-        _isInItem = false;
-        _triggeredItem = null;
-        var point = e.GetCurrentPoint(null);
-        initialMarginX = point.Position.X - 4;
-        initialMarginY = point.Position.Y - 4;
-        PlacementBorder.Visibility = Visibility.Visible;
-        rightClicked = e.GetCurrentPoint(null).Properties.IsRightButtonPressed;
+        _isSelecting = true;
+    }
+
+    private void PointerMoved1(object sender, PointerRoutedEventArgs e)
+    {
+        if (_isSelecting)
+        {
+            _isInItem = false;
+            _triggeredItem = null;
+            var point = e.GetCurrentPoint(null);
+            initialMarginX = point.Position.X - 4;
+            initialMarginY = point.Position.Y - 4;
+            //PlacementBorder.Visibility = Visibility.Visible;
+            rightClicked = e.GetCurrentPoint(null).Properties.IsRightButtonPressed;
+        }
     }
 
     bool _isInItem;
@@ -741,7 +921,7 @@ public sealed partial class DesktopPage : Page
         if (_isInItem && e.GetCurrentPoint(null).Properties.IsLeftButtonPressed)
         {
             previousPoint = e.GetCurrentPoint(null).Position;
-            PlacementBorder.Visibility = Visibility.Visible;
+            //PlacementBorder.Visibility = Visibility.Visible;
         }
     }
 }

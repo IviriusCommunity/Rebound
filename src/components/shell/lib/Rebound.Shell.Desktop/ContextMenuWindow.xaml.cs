@@ -18,7 +18,6 @@ public sealed partial class ContextMenuWindow : WindowEx
     {
         DesktopWindow = win;
         InitializeComponent();
-        SystemBackdrop = new TransparentTintBackdrop();
         ExtendsContentIntoTitleBar = true;
         IsShownInSwitchers = false;
         AppWindow.TitleBar.PreferredHeightOption = Microsoft.UI.Windowing.TitleBarHeightOption.Collapsed;
@@ -29,6 +28,7 @@ public sealed partial class ContextMenuWindow : WindowEx
             WindowStyle.Border | WindowStyle.Iconic |
             WindowStyle.SysMenu);
         this.ToggleExtendedWindowStyle(true, ExtendedWindowStyle.ToolWindow);
+        SystemBackdrop = new TransparentTintBackdrop();
     }
 
     public void ShowContextMenu(Point pos)

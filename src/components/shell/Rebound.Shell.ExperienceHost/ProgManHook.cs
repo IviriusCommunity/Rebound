@@ -4,10 +4,12 @@
 using System;
 using System.Threading.Tasks;
 using Microsoft.Win32;
+using Microsoft.WindowsAppSDK.Runtime;
 using Windows.Win32;
 using Windows.Win32.Foundation;
 using Windows.Win32.UI.WindowsAndMessaging;
 using WinUIEx;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace Rebound.Shell.ExperienceHost;
 
@@ -27,6 +29,10 @@ internal static class ProgManHook
 
     public const uint WINEVENT_OUTOFCONTEXT = 0x0000;  // Out of context event (no callback filtering based on the context)
 
+    static HWND hWndProgman;
+    static HWND hWorkerW;
+    static HWND hSHELLDLL_DefView;
+
     public static async void AttachToProgMan(this WindowEx window)
     {
         // Constants
@@ -36,9 +42,6 @@ internal static class ProgManHook
 
         // Variables
         var version = GetWindowsBuildNumberFromRegistry();
-        HWND hWndProgman;
-        HWND hWorkerW;
-        HWND hSHELLDLL_DefView;
 
         // Get progman handle
         hWndProgman = PInvoke.FindWindow("Progman", null);
@@ -123,36 +126,45 @@ internal static class ProgManHook
             await Task.Delay(5000).ConfigureAwait(true);
 
             // After the delay, subscribe to the window message handler
-            winManager.WindowMessageReceived += async (sender, e) =>
+            winManager.WindowMessageReceived += WinManager_WindowMessageReceived;
+            unsafe void WinManager_WindowMessageReceived(object? sender, WinUIEx.Messaging.WindowMessageEventArgs e)
             {
                 switch (e.Message.MessageId)
                 {
                     case WM_WTSSESSION_CHANGE:
                     case WM_SETTINGCHANGE:
                         {
-                            // Only run the logic if at least 2 seconds have passed
-                            if (DateTime.Now - lastSettingChangeTime >= TimeSpan.FromSeconds(2))
+                            unsafe
                             {
-                                lastSettingChangeTime = DateTime.Now; // Update the timestamp
-
-                                unsafe
-                                {
-                                    // Obtain the new visible WorkerW handle
-                                    hWorkerW = PInvoke.FindWindowEx(hWndProgman, new(null), "WorkerW", null);
-                                }
-
-                                _ = PInvoke.SetWindowLongPtr(hWorkerW, WINDOW_LONG_PTR_INDEX.GWL_STYLE, unchecked((nint)0x96000000));
-                                _ = PInvoke.SetWindowLongPtr(hWorkerW, WINDOW_LONG_PTR_INDEX.GWL_EXSTYLE, 0x20000880);
-
-                                await Task.Delay(500).ConfigureAwait(true);
-
-                                // Set the parent of SHELLDLL_DefView to WorkerW
-                                _ = PInvoke.SetParent(hSHELLDLL_DefView, hWorkerW);
+                                if (e.Message.WParam == 0x7) Perform24H2Fixes(false, version, hWorkerW);
+                                if (e.Message.WParam == 0x8 && version >= 26002) WallpaperHelper24H2(hWorkerW);
                             }
                             break;
                         }
                 }
-            };
+            }
+        }
+    }
+
+    public static unsafe ulong WallpaperHelper24H2(HWND hWorkerW)
+    {
+        var hWndProgman = PInvoke.FindWindow("Progman", "Program Manager");
+        hSHELLDLL_DefView = PInvoke.FindWindowEx(hWndProgman, (HWND)null, "SHELLDLL_DefView", null);
+        PInvoke.SetWindowLongPtr(hWorkerW, WINDOW_LONG_PTR_INDEX.GWL_STYLE, unchecked((nint)0x96000000L));
+        PInvoke.SetWindowLongPtr(hWorkerW, WINDOW_LONG_PTR_INDEX.GWL_EXSTYLE, (nint)0x20000880L);
+        return 0;
+    }
+
+    static unsafe void Perform24H2Fixes(bool full, int buildNumber, HWND hWorkerW)
+    {
+        if (buildNumber >= 26002)
+        {
+            var hWndProgman = PInvoke.FindWindow("Progman", "Program Manager");
+            PInvoke.SetParent(hSHELLDLL_DefView, hWndProgman);
+            if (full)
+            {
+                WallpaperHelper24H2(hWorkerW);
+            }
         }
     }
 
