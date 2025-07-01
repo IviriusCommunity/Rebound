@@ -29,14 +29,10 @@ public sealed partial class MainPage : Page
         Load();
     }
 
-    public async void Load()
+    public void Load()
     {
-        await Task.Delay(100);
-        App.MainAppWindow.Width = ViewModel.IsSidebarOn ? 720 : 520;
-        App.MainAppWindow.Height = ViewModel.IsReboundOn ? 640 : 500;
         if (SettingsHelper.GetValue("FetchMode", "rebound", false))
         {
-            App.MainAppWindow.SetWindowSize(850, 480);
             FetchArea.Visibility = Microsoft.UI.Xaml.Visibility.Visible;
             var accentBrush = (SolidColorBrush)App.Current.Resources["AccentFillColorDefaultBrush"];
             FetchTextBlock.Inlines.Add(new Run()

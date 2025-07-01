@@ -18,6 +18,6 @@
     </winuiex:WindowEx.SystemBackdrop>
 
     <Grid>
-        <Frame x:Name="RootFrame" />
+        <Frame x:FieldModifier="public" x:Name="RootFrame" />
     </Grid>
 </winuiex:WindowEx>

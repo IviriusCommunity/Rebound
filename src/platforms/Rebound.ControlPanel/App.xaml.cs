@@ -1,7 +1,9 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics;
+using System.IO;
+using System.Linq;
 using Microsoft.UI.Xaml;
-using Microsoft.UI.Xaml.Controls;
 using Rebound.ControlPanel.Views;
 using Rebound.Forge;
 using Rebound.Generators;
@@ -12,15 +14,30 @@ namespace Rebound.ControlPanel;
 [ReboundApp("Rebound.Control", "Legacy Control Panel*legacy*ms-appx:///Assets/ControlPanelLegacy.ico")]
 public partial class App : Application
 {
+    public bool ArgsMatchKnownEntries(List<string> matches, string args)
+    {
+        return matches.Contains(args, StringComparer.InvariantCultureIgnoreCase);
+    }
+
     private async void OnSingleInstanceLaunched(object? sender, Rebound.Helpers.Services.SingleInstanceLaunchEventArgs e)
     {
         Type? pageToLaunch = null;
 
-        if (e.Arguments is "reboundsettings" or "/name Rebound.Settings")
+        var controlPanelPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.System), "control.exe");
+
+        if (ArgsMatchKnownEntries(["reboundsettings", "/name Rebound.Settings"], e.Arguments))
         {
             pageToLaunch = typeof(ReboundSettingsPage);
         }
-        if (e.Arguments is "admintools" or "/name Microsoft.AdministrativeTools")
+        else if (ArgsMatchKnownEntries([controlPanelPath, "control"], e.Arguments))
+        {
+            pageToLaunch = typeof(HomePage);
+        }
+        else if (ArgsMatchKnownEntries([
+            "admintools", 
+            "/name Microsoft.AdministrativeTools", 
+            $"{controlPanelPath} admintools", 
+            $"{controlPanelPath} /name Microsoft.AdministrativeTools"], e.Arguments))
         {
             pageToLaunch = typeof(WindowsToolsPage);
         }
@@ -53,14 +70,18 @@ public partial class App : Application
         {
             MainAppWindow = new MainWindow();
             MainAppWindow.Activate();
-            if (pageToLaunch != null)
-            {
-                _ = ((((MainAppWindow as MainWindow).Content as Frame)?.Content as RootPage)?.RootFrame.Navigate(pageToLaunch));
-            }
         }
         else
         {
             MainAppWindow.BringToFront();
+        }
+        if (pageToLaunch != null)
+        {
+            MainAppWindow.DispatcherQueue.TryEnqueue(() =>
+            {
+                var frame = ((MainAppWindow as MainWindow).RootFrame.Content as RootPage)?.RootFrame;
+                if (frame?.Content != pageToLaunch) _ = frame.Navigate(pageToLaunch);
+            });
         }
     }
 }

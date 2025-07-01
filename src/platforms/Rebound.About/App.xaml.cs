@@ -9,10 +9,12 @@ using System.Threading.Tasks;
 using Microsoft.UI.Xaml;
 using Rebound.Forge;
 using Rebound.Generators;
+using Rebound.Helpers;
 using Rebound.Helpers.AppEnvironment;
 using Windows.Storage;
 using Windows.System.UserProfile;
 using WinUI3Localizer;
+using WinUIEx;
 
 #pragma warning disable IDE0079 // Remove unnecessary suppression
 #pragma warning disable CA1515 // Consider making public types internal
@@ -78,6 +80,16 @@ public partial class App : Application
             }
 
             MainAppWindow = new MainWindow();
+
+            if (SettingsHelper.GetValue("FetchMode", "rebound", false))
+            {
+                MainAppWindow.SetWindowSize(850, 480);
+            }
+            else
+            {
+                MainAppWindow.Width = SettingsHelper.GetValue("IsSidebarOn", "winver", false) ? 720 : 520;
+                MainAppWindow.Height = SettingsHelper.GetValue("IsReboundOn", "winver", true) ? 640 : 500;
+            }
             MainAppWindow.Activate();
         }
         else

@@ -10,52 +10,576 @@
     mc:Ignorable="d">
 
     <Grid>
-        <ScrollViewer>
-            <toolkit:StaggeredPanel
+        <Grid
+            Height="72"
+            VerticalAlignment="Top"
+            Background="{ThemeResource CardBackgroundFillColorDefaultBrush}">
+            <Image
+                Width="20"
                 Margin="16"
-                ColumnSpacing="8"
-                DesiredColumnWidth="400"
-                RowSpacing="8">
-                <toolkit:SettingsCard
-                    Command="{x:Bind LaunchAppCommand}"
-                    CommandParameter="winver"
-                    Description="View information about the current Windows version."
-                    Header="About Windows"
-                    IsClickEnabled="True">
-                    <toolkit:SettingsCard.HeaderIcon>
-                        <ImageIcon Source="/Assets/winver.ico" />
-                    </toolkit:SettingsCard.HeaderIcon>
-                    <toolkit:SettingsCard.ActionIcon>
-                        <FontIcon Glyph="&#xE8AD;" />
-                    </toolkit:SettingsCard.ActionIcon>
-                </toolkit:SettingsCard>
-                <toolkit:SettingsCard
-                    Command="{x:Bind LaunchAppCommand}"
-                    CommandParameter="cleanmgr"
-                    Description="Clean up cache and junk files."
-                    Header="Disk Cleanup"
-                    IsClickEnabled="True">
-                    <toolkit:SettingsCard.HeaderIcon>
-                        <ImageIcon Source="/Assets/cleanmgr.ico" />
-                    </toolkit:SettingsCard.HeaderIcon>
-                    <toolkit:SettingsCard.ActionIcon>
-                        <FontIcon Glyph="&#xE8AD;" />
-                    </toolkit:SettingsCard.ActionIcon>
-                </toolkit:SettingsCard>
-                <toolkit:SettingsCard
-                    Command="{x:Bind LaunchAppCommand}"
-                    CommandParameter="taskmgr"
-                    Description="Manage processes and view resource usage."
-                    Header="Task Manager"
-                    IsClickEnabled="True">
-                    <toolkit:SettingsCard.HeaderIcon>
-                        <ImageIcon Source="/Assets/taskmgr.ico" />
-                    </toolkit:SettingsCard.HeaderIcon>
-                    <toolkit:SettingsCard.ActionIcon>
-                        <FontIcon Glyph="&#xE8AD;" />
-                    </toolkit:SettingsCard.ActionIcon>
-                </toolkit:SettingsCard>
-            </toolkit:StaggeredPanel>
+                HorizontalAlignment="Left"
+                VerticalAlignment="Top"
+                Source="/Assets/WindowsTools.ico" />
+            <TextBlock
+                Margin="48,10"
+                FontSize="20"
+                FontWeight="SemiBold"
+                Foreground="{ThemeResource AccentTextFillColorPrimaryBrush}"
+                Text="Windows Tools" />
+            <TextBlock Margin="48,40,0,0" Text="Built-in apps and programs made for various tasks." />
+            <DropDownButton
+                Margin="16"
+                Padding="8"
+                HorizontalAlignment="Right"
+                VerticalAlignment="Center"
+                Background="Transparent"
+                BorderBrush="Transparent">
+                <FontIcon FontSize="16" Glyph="&#xF0E2;" />
+            </DropDownButton>
+        </Grid>
+        <ScrollViewer Margin="0,72,0,0">
+            <Grid>
+                <ItemsRepeater
+                    Margin="12"
+                    HorizontalAlignment="Stretch"
+                    ItemsSource="{x:Bind Tools}">
+                    <ItemsRepeater.Layout>
+                        <toolkit:StaggeredLayout
+                            ColumnSpacing="8"
+                            DesiredColumnWidth="280"
+                            RowSpacing="8" />
+                    </ItemsRepeater.Layout>
+                    <ItemsRepeater.ItemTemplate>
+                        <DataTemplate x:DataType="local:Tool">
+                            <Button
+                                Padding="8"
+                                HorizontalAlignment="Stretch"
+                                HorizontalContentAlignment="Stretch"
+                                Background="Transparent"
+                                BorderBrush="Transparent"
+                                Command="{x:Bind LaunchAppCommand}"
+                                CommandParameter="{x:Bind Name}">
+                                <Grid>
+                                    <Image
+                                        Width="48"
+                                        HorizontalAlignment="Left"
+                                        Source="{x:Bind Icon}" />
+                                    <Grid Margin="64,0,0,0" RowSpacing="4">
+                                        <Grid.RowDefinitions>
+                                            <RowDefinition Height="Auto" />
+                                            <RowDefinition Height="Auto" />
+                                        </Grid.RowDefinitions>
+                                        <TextBlock
+                                            Height="20"
+                                            FontWeight="SemiBold"
+                                            Text="{x:Bind DisplayName}"
+                                            TextTrimming="CharacterEllipsis"
+                                            TextWrapping="WrapWholeWords" />
+                                        <TextBlock
+                                            Grid.Row="1"
+                                            Height="32"
+                                            FontSize="12"
+                                            Opacity="0.75"
+                                            Text="{x:Bind Description}"
+                                            TextAlignment="Left"
+                                            TextTrimming="CharacterEllipsis"
+                                            TextWrapping="WrapWholeWords" />
+                                    </Grid>
+                                </Grid>
+                            </Button>
+                        </DataTemplate>
+                    </ItemsRepeater.ItemTemplate>
+                </ItemsRepeater>
+                <toolkit:StaggeredPanel
+                    Margin="16"
+                    ColumnSpacing="8"
+                    DesiredColumnWidth="400"
+                    RowSpacing="8"
+                    Visibility="Collapsed">
+                    <!--  About Windows  -->
+                    <toolkit:SettingsCard
+                        Command="{x:Bind LaunchAppCommand}"
+                        CommandParameter="winver"
+                        Description="View details about your Windows version."
+                        Header="About Windows"
+                        IsClickEnabled="True">
+                        <toolkit:SettingsCard.HeaderIcon>
+                            <ImageIcon Source="/Assets/winver.ico" />
+                        </toolkit:SettingsCard.HeaderIcon>
+                        <toolkit:SettingsCard.ActionIcon>
+                            <FontIcon Glyph="&#xE8AD;" />
+                        </toolkit:SettingsCard.ActionIcon>
+                    </toolkit:SettingsCard>
+
+                    <!--  Character Map  -->
+                    <toolkit:SettingsCard
+                        Command="{x:Bind LaunchAppCommand}"
+                        CommandParameter="charmap"
+                        Description="Browse and copy special characters from installed fonts."
+                        Header="Character Map"
+                        IsClickEnabled="True">
+                        <toolkit:SettingsCard.HeaderIcon>
+                            <ImageIcon Source="/Assets/CharacterMap.png" />
+                        </toolkit:SettingsCard.HeaderIcon>
+                        <toolkit:SettingsCard.ActionIcon>
+                            <FontIcon Glyph="&#xE8AD;" />
+                        </toolkit:SettingsCard.ActionIcon>
+                    </toolkit:SettingsCard>
+
+                    <!--  Command Prompt  -->
+                    <toolkit:SettingsCard
+                        Command="{x:Bind LaunchAppCommand}"
+                        CommandParameter="cmd"
+                        Description="Open the legacy Windows Command Prompt."
+                        Header="Command Prompt"
+                        IsClickEnabled="True">
+                        <toolkit:SettingsCard.HeaderIcon>
+                            <ImageIcon Source="/Assets/cmd.ico" />
+                        </toolkit:SettingsCard.HeaderIcon>
+                        <toolkit:SettingsCard.ActionIcon>
+                            <FontIcon Glyph="&#xE8AD;" />
+                        </toolkit:SettingsCard.ActionIcon>
+                    </toolkit:SettingsCard>
+
+                    <!--  Component Services  -->
+                    <toolkit:SettingsCard
+                        Command="{x:Bind LaunchAppCommand}"
+                        CommandParameter="dcomcnfg"
+                        Description="Manage COM+ and DCOM application settings."
+                        Header="Component Services"
+                        IsClickEnabled="True">
+                        <toolkit:SettingsCard.HeaderIcon>
+                            <ImageIcon Source="/Assets/componentservices.ico" />
+                        </toolkit:SettingsCard.HeaderIcon>
+                        <toolkit:SettingsCard.ActionIcon>
+                            <FontIcon Glyph="&#xE8AD;" />
+                        </toolkit:SettingsCard.ActionIcon>
+                    </toolkit:SettingsCard>
+
+                    <!--  Computer Management  -->
+                    <toolkit:SettingsCard
+                        Command="{x:Bind LaunchAppCommand}"
+                        CommandParameter="compmgmt.msc"
+                        Description="Access system tools like disk management and services."
+                        Header="Computer Management"
+                        IsClickEnabled="True">
+                        <toolkit:SettingsCard.HeaderIcon>
+                            <ImageIcon Source="/Assets/compmgmt.ico" />
+                        </toolkit:SettingsCard.HeaderIcon>
+                        <toolkit:SettingsCard.ActionIcon>
+                            <FontIcon Glyph="&#xE8AD;" />
+                        </toolkit:SettingsCard.ActionIcon>
+                    </toolkit:SettingsCard>
+
+                    <!--  Control Panel  -->
+                    <toolkit:SettingsCard
+                        Command="{x:Bind LaunchAppCommand}"
+                        CommandParameter="control"
+                        Description="Open the classic Control Panel."
+                        Header="Control Panel"
+                        IsClickEnabled="True">
+                        <toolkit:SettingsCard.HeaderIcon>
+                            <ImageIcon Source="/Assets/controlpanel.ico" />
+                        </toolkit:SettingsCard.HeaderIcon>
+                        <toolkit:SettingsCard.ActionIcon>
+                            <FontIcon Glyph="&#xE8AD;" />
+                        </toolkit:SettingsCard.ActionIcon>
+                    </toolkit:SettingsCard>
+
+                    <!--  Defragment and Optimize Drives  -->
+                    <toolkit:SettingsCard
+                        Command="{x:Bind LaunchAppCommand}"
+                        CommandParameter="dfrgui"
+                        Description="Defragment and optimize system drives."
+                        Header="Defragment and Optimize Drives"
+                        IsClickEnabled="True">
+                        <toolkit:SettingsCard.HeaderIcon>
+                            <ImageIcon Source="/Assets/dfrgui.ico" />
+                        </toolkit:SettingsCard.HeaderIcon>
+                        <toolkit:SettingsCard.ActionIcon>
+                            <FontIcon Glyph="&#xE8AD;" />
+                        </toolkit:SettingsCard.ActionIcon>
+                    </toolkit:SettingsCard>
+
+                    <!--  Disk Cleanup  -->
+                    <toolkit:SettingsCard
+                        Command="{x:Bind LaunchAppCommand}"
+                        CommandParameter="cleanmgr"
+                        Description="Free up space by removing temporary files."
+                        Header="Disk Cleanup"
+                        IsClickEnabled="True">
+                        <toolkit:SettingsCard.HeaderIcon>
+                            <ImageIcon Source="/Assets/cleanmgr.ico" />
+                        </toolkit:SettingsCard.HeaderIcon>
+                        <toolkit:SettingsCard.ActionIcon>
+                            <FontIcon Glyph="&#xE8AD;" />
+                        </toolkit:SettingsCard.ActionIcon>
+                    </toolkit:SettingsCard>
+
+                    <!--  Event Viewer  -->
+                    <toolkit:SettingsCard
+                        Command="{x:Bind LaunchAppCommand}"
+                        CommandParameter="eventvwr"
+                        Description="View system and application event logs."
+                        Header="Event Viewer"
+                        IsClickEnabled="True">
+                        <toolkit:SettingsCard.HeaderIcon>
+                            <ImageIcon Source="/Assets/eventvwr.ico" />
+                        </toolkit:SettingsCard.HeaderIcon>
+                        <toolkit:SettingsCard.ActionIcon>
+                            <FontIcon Glyph="&#xE8AD;" />
+                        </toolkit:SettingsCard.ActionIcon>
+                    </toolkit:SettingsCard>
+
+                    <!--  Hyper-V Manager  -->
+                    <toolkit:SettingsCard
+                        Command="{x:Bind LaunchAppCommand}"
+                        CommandParameter="virtmgmt.msc"
+                        Description="Manage Hyper-V virtual machines and settings."
+                        Header="Hyper‑V Manager"
+                        IsClickEnabled="True">
+                        <toolkit:SettingsCard.ActionIcon>
+                            <FontIcon Glyph="&#xE8AD;" />
+                        </toolkit:SettingsCard.ActionIcon>
+                    </toolkit:SettingsCard>
+
+                    <!--  Hyper-V Quick Create  -->
+                    <toolkit:SettingsCard
+                        Command="{x:Bind LaunchAppCommand}"
+                        CommandParameter="hypervquickcreate"
+                        Description="Quickly create a Hyper‑V virtual machine."
+                        Header="Hyper‑V Quick Create"
+                        IsClickEnabled="True">
+                        <toolkit:SettingsCard.ActionIcon>
+                            <FontIcon Glyph="&#xE8AD;" />
+                        </toolkit:SettingsCard.ActionIcon>
+                    </toolkit:SettingsCard>
+
+                    <!--  iSCSI Initiator  -->
+                    <toolkit:SettingsCard
+                        Command="{x:Bind LaunchAppCommand}"
+                        CommandParameter="iscsicpl"
+                        Description="Configure iSCSI storage connections."
+                        Header="iSCSI Initiator"
+                        IsClickEnabled="True">
+                        <toolkit:SettingsCard.HeaderIcon>
+                            <ImageIcon Source="/Assets/iscsicpl.ico" />
+                        </toolkit:SettingsCard.HeaderIcon>
+                        <toolkit:SettingsCard.ActionIcon>
+                            <FontIcon Glyph="&#xE8AD;" />
+                        </toolkit:SettingsCard.ActionIcon>
+                    </toolkit:SettingsCard>
+
+                    <!--  Local Security Policy  -->
+                    <toolkit:SettingsCard
+                        Command="{x:Bind LaunchAppCommand}"
+                        CommandParameter="secpol.msc"
+                        Description="Define local security policies and permissions."
+                        Header="Local Security Policy"
+                        IsClickEnabled="True">
+                        <toolkit:SettingsCard.HeaderIcon>
+                            <ImageIcon Source="/Assets/secpol.ico" />
+                        </toolkit:SettingsCard.HeaderIcon>
+                        <toolkit:SettingsCard.ActionIcon>
+                            <FontIcon Glyph="&#xE8AD;" />
+                        </toolkit:SettingsCard.ActionIcon>
+                    </toolkit:SettingsCard>
+
+                    <!--  ODBC Data Sources  -->
+                    <toolkit:SettingsCard
+                        Command="{x:Bind LaunchAppCommand}"
+                        CommandParameter="odbcad32"
+                        Description="Manage ODBC drivers and data source names."
+                        Header="ODBC Data Sources"
+                        IsClickEnabled="True">
+                        <toolkit:SettingsCard.HeaderIcon>
+                            <ImageIcon Source="/Assets/odbc.ico" />
+                        </toolkit:SettingsCard.HeaderIcon>
+                        <toolkit:SettingsCard.ActionIcon>
+                            <FontIcon Glyph="&#xE8AD;" />
+                        </toolkit:SettingsCard.ActionIcon>
+                    </toolkit:SettingsCard>
+
+                    <!--  Performance Monitor  -->
+                    <toolkit:SettingsCard
+                        Command="{x:Bind LaunchAppCommand}"
+                        CommandParameter="perfmon"
+                        Description="Monitor system performance in real time."
+                        Header="Performance Monitor"
+                        IsClickEnabled="True">
+                        <toolkit:SettingsCard.HeaderIcon>
+                            <ImageIcon Source="/Assets/perfmon.ico" />
+                        </toolkit:SettingsCard.HeaderIcon>
+                        <toolkit:SettingsCard.ActionIcon>
+                            <FontIcon Glyph="&#xE8AD;" />
+                        </toolkit:SettingsCard.ActionIcon>
+                    </toolkit:SettingsCard>
+
+                    <!--  Print Management  -->
+                    <toolkit:SettingsCard
+                        Command="{x:Bind LaunchAppCommand}"
+                        CommandParameter="printmanagement.msc"
+                        Description="View and manage printers and print servers."
+                        Header="Print Management"
+                        IsClickEnabled="True">
+                        <toolkit:SettingsCard.HeaderIcon>
+                            <ImageIcon Source="/Assets/printmanagement.ico" />
+                        </toolkit:SettingsCard.HeaderIcon>
+                        <toolkit:SettingsCard.ActionIcon>
+                            <FontIcon Glyph="&#xE8AD;" />
+                        </toolkit:SettingsCard.ActionIcon>
+                    </toolkit:SettingsCard>
+
+                    <!--  Recovery Drive  -->
+                    <toolkit:SettingsCard
+                        Command="{x:Bind LaunchAppCommand}"
+                        CommandParameter="recoverydrive.exe"
+                        Description="Create or back up a USB recovery drive."
+                        Header="Recovery Drive"
+                        IsClickEnabled="True">
+                        <toolkit:SettingsCard.HeaderIcon>
+                            <ImageIcon Source="/Assets/recoverydrive.ico" />
+                        </toolkit:SettingsCard.HeaderIcon>
+                        <toolkit:SettingsCard.ActionIcon>
+                            <FontIcon Glyph="&#xE8AD;" />
+                        </toolkit:SettingsCard.ActionIcon>
+                    </toolkit:SettingsCard>
+
+                    <!--  Registry Editor  -->
+                    <toolkit:SettingsCard
+                        Command="{x:Bind LaunchAppCommand}"
+                        CommandParameter="regedit"
+                        Description="Edit the Windows system registry."
+                        Header="Registry Editor"
+                        IsClickEnabled="True">
+                        <toolkit:SettingsCard.HeaderIcon>
+                            <ImageIcon Source="/Assets/regedit.ico" />
+                        </toolkit:SettingsCard.HeaderIcon>
+                        <toolkit:SettingsCard.ActionIcon>
+                            <FontIcon Glyph="&#xE8AD;" />
+                        </toolkit:SettingsCard.ActionIcon>
+                    </toolkit:SettingsCard>
+
+                    <!--  Remote Desktop  -->
+                    <toolkit:SettingsCard
+                        Command="{x:Bind LaunchAppCommand}"
+                        CommandParameter="mstsc"
+                        Description="Connect to another computer using Remote Desktop."
+                        Header="Remote Desktop"
+                        IsClickEnabled="True">
+                        <toolkit:SettingsCard.HeaderIcon>
+                            <ImageIcon Source="/Assets/remote_desktop.ico" />
+                        </toolkit:SettingsCard.HeaderIcon>
+                        <toolkit:SettingsCard.ActionIcon>
+                            <FontIcon Glyph="&#xE8AD;" />
+                        </toolkit:SettingsCard.ActionIcon>
+                    </toolkit:SettingsCard>
+
+                    <!--  Resource Monitor  -->
+                    <toolkit:SettingsCard
+                        Command="{x:Bind LaunchAppCommand}"
+                        CommandParameter="resmon"
+                        Description="Track CPU, memory, disk, and network usage."
+                        Header="Resource Monitor"
+                        IsClickEnabled="True">
+                        <toolkit:SettingsCard.HeaderIcon>
+                            <ImageIcon Source="/Assets/perfmon.ico" />
+                        </toolkit:SettingsCard.HeaderIcon>
+                        <toolkit:SettingsCard.ActionIcon>
+                            <FontIcon Glyph="&#xE8AD;" />
+                        </toolkit:SettingsCard.ActionIcon>
+                    </toolkit:SettingsCard>
+
+                    <!--  Services  -->
+                    <toolkit:SettingsCard
+                        Command="{x:Bind LaunchAppCommand}"
+                        CommandParameter="services.msc"
+                        Description="Manage Windows services."
+                        Header="Services"
+                        IsClickEnabled="True">
+                        <toolkit:SettingsCard.HeaderIcon>
+                            <ImageIcon Source="/Assets/services.ico" />
+                        </toolkit:SettingsCard.HeaderIcon>
+                        <toolkit:SettingsCard.ActionIcon>
+                            <FontIcon Glyph="&#xE8AD;" />
+                        </toolkit:SettingsCard.ActionIcon>
+                    </toolkit:SettingsCard>
+
+                    <!--  Snipping Tool  -->
+                    <toolkit:SettingsCard
+                        Command="{x:Bind LaunchAppCommand}"
+                        CommandParameter="snippingtool"
+                        Description="Capture screenshots and annotate."
+                        Header="Snipping Tool"
+                        IsClickEnabled="True">
+                        <toolkit:SettingsCard.HeaderIcon>
+                            <ImageIcon Source="/Assets/snippingtool.ico" />
+                        </toolkit:SettingsCard.HeaderIcon>
+                        <toolkit:SettingsCard.ActionIcon>
+                            <FontIcon Glyph="&#xE8AD;" />
+                        </toolkit:SettingsCard.ActionIcon>
+                    </toolkit:SettingsCard>
+
+                    <!--  System Configuration  -->
+                    <toolkit:SettingsCard
+                        Command="{x:Bind LaunchAppCommand}"
+                        CommandParameter="msconfig"
+                        Description="Configure startup applications and boot options."
+                        Header="System Configuration"
+                        IsClickEnabled="True">
+                        <toolkit:SettingsCard.HeaderIcon>
+                            <ImageIcon Source="/Assets/msconfig.ico" />
+                        </toolkit:SettingsCard.HeaderIcon>
+                        <toolkit:SettingsCard.ActionIcon>
+                            <FontIcon Glyph="&#xE8AD;" />
+                        </toolkit:SettingsCard.ActionIcon>
+                    </toolkit:SettingsCard>
+
+                    <!--  System Information  -->
+                    <toolkit:SettingsCard
+                        Command="{x:Bind LaunchAppCommand}"
+                        CommandParameter="msinfo32"
+                        Description="View detailed system hardware and software info."
+                        Header="System Information"
+                        IsClickEnabled="True">
+                        <toolkit:SettingsCard.HeaderIcon>
+                            <ImageIcon Source="/Assets/msinfo32.ico" />
+                        </toolkit:SettingsCard.HeaderIcon>
+                        <toolkit:SettingsCard.ActionIcon>
+                            <FontIcon Glyph="&#xE8AD;" />
+                        </toolkit:SettingsCard.ActionIcon>
+                    </toolkit:SettingsCard>
+
+                    <!--  Task Manager  -->
+                    <toolkit:SettingsCard
+                        Command="{x:Bind LaunchAppCommand}"
+                        CommandParameter="taskmgr"
+                        Description="Manage running processes and performance."
+                        Header="Task Manager"
+                        IsClickEnabled="True">
+                        <toolkit:SettingsCard.HeaderIcon>
+                            <ImageIcon Source="/Assets/taskmgr.ico" />
+                        </toolkit:SettingsCard.HeaderIcon>
+                        <toolkit:SettingsCard.ActionIcon>
+                            <FontIcon Glyph="&#xE8AD;" />
+                        </toolkit:SettingsCard.ActionIcon>
+                    </toolkit:SettingsCard>
+
+                    <!--  Task Scheduler  -->
+                    <toolkit:SettingsCard
+                        Command="{x:Bind LaunchAppCommand}"
+                        CommandParameter="taskschd.msc"
+                        Description="Schedule automated tasks and scripts."
+                        Header="Task Scheduler"
+                        IsClickEnabled="True">
+                        <toolkit:SettingsCard.HeaderIcon>
+                            <ImageIcon Source="/Assets/taskschd.ico" />
+                        </toolkit:SettingsCard.HeaderIcon>
+                        <toolkit:SettingsCard.ActionIcon>
+                            <FontIcon Glyph="&#xE8AD;" />
+                        </toolkit:SettingsCard.ActionIcon>
+                    </toolkit:SettingsCard>
+
+                    <!--  Firewall with Advanced Security  -->
+                    <toolkit:SettingsCard
+                        Command="{x:Bind LaunchAppCommand}"
+                        CommandParameter="wf.msc"
+                        Description="Configure advanced firewall rules and settings."
+                        Header="Windows Defender Firewall with Advanced Security"
+                        IsClickEnabled="True">
+                        <toolkit:SettingsCard.HeaderIcon>
+                            <ImageIcon Source="/Assets/wf.ico" />
+                        </toolkit:SettingsCard.HeaderIcon>
+                        <toolkit:SettingsCard.ActionIcon>
+                            <FontIcon Glyph="&#xE8AD;" />
+                        </toolkit:SettingsCard.ActionIcon>
+                    </toolkit:SettingsCard>
+
+                    <!--  Windows Fax and Scan  -->
+                    <toolkit:SettingsCard
+                        Command="{x:Bind LaunchAppCommand}"
+                        CommandParameter="wfs"
+                        Description="Send and receive faxes and scans."
+                        Header="Windows Fax and Scan"
+                        IsClickEnabled="True">
+                        <toolkit:SettingsCard.HeaderIcon>
+                            <ImageIcon Source="/Assets/wfs.ico" />
+                        </toolkit:SettingsCard.HeaderIcon>
+                        <toolkit:SettingsCard.ActionIcon>
+                            <FontIcon Glyph="&#xE8AD;" />
+                        </toolkit:SettingsCard.ActionIcon>
+                    </toolkit:SettingsCard>
+
+                    <!--  Windows Media Player  -->
+                    <toolkit:SettingsCard
+                        Command="{x:Bind LaunchAppCommand}"
+                        CommandParameter="wmplayer"
+                        Description="Play audio and video files."
+                        Header="Windows Media Player"
+                        IsClickEnabled="True">
+                        <toolkit:SettingsCard.HeaderIcon>
+                            <ImageIcon Source="/Assets/wmplayer.ico" />
+                        </toolkit:SettingsCard.HeaderIcon>
+                        <toolkit:SettingsCard.ActionIcon>
+                            <FontIcon Glyph="&#xE8AD;" />
+                        </toolkit:SettingsCard.ActionIcon>
+                    </toolkit:SettingsCard>
+
+                    <!--  Windows Memory Diagnostic  -->
+                    <toolkit:SettingsCard
+                        Command="{x:Bind LaunchAppCommand}"
+                        CommandParameter="mdsched"
+                        Description="Test your computer’s memory for errors."
+                        Header="Windows Memory Diagnostic"
+                        IsClickEnabled="True">
+                        <toolkit:SettingsCard.HeaderIcon>
+                            <ImageIcon Source="/Assets/mdsched.ico" />
+                        </toolkit:SettingsCard.HeaderIcon>
+                        <toolkit:SettingsCard.ActionIcon>
+                            <FontIcon Glyph="&#xE8AD;" />
+                        </toolkit:SettingsCard.ActionIcon>
+                    </toolkit:SettingsCard>
+
+                    <!--  Windows PowerShell  -->
+                    <toolkit:SettingsCard
+                        Command="{x:Bind LaunchAppCommand}"
+                        CommandParameter="powershell"
+                        Description="Run command‑line tasks and scripts in PowerShell."
+                        Header="Windows PowerShell"
+                        IsClickEnabled="True">
+                        <toolkit:SettingsCard.ActionIcon>
+                            <FontIcon Glyph="&#xE8AD;" />
+                        </toolkit:SettingsCard.ActionIcon>
+                    </toolkit:SettingsCard>
+
+                    <!--  Windows PowerShell ISE  -->
+                    <toolkit:SettingsCard
+                        Command="{x:Bind LaunchAppCommand}"
+                        CommandParameter="powershell_ise"
+                        Description="Integrated Scripting Environment for PowerShell."
+                        Header="Windows PowerShell ISE"
+                        IsClickEnabled="True">
+                        <toolkit:SettingsCard.ActionIcon>
+                            <FontIcon Glyph="&#xE8AD;" />
+                        </toolkit:SettingsCard.ActionIcon>
+                    </toolkit:SettingsCard>
+
+                    <!--  WordPad  -->
+                    <toolkit:SettingsCard
+                        Command="{x:Bind LaunchAppCommand}"
+                        CommandParameter="wordpad"
+                        Description="RTF document editor."
+                        Header="WordPad"
+                        IsClickEnabled="True">
+                        <toolkit:SettingsCard.HeaderIcon>
+                            <ImageIcon Source="/Assets/wordpad.png" />
+                        </toolkit:SettingsCard.HeaderIcon>
+                        <toolkit:SettingsCard.ActionIcon>
+                            <FontIcon Glyph="&#xE8AD;" />
+                        </toolkit:SettingsCard.ActionIcon>
+                    </toolkit:SettingsCard>
+                </toolkit:StaggeredPanel>
+            </Grid>
         </ScrollViewer>
     </Grid>
 </Page>
