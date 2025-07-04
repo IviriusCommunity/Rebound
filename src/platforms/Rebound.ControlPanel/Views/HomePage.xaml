@@ -18,7 +18,8 @@
             IsBackButtonVisible="Collapsed"
             IsSettingsVisible="False"
             ItemInvoked="NavigationView_ItemInvoked"
-            PaneTitle="Rebound">
+            PaneTitle="Rebound"
+            Visibility="{x:Bind NavigationItem.IsChecked, Mode=OneWay}">
             <NavigationView.MenuItems>
                 <NavigationViewItem Content="Home" IsSelected="True">
                     <NavigationViewItem.Icon>
@@ -398,5 +399,246 @@
                 </StackPanel>
             </ScrollViewer>
         </NavigationView>
+        <Grid Visibility="{x:Bind CardsItem.IsChecked, Mode=OneWay}">
+            <Grid Width="648">
+                <TextBlock
+                    Margin="8,16"
+                    FontSize="20"
+                    FontWeight="SemiBold"
+                    Foreground="{ThemeResource AccentTextFillColorPrimaryBrush}"
+                    Text="Adjust your computer's settings" />
+            </Grid>
+            <ScrollViewer Margin="0,64,0,0">
+                <Grid HorizontalAlignment="Center" ColumnSpacing="8">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="320" />
+                        <ColumnDefinition Width="320" />
+                    </Grid.ColumnDefinitions>
+                    <StackPanel>
+                        <Button
+                            Padding="8"
+                            HorizontalAlignment="Stretch"
+                            HorizontalContentAlignment="Stretch"
+                            Background="Transparent"
+                            BorderBrush="Transparent">
+                            <Grid>
+                                <Image
+                                    Width="64"
+                                    HorizontalAlignment="Left"
+                                    VerticalAlignment="Top"
+                                    Source="/Assets/SystemAndSecurity.ico" />
+                                <StackPanel Margin="80,0,0,0">
+                                    <TextBlock
+                                        Margin="12,0,0,0"
+                                        FontSize="16"
+                                        FontWeight="SemiBold"
+                                        Text="System and Security"
+                                        TextTrimming="CharacterEllipsis" />
+                                    <HyperlinkButton Margin="0,8,0,0">
+                                        <TextBlock Text="Review your computer's status" TextWrapping="WrapWholeWords" />
+                                    </HyperlinkButton>
+                                    <HyperlinkButton>
+                                        <TextBlock Text="Save backup copies of your files with File History" TextWrapping="WrapWholeWords" />
+                                    </HyperlinkButton>
+                                    <HyperlinkButton>
+                                        <TextBlock Text="Backup and Restore" TextWrapping="WrapWholeWords" />
+                                    </HyperlinkButton>
+                                </StackPanel>
+                            </Grid>
+                        </Button>
+                        <Button
+                            Padding="8"
+                            HorizontalAlignment="Stretch"
+                            HorizontalContentAlignment="Stretch"
+                            Background="Transparent"
+                            BorderBrush="Transparent">
+                            <Grid>
+                                <Image
+                                    Width="64"
+                                    HorizontalAlignment="Left"
+                                    VerticalAlignment="Top"
+                                    Source="/Assets/Internet.ico" />
+                                <StackPanel Margin="80,0,0,0">
+                                    <TextBlock
+                                        Margin="12,0,0,0"
+                                        FontSize="16"
+                                        FontWeight="SemiBold"
+                                        Text="Network and Internet"
+                                        TextTrimming="CharacterEllipsis" />
+                                    <HyperlinkButton Margin="0,8,0,0">
+                                        <TextBlock Text="View network status and tasks" TextWrapping="WrapWholeWords" />
+                                    </HyperlinkButton>
+                                </StackPanel>
+                            </Grid>
+                        </Button>
+                        <Button
+                            Padding="8"
+                            HorizontalAlignment="Stretch"
+                            HorizontalContentAlignment="Stretch"
+                            Background="Transparent"
+                            BorderBrush="Transparent">
+                            <Grid>
+                                <Image
+                                    Width="64"
+                                    HorizontalAlignment="Left"
+                                    VerticalAlignment="Top"
+                                    Source="/Assets/HardwareAndSound.ico" />
+                                <StackPanel Margin="80,0,0,0">
+                                    <TextBlock
+                                        Margin="12,0,0,0"
+                                        FontSize="16"
+                                        FontWeight="SemiBold"
+                                        Text="Hardware and Sound"
+                                        TextTrimming="CharacterEllipsis" />
+                                    <HyperlinkButton Margin="0,8,0,0">
+                                        <TextBlock Text="View devices and printers" TextWrapping="WrapWholeWords" />
+                                    </HyperlinkButton>
+                                    <HyperlinkButton>
+                                        <TextBlock Text="Add a device" TextWrapping="WrapWholeWords" />
+                                    </HyperlinkButton>
+                                </StackPanel>
+                            </Grid>
+                        </Button>
+                        <Button
+                            Padding="8"
+                            HorizontalAlignment="Stretch"
+                            HorizontalContentAlignment="Stretch"
+                            Background="Transparent"
+                            BorderBrush="Transparent">
+                            <Grid>
+                                <Image
+                                    Width="64"
+                                    HorizontalAlignment="Left"
+                                    VerticalAlignment="Top"
+                                    Source="/Assets/Programs.ico" />
+                                <StackPanel Margin="80,0,0,0">
+                                    <TextBlock
+                                        Margin="12,0,0,0"
+                                        FontSize="16"
+                                        FontWeight="SemiBold"
+                                        Text="Programs"
+                                        TextTrimming="CharacterEllipsis" />
+                                    <HyperlinkButton Margin="0,8,0,0">
+                                        <TextBlock Text="Uninstall a program" TextWrapping="WrapWholeWords" />
+                                    </HyperlinkButton>
+                                </StackPanel>
+                            </Grid>
+                        </Button>
+                    </StackPanel>
+                    <StackPanel Grid.Column="1">
+                        <Button
+                            Padding="8"
+                            HorizontalAlignment="Stretch"
+                            HorizontalContentAlignment="Stretch"
+                            Background="Transparent"
+                            BorderBrush="Transparent">
+                            <Grid>
+                                <Image
+                                    Width="64"
+                                    HorizontalAlignment="Left"
+                                    VerticalAlignment="Top"
+                                    Source="/Assets/User.ico" />
+                                <StackPanel Margin="80,0,0,0">
+                                    <TextBlock
+                                        Margin="12,0,0,0"
+                                        FontSize="16"
+                                        FontWeight="SemiBold"
+                                        Text="User Accounts"
+                                        TextTrimming="CharacterEllipsis" />
+                                    <HyperlinkButton Margin="0,8,0,0">
+                                        <TextBlock Text="Change account type" TextWrapping="WrapWholeWords" />
+                                    </HyperlinkButton>
+                                </StackPanel>
+                            </Grid>
+                        </Button>
+                        <Button
+                            Padding="8"
+                            HorizontalAlignment="Stretch"
+                            HorizontalContentAlignment="Stretch"
+                            Background="Transparent"
+                            BorderBrush="Transparent">
+                            <Grid>
+                                <Image
+                                    Width="64"
+                                    HorizontalAlignment="Left"
+                                    VerticalAlignment="Top"
+                                    Source="/Assets/Personalization.ico" />
+                                <TextBlock
+                                    Margin="92,0,0,8"
+                                    VerticalAlignment="Center"
+                                    FontSize="16"
+                                    FontWeight="SemiBold"
+                                    Text="Appearance and Personalization"
+                                    TextWrapping="WrapWholeWords" />
+                            </Grid>
+                        </Button>
+                        <Button
+                            Padding="8"
+                            HorizontalAlignment="Stretch"
+                            HorizontalContentAlignment="Stretch"
+                            Background="Transparent"
+                            BorderBrush="Transparent">
+                            <Grid>
+                                <Image
+                                    Width="64"
+                                    HorizontalAlignment="Left"
+                                    VerticalAlignment="Top"
+                                    Source="/Assets/ClockAndRegion.ico" />
+                                <StackPanel Margin="80,0,0,0">
+                                    <TextBlock
+                                        Margin="12,0,0,0"
+                                        FontSize="16"
+                                        FontWeight="SemiBold"
+                                        Text="Clock and Region"
+                                        TextTrimming="CharacterEllipsis" />
+                                    <HyperlinkButton Margin="0,8,0,0">
+                                        <TextBlock Text="Change date, time, or number formats" TextWrapping="WrapWholeWords" />
+                                    </HyperlinkButton>
+                                </StackPanel>
+                            </Grid>
+                        </Button>
+                        <Button
+                            Padding="8"
+                            HorizontalAlignment="Stretch"
+                            HorizontalContentAlignment="Stretch"
+                            Background="Transparent"
+                            BorderBrush="Transparent">
+                            <Grid>
+                                <Image
+                                    Width="64"
+                                    HorizontalAlignment="Left"
+                                    VerticalAlignment="Top"
+                                    Source="/Assets/Accessibility.ico" />
+                                <TextBlock
+                                    Margin="92,0,0,8"
+                                    VerticalAlignment="Center"
+                                    FontSize="16"
+                                    FontWeight="SemiBold"
+                                    Text="Accessibility"
+                                    TextWrapping="WrapWholeWords" />
+                            </Grid>
+                        </Button>
+                    </StackPanel>
+                </Grid>
+            </ScrollViewer>
+        </Grid>
+        <DropDownButton
+            Margin="16"
+            Padding="8"
+            HorizontalAlignment="Right"
+            VerticalAlignment="Top"
+            Background="Transparent"
+            BorderBrush="Transparent">
+            <FontIcon FontSize="16" Glyph="&#xF0E2;" />
+            <DropDownButton.Flyout>
+                <MenuFlyout>
+                    <RadioMenuFlyoutItem x:Name="CardsItem" Text="Cards" />
+                    <RadioMenuFlyoutItem
+                        x:Name="NavigationItem"
+                        IsChecked="True"
+                        Text="Navigation" />
+                </MenuFlyout>
+            </DropDownButton.Flyout>
+        </DropDownButton>
     </Grid>
 </Page>
