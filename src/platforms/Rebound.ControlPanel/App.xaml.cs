@@ -23,6 +23,8 @@ public partial class App : Application
     {
         Type? pageToLaunch = null;
 
+        Debug.WriteLine(e.Arguments);
+
         var controlPanelPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.System), "control.exe");
 
         if (ArgsMatchKnownEntries(["reboundsettings", "/name Rebound.Settings"], e.Arguments))
@@ -34,9 +36,18 @@ public partial class App : Application
             pageToLaunch = typeof(HomePage);
         }
         else if (ArgsMatchKnownEntries([
-            "admintools", 
-            "/name Microsoft.AdministrativeTools", 
-            $"{controlPanelPath} admintools", 
+            $"{Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.System), "intl.cpl")},,/p:date",
+            Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.System), "intl.cpl"), 
+            $"{controlPanelPath} {Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.System), "intl.cpl")},,/p:date", 
+            $"{controlPanelPath} {Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.System), "intl.cpl")}"], e.Arguments))
+        {
+            // Placeholder for date and time settings
+            pageToLaunch = typeof(WindowsToolsPage);
+        }
+        else if (ArgsMatchKnownEntries([
+            "admintools",
+            "/name Microsoft.AdministrativeTools",
+            $"{controlPanelPath} admintools",
             $"{controlPanelPath} /name Microsoft.AdministrativeTools"], e.Arguments))
         {
             pageToLaunch = typeof(WindowsToolsPage);
@@ -52,7 +63,7 @@ public partial class App : Application
                     Verb = "runas",
                     Arguments = "legacy"
                 });
-                Process.GetCurrentProcess().Kill();
+                Current.Exit();
                 return;
             }
             await IFEOEngine.PauseIFEOEntryAsync("control.exe").ConfigureAwait(true);
@@ -62,7 +73,7 @@ public partial class App : Application
                 UseShellExecute = true
             });
             await IFEOEngine.ResumeIFEOEntryAsync("control.exe").ConfigureAwait(true);
-            Process.GetCurrentProcess().Kill();
+            Current.Exit();
             return;
         }
 
