@@ -22,6 +22,7 @@
 		<None Remove="Assets\ControlPanel.ico" />
 		<None Remove="Assets\ReboundIcon.ico" />
 		<None Remove="Assets\wordpad.png" />
+		<None Remove="Views\Appearance.xaml" />
 		<None Remove="Views\HomePage.xaml" />
 		<None Remove="Views\ReboundSettingsPage.xaml" />
 		<None Remove="Views\RootPage.xaml" />
@@ -207,6 +208,11 @@
 	<ItemGroup>
 		<ProjectReference Include="..\..\core\unpackaged\Rebound.Core.SourceGeneratorAttributes\Rebound.Core.SourceGeneratorAttributes.csproj" />
 		<ProjectReference Include="..\..\core\unpackaged\Rebound.Core.SourceGenerator\Rebound.Core.SourceGenerator.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
+	</ItemGroup>
+	<ItemGroup>
+	  <Page Update="Views\Appearance.xaml">
+	    <Generator>MSBuild:Compile</Generator>
+	  </Page>
 	</ItemGroup>
 	<ItemGroup>
 	  <Page Update="Views\WindowsToolsPage.xaml">

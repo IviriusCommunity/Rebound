@@ -36,6 +36,11 @@ internal sealed partial class HomePage : Page
                     (Parent as Frame)?.Navigate(typeof(WindowsToolsPage));
                     break;
                 }
+            case "Appearance and Personalization":
+                {
+                    (Parent as Frame)?.Navigate(typeof(Appearance));
+                    break;
+                }
         }
     }
 

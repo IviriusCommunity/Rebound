@@ -28,7 +28,7 @@
                 </NavigationViewItem>
                 <NavigationViewItem Content="System and Security" SelectsOnInvoked="False">
                     <NavigationViewItem.Icon>
-                        <FontIcon Glyph="&#xEA18;" />
+                        <ImageIcon Source="/Assets/SystemAndSecurity.ico" />
                     </NavigationViewItem.Icon>
                     <NavigationViewItem.MenuItems>
                         <NavigationViewItem Content="Security and Maintenance" SelectsOnInvoked="False">
@@ -117,7 +117,7 @@
                 </NavigationViewItem>
                 <NavigationViewItem Content="Network and Internet" SelectsOnInvoked="False">
                     <NavigationViewItem.Icon>
-                        <FontIcon Glyph="&#xE701;" />
+                        <ImageIcon Source="/Assets/Internet.ico" />
                     </NavigationViewItem.Icon>
                     <interactivity:Interaction.Behaviors>
                         <interactivity:EventTriggerBehavior EventName="Tapped">
@@ -127,7 +127,7 @@
                 </NavigationViewItem>
                 <NavigationViewItem Content="Hardware and Sound" SelectsOnInvoked="False">
                     <NavigationViewItem.Icon>
-                        <FontIcon Glyph="&#xE7F8;" />
+                        <ImageIcon Source="/Assets/HardwareAndSound.ico" />
                     </NavigationViewItem.Icon>
                     <NavigationViewItem.MenuItems>
                         <NavigationViewItem Content="Devices and Printers" SelectsOnInvoked="False">
@@ -197,7 +197,7 @@
                 </NavigationViewItem>
                 <NavigationViewItem Content="Apps and Programs" SelectsOnInvoked="False">
                     <NavigationViewItem.Icon>
-                        <FontIcon Glyph="&#xECAA;" />
+                        <ImageIcon Source="/Assets/Programs.ico" />
                     </NavigationViewItem.Icon>
                     <interactivity:Interaction.Behaviors>
                         <interactivity:EventTriggerBehavior EventName="Tapped">
@@ -207,7 +207,7 @@
                 </NavigationViewItem>
                 <NavigationViewItem Content="User Accounts" SelectsOnInvoked="False">
                     <NavigationViewItem.Icon>
-                        <FontIcon Glyph="&#xE77B;" />
+                        <ImageIcon Source="/Assets/User.ico" />
                     </NavigationViewItem.Icon>
                     <NavigationViewItem.MenuItems>
                         <NavigationViewItem Content="Manage" SelectsOnInvoked="False">
@@ -237,17 +237,12 @@
                 </NavigationViewItem>
                 <NavigationViewItem Content="Appearance and Personalization" SelectsOnInvoked="False">
                     <NavigationViewItem.Icon>
-                        <FontIcon Glyph="&#xE771;" />
+                        <ImageIcon Source="/Assets/Personalization.ico" />
                     </NavigationViewItem.Icon>
-                    <interactivity:Interaction.Behaviors>
-                        <interactivity:EventTriggerBehavior EventName="Tapped">
-                            <behaviors:NavigateToUriAction NavigateUri="ms-settings:personalization" />
-                        </interactivity:EventTriggerBehavior>
-                    </interactivity:Interaction.Behaviors>
                 </NavigationViewItem>
                 <NavigationViewItem Content="Clock and Region" SelectsOnInvoked="False">
                     <NavigationViewItem.Icon>
-                        <FontIcon Glyph="&#xE917;" />
+                        <ImageIcon Source="/Assets/ClockAndRegion.ico" />
                     </NavigationViewItem.Icon>
                     <NavigationViewItem.MenuItems>
                         <NavigationViewItem Content="Date and Time" SelectsOnInvoked="False">
@@ -274,7 +269,7 @@
                 </NavigationViewItem>
                 <NavigationViewItem Content="Accessibility" SelectsOnInvoked="False">
                     <NavigationViewItem.Icon>
-                        <FontIcon Glyph="&#xE776;" />
+                        <ImageIcon Source="/Assets/Accessibility.ico" />
                     </NavigationViewItem.Icon>
                     <interactivity:Interaction.Behaviors>
                         <interactivity:EventTriggerBehavior EventName="Tapped">
@@ -282,12 +277,13 @@
                         </interactivity:EventTriggerBehavior>
                     </interactivity:Interaction.Behaviors>
                 </NavigationViewItem>
+            </NavigationView.MenuItems>
+            <NavigationView.FooterMenuItems>
                 <NavigationViewItem Content="Rebound Settings" SelectsOnInvoked="False">
                     <NavigationViewItem.Icon>
-                        <FontIcon Glyph="&#xE713;" />
+                        <ImageIcon Source="/Assets/ReboundIcon.ico" />
                     </NavigationViewItem.Icon>
-                </NavigationViewItem>
-            </NavigationView.MenuItems>
+                </NavigationViewItem></NavigationView.FooterMenuItems>
             <ScrollViewer>
                 <StackPanel Spacing="4">
                     <Grid>
