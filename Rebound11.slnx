@@ -51,6 +51,9 @@
   </Folder>
   <Folder Name="/src/core/" Id="fb5d6fae-fad5-4679-aec2-b8fb3878993e" />
   <Folder Name="/src/core/forge/" Id="473f543c-1a05-4310-bf4c-f1df3286f45b">
+    <Project Path="src/core/forge/Rebound.Forge.IFEOEngine/Rebound.Forge.IFEOEngine.vcxproj" Id="2779d6c2-9290-49d2-a54b-9029f06b53d4">
+      <Platform Solution="*|ARM64" Project="x64" />
+    </Project>
     <Project Path="src/core/forge/Rebound.Forge/Rebound.Forge.shproj" Id="60e629d7-383d-4e80-baae-d1358fe3265b" />
   </Folder>
   <Folder Name="/src/core/packaged/" Id="4ec41458-d783-4ff2-b3a5-4baf78f04948">
