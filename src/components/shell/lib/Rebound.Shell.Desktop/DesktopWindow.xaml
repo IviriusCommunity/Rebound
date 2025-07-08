@@ -10,8 +10,5 @@
     Closed="WindowEx_Closed"
     mc:Ignorable="d"
     Title="ProgmanWinUI">
-    <winuiex:WindowEx.SystemBackdrop>
-        <winuiex:TransparentTintBackdrop />
-    </winuiex:WindowEx.SystemBackdrop>
     <Frame x:FieldModifier="public" x:Name="RootFrame"/>
 </winuiex:WindowEx>

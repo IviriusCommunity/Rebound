@@ -36,3 +36,4 @@ SetWindowLong
 GetWindowLong
 SetLayeredWindowAttributes
 GetTopWindow
+SetWindowCompositionAttribute

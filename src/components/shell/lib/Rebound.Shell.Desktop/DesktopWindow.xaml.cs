@@ -5,6 +5,7 @@ using System;
 using System.Diagnostics;
 using System.Linq;
 using Microsoft.UI.Xaml;
+using Microsoft.UI.Xaml.Media;
 using Rebound.Helpers;
 using Windows.Foundation;
 using Windows.Win32;

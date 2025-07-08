@@ -8,8 +8,9 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:local="using:Rebound.Shell.Desktop"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-    xmlns:ui="using:CommunityToolkit.WinUI"
     xmlns:media="using:CommunityToolkit.WinUI.Media"
+    xmlns:toolkit="using:CommunityToolkit.WinUI.Controls"
+    xmlns:ui="using:CommunityToolkit.WinUI"
     xmlns:winuiex="using:WinUIEx"
     mc:Ignorable="d">
     <Page.Resources>
@@ -441,16 +442,28 @@
 
     </Page.Resources>
     <Grid>
-        <Image x:Name="Wallpaper" Opacity="0"/>
-        <StackPanel HorizontalAlignment="Center" VerticalAlignment="Top" Margin="160">
-            <TextBlock x:Name="TimeTextBlock" Text="12:03" FontWeight="SemiBold" FontSize="96" TextAlignment="Center"/>
-            <TextBlock x:Name="DateTextBlock" Text="Friday, 02.12.2025" FontSize="48" TextAlignment="Center"/>
+        <Image x:Name="Wallpaper" />
+        <StackPanel
+            Margin="160"
+            HorizontalAlignment="Center"
+            VerticalAlignment="Top">
+            <TextBlock
+                x:Name="TimeTextBlock"
+                FontSize="96"
+                FontWeight="SemiBold"
+                Text="12:03"
+                TextAlignment="Center" />
+            <TextBlock
+                x:Name="DateTextBlock"
+                FontSize="48"
+                Text="Friday, 02.12.2025"
+                TextAlignment="Center" />
         </StackPanel>
         <Grid
             AllowDrop="True"
             Background="#01000000"
-            Drop="CanvasControl_Drop"
             DragOver="CanvasControl_DragOver"
+            Drop="CanvasControl_Drop"
             PointerPressed="BackgroundGrid_PointerPressed">
             <ItemsRepeater
                 x:Name="CanvasControl"
@@ -474,8 +487,8 @@
                             CanDrag="True"
                             DataContext="{x:Bind}"
                             DragStarting="Item_DragStarting"
-                            PointerPressed="RootGrid_PointerPressed"
-                            Opacity="{x:Bind Opacity, Mode=OneWay}">
+                            Opacity="{x:Bind Opacity, Mode=OneWay}"
+                            PointerPressed="RootGrid_PointerPressed">
                             <ItemContainer
                                 Padding="0"
                                 HorizontalAlignment="Stretch"
@@ -648,6 +661,44 @@
                     CornerRadius="4"
                     Opacity="0.2" />
             </Border>
+        </Grid>
+        <Grid
+            x:Name="OptionsGrid"
+            Width="400"
+            Height="400"
+            Margin="24"
+            HorizontalAlignment="Right"
+            VerticalAlignment="Top"
+            Background="{ThemeResource SolidBackgroundFillColorBaseBrush}"
+            BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+            BorderThickness="1"
+            CornerRadius="8"
+            Visibility="Collapsed">
+            <TextBlock
+                Margin="16,14,0,0"
+                FontSize="16"
+                FontWeight="SemiBold"
+                Text="Options" />
+            <Button
+                Margin="8"
+                Padding="8"
+                HorizontalAlignment="Right"
+                VerticalAlignment="Top"
+                Background="Transparent"
+                BorderBrush="Transparent"
+                Command="{x:Bind HideOptionsCommand}">
+                <FontIcon FontSize="16" Glyph="&#xE894;" />
+            </Button>
+            <ScrollViewer Margin="0,32,0,0">
+                <StackPanel Margin="16" Spacing="8">
+                    <toolkit:SettingsCard Description="Prevent Rebound Desktop from creating a WorkerW on startup to allow Lively Wallpaper to create its own and host live wallpapers." Header="Enable Lively Wallpaper compatibility">
+                        <toolkit:SettingsCard.HeaderIcon>
+                            <ImageIcon Source="/Assets/LivelyWallpaper.png" />
+                        </toolkit:SettingsCard.HeaderIcon>
+                        <ToggleSwitch x:Name="EnableLivelyWallpaperCompatibility" Toggled="ToggleSwitch_Toggled" />
+                    </toolkit:SettingsCard>
+                </StackPanel>
+            </ScrollViewer>
         </Grid>
         <Grid
             x:Name="LoadingGrid"

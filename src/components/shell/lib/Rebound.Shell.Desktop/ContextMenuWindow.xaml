@@ -79,7 +79,7 @@
                             </MenuFlyout>
                         </AppBarButton.Flyout>
                     </AppBarButton>
-                    <AppBarButton Label="Refresh" Click="AppBarButton_Click_2">
+                    <AppBarButton Click="AppBarButton_Click_2" Label="Refresh">
                         <AppBarButton.Icon>
                             <FontIcon Glyph="&#xE72C;" />
                         </AppBarButton.Icon>
@@ -154,6 +154,11 @@
                         </AppBarButton.Flyout>
                     </AppBarButton>
                     <AppBarSeparator />
+                    <AppBarButton Click="AppBarButton_Click_3" Label="Options">
+                        <AppBarButton.Icon>
+                            <FontIcon Glyph="&#xE90F;" />
+                        </AppBarButton.Icon>
+                    </AppBarButton>
                     <AppBarButton Click="AppBarButton_Click" Label="Exit Rebound Desktop">
                         <AppBarButton.Icon>
                             <FontIcon Glyph="&#xE70A;" />

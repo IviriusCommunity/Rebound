@@ -80,4 +80,9 @@ public sealed partial class ContextMenuWindow : WindowEx
     {
         DesktopPage.Refresh();
     }
+
+    private void AppBarButton_Click_3(object sender, RoutedEventArgs e)
+    {
+        DesktopPage.ShowOptions();
+    }
 }

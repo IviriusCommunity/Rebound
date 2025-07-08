@@ -1,4 +1,5 @@
-﻿using Windows.Win32;
+﻿using System.Threading.Tasks;
+using Windows.Win32;
 using Windows.Win32.Foundation;
 using Windows.Win32.UI.WindowsAndMessaging;
 using WinUIEx;
@@ -10,33 +11,42 @@ namespace Rebound.Helpers;
 
 public static class WindowHelper
 {
-    public static unsafe void ForceBringToFront(this WindowEx window)
+    public static void ForceBringToFront(this WindowEx window)
     {
         var hWnd = new HWND(window.GetWindowHandle());
 
-        // Restore if minimized
-        if (PInvoke.IsIconic(hWnd))
-        {
-            PInvoke.ShowWindow(hWnd, SHOW_WINDOW_CMD.SW_RESTORE);
-        }
-
+        var thisThreadId = PInvoke.GetCurrentThreadId();
         var foregroundHwnd = PInvoke.GetForegroundWindow();
-        var currentThreadId = PInvoke.GetCurrentThreadId();
         uint lpdwProcessId;
-        var foregroundThreadId = PInvoke.GetWindowThreadProcessId(foregroundHwnd, &lpdwProcessId);
-        // Attach input to foreground thread if needed
-        if (currentThreadId != foregroundThreadId)
+        unsafe
         {
-            PInvoke.AttachThreadInput(foregroundThreadId, currentThreadId, true);
-            PInvoke.SetForegroundWindow(hWnd);
-            PInvoke.AttachThreadInput(foregroundThreadId, currentThreadId, false);
-        }
-        else
-        {
-            PInvoke.SetForegroundWindow(hWnd);
+            var foregroundThreadId = PInvoke.GetWindowThreadProcessId(foregroundHwnd, &lpdwProcessId);
+
+            if (thisThreadId != foregroundThreadId)
+            {
+                // Attach input to foreground thread
+                PInvoke.AttachThreadInput(foregroundThreadId, thisThreadId, true);
+
+                // Ensure window is shown
+                PInvoke.ShowWindow(hWnd, SHOW_WINDOW_CMD.SW_SHOW);
+
+                // Try to bring it to foreground
+                PInvoke.SetForegroundWindow(hWnd);
+
+                // Detach input after done
+                PInvoke.AttachThreadInput(foregroundThreadId, thisThreadId, false);
+            }
+            else
+            {
+                // Same thread, simpler path
+                PInvoke.ShowWindow(hWnd, SHOW_WINDOW_CMD.SW_SHOW);
+                PInvoke.SetForegroundWindow(hWnd);
+            }
         }
 
-        PInvoke.ShowWindow(hWnd, SHOW_WINDOW_CMD.SW_SHOW); // Show if hidden
+        PInvoke.ShowWindow(hWnd, SHOW_WINDOW_CMD.SW_RESTORE);
+        window.Activate();
+        PInvoke.BringWindowToTop(hWnd);
     }
 
     public static void RemoveTitleBarIcon(this WindowEx window)

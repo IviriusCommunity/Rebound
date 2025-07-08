@@ -6,18 +6,25 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
+using System.Drawing.Imaging;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using CommunityToolkit.Mvvm.Input;
 using CommunityToolkit.WinUI;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Input;
+using Microsoft.UI.Xaml.Media;
+using Microsoft.UI.Xaml.Media.Imaging;
 using Microsoft.UI.Xaml.Navigation;
+using Rebound.Helpers;
+using Rebound.Shell.ExperienceHost;
 using Windows.ApplicationModel.DataTransfer;
 using Windows.Foundation;
 using Windows.Storage;
 using Windows.System;
+using WinUIEx;
 
 namespace Rebound.Shell.Desktop;
 
@@ -69,6 +76,8 @@ public sealed partial class DesktopPage : Page
         this.PointerReleased += DesktopPage_PointerReleased;
         Refresh();
 
+        EnableLivelyWallpaperCompatibility.IsOn = SettingsHelper.GetValue($"EnableLivelyWallpaperCompatibility", "rshell.desktop", false);
+
         _timer = new DispatcherTimer
         {
             Interval = TimeSpan.FromSeconds(1)
@@ -77,7 +86,53 @@ public sealed partial class DesktopPage : Page
         _timer.Start();
 
         UpdateClock(); // initial immediate update
+
+        QueryLiveWallpaper();
     }
+
+    public async void QueryLiveWallpaper()
+    {
+        /*while (true)
+        {
+            DispatcherQueue.TryEnqueue(async () =>
+            {
+                Wallpaper.Source = null;
+
+                Windows.Win32.PInvoke.GetWindowRect(new(Window.GetWindowHandle()), out var rect);
+
+                var screenArea = new System.Drawing.Rectangle(
+                    rect.left,
+                    rect.top,
+                    rect.right - rect.left,
+                    rect.bottom - rect.top
+                );
+
+                var bmp = ProgManHook.CaptureBehindWindow(new(Window.GetWindowHandle()));
+
+                using var stream = new MemoryStream();
+                bmp.Save(stream, ImageFormat.Png);
+                stream.Position = 0;
+
+                var image = new BitmapImage();
+                await image.SetSourceAsync(stream.AsRandomAccessStream());
+
+                Wallpaper.Source = image;
+            });
+            await Task.Delay(1000);
+        }*/
+    }
+
+    public void ShowOptions()
+    {
+        OptionsGrid.Visibility = Visibility.Visible;
+    }
+
+    [RelayCommand]
+    public void HideOptions()
+    {
+        OptionsGrid.Visibility = Visibility.Collapsed;
+    }
+
     private void Timer_Tick(object sender, object e)
     {
         UpdateClock();
@@ -691,5 +746,10 @@ public sealed partial class DesktopPage : Page
     {
         base.OnNavigatedTo(e);
         Window = (DesktopWindow?)e?.Parameter;
+    }
+
+    public void ToggleSwitch_Toggled(object sender, RoutedEventArgs e)
+    {
+        SettingsHelper.SetValue($"EnableLivelyWallpaperCompatibility", "rshell.desktop", (sender as ToggleSwitch).IsOn);
     }
 }
