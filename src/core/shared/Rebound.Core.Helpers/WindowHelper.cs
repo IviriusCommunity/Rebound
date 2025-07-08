@@ -10,6 +10,35 @@ namespace Rebound.Helpers;
 
 public static class WindowHelper
 {
+    public static unsafe void ForceBringToFront(this WindowEx window)
+    {
+        var hWnd = new HWND(window.GetWindowHandle());
+
+        // Restore if minimized
+        if (PInvoke.IsIconic(hWnd))
+        {
+            PInvoke.ShowWindow(hWnd, SHOW_WINDOW_CMD.SW_RESTORE);
+        }
+
+        var foregroundHwnd = PInvoke.GetForegroundWindow();
+        var currentThreadId = PInvoke.GetCurrentThreadId();
+        uint lpdwProcessId;
+        var foregroundThreadId = PInvoke.GetWindowThreadProcessId(foregroundHwnd, &lpdwProcessId);
+        // Attach input to foreground thread if needed
+        if (currentThreadId != foregroundThreadId)
+        {
+            PInvoke.AttachThreadInput(foregroundThreadId, currentThreadId, true);
+            PInvoke.SetForegroundWindow(hWnd);
+            PInvoke.AttachThreadInput(foregroundThreadId, currentThreadId, false);
+        }
+        else
+        {
+            PInvoke.SetForegroundWindow(hWnd);
+        }
+
+        PInvoke.ShowWindow(hWnd, SHOW_WINDOW_CMD.SW_SHOW); // Show if hidden
+    }
+
     public static void RemoveTitleBarIcon(this WindowEx window)
     {
         var exStyle = PInvoke.GetWindowLongPtr(new HWND(window.GetWindowHandle()), WINDOW_LONG_PTR_INDEX.GWL_EXSTYLE);

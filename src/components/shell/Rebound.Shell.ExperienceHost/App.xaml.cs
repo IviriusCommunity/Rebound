@@ -110,7 +110,7 @@ public partial class App : Application
                 });
             }
             RunWindow.Activate();
-            RunWindow.BringToFront();
+            RunWindow.ForceBringToFront();
         });
     }
 
@@ -149,7 +149,7 @@ public partial class App : Application
             });
         }
         ShutdownDialog.Activate();
-        ShutdownDialog.BringToFront();
+        ShutdownDialog.ForceBringToFront();
     }
 
     public static void ShowCantRunDialog()
@@ -162,7 +162,7 @@ public partial class App : Application
             });
         }
         CantRunDialog.Activate();
-        CantRunDialog.BringToFront();
+        CantRunDialog.ForceBringToFront();
     }
 
     private static void NativeMessageLoop()

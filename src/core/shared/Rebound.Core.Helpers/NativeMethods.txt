@@ -36,3 +36,8 @@ GetDeviceCaps
 ReleaseDC
 RtlGetVersion
 OSVERSIONINFOEX
+IsIconic
+GetForegroundWindow
+GetCurrentThreadId
+AttachThreadInput
+SetForegroundWindow
