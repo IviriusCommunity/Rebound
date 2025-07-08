@@ -441,7 +441,7 @@
 
     </Page.Resources>
     <Grid>
-        <Image x:Name="Wallpaper"/>
+        <Image x:Name="Wallpaper" Opacity="0"/>
         <StackPanel HorizontalAlignment="Center" VerticalAlignment="Top" Margin="160">
             <TextBlock x:Name="TimeTextBlock" Text="12:03" FontWeight="SemiBold" FontSize="96" TextAlignment="Center"/>
             <TextBlock x:Name="DateTextBlock" Text="Friday, 02.12.2025" FontSize="48" TextAlignment="Center"/>

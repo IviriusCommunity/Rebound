@@ -7,6 +7,9 @@ using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Controls.Primitives;
 using Windows.Foundation;
+using Windows.Win32;
+using Windows.Win32.Foundation;
+using Windows.Win32.UI.WindowsAndMessaging;
 using WinUIEx;
 
 namespace Rebound.Shell.Desktop;
@@ -32,6 +35,12 @@ public sealed partial class ContextMenuWindow : WindowEx
             WindowStyle.SysMenu);
         this.ToggleExtendedWindowStyle(true, ExtendedWindowStyle.ToolWindow);
         SystemBackdrop = new TransparentTintBackdrop();
+        HWND hWndWindow = new(this.GetWindowHandle());
+        var style = PInvoke.GetWindowLong(hWndWindow, WINDOW_LONG_PTR_INDEX.GWL_EXSTYLE);
+        style |= (int)(WINDOW_EX_STYLE.WS_EX_LAYERED | WINDOW_EX_STYLE.WS_EX_TRANSPARENT);
+        _ = PInvoke.SetWindowLong(hWndWindow, WINDOW_LONG_PTR_INDEX.GWL_EXSTYLE, style);
+
+        PInvoke.SetLayeredWindowAttributes(hWndWindow, new COLORREF(0), 0, LAYERED_WINDOW_ATTRIBUTES_FLAGS.LWA_COLORKEY);
     }
 
     public void ShowContextMenu(Point pos)

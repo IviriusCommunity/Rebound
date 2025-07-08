@@ -33,18 +33,15 @@ public partial class App : Application
         var thread = new Thread(() =>
         {
             var hook1 = new WindowHook("#32770", "Shut Down Windows", "explorer");
-            if (SettingsHelper.GetValue<bool>("InstallShutdownDialog", "rebound", true)) hook1.WindowDetected += Hook_WindowDetected_Shutdown;
+            if (SettingsHelper.GetValue("InstallShutdownDialog", "rebound", true)) hook1.WindowDetected += Hook_WindowDetected_Shutdown;
 
             var hook2 = new WindowHook("#32770", "Run", "explorer");
-            if (SettingsHelper.GetValue<bool>("InstallRun", "rebound", true)) hook2.WindowDetected += Hook_WindowDetected_Run;
-
-            /*var hook3 = new WindowHook("Shell_Dialog", "This app can't run on your PC", "explorer");
-            hook3.WindowDetected += Hook_WindowDetected_CantRun;*/
+            if (SettingsHelper.GetValue("InstallRun", "rebound", true)) hook2.WindowDetected += Hook_WindowDetected_Run;
 
             var hook4 = new WindowHook("Shell_Dialog", "This app can’t run on your PC", "explorer");
-            if (SettingsHelper.GetValue<bool>("InstallThisAppCantRunOnYourPC", "rebound", true)) hook4.WindowDetected += Hook_WindowDetected_Dim;
+            if (SettingsHelper.GetValue("InstallThisAppCantRunOnYourPC", "rebound", true)) hook4.WindowDetected += Hook_WindowDetected_Dim;
 
-            // Keep message pump alive so both hooks keep working
+            // Keep message pump alive so all hooks keep working
             NativeMessageLoop();
         });
 
@@ -56,10 +53,10 @@ public partial class App : Application
         BackgroundWindow = new() { SystemBackdrop = new TransparentTintBackdrop(), IsMaximizable = false };
         BackgroundWindow.SetExtendedWindowStyle(ExtendedWindowStyle.ToolWindow);
         BackgroundWindow.SetWindowStyle(WindowStyle.Visible);
-        BackgroundWindow.Activate();
         BackgroundWindow.MoveAndResize(0, 0, 0, 0);
         BackgroundWindow.Minimize();
         BackgroundWindow.SetWindowOpacity(0);
+        BackgroundWindow.Activate();
 
         RunWindow = new Run.RunWindow(() =>
         {
@@ -76,7 +73,7 @@ public partial class App : Application
             CantRunDialog = null;
         });
 
-        if (SettingsHelper.GetValue<bool>("AllowDesktopFeature", "rebound", false))
+        if (SettingsHelper.GetValue("AllowDesktopFeature", "rebound", false))
         {
             // Desktop window
             DesktopWindow = new DesktopWindow(ShowShutdownDialog, CreateContextMenu);

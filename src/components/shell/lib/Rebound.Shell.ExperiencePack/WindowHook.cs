@@ -25,15 +25,17 @@ public class WindowHook
     private const uint EVENT_OBJECT_CREATE = 0x8000;
     private const uint WINEVENT_OUTOFCONTEXT = 0;
 
-    private readonly HWINEVENTHOOK _hookHandle;
+    private HWINEVENTHOOK HookHandle { get; }
+
+    private WINEVENTPROC WinEventProcVar { get; }
 
     public WindowHook(string? lpClassName, string? lpName, string lpProcessName)
     {
         ClassName = lpClassName;
         Name = lpName;
         ProcessName = lpProcessName;
-        _winEventProc = WinEventProc;
-        _hookHandle = PInvoke.SetWinEventHook(EVENT_OBJECT_CREATE, EVENT_OBJECT_CREATE, HMODULE.Null, _winEventProc, 0, 0, WINEVENT_OUTOFCONTEXT);
+        WinEventProcVar = WinEventProc;
+        HookHandle = PInvoke.SetWinEventHook(EVENT_OBJECT_CREATE, EVENT_OBJECT_CREATE, HMODULE.Null, WinEventProcVar, 0, 0, WINEVENT_OUTOFCONTEXT);
         Trigger();
     }
 
@@ -42,14 +44,12 @@ public class WindowHook
         ClassName = lpClassName;
         Name = lpName;
         ProcessName = string.Empty;
-        _winEventProc = WinEventProc;
-        _hookHandle = PInvoke.SetWinEventHook(EVENT_OBJECT_CREATE, EVENT_OBJECT_CREATE, HMODULE.Null, _winEventProc, 0, 0, WINEVENT_OUTOFCONTEXT);
+        WinEventProcVar = WinEventProc;
+        HookHandle = PInvoke.SetWinEventHook(EVENT_OBJECT_CREATE, EVENT_OBJECT_CREATE, HMODULE.Null, WinEventProcVar, 0, 0, WINEVENT_OUTOFCONTEXT);
         Trigger();
     }
 
     public event EventHandler<WindowDetectedEventArgs>? WindowDetected;
-
-    private readonly WINEVENTPROC _winEventProc;
 
     private void WinEventProc(HWINEVENTHOOK hWinEventHook, uint eventType, HWND hwnd, int idObject, int idChild, uint dwEventThread, uint dwmsEventTime) => Trigger();
 
@@ -88,7 +88,7 @@ public class ChildWindowHook
     private const uint EVENT_OBJECT_CREATE = 0x8000;
     private const uint WINEVENT_OUTOFCONTEXT = 0;
 
-    private readonly HWINEVENTHOOK _hookHandle;
+    private HWINEVENTHOOK HookHandle { get; }
 
     public ChildWindowHook(IntPtr parent, string? lpClassName, string? lpName, string lpProcessName)
     {
@@ -97,7 +97,7 @@ public class ChildWindowHook
         Name = lpName;
         ProcessName = lpProcessName;
         _winEventProc = WinEventProc;
-        _hookHandle = PInvoke.SetWinEventHook(EVENT_OBJECT_CREATE, EVENT_OBJECT_CREATE, HMODULE.Null, _winEventProc, 0, 0, WINEVENT_OUTOFCONTEXT);
+        HookHandle = PInvoke.SetWinEventHook(EVENT_OBJECT_CREATE, EVENT_OBJECT_CREATE, HMODULE.Null, _winEventProc, 0, 0, WINEVENT_OUTOFCONTEXT);
         Trigger();
     }
 
@@ -108,7 +108,7 @@ public class ChildWindowHook
         Name = lpName;
         ProcessName = string.Empty;
         _winEventProc = WinEventProc;
-        _hookHandle = PInvoke.SetWinEventHook(EVENT_OBJECT_CREATE, EVENT_OBJECT_CREATE, HMODULE.Null, _winEventProc, 0, 0, WINEVENT_OUTOFCONTEXT);
+        HookHandle = PInvoke.SetWinEventHook(EVENT_OBJECT_CREATE, EVENT_OBJECT_CREATE, HMODULE.Null, _winEventProc, 0, 0, WINEVENT_OUTOFCONTEXT);
         Trigger();
     }
 

@@ -32,3 +32,7 @@ ShellLink
 ExtractIconEx
 SetSuspendState
 IsWindow
+SetWindowLong
+GetWindowLong
+SetLayeredWindowAttributes
+GetTopWindow

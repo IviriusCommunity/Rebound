@@ -8,26 +8,16 @@ using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
-using System.Runtime.InteropServices;
-using System.Runtime.InteropServices.Marshalling;
-using System.Security.Claims;
 using System.Threading.Tasks;
 using CommunityToolkit.WinUI;
-using Microsoft.UI.Input;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Input;
-using Microsoft.UI.Xaml.Media;
-using Microsoft.UI.Xaml.Media.Imaging;
 using Microsoft.UI.Xaml.Navigation;
-using Microsoft.Win32;
 using Windows.ApplicationModel.DataTransfer;
 using Windows.Foundation;
 using Windows.Storage;
 using Windows.System;
-using Windows.Win32;
-using Windows.Win32.Foundation;
-using Windows.Win32.UI.Shell;
 
 namespace Rebound.Shell.Desktop;
 
@@ -40,11 +30,8 @@ public sealed partial class DesktopPage : Page
     private const int CELL_WIDTH = 82;
     private const int CELL_HEIGHT = 102;
 
-    private bool _selectionOn;
     private double initialMarginX;
     private double initialMarginY;
-    private Point oldPoint;
-    private bool _isDragging;
 
     private readonly DispatcherTimer _timer;
 
@@ -52,7 +39,7 @@ public sealed partial class DesktopPage : Page
     {
         InitializeComponent();
 
-        unsafe
+        /*unsafe
         {
             var desktopWallpaper = (IDesktopWallpaper)new DesktopWallpaper();
 
@@ -67,16 +54,17 @@ public sealed partial class DesktopPage : Page
             DESKTOP_WALLPAPER_POSITION pos;
             desktopWallpaper.GetPosition(&pos);
             Wallpaper.Stretch = pos switch
-            { DESKTOP_WALLPAPER_POSITION.DWPOS_FILL => Stretch.Fill,
-              DESKTOP_WALLPAPER_POSITION.DWPOS_FIT => Stretch.Uniform,
-              DESKTOP_WALLPAPER_POSITION.DWPOS_STRETCH => Stretch.UniformToFill,
-              DESKTOP_WALLPAPER_POSITION.DWPOS_TILE => Stretch.None,
-              DESKTOP_WALLPAPER_POSITION.DWPOS_CENTER => Stretch.None,
-              _ => Stretch.Uniform
+            {
+                DESKTOP_WALLPAPER_POSITION.DWPOS_FILL => Stretch.Fill,
+                DESKTOP_WALLPAPER_POSITION.DWPOS_FIT => Stretch.Uniform,
+                DESKTOP_WALLPAPER_POSITION.DWPOS_STRETCH => Stretch.UniformToFill,
+                DESKTOP_WALLPAPER_POSITION.DWPOS_TILE => Stretch.None,
+                DESKTOP_WALLPAPER_POSITION.DWPOS_CENTER => Stretch.None,
+                _ => Stretch.Uniform
             };
 
             //Marshal.ReleaseComObject(desktopWallpaper);
-        }
+        }*/
         this.PointerMoved += DesktopPage_PointerMoved;
         this.PointerReleased += DesktopPage_PointerReleased;
         Refresh();
@@ -241,7 +229,7 @@ public sealed partial class DesktopPage : Page
                 _isSelectingWithSelectionBox = true;
 
                 // Get pointer position relative to the canvas once to avoid repeated calls
-                var position = e.GetCurrentPoint(CanvasControl).Position;
+                var position = e.GetCurrentPoint(null).Position;
 
                 // If Ctrl is not held and the pointer is not over an item, deselect all
                 if (!e.GetCurrentPoint(null).Properties.IsMiddleButtonPressed && !e.GetCurrentPoint(null).Properties.IsRightButtonPressed)
@@ -255,15 +243,12 @@ public sealed partial class DesktopPage : Page
                     }
                 }
 
-                // Begin selection drag mode
-                _selectionOn = true;
-
                 // Store initial position for later drag tracking
                 initialMarginX = position.X;
                 initialMarginY = position.Y;
 
                 // Set selection box's initial position and clear its size
-                SelectionBorder.Margin = new(position.X, position.Y, 0, 0);
+                SelectionBorder.Margin = new(initialMarginX, initialMarginY, 0, 0);
                 SelectionBorder.Width = SelectionBorder.Height = 0;
             }
             else
@@ -346,7 +331,6 @@ public sealed partial class DesktopPage : Page
     private Point dragStartPointerPos;
     private async void CanvasControl_Drop(object sender, DragEventArgs e)
     {
-        _isDragging = false;
         if (e.DataView.Contains(StandardDataFormats.StorageItems))
         {
             var items = await e.DataView.GetStorageItemsAsync();
@@ -560,57 +544,6 @@ public sealed partial class DesktopPage : Page
         }
     }
 
-    private void CanvasControl_PointerReleased(object sender, PointerRoutedEventArgs e)
-    {
-        // Hide the placement preview border (used for item placement feedback)
-        //PlacementBorder.Visibility = Visibility.Collapsed;
-        //PlacementBorder.Opacity = 1;
-        toggledPaths.Clear();
-
-        // Get the pointer position relative to the canvas
-        var point = e.GetCurrentPoint(null);
-
-        // If the right mouse button was released, show the context menu at that position
-        if (point.Properties.PointerUpdateKind == PointerUpdateKind.RightButtonReleased)
-        {
-            Window?.CreateContextMenuAtPosition(point.Position);
-        }
-
-        // Reset selection state and visual selector box
-        _selectionOn = false;
-        SelectionBorder.Margin = new(0); // Reset margin to top-left
-        SelectionBorder.Width = SelectionBorder.Height = 0; // Clear selection box dimensions
-    }
-
-    private void CanvasControl_PointerPressed(object sender, PointerRoutedEventArgs e)
-    {
-        // Get pointer position relative to the canvas once to avoid repeated calls
-        var position = e.GetCurrentPoint(CanvasControl).Position;
-
-        // If Ctrl is not held and the pointer is not over an item, deselect all
-        if (!e.GetCurrentPoint(null).Properties.IsMiddleButtonPressed && !e.GetCurrentPoint(null).Properties.IsRightButtonPressed)
-        {
-            if (e.KeyModifiers != Windows.System.VirtualKeyModifiers.Control)
-            {
-                foreach (var item in Items)
-                {
-                    item.IsSelected = false;
-                }
-            }
-        }
-
-        // Begin selection drag mode
-        _selectionOn = true;
-
-        // Store initial position for later drag tracking
-        initialMarginX = position.X;
-        initialMarginY = position.Y;
-
-        // Set selection box's initial position and clear its size
-        SelectionBorder.Margin = new(position.X, position.Y, 0, 0);
-        SelectionBorder.Width = SelectionBorder.Height = 0;
-    }
-
     List<string> toggledPaths = new();
 
     private void CanvasControl_PointerMoved(object sender, PointerRoutedEventArgs e)
@@ -740,91 +673,6 @@ public sealed partial class DesktopPage : Page
         }
     }
 
-    private async void Grid_DragStarting(UIElement sender, DragStartingEventArgs args)
-    {
-        //PlacementBorder.Visibility = Visibility.Visible;
-
-        var storageItems = new List<IStorageItem>();
-
-        // Iterate through selected items
-        foreach (var item in Items.Where(i => i.IsSelected == true))
-        {
-            try
-            {
-                IStorageItem? storageItem = null;
-
-                // Check if the item is a folder or file
-                var filePath = item.FilePath ?? string.Empty;
-                if (File.Exists(filePath))
-                {
-                    var attributes = File.GetAttributes(filePath);
-                    if (attributes.HasFlag(System.IO.FileAttributes.Directory))
-                    {
-                        storageItem = await StorageFolder.GetFolderFromPathAsync(filePath);
-                    }
-                    else
-                    {
-                        storageItem = await StorageFile.GetFileFromPathAsync(filePath);
-                    }
-                }
-
-                if (storageItem != null)
-                {
-                    storageItems.Add(storageItem);
-                }
-            }
-            catch (Exception ex)
-            {
-                // Log the error with more details
-                Debug.WriteLine($"Error processing {item.FilePath}: {ex.Message}");
-            }
-        }
-
-        // Set the storage items for the drag operation
-        if (storageItems.Count != 0)
-        {
-            args.Data.SetStorageItems(storageItems);
-        }
-        else
-        {
-            Debug.WriteLine("No valid items selected for drag operation.");
-        }
-    }
-
-    private void Grid_PointerPressed(object sender, PointerRoutedEventArgs e)
-    {
-        var grid1 = sender as Grid;
-        var desktopFile = (DesktopItem?)grid1?.DataContext;
-
-        if (desktopFile == null)
-        {
-            return;
-        }
-
-        oldPoint = e.GetCurrentPoint(CanvasControl).Position;
-
-        // Handle selection based on modifier keys
-        HandleSelection(desktopFile, e.KeyModifiers == Windows.System.VirtualKeyModifiers.Control);
-
-        _isDragging = true;
-    }
-
-    private void Grid_PointerReleased_1(object sender, PointerRoutedEventArgs e)
-    {
-        var grid1 = sender as Grid;
-        var desktopFile = (DesktopItem?)grid1?.DataContext;
-
-        if (desktopFile == null)
-        {
-            return;
-        }
-
-        _isDragging = false;
-
-        // Deselect all items if control is not pressed and select the released item
-        HandleSelection(desktopFile, e.KeyModifiers == Windows.System.VirtualKeyModifiers.Control);
-    }
-
     private void HandleSelection(DesktopItem desktopFile, bool isControlPressed)
     {
         // If Control is not pressed, deselect all items
@@ -839,153 +687,9 @@ public sealed partial class DesktopPage : Page
         desktopFile.IsSelected = true;
     }
 
-    private void Grid_PointerEntered(object sender, PointerRoutedEventArgs e)
-    {
-
-    }
-
-    private void Grid_PointerExited(object sender, PointerRoutedEventArgs e)
-    {
-
-    }
-
     protected override void OnNavigatedTo(NavigationEventArgs e)
     {
         base.OnNavigatedTo(e);
         Window = (DesktopWindow?)e?.Parameter;
-    }
-
-    private async void CanvasControl_PointerMoved_1(object sender, PointerRoutedEventArgs e)
-    {
-        //PlacementBorder.Visibility = Visibility.Visible;
-
-        if (e.GetCurrentPoint(null).Properties.IsLeftButtonPressed && SelectionBorder.Width == 0 && SelectionBorder.Height == 0 && SelectionBorder.Margin == new Thickness(0))
-        {
-            // If the left button is pressed and the selection border is visible, set the drag state
-            _isDragging = true;
-
-            _ = await (sender as FrameworkElement).StartDragAsync(e.GetCurrentPoint(null));
-        }
-    }
-
-    FrameworkElement? _triggeredItem;
-
-    Point previousPoint;
-
-    bool _isSelecting;
-
-    private void PlacementBorder_PointerMoved(object sender, PointerRoutedEventArgs e)
-    {
-        if (_isSelecting)
-        {
-            statusBlock.Text = _isInItem.ToString();
-            if (!_isInItem)
-            {
-                InvokeDragBorder(e);
-            }
-            else
-            {
-                var point = e.GetCurrentPoint(null);
-
-                if (point.Properties.IsLeftButtonPressed)
-                {
-                    // If the left button is pressed and the selection border is visible, set the drag state
-                    _isDragging = true;
-
-                    foreach (var item in Items)
-                    {
-                        if (item.IsSelected == true)
-                        {
-                            item.IsDragging = true;
-                            item.Opacity = 0.25;
-                            item.X += e.GetCurrentPoint(null).Position.X - previousPoint.X;
-                            item.Y += e.GetCurrentPoint(null).Position.Y - previousPoint.Y;
-                        }
-                    }
-                }
-            }
-            previousPoint = e.GetCurrentPoint(null).Position;
-        }
-    }
-
-    private void PlacementBorder_PointerPressed(object sender, PointerRoutedEventArgs e)
-    {
-        _isSelecting = true;
-    }
-
-    bool rightClicked;
-
-    private void PlacementBorder_PointerReleased(object sender, PointerRoutedEventArgs e)
-    {
-        _isSelecting = false;
-
-        if (!_isInItem && rightClicked)
-        {
-            Window?.CreateContextMenuAtPosition(e.GetCurrentPoint(null).Position);
-        }
-
-        if (_isDragging)
-        {
-            foreach (var item in Items)
-            {
-                if (item.IsSelected == true)
-                {
-                    item.Opacity = 0.25;
-                    var pos = FindFreeSpotCoordinates(item.X, item.Y);
-                    item.X = pos.Value.X;
-                    item.Y = pos.Value.Y;
-                    item.IsDragging = false;
-                }
-            }
-        }
-        //PlacementBorder.Visibility = Visibility.Collapsed;
-        SelectionBorder.Margin = new(0);
-        SelectionBorder.Width = 0;
-        SelectionBorder.Height = 0;
-
-        foreach (var item in Items)
-        {
-            item.Opacity = 1;
-        }
-    }
-
-    private void CanvasControl_PointerPressed_1(object sender, PointerRoutedEventArgs e)
-    {
-        _isSelecting = true;
-    }
-
-    private void PointerMoved1(object sender, PointerRoutedEventArgs e)
-    {
-        if (_isSelecting)
-        {
-            _isInItem = false;
-            _triggeredItem = null;
-            var point = e.GetCurrentPoint(null);
-            initialMarginX = point.Position.X - 4;
-            initialMarginY = point.Position.Y - 4;
-            //PlacementBorder.Visibility = Visibility.Visible;
-            rightClicked = e.GetCurrentPoint(null).Properties.IsRightButtonPressed;
-        }
-    }
-
-    bool _isInItem;
-
-    private void RootGrid_PointerEntered(object sender, PointerRoutedEventArgs e)
-    {
-        _isInItem = false;
-    }
-
-    private void RootGrid_PointerExited(object sender, PointerRoutedEventArgs e)
-    {
-        _isInItem = true;
-    }
-
-    private void RootGrid_PointerMoved(object sender, PointerRoutedEventArgs e)
-    {
-        if (_isInItem && e.GetCurrentPoint(null).Properties.IsLeftButtonPressed)
-        {
-            previousPoint = e.GetCurrentPoint(null).Position;
-            //PlacementBorder.Visibility = Visibility.Visible;
-        }
     }
 }
