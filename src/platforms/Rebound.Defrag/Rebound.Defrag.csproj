@@ -39,6 +39,7 @@
 
 	<!-- App assets -->
 	<ItemGroup>
+		<Content Include="NativeMethods.json" />
 		<Content Include="Rebound.Defrag.ico" />
 	</ItemGroup>
 

@@ -14,6 +14,12 @@
     xmlns:winuiex="using:WinUIEx"
     mc:Ignorable="d">
     <Page.Resources>
+        <media:AttachedCardShadow
+            x:Key="CommonShadow"
+            BlurRadius="32"
+            CornerRadius="8"
+            Opacity="0.5"
+            Offset="0, 16" />
         <Style TargetType="CheckBox">
             <Setter Property="Background" Value="{ThemeResource CheckBoxBackgroundUnchecked}" />
             <Setter Property="Foreground" Value="{ThemeResource CheckBoxForegroundUnchecked}" />
@@ -446,7 +452,8 @@
         <StackPanel
             Margin="160"
             HorizontalAlignment="Center"
-            VerticalAlignment="Top">
+            VerticalAlignment="Top"
+            Visibility="{x:Bind ViewModel.ShowClockWidget, Mode=OneWay}">
             <TextBlock
                 x:Name="TimeTextBlock"
                 FontSize="96"
@@ -461,7 +468,7 @@
         </StackPanel>
         <Grid
             AllowDrop="True"
-            Background="#01000000"
+            Background="#00000000"
             DragOver="CanvasControl_DragOver"
             Drop="CanvasControl_Drop"
             PointerPressed="BackgroundGrid_PointerPressed">
@@ -508,8 +515,8 @@
                                         ui:UIElementExtensions.ClipToBounds="False">
                                         <Viewbox DoubleTapped="Grid_DoubleTapped">
                                             <ImageIcon
-                                                Width="256"
-                                                Height="256"
+                                                Width="48"
+                                                Height="48"
                                                 VerticalAlignment="Center"
                                                 Opacity="{x:Bind IsHidden, Mode=OneWay, Converter={StaticResource BoolToObjectConverter}}"
                                                 Source="{x:Bind Thumbnail}" />
@@ -664,41 +671,58 @@
         </Grid>
         <Grid
             x:Name="OptionsGrid"
-            Width="400"
-            Height="400"
-            Margin="24"
             HorizontalAlignment="Right"
             VerticalAlignment="Top"
-            Background="{ThemeResource SolidBackgroundFillColorBaseBrush}"
-            BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
-            BorderThickness="1"
-            CornerRadius="8"
             Visibility="Collapsed">
-            <TextBlock
-                Margin="16,14,0,0"
-                FontSize="16"
-                FontWeight="SemiBold"
-                Text="Options" />
             <Button
-                Margin="8"
-                Padding="8"
-                HorizontalAlignment="Right"
-                VerticalAlignment="Top"
-                Background="Transparent"
-                BorderBrush="Transparent"
-                Command="{x:Bind HideOptionsCommand}">
-                <FontIcon FontSize="16" Glyph="&#xE894;" />
-            </Button>
-            <ScrollViewer Margin="0,32,0,0">
-                <StackPanel Margin="16" Spacing="8">
-                    <toolkit:SettingsCard Description="Prevent Rebound Desktop from creating a WorkerW on startup to allow Lively Wallpaper to create its own and host live wallpapers." Header="Enable Lively Wallpaper compatibility">
-                        <toolkit:SettingsCard.HeaderIcon>
-                            <ImageIcon Source="/Assets/LivelyWallpaper.png" />
-                        </toolkit:SettingsCard.HeaderIcon>
-                        <ToggleSwitch x:Name="EnableLivelyWallpaperCompatibility" Toggled="ToggleSwitch_Toggled" />
-                    </toolkit:SettingsCard>
-                </StackPanel>
-            </ScrollViewer>
+                Margin="36"
+                HorizontalAlignment="Stretch"
+                VerticalAlignment="Stretch"
+                ui:Effects.Shadow="{StaticResource CommonShadow}"
+                CornerRadius="8"
+                IsEnabled="False" />
+            <Grid
+                Width="400"
+                Height="400"
+                Margin="32"
+                Background="{ThemeResource SolidBackgroundFillColorBaseBrush}"
+                BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                BorderThickness="1"
+                CornerRadius="8">
+                <Grid>
+                    <TextBlock
+                        Margin="16,14,0,0"
+                        FontSize="16"
+                        FontWeight="SemiBold"
+                        Text="Options" />
+                    <Button
+                        Margin="8"
+                        Padding="8"
+                        HorizontalAlignment="Right"
+                        VerticalAlignment="Top"
+                        Background="Transparent"
+                        BorderBrush="Transparent"
+                        Command="{x:Bind HideOptionsCommand}">
+                        <FontIcon FontSize="16" Glyph="&#xE894;" />
+                    </Button>
+                    <ScrollViewer Margin="0,32,0,0">
+                        <StackPanel Margin="16" Spacing="8">
+                            <toolkit:SettingsCard Description="Prevent Rebound Desktop from creating a WorkerW on startup to allow Lively Wallpaper to create its own and host live wallpapers. You must restart Rebound Shell for the changes to take effect." Header="Enable Lively Wallpaper compatibility">
+                                <toolkit:SettingsCard.HeaderIcon>
+                                    <ImageIcon Source="/Assets/LivelyWallpaper.png" />
+                                </toolkit:SettingsCard.HeaderIcon>
+                                <ToggleSwitch IsOn="{x:Bind ViewModel.IsLivelyCompatibilityEnabled, Mode=TwoWay}" />
+                            </toolkit:SettingsCard>
+                            <toolkit:SettingsCard Description="Show the clock widget on the desktop." Header="Clock widget">
+                                <toolkit:SettingsCard.HeaderIcon>
+                                    <FontIcon Glyph="&#xE917;" />
+                                </toolkit:SettingsCard.HeaderIcon>
+                                <ToggleSwitch IsOn="{x:Bind ViewModel.ShowClockWidget, Mode=TwoWay}" />
+                            </toolkit:SettingsCard>
+                        </StackPanel>
+                    </ScrollViewer>
+                </Grid>
+            </Grid>
         </Grid>
         <Grid
             x:Name="LoadingGrid"

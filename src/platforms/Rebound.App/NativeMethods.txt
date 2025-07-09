@@ -1,6 +1,5 @@
 FindWindow
 GetWindowLongPtr
-SetWindowLongPtr
 CreateWindowEx
 SendMessage
 FindWindowEx

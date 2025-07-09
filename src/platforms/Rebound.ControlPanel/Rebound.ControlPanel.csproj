@@ -27,6 +27,7 @@
 		<None Remove="Views\ReboundSettingsPage.xaml" />
 		<None Remove="Views\RootPage.xaml" />
 		<None Remove="Views\WindowsToolsPage.xaml" />
+		<Content Include="NativeMethods.json" />
 		<Manifest Include="$(ApplicationManifest)" />
 		<Content Update="Assets\Accessibility.ico">
 		  <CopyToOutputDirectory>Always</CopyToOutputDirectory>

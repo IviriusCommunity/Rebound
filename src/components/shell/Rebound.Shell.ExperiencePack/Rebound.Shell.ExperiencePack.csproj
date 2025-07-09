@@ -16,6 +16,9 @@
 	<ItemGroup>
 	  <AdditionalFiles Include="NativeMethods.txt" />
 	</ItemGroup>
+	<ItemGroup>
+	  <Content Include="NativeMethods.json" />
+	</ItemGroup>
 
 	<ItemGroup>
 		<PackageReference Include="Microsoft.Windows.CsWin32" Version="0.3.183">
@@ -27,9 +30,7 @@
 	<!-- Project references -->
 	<ItemGroup>
 		<ProjectReference Include="..\..\..\core\unpackaged\Rebound.Core.SourceGeneratorAttributes\Rebound.Core.SourceGeneratorAttributes.csproj" />
-		<ProjectReference Include="..\..\..\core\unpackaged\Rebound.Core.SourceGenerator\Rebound.Core.SourceGenerator.csproj"
-						 OutputItemType="Analyzer"
-						 ReferenceOutputAssembly="false" />
+		<ProjectReference Include="..\..\..\core\unpackaged\Rebound.Core.SourceGenerator\Rebound.Core.SourceGenerator.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
 	</ItemGroup>
 
 	<!-- Shared project imports -->

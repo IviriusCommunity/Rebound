@@ -1,6 +1,5 @@
 FindWindow
 GetWindowLongPtr
-SetWindowLongPtr
 CreateWindowEx
 SendMessage
 FindWindowEx
@@ -36,4 +35,3 @@ SetWindowLong
 GetWindowLong
 SetLayeredWindowAttributes
 GetTopWindow
-SetWindowCompositionAttribute

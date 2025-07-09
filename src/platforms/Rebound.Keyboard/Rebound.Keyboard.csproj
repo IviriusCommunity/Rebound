@@ -18,6 +18,9 @@
 		<!-- Application Manifest -->
 		<ApplicationManifest>app.manifest</ApplicationManifest>
 	</PropertyGroup>
+	<ItemGroup>
+	  <AdditionalFiles Remove="NativeMethods.json" />
+	</ItemGroup>
 
 	<ItemGroup>
 		<Content Include="Assets\SplashScreen.scale-200.png" />
@@ -26,6 +29,7 @@
 		<Content Include="Assets\Square44x44Logo.scale-200.png" />
 		<Content Include="Assets\Square44x44Logo.targetsize-24_altform-unplated.png" />
 		<Content Include="Assets\Wide310x150Logo.scale-200.png" />
+		<Content Include="NativeMethods.json" />
 		<Content Include="On-Screen Keyboard.ico" />
 	</ItemGroup>
 

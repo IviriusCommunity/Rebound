@@ -4,21 +4,17 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Drawing;
 using System.IO;
-using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.ComponentModel;
-using Microsoft.UI.Dispatching;
+using Files.App.Storage;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Media.Imaging;
 using Rebound.Helpers;
 using Rebound.Shell.ExperiencePack;
 using Windows.Storage;
 using Windows.Storage.FileProperties;
-using Windows.Win32;
-using Windows.Win32.Storage.FileSystem;
-using Windows.Win32.System.Com;
+using Windows.Win32.UI.Shell;
 
 namespace Rebound.Shell.Desktop;
 
@@ -92,25 +88,25 @@ public partial class DesktopItem : ObservableObject
     {
         // Run file checks in parallel
         var checkTasks = new List<Task>
-    {
-        Task.Run(() => IsShortcut = CheckIfShortcut(filePath)),
-        Task.Run(() => IsSystemFile = CheckIfSystemFile(filePath)),
-        Task.Run(() => IsHidden = IsFileHidden(filePath)),
-        Task.Run(() => IsVideoFile = CheckIfVideoFile(filePath)),
-        Task.Run(() => IsExe = IsProgramFile(filePath))
-    };
+        {
+            Task.Run(() => IsShortcut = CheckIfShortcut(filePath)),
+            Task.Run(() => IsSystemFile = CheckIfSystemFile(filePath)),
+            Task.Run(() => IsHidden = IsFileHidden(filePath)),
+            Task.Run(() => IsVideoFile = CheckIfVideoFile(filePath)),
+            Task.Run(() => IsExe = IsProgramFile(filePath))
+        };
 
         await Task.WhenAll(checkTasks).ConfigureAwait(true); // Wait for all checks to complete
     }
 
     public static bool IsFileHidden(string path)
     {
-        if (!System.IO.File.Exists(path) && !Directory.Exists(path))
+        if (!File.Exists(path) && !Directory.Exists(path))
         {
             return false;
         }
 
-        var attributes = System.IO.File.GetAttributes(path);
+        var attributes = File.GetAttributes(path);
         return (attributes.HasFlag(System.IO.FileAttributes.Hidden) || attributes.HasFlag(System.IO.FileAttributes.System));
     }
 
@@ -126,7 +122,7 @@ public partial class DesktopItem : ObservableObject
         return Array.Exists(programExtensions, ext => ext.Equals(fileExtension, StringComparison.OrdinalIgnoreCase));
     }
 
-    public static async Task<BitmapImage?> GetFileIconAsync(string path)
+    public async Task<BitmapImage?> GetFileIconAsync(string path)
     {
         const int maxRetries = 3;
         var attempt = 0;
@@ -138,25 +134,18 @@ public partial class DesktopItem : ObservableObject
                 // Handle desktop.ini directly
                 if (Path.GetFileName(path).Equals("desktop.ini", StringComparison.OrdinalIgnoreCase))
                 {
-                    var uri = new Uri($"ms-appx:///Assets/shell32_151.png");
+                    var uri = new Uri($"ms-appx:///Assets/shell32_151.ico");
                     return new BitmapImage(uri);
                 }
 
                 // Fetch file/folder info asynchronously
-                var item = await GetStorageItemAsync(path).ConfigureAwait(true);
+                var item = GetWindowsStorable(path);
                 if (item == null)
                 {
                     return null;
                 }
 
-                var thumbnail = await GetThumbnailAsync(item).ConfigureAwait(true);
-                if (thumbnail == null || thumbnail.Size == 0)
-                {
-                    return null;
-                }
-
-                // Return the BitmapImage of the thumbnail
-                return await ConvertThumbnailToBitmapImageAsync(thumbnail).ConfigureAwait(true);
+                return await GetThumbnailAsync(item);
             }
             catch
             {
@@ -174,32 +163,45 @@ public partial class DesktopItem : ObservableObject
         return new();
     }
 
-    // Fetch the storage item asynchronously (file or folder)
-    private static async Task<object?> GetStorageItemAsync(string path)
+    // Fetch the Windows storable asynchronously (file or folder)
+    private static WindowsStorable? GetWindowsStorable(string path)
     {
-        if (System.IO.File.Exists(path))
+        if (File.Exists(path))
         {
-            return await StorageFile.GetFileFromPathAsync(path);
+            return WindowsFile.TryParse(path);
         }
-        else if (System.IO.Directory.Exists(path))
+        else if (Directory.Exists(path))
         {
-            return await StorageFolder.GetFolderFromPathAsync(path);
+            return WindowsFolder.TryParse(path);
         }
         return null;
     }
 
     // Get the thumbnail for a file or folder
-    private static async Task<StorageItemThumbnail?> GetThumbnailAsync(object item)
+    private async Task<BitmapImage> GetThumbnailAsync(WindowsStorable item)
     {
-        if (item is StorageFile file)
+        BitmapImage? result = null;
+
+        try
         {
-            return await file.GetThumbnailAsync(ThumbnailMode.SingleItem);
+            //var bytes = await item.GetThumbnailAsync(64, Windows.Win32.UI.Shell.SIIGBF.SIIGBF_SCALEUP);
+            item.TryGetThumbnail(48, SIIGBF.SIIGBF_BIGGERSIZEOK, out var bytes);
+            using var ms = new MemoryStream(bytes);
+            var image = new BitmapImage
+            {
+                DecodePixelWidth = 48 // Preserve aspect ratio
+            };
+            await image.SetSourceAsync(ms.AsRandomAccessStream());
+
+            result = image;
         }
-        else if (item is StorageFolder folder)
+        catch (Exception ex)
         {
-            return await folder.GetThumbnailAsync(ThumbnailMode.SingleItem);
+            Debug.WriteLine($"Error getting thumbnail for {FilePath}: {ex.Message}");
+            result = new BitmapImage(); // fallback image
         }
-        return null;
+
+        return result!;
     }
 
     public static bool CheckIfVideoFile(string filePath)
@@ -229,79 +231,13 @@ public partial class DesktopItem : ObservableObject
         {
             FilePath ??= "";
 
-            // Resolve shortcut target asynchronously
-            if (CheckIfShortcut(FilePath))
+            var thumbnail = await GetFileIconAsync(FilePath);
+            if (thumbnail != null)
             {
-                //unsafe
-                //{
-                //    const int MAX_PATH = 260;
-                //    var clsidShellLink = new Guid("00021401-0000-0000-C000-000000000046");
-                //    var iidShellLink = new Guid("000214F9-0000-0000-C000-000000000046");
-
-                //    PInvoke.CoCreateInstance(in clsidShellLink, null, CLSCTX.CLSCTX_INPROC_SERVER, in iidShellLink, out var shellLinkObj);
-                //    var shellLink = (Windows.Win32.UI.Shell.IShellLinkW)shellLinkObj;
-                //    ((IPersistFile)shellLink).Load(FilePath, 0);
-
-                //    var iconPathBuffer = (char*)Marshal.AllocHGlobal(MAX_PATH * sizeof(char));
-                //    string iconPath;
-                //    int iconIndex;
-
-                //    try
-                //    {
-                //        shellLink.GetIconLocation(new Windows.Win32.Foundation.PWSTR(iconPathBuffer), MAX_PATH, out iconIndex);
-                //        iconPath = new string(iconPathBuffer).TrimEnd('\0');
-                //        iconPath = Environment.ExpandEnvironmentVariables(iconPath);
-
-                //        if (string.IsNullOrWhiteSpace(iconPath) || !File.Exists(iconPath))
-                //        {
-                //            WIN32_FIND_DATAW findData;
-                //            shellLink.GetPath(new Windows.Win32.Foundation.PWSTR(iconPathBuffer), MAX_PATH, &findData, 0);
-                //            iconPath = new string(iconPathBuffer).TrimEnd('\0');
-                //            iconIndex = 0;
-                //        }
-
-                //        if (!File.Exists(iconPath))
-                //            return;
-
-                //        // Extract icon
-                //        PInvoke.ExtractIconEx(iconPath, iconIndex, out var largeIcon, out _, 1);
-                //        if (!largeIcon.IsInvalid)
-                //        {
-                //            // Clone icon properly
-                //            using var sysIcon = Icon.FromHandle(largeIcon.DangerousGetHandle());
-                //            using var iconCopy = (Icon)sysIcon.Clone(); // clone to avoid destroying original handle
-                //            var bitmap = iconCopy.ToBitmap();
-                //            using var ms = new MemoryStream();
-                //            bitmap.Save(ms, System.Drawing.Imaging.ImageFormat.Png);
-                //            ms.Position = 0;
-
-                //            DispatcherQueue.GetForCurrentThread().TryEnqueue(() =>
-                //            {
-                //                var image = new BitmapImage();
-                //                image.SetSource(ms.AsRandomAccessStream());
-                //                Thumbnail = image;
-                //            });
-
-                //            PInvoke.DestroyIcon((Windows.Win32.UI.WindowsAndMessaging.HICON)largeIcon.DangerousGetHandle());
-                //        }
-                //    }
-                //    finally
-                //    {
-                //        Marshal.FreeHGlobal((IntPtr)iconPathBuffer);
-                //    }
-                //}
-            }
-            else
-            {
-                // Load the thumbnail asynchronously
-                var thumbnail = await GetFileIconAsync(FilePath);
-                if (thumbnail != null)
-                {
-                    // Efficiently scale while preserving aspect ratio
-                    SetThumbnailDimensions(thumbnail);
-                    Thumbnail = thumbnail;
-                    return;
-                }
+                // Efficiently scale while preserving aspect ratio
+                SetThumbnailDimensions(thumbnail);
+                Thumbnail = thumbnail;
+                return;
             }
         }
         catch
@@ -313,7 +249,7 @@ public partial class DesktopItem : ObservableObject
     // Set the thumbnail dimensions efficiently while preserving aspect ratio
     private static void SetThumbnailDimensions(BitmapImage thumbnail)
     {
-        var maxDimension = 100;
+        var maxDimension = 64;
         if (thumbnail.PixelHeight > thumbnail.PixelWidth)
         {
             thumbnail.DecodePixelHeight = maxDimension;

@@ -34,6 +34,9 @@
 		<None Remove="Assets\ReboundHubInstaller.ico" />
 		<None Remove="MainPage.xaml" />
 	</ItemGroup>
+	<ItemGroup>
+	  <Content Include="NativeMethods.json" />
+	</ItemGroup>
 
 	<!-- Project references -->
 	<ItemGroup>

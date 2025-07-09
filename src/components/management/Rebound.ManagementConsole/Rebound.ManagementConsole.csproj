@@ -17,6 +17,9 @@
 	<ItemGroup>
 	  <None Remove="Assets\ManagementConsole.png" />
 	</ItemGroup>
+	<ItemGroup>
+	  <Content Include="NativeMethods.json" />
+	</ItemGroup>
 
 	<ItemGroup>
 		<Manifest Include="$(ApplicationManifest)" />

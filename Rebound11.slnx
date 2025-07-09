@@ -35,6 +35,9 @@
       <Platform Solution="*|x86" Project="x86" />
       <Deploy />
     </Project>
+    <Project Path="src/components/shell/Rebound.Shell.ExperiencePack/Rebound.Shell.ExperiencePack.csproj">
+      <Platform Project="x64" />
+    </Project>
     <Project Path="src/components/shell/Rebound.Shell.InteractiveDialog/Rebound.Shell.InteractiveDialog.csproj">
       <Platform Solution="*|ARM64" Project="ARM64" />
       <Platform Solution="*|x64" Project="x64" />

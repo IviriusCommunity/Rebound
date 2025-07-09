@@ -6,24 +6,24 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
-using System.Drawing.Imaging;
 using System.IO;
 using System.Linq;
+using System.Runtime.InteropServices.ComTypes;
+using System.Runtime.Serialization;
 using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.Input;
 using CommunityToolkit.WinUI;
+using Files.App.Storage;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Input;
-using Microsoft.UI.Xaml.Media;
-using Microsoft.UI.Xaml.Media.Imaging;
 using Microsoft.UI.Xaml.Navigation;
-using Rebound.Helpers;
-using Rebound.Shell.ExperienceHost;
 using Windows.ApplicationModel.DataTransfer;
 using Windows.Foundation;
 using Windows.Storage;
+using Windows.Storage.Streams;
 using Windows.System;
+using Windows.Win32;
 using WinUIEx;
 
 namespace Rebound.Shell.Desktop;
@@ -41,6 +41,8 @@ public sealed partial class DesktopPage : Page
     private double initialMarginY;
 
     private readonly DispatcherTimer _timer;
+
+    public DesktopViewModel ViewModel { get; } = new();
 
     public DesktopPage()
     {
@@ -76,11 +78,9 @@ public sealed partial class DesktopPage : Page
         this.PointerReleased += DesktopPage_PointerReleased;
         Refresh();
 
-        EnableLivelyWallpaperCompatibility.IsOn = SettingsHelper.GetValue($"EnableLivelyWallpaperCompatibility", "rshell.desktop", false);
-
         _timer = new DispatcherTimer
         {
-            Interval = TimeSpan.FromSeconds(1)
+            Interval = TimeSpan.FromMilliseconds(100)
         };
         _timer.Tick += Timer_Tick;
         _timer.Start();
@@ -382,6 +382,36 @@ public sealed partial class DesktopPage : Page
         e.DragUIOverride.Caption = "Move on Desktop";
     }
 
+    private async Task<Windows.Win32.UI.Shell.HDROP?> TryGetHDROPAsync(DragEventArgs e)
+    {
+        if (!e.DataView.Contains("WindowsShell.HDROP"))
+            return null;
+
+        try
+        {
+            var data = await e.DataView.GetDataAsync("WindowsShell.HDROP");
+            if (data is Windows.Win32.System.Com.IDataObject dataObject)
+            {
+                var format = new Windows.Win32.System.Com.FORMATETC
+                {
+                    cfFormat = 15, // CF_HDROP
+                    dwAspect = (uint)DVASPECT.DVASPECT_CONTENT,
+                    lindex = -1,
+                    tymed = (uint)TYMED.TYMED_HGLOBAL
+                };
+
+                dataObject.GetData(ref format, out var medium);
+                return new Windows.Win32.UI.Shell.HDROP((nint)medium.u.hGlobal);
+            }
+        }
+        catch (Exception ex)
+        {
+            Debug.WriteLine($"HDROP failed: {ex.Message}");
+        }
+
+        return null;
+    }
+
     private Dictionary<string, Point> dragOffsets = new(); // FilePath → offset from pointer
     private Point dragStartPointerPos;
     private async void CanvasControl_Drop(object sender, DragEventArgs e)
@@ -404,45 +434,65 @@ public sealed partial class DesktopPage : Page
                     {
                         if (storageFile is StorageFile file)
                         {
-                            var desktopFolder = await StorageFolder.GetFolderFromPathAsync(Environment.GetFolderPath(Environment.SpecialFolder.Desktop));
+                            var desktopPath = Environment.GetFolderPath(Environment.SpecialFolder.Desktop);
+                            FileStream stream;
 
-                            StorageFile? destinationFile = null;
-
-                            try
+                            if (!File.Exists(Path.Combine(desktopPath, file.Name)))
                             {
-                                destinationFile = await desktopFolder.GetFileAsync(Path.GetFileName(storageFile.Path));
+                                stream = File.Create(Path.Combine(desktopPath, file.Name));
                             }
-                            catch
+                            else
                             {
-                                destinationFile = await desktopFolder.CreateFileAsync(Path.GetFileName(storageFile.Path), CreationCollisionOption.ReplaceExisting);
+                                stream = File.OpenWrite(Path.Combine(desktopPath, file.Name));
+                            }
+                            var str = await file.OpenReadAsync();
+                            using (var input = str.AsStreamForRead()) // Convert to .NET Stream
+                            {
+                                await input.CopyToAsync(stream);
+                                await stream.FlushAsync(); // Ensure everything is written
                             }
 
-                            await file.CopyAndReplaceAsync(destinationFile);
-
-                            desktopFile = new DesktopItem(destinationFile.Path);
+                            desktopFile = new DesktopItem(Path.Combine(desktopPath, file.Name));
                             await desktopFile.LoadThumbnailAsync().ConfigureAwait(false);
                             newFiles.Add(desktopFile);
                         }
                         else if (storageFile is StorageFolder folder)
                         {
-                            var desktopFolder = await StorageFolder.GetFolderFromPathAsync(Environment.GetFolderPath(Environment.SpecialFolder.Desktop));
+                            await CopyFolderToDesktopAsync(folder).ConfigureAwait(false);
 
-                            StorageFolder? destinationFolder = null;
-
-                            try
+                            async Task CopyFolderToDesktopAsync(StorageFolder sourceFolder)
                             {
-                                destinationFolder = await desktopFolder.GetFolderAsync(Path.GetFileName(storageFile.Path));
+                                var desktopPath = Environment.GetFolderPath(Environment.SpecialFolder.Desktop);
+                                var targetRoot = Path.Combine(desktopPath, sourceFolder.Name);
+
+                                CopyDirectoryRecursive(sourceFolder.Path, targetRoot);
+
+                                // Create a DesktopItem for the copied folder
+                                var desktopFolder = new DesktopItem(targetRoot);
+                                await desktopFolder.LoadThumbnailAsync().ConfigureAwait(false);
+                                newFiles.Add(desktopFolder);
                             }
-                            catch
+
+                            void CopyDirectoryRecursive(string sourceDir, string destDir)
                             {
-                                destinationFolder = await desktopFolder.CreateFolderAsync(Path.GetFileName(storageFile.Path), CreationCollisionOption.ReplaceExisting);
+                                // Create destination directory if it doesn't exist
+                                Directory.CreateDirectory(destDir);
+
+                                // Copy all files
+                                foreach (var file in Directory.GetFiles(sourceDir))
+                                {
+                                    var destFile = Path.Combine(destDir, Path.GetFileName(file));
+                                    File.Copy(file, destFile, overwrite: true);
+                                }
+
+                                // Recursively copy subdirectories
+                                foreach (var dir in Directory.GetDirectories(sourceDir))
+                                {
+                                    var dirName = Path.GetFileName(dir);
+                                    var destSubDir = Path.Combine(destDir, dirName);
+                                    CopyDirectoryRecursive(dir, destSubDir);
+                                }
                             }
-
-                            await CopyStorageFolderAsync(folder, destinationFolder).ConfigureAwait(true);
-
-                            desktopFile = new DesktopItem(destinationFolder.Path);
-                            await desktopFile.LoadThumbnailAsync().ConfigureAwait(false);
-                            newFiles.Add(desktopFile);
                         }
 
                         Items.Add(desktopFile ?? new DesktopItem(""));
@@ -746,10 +796,5 @@ public sealed partial class DesktopPage : Page
     {
         base.OnNavigatedTo(e);
         Window = (DesktopWindow?)e?.Parameter;
-    }
-
-    public void ToggleSwitch_Toggled(object sender, RoutedEventArgs e)
-    {
-        SettingsHelper.SetValue($"EnableLivelyWallpaperCompatibility", "rshell.desktop", (sender as ToggleSwitch).IsOn);
     }
 }

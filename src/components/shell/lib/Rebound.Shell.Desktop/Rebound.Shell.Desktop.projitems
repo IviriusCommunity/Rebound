@@ -17,6 +17,7 @@
       <DependentUpon>DesktopPage.xaml</DependentUpon>
     </Compile>
     <Compile Include="$(MSBuildThisFileDirectory)DesktopSettingsHelper.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)DesktopViewModel.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)DesktopWindow.xaml.cs">
       <DependentUpon>DesktopWindow.xaml</DependentUpon>
     </Compile>

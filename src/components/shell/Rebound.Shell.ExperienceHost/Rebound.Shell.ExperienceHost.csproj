@@ -24,6 +24,13 @@
 	</ItemGroup>
 
 	<ItemGroup>
+	  <Content Include="NativeMethods.json" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <Content Update="Assets\Files.png">
+	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	  </Content>
 	  <Content Update="Assets\LivelyWallpaper.png">
 	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
 	  </Content>

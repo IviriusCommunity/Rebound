@@ -19,6 +19,7 @@
 	<!-- Project content -->
 	<ItemGroup>
         <None Remove="Views\MainPage.xaml" />
+        <Content Include="NativeMethods.json" />
 		<Manifest Include="$(ApplicationManifest)" />
 		<Page Update="Views\MainPage.xaml">
 			<Generator>MSBuild:Compile</Generator>

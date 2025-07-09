@@ -38,7 +38,7 @@ public static class AppHelper
     }
 
     // Credit: https://github.com/HotCakeX/
-    public static unsafe void RelaunchAsAdmin(this Application application, string package, string args)
+    /*public static unsafe void RelaunchAsAdmin(this Application application, string package, string args)
     {
         const uint CLSCTX_LOCAL_SERVER = 0x4;
 
@@ -66,5 +66,5 @@ public static class AppHelper
             new PCWSTR((char*)argsPtr),
             (Windows.Win32.UI.Shell.ACTIVATEOPTIONS)0x20000000,
             out _);
-    }
+    }*/
 }

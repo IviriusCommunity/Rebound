@@ -22,6 +22,7 @@
 			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 		</Content>
 		<Content Include="Modding\Launchers\rosk.exe" />
+		<Content Include="NativeMethods.json" />
 		<CustomAdditionalCompileInputs Remove="Views\HomePage.xaml" />
 		<Resource Remove="Views\HomePage.xaml" />
 		<PRIResource Remove="Assets\Wallpapers\**" />
