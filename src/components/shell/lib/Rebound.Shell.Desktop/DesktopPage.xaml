@@ -447,7 +447,10 @@
             TrueValue="True" />
 
     </Page.Resources>
-    <Grid x:Name="MainGrid" Background="Transparent" PointerPressed="BackgroundGrid_PointerPressed">
+    <Grid
+        x:Name="MainGrid"
+        Background="Transparent"
+        PointerPressed="BackgroundGrid_PointerPressed">
         <Grid
             Width="0"
             Height="0"
@@ -456,7 +459,7 @@
             <Grid.ContextFlyout>
                 <MenuFlyout x:Name="ContextMenu">
                     <MenuFlyout.SystemBackdrop>
-                        <local:WallpaperGlassBackdrop/>
+                        <local:WallpaperGlassBackdrop />
                     </MenuFlyout.SystemBackdrop>
                     <MenuFlyoutSubItem Text="View">
                         <MenuFlyoutSubItem.Icon>
@@ -751,23 +754,58 @@
             </Grid.ContextFlyout>
         </Grid>
         <Image x:Name="Wallpaper" />
-        <StackPanel
-            Margin="160"
-            HorizontalAlignment="Center"
-            VerticalAlignment="Top"
-            Visibility="{x:Bind ViewModel.ShowClockWidget, Mode=OneWay}">
-            <TextBlock
-                x:Name="TimeTextBlock"
-                FontSize="96"
-                FontWeight="SemiBold"
-                Text="12:03"
-                TextAlignment="Center" />
-            <TextBlock
-                x:Name="DateTextBlock"
-                FontSize="48"
-                Text="Friday, 02.12.2025"
-                TextAlignment="Center" />
-        </StackPanel>
+        <Grid Visibility="{x:Bind ViewModel.ShowClockWidget, Mode=OneWay}">
+            <StackPanel
+                Margin="160"
+                HorizontalAlignment="Center"
+                VerticalAlignment="Top">
+                <TextBlock
+                    x:Name="TimeTextBlock"
+                    FontSize="96"
+                    FontWeight="SemiBold"
+                    Text="12:03"
+                    TextAlignment="Center">
+                    <ui:Effects.Shadow>
+                        <ui:AttachedDropShadow
+                            BlurRadius="16"
+                            CastTo="{x:Bind TimeTextBlock}"
+                            IsMasked="True"
+                            Opacity="0.5"
+                            Offset="0, 4"
+                            Color="Black" />
+                    </ui:Effects.Shadow>
+                </TextBlock>
+                <TextBlock
+                    x:Name="DateTextBlock"
+                    FontSize="48"
+                    Text="Friday, 02.12.2025"
+                    TextAlignment="Center">
+                    <ui:Effects.Shadow>
+                        <ui:AttachedDropShadow
+                            BlurRadius="8"
+                            CastTo="{x:Bind DateTextBlock}"
+                            IsMasked="True"
+                            Opacity="0.5"
+                            Offset="0, 4"
+                            Color="Black" />
+                    </ui:Effects.Shadow>
+                </TextBlock>
+            </StackPanel>
+            <StackPanel
+                Margin="160"
+                HorizontalAlignment="Center"
+                VerticalAlignment="Top">
+                <TextBlock
+                    FontSize="96"
+                    FontWeight="SemiBold"
+                    Text="{x:Bind TimeTextBlock.Text, Mode=OneWay}"
+                    TextAlignment="Center" />
+                <TextBlock
+                    FontSize="48"
+                    Text="{x:Bind DateTextBlock.Text, Mode=OneWay}"
+                    TextAlignment="Center" />
+            </StackPanel>
+        </Grid>
         <Grid
             AllowDrop="True"
             Background="Transparent"
@@ -988,11 +1026,11 @@
                 Width="400"
                 Height="400"
                 Margin="32"
+                Background="{ThemeResource SolidBackgroundFillColorBaseBrush}"
                 BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
                 BorderThickness="1"
-                Background="{ThemeResource SolidBackgroundFillColorBaseBrush}"
                 CornerRadius="8">
-                <!--Background="{ThemeResource SolidBackgroundFillColorBaseBrush}"-->
+                <!--  Background="{ThemeResource SolidBackgroundFillColorBaseBrush}"  -->
                 <Grid>
                     <TextBlock
                         Margin="16,14,0,0"
@@ -1010,7 +1048,7 @@
                         <FontIcon FontSize="16" Glyph="&#xE894;" />
                     </Button>
                     <ScrollViewer Margin="0,48,0,48">
-                        <StackPanel Margin="16, 0, 16, 0" Spacing="8">
+                        <StackPanel Margin="16,0,16,0" Spacing="8">
                             <toolkit:SettingsCard Description="Prevent Rebound Desktop from creating a WorkerW on startup to allow Lively Wallpaper to create its own and host live wallpapers. You must restart Rebound Shell for the changes to take effect." Header="Enable Lively Wallpaper compatibility">
                                 <toolkit:SettingsCard.HeaderIcon>
                                     <ImageIcon Source="/Assets/LivelyWallpaper.png" />
