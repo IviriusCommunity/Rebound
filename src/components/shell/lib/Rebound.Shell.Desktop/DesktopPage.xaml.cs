@@ -14,19 +14,89 @@ using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.Input;
 using CommunityToolkit.WinUI;
 using Files.App.Storage;
+using Microsoft.Graphics.Canvas.Effects;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
+using Microsoft.UI.Xaml.Controls.Primitives;
 using Microsoft.UI.Xaml.Input;
 using Microsoft.UI.Xaml.Navigation;
+using Rebound.Helpers;
+using Rebound.Shell.ExperienceHost;
 using Windows.ApplicationModel.DataTransfer;
 using Windows.Foundation;
 using Windows.Storage;
 using Windows.Storage.Streams;
 using Windows.System;
+using Windows.UI;
 using Windows.Win32;
 using WinUIEx;
 
 namespace Rebound.Shell.Desktop;
+
+public partial class WallpaperGlassBackdrop : CompositionBrushBackdrop
+{
+    protected override Windows.UI.Composition.CompositionBrush CreateBrush(Windows.UI.Composition.Compositor compositor)
+    {
+        var LuminosityOpacity = 0.7F; // Opacity for luminosity overlay
+        var TintOpacity = 0F; // Opacity for luminosity overlay
+        var TintColor = (App.DesktopWindow.Content as FrameworkElement).ActualTheme == ElementTheme.Light ? Color.FromArgb(255, 223, 223, 223) : Color.FromArgb(255, 32, 32, 32); // Opacity for luminosity overlay
+
+        var baseBrush = SettingsHelper.GetValue("UseMicaMenus", "rshell.desktop", false) ? compositor.TryCreateBlurredWallpaperBackdropBrush() : compositor.CreateHostBackdropBrush();
+
+        // --------- Luminosity Overlay Effect ---------
+        var luminosityEffect = new BlendEffect
+        {
+            Mode = BlendEffectMode.Color,
+            Background = new Windows.UI.Composition.CompositionEffectSourceParameter("Wallpaper"),
+            Foreground = new Windows.UI.Composition.CompositionEffectSourceParameter("LuminosityOverlay")
+        };
+
+        var luminosityEffectComposite = new ArithmeticCompositeEffect
+        {
+            Source1 = new Windows.UI.Composition.CompositionEffectSourceParameter("Wallpaper"),
+            Source2 = luminosityEffect,
+            MultiplyAmount = 0,
+            Source1Amount = 1 - LuminosityOpacity,
+            Source2Amount = LuminosityOpacity,
+            Offset = 0
+        };
+
+        var luminosityEffectFactory = compositor.CreateEffectFactory(luminosityEffectComposite);
+        var luminosityEffectBrush = luminosityEffectFactory.CreateBrush();
+
+        var luminosityTint = compositor.CreateColorBrush(TintColor);
+        luminosityEffectBrush.SetSourceParameter("Wallpaper", baseBrush);
+        luminosityEffectBrush.SetSourceParameter("LuminosityOverlay", luminosityTint);
+
+        // --------- Color Overlay Effect ---------
+        var colorEffect = new BlendEffect
+        {
+            Mode = BlendEffectMode.Luminosity,
+            Background = new Windows.UI.Composition.CompositionEffectSourceParameter("LuminosityEffectOutput"), // Use output of luminosityEffect
+            Foreground = new Windows.UI.Composition.CompositionEffectSourceParameter("ColorOverlay")
+        };
+
+        var colorEffectComposite = new ArithmeticCompositeEffect
+        {
+            Source1 = new Windows.UI.Composition.CompositionEffectSourceParameter("LuminosityEffectOutput"), // Use output of luminosityEffect
+            Source2 = colorEffect,
+            MultiplyAmount = 0,
+            Source1Amount = 1 - TintOpacity,
+            Source2Amount = TintOpacity,
+            Offset = 0
+        };
+
+        var colorEffectFactory = compositor.CreateEffectFactory(colorEffectComposite);
+        var colorEffectBrush = colorEffectFactory.CreateBrush();
+
+        var colorTint = compositor.CreateColorBrush(TintColor);
+        colorEffectBrush.SetSourceParameter("LuminosityEffectOutput", luminosityEffectBrush); // Set luminosityEffectBrush as input
+        colorEffectBrush.SetSourceParameter("ColorOverlay", colorTint);
+
+        // Return the final brush with both effects applied
+        return colorEffectBrush;
+    }
+}
 
 public sealed partial class DesktopPage : Page
 {
@@ -122,6 +192,25 @@ public sealed partial class DesktopPage : Page
         }*/
     }
 
+    [RelayCommand]
+    private void ExitDesktop()
+    {
+        ((DesktopWindow)App.DesktopWindow).canClose = true;
+        ((DesktopWindow)App.DesktopWindow).Close();
+        ((DesktopWindow)App.DesktopWindow).RestoreExplorerDesktop();
+    }
+
+    [RelayCommand]
+    private async Task ExitShellAsync()
+    {
+        ((DesktopWindow)App.DesktopWindow).canClose = true;
+        ((DesktopWindow)App.DesktopWindow).Close();
+        ((DesktopWindow)App.DesktopWindow).RestoreExplorerDesktop();
+        await Task.Delay(250).ConfigureAwait(true);
+        Process.GetCurrentProcess().Kill();
+    }
+
+    [RelayCommand]
     public void ShowOptions()
     {
         OptionsGrid.Visibility = Visibility.Visible;
@@ -147,6 +236,7 @@ public sealed partial class DesktopPage : Page
         DateTextBlock.Text = DateTime.Now.ToString("dddd, dd.MM.yyyy");
     }
 
+    [RelayCommand]
     public void Refresh()
     {
         DispatcherQueue.TryEnqueue(async () =>
@@ -189,12 +279,17 @@ public sealed partial class DesktopPage : Page
     bool _isSelectingWithSelectionBox;
     bool _isRightClickHeld;
 
-    private void DesktopPage_PointerReleased(object sender, PointerRoutedEventArgs e)
+    private async void DesktopPage_PointerReleased(object sender, PointerRoutedEventArgs e)
     {
         if (_isRightClickHeld)
         {
             _isRightClickHeld = false;
-            Window.CreateContextMenuAtPosition(e.GetCurrentPoint(null).Position);
+            ContextMenu.ShowAt(this, new FlyoutShowOptions()
+            {
+                Placement = FlyoutPlacementMode.BottomEdgeAlignedLeft,
+                ShowMode = FlyoutShowMode.Transient,
+                Position = e.GetCurrentPoint(null).Position
+            });
             return;
         }
 

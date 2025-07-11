@@ -447,7 +447,309 @@
             TrueValue="True" />
 
     </Page.Resources>
-    <Grid>
+    <Grid x:Name="MainGrid" Background="Transparent" PointerPressed="BackgroundGrid_PointerPressed">
+        <Grid
+            Width="0"
+            Height="0"
+            HorizontalAlignment="Left"
+            VerticalAlignment="Top">
+            <Grid.ContextFlyout>
+                <MenuFlyout x:Name="ContextMenu">
+                    <MenuFlyout.SystemBackdrop>
+                        <local:WallpaperGlassBackdrop/>
+                    </MenuFlyout.SystemBackdrop>
+                    <MenuFlyoutSubItem Text="View">
+                        <MenuFlyoutSubItem.Icon>
+                            <FontIcon Glyph="&#xE8A9;" />
+                        </MenuFlyoutSubItem.Icon>
+                        <RadioMenuFlyoutItem Text="Large icons">
+                            <RadioMenuFlyoutItem.KeyboardAccelerators>
+                                <KeyboardAccelerator Key="Number1" Modifiers="Control, Shift" />
+                            </RadioMenuFlyoutItem.KeyboardAccelerators>
+                            <RadioMenuFlyoutItem.Icon>
+                                <PathIcon Data="M 4 2 L 12 2 C 13 2 14 3 14 4 L 14 11 C 14 12 13 13 12 13 L 4 13 C 3 13 2 12 2 11 L 2 4 C 2 3 3 2 4 2 M 3 4 L 3 11 C 3 11.5 3.5 12 4 12 L 12 12 C 12.5 12 13 11.5 13 11 L 13 4 C 13 3.5 12.5 3 12 3 L 4 3 C 3.5 3 3 3.5 3 4 M 2 14 L 14 14 L 14 15 L 2 15 M 0 0 L 16 16" />
+                            </RadioMenuFlyoutItem.Icon>
+                        </RadioMenuFlyoutItem>
+                        <RadioMenuFlyoutItem IsChecked="True" Text="Medium icons">
+                            <RadioMenuFlyoutItem.KeyboardAccelerators>
+                                <KeyboardAccelerator Key="Number2" Modifiers="Control, Shift" />
+                            </RadioMenuFlyoutItem.KeyboardAccelerators>
+                            <RadioMenuFlyoutItem.Icon>
+                                <PathIcon Data="M 5 2 L 11 2 C 12 2 13 3 13 4 L 13 9 C 13 10 12 11 11 11 L 5 11 C 4 11 3 10 3 9 L 3 4 C 3 3 4 2 5 2 M 4 4 L 4 9 C 4 9.5 4.5 10 5 10 L 11 10 C 11.5 10 12 9.5 12 9 L 12 4 C 12 3.5 11.5 3 11 3 L 5 3 C 4.5 3 4 3.5 4 4 M 4 14 L 12 14 L 12 15 L 4 15 M 4 12 L 12 12 L 12 13 L 4 13 M 0 0 L 16 16" />
+                            </RadioMenuFlyoutItem.Icon>
+                        </RadioMenuFlyoutItem>
+                        <RadioMenuFlyoutItem Text="Small icons">
+                            <RadioMenuFlyoutItem.KeyboardAccelerators>
+                                <KeyboardAccelerator Key="Number3" Modifiers="Control, Shift" />
+                            </RadioMenuFlyoutItem.KeyboardAccelerators>
+                            <RadioMenuFlyoutItem.Icon>
+                                <FontIcon Glyph="&#xE8A9;" />
+                            </RadioMenuFlyoutItem.Icon>
+                        </RadioMenuFlyoutItem>
+                        <MenuFlyoutSeparator />
+                        <ToggleMenuFlyoutItem Text="Auto arrange icons">
+                            <ToggleMenuFlyoutItem.Icon>
+                                <FontIcon Glyph="&#xE945;" />
+                            </ToggleMenuFlyoutItem.Icon>
+                        </ToggleMenuFlyoutItem>
+                        <ToggleMenuFlyoutItem IsChecked="True" Text="Align icons to grid">
+                            <ToggleMenuFlyoutItem.Icon>
+                                <PathIcon Data="M 2 0 L 2 2 L 0 2 L 0 3 L 2 3 L 2 16 L 3 16 L 3 3 L 16 3 L 16 2 L 3 2 L 3 0 Z M 7 5 L 13 5 C 14 5 15 6 15 7 L 15 13 C 15 14 14 15 13 15 L 7 15 C 6 15 5 14 5 13 L 5 7 C 5 6 6 5 7 5 M 13 6 L 7 6 C 6.5 6 6 6.5 6 7 L 6 13 C 6 13.5 6.5 14 7 14 L 13 14 C 13.5 14 14 13.5 14 13 L 14 7 C 14 6.5 13.5 6 13 6" />
+                            </ToggleMenuFlyoutItem.Icon>
+                        </ToggleMenuFlyoutItem>
+                        <MenuFlyoutSeparator />
+                        <ToggleMenuFlyoutItem IsChecked="{x:Bind ViewModel.ShowDesktopIcons, Mode=TwoWay}" Text="Show desktop icons">
+                            <ToggleMenuFlyoutItem.Icon>
+                                <FontIcon Glyph="&#xE890;" />
+                            </ToggleMenuFlyoutItem.Icon>
+                        </ToggleMenuFlyoutItem>
+                    </MenuFlyoutSubItem>
+                    <MenuFlyoutSubItem Text="Sort">
+                        <MenuFlyoutSubItem.Icon>
+                            <FontIcon Glyph="&#xE8CB;" />
+                        </MenuFlyoutSubItem.Icon>
+                        <MenuFlyoutItem Text="Name" />
+                        <MenuFlyoutItem Text="Size" />
+                        <MenuFlyoutItem Text="Item type" />
+                        <MenuFlyoutItem Text="Date modified" />
+                    </MenuFlyoutSubItem>
+                    <MenuFlyoutItem Command="{x:Bind RefreshCommand}" Text="Refresh">
+                        <MenuFlyoutItem.Icon>
+                            <FontIcon Glyph="&#xE72C;" />
+                        </MenuFlyoutItem.Icon>
+                    </MenuFlyoutItem>
+                    <MenuFlyoutSeparator />
+                    <MenuFlyoutSubItem Text="New">
+                        <MenuFlyoutSubItem.Icon>
+                            <FontIcon Glyph="&#xECC8;" />
+                        </MenuFlyoutSubItem.Icon>
+                        <MenuFlyoutItem Text="Folder">
+                            <MenuFlyoutItem.KeyboardAccelerators>
+                                <KeyboardAccelerator Key="N" Modifiers="Control, Shift" />
+                            </MenuFlyoutItem.KeyboardAccelerators>
+                            <MenuFlyoutItem.Icon>
+                                <FontIcon Glyph="&#xE8B7;" />
+                            </MenuFlyoutItem.Icon>
+                        </MenuFlyoutItem>
+                        <MenuFlyoutItem Text="File">
+                            <MenuFlyoutItem.Icon>
+                                <FontIcon Glyph="&#xE8A5;" />
+                            </MenuFlyoutItem.Icon>
+                        </MenuFlyoutItem>
+                        <MenuFlyoutItem Text="Shortcut">
+                            <MenuFlyoutItem.Icon>
+                                <FontIcon Glyph="&#xE71B;" />
+                            </MenuFlyoutItem.Icon>
+                        </MenuFlyoutItem>
+                    </MenuFlyoutSubItem>
+                    <MenuFlyoutSeparator />
+                    <MenuFlyoutItem Text="Display settings">
+                        <MenuFlyoutItem.Icon>
+                            <FontIcon Glyph="&#xE7F4;" />
+                        </MenuFlyoutItem.Icon>
+                    </MenuFlyoutItem>
+                    <MenuFlyoutItem Text="Personalize">
+                        <MenuFlyoutItem.Icon>
+                            <FontIcon Glyph="&#xE771;" />
+                        </MenuFlyoutItem.Icon>
+                    </MenuFlyoutItem>
+                    <MenuFlyoutSubItem Text="Open in command line">
+                        <MenuFlyoutSubItem.Icon>
+                            <FontIcon Glyph="&#xE756;" />
+                        </MenuFlyoutSubItem.Icon>
+                        <MenuFlyoutItem Text="Command Prompt">
+                            <MenuFlyoutItem.Icon>
+                                <FontIcon Glyph="&#xE756;" />
+                            </MenuFlyoutItem.Icon>
+                        </MenuFlyoutItem>
+                    </MenuFlyoutSubItem>
+                    <MenuFlyoutSeparator />
+                    <MenuFlyoutSubItem Text="More options">
+                        <MenuFlyoutSubItem.Icon>
+                            <FontIcon Glyph="&#xE712;" />
+                        </MenuFlyoutSubItem.Icon>
+                        <MenuFlyoutItem Text="Command Prompt">
+                            <MenuFlyoutItem.Icon>
+                                <FontIcon Glyph="&#xE756;" />
+                            </MenuFlyoutItem.Icon>
+                        </MenuFlyoutItem>
+                    </MenuFlyoutSubItem>
+                    <MenuFlyoutSeparator />
+                    <MenuFlyoutItem Command="{x:Bind ShowOptionsCommand}" Text="Options">
+                        <MenuFlyoutItem.Icon>
+                            <FontIcon Glyph="&#xE90F;" />
+                        </MenuFlyoutItem.Icon>
+                    </MenuFlyoutItem>
+                    <MenuFlyoutItem Command="{x:Bind ExitDesktopCommand}" Text="Exit Rebound Desktop">
+                        <MenuFlyoutItem.Icon>
+                            <FontIcon Glyph="&#xE70A;" />
+                        </MenuFlyoutItem.Icon>
+                    </MenuFlyoutItem>
+                    <MenuFlyoutItem Command="{x:Bind ExitShellCommand}" Text="Exit Rebound Shell">
+                        <MenuFlyoutItem.Icon>
+                            <FontIcon Glyph="&#xE894;" />
+                        </MenuFlyoutItem.Icon>
+                    </MenuFlyoutItem>
+                </MenuFlyout>
+                <!--<CommandBarFlyout x:Name="ContextMenu">
+                    <CommandBarFlyout.SecondaryCommands>
+                        <AppBarButton Label="View">
+                            <AppBarButton.Icon>
+                                <FontIcon Glyph="&#xE8A9;" />
+                            </AppBarButton.Icon>
+                            <AppBarButton.Flyout>
+                                <MenuFlyout>
+                                    <RadioMenuFlyoutItem Text="Large icons">
+                                        <RadioMenuFlyoutItem.KeyboardAccelerators>
+                                            <KeyboardAccelerator Key="Number1" Modifiers="Control, Shift" />
+                                        </RadioMenuFlyoutItem.KeyboardAccelerators>
+                                        <RadioMenuFlyoutItem.Icon>
+                                            <PathIcon Data="M 4 2 L 12 2 C 13 2 14 3 14 4 L 14 11 C 14 12 13 13 12 13 L 4 13 C 3 13 2 12 2 11 L 2 4 C 2 3 3 2 4 2 M 3 4 L 3 11 C 3 11.5 3.5 12 4 12 L 12 12 C 12.5 12 13 11.5 13 11 L 13 4 C 13 3.5 12.5 3 12 3 L 4 3 C 3.5 3 3 3.5 3 4 M 2 14 L 14 14 L 14 15 L 2 15 M 0 0 L 16 16" />
+                                        </RadioMenuFlyoutItem.Icon>
+                                    </RadioMenuFlyoutItem>
+                                    <RadioMenuFlyoutItem IsChecked="True" Text="Medium icons">
+                                        <RadioMenuFlyoutItem.KeyboardAccelerators>
+                                            <KeyboardAccelerator Key="Number2" Modifiers="Control, Shift" />
+                                        </RadioMenuFlyoutItem.KeyboardAccelerators>
+                                        <RadioMenuFlyoutItem.Icon>
+                                            <PathIcon Data="M 5 2 L 11 2 C 12 2 13 3 13 4 L 13 9 C 13 10 12 11 11 11 L 5 11 C 4 11 3 10 3 9 L 3 4 C 3 3 4 2 5 2 M 4 4 L 4 9 C 4 9.5 4.5 10 5 10 L 11 10 C 11.5 10 12 9.5 12 9 L 12 4 C 12 3.5 11.5 3 11 3 L 5 3 C 4.5 3 4 3.5 4 4 M 4 14 L 12 14 L 12 15 L 4 15 M 4 12 L 12 12 L 12 13 L 4 13 M 0 0 L 16 16" />
+                                        </RadioMenuFlyoutItem.Icon>
+                                    </RadioMenuFlyoutItem>
+                                    <RadioMenuFlyoutItem Text="Small icons">
+                                        <RadioMenuFlyoutItem.KeyboardAccelerators>
+                                            <KeyboardAccelerator Key="Number3" Modifiers="Control, Shift" />
+                                        </RadioMenuFlyoutItem.KeyboardAccelerators>
+                                        <RadioMenuFlyoutItem.Icon>
+                                            <FontIcon Glyph="&#xE8A9;" />
+                                        </RadioMenuFlyoutItem.Icon>
+                                    </RadioMenuFlyoutItem>
+                                    <MenuFlyoutSeparator />
+                                    <ToggleMenuFlyoutItem Text="Auto arrange icons">
+                                        <ToggleMenuFlyoutItem.Icon>
+                                            <FontIcon Glyph="&#xE945;" />
+                                        </ToggleMenuFlyoutItem.Icon>
+                                    </ToggleMenuFlyoutItem>
+                                    <ToggleMenuFlyoutItem IsChecked="True" Text="Align icons to grid">
+                                        <ToggleMenuFlyoutItem.Icon>
+                                            <PathIcon Data="M 2 0 L 2 2 L 0 2 L 0 3 L 2 3 L 2 16 L 3 16 L 3 3 L 16 3 L 16 2 L 3 2 L 3 0 Z M 7 5 L 13 5 C 14 5 15 6 15 7 L 15 13 C 15 14 14 15 13 15 L 7 15 C 6 15 5 14 5 13 L 5 7 C 5 6 6 5 7 5 M 13 6 L 7 6 C 6.5 6 6 6.5 6 7 L 6 13 C 6 13.5 6.5 14 7 14 L 13 14 C 13.5 14 14 13.5 14 13 L 14 7 C 14 6.5 13.5 6 13 6" />
+                                        </ToggleMenuFlyoutItem.Icon>
+                                    </ToggleMenuFlyoutItem>
+                                    <MenuFlyoutSeparator />
+                                    <ToggleMenuFlyoutItem IsChecked="{x:Bind ViewModel.ShowDesktopIcons, Mode=TwoWay}" Text="Show desktop icons">
+                                        <ToggleMenuFlyoutItem.Icon>
+                                            <FontIcon Glyph="&#xE890;" />
+                                        </ToggleMenuFlyoutItem.Icon>
+                                    </ToggleMenuFlyoutItem>
+                                </MenuFlyout>
+                            </AppBarButton.Flyout>
+                        </AppBarButton>
+                        <AppBarButton Label="Sort">
+                            <AppBarButton.Icon>
+                                <FontIcon Glyph="&#xE8CB;" />
+                            </AppBarButton.Icon>
+                            <AppBarButton.Flyout>
+                                <MenuFlyout>
+                                    <MenuFlyoutItem Text="Name" />
+                                    <MenuFlyoutItem Text="Size" />
+                                    <MenuFlyoutItem Text="Item type" />
+                                    <MenuFlyoutItem Text="Date modified" />
+                                </MenuFlyout>
+                            </AppBarButton.Flyout>
+                        </AppBarButton>
+                        <AppBarButton Command="{x:Bind RefreshCommand}" Label="Refresh">
+                            <AppBarButton.Icon>
+                                <FontIcon Glyph="&#xE72C;" />
+                            </AppBarButton.Icon>
+                        </AppBarButton>
+                        <AppBarSeparator />
+                        <AppBarButton Label="New">
+                            <AppBarButton.Icon>
+                                <FontIcon Glyph="&#xECC8;" />
+                            </AppBarButton.Icon>
+                            <AppBarButton.Flyout>
+                                <MenuFlyout>
+                                    <MenuFlyoutItem Text="Folder">
+                                        <MenuFlyoutItem.KeyboardAccelerators>
+                                            <KeyboardAccelerator Key="N" Modifiers="Control, Shift" />
+                                        </MenuFlyoutItem.KeyboardAccelerators>
+                                        <MenuFlyoutItem.Icon>
+                                            <FontIcon Glyph="&#xE8B7;" />
+                                        </MenuFlyoutItem.Icon>
+                                    </MenuFlyoutItem>
+                                    <MenuFlyoutItem Text="File">
+                                        <MenuFlyoutItem.Icon>
+                                            <FontIcon Glyph="&#xE8A5;" />
+                                        </MenuFlyoutItem.Icon>
+                                    </MenuFlyoutItem>
+                                    <MenuFlyoutItem Text="Shortcut">
+                                        <MenuFlyoutItem.Icon>
+                                            <FontIcon Glyph="&#xE71B;" />
+                                        </MenuFlyoutItem.Icon>
+                                    </MenuFlyoutItem>
+                                </MenuFlyout>
+                            </AppBarButton.Flyout>
+                        </AppBarButton>
+                        <AppBarSeparator />
+                        <AppBarButton Label="Display settings">
+                            <AppBarButton.Icon>
+                                <FontIcon Glyph="&#xE7F4;" />
+                            </AppBarButton.Icon>
+                        </AppBarButton>
+                        <AppBarButton Label="Personalize">
+                            <AppBarButton.Icon>
+                                <FontIcon Glyph="&#xE771;" />
+                            </AppBarButton.Icon>
+                        </AppBarButton>
+                        <AppBarSeparator />
+                        <AppBarButton Label="Open in command line">
+                            <AppBarButton.Icon>
+                                <FontIcon Glyph="&#xE756;" />
+                            </AppBarButton.Icon>
+                            <AppBarButton.Flyout>
+                                <MenuFlyout>
+                                    <MenuFlyoutItem Text="Command Prompt">
+                                        <MenuFlyoutItem.Icon>
+                                            <FontIcon Glyph="&#xE756;" />
+                                        </MenuFlyoutItem.Icon>
+                                    </MenuFlyoutItem>
+                                </MenuFlyout>
+                            </AppBarButton.Flyout>
+                        </AppBarButton>
+                        <AppBarSeparator />
+                        <AppBarButton Label="More options">
+                            <AppBarButton.Icon>
+                                <FontIcon Glyph="&#xE712;" />
+                            </AppBarButton.Icon>
+                            <AppBarButton.Flyout>
+                                <MenuFlyout>
+                                    <MenuFlyoutItem Text="Command Prompt">
+                                        <MenuFlyoutItem.Icon>
+                                            <FontIcon Glyph="&#xE756;" />
+                                        </MenuFlyoutItem.Icon>
+                                    </MenuFlyoutItem>
+                                </MenuFlyout>
+                            </AppBarButton.Flyout>
+                        </AppBarButton>
+                        <AppBarSeparator />
+                        <AppBarButton Command="{x:Bind ShowOptionsCommand}" Label="Options">
+                            <AppBarButton.Icon>
+                                <FontIcon Glyph="&#xE90F;" />
+                            </AppBarButton.Icon>
+                        </AppBarButton>
+                        <AppBarButton Command="{x:Bind ExitDesktopCommand}" Label="Exit Rebound Desktop">
+                            <AppBarButton.Icon>
+                                <FontIcon Glyph="&#xE70A;" />
+                            </AppBarButton.Icon>
+                        </AppBarButton>
+                        <AppBarButton Command="{x:Bind ExitShellCommand}" Label="Exit Rebound Shell">
+                            <AppBarButton.Icon>
+                                <FontIcon Glyph="&#xE894;" />
+                            </AppBarButton.Icon>
+                        </AppBarButton>
+                    </CommandBarFlyout.SecondaryCommands>
+                </CommandBarFlyout>-->
+            </Grid.ContextFlyout>
+        </Grid>
         <Image x:Name="Wallpaper" />
         <StackPanel
             Margin="160"
@@ -468,10 +770,11 @@
         </StackPanel>
         <Grid
             AllowDrop="True"
-            Background="#00000000"
+            Background="Transparent"
             DragOver="CanvasControl_DragOver"
             Drop="CanvasControl_Drop"
-            PointerPressed="BackgroundGrid_PointerPressed">
+            PointerPressed="BackgroundGrid_PointerPressed"
+            Visibility="{x:Bind ViewModel.ShowDesktopIcons, Mode=OneWay}">
             <ItemsRepeater
                 x:Name="CanvasControl"
                 Margin="4"
@@ -685,10 +988,11 @@
                 Width="400"
                 Height="400"
                 Margin="32"
-                Background="{ThemeResource SolidBackgroundFillColorBaseBrush}"
                 BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
                 BorderThickness="1"
+                Background="{ThemeResource SolidBackgroundFillColorBaseBrush}"
                 CornerRadius="8">
+                <!--Background="{ThemeResource SolidBackgroundFillColorBaseBrush}"-->
                 <Grid>
                     <TextBlock
                         Margin="16,14,0,0"
@@ -705,8 +1009,8 @@
                         Command="{x:Bind HideOptionsCommand}">
                         <FontIcon FontSize="16" Glyph="&#xE894;" />
                     </Button>
-                    <ScrollViewer Margin="0,32,0,0">
-                        <StackPanel Margin="16" Spacing="8">
+                    <ScrollViewer Margin="0,48,0,48">
+                        <StackPanel Margin="16, 0, 16, 0" Spacing="8">
                             <toolkit:SettingsCard Description="Prevent Rebound Desktop from creating a WorkerW on startup to allow Lively Wallpaper to create its own and host live wallpapers. You must restart Rebound Shell for the changes to take effect." Header="Enable Lively Wallpaper compatibility">
                                 <toolkit:SettingsCard.HeaderIcon>
                                     <ImageIcon Source="/Assets/LivelyWallpaper.png" />
@@ -719,8 +1023,29 @@
                                 </toolkit:SettingsCard.HeaderIcon>
                                 <ToggleSwitch IsOn="{x:Bind ViewModel.ShowClockWidget, Mode=TwoWay}" />
                             </toolkit:SettingsCard>
+                            <toolkit:SettingsCard Description="Use Mica as the context menu's backdrop." Header="Mica menus">
+                                <toolkit:SettingsCard.HeaderIcon>
+                                    <FontIcon Glyph="&#xE700;" />
+                                </toolkit:SettingsCard.HeaderIcon>
+                                <ToggleSwitch IsOn="{x:Bind ViewModel.UseMicaMenus, Mode=TwoWay}" />
+                            </toolkit:SettingsCard>
                         </StackPanel>
                     </ScrollViewer>
+                    <StackPanel
+                        Margin="16"
+                        VerticalAlignment="Bottom"
+                        Orientation="Horizontal"
+                        Spacing="8">
+                        <Image Width="16" Source="/Assets/Files.png" />
+                        <TextBlock FontWeight="SemiBold" Text="Powered by Files">
+                            <TextBlock.Foreground>
+                                <LinearGradientBrush StartPoint="0, 0" EndPoint="1, 1">
+                                    <GradientStop Color="#ffc57e" />
+                                    <GradientStop Offset="1" Color="#e88532" />
+                                </LinearGradientBrush>
+                            </TextBlock.Foreground>
+                        </TextBlock>
+                    </StackPanel>
                 </Grid>
             </Grid>
         </Grid>

@@ -19,12 +19,9 @@ public sealed partial class DesktopWindow : WindowEx
 {
     private readonly Action? onClosedCallback;
 
-    private readonly Action<Point>? createContextMenuCallback;
-
-    public DesktopWindow(Action? onClosed = null, Action<Point>? createContextMenu = null)
+    public DesktopWindow(Action? onClosed = null)
     {
         onClosedCallback = onClosed;
-        createContextMenuCallback = createContextMenu;
         InitializeComponent();
         this.ToggleWindowStyle(false, 
             WindowStyle.SizeBox | WindowStyle.Caption | 
@@ -52,12 +49,7 @@ public sealed partial class DesktopWindow : WindowEx
         }
     }
 
-    private bool canClose;
-
-    public void CreateContextMenuAtPosition(Point position)
-    {
-        createContextMenuCallback?.Invoke(position);
-    }
+    public bool canClose;
 
     public void RestoreExplorerDesktop()
     {
