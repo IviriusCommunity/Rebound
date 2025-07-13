@@ -7,6 +7,7 @@ using CommunityToolkit.Mvvm.Input;
 using Rebound.Helpers.Windowing;
 using Rebound.Shell.ExperienceHost;
 using Windows.Win32;
+using Windows.Win32.System.SystemInformation;
 using WinUIEx;
 
 namespace Rebound.Shell.ShutdownDialog;
@@ -15,11 +16,18 @@ public sealed partial class ShutdownDialog : WindowEx
 {
     private readonly Action? onClosedCallback;
 
-    private WindowManager? windowManager;
+    private ShutdownViewModel ViewModel { get; set; }
 
     public ShutdownDialog(Action? onClosed = null)
     {
+        ViewModel = new();
         onClosedCallback = onClosed;
+        unsafe
+        {
+            OSVERSIONINFOW ver;
+            Windows.Wdk.PInvoke.RtlGetVersion(&ver);
+            this.SetWindowSize(512, 512);
+        }
         InitializeComponent();
         this.TurnOffDoubleClick();
         this.CenterOnScreen();
@@ -127,7 +135,6 @@ public sealed partial class ShutdownDialog : WindowEx
 
     private unsafe void WindowEx_Closed(object sender, Microsoft.UI.Xaml.WindowEventArgs args)
     {
-        windowManager = null;
         onClosedCallback?.Invoke();
     }
 

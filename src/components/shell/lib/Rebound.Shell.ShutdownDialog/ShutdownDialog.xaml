@@ -6,11 +6,13 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:local="using:Rebound.Shell.ShutdownDialog"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:media="using:CommunityToolkit.WinUI.Media"
     xmlns:toolkit="using:CommunityToolkit.WinUI.Controls"
+    xmlns:ui="using:CommunityToolkit.WinUI"
     xmlns:winuiex="using:WinUIEx"
     Title="Shut Down Windows"
     Width="500"
-    Height="464"
+    Height="512"
     Closed="WindowEx_Closed"
     IsMaximizable="False"
     IsMinimizable="False"
@@ -28,14 +30,53 @@
             <RowDefinition Height="Auto" />
         </Grid.RowDefinitions>
         <StackPanel
-            Margin="12,8,12,0"
+            Grid.Row="0"
+            Margin="0,52,0,24"
+            HorizontalAlignment="Center"
+            VerticalAlignment="Top"
+            Orientation="Horizontal"
+            Spacing="24">
+            <Grid VerticalAlignment="Center">
+                <Path Data="M 0 4 C 0 2 2 0 4 0 L 33 0 L 33 33 L 0 33 M 35 0 L 64 0 C 66 0 68 2 68 4 L 68 33 L 35 33 M 33 35 L 0 35 L 0 64 C 0 66 2 68 4 68 L 33 68 M 35 35 L 68 35 L 68 64 C 68 66 66 68 64 68 L 35 68" Fill="{StaticResource AccentFillColorDefaultBrush}" />
+                <Path Data="M 0 4 C 0 2 2 0 4 0 L 33 0 L 33 33 L 0 33 M 35 0 L 64 0 C 66 0 68 2 68 4 L 68 33 L 35 33 M 33 35 L 0 35 L 0 64 C 0 66 2 68 4 68 L 33 68 M 35 35 L 68 35 L 68 64 C 68 66 66 68 64 68 L 35 68">
+                    <Path.Fill>
+                        <LinearGradientBrush StartPoint="0, 0" EndPoint="1, 1">
+                            <LinearGradientBrush.GradientStops>
+                                <GradientStop Color="{ThemeResource SystemAccentColorLight3}" />
+                                <GradientStop Offset="1" Color="{ThemeResource SystemAccentColor}" />
+                            </LinearGradientBrush.GradientStops>
+                        </LinearGradientBrush>
+                    </Path.Fill>
+                </Path>
+            </Grid>
+            <TextBlock
+                Margin="0,-8,0,0"
+                VerticalAlignment="Center"
+                FontFamily="Segoe UI Variable"
+                FontSize="54"
+                FontWeight="SemiBold"
+                Text="{x:Bind ViewModel.WindowsVersionName}">
+                <TextBlock.Foreground>
+                    <LinearGradientBrush StartPoint="0, 0" EndPoint="1, 1">
+                        <LinearGradientBrush.GradientStops>
+                            <GradientStop Offset="1" Color="{ThemeResource SystemAccentColorLight3}" />
+                            <GradientStop Color="{ThemeResource SystemAccentColorLight1}" />
+                        </LinearGradientBrush.GradientStops>
+                    </LinearGradientBrush>
+                </TextBlock.Foreground>
+            </TextBlock>
+        </StackPanel>
+        <Grid Visibility="{x:Bind ViewModel.ShowBlurAndGlow, Mode=OneWay}">
+            <Grid.Background>
+                <media:BackdropBlurBrush Amount="36.0" />
+            </Grid.Background>
+        </Grid>
+        <StackPanel
+            Margin="12,8"
             VerticalAlignment="Top"
             Orientation="Horizontal"
             Spacing="8">
-            <TextBlock
-                VerticalAlignment="Center"
-                FontSize="12"
-                Text="Shut Down Windows" />
+            <TextBlock FontSize="12" Text="Shut Down Windows" />
             <Border
                 Padding="6,2,6,3"
                 VerticalAlignment="Center"
@@ -48,181 +89,113 @@
                     Text="BETA" />
             </Border>
         </StackPanel>
-        <StackPanel
-            x:Name="WinverPanel"
-            Grid.Row="1"
-            Margin="0,20,0,24"
-            HorizontalAlignment="Center"
-            VerticalAlignment="Top"
-            Orientation="Horizontal"
-            Spacing="24">
-            <Path VerticalAlignment="Center" Data="M 0 4 C 0 2 2 0 4 0 L 33 0 L 33 33 L 0 33 M 35 0 L 64 0 C 66 0 68 2 68 4 L 68 33 L 35 33 M 33 35 L 0 35 L 0 64 C 0 66 2 68 4 68 L 33 68 M 35 35 L 68 35 L 68 64 C 68 66 66 68 64 68 L 35 68">
-                <Path.Fill>
-                    <LinearGradientBrush StartPoint="0, 0" EndPoint="1, 1">
-                        <LinearGradientBrush.GradientStops>
-                            <GradientStop Color="#6cdfef" />
-                            <GradientStop Offset="1" Color="#109efc" />
-                        </LinearGradientBrush.GradientStops>
-                    </LinearGradientBrush>
-                </Path.Fill>
-            </Path>
-            <TextBlock
-                x:Name="WindowsVer"
-                Margin="0,-8,0,0"
-                VerticalAlignment="Center"
-                FontFamily="Segoe UI Variable"
-                FontSize="54"
-                FontWeight="SemiBold"
-                Text="Windows 11">
-                <TextBlock.Foreground>
-                    <LinearGradientBrush StartPoint="0, 0" EndPoint="1, 1">
-                        <LinearGradientBrush.GradientStops>
-                            <GradientStop Offset="1" Color="#49c6f5" />
-                            <GradientStop Color="#109efc" />
-                        </LinearGradientBrush.GradientStops>
-                    </LinearGradientBrush>
-                </TextBlock.Foreground>
-            </TextBlock>
-        </StackPanel>
+        <Grid Margin="0,142,0,0" Visibility="{x:Bind ViewModel.ShowBlurAndGlow, Mode=OneWay}">
+            <Grid.Background>
+                <LinearGradientBrush StartPoint="0, 0" EndPoint="1, 1">
+                    <LinearGradientBrush.GradientStops>
+                        <GradientStop Color="{ThemeResource SystemAccentColorLight2}" />
+                        <GradientStop Offset="1" Color="{ThemeResource SystemAccentColor}" />
+                    </LinearGradientBrush.GradientStops>
+                </LinearGradientBrush>
+            </Grid.Background>
+            <ui:Effects.Shadow>
+                <media:AttachedCardShadow Color="{ThemeResource SystemAccentColorLight2}" />
+            </ui:Effects.Shadow>
+        </Grid>
         <Grid
             Grid.Row="2"
+            Padding="16"
             VerticalAlignment="Top"
-            Background="{ThemeResource CardBackgroundFillColorDefaultBrush}">
-            <StackPanel
-                Margin="16"
+            Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
+            ColumnSpacing="8"
+            RowSpacing="8">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="*" />
+                <RowDefinition Height="*" />
+            </Grid.RowDefinitions>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="*" />
+            </Grid.ColumnDefinitions>
+            <Button
+                Padding="16,12"
                 HorizontalAlignment="Stretch"
-                Spacing="8">
-                <Grid>
-                    <TextBlock
-                        FontSize="16"
-                        FontWeight="SemiBold"
-                        Text="Choose an action to perform." />
-                </Grid>
-                <StackPanel
-                    Margin="8,16,8,4"
-                    HorizontalAlignment="Center"
-                    Orientation="Horizontal"
-                    Spacing="8">
-                    <Button
-                        Padding="12"
-                        Background="Transparent"
-                        BorderBrush="Transparent"
-                        Command="{x:Bind ShutdownCommand}">
-                        <ToolTipService.ToolTip>
-                            <StackPanel Spacing="4">
-                                <TextBlock FontWeight="SemiBold" Text="Shut Down" />
-                                <TextBlock Text="Close all apps and turn off your PC." TextWrapping="WrapWholeWords" />
-                            </StackPanel>
-                        </ToolTipService.ToolTip>
-                        <Grid>
-                            <FontIcon
-                                VerticalAlignment="Top"
-                                FontSize="24"
-                                Glyph="&#xE7E8;" />
-                        </Grid>
-                    </Button>
-
-                    <Button
-                        Padding="12"
-                        Background="Transparent"
-                        BorderBrush="Transparent"
-                        Command="{x:Bind RestartCommand}">
-                        <ToolTipService.ToolTip>
-                            <StackPanel Spacing="4">
-                                <TextBlock FontWeight="SemiBold" Text="Restart" />
-                                <TextBlock Text="Close all apps and restart your PC." TextWrapping="WrapWholeWords" />
-                            </StackPanel>
-                        </ToolTipService.ToolTip>
-                        <Grid>
-                            <FontIcon
-                                VerticalAlignment="Top"
-                                FontSize="24"
-                                Glyph="&#xE72C;" />
-                        </Grid>
-                    </Button>
-
-                    <Button
-                        Padding="12"
-                        Background="Transparent"
-                        BorderBrush="Transparent"
-                        Command="{x:Bind SleepCommand}">
-                        <ToolTipService.ToolTip>
-                            <StackPanel Spacing="4">
-                                <TextBlock FontWeight="SemiBold" Text="Sleep" />
-                                <TextBlock Text="Put the PC into a low-power state and resume quickly." TextWrapping="WrapWholeWords" />
-                            </StackPanel>
-                        </ToolTipService.ToolTip>
-                        <Grid>
-                            <FontIcon
-                                VerticalAlignment="Top"
-                                FontSize="24"
-                                Glyph="&#xEC46;" />
-                        </Grid>
-                    </Button>
-
-                    <Button
-                        Padding="12"
-                        Background="Transparent"
-                        BorderBrush="Transparent"
-                        Command="{x:Bind LockCommand}">
-                        <ToolTipService.ToolTip>
-                            <StackPanel Spacing="4">
-                                <TextBlock FontWeight="SemiBold" Text="Lock" />
-                                <TextBlock Text="Secure your session by locking the PC. Requires password to unlock." TextWrapping="WrapWholeWords" />
-                            </StackPanel>
-                        </ToolTipService.ToolTip>
-                        <Grid>
-                            <FontIcon
-                                VerticalAlignment="Top"
-                                FontSize="24"
-                                Glyph="&#xE72E;" />
-                        </Grid>
-                    </Button>
-
-                    <Button
-                        Padding="12"
-                        Background="Transparent"
-                        BorderBrush="Transparent"
-                        Command="{x:Bind SwitchUsersCommand}">
-                        <ToolTipService.ToolTip>
-                            <StackPanel Spacing="4">
-                                <TextBlock FontWeight="SemiBold" Text="Switch User" />
-                                <TextBlock Text="Switch to another user account without logging out." TextWrapping="WrapWholeWords" />
-                            </StackPanel>
-                        </ToolTipService.ToolTip>
-                        <Grid>
-                            <FontIcon
-                                VerticalAlignment="Top"
-                                FontSize="24"
-                                Glyph="&#xE748;" />
-                        </Grid>
-                    </Button>
-
-                    <Button
-                        Padding="12"
-                        Background="Transparent"
-                        BorderBrush="Transparent"
-                        Command="{x:Bind HibernateCommand}">
-                        <ToolTipService.ToolTip>
-                            <StackPanel Spacing="4">
-                                <TextBlock FontWeight="SemiBold" Text="Hibernate" />
-                                <TextBlock Text="Save your session to disk and fully power off the PC." TextWrapping="WrapWholeWords" />
-                            </StackPanel>
-                        </ToolTipService.ToolTip>
-                        <Grid>
-                            <FontIcon
-                                VerticalAlignment="Top"
-                                FontSize="24"
-                                Glyph="&#xECE4;"
-                                RenderTransformOrigin="0.5, 0.5">
-                                <FontIcon.RenderTransform>
-                                    <RotateTransform Angle="90" />
-                                </FontIcon.RenderTransform>
-                            </FontIcon>
-                        </Grid>
-                    </Button>
+                Command="{x:Bind ShutdownCommand}"
+                ToolTipService.ToolTip="Close all apps and turn off your PC.">
+                <StackPanel Orientation="Horizontal" Spacing="8">
+                    <FontIcon FontSize="16" Glyph="&#xE7E8;" />
+                    <TextBlock FontWeight="SemiBold" Text="Shut Down" />
                 </StackPanel>
-            </StackPanel>
+            </Button>
+            <Button
+                Grid.Column="1"
+                Padding="16,12"
+                HorizontalAlignment="Stretch"
+                Command="{x:Bind RestartCommand}"
+                ToolTipService.ToolTip="Close all apps and restart your PC.">
+                <StackPanel Orientation="Horizontal" Spacing="8">
+                    <FontIcon FontSize="16" Glyph="&#xE72C;" />
+                    <TextBlock FontWeight="SemiBold" Text="Restart" />
+                </StackPanel>
+            </Button>
+
+            <Button
+                Grid.Column="2"
+                Padding="16,12"
+                HorizontalAlignment="Stretch"
+                Command="{x:Bind SleepCommand}"
+                ToolTipService.ToolTip="Put the PC into a low-power state and resume quickly.">
+                <StackPanel Orientation="Horizontal" Spacing="8">
+                    <FontIcon FontSize="16" Glyph="&#xEC46;" />
+                    <TextBlock FontWeight="SemiBold" Text="Sleep" />
+                </StackPanel>
+            </Button>
+
+            <Button
+                Grid.Row="1"
+                Padding="16,12"
+                HorizontalAlignment="Stretch"
+                Command="{x:Bind LockCommand}"
+                ToolTipService.ToolTip="Secure your session by locking the PC. Requires password to unlock.">
+                <StackPanel Orientation="Horizontal" Spacing="8">
+                    <FontIcon FontSize="16" Glyph="&#xE72E;" />
+                    <TextBlock FontWeight="SemiBold" Text="Lock" />
+                </StackPanel>
+            </Button>
+
+            <Button
+                Grid.Row="1"
+                Grid.Column="1"
+                Padding="16,12"
+                HorizontalAlignment="Stretch"
+                Command="{x:Bind SwitchUsersCommand}"
+                ToolTipService.ToolTip="Switch to another user account without logging out.">
+                <StackPanel Orientation="Horizontal" Spacing="8">
+                    <FontIcon FontSize="16" Glyph="&#xE748;" />
+                    <TextBlock FontWeight="SemiBold" Text="Switch User" />
+                </StackPanel>
+            </Button>
+
+            <Button
+                Grid.Row="1"
+                Grid.Column="2"
+                Padding="16,12"
+                HorizontalAlignment="Stretch"
+                Command="{x:Bind HibernateCommand}"
+                ToolTipService.ToolTip="Save your session to disk and fully power off the PC.">
+                <StackPanel Orientation="Horizontal" Spacing="8">
+                    <FontIcon
+                        FontSize="16"
+                        Glyph="&#xECE4;"
+                        RenderTransformOrigin="0.5, 0.5">
+                        <FontIcon.RenderTransform>
+                            <RotateTransform Angle="90" />
+                        </FontIcon.RenderTransform>
+                    </FontIcon>
+                    <TextBlock FontWeight="SemiBold" Text="Hibernate" />
+                </StackPanel>
+            </Button>
         </Grid>
         <Grid Grid.Row="3" VerticalAlignment="Top">
             <Grid.ColumnDefinitions>
@@ -234,27 +207,37 @@
                 <RowDefinition Height="Auto" />
                 <RowDefinition Height="Auto" />
             </Grid.RowDefinitions>
-            <TextBlock
-                Margin="16,16,0,0"
-                FontSize="16"
-                FontWeight="SemiBold"
-                Text="Server action reason:" />
+            <InfoBar
+                Title="Windows Server only"
+                Grid.ColumnSpan="3"
+                Margin="16,16,16,0"
+                IsClosable="False"
+                IsOpen="True"
+                Message="Please specify a reason for the requested action." />
+
             <ComboBox
                 Grid.Row="2"
                 Margin="16,12,0,0"
                 HorizontalAlignment="Stretch"
-                IsEnabled="False"
                 SelectedIndex="0">
                 <ComboBoxItem Content="Other" />
+                <ComboBoxItem Content="Maintenance" />
+                <ComboBoxItem Content="Software Update" />
+                <ComboBoxItem Content="Hardware Upgrade" />
+                <ComboBoxItem Content="Power Issue" />
+                <ComboBoxItem Content="System Crash" />
             </ComboBox>
+
             <ComboBox
                 Grid.Row="2"
                 Grid.Column="2"
                 Margin="0,12,16,0"
                 HorizontalAlignment="Stretch"
-                IsEnabled="False"
                 SelectedIndex="0">
                 <ComboBoxItem Content="Planned" />
+                <ComboBoxItem Content="Unplanned" />
+                <ComboBoxItem Content="User Requested" />
+                <ComboBoxItem Content="Automated" />
             </ComboBox>
         </Grid>
         <Grid

@@ -12,6 +12,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)ShutdownDialog.xaml.cs">
       <DependentUpon>ShutdownDialog.xaml</DependentUpon>
     </Compile>
+    <Compile Include="$(MSBuildThisFileDirectory)ShutdownViewModel.cs" />
   </ItemGroup>
   <ItemGroup>
     <Page Include="$(MSBuildThisFileDirectory)ShutdownDialog.xaml">

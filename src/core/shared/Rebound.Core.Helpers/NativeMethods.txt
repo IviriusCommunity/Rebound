@@ -34,14 +34,13 @@ TranslateMessage
 DispatchMessage
 IsWindow
 GetNamedPipeClientProcessId
+RtlGetVersion
 IPersistFile
 CoCreateInstance
 GetDIBits
 GetDC
 GetDeviceCaps
 ReleaseDC
-RtlGetVersion
-OSVERSIONINFOEX
 IsIconic
 GetForegroundWindow
 GetCurrentThreadId
