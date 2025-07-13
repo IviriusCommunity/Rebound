@@ -11,6 +11,7 @@ GetSystemMetrics
 EnumWindows
 ShowWindow
 CallWindowProc
+VirtualProtect
 WTSRegisterSessionNotification
 SetWindowPos
 SetParent
@@ -28,6 +29,11 @@ CreateIcon
 CoCreateInstance
 IApplicationActivationManager
 IShellLinkW
+GetMessage
+TranslateMessage
+DispatchMessage
+IsWindow
+GetNamedPipeClientProcessId
 IPersistFile
 CoCreateInstance
 GetDIBits
@@ -60,6 +66,8 @@ GetClientRect
 BITMAPINFO
 BITMAPINFOHEADER
 IDataObject
+CoInitializeEx
+CoUninitialize
 
 
 // Copyright (c) Files Community

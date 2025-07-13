@@ -7,7 +7,7 @@ using CommunityToolkit.Mvvm.Input;
 
 namespace Rebound.Forge;
 
-public abstract partial class ReboundAppInstructions : ObservableObject
+public partial class ReboundAppInstructions : ObservableObject
 {
     [ObservableProperty]
     public partial bool IsInstalled { get; set; } = false;
@@ -21,13 +21,23 @@ public abstract partial class ReboundAppInstructions : ObservableObject
         else await Uninstall();
     }
 
-    public virtual InstallationTemplate PreferredInstallationTemplate { get; set; } = InstallationTemplate.Extras;
+    public string Name { get; set; } = string.Empty;
 
-    public virtual ObservableCollection<IReboundAppInstruction>? Instructions { get; set; }
+    public string Description { get; set; } = string.Empty;
 
-    public virtual string ProcessName { get; set; }
+    public string EntryExecutable { get; set; } = string.Empty;
 
-    protected ReboundAppInstructions()
+    public string Icon { get; set; } = string.Empty;
+
+    public string InstallationSteps { get; set; } = string.Empty;
+
+    public InstallationTemplate PreferredInstallationTemplate { get; set; } = InstallationTemplate.Extras;
+
+    public ObservableCollection<IReboundAppInstruction>? Instructions { get; set; }
+
+    public string ProcessName { get; set; }
+
+    public ReboundAppInstructions()
     {
         IsInstalled = GetIntegrity() == ReboundAppIntegrity.Installed;
         IsIntact = GetIntegrity() != ReboundAppIntegrity.Corrupt;
@@ -41,10 +51,15 @@ public abstract partial class ReboundAppInstructions : ObservableObject
 
     public async Task Install()
     {
-        Process.GetProcessesByName(ProcessName).ToList().ForEach(p => p.Kill());
+        // Check if any process with ProcessName is running
+        var runningProcesses = Process.GetProcessesByName(ProcessName).ToList();
+        bool wasRunning = runningProcesses.Any();
 
+        // Kill running processes
+        runningProcesses.ForEach(p => p.Kill());
         await Task.Delay(200);
 
+        // Apply install instructions
         await Task.Run(() =>
         {
             foreach (var instruction in Instructions)
@@ -53,8 +68,25 @@ public abstract partial class ReboundAppInstructions : ObservableObject
             }
         });
 
+        // Update status
         IsInstalled = GetIntegrity() == ReboundAppIntegrity.Installed;
         IsIntact = GetIntegrity() != ReboundAppIntegrity.Corrupt;
+
+        // Restart processes if needed
+        if (wasRunning)
+        {
+            try
+            {
+                foreach (var p in runningProcesses)
+                {
+                    Process.Start(p.MainModule?.FileName ?? ProcessName);
+                }
+            }
+            catch
+            {
+                // Optional: handle any errors starting the processes
+            }
+        }
     }
 
     public async Task Uninstall()

@@ -14,9 +14,11 @@
     <Compile Include="$(MSBuildThisFileDirectory)IReboundAppInstruction.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)LauncherInstruction.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ReboundAppInstructions.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)ReboundTotalInstructions.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ReboundWorkingEnvironment.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ShortcutInstruction.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)StartupTaskInstruction.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)WindowHook.cs" />
   </ItemGroup>
   <ItemGroup>
     <AdditionalFiles Include="$(MSBuildThisFileDirectory)NativeMethods.txt" />

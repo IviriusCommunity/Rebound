@@ -1,0 +1,10 @@
+{
+  "profiles": {
+    "Rebound.ServiceHost (Package)": {
+      "commandName": "MsixPackage"
+    },
+    "Rebound.ServiceHost (Unpackaged)": {
+      "commandName": "Project"
+    }
+  }
+}

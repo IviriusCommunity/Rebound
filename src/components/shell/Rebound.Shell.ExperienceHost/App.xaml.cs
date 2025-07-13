@@ -2,11 +2,15 @@
 // Licensed under the MIT License.
 
 using System;
+using System.IO;
+using System.IO.Pipes;
 using System.Reflection.Metadata;
+using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using CommunityToolkit.WinUI;
 using Microsoft.UI.Xaml;
+using Rebound.Core.Helpers;
 using Rebound.Generators;
 using Rebound.Helpers;
 using Rebound.Shell.Desktop;
@@ -28,27 +32,10 @@ public partial class App : Application
 
     }
 
-    private void Run()
+    public static ReboundPipeClient ReboundPipeClient { get; set; }
+
+    private async void Run()
     {
-        var thread = new Thread(() =>
-        {
-            var hook1 = new WindowHook("#32770", "Shut Down Windows", "explorer");
-            if (SettingsHelper.GetValue("InstallShutdownDialog", "rebound", true)) hook1.WindowDetected += Hook_WindowDetected_Shutdown;
-
-            var hook2 = new WindowHook("#32770", "Run", "explorer");
-            if (SettingsHelper.GetValue("InstallRun", "rebound", true)) hook2.WindowDetected += Hook_WindowDetected_Run;
-
-            var hook4 = new WindowHook("Shell_Dialog", "This app can’t run on your PC", "explorer");
-            if (SettingsHelper.GetValue("InstallThisAppCantRunOnYourPC", "rebound", true)) hook4.WindowDetected += Hook_WindowDetected_Dim;
-
-            // Keep message pump alive so all hooks keep working
-            NativeMessageLoop();
-        });
-
-        thread.SetApartmentState(ApartmentState.STA);
-        thread.IsBackground = true;
-        thread.Start();
-
         // Background window
         BackgroundWindow = new() { SystemBackdrop = new TransparentTintBackdrop(), IsMaximizable = false };
         BackgroundWindow.SetExtendedWindowStyle(ExtendedWindowStyle.ToolWindow);
@@ -79,27 +66,33 @@ public partial class App : Application
             DesktopWindow = new DesktopWindow(ShowShutdownDialog);
             DesktopWindow.Activate();
             DesktopWindow.AttachToProgMan();
-
-            /*ContextMenuWindow = new ContextMenuWindow(DesktopWindow as DesktopWindow);
-            ContextMenuWindow.Activate();
-
-            (ContextMenuWindow as ContextMenuWindow).DesktopPage = (DesktopWindow as DesktopWindow).RootFrame.Content as DesktopPage;*/
         }
+
+        ReboundPipeClient = new ReboundPipeClient();
+        await ReboundPipeClient.ConnectAsync();
+
+        ReboundPipeClient.StartListening(async (msg) =>
+        {
+            switch (msg)
+            {
+                case "Shell::SpawnRunWindow":
+                    BackgroundWindow?.DispatcherQueue.TryEnqueue(ShowRunWindow);
+                    break;
+                case "Shell::SpawnShutdownDialog":
+                    BackgroundWindow?.DispatcherQueue.TryEnqueue(ShowShutdownDialog);
+                    break;
+                case "Shell::SpawnCantRunDialog":
+                    BackgroundWindow?.DispatcherQueue.TryEnqueue(ShowCantRunDialog);
+                    break;
+                default:
+                    break;
+            }
+            // Handle server events here
+        });
     }
 
-    private void CreateContextMenu(Point pos)
+    public static void ShowRunWindow()
     {
-        (ContextMenuWindow as ContextMenuWindow).ShowContextMenu(pos);
-    }
-
-    private const uint WM_CLOSE = 0x10; // WM_CLOSE constant
-
-    private void Hook_WindowDetected_Run(object? sender, WindowDetectedEventArgs e)
-    {
-        // Send WM_CLOSE message to close the window
-        PInvoke.SendMessage(new(e.Handle), WM_CLOSE, 0, 0);
-
-        // Make sure to update the UI (run window activation) on the UI thread
         BackgroundWindow?.DispatcherQueue.TryEnqueue(() =>
         {
             if (RunWindow is null)
@@ -111,31 +104,6 @@ public partial class App : Application
             }
             RunWindow.Activate();
             RunWindow.ForceBringToFront();
-        });
-    }
-
-    private void Hook_WindowDetected_Shutdown(object? sender, WindowDetectedEventArgs e)
-    {
-        BackgroundWindow?.DispatcherQueue.TryEnqueue(() =>
-        {
-            PInvoke.PostMessage(new(e.Handle), WM_CLOSE, new Windows.Win32.Foundation.WPARAM(0), IntPtr.Zero);
-            PInvoke.DestroyWindow(new(e.Handle));
-            ShowShutdownDialog();
-        });
-    }
-
-    private async void Hook_WindowDetected_Dim(object? sender, WindowDetectedEventArgs e)
-    {
-        if (PInvoke.IsWindow(new(e.Handle)))
-        {
-            // Send WM_CLOSE asynchronously, non-blocking
-            PInvoke.PostMessage(new(e.Handle), WM_CLOSE, new Windows.Win32.Foundation.WPARAM(0), IntPtr.Zero);
-        }
-        // Optional: you can check if window is still there, and if so, try again or just move on
-
-        await BackgroundWindow.DispatcherQueue.EnqueueAsync(() =>
-        {
-            ShowCantRunDialog();
         });
     }
 
@@ -163,16 +131,6 @@ public partial class App : Application
         }
         CantRunDialog.Activate();
         CantRunDialog.ForceBringToFront();
-    }
-
-    private static void NativeMessageLoop()
-    {
-        while (true)
-        {
-            PInvoke.GetMessage(out var msg, Windows.Win32.Foundation.HWND.Null, 0, 0);
-            PInvoke.TranslateMessage(msg);
-            PInvoke.DispatchMessage(msg);
-        }
     }
 
     private void OnSingleInstanceLaunched(object? sender, Helpers.Services.SingleInstanceLaunchEventArgs e)

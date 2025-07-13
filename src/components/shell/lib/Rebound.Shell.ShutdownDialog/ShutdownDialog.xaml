@@ -11,7 +11,6 @@
     Title="Shut Down Windows"
     Width="500"
     Height="464"
-    Activated="WindowEx_Activated"
     Closed="WindowEx_Closed"
     IsMaximizable="False"
     IsMinimizable="False"
@@ -98,40 +97,6 @@
                         FontSize="16"
                         FontWeight="SemiBold"
                         Text="Choose an action to perform." />
-                    <Button
-                        Margin="-8"
-                        Padding="8"
-                        HorizontalAlignment="Right"
-                        Background="Transparent"
-                        BorderBrush="Transparent">
-                        <FontIcon FontSize="16" Glyph="&#xE712;" />
-                        <Button.Flyout>
-                            <MenuFlyout>
-                                <MenuFlyoutItem Click="MenuFlyoutItem_Click" Text="Configure">
-                                    <MenuFlyoutItem.Icon>
-                                        <FontIcon Glyph="&#xE713;" />
-                                    </MenuFlyoutItem.Icon>
-                                </MenuFlyoutItem>
-                                <MenuFlyoutSeparator />
-                                <MenuFlyoutItem
-                                    FontWeight="SemiBold"
-                                    IsHitTestVisible="False"
-                                    Text="Rebound Shell - Powered by Rectify11">
-                                    <MenuFlyoutItem.Icon>
-                                        <ImageIcon Source="/Assets/r11logo.png" />
-                                    </MenuFlyoutItem.Icon>
-                                    <MenuFlyoutItem.Foreground>
-                                        <LinearGradientBrush StartPoint="0, 0" EndPoint="1, 1">
-                                            <LinearGradientBrush.GradientStops>
-                                                <GradientStop Offset="1" Color="#49c6f5" />
-                                                <GradientStop Color="#939efc" />
-                                            </LinearGradientBrush.GradientStops>
-                                        </LinearGradientBrush>
-                                    </MenuFlyoutItem.Foreground>
-                                </MenuFlyoutItem>
-                            </MenuFlyout>
-                        </Button.Flyout>
-                    </Button>
                 </Grid>
                 <StackPanel
                     Margin="8,16,8,4"

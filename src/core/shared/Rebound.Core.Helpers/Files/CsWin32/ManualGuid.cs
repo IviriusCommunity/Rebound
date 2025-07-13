@@ -12,6 +12,9 @@ namespace Windows.Win32
 		public static Guid* IID_IStorageProviderStatusUISourceFactory
 			=> (Guid*)Unsafe.AsPointer(ref Unsafe.AsRef(in IStorageProviderStatusUISourceFactory.Guid));
 
+        [GuidRVAGen.Guid("0C401E84-3083-4764-B6B5-A0DE8FEDD40C")]
+        public static partial Guid* IID_IDefragInterface { get; }
+
         [GuidRVAGen.Guid("00000000-0000-0000-C000-000000000046")]
         public static partial Guid* IID_IUnknown { get; }
 
