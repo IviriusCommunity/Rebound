@@ -47,12 +47,13 @@ public partial class Rebound11Page : Page
         }
     ];
 
-    public ReboundViewModel ReboundViewModel { get; set; } = new();
+    public ReboundViewModel ReboundViewModel { get; set; }
 
     public Rebound11Page()
     {
-        InitializeComponent();
+        ReboundViewModel = new ReboundViewModel();
         DataContext = ReboundViewModel;
+        InitializeComponent();
     }
 
     private void OnCardClick(object sender, RoutedEventArgs e)

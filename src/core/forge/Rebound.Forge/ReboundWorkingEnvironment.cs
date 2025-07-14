@@ -55,17 +55,8 @@ public static class ReboundWorkingEnvironment
     {
         try
         {
-            var programFilesPath = System.Environment.GetFolderPath(System.Environment.SpecialFolder.ProgramFiles);
-            var directoryPath = Path.Combine(programFilesPath, "Rebound");
-
             // Get the start menu folder of Rebound
             var startMenuFolder = Path.Combine(System.Environment.GetFolderPath(System.Environment.SpecialFolder.CommonStartMenu), "Programs", "Rebound");
-
-            // Create the directory if it doesn't exist
-            if (Directory.Exists(directoryPath))
-            {
-                Directory.Delete(directoryPath, true);
-            }
 
             // Create the directory if it doesn't exist
             if (Directory.Exists(startMenuFolder))
@@ -142,18 +133,70 @@ public static class ReboundWorkingEnvironment
         }
     }
 
+    // Mandatory instructions
+    public static async void EnsureMandatoryInstructionsIntegrity()
+    {
+        try
+        {
+            foreach (var instructions in ReboundTotalInstructions.MandatoryInstructions)
+            {
+                await instructions.Install();
+            }
+        }
+        catch
+        {
+
+        }
+    }
+
+    public static async void RemoveMandatoryInstructions()
+    {
+        try
+        {
+            foreach (var instructions in ReboundTotalInstructions.MandatoryInstructions)
+            {
+                await instructions.Uninstall();
+            }
+        }
+        catch
+        {
+
+        }
+    }
+
+    public static bool MandatoryInstructionsExist()
+    {
+        try
+        {
+            foreach (var instructions in ReboundTotalInstructions.MandatoryInstructions)
+            {
+                if (instructions.GetIntegrity() != ReboundAppIntegrity.Installed)
+                {
+                    return false;
+                }
+            }
+            return true;
+        }
+        catch
+        {
+            return false;
+        }
+    }
+
     // General methods
     public static void EnableRebound()
     {
         EnsureFolderIntegrity();
         EnsureTasksFolderIntegrity();
+        EnsureMandatoryInstructionsIntegrity();
     }
 
     public static void DisableRebound()
     {
         RemoveFolder();
         RemoveTasksFolder();
+        RemoveMandatoryInstructions();
     }
 
-    public static bool IsReboundEnabled() => FolderExists() && TaskFolderExists();
+    public static bool IsReboundEnabled() => FolderExists() && TaskFolderExists() && MandatoryInstructionsExist();
 }

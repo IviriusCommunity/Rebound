@@ -1,11 +1,10 @@
-﻿using System;
+﻿// Copyright (C) Ivirius(TM) Community 2020 - 2025. All Rights Reserved.
+// Licensed under the MIT License.
+
+using System;
 using System.Diagnostics;
 using System.IO;
-using System.IO.Pipes;
 using System.Linq;
-using System.Security.AccessControl;
-using System.Security.Principal;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.UI.Xaml;
@@ -16,6 +15,8 @@ using Rebound.Helpers;
 using Windows.Storage;
 using Windows.System.UserProfile;
 using Windows.Win32;
+using Windows.Win32.System.Shutdown;
+using WinRT.Rebound_Service_HostVtableClasses;
 using WinUI3Localizer;
 
 namespace Rebound.ServiceHost;
@@ -33,31 +34,86 @@ public partial class App : Application
         PipeServer.MessageReceived += PipeServer_MessageReceived;
     }
 
-    private Task PipeServer_MessageReceived(string arg)
+    private static readonly SHUTDOWN_REASON[] MajorReasons =
+    [
+        SHUTDOWN_REASON.SHTDN_REASON_MAJOR_OTHER,
+        SHUTDOWN_REASON.SHTDN_REASON_MAJOR_HARDWARE,
+        SHUTDOWN_REASON.SHTDN_REASON_MAJOR_OPERATINGSYSTEM,
+        SHUTDOWN_REASON.SHTDN_REASON_MAJOR_HARDWARE,
+        SHUTDOWN_REASON.SHTDN_REASON_MAJOR_POWER,
+        SHUTDOWN_REASON.SHTDN_REASON_MAJOR_SYSTEM
+    ];
+
+    private static readonly SHUTDOWN_REASON[] MinorReasons =
+    [
+        SHUTDOWN_REASON.SHTDN_REASON_MINOR_OTHER,
+        SHUTDOWN_REASON.SHTDN_REASON_MINOR_MAINTENANCE,
+        SHUTDOWN_REASON.SHTDN_REASON_MINOR_INSTALLATION,
+        SHUTDOWN_REASON.SHTDN_REASON_MINOR_HARDWARE_DRIVER,
+        SHUTDOWN_REASON.SHTDN_REASON_MINOR_POWER_SUPPLY,
+        SHUTDOWN_REASON.SHTDN_REASON_MINOR_BLUESCREEN
+    ];
+
+    private static readonly SHUTDOWN_REASON[] Flags =
+    [
+        SHUTDOWN_REASON.SHTDN_REASON_FLAG_PLANNED,
+        0x00000000, // Unplanned
+        SHUTDOWN_REASON.SHTDN_REASON_FLAG_USER_DEFINED,
+        SHUTDOWN_REASON.SHTDN_REASON_FLAG_DIRTY_UI
+    ];
+
+    private async Task PipeServer_MessageReceived(string arg)
     {
         if (string.IsNullOrEmpty(arg))
-            return Task.CompletedTask;
+            return;
 
-        switch (arg)
+        if (arg == "Shell::RestartToUEFI")
+            RunShutdownCommand("/r /fw /t 0");
+
+        else if (arg == "Shell::RestartToRecovery")
+            RunShutdownCommand("/r /o /t 0");
+
+        else if (arg == "Shell::Shutdown")
+            RunShutdownCommand("/s /t 0");
+
+        else if (arg == "Shell::Restart")
+            RunShutdownCommand("/r /t 0");
+
+        else if (arg.StartsWith("Shell::ShutdownServer#"))
         {
-            case "Shell::RestartToUEFI":
-                RunShutdownCommand("/r /fw /t 0");
-                break;
+            var parts = arg["Shell::ShutdownServer#".Length..].ToCharArray();
 
-            case "Shell::RestartToRecovery":
-                RunShutdownCommand("/r /o /t 0");
-                break;
+            if (parts.Length >= 2 &&
+                int.TryParse(parts[0].ToString(), out var reasonIndex) &&
+                int.TryParse(parts[1].ToString(), out var modeIndex))
+            {
+                // Clamp to array length just to be safe
+                reasonIndex = Math.Clamp(reasonIndex, 0, MajorReasons.Length - 1);
+                modeIndex = Math.Clamp(modeIndex, 0, Flags.Length - 1);
 
-            case "Shell::Shutdown":
-                RunShutdownCommand("/s /t 0");
-                break;
+                var reasonCode = MajorReasons[reasonIndex] | MinorReasons[reasonIndex] | Flags[modeIndex];
 
-            case "Shell::Restart":
-                RunShutdownCommand("/r /t 0");
-                break;
+                RunShutdownCommand("/s /t 0", reasonCode);
+            }
         }
 
-        return Task.CompletedTask;
+        else if (arg.StartsWith("IFEOEngine::Pause#"))
+        {
+            var part = arg["IFEOEngine::Pause#".Length..];
+
+            await IFEOEngine.PauseIFEOEntryAsync(part);
+            await Task.Delay(1000);
+            await IFEOEngine.ResumeIFEOEntryAsync(part);
+        }
+
+        return;
+    }
+
+    private void RunShutdownCommand(string args, SHUTDOWN_REASON reason)
+    {
+        _ = PInvoke.InitiateSystemShutdownEx(
+            null, "Shutdown initiated via broker".ToPWSTR(),
+            0, true, args.Contains("/r"), reason);
     }
 
     private void RunShutdownCommand(string arguments)

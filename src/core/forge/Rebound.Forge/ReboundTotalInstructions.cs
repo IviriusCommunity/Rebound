@@ -1,11 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 
 namespace Rebound.Forge;
 
 public static class ReboundTotalInstructions
 {
-    public static List<ReboundAppInstructions> AppInstrunctions { get; } =
+    public static ObservableCollection<ReboundAppInstructions> AppInstructions { get; } =
     [
         // Control Panel
         new()
@@ -63,7 +64,7 @@ public static class ReboundTotalInstructions
             ProcessName = "rosk",
             Name = "On-Screen Keyboard",
             Icon = "ms-appx:///Assets/AppIcons/OSK.ico",
-            Description = "Replacement for the old On-Screen Keyboard using the existing UWP keyboard.",
+            Description = "Temporarily deprecated. Turning this on will not do anything.",
             InstallationSteps = "Redirect app launch",
             EntryExecutable = $"{Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles)}\\Rebound\\rosk.exe",
             Instructions =
@@ -89,13 +90,16 @@ public static class ReboundTotalInstructions
             Name = "Rebound Shell",
             Icon = "ms-appx:///Assets/AppIcons/ReboundIcon.ico",
             Description = "Replacement for the shell and its components such as the run box, shutdown dialog, desktop, etc.",
-            InstallationSteps = "- Register a startup task\n\nYou can choose which components are enabled from the Options menu at the top of the page.",
+            InstallationSteps = "- Register a startup task\n\nYou can choose which components are enabled from the Options menu at the top of the page. Note: Rebound Shell alone doesn't have a predefined UI. To check if it's running, try opening one of the applets it replaces.",
             EntryExecutable = $"{Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles)}\\Rebound\\rshell\\Rebound Shell.exe",
             Instructions =
             [
                 new StartupTaskInstruction()
                 {
-                    TargetPath = $"{Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles)}\\Rebound\\rshell\\Rebound Shell.exe"
+                    TargetPath = $"{Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles)}\\Rebound\\rshell\\Rebound Shell.exe",
+                    Description = "Rebound Shell task for overlapping the Windows shell.",
+                    Name = "Shell",
+                    RequireAdmin = false,
                 },
                 new ShortcutInstruction()
                 {
@@ -154,13 +158,37 @@ public static class ReboundTotalInstructions
                 },
             ],
             PreferredInstallationTemplate = InstallationTemplate.Basic
-        },
+        }
+    ];
 
+    public static ObservableCollection<ReboundAppInstructions> MandatoryInstructions { get; } =
+    [
+        // Service Host
+        new()
+        {
+            ProcessName = "Rebound Service Host",
+            Name = "Service Host",
+            Icon = "ms-appx:///Assets/AppIcons/ServiceHost.ico",
+            Description = "Mandatory background service required for Rebound apps to run properly.",
+            InstallationSteps = "- Register a startup task as admin",
+            EntryExecutable = $"{Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles)}\\Rebound\\rsvchost\\Rebound Service Host.exe",
+            Instructions =
+            [
+                new StartupTaskInstruction()
+                {
+                    TargetPath = $"{Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles)}\\Rebound\\rsvchost\\Rebound Service Host.exe",
+                    Description = "Rebound Service Host task for managing Rebound actions as admin.",
+                    Name = "Service Host",
+                    RequireAdmin = true,
+                }
+            ],
+            PreferredInstallationTemplate = InstallationTemplate.Basic
+        }
     ];
 
     public static ReboundAppInstructions GetAppInstructions(string name)
     {
-        foreach (var instruction in AppInstrunctions)
+        foreach (var instruction in AppInstructions)
         {
             if (instruction.Name.Equals(name, StringComparison.OrdinalIgnoreCase))
             {
@@ -168,5 +196,17 @@ public static class ReboundTotalInstructions
             }
         }
         throw new KeyNotFoundException($"App instructions with name '{name}' not found.");
+    }
+
+    public static ReboundAppInstructions GetMandatoryInstructions(string name)
+    {
+        foreach (var instruction in MandatoryInstructions)
+        {
+            if (instruction.Name.Equals(name, StringComparison.OrdinalIgnoreCase))
+            {
+                return instruction;
+            }
+        }
+        throw new KeyNotFoundException($"Mandatory instructions with name '{name}' not found.");
     }
 }

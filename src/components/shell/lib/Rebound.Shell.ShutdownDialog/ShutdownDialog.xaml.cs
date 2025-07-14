@@ -3,11 +3,11 @@
 
 using System;
 using System.Diagnostics;
+using System.Runtime.InteropServices;
 using CommunityToolkit.Mvvm.Input;
 using Rebound.Helpers.Windowing;
 using Rebound.Shell.ExperienceHost;
 using Windows.Win32;
-using Windows.Win32.System.SystemInformation;
 using WinUIEx;
 
 namespace Rebound.Shell.ShutdownDialog;
@@ -18,17 +18,38 @@ public sealed partial class ShutdownDialog : WindowEx
 
     private ShutdownViewModel ViewModel { get; set; }
 
+    bool isServer;
+
+    [DllImport("ntdll.dll", SetLastError = true)]
+    private static extern int RtlGetVersion(ref OSVERSIONINFOEX lpVersionInformation);
+
+    [StructLayout(LayoutKind.Sequential)]
+    public struct OSVERSIONINFOEX
+    {
+        public uint dwOSVersionInfoSize;
+        public uint dwMajorVersion;
+        public uint dwMinorVersion;
+        public uint dwBuildNumber;
+        public uint dwPlatformId;
+        [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 128)]
+        public string szCSDVersion;
+        public ushort wServicePackMajor;
+        public ushort wServicePackMinor;
+        public ushort wSuiteMask;
+        public byte wProductType;
+        public byte wReserved;
+    }
+
     public ShutdownDialog(Action? onClosed = null)
     {
         ViewModel = new();
         onClosedCallback = onClosed;
-        unsafe
-        {
-            OSVERSIONINFOW ver;
-            Windows.Wdk.PInvoke.RtlGetVersion(&ver);
-            this.SetWindowSize(512, 512);
-        }
+        OSVERSIONINFOEX ver = new();
+        _ = RtlGetVersion(ref ver);
+        this.SetWindowSize(512, ver.wProductType == 3 ? 512 : 360);
+        isServer = ver.wProductType == 3;
         InitializeComponent();
+        this.SetWindowIcon($"{AppContext.BaseDirectory}\\Assets\\Shutdown.ico");
         this.TurnOffDoubleClick();
         this.CenterOnScreen();
         ExtendsContentIntoTitleBar = true;
@@ -57,7 +78,7 @@ public sealed partial class ShutdownDialog : WindowEx
     [RelayCommand]
     public void Shutdown()
     {
-        App.ReboundPipeClient.SendMessageAsync("Shell::Shutdown");
+        App.ReboundPipeClient.SendMessageAsync(isServer ? $"Shell::ShutdownServer#{OperationReason.SelectedIndex}{OperationMode.SelectedIndex}" : "Shell::Shutdown");
         Close();
     }
 

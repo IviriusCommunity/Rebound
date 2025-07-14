@@ -1,15 +1,15 @@
-﻿using System;
+﻿// Copyright (C) Ivirius(TM) Community 2020 - 2025. All Rights Reserved.
+// Licensed under the MIT License.
+
+using System;
 using System.Collections.Generic;
-using System.Data.SqlTypes;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using System.Threading.Tasks;
 using Microsoft.UI.Xaml;
 using Rebound.ControlPanel.Views;
-using Rebound.Forge;
+using Rebound.Core.Helpers;
 using Rebound.Generators;
-using Rebound.Helpers.AppEnvironment;
 using Windows.System;
 
 namespace Rebound.ControlPanel;
@@ -17,27 +17,21 @@ namespace Rebound.ControlPanel;
 [ReboundApp("Rebound.Control", "Legacy Control Panel*legacy*ms-appx:///Assets/ControlPanelLegacy.ico")]
 public partial class App : Application
 {
+    public static ReboundPipeClient ReboundPipeClient { get; set; }
+
     internal struct CplEntry()
     {
         public object? Type { get; set; } = null;
         public List<string> Args { get; set; } = [];
     }
 
-    public static bool ArgsMatchKnownEntries(IEnumerable<string> matches, string args)
+    private async void OnSingleInstanceLaunched(object? sender, Helpers.Services.SingleInstanceLaunchEventArgs e)
     {
-        var controlPanelPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.System), "control.exe");
-        List<string> items = [];
-        foreach (var match in matches)
+        if (e.IsFirstLaunch)
         {
-            items.Add(match);
-            items.Add($"{controlPanelPath} {match}");
+            ReboundPipeClient = new ReboundPipeClient();
+            await ReboundPipeClient.ConnectAsync();
         }
-        return items.Contains(args, StringComparer.InvariantCultureIgnoreCase);
-    }
-
-    private async void OnSingleInstanceLaunched(object? sender, Rebound.Helpers.Services.SingleInstanceLaunchEventArgs e)
-    {
-        Debug.WriteLine(e.Arguments);
 
         var args = e.Arguments?.Trim() ?? string.Empty;
         var systemFolder = Environment.GetFolderPath(Environment.SpecialFolder.System);
@@ -87,7 +81,7 @@ public partial class App : Application
         
         foreach (var mapping in knownArgMappings)
         {
-            if (ArgsMatchKnownEntries(mapping.Args, args))
+            if (Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.System), "control.exe").ArgsMatchKnownEntries(mapping.Args, args))
             {
                 pageToLaunch = mapping.Type;
                 break;
@@ -97,20 +91,7 @@ public partial class App : Application
         // Launch the legacy cpl if no known arguments match
         if (pageToLaunch == null || e.Arguments == "legacy")
         {
-            if (!this.IsRunningAsAdmin())
-            {
-                var finalArgs = StripControlExePrefix(args.Trim() ?? string.Empty);
-                Process.Start(new ProcessStartInfo
-                {
-                    FileName = Environment.ProcessPath,
-                    UseShellExecute = true,
-                    Verb = "runas",
-                    Arguments = e.Arguments == "legacy" ? "legacy" : finalArgs
-                });
-                Process.GetCurrentProcess().Kill();
-                return;
-            }
-            await IFEOEngine.PauseIFEOEntryAsync("control.exe").ConfigureAwait(true);
+            await ReboundPipeClient.SendMessageAsync("IFEOEngine::Pause#control.exe");
             var cleanedArgs = StripControlExePrefix(args);
             Process.Start(new ProcessStartInfo
             {
@@ -118,8 +99,6 @@ public partial class App : Application
                 UseShellExecute = true,
                 Arguments = e.Arguments == "legacy" ? string.Empty : cleanedArgs
             });
-            await IFEOEngine.ResumeIFEOEntryAsync("control.exe").ConfigureAwait(true);
-            Process.GetCurrentProcess().Kill();
             return;
         }
         else

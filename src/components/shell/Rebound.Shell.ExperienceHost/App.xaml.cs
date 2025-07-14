@@ -1,22 +1,11 @@
 ﻿// Copyright (C) Ivirius(TM) Community 2020 - 2025. All Rights Reserved.
 // Licensed under the MIT License.
 
-using System;
-using System.IO;
-using System.IO.Pipes;
-using System.Reflection.Metadata;
-using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
-using CommunityToolkit.WinUI;
 using Microsoft.UI.Xaml;
 using Rebound.Core.Helpers;
 using Rebound.Generators;
 using Rebound.Helpers;
 using Rebound.Shell.Desktop;
-using Rebound.Shell.ExperiencePack;
-using Windows.Foundation;
-using Windows.Win32;
 using WinUIEx;
 
 #pragma warning disable IDE0079 // Remove unnecessary suppression

@@ -72,6 +72,7 @@
 		<!-- System and Management -->
 		<PackageReference Include="System.Drawing.Common" Version="10.0.0-preview.5.25277.114" />
 		<PackageReference Include="System.ServiceProcess.ServiceController" Version="10.0.0-preview.5.25277.114" />
+		<PackageReference Include="System.IO.Pipes.AccessControl" Version="6.0.0-preview.5.21301.5" />
 		<PackageReference Include="OwlCore.Storage" Version="0.12.3" />
 
 		<!-- Task Scheduler -->

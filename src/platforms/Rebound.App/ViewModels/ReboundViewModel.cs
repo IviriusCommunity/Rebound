@@ -1,28 +1,15 @@
 ﻿using System.Collections.ObjectModel;
 using System.IO;
-using System.Net.Http;
 using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Rebound.Forge;
 using Rebound.Helpers;
-using Rebound.Modding;
-using Rebound.Modding.Instructions;
 
 namespace Rebound.ViewModels;
 
 public partial class ReboundViewModel : ObservableObject
 {
-    public ObservableCollection<UserInterfaceReboundAppInstructions> Instructions { get; } =
-    [
-        new WinverInstructions(),
-        new OnScreenKeyboardInstructions(),
-        new DiskCleanupInstructions(),
-        new UserAccountControlSettingsInstructions(),
-        new ControlPanelInstructions(),
-        new ShellInstructions()
-    ];
-
     [ObservableProperty]
     public partial bool IsReboundEnabled { get; set; }
 
@@ -101,6 +88,7 @@ public partial class ReboundViewModel : ObservableObject
         {
             ReboundWorkingEnvironment.EnsureFolderIntegrity();
             ReboundWorkingEnvironment.EnsureTasksFolderIntegrity();
+            ReboundWorkingEnvironment.EnsureMandatoryInstructionsIntegrity();
             if (newValue != oldValue && !_isLoading)
             {
                 ReboundWorkingEnvironment.UpdateVersion();
@@ -109,21 +97,26 @@ public partial class ReboundViewModel : ObservableObject
         }
         else
         {
-            foreach (var instruction in Instructions)
+            foreach (var instruction in ReboundTotalInstructions.AppInstructions)
             {
                 await instruction.Uninstall();
             }
             ReboundWorkingEnvironment.RemoveFolder();
             ReboundWorkingEnvironment.RemoveTasksFolder();
+            ReboundWorkingEnvironment.RemoveMandatoryInstructions();
         }
     }
 
     [RelayCommand]
     public async Task UpdateOrRepairAllAsync()
     {
-        foreach (var instruction in Instructions)
+        foreach (var instruction in ReboundTotalInstructions.AppInstructions)
         {
             if (instruction.IsInstalled) await instruction.Install().ConfigureAwait(true);
+        }
+        foreach (var instruction in ReboundTotalInstructions.MandatoryInstructions)
+        {
+            await instruction.Install().ConfigureAwait(true);
         }
         ReboundWorkingEnvironment.UpdateVersion();
         CheckForUpdates();

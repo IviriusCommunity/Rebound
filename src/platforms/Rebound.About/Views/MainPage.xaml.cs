@@ -36,8 +36,8 @@ public sealed partial class MainPage : Page
         InitializeComponent();
         Load();
 
-        // Experiment
-        LoadDefragCOM();
+        // I'm too lazy to test RE'd COM somewhere else
+        //LoadDefragCOM();
     }
 
     // Define the CLSID and IID structs
@@ -206,37 +206,17 @@ public sealed partial class MainPage : Page
 
             Debug.WriteLine($"CoCreateInstance succeeded. Interface pointer: 0x{(nint)enginePtr:X}");
 
-            // Call WaitForEvents (HRESULT return)
+            /*// Call WaitForEvents (HRESULT return)
             enginePtr->NotifyVolumeChange();
             enginePtr->WaitForEvents();
 
             // Release the interface pointer when done
-            Marshal.Release((IntPtr)enginePtr);
+            Marshal.Release((IntPtr)enginePtr);*/
         }
         finally
         {
             // Uninitialize COM
             PInvoke.CoUninitialize();
-        }
-    }
-
-    unsafe void HookMethod(void** comObj, int methodIndex, void* newFunc)
-    {
-        nint* vtable = *(nint**)comObj;
-
-        PAGE_PROTECTION_FLAGS oldProtect;
-        PInvoke.VirtualProtect(&vtable[methodIndex], (UIntPtr)IntPtr.Size, (PAGE_PROTECTION_FLAGS)0x40 /* PAGE_EXECUTE_READWRITE */, out oldProtect);
-        vtable[methodIndex] = (nint)newFunc;
-        PInvoke.VirtualProtect(&vtable[methodIndex], (UIntPtr)IntPtr.Size, oldProtect, out var flags);
-    }
-
-    unsafe void DumpVTable(void* comObject, int methodCount)
-    {
-        nint* vtable = *(nint**)comObject;
-
-        for (int i = 0; i < methodCount; i++)
-        {
-            Debug.WriteLine($"vtable[{i}]: 0x{vtable[i]:X}");
         }
     }
 

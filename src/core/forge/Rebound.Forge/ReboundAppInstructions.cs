@@ -33,12 +33,18 @@ public partial class ReboundAppInstructions : ObservableObject
 
     public InstallationTemplate PreferredInstallationTemplate { get; set; } = InstallationTemplate.Extras;
 
-    public ObservableCollection<IReboundAppInstruction>? Instructions { get; set; }
+    public required ObservableCollection<IReboundAppInstruction> Instructions { get; set; }
 
     public string ProcessName { get; set; }
 
     public ReboundAppInstructions()
     {
+        Load();
+    }
+
+    public async void Load()
+    {
+        await Task.Delay(100);
         IsInstalled = GetIntegrity() == ReboundAppIntegrity.Installed;
         IsIntact = GetIntegrity() != ReboundAppIntegrity.Corrupt;
     }

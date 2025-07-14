@@ -7,6 +7,9 @@ using Microsoft.UI.Xaml;
 using Rebound.Generators;
 using Rebound.Helpers.AppEnvironment;
 using Rebound.Forge;
+using System.IO;
+using Rebound.Core.Helpers;
+using System.Collections.Generic;
 
 namespace Rebound.Cleanup;
 
@@ -16,31 +19,25 @@ namespace Rebound.Cleanup;
 [ReboundApp("Rebound.Cleanup", "Legacy Disk Cleanup*legacy*ms-appx:///Assets/cleanmgrLegacy.ico")]
 public partial class App : Application
 {
+    public static ReboundPipeClient ReboundPipeClient { get; set; }
+
     private async void OnSingleInstanceLaunched(object? sender, Rebound.Helpers.Services.SingleInstanceLaunchEventArgs e)
     {
-        if (!string.IsNullOrEmpty(e.Arguments) && !e.Arguments.Equals($"{Environment.GetFolderPath(Environment.SpecialFolder.Windows)}\\System32\\cleanmgr.exe", StringComparison.OrdinalIgnoreCase))
+        if (e.IsFirstLaunch)
         {
-            if (!this.IsRunningAsAdmin())
-            {
-                Process.Start(new ProcessStartInfo
-                {
-                    FileName = Environment.ProcessPath,
-                    UseShellExecute = true,
-                    Verb = "runas",
-                    Arguments = "legacy"
-                });
-                Process.GetCurrentProcess().Kill();
-                return;
-            }
-            await IFEOEngine.PauseIFEOEntryAsync("cleanmgr.exe").ConfigureAwait(true);
+            ReboundPipeClient = new ReboundPipeClient();
+            await ReboundPipeClient.ConnectAsync();
+        }
+
+        if (!Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.System), "cleanmgr.exe").ArgsMatchKnownEntries([string.Empty], e.Arguments))
+        {
+            await ReboundPipeClient.SendMessageAsync("IFEOEngine::Pause#cleanmgr.exe");
             Process.Start(new ProcessStartInfo
             {
                 FileName = "cleanmgr.exe",
                 UseShellExecute = true,
-                Arguments = e.Arguments
+                Arguments = e.Arguments == "legacy" ? string.Empty : e.Arguments
             });
-            await IFEOEngine.ResumeIFEOEntryAsync("cleanmgr.exe").ConfigureAwait(true);
-            Process.GetCurrentProcess().Kill();
             return;
         }
 

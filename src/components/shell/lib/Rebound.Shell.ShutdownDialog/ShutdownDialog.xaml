@@ -11,8 +11,6 @@
     xmlns:ui="using:CommunityToolkit.WinUI"
     xmlns:winuiex="using:WinUIEx"
     Title="Shut Down Windows"
-    Width="500"
-    Height="512"
     Closed="WindowEx_Closed"
     IsMaximizable="False"
     IsMinimizable="False"
@@ -216,6 +214,7 @@
                 Message="Please specify a reason for the requested action." />
 
             <ComboBox
+                x:Name="OperationReason"
                 Grid.Row="2"
                 Margin="16,12,0,0"
                 HorizontalAlignment="Stretch"
@@ -229,6 +228,7 @@
             </ComboBox>
 
             <ComboBox
+                x:Name="OperationMode"
                 Grid.Row="2"
                 Grid.Column="2"
                 Margin="0,12,16,0"

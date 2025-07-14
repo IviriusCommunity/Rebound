@@ -10,8 +10,8 @@
     xmlns:header="using:WinUIGallery.Controls"
     xmlns:interactivity="using:Microsoft.Xaml.Interactivity"
     xmlns:local="using:Rebound.Views"
+    xmlns:forge="using:Rebound.Forge"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-    xmlns:modding="using:Rebound.Modding"
     x:Name="ReboundView"
     mc:Ignorable="d">
     <Page.Resources>
@@ -30,6 +30,11 @@
             <Grid.RowDefinitions>
                 <RowDefinition Height="350" />
                 <RowDefinition Height="60" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
                 <RowDefinition Height="Auto" />
                 <RowDefinition Height="Auto" />
                 <RowDefinition Height="Auto" />
@@ -213,9 +218,10 @@
                         Style="{StaticResource AccentButtonStyle}" />
                 </InfoBar.ActionButton>
             </InfoBar>
-            <Grid Grid.Row="5" Padding="48,8,48,48">
+            <TextBlock Grid.Row="5" Margin="48, 0" FontWeight="SemiBold" FontSize="20" Text="Mandatory"/>
+            <Grid Grid.Row="6" Padding="48,16,48,16">
                 <ContentControl IsEnabled="{x:Bind ReboundViewModel.IsReboundEnabled, Mode=OneWay}">
-                    <ItemsRepeater ItemsSource="{x:Bind ReboundViewModel.Instructions, Mode=OneWay}">
+                    <ItemsRepeater ItemsSource="{x:Bind forge:ReboundTotalInstructions.MandatoryInstructions}">
                         <ItemsRepeater.Layout>
                             <controls:StaggeredLayout
                                 ColumnSpacing="8"
@@ -224,7 +230,98 @@
                                 RowSpacing="8" />
                         </ItemsRepeater.Layout>
                         <ItemsRepeater.ItemTemplate>
-                            <DataTemplate x:DataType="modding:UserInterfaceReboundAppInstructions">
+                            <DataTemplate x:DataType="forge:ReboundAppInstructions">
+                                <Grid
+                                    Padding="12"
+                                    HorizontalAlignment="Stretch"
+                                    Background="{ThemeResource CardBackgroundFillColorDefault}"
+                                    BorderBrush="{ThemeResource ControlElevationBorderBrush}"
+                                    BorderThickness="1"
+                                    CornerRadius="4">
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="Auto" />
+                                        <RowDefinition Height="8" />
+                                        <RowDefinition Height="Auto" />
+                                        <RowDefinition Height="Auto" />
+                                    </Grid.RowDefinitions>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="Auto" />
+                                        <ColumnDefinition Width="16" />
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="16" />
+                                        <ColumnDefinition Width="Auto" />
+                                    </Grid.ColumnDefinitions>
+                                    <Grid
+                                        HorizontalAlignment="Left"
+                                        VerticalAlignment="Top">
+                                        <Image
+                                            Width="56"
+                                            Height="56"
+                                            Margin="4"
+                                            Source="{x:Bind Icon}"
+                                            Stretch="Fill" />
+                                        <Border Background="{ThemeResource AcrylicBackgroundFillColorBaseBrush}" CornerRadius="4">
+                                            <Image
+                                                Width="48"
+                                                Height="48"
+                                                Margin="8"
+                                                Source="{x:Bind Icon}" />
+                                        </Border>
+                                    </Grid>
+                                    <TextBlock
+                                        Grid.Column="2"
+                                        FontSize="18"
+                                        FontWeight="SemiBold"
+                                        Text="{x:Bind Name, Mode=OneWay}"
+                                        TextWrapping="WrapWholeWords" />
+                                    <TextBlock
+                                        Grid.Row="2"
+                                        Grid.Column="2"
+                                        Grid.ColumnSpan="3"
+                                        Margin="0,-44,0,8"
+                                        FontSize="12"
+                                        Opacity="0.5"
+                                        Text="{x:Bind Description, Mode=OneWay}"
+                                        TextWrapping="WrapWholeWords" />
+                                    <InfoBar
+                                        Title="This will do the following:"
+                                        Grid.Row="4"
+                                        Grid.ColumnSpan="5"
+                                        IsClosable="False"
+                                        IsOpen="True"
+                                        Message="{x:Bind InstallationSteps, Mode=OneWay}" />
+                                    <InfoBar
+                                        Title="This mod is corrupted and needs to be repaired."
+                                        Grid.Row="5"
+                                        Grid.ColumnSpan="5"
+                                        Margin="0,8,0,0"
+                                        IsClosable="False"
+                                        IsOpen="True"
+                                        Severity="Error"
+                                        Visibility="{x:Bind IsIntact, Mode=OneWay, Converter={StaticResource BoolToReverseVisibilityConverter}}">
+                                        <InfoBar.ActionButton>
+                                            <Button Command="{x:Bind RepairCommand}" Content="Repair" />
+                                        </InfoBar.ActionButton>
+                                    </InfoBar>
+                                </Grid>
+                            </DataTemplate>
+                        </ItemsRepeater.ItemTemplate>
+                    </ItemsRepeater>
+                </ContentControl>
+            </Grid>
+            <TextBlock Grid.Row="7" Margin="48, 0" FontWeight="SemiBold" FontSize="20" Text="Optional"/>
+            <Grid Grid.Row="8" Padding="48,16,48,48">
+                <ContentControl IsEnabled="{x:Bind ReboundViewModel.IsReboundEnabled, Mode=OneWay}">
+                    <ItemsRepeater ItemsSource="{x:Bind forge:ReboundTotalInstructions.AppInstructions}">
+                        <ItemsRepeater.Layout>
+                            <controls:StaggeredLayout
+                                ColumnSpacing="8"
+                                DesiredColumnWidth="400"
+                                ItemsStretch="Fill"
+                                RowSpacing="8" />
+                        </ItemsRepeater.Layout>
+                        <ItemsRepeater.ItemTemplate>
+                            <DataTemplate x:DataType="forge:ReboundAppInstructions">
                                 <Grid
                                     Padding="12"
                                     HorizontalAlignment="Stretch"

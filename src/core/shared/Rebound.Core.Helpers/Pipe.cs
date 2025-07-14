@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.IO.Pipes;
+using System.Security.AccessControl;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -29,9 +30,18 @@ public class TrustedPipeServer
     {
         while (true)
         {
-            var pipeServer = new NamedPipeServerStream(_pipeName,
-                PipeDirection.InOut, NamedPipeServerStream.MaxAllowedServerInstances,
-                PipeTransmissionMode.Byte, PipeOptions.Asynchronous);
+            var pipeSecurity = new PipeSecurity();
+            pipeSecurity.AddAccessRule(new PipeAccessRule("Everyone",
+                PipeAccessRights.FullControl,
+                AccessControlType.Allow));
+
+            var pipeServer = NamedPipeServerStreamAcl.Create(
+                _pipeName,
+                PipeDirection.InOut,
+                NamedPipeServerStream.MaxAllowedServerInstances,
+                PipeTransmissionMode.Byte,
+                PipeOptions.Asynchronous,
+                0, 0, pipeSecurity);
 
             await pipeServer.WaitForConnectionAsync();
 

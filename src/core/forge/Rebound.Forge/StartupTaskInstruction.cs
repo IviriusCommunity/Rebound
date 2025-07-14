@@ -8,6 +8,12 @@ public class StartupTaskInstruction : IReboundAppInstruction
 {
     public required string TargetPath { get; set; }
 
+    public required string Name { get; set; }
+
+    public required string Description { get; set; }
+
+    public required bool RequireAdmin { get; set; }
+
     public StartupTaskInstruction()
     {
 
@@ -32,7 +38,10 @@ public class StartupTaskInstruction : IReboundAppInstruction
 
             // Create new task definition
             TaskDefinition td = ts.NewTask();
-            td.RegistrationInfo.Description = "Rebound Shell Task";
+            td.RegistrationInfo.Description = Description;
+
+            // Run with highest privileges (admin)
+            td.Principal.RunLevel = RequireAdmin ? TaskRunLevel.Highest : TaskRunLevel.LUA;
 
             // Add Logon trigger
             td.Triggers.Add(new LogonTrigger());
@@ -41,7 +50,7 @@ public class StartupTaskInstruction : IReboundAppInstruction
             td.Actions.Add(new ExecAction(TargetPath, null, null));
 
             // Register the task or overwrite if exists
-            defragFolder.RegisterTaskDefinition("Shell", td, TaskCreation.CreateOrUpdate, null, null, TaskLogonType.InteractiveToken);
+            defragFolder.RegisterTaskDefinition(Name, td, TaskCreation.CreateOrUpdate, null, null, TaskLogonType.InteractiveToken);
 
         }
         catch (Exception ex)
@@ -60,9 +69,9 @@ public class StartupTaskInstruction : IReboundAppInstruction
             var defragFolder = ts.GetFolder(@"Rebound") ?? ts.RootFolder.CreateFolder(@"Rebound");
 
             // Retrieve the scheduled task
-            if (defragFolder.GetTasks().Exists("Shell"))
+            if (defragFolder.GetTasks().Exists(Name))
             {
-                defragFolder.DeleteTask("Shell", false); // Delete the task
+                defragFolder.DeleteTask(Name, false); // Delete the task
             }
             else
             {
@@ -85,15 +94,16 @@ public class StartupTaskInstruction : IReboundAppInstruction
             var defragFolder = ts.GetFolder(@"Rebound");
             if (defragFolder is null) return false;
             // Retrieve the scheduled task
-            if (!defragFolder.GetTasks().Exists("Shell")) return false;
+            if (!defragFolder.GetTasks().Exists(Name)) return false;
 
             // Retrieve the scheduled task
-            var task = defragFolder.GetTasks().Exists("Shell") ? defragFolder.GetTasks()["Shell"] : defragFolder.RegisterTaskDefinition(@"Rebound\Shell", default);
+            var task = defragFolder.GetTasks().Exists(Name) ? defragFolder.GetTasks()[Name] : defragFolder.RegisterTaskDefinition(@$"Rebound\{Name}", default);
 
             return task.Enabled;
         }
-        catch
+        catch (Exception ex)
         {
+            Debug.WriteLine($"[IsApplied] Task check failed: {ex}");
             return false;
         }
     }
