@@ -3,9 +3,10 @@ using System.Diagnostics;
 using System.IO;
 using System.IO.Compression;
 using System.Linq;
-using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.ComponentModel;
+using Rebound.Forge;
+using Windows.Win32;
 
 namespace Rebound.Installer;
 
@@ -40,7 +41,7 @@ public partial class MainViewModel : ObservableObject
     public async Task InstallAsync(bool repair)
     {
         // Kill processes
-        KillAllProcesses();
+        await KillAllProcesses();
 
         // Init
         IsIndeterminate = true;
@@ -125,7 +126,7 @@ public partial class MainViewModel : ObservableObject
     public async Task RemoveAsync()
     {
         // Kill processes
-        KillAllProcesses();
+        await DeleteReboundModAsync();
 
         // Init
         Title = "Uninstalling...";
@@ -159,26 +160,60 @@ public partial class MainViewModel : ObservableObject
     {
         try
         {
-            var targetPath = Path.Combine(_reboundHubInstallationPath, "Rebound Hub.exe");
+            unsafe
+            {
+                var targetPath = Path.Combine(_reboundHubInstallationPath, "Rebound Hub.exe");
 
-            var shortcutPath = Path.Combine(_startMenuPath, $"Rebound Hub.lnk");
+                var shortcutPath = Path.Combine(_startMenuPath, $"Rebound Hub.lnk");
 
-            // Create ShellLink object
-            var clsidShellLink = new Guid("00021401-0000-0000-C000-000000000046"); // CLSID_ShellLink
-            var iidShellLink = new Guid("000214F9-0000-0000-C000-000000000046");  // IID_IShellLinkW
+                ReboundWorkingEnvironment.EnsureFolderIntegrity();
 
-            Windows.Win32.PInvoke.CoCreateInstance(in clsidShellLink, null, Windows.Win32.System.Com.CLSCTX.CLSCTX_INPROC_SERVER, in iidShellLink, out var shellLinkObj);
-            var targetPathPtr = Marshal.StringToHGlobalUni(targetPath);
-            var targetDirPathPtr = Marshal.StringToHGlobalUni(Path.GetDirectoryName(targetPath));
-            var shortcutPathPtr = Marshal.StringToHGlobalUni(shortcutPath);
+                var startMenuFolder = Path.Combine(
+                    Environment.GetFolderPath(Environment.SpecialFolder.CommonStartMenu),
+                    "Programs", "Rebound");
 
-            var shellLink = (Windows.Win32.UI.Shell.IShellLinkW)shellLinkObj;
-            unsafe { shellLink.SetPath(new Windows.Win32.Foundation.PCWSTR((char*)targetPathPtr)); }
-            unsafe { shellLink.SetWorkingDirectory(new Windows.Win32.Foundation.PCWSTR((char*)targetDirPathPtr)); }
+                var clsidShellLink = CLSID.CLSID_ShellLink;
+                var iidIShellLinkW = Windows.Win32.UI.Shell.IShellLinkW.IID_Guid;
+                var iidIPersistFile = IID.IID_IPersistFile;
 
-            // Save it to file using IPersistFile
-            var persistFile = (Windows.Win32.System.Com.IPersistFile)shellLink;
-            unsafe { persistFile.Save(new Windows.Win32.Foundation.PCWSTR((char*)shortcutPathPtr), true); }
+                Windows.Win32.UI.Shell.IShellLinkW* pShellLink;
+
+                Windows.Win32.Foundation.HRESULT hr = PInvoke.CoCreateInstance(
+                    clsidShellLink,
+                    null,
+                    Windows.Win32.System.Com.CLSCTX.CLSCTX_INPROC_SERVER,
+                    &iidIShellLinkW,
+                    (void**)&pShellLink);
+
+                if (hr.Failed || pShellLink is null)
+                    return;
+
+                fixed (char* exePath = targetPath)
+                {
+                    pShellLink->SetPath(new Windows.Win32.Foundation.PCWSTR(exePath));
+                }
+
+                string workingDir = Path.GetDirectoryName(targetPath)!;
+                fixed (char* workingDirPtr = workingDir)
+                {
+                    pShellLink->SetWorkingDirectory(new Windows.Win32.Foundation.PCWSTR(workingDirPtr));
+                }
+
+                Windows.Win32.System.Com.IPersistFile* pPersistFile;
+                hr = ((Windows.Win32.System.Com.IUnknown*)pShellLink)->QueryInterface(iidIPersistFile, (void**)&pPersistFile);
+
+                if (hr.Succeeded && pPersistFile is not null)
+                {
+                    fixed (char* shortcutPathPtr = shortcutPath)
+                    {
+                        pPersistFile->Save(new Windows.Win32.Foundation.PCWSTR(shortcutPathPtr), true);
+                    }
+
+                    pPersistFile->Release();
+                }
+
+                pShellLink->Release();
+            }
         }
         catch (Exception ex)
         {
@@ -311,18 +346,33 @@ public partial class MainViewModel : ObservableObject
         }
     }
 
-    public void KillAllProcesses()
+    public async Task DeleteReboundModAsync()
     {
-        Process.GetProcessesByName("Rebound Shell").ToList().ForEach(p =>
+        foreach (var instruction in ReboundTotalInstructions.AppInstructions)
         {
-            try
-            {
-                p.Kill();
-            }
-            catch (Exception ex)
-            {
+            await instruction.Uninstall();
+        }
+        foreach (var instruction in ReboundTotalInstructions.MandatoryInstructions)
+        {
+            await instruction.Uninstall();
+        }
+    }
 
+    public async Task KillAllProcesses()
+    {
+        foreach (var instruction in ReboundTotalInstructions.AppInstructions)
+        {
+            foreach (var process in Process.GetProcessesByName(instruction.ProcessName))
+            {
+                process.Kill();
             }
-        });
+        }
+        foreach (var instruction in ReboundTotalInstructions.MandatoryInstructions)
+        {
+            foreach (var process in Process.GetProcessesByName(instruction.ProcessName))
+            {
+                process.Kill();
+            }
+        }
     }
 }

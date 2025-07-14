@@ -146,7 +146,7 @@ public partial class App : Application
             return false;
 
         // Flatten all known trusted paths from your instructions
-        var trustedPaths = ReboundTotalInstructions.AppInstrunctions
+        var trustedPaths = ReboundTotalInstructions.AppInstructions
             .Where(inst => !string.IsNullOrWhiteSpace(inst.EntryExecutable))
             .Select(inst => inst.EntryExecutable)
             .Distinct(StringComparer.OrdinalIgnoreCase);
