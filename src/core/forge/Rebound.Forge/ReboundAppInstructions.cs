@@ -1,4 +1,5 @@
-﻿using System.Collections.ObjectModel;
+﻿using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
@@ -9,6 +10,8 @@ namespace Rebound.Forge;
 
 public partial class ReboundAppInstructions : ObservableObject
 {
+    private bool _supress;
+
     [ObservableProperty]
     public partial bool IsInstalled { get; set; } = false;
 
@@ -17,8 +20,11 @@ public partial class ReboundAppInstructions : ObservableObject
 
     async partial void OnIsInstalledChanged(bool oldValue, bool newValue)
     {
-        if (newValue) await Install();
-        else await Uninstall();
+        if (!_supress)
+        {
+            if (newValue) await Install();
+            else await Uninstall();
+        }
     }
 
     public string Name { get; set; } = string.Empty;
@@ -44,9 +50,11 @@ public partial class ReboundAppInstructions : ObservableObject
 
     public async void Load()
     {
+        _supress = true;
         await Task.Delay(100);
         IsInstalled = GetIntegrity() == ReboundAppIntegrity.Installed;
         IsIntact = GetIntegrity() != ReboundAppIntegrity.Corrupt;
+        _supress = false;
     }
 
     [RelayCommand]
@@ -57,12 +65,41 @@ public partial class ReboundAppInstructions : ObservableObject
 
     public async Task Install()
     {
-        // Check if any process with ProcessName is running
+        // Find all running processes with the target name
         var runningProcesses = Process.GetProcessesByName(ProcessName).ToList();
         bool wasRunning = runningProcesses.Any();
 
-        // Kill running processes
-        runningProcesses.ForEach(p => p.Kill());
+        // Save executable paths before killing the processes
+        var pathsToRestart = new List<string>();
+        foreach (var process in runningProcesses)
+        {
+            try
+            {
+                var path = process.MainModule?.FileName;
+                if (!string.IsNullOrEmpty(path))
+                {
+                    pathsToRestart.Add(path);
+                }
+            }
+            catch
+            {
+                // MainModule can throw if process is protected or 64/32 bit mismatch
+            }
+        }
+
+        // Kill the running processes
+        foreach (var process in runningProcesses)
+        {
+            try
+            {
+                process.Kill();
+            }
+            catch
+            {
+                // Optional: handle access denied or already-exited processes
+            }
+        }
+
         await Task.Delay(200);
 
         // Apply install instructions
@@ -81,16 +118,16 @@ public partial class ReboundAppInstructions : ObservableObject
         // Restart processes if needed
         if (wasRunning)
         {
-            try
+            foreach (var path in pathsToRestart.Distinct())
             {
-                foreach (var p in runningProcesses)
+                try
                 {
-                    Process.Start(p.MainModule?.FileName ?? ProcessName);
+                    Process.Start(path);
                 }
-            }
-            catch
-            {
-                // Optional: handle any errors starting the processes
+                catch
+                {
+                    // Optional: log or notify about failed restarts
+                }
             }
         }
     }

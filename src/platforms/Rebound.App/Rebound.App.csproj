@@ -21,12 +21,13 @@
 		<Content Include="Fonts\FluentIcons.ttf">
 			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 		</Content>
-		<Content Include="Modding\Launchers\rosk.exe" />
+		<Content Include="Modding\Launchers\rosk.exe">
+		  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</Content>
 		<Content Include="NativeMethods.json" />
 		<CustomAdditionalCompileInputs Remove="Views\HomePage.xaml" />
 		<Resource Remove="Views\HomePage.xaml" />
 		<PRIResource Remove="Assets\Wallpapers\**" />
-		<None Remove="Launcher_OSK.obj" />
 		<None Remove="Modding\Launchers\rosk.exe" />
 		<None Remove="Views\Rectify11Page.xaml" />
 		<AdditionalFiles Include="NativeMethods.txt" />
@@ -56,49 +57,13 @@
 		<ProjectReference Include="..\..\core\unpackaged\Rebound.Core.SourceGenerator\Rebound.Core.SourceGenerator.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
 	</ItemGroup>
 	<ItemGroup>
-	  <Page Update="Views\Rectify11Page.xaml">
-	    <Generator>MSBuild:Compile</Generator>
-	  </Page>
+		<Page Update="Views\Rectify11Page.xaml">
+			<Generator>MSBuild:Compile</Generator>
+		</Page>
 	</ItemGroup>
 
 	<!-- Shared project imports -->
 	<Import Project="..\..\core\forge\Rebound.Forge\Rebound.Forge.projitems" Label="Shared" />
 	<Import Project="..\..\core\shared\Rebound.Core.Helpers\Rebound.Core.Helpers.projitems" Label="Shared" />
-
-	<!-- Copy and rename launchers -->
-
-	<!--<Target Name="CopyExecutablesToLaunchers" BeforeTargets="Build" Condition="'$(Configuration)' == 'Release'">
-		<MSBuild Projects="..\Rebound.About\Rebound.About.csproj" Targets="Publish" Properties="Configuration=Release;PublishDir=..\Rebound.About\bin\Release\Publish\" />
-		<MSBuild Projects="..\Rebound.Cleanup\Rebound.Cleanup.csproj" Targets="Publish" Properties="Configuration=Release;PublishDir=..\Rebound.Cleanup\bin\Release\Publish\" />
-		<MSBuild Projects="..\Rebound.ControlPanel\Rebound.ControlPanel.csproj" Targets="Publish" Properties="Configuration=Release;PublishDir=..\Rebound.ControlPanel\bin\Release\Publish\" />
-		<MSBuild Projects="..\Rebound.UserAccountControlSettings\Rebound.UserAccountControlSettings.csproj" Targets="Publish" Properties="Configuration=Release;PublishDir=..\Rebound.UserAccountControlSettings\bin\Release\Publish\" />
-		<MSBuild Projects="..\..\components\shell\Rebound.Shell.ExperienceHost\Rebound.Shell.ExperienceHost.csproj" Targets="Publish" Properties="Configuration=Release;PublishDir=..\..\components\shell\Rebound.Shell.ExperienceHost\bin\win-x64\Publish\" />
-
-		<ItemGroup>
-			<PublishedExecutables Include="..\Rebound.About\bin\Release\Publish\Rebound About.exe">
-				<DestinationFileName>rwinver.exe</DestinationFileName>
-			</PublishedExecutables>
-			<PublishedExecutables Include="..\Rebound.Cleanup\bin\Release\Publish\Rebound Disk Cleanup.exe">
-				<DestinationFileName>rcleanmgr.exe</DestinationFileName>
-			</PublishedExecutables>
-			<PublishedExecutables Include="..\Rebound.ControlPanel\bin\Release\Publish\Rebound Control Panel.exe">
-				<DestinationFileName>rcontrol.exe</DestinationFileName>
-			</PublishedExecutables>
-			<PublishedExecutables Include="..\Rebound.UserAccountControlSettings\bin\Release\Publish\Rebound User Account Control Settings.exe">
-				<DestinationFileName>ruseraccountcontrolsettings.exe</DestinationFileName>
-			</PublishedExecutables>
-			<PublishedExecutables Include="..\..\components\shell\Rebound.Shell.ExperienceHost\bin\win-x64\Publish\Rebound Shell.exe">
-				<DestinationFileName>rshell.exe</DestinationFileName>
-			</PublishedExecutables>
-		</ItemGroup>
-
-		<PropertyGroup>
-			<LaunchersFolder>$(MSBuildThisFileDirectory)modding\launchers\</LaunchersFolder>
-		</PropertyGroup>
-
-		<Message Text="Copying and renaming executables to $(LaunchersFolder)" Importance="high" />
-
-		<Copy SourceFiles="@(PublishedExecutables->'%(FullPath)')" DestinationFiles="@(PublishedExecutables->'$(LaunchersFolder)%(DestinationFileName)')" OverwriteReadOnlyFiles="true" />
-	</Target>-->
 
 </Project>

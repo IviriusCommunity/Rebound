@@ -146,12 +146,11 @@
                 </toolkit:SettingsCard>
                 <toolkit:SettingsCard
                     Description="Show Rebound branding throughout apps."
-                    Header="Branding"
-                    IsEnabled="False">
+                    Header="Branding">
                     <toolkit:SettingsCard.HeaderIcon>
                         <FontIcon Glyph="&#xED56;" />
                     </toolkit:SettingsCard.HeaderIcon>
-                    <ToggleSwitch IsOn="True" />
+                    <ToggleSwitch IsOn="{x:Bind ViewModel.ShowBranding, Mode=TwoWay}" />
                 </toolkit:SettingsCard>
                 <toolkit:SettingsCard
                     Command="{x:Bind NavigateToWallpapersFolderCommand}"

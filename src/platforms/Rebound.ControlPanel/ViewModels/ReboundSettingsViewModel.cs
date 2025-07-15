@@ -15,11 +15,15 @@ public partial class ReboundSettingsViewModel : ObservableObject
     [ObservableProperty]
     public partial bool AllowDesktopFeature { get; set; }
 
+    [ObservableProperty]
+    public partial bool ShowBranding { get; set; }
+
     public ReboundSettingsViewModel()
     {
         ShowBlurAndGlow = SettingsHelper.GetValue("ShowBlurAndGlow", "rebound", true);
         FetchMode = SettingsHelper.GetValue("FetchMode", "rebound", false);
         AllowDesktopFeature = SettingsHelper.GetValue("AllowDesktopFeature", "rebound", false);
+        ShowBranding = SettingsHelper.GetValue("ShowBranding", "rebound", true);
     }
 
     partial void OnShowBlurAndGlowChanged(bool value)
@@ -35,5 +39,10 @@ public partial class ReboundSettingsViewModel : ObservableObject
     partial void OnAllowDesktopFeatureChanged(bool value)
     {
         SettingsHelper.SetValue("AllowDesktopFeature", "rebound", value);
+    }
+
+    partial void OnShowBrandingChanged(bool value)
+    {
+        SettingsHelper.SetValue("ShowBranding", "rebound", value);
     }
 }

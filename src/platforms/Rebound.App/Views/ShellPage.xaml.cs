@@ -1,6 +1,7 @@
 ﻿using System.Net.Http;
 using CommunityToolkit.WinUI.Helpers;
 using Microsoft.UI.Xaml.Controls;
+using Rebound.Helpers;
 
 namespace Rebound.Views;
 
@@ -10,7 +11,16 @@ internal sealed partial class ShellPage : Page
     {
         InitializeComponent();
         NavigationViewControl.SelectedItem = HomeItem;
-        MainFrame.Navigate(typeof(HomePage));
+        if (SettingsHelper.GetValue("ShowBranding", "rebound", true))
+        {
+            MainFrame.Navigate(typeof(HomePage));
+        }
+        else
+        {
+            NavigationViewControl.Visibility = Microsoft.UI.Xaml.Visibility.Collapsed;
+            OverlayFrame.Visibility = Microsoft.UI.Xaml.Visibility.Visible;
+            OverlayFrame.Navigate(typeof(Rebound11Page));
+        }
         CheckForUpdates();
     }
 

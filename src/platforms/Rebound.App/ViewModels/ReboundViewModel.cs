@@ -26,10 +26,19 @@ public partial class ReboundViewModel : ObservableObject
     public partial bool InstallThisAppCantRunOnYourPC { get; set; }
 
     [ObservableProperty]
+    public partial bool InstallAppwiz { get; set; }
+
+    [ObservableProperty]
+    public partial bool InstallWindowsTools { get; set; }
+
+    [ObservableProperty]
     public partial bool IsUpdateAvailable { get; set; }
 
     [ObservableProperty]
     public partial string VersionText { get; set; }
+
+    [ObservableProperty]
+    public partial string CurrentVersion { get; set; }
 
     bool _isLoading;
 
@@ -41,6 +50,8 @@ public partial class ReboundViewModel : ObservableObject
         InstallShutdownDialog = SettingsHelper.GetValue<bool>("InstallShutdownDialog", "rebound", true);
         InstallShortcuts = SettingsHelper.GetValue<bool>("InstallShortcuts", "rebound", true);
         InstallThisAppCantRunOnYourPC = SettingsHelper.GetValue<bool>("InstallThisAppCantRunOnYourPC", "rebound", true);
+        InstallAppwiz = SettingsHelper.GetValue<bool>("InstallAppwiz", "rebound", true);
+        InstallWindowsTools = SettingsHelper.GetValue<bool>("InstallWindowsTools", "rebound", true);
         CheckForUpdates();
         _isLoading = false;
     }
@@ -53,6 +64,7 @@ public partial class ReboundViewModel : ObservableObject
             var directoryPath = Path.Combine(programFilesPath, "Rebound");
 
             var content = File.ReadAllText(Path.Combine(directoryPath, "version.txt"));
+            CurrentVersion = content;
             VersionText = $"Current version: {content}  -  New version: {Helpers.Environment.ReboundVersion.REBOUND_VERSION}";
             IsUpdateAvailable = Helpers.Environment.ReboundVersion.REBOUND_VERSION != content;
         }
@@ -80,6 +92,16 @@ public partial class ReboundViewModel : ObservableObject
     partial void OnInstallThisAppCantRunOnYourPCChanged(bool oldValue, bool newValue)
     {
         SettingsHelper.SetValue<bool>("InstallThisAppCantRunOnYourPC", "rebound", newValue);
+    }
+
+    partial void OnInstallAppwizChanged(bool oldValue, bool newValue)
+    {
+        SettingsHelper.SetValue<bool>("InstallAppwiz", "rebound", newValue);
+    }
+
+    partial void OnInstallWindowsToolsChanged(bool oldValue, bool newValue)
+    {
+        SettingsHelper.SetValue<bool>("InstallWindowsTools", "rebound", newValue);
     }
 
     async partial void OnIsReboundEnabledChanged(bool oldValue, bool newValue)

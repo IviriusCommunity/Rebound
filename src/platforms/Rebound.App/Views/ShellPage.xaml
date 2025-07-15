@@ -127,5 +127,6 @@
                     CornerRadius="8,0,0,0" />
             </NavigationView.Content>
         </NavigationView>
+        <Frame x:Name="OverlayFrame" Background="{ThemeResource LayerFillColorDefaultBrush}" Visibility="Collapsed" Margin="0, 48, 0, 0"/>
     </Grid>
 </Page>

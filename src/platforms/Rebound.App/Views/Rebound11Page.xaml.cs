@@ -2,7 +2,9 @@ using System;
 using System.Collections.ObjectModel;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
+using Rebound.Helpers;
 using Rebound.ViewModels;
+using static System.Net.WebRequestMethods;
 
 namespace Rebound.Views;
 
@@ -14,7 +16,7 @@ public partial class Rebound11Page : Page
         {
             Title = "Get Started",
             Description = "See a short tutorial on how to use Rebound.",
-            IconPath = "/Assets/AppIcons/PropertiesWindow.ico",
+            IconPath = "/Assets/AppIcons/WerFault_100.ico",
             Link = "https://www.youtube.com/watch?v=tJ8AnfZP4EU"
         },
         new LinkCard
@@ -22,21 +24,21 @@ public partial class Rebound11Page : Page
             Title = "WinUI apps",
             Description = "Rebound uses only WinUI apps to ensure a consistent experience.",
             IconPath = "/Assets/AppIcons/WinUI.png",
-            Link = string.Empty
+            Link = "https://learn.microsoft.com/en-us/windows/apps/winui/winui3/"
         },
         new LinkCard
         {
             Title = "Windows updates",
             Description = "Rebound does not disable Windows updates so you can enjoy fresh patches and releases.",
-            IconPath = "/Assets/AppIcons/WindowsIcon.png",
-            Link = string.Empty
+            IconPath = "/Assets/AppIcons/shell32_16739.ico",
+            Link = "https://support.microsoft.com/en-us/windows/install-windows-updates-3c5ae7fc-9fb6-9af1-1984-b5e0412c556a"
         },
         new LinkCard
         {
             Title = "Rebound updates",
             Description = "All Rebound updates are easy to install via the \"Update or Repair all\" option.",
-            IconPath = "/Assets/AppIcons/ReboundIcon.ico",
-            Link = string.Empty
+            IconPath = "/Assets/AppIcons/shell32_47.ico",
+            Link = "https://ivirius.com/rebound"
         },
         new LinkCard
         {
@@ -47,21 +49,16 @@ public partial class Rebound11Page : Page
         }
     ];
 
-    public ReboundViewModel ReboundViewModel { get; set; }
+    public ReboundViewModel ReboundViewModel { get; set; } = new();
 
     public Rebound11Page()
     {
-        ReboundViewModel = new ReboundViewModel();
         DataContext = ReboundViewModel;
         InitializeComponent();
-    }
-
-    private void OnCardClick(object sender, RoutedEventArgs e)
-    {
-        if (sender is Button button && button.DataContext is AppCard card && !string.IsNullOrEmpty(card.Link))
+        if (!SettingsHelper.GetValue("ShowBranding", "rebound", true))
         {
-            var uri = new Uri(card.Link);
-            _ = Windows.System.Launcher.LaunchUriAsync(uri);
+            BKGImage.Visibility = CardsScrollViewer.Visibility = TitleGrid.Visibility = Visibility.Collapsed;
+            Row1.Height = Row2.Height = new(0);
         }
     }
 }

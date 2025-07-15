@@ -15,7 +15,7 @@ public static class ReboundTotalInstructions
             Name = "Control Panel",
             Icon = "ms-appx:///Assets/AppIcons/ControlPanel.ico",
             Description = "Replacement for the Control Panel.",
-            InstallationSteps = "\n- Redirect app launch\n- Create a start menu shortcut",
+            InstallationSteps = "•   Redirect app launch\n•   Create a start menu shortcut",
             EntryExecutable = $"{Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles)}\\Rebound\\rcontrol\\Rebound Control Panel.exe",
             Instructions =
             [
@@ -40,7 +40,7 @@ public static class ReboundTotalInstructions
             Name = "Disk Cleanup",
             Icon = "ms-appx:///Assets/AppIcons/cleanmgr.ico",
             Description = "Replacement for the Disk Cleanup utility.",
-            InstallationSteps = "- Redirect app launch\n- Create a start menu shortcut",
+            InstallationSteps = "•   Redirect app launch\n•   Create a start menu shortcut",
             EntryExecutable = $"{Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles)}\\Rebound\\rcleanmgr\\Rebound Disk Cleanup.exe",
             Instructions =
             [
@@ -64,7 +64,7 @@ public static class ReboundTotalInstructions
             ProcessName = "rosk",
             Name = "On-Screen Keyboard",
             Icon = "ms-appx:///Assets/AppIcons/OSK.ico",
-            Description = "Temporarily deprecated. Turning this on will not do anything.",
+            Description = "Launches the TabTip panel.",
             InstallationSteps = "Redirect app launch",
             EntryExecutable = $"{Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles)}\\Rebound\\rosk.exe",
             Instructions =
@@ -88,9 +88,9 @@ public static class ReboundTotalInstructions
         {
             ProcessName = "Rebound Shell",
             Name = "Rebound Shell",
-            Icon = "ms-appx:///Assets/AppIcons/ReboundIcon.ico",
+            Icon = "ms-appx:///Assets/AppIcons/shell32_180.ico",
             Description = "Replacement for the shell and its components such as the run box, shutdown dialog, desktop, etc.",
-            InstallationSteps = "- Register a startup task\n\nYou can choose which components are enabled from the Options menu at the top of the page. Note: Rebound Shell alone doesn't have a predefined UI. To check if it's running, try opening one of the applets it replaces.",
+            InstallationSteps = "•   Register a startup task\n•   Hijack selected applets\n\nYou can choose which components are enabled from the Options menu at the top of the page.\n\nNote: Rebound Shell alone doesn't have a predefined UI. To check if it's running, try opening one of the applets it replaces.",
             EntryExecutable = $"{Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles)}\\Rebound\\rshell\\Rebound Shell.exe",
             Instructions =
             [
@@ -117,7 +117,7 @@ public static class ReboundTotalInstructions
             Name = "UAC Settings",
             Icon = "ms-appx:///Assets/AppIcons/Admin.ico",
             Description = "Replacement for the useraccountcontrolsettings applet.",
-            InstallationSteps = "- Redirect app launch\n- Create a start menu shortcut",
+            InstallationSteps = "•   Redirect app launch\n•   Create a start menu shortcut",
             EntryExecutable = $"{Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles)}\\Rebound\\ruseraccountcontrolsettings\\Rebound User Account Control Settings.exe",
             Instructions =
             [
@@ -142,7 +142,7 @@ public static class ReboundTotalInstructions
             Name = "About Windows",
             Icon = "ms-appx:///Assets/AppIcons/AboutWindows.ico",
             Description = "Replacement for the winver applet.",
-            InstallationSteps = "- Redirect app launch\n- Create a start menu shortcut",
+            InstallationSteps = "•   Redirect app launch\n•   Create a start menu shortcut",
             EntryExecutable = $"{Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles)}\\Rebound\\rwinver\\Rebound About.exe",
             Instructions =
             [
@@ -170,7 +170,7 @@ public static class ReboundTotalInstructions
             Name = "Service Host",
             Icon = "ms-appx:///Assets/AppIcons/ServiceHost.ico",
             Description = "Mandatory background service required for Rebound apps to run properly.",
-            InstallationSteps = "- Register a startup task as admin",
+            InstallationSteps = "Register a startup task as admin",
             EntryExecutable = $"{Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles)}\\Rebound\\rsvchost\\Rebound Service Host.exe",
             Instructions =
             [

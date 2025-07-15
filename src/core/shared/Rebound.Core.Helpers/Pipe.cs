@@ -8,6 +8,7 @@ using System.Security.AccessControl;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using Rebound.Forge;
 using Windows.Win32;
 
 namespace Rebound.Core.Helpers;
@@ -15,13 +16,36 @@ namespace Rebound.Core.Helpers;
 public class TrustedPipeServer
 {
     private readonly string _pipeName;
-    private readonly Func<string?, bool> _isTrustedClient;
     private readonly ConcurrentDictionary<int, NamedPipeServerStream> _connectedClients = new();
 
-    public TrustedPipeServer(string pipeName, Func<string?, bool> isTrustedClient)
+    public TrustedPipeServer(string pipeName)
     {
         _pipeName = pipeName;
-        _isTrustedClient = isTrustedClient;
+    }
+
+    private async Task<bool> IsTrustedClient(string? exePath)
+    {
+#if DEBUG
+        // In debug builds, trust all clients for easier development/testing
+        return true;
+#else
+        if (string.IsNullOrEmpty(exePath))
+            return false;
+
+        List<string> trustedPaths = [];
+
+        foreach (var instruction in ReboundTotalInstructions.AppInstructions)
+        {
+            trustedPaths.Add(instruction.EntryExecutable);
+        }
+
+        foreach (var trustedPath in trustedPaths)
+        {
+            if (string.Equals(trustedPath, exePath, StringComparison.OrdinalIgnoreCase)) return true;
+        }
+
+        return false;
+#endif
     }
 
     public event Func<string, Task>? MessageReceived;
@@ -54,7 +78,8 @@ public class TrustedPipeServer
             var exePath = clientProcess?.MainModule?.FileName;
             Debug.WriteLine($"Client connected: {clientProcess?.ProcessName} ({exePath})");
 
-            if (!_isTrustedClient(exePath))
+            var isTrusted = await IsTrustedClient(exePath);
+            if (!isTrusted)
             {
                 Debug.WriteLine("Unauthorized client rejected: " + exePath);
                 pipeServer.Dispose();

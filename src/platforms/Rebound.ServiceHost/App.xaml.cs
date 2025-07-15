@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
@@ -16,8 +17,8 @@ using Windows.Storage;
 using Windows.System.UserProfile;
 using Windows.Win32;
 using Windows.Win32.System.Shutdown;
-using WinRT.Rebound_Service_HostVtableClasses;
 using WinUI3Localizer;
+using WinUIEx;
 
 namespace Rebound.ServiceHost;
 
@@ -26,9 +27,14 @@ public partial class App : Application
 {
     private TrustedPipeServer? PipeServer;
 
+    public App()
+    {
+
+    }
+
     private void StartPipeServer()
     {
-        PipeServer = new TrustedPipeServer("REBOUND_SERVICE_HOST", IsTrustedClient);
+        PipeServer = new TrustedPipeServer("REBOUND_SERVICE_HOST");
         _ = PipeServer.StartAsync();
 
         PipeServer.MessageReceived += PipeServer_MessageReceived;
@@ -136,25 +142,6 @@ public partial class App : Application
         }
     }
 
-    private bool IsTrustedClient(string? exePath)
-    {
-#if DEBUG
-    // In debug builds, trust all clients for easier development/testing
-    return true;
-#else
-        if (string.IsNullOrEmpty(exePath))
-            return false;
-
-        // Flatten all known trusted paths from your instructions
-        var trustedPaths = ReboundTotalInstructions.AppInstructions
-            .Where(inst => !string.IsNullOrWhiteSpace(inst.EntryExecutable))
-            .Select(inst => inst.EntryExecutable)
-            .Distinct(StringComparer.OrdinalIgnoreCase);
-
-        return trustedPaths.Any(path => string.Equals(path, exePath, StringComparison.OrdinalIgnoreCase));
-#endif
-    }
-
     public static ILocalizer Localizer { get; set; }
 
     private async void OnSingleInstanceLaunched(object? sender, Helpers.Services.SingleInstanceLaunchEventArgs e)
@@ -209,12 +196,13 @@ public partial class App : Application
             thread.IsBackground = true;
             thread.Start();
 
+            // Server
+            _ = Task.Run(StartPipeServer);
+
             // Activation
             MainAppWindow = new MainWindow();
             MainAppWindow.Activate();
-
-            // Server
-            StartPipeServer();
+            MainAppWindow.Show();
         }
     }
 

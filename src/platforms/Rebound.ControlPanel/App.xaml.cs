@@ -10,6 +10,7 @@ using Microsoft.UI.Xaml;
 using Rebound.ControlPanel.Views;
 using Rebound.Core.Helpers;
 using Rebound.Generators;
+using Rebound.Helpers;
 using Windows.System;
 
 namespace Rebound.ControlPanel;
@@ -55,27 +56,35 @@ public partial class App : Application
                 Args = [ controlPanelPath, "control", "" ]
             },
 
-            // Windows Tools
-            new()
-            {
-                Type = typeof(WindowsToolsPage),
-                Args = [ "admintools", "/name Microsoft.AdministrativeTools" ]
-            },
-
             // Date and Time
             new()
             {
                 Type = typeof(WindowsToolsPage),
                 Args = [ intlCplPath, $"{intlCplPath},,/p:date", $"{intlCplPath}," ]
             },
+        };
 
-            // Apps and Features
+        // Apps and Features
+        if (SettingsHelper.GetValue("InstallAppwiz", "rebound", true))
+        {
+            knownArgMappings.Add(
             new()
             {
                 Type = "ms-settings:appsfeatures",
-                Args = [ appWizCplPath, $"{appWizCplPath}," ]
-            }
-        };
+                Args = [appWizCplPath, $"{appWizCplPath},"]
+            });
+        }
+
+        // Windows Tools
+        if (SettingsHelper.GetValue("InstallWindowsTools", "rebound", true))
+        {
+            knownArgMappings.Add(
+            new()
+            {
+                Type = typeof(WindowsToolsPage),
+                Args = ["admintools", "/name Microsoft.AdministrativeTools"]
+            });
+        }
 
         object? pageToLaunch = null;
         

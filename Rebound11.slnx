@@ -130,6 +130,9 @@
       <Platform Solution="*|x86" Project="x86" />
       <Deploy />
     </Project>
+    <Project Path="src/platforms/Rebound.OnScreenKeyboard/Rebound.OnScreenKeyboard.vcxproj" Id="b461b611-1a7b-4397-9c9f-7d99bbcbc85f">
+      <Platform Solution="*|ARM64" Project="x64" />
+    </Project>
     <Project Path="src/platforms/Rebound.ServiceHost/Rebound.ServiceHost.csproj" Id="fd8c0fe2-a37d-4f68-a25b-4742ecc0f375">
       <Platform Solution="*|ARM64" Project="ARM64" />
       <Platform Solution="*|x64" Project="x64" />
