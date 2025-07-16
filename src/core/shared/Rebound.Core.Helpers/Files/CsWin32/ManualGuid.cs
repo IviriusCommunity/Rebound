@@ -57,6 +57,9 @@ namespace Windows.Win32
 
 	public static unsafe partial class CLSID
     {
+        [GuidRVAGen.Guid("d20a3293-3341-4ae8-9aaf-8e397cb63c34")]
+        public static partial Guid* CLSID_DefragEngine { get; }
+
         [GuidRVAGen.Guid("00021401-0000-0000-C000-000000000046")]
         public static partial Guid* CLSID_ShellLink { get; }
 
