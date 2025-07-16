@@ -26,6 +26,7 @@ DwmSetWindowAttribute
 LoadImage
 PostMessage
 CreateIcon
+CoInitializeSecurity
 CoCreateInstance
 IApplicationActivationManager
 IShellLinkW

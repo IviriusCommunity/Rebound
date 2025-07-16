@@ -15,11 +15,13 @@ using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Documents;
 using Microsoft.UI.Xaml.Media;
 using Rebound.About.ViewModels;
+using Rebound.Core.Helpers;
 using Rebound.Helpers;
 using Rebound.Helpers.Environment;
 using Windows.ApplicationModel.DataTransfer;
 using Windows.Win32;
 using Windows.Win32.Foundation;
+using Windows.Win32.Security;
 using Windows.Win32.System.Com;
 
 namespace Rebound.About.Views;
@@ -43,7 +45,7 @@ public sealed partial class MainPage : Page
 
     public unsafe partial struct IDefragClient : IComIID
     {
-        private void** lpVtbl;
+        public void** lpVtbl;
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public HRESULT ChangeNotification(UInt64 notificationId, UInt32 notificationType, void* notificationData)
@@ -63,15 +65,15 @@ public sealed partial class MainPage : Page
 
     public unsafe partial struct IDefragEnginePriv : IComIID
     {
-        private void** lpVtbl;
+        public void** lpVtbl;
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public HRESULT Analyze(
-            ushort* volumeName,
+            char* volumeName,
             Guid* param1,
             Guid* param2)
         {
-            return (HRESULT)((delegate* unmanaged[MemberFunction]<IDefragEnginePriv*, ushort*, Guid*, Guid*, uint>)(lpVtbl[5]))
+            return (HRESULT)((delegate* unmanaged[MemberFunction]<IDefragEnginePriv*, char*, Guid*, Guid*, uint>)(lpVtbl[5]))
                 ((IDefragEnginePriv*)Unsafe.AsPointer(ref this), volumeName, param1, param2);
         }
 
@@ -318,42 +320,128 @@ public sealed partial class MainPage : Page
             return;
         }
 
+        object pAuthList;
+        object pa2;
+
         try
         {
-            var service = new ServiceController("defragsvc");
-            if (service.Status != ServiceControllerStatus.Running)
+            unsafe
             {
-                service.Start();
-                service.WaitForStatus(ServiceControllerStatus.Running, TimeSpan.FromSeconds(10));
+                // Dummy native functions: just raw pointers to simple functions (or null)
+                // You can create them as static unmanaged methods with [UnmanagedCallersOnly] or just IntPtr.Zero for no-op.
+
+                // Raw unmanaged function implementations:
+
+                [UnmanagedCallersOnly(CallConvs = new[] { typeof(CallConvStdcall) })]
+                static int Dummy_QueryInterface(IDefragClient* self, Guid* riid, void** ppvObject)
+                {
+                    *ppvObject = null;
+                    return unchecked((int)0x80004002); // E_NOINTERFACE
+                }
+
+                [UnmanagedCallersOnly(CallConvs = new[] { typeof(CallConvStdcall) })]
+                static uint Dummy_AddRef(IDefragClient* self) => 1;
+
+                [UnmanagedCallersOnly(CallConvs = new[] { typeof(CallConvStdcall) })]
+                static uint Dummy_Release(IDefragClient* self) => 1;
+
+                [UnmanagedCallersOnly(CallConvs = new[] { typeof(CallConvStdcall) })]
+                static int Dummy_ChangeNotification(IDefragClient* self, ulong notificationId, uint notificationType, void* notificationData)
+                {
+                    return 0; // S_OK
+                }
+
+                [UnmanagedCallersOnly(CallConvs = new[] { typeof(CallConvStdcall) })]
+                static IUnknown* Dummy_GetControllingUnknown(IDefragClient* self)
+                {
+                    return null;
+                }
+
+                PInvoke.CoInitializeSecurity(
+                    PSECURITY_DESCRIPTOR.Null,
+                    -1,
+                    null,
+                    RPC_C_AUTHN_LEVEL.RPC_C_AUTHN_LEVEL_PKT_PRIVACY,
+                    RPC_C_IMP_LEVEL.RPC_C_IMP_LEVEL_IMPERSONATE,
+                    null,
+                    EOLE_AUTHENTICATION_CAPABILITIES.EOAC_NONE
+                    );
+
+                var service = new ServiceController("defragsvc");
+                if (service.Status != ServiceControllerStatus.Running)
+                {
+                    service.Start();
+                    service.WaitForStatus(ServiceControllerStatus.Running, TimeSpan.FromSeconds(10));
+                }
+
+                IDefragEnginePriv* enginePtr = null;
+
+                var clsid_DefragEngine = CLSID.CLSID_DefragEngine;
+                var iid_IDefragEnginePriv = IDefragEnginePriv.Guid;
+
+                // CoCreateInstance to create the COM object instance
+                hrInit = PInvoke.CoCreateInstance(
+                    clsid_DefragEngine,
+                    null,
+                    CLSCTX.CLSCTX_LOCAL_SERVER,
+                    &iid_IDefragEnginePriv,
+                    (void**)&enginePtr);
+
+                if (hrInit.Failed)
+                {
+                    Debug.WriteLine($"CoCreateInstance failed: 0x{hrInit.Value:X8}");
+                    return;
+                }
+
+                Debug.WriteLine($"CoCreateInstance succeeded. Interface pointer: 0x{(nint)enginePtr:X}");
+
+                var instanceGuid = Guid.NewGuid();
+
+                Guid partitionGuid = new Guid("4d5f1423-15bf-4e63-9db1-d365ba0d1470");
+                Guid diskGUID = new Guid("6077191f-0022-40df-b12b-7771d45d519f");
+
+                HRESULT hr;
+
+                fixed (char* pVol = "\\\\?\\Volume{4d5f1423-15bf-4e63-9db1-d365ba0d1470}\\")
+                {
+                    hr = enginePtr->Analyze(pVol, &partitionGuid, &diskGUID);
+                }
+
+                Debug.WriteLine(hr);
+
+                // Allocate unmanaged memory for vtable (5 methods: QueryInterface, AddRef, Release, ChangeNotification, GetControllingUnknown)
+                void** vtable = (void**)NativeMemory.Alloc((nuint)(5 * sizeof(void*)));
+
+                // Assign raw function pointers using delegate* unmanaged
+                delegate* unmanaged[Stdcall]<IDefragClient*, Guid*, void**, int> qiPtr = &Dummy_QueryInterface;
+                delegate* unmanaged[Stdcall]<IDefragClient*, uint> addRefPtr = &Dummy_AddRef;
+                delegate* unmanaged[Stdcall]<IDefragClient*, uint> releasePtr = &Dummy_Release;
+                delegate* unmanaged[Stdcall]<IDefragClient*, ulong, uint, void*, int> changeNotificationPtr = &Dummy_ChangeNotification;
+                delegate* unmanaged[Stdcall]<IDefragClient*, IUnknown*> getCtrlUnknownPtr = &Dummy_GetControllingUnknown;
+
+                vtable[0] = (void*)qiPtr;
+                vtable[1] = (void*)addRefPtr;
+                vtable[2] = (void*)releasePtr;
+                vtable[3] = (void*)changeNotificationPtr;
+                vtable[4] = (void*)getCtrlUnknownPtr;
+
+                // Allocate unmanaged memory for the IDefragClient struct itself
+                IDefragClient* client = (IDefragClient*)NativeMemory.Alloc((nuint)sizeof(IDefragClient));
+                client->lpVtbl = vtable;
+
+                // Call Register passing pointer to your fake client
+                var hr2 = enginePtr->Register(client, &instanceGuid);
+
+                // Clean up later
+                NativeMemory.Free(client);
+                NativeMemory.Free(vtable);
+
+                Debug.WriteLine(hr2);
+
+                var hr3 = enginePtr->Cancel(instanceGuid);
+
+                Debug.WriteLine(hr3);
             }
-
-            IDefragEnginePriv* enginePtr = null;
-
-            var clsid_DefragEngine = CLSID.CLSID_DefragEngine;
-            var iid_IDefragEnginePriv = IDefragEnginePriv.Guid;
-
-            // CoCreateInstance to create the COM object instance
-            hrInit = PInvoke.CoCreateInstance(
-                clsid_DefragEngine,
-                null,
-                CLSCTX.CLSCTX_LOCAL_SERVER,
-                &iid_IDefragEnginePriv,
-                (void**)&enginePtr);
-
-            if (hrInit.Failed)
-            {
-                Debug.WriteLine($"CoCreateInstance failed: 0x{hrInit.Value:X8}");
-                return;
-            }
-
-            Debug.WriteLine($"CoCreateInstance succeeded. Interface pointer: 0x{(nint)enginePtr:X}");
-
-            IDefragClient clientPtr = new();
-            var iid_IDefragClient = IDefragClient.Guid;
-
-            var result = enginePtr->Register(&clientPtr, &iid_IDefragClient);
-
-            Debug.WriteLine(result.Value);
         }
         finally
         {
