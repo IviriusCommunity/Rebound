@@ -10,7 +10,7 @@ namespace Rebound.Forge;
 
 public partial class ReboundAppInstructions : ObservableObject
 {
-    private bool _supress;
+    private bool _suppress;
 
     [ObservableProperty]
     public partial bool IsInstalled { get; set; } = false;
@@ -20,7 +20,7 @@ public partial class ReboundAppInstructions : ObservableObject
 
     async partial void OnIsInstalledChanged(bool oldValue, bool newValue)
     {
-        if (!_supress)
+        if (!_suppress)
         {
             if (newValue) await Install();
             else await Uninstall();
@@ -50,11 +50,11 @@ public partial class ReboundAppInstructions : ObservableObject
 
     public async void Load()
     {
-        _supress = true;
+        _suppress = true;
         await Task.Delay(100);
         IsInstalled = GetIntegrity() == ReboundAppIntegrity.Installed;
         IsIntact = GetIntegrity() != ReboundAppIntegrity.Corrupt;
-        _supress = false;
+        _suppress = false;
     }
 
     [RelayCommand]

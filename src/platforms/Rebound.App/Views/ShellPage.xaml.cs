@@ -19,7 +19,7 @@ internal sealed partial class ShellPage : Page
         {
             NavigationViewControl.Visibility = Microsoft.UI.Xaml.Visibility.Collapsed;
             OverlayFrame.Visibility = Microsoft.UI.Xaml.Visibility.Visible;
-            OverlayFrame.Navigate(typeof(Rebound11Page));
+            OverlayFrame.Navigate(typeof(ReboundPage));
         }
         CheckForUpdates();
     }
@@ -49,7 +49,6 @@ internal sealed partial class ShellPage : Page
     private void Navigate(NavigationView sender, NavigationViewItemInvokedEventArgs args)
     {
         if ((NavigationViewItem)NavigationViewControl.SelectedItem == HomeItem) MainFrame.Navigate(typeof(HomePage));
-        if ((NavigationViewItem)NavigationViewControl.SelectedItem == ReboundItem) MainFrame.Navigate(typeof(Rebound11Page));
-        if ((NavigationViewItem)NavigationViewControl.SelectedItem == RectifyItem) MainFrame.Navigate(typeof(Rectify11Page));
+        if ((NavigationViewItem)NavigationViewControl.SelectedItem == ReboundItem) MainFrame.Navigate(typeof(ReboundPage));
     }
 }

@@ -14,49 +14,31 @@
     <ScrollViewer CornerRadius="8,0,0,0">
         <Grid>
             <Grid.RowDefinitions>
-                <RowDefinition Height="350" />
-                <RowDefinition Height="60" />
+                <RowDefinition Height="400" />
+                <RowDefinition Height="64" />
+                <RowDefinition Height="Auto" />
                 <RowDefinition Height="Auto" />
                 <RowDefinition Height="Auto" />
             </Grid.RowDefinitions>
 
             <header:HomePageHeaderImage
                 x:Name="BKGImage"
-                Height="350"
-                MinWidth="100"
+                Height="400"
                 HorizontalAlignment="Stretch"
                 VerticalAlignment="Top"
                 Image="{ThemeResource HeroBackgroundBitmapImage}" />
 
             <Grid
                 x:Name="TitleGrid"
-                Height="185"
+                Height="200"
                 Margin="48,0,0,0"
                 VerticalAlignment="Top">
                 <Grid VerticalAlignment="Center">
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="100" />
-                        <ColumnDefinition Width="24" />
-                        <ColumnDefinition Width="*" />
-                    </Grid.ColumnDefinitions>
-                    <Image
-                        Width="100"
-                        HorizontalAlignment="Left"
-                        Source="/Assets/AppIcons/IviriusCommunityIcon.png" />
-
-                    <StackPanel Grid.Column="2">
-                        <StackPanel Orientation="Horizontal">
-                            <TextBlock Style="{ThemeResource TitleLargeTextBlockStyle}" Text="This is" />
-                            <TextBlock Style="{ThemeResource TitleLargeTextBlockStyle}" Margin="12, 0, 0, 0" Text="Ivirius Community">
-                                <TextBlock.Foreground>
-                                    <LinearGradientBrush StartPoint="0, 0" EndPoint="1, 1">
-                                        <GradientStop Color="#9effd4" />
-                                        <GradientStop Offset="1" Color="#3af09f" />
-                                    </LinearGradientBrush>
-                                </TextBlock.Foreground>
-                            </TextBlock>
-                            <TextBlock Style="{ThemeResource TitleLargeTextBlockStyle}" Text="." />
-                        </StackPanel>
+                    <StackPanel>
+                        <TextBlock
+                            FontWeight="SemiBold"
+                            Style="{StaticResource TitleLargeTextBlockStyle}"
+                            Text="This is Ivirius Community." />
                         <TextBlock
                             FontSize="18"
                             Text="We made apps and tools for you to have the best experience with Windows 11."
@@ -67,6 +49,7 @@
 
             <ScrollViewer
                 Grid.RowSpan="2"
+                Margin="0,0,0,32"
                 Padding="48,0"
                 VerticalAlignment="Bottom"
                 CanContentRenderOutsideBounds="True"
@@ -80,23 +63,30 @@
                     </ItemsRepeater.Layout>
                     <ItemsRepeater.ItemTemplate>
                         <DataTemplate x:DataType="local:LinkCard">
-                            <Grid Background="{ThemeResource AcrylicInAppFillColorBaseBrush}" CornerRadius="6">
+                            <Grid CornerRadius="6">
+                                <Grid.Background>
+                                    <local:GlassBrush />
+                                </Grid.Background>
                                 <Button
-                                    Background="Transparent"
                                     Width="240"
                                     Height="220"
                                     HorizontalContentAlignment="Stretch"
                                     VerticalContentAlignment="Stretch"
-                                    Click="OnCardClick"
-                                    CornerRadius="6">
+                                    Background="Transparent"
+                                    CornerRadius="8">
+                                    <interactivity:Interaction.Behaviors>
+                                        <interactivity:EventTriggerBehavior EventName="Tapped">
+                                            <behaviors:NavigateToUriAction NavigateUri="{x:Bind Link}" />
+                                        </interactivity:EventTriggerBehavior>
+                                    </interactivity:Interaction.Behaviors>
                                     <Grid>
                                         <StackPanel
                                             Margin="8,16"
                                             HorizontalAlignment="Stretch"
                                             VerticalAlignment="Top">
                                             <Grid
-                                                Width="72"
-                                                Height="72"
+                                                Width="64"
+                                                Height="64"
                                                 HorizontalAlignment="Left"
                                                 VerticalAlignment="Top">
                                                 <Image
@@ -131,14 +121,14 @@
 
             <TextBlock
                 Grid.Row="2"
-                Margin="48,32,0,24"
+                Margin="48,0,0,24"
                 FontSize="28"
                 Style="{ThemeResource SubtitleTextBlockStyle}"
-                Text="Rebound apps" />
+                Text="3rd Party Fluent Apps" />
 
             <ItemsRepeater
                 Grid.Row="3"
-                Margin="48,0"
+                Margin="48,0,48,48"
                 HorizontalAlignment="Stretch"
                 VerticalAlignment="Stretch"
                 ItemsSource="{x:Bind AppCards}">
@@ -151,40 +141,92 @@
                             Width="320"
                             Padding="12"
                             HorizontalContentAlignment="Stretch">
-                            <Grid>
-                                <Grid HorizontalAlignment="Left" VerticalAlignment="Top">
-                                    <Image
+                            <Grid ColumnSpacing="8" RowSpacing="8">
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto" />
+                                    <RowDefinition Height="Auto" />
+                                    <RowDefinition Height="Auto" />
+                                    <RowDefinition Height="Auto" />
+                                </Grid.RowDefinitions>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto" />
+                                    <ColumnDefinition Width="*" />
+                                </Grid.ColumnDefinitions>
+                                <Grid
+                                    Grid.RowSpan="2"
+                                    HorizontalAlignment="Left"
+                                    VerticalAlignment="Top">
+                                    <Grid
                                         Width="64"
                                         Height="64"
-                                        Source="{x:Bind IconPath}"
-                                        Stretch="Fill" />
-                                    <Border Background="{ThemeResource AcrylicBackgroundFillColorBaseBrush}" CornerRadius="4">
+                                        Background="{ThemeResource SolidBackgroundFillColorBaseBrush}"
+                                        CornerRadius="4">
                                         <Image
-                                            Width="48"
-                                            Height="48"
-                                            Margin="8"
-                                            Source="{x:Bind IconPath}" />
-                                    </Border>
+                                            Width="60"
+                                            Height="60"
+                                            Source="{x:Bind IconPath}"
+                                            Stretch="Fill" />
+                                        <Border CornerRadius="4">
+                                            <Border.Background>
+                                                <media:AcrylicBrush
+                                                    BlurAmount="8"
+                                                    TintColor="{ThemeResource SolidBackgroundFillColorBase}"
+                                                    TintOpacity="0.5" />
+                                            </Border.Background>
+                                            <Image
+                                                Width="48"
+                                                Height="48"
+                                                Margin="8"
+                                                Source="{x:Bind IconPath}" />
+                                        </Border>
+                                    </Grid>
                                 </Grid>
                                 <TextBlock
-                                    Margin="76,0,0,0"
+                                    Grid.Column="1"
                                     FontSize="16"
                                     FontWeight="SemiBold"
-                                    Text="{x:Bind Title}" />
+                                    Text="{x:Bind Title}"
+                                    TextWrapping="Wrap" />
                                 <TextBlock
-                                    Margin="76,24,0,0"
+                                    Grid.Row="1"
+                                    Grid.Column="1"
+                                    Margin="0,-12,0,0"
                                     FontSize="12"
                                     Opacity="0.5"
                                     Text="{x:Bind Description}"
                                     TextWrapping="Wrap" />
+                                <StackPanel
+                                    Grid.Row="2"
+                                    Grid.ColumnSpan="2"
+                                    Padding="8,2"
+                                    HorizontalAlignment="Left"
+                                    Background="{ThemeResource AccentFillColorDefaultBrush}"
+                                    BorderBrush="{ThemeResource AccentButtonBorderBrush}"
+                                    BorderThickness="1"
+                                    CornerRadius="9"
+                                    Orientation="Horizontal"
+                                    Spacing="8">
+                                    <TextBlock
+                                        FontSize="10"
+                                        FontWeight="SemiBold"
+                                        Foreground="{ThemeResource TextOnAccentFillColorPrimaryBrush}"
+                                        Text="{x:Bind Publisher}" />
+                                </StackPanel>
                                 <Grid
+                                    Grid.Row="3"
+                                    Grid.ColumnSpan="2"
                                     Height="160"
-                                    Margin="0,80,0,0"
                                     HorizontalAlignment="Stretch"
                                     VerticalAlignment="Top"
                                     CornerRadius="4">
-                                    <Image Source="{x:Bind PicturePath}" Stretch="Fill" Margin="4" />
-                                    <Border Background="{ThemeResource AcrylicBackgroundFillColorBaseBrush}">
+                                    <Image
+                                        Margin="4"
+                                        Source="{x:Bind PicturePath}"
+                                        Stretch="Fill" />
+                                    <Border>
+                                        <Border.Background>
+                                            <local:GlassBrush />
+                                        </Border.Background>
                                         <Image
                                             Margin="16"
                                             Source="{x:Bind PicturePath}"

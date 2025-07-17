@@ -26,6 +26,8 @@ DwmSetWindowAttribute
 LoadImage
 PostMessage
 CreateIcon
+MonitorFromWindow
+PrintWindow
 CoInitializeSecurity
 CoCreateInstance
 IApplicationActivationManager

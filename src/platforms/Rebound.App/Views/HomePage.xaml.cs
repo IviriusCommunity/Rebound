@@ -20,6 +20,7 @@ internal class AppCard
     public string? IconPath { get; set; }
     public string? PicturePath { get; set; }
     public string? Link { get; set; }
+    public string? Publisher { get; set; }
 }
 
 internal sealed partial class HomePage : Page
@@ -74,27 +75,102 @@ internal sealed partial class HomePage : Page
     [
         new AppCard
         {
+            Title = "Ambie",
+            Description = "Focus, study, or relax. Sounds for every mood.",
+            IconPath = "/Assets/AppIcons/Ambie.png",
+            PicturePath = "/Assets/AppBanners/Ambie.jpeg",
+            Link = "https://ambieapp.com/",
+            Publisher = "Jenius Apps"
+        },
+        new AppCard
+        {
+            Title = "Character Map UWP",
+            Description = "A modern, native UWP replacement for the Win32 Character Map.",
+            IconPath = "/Assets/AppIcons/Character Map UWP.png",
+            PicturePath = "/Assets/AppBanners/Character Map UWP.png",
+            Link = "https://apps.microsoft.com/detail/9wzdncrdxf41",
+            Publisher = "Edi Wang"
+        },
+        new AppCard
+        {
             Title = "Files",
-            Description = "Fluent file explorer app for Windows 10 and 11. [3rd party]",
-            IconPath = "/Assets/AppIcons/FilesLogo.ico",
+            Description = "Fluent file explorer app for Windows 10 and 11.",
+            IconPath = "/Assets/AppIcons/Files.png",
             PicturePath = "/Assets/AppBanners/Files.png",
-            Link = "https://ivirius.com/ivirius-text-editor/"
+            Link = "https://files.community/",
+            Publisher = "Yair A"
         },
         new AppCard
         {
-            Title = "Ivirius Text Editor",
-            Description = "Fluent WordPad app for Windows 10 and 11.",
-            IconPath = "/Assets/AppIcons/IviriusTextEditorFree.png",
-            PicturePath = "/Assets/AppBanners/IviriusTextEditor.png",
-            Link = "https://ivirius.com/ivirius-text-editor/"
+            Title = "Fluent Store",
+            Description = "A unifying frontend for Windows app stores and package managers.",
+            IconPath = "/Assets/AppIcons/Fluent Store.png",
+            PicturePath = "/Assets/AppBanners/Fluent Store.png",
+            Link = "https://josh.askharoun.com/fluentstore",
+            Publisher = "yoshiask"
         },
         new AppCard
         {
-            Title = "winver",
-            Description = "Fluent winver app for Windows 10 and 11.",
-            IconPath = "/Assets/AppIcons/AboutWindows.ico",
-            PicturePath = "/Assets/AppBanners/Winver.png",
-            Link = "https://ivirius.com/ivirius-text-editor/"
+            Title = "FluentHub",
+            Description = "Stylish yet powerful GitHub client for Windows.",
+            IconPath = "/Assets/AppIcons/FluentHub.png",
+            PicturePath = "/Assets/AppBanners/FluentHub.png",
+            Link = "https://apps.microsoft.com/detail/9nkb9hx8rjz3",
+            Publisher = "0x5BFA"
+        },
+        new AppCard
+        {
+            Title = "Fluetro PDF",
+            Description = "Modern pdf viewer designed for Windows 11.",
+            IconPath = "/Assets/AppIcons/Fluetro.png",
+            PicturePath = "/Assets/AppBanners/Fluetro.jpeg",
+            Link = "https://apps.microsoft.com/detail/9nsr7b2lt6ln",
+            Publisher = "FireCubeStudios"
+        },
+        new AppCard
+        {
+            Title = "PowerToys",
+            Description = "A set of utilities for power users to tune their Windows experience.",
+            IconPath = "/Assets/AppIcons/PowerToys.png",
+            PicturePath = "/Assets/AppBanners/PowerToys.png",
+            Link = "https://learn.microsoft.com/en-us/windows/powertoys/",
+            Publisher = "Microsoft Corporation"
+        },
+        new AppCard
+        {
+            Title = "Scanner",
+            Description = "An all-in-one scanner app built for the Universal Windows Platform.",
+            IconPath = "/Assets/AppIcons/Scanner.png",
+            PicturePath = "/Assets/AppBanners/Scanner.jpg",
+            Link = "https://simon-knuth.github.io/scanner/",
+            Publisher = "Simon Knuth"
+        },
+        new AppCard
+        {
+            Title = "Screenbox",
+            Description = "Fluent file explorer app for Windows 10 and 11.",
+            IconPath = "/Assets/AppIcons/Screenbox.png",
+            PicturePath = "/Assets/AppBanners/Screenbox.png",
+            Link = "https://apps.microsoft.com/detail/9ntsnmsvcb5l",
+            Publisher = "Tung H."
+        },
+        new AppCard
+        {
+            Title = "SecureFolderFS",
+            Description = "SecureFolderFS lets you securely access your files.",
+            IconPath = "/Assets/AppIcons/SecureFolderFS.png",
+            PicturePath = "/Assets/AppBanners/SecureFolderFS.png",
+            Link = "https://www.microsoft.com/store/apps/9NZ7CZRN7GG8",
+            Publisher = "d2dyno"
+        },
+        new AppCard
+        {
+            Title = "Wino Mail",
+            Description = "Native mail client for Windows device families.",
+            IconPath = "/Assets/AppIcons/WinoMail.png",
+            PicturePath = "/Assets/AppBanners/Wino Mail.png",
+            Link = "https://apps.microsoft.com/detail/9ncrcvjc50wl",
+            Publisher = "Burak Kaan Köse"
         },
     ];
 

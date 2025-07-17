@@ -78,26 +78,6 @@
                         <ImageIcon Margin="16,8,16,24" Source="ms-appx:///Assets/AppIcons/ReboundIcon.ico" />
                     </NavigationViewItem.Icon>
                 </NavigationViewItem>
-                <NavigationViewItem
-                    x:Name="RectifyItem"
-                    Content="Rectify11"
-                    Style="{ThemeResource CustomNavigationViewItemStyle}">
-                    <NavigationViewItem.Icon>
-                        <ImageIcon Margin="-32" Source="ms-appx:///Assets/AppIcons/Rectify11.png" />
-                    </NavigationViewItem.Icon>
-                </NavigationViewItem>
-                <NavigationViewItem
-                    x:Name="PartnersItem"
-                    Content="Partners"
-                    IsEnabled="False"
-                    Style="{ThemeResource CustomNavigationViewItemStyle}">
-                    <NavigationViewItem.Icon>
-                        <FontIcon
-                            Margin="1"
-                            FontSize="12"
-                            Glyph="&#xF4A5;" />
-                    </NavigationViewItem.Icon>
-                </NavigationViewItem>
             </NavigationView.MenuItems>
             <NavigationView.FooterMenuItems>
                 <NavigationViewItem
@@ -127,6 +107,10 @@
                     CornerRadius="8,0,0,0" />
             </NavigationView.Content>
         </NavigationView>
-        <Frame x:Name="OverlayFrame" Background="{ThemeResource LayerFillColorDefaultBrush}" Visibility="Collapsed" Margin="0, 48, 0, 0"/>
+        <Frame
+            x:Name="OverlayFrame"
+            Margin="0,48,0,0"
+            Background="{ThemeResource LayerFillColorDefaultBrush}"
+            Visibility="Collapsed" />
     </Grid>
 </Page>
