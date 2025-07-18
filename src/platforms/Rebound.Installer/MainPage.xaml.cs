@@ -34,7 +34,6 @@ public sealed partial class MainPage : Page
                 {
                     FileName = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles), "ReboundHub", "Rebound Hub.exe"),
                     UseShellExecute = true,
-                    WorkingDirectory = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles), "ReboundHub"),
                     Verb = "runas"
                 });
             }

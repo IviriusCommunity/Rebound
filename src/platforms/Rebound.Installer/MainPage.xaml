@@ -17,7 +17,7 @@
             <TextBlock
                 VerticalAlignment="Center"
                 FontSize="12"
-                Text="Rebound Hub Installer" />
+                Text="Rebound Installer" />
             <Border
                 Padding="6,2,6,3"
                 VerticalAlignment="Center"
@@ -80,16 +80,16 @@
                         FontSize="24"
                         FontWeight="SemiBold"
                         HorizontalTextAlignment="Left"
-                        Text="Welcome to the Rebound Hub installer!"
+                        Text="Welcome to the Rebound installer!"
                         TextWrapping="WrapWholeWords" />
                     <TextBlock Text="Configure and install Rebound Hub." />
                     <RadioButtons>
                         <RadioButton
                             x:Name="InstallButton"
-                            Content="Install Rebound Hub"
+                            Content="Install Rebound"
                             IsChecked="True" />
-                        <RadioButton x:Name="RepairButton" Content="Repair Rebound Hub" />
-                        <RadioButton x:Name="UninstallButton" Content="Uninstall Rebound Hub" />
+                        <RadioButton x:Name="RepairButton" Content="Repair Rebound" />
+                        <RadioButton x:Name="UninstallButton" Content="Uninstall Rebound" />
                     </RadioButtons>
                     <InfoBar
                         Title="Rebound is a Windows mod. Install only if you have sufficient knowledge of Windows internals."
@@ -141,7 +141,7 @@
                         HorizontalTextAlignment="Left"
                         Text="The installation was successful!"
                         TextWrapping="WrapWholeWords" />
-                    <TextBlock Text="You can now use Rebound Hub on your PC." />
+                    <TextBlock Text="You can now use Rebound on your PC." />
                     <CheckBox
                         x:Name="LaunchHubCheckBox"
                         Content="Launch Rebound Hub"

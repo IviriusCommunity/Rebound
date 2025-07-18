@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.IO.Compression;
@@ -120,6 +121,11 @@ public partial class MainViewModel : ObservableObject
         catch
         {
 
+        }
+
+        foreach (var instruction in ReboundTotalInstructions.MandatoryInstructions)
+        {
+            Process.Start(instruction.EntryExecutable);
         }
     }
 
