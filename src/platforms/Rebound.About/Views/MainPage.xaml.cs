@@ -36,7 +36,7 @@ public sealed partial class MainPage : Page
         Load();
 
         // I'm too lazy to test RE'd COM somewhere else
-        LoadDefragCOM();
+        //LoadDefragCOM();
     }
 
     // Define the CLSID and IID structs

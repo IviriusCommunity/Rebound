@@ -7,7 +7,7 @@
 		<OutputType>WinExe</OutputType>
 		<AssemblyName>Rebound Shell</AssemblyName>
 		<RootNamespace>Rebound.Shell.ExperienceHost</RootNamespace>
-		<ApplicationIcon>Assets\ReboundIcon.ico</ApplicationIcon>
+		<ApplicationIcon>Assets\shell32_180.ico</ApplicationIcon>
 		<ApplicationManifest>app.manifest</ApplicationManifest>
 
 		<!-- Deployment -->
@@ -53,6 +53,9 @@
 	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
 	  </Content>
 	  <Content Update="Assets\shell32_151.png">
+	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	  </Content>
+	  <Content Update="Assets\shell32_180.ico">
 	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
 	  </Content>
 	  <Content Update="Assets\shell32_35.png">

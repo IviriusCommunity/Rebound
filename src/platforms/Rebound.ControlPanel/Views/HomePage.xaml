@@ -110,7 +110,7 @@
                         </NavigationViewItem>
                         <NavigationViewItem Content="Windows Tools" SelectsOnInvoked="False">
                             <NavigationViewItem.Icon>
-                                <FontIcon Glyph="&#xECAD;" />
+                                <FontIcon Glyph="&#xE90F;" />
                             </NavigationViewItem.Icon>
                         </NavigationViewItem>
                     </NavigationViewItem.MenuItems>

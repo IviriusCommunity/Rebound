@@ -49,7 +49,4 @@
     <Compile Include="$(MSBuildThisFileDirectory)WindowHelper.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Windowing\WindowHelper.cs" />
   </ItemGroup>
-  <ItemGroup>
-    <Content Include="$(MSBuildThisFileDirectory)NativeMethods.json" />
-  </ItemGroup>
 </Project>
