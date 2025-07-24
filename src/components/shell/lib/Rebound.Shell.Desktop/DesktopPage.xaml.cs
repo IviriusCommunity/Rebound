@@ -271,7 +271,7 @@ public sealed partial class DesktopPage : Page
         DateTextBlock.Text = DateTime.Now.ToString("dddd, dd.MM.yyyy");
 
         CalendarWidgetDay.Text = DateTime.Now.ToString("dddd");
-        CalendarWidgetDate.Text = DateTime.Now.ToString("MMMM");
+        CalendarWidgetDate.Text = DateTime.Now.ToString("dd");
         CalendarWidgetMonth.Text = DateTime.Now.ToString("dddd, yyyy");
         CalendarControl.SetDisplayDate(DateTime.Now);
     }

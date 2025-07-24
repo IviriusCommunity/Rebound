@@ -580,16 +580,16 @@
                                 <FontIcon Glyph="&#xE917;" />
                             </ToggleMenuFlyoutItem.Icon>
                         </ToggleMenuFlyoutItem>
-                        <MenuFlyoutItem Text="Calendar">
-                            <MenuFlyoutItem.Icon>
+                        <ToggleMenuFlyoutItem Text="Calendar">
+                            <ToggleMenuFlyoutItem.Icon>
                                 <FontIcon Glyph="&#xE787;" />
-                            </MenuFlyoutItem.Icon>
-                        </MenuFlyoutItem>
-                        <MenuFlyoutItem Text="CPU and RAM">
-                            <MenuFlyoutItem.Icon>
+                            </ToggleMenuFlyoutItem.Icon>
+                        </ToggleMenuFlyoutItem>
+                        <ToggleMenuFlyoutItem Text="CPU and RAM">
+                            <ToggleMenuFlyoutItem.Icon>
                                 <FontIcon Glyph="&#xE9D9;" />
-                            </MenuFlyoutItem.Icon>
-                        </MenuFlyoutItem>
+                            </ToggleMenuFlyoutItem.Icon>
+                        </ToggleMenuFlyoutItem>
                     </MenuFlyoutSubItem>
                     <MenuFlyoutSeparator />
                     <MenuFlyoutSubItem Text="More options">
