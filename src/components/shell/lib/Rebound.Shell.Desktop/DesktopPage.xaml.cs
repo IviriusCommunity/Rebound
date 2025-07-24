@@ -15,10 +15,12 @@ using CommunityToolkit.Mvvm.Input;
 using CommunityToolkit.WinUI;
 using Files.App.Storage;
 using Microsoft.Graphics.Canvas.Effects;
+using Microsoft.UI;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Controls.Primitives;
 using Microsoft.UI.Xaml.Input;
+using Microsoft.UI.Xaml.Media;
 using Microsoft.UI.Xaml.Navigation;
 using Rebound.Helpers;
 using Rebound.Shell.ExperienceHost;
@@ -27,6 +29,7 @@ using Windows.Foundation;
 using Windows.Storage;
 using Windows.Storage.Streams;
 using Windows.System;
+using Windows.System.Diagnostics;
 using Windows.UI;
 using Windows.Win32;
 using WinUIEx;
@@ -111,6 +114,7 @@ public sealed partial class DesktopPage : Page
     private double initialMarginY;
 
     private readonly DispatcherTimer _timer;
+    private readonly DispatcherTimer _timer2;
 
     public DesktopViewModel ViewModel { get; } = new();
 
@@ -155,9 +159,40 @@ public sealed partial class DesktopPage : Page
         _timer.Tick += Timer_Tick;
         _timer.Start();
 
+        _timer2 = new DispatcherTimer
+        {
+            Interval = TimeSpan.FromMilliseconds(1500)
+        };
+        _timer2.Tick += _timer2_Tick;
+        _timer2.Start();
+
         UpdateClock(); // initial immediate update
 
         QueryLiveWallpaper();
+    }
+
+    private async void _timer2_Tick(object? sender, object e)
+    {
+        var usage = await GetSystemUsageAsync();
+        CPUUsageBlock.Text = $"{usage.cpuPercent:0}%";
+        MemUsageBlock.Text = $"{usage.memoryPercent:0}%";
+    }
+
+    public async Task<(double cpuPercent, double memoryPercent)> GetSystemUsageAsync()
+    {
+        PerformanceCounter cpu = new("Processor", "% Processor Time", "_Total");
+        var usageReport = SystemDiagnosticInfo.GetForCurrentSystem().CpuUsage;
+        var memoryReport = SystemDiagnosticInfo.GetForCurrentSystem().MemoryUsage;
+
+        cpu.NextValue();
+        await Task.Delay(500);
+        var cpuUsed = cpu.NextValue();
+
+        var totalMem = memoryReport.GetReport().TotalPhysicalSizeInBytes;
+        var usedMem = totalMem - memoryReport.GetReport().AvailableSizeInBytes;
+        var memPercent = (usedMem / (double)totalMem) * 100;
+
+        return (cpuUsed, memPercent);
     }
 
     public async void QueryLiveWallpaper()
@@ -234,6 +269,11 @@ public sealed partial class DesktopPage : Page
 
         // Example: Friday, 02.12.2025
         DateTextBlock.Text = DateTime.Now.ToString("dddd, dd.MM.yyyy");
+
+        CalendarWidgetDay.Text = DateTime.Now.ToString("dddd");
+        CalendarWidgetDate.Text = DateTime.Now.ToString("MMMM");
+        CalendarWidgetMonth.Text = DateTime.Now.ToString("dddd, yyyy");
+        CalendarControl.SetDisplayDate(DateTime.Now);
     }
 
     [RelayCommand]
@@ -267,11 +307,29 @@ public sealed partial class DesktopPage : Page
                             item.Y = freeSpot.Y;
                         }
                     }
+                    item.PropertyChanged += Item_PropertyChanged;
                 }
             });
 
             LoadingGrid.Visibility = Visibility.Collapsed;
         });
+    }
+
+    private void Item_PropertyChanged(object? sender, System.ComponentModel.PropertyChangedEventArgs e)
+    {
+        if (sender is not DesktopItem desktopItem)
+            return;
+
+        // Get the index of the changed item
+        int index = Items.IndexOf(desktopItem);
+        if (index < 0) return;
+
+        // Get the container (UIElement) for that item
+        var container = CanvasControl.GetOrCreateElement(index) as ItemContainer;
+        if (container != null)
+        {
+            container.Background = new SolidColorBrush(Colors.Transparent);
+        }
     }
 
     // BEGIN

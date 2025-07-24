@@ -263,7 +263,17 @@ public partial class DesktopItem : ObservableObject
     }
 
     // Checks if the file is a shortcut (.lnk)
-    private static bool CheckIfShortcut(string filePath) => Path.GetExtension(filePath).Equals(".lnk", StringComparison.OrdinalIgnoreCase);
+    private static bool CheckIfShortcut(string filePath)
+    {
+        // Define a list of common video file extensions
+        var videoExtensions = new[] { ".lnk", ".url" };
+
+        // Get the file extension from the file path (case-insensitive comparison)
+        var fileExtension = Path.GetExtension(filePath)?.ToLower(System.Globalization.CultureInfo.CurrentCulture);
+
+        // Check if the file extension matches any of the video extensions
+        return Array.Exists(videoExtensions, ext => ext.Equals(fileExtension, StringComparison.OrdinalIgnoreCase));
+    }
 
     // Checks if the file is a system-related file (e.g., desktop.ini)
     private static bool CheckIfSystemFile(string filePath) => Path.GetFileName(filePath).Equals("desktop.ini", StringComparison.OrdinalIgnoreCase);
