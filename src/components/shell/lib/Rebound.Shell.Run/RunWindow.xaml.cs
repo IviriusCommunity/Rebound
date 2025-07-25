@@ -7,10 +7,13 @@ using System.IO;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.Input;
+using Microsoft.UI.Input;
 using Microsoft.UI.Xaml;
 using Rebound.Helpers;
 using Rebound.Helpers.Windowing;
 using Windows.Storage.Pickers;
+using Windows.System;
+using Windows.UI.Core;
 using WinUIEx;
 
 namespace Rebound.Shell.Run;
@@ -36,7 +39,7 @@ public sealed partial class RunWindow : WindowEx
         onClosedCallback?.Invoke();
     }
 
-    private async void WindowEx_Activated(object sender, WindowActivatedEventArgs args)
+    private async void WindowEx_Activated(object sender, Microsoft.UI.Xaml.WindowActivatedEventArgs args)
     {
         this.SetWindowIcon($"{AppContext.BaseDirectory}\\Assets\\RunBox.ico");
         await Task.Delay(100);
@@ -81,12 +84,13 @@ public sealed partial class RunWindow : WindowEx
     private static partial Regex QuotedPathRegex();
 
     [RelayCommand]
-    public void Run()
+    public async Task RunAsync(bool runAsAdmin)
     {
         if (string.IsNullOrWhiteSpace(ViewModel.Path))
             return;
 
-        var input = ViewModel.Path.Trim();
+        var input = Environment.ExpandEnvironmentVariables(ViewModel.Path.Trim());
+
         string exePath;
         string args;
 
@@ -125,6 +129,13 @@ public sealed partial class RunWindow : WindowEx
             catch { return; }
         }
 
+        if (ViewModel.Path.StartsWith("%"))
+        {
+            await Launcher.LaunchUriAsync(new Uri(Environment.ExpandEnvironmentVariables(ViewModel.Path.Trim())));
+            Close();
+            return;
+        }
+
         if (File.Exists(exePath))
         {
             try
@@ -137,7 +148,7 @@ public sealed partial class RunWindow : WindowEx
                 };
 
                 // Only allow RunAs on executables
-                if (ViewModel.RunAsAdmin && exePath.EndsWith(".exe", StringComparison.OrdinalIgnoreCase))
+                if (runAsAdmin && exePath.EndsWith(".exe", StringComparison.OrdinalIgnoreCase))
                     psi.Verb = "runas";
 
                 Process.Start(psi);
@@ -153,7 +164,7 @@ public sealed partial class RunWindow : WindowEx
                 FileName = exePath,
                 Arguments = args,
                 UseShellExecute = true,
-                Verb = ViewModel.RunAsAdmin ? "runas" : null
+                Verb = runAsAdmin ? "runas" : null
             };
 
             Process.Start(psi);
@@ -168,12 +179,15 @@ public sealed partial class RunWindow : WindowEx
 
     private async void TextBox_KeyDown(object sender, Microsoft.UI.Xaml.Input.KeyRoutedEventArgs e)
     {
-        if (e.Key == Windows.System.VirtualKey.Enter)
+        if (e.Key == VirtualKey.Enter)
         {
+            var downState = CoreVirtualKeyStates.Down;
+            var isShiftPressed = (InputKeyboardSource.GetKeyStateForCurrentThread(VirtualKey.Menu) & downState) == downState;
+            var isCtrlPressed = (InputKeyboardSource.GetKeyStateForCurrentThread(VirtualKey.Control) & downState) == downState;
             e.Handled = true;
             RunButton.Focus(FocusState.Pointer);
             await Task.Delay(50);
-            Run();
+            await RunAsync(isShiftPressed && isCtrlPressed ? true : ViewModel.RunAsAdmin);
         }
     }
 }

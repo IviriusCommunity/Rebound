@@ -262,18 +262,27 @@ public sealed partial class DesktopPage : Page
         UpdateClock();
     }
 
+    private DateTime _lastDate = DateTime.MinValue;
+
     private void UpdateClock()
     {
+        var now = DateTime.Now;
+
         // Example: 12:03
-        TimeTextBlock.Text = DateTime.Now.ToString("hh:mm:ss tt");
+        TimeTextBlock.Text = now.ToString("hh:mm:ss tt");
 
         // Example: Friday, 02.12.2025
-        DateTextBlock.Text = DateTime.Now.ToString("dddd, dd.MM.yyyy");
+        DateTextBlock.Text = now.ToString("dddd, dd.MM.yyyy");
 
-        CalendarWidgetDay.Text = DateTime.Now.ToString("dddd");
-        CalendarWidgetDate.Text = DateTime.Now.ToString("dd");
-        CalendarWidgetMonth.Text = DateTime.Now.ToString("dddd, yyyy");
-        CalendarControl.SetDisplayDate(DateTime.Now);
+        CalendarWidgetDay.Text = now.ToString("dddd");
+        CalendarWidgetDate.Text = now.ToString("dd");
+        CalendarWidgetMonth.Text = now.ToString("MMMM yyyy");
+
+        if (_lastDate.Date != now.Date)
+        {
+            CalendarControl.SetDisplayDate(now);
+            _lastDate = now.Date;
+        }
     }
 
     [RelayCommand]

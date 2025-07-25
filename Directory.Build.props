@@ -57,6 +57,7 @@
 		
 		<!-- Windows SDK and WinUI -->
 		<PackageReference Include="Microsoft.Windows.SDK.BuildTools" Version="10.0.26100.4188" />
+		<PackageReference Include="DependencyPropertyGenerator" Version="1.5.0" />
 		<PackageReference Include="Microsoft.WindowsAppSDK" Version="1.8.250515001-experimental2" />
 		<PackageReference Include="WinUIEx" Version="2.6.0" />
 		<PackageReference Include="WinUI3Localizer" Version="3.0.0-alpha" />

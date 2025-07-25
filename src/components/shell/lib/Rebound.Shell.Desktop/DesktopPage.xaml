@@ -577,17 +577,17 @@
                         </MenuFlyoutSubItem.Icon>
                         <ToggleMenuFlyoutItem IsChecked="{x:Bind ViewModel.ShowClockWidget, Mode=TwoWay}" Text="Digital clock">
                             <ToggleMenuFlyoutItem.Icon>
-                                <FontIcon Glyph="&#xE917;" />
+                                <ImageIcon Source="/Assets/shell32_16741.ico" />
                             </ToggleMenuFlyoutItem.Icon>
                         </ToggleMenuFlyoutItem>
                         <ToggleMenuFlyoutItem Text="Calendar">
                             <ToggleMenuFlyoutItem.Icon>
-                                <FontIcon Glyph="&#xE787;" />
+                                <ImageIcon Source="/Assets/mssvp_508.ico" />
                             </ToggleMenuFlyoutItem.Icon>
                         </ToggleMenuFlyoutItem>
                         <ToggleMenuFlyoutItem Text="CPU and RAM">
                             <ToggleMenuFlyoutItem.Icon>
-                                <FontIcon Glyph="&#xE9D9;" />
+                                <ImageIcon Source="/Assets/eqossnap_3000.ico" />
                             </ToggleMenuFlyoutItem.Icon>
                         </ToggleMenuFlyoutItem>
                     </MenuFlyoutSubItem>

@@ -46,7 +46,25 @@
     <Compile Include="$(MSBuildThisFileDirectory)Pipe.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Services\SingleInstanceAppService.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)SettingsHelper.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)TitleBarEx\ButtonsState.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)TitleBarEx\NativeHelper.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)TitleBarEx\SelectedCaptionButton.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)TitleBarEx\TitleBarEx.App.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)TitleBarEx\TitleBarEx.Buttons.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)TitleBarEx\TitleBarEx.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)TitleBarEx\TitleBarEx.DependencyProperties.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)TitleBarEx\TitleBarEx.EventHandlers.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)TitleBarEx\TitleBarEx.Native.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)TitleBarEx\TitleBarEx.Registry.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)TitleBarEx\TitleBarEx.Window.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)TitleBarEx\TitleBarEx.WndProc.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)WindowHelper.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Windowing\WindowHelper.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <Page Include="$(MSBuildThisFileDirectory)Themes\Generic.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
   </ItemGroup>
 </Project>

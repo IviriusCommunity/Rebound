@@ -33,6 +33,7 @@ CoCreateInstance
 IApplicationActivationManager
 IShellLinkW
 GetMessage
+GetAsyncKeyState
 TranslateMessage
 DispatchMessage
 IsWindow
