@@ -1,50 +1,45 @@
 ﻿using System;
-using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
-using System.Linq;
-using System.Runtime.InteropServices.WindowsRuntime;
-using Windows.ApplicationModel;
-using Windows.ApplicationModel.Activation;
-using Windows.Foundation;
-using Windows.Foundation.Collections;
 using Microsoft.UI.Xaml;
-using Microsoft.UI.Xaml.Controls;
-using Microsoft.UI.Xaml.Controls.Primitives;
-using Microsoft.UI.Xaml.Data;
-using Microsoft.UI.Xaml.Input;
-using Microsoft.UI.Xaml.Media;
-using Microsoft.UI.Xaml.Navigation;
-using Microsoft.UI.Xaml.Shapes;
+using Rebound.Core.Helpers;
+using Rebound.Generators;
 
-// To learn more about WinUI, the WinUI project structure,
-// and more about our project templates, see: http://aka.ms/winui-project-info.
+namespace Rebound.Keyboard;
 
-namespace Rebound.Keyboard
+[ReboundApp("Rebound.OSK", "Legacy On-Screen Keyboard*legacy*ms-appx:///On-Screen Keyboard.ico")]
+public partial class App : Application
 {
-    /// <summary>
-    /// Provides application-specific behavior to supplement the default Application class.
-    /// </summary>
-    public partial class App : Application
+    public static ReboundPipeClient ReboundPipeClient { get; set; }
+
+    private async void OnSingleInstanceLaunched(object? sender, Helpers.Services.SingleInstanceLaunchEventArgs e)
     {
-        /// <summary>
-        /// Initializes the singleton application object.  This is the first line of authored code
-        /// executed, and as such is the logical equivalent of main() or WinMain().
-        /// </summary>
-        public App()
+        if (e.IsFirstLaunch)
         {
-            this.InitializeComponent();
+            ReboundPipeClient = new ReboundPipeClient();
+            await ReboundPipeClient.ConnectAsync();
         }
 
-        /// <summary>
-        /// Invoked when the application is launched.
-        /// </summary>
-        /// <param name="args">Details about the launch request and process.</param>
-        protected override void OnLaunched(Microsoft.UI.Xaml.LaunchActivatedEventArgs args)
+        if (!Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.System), "osk.exe").ArgsMatchKnownEntries([string.Empty], e.Arguments))
         {
-            m_window = new MainWindow();
-            m_window.Activate();
+            await ReboundPipeClient.SendMessageAsync("IFEOEngine::Pause#osk.exe");
+            Process.Start(new ProcessStartInfo
+            {
+                FileName = "osk.exe",
+                UseShellExecute = true,
+                Arguments = e.Arguments == "legacy" ? string.Empty : e.Arguments
+            });
+            return;
         }
 
-        private Window? m_window;
+        if (e.IsFirstLaunch)
+        {
+            MainAppWindow = new MainWindow();
+            MainAppWindow.Activate();
+        }
+        else
+        {
+            MainAppWindow.BringToFront();
+        }
     }
 }

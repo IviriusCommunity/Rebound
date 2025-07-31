@@ -1,294 +1,122 @@
-<?xml version="1.0" encoding="utf-8"?>
-<Window
+<?xml version="1.0" encoding="utf-8" ?>
+<winuiex:WindowEx
     x:Class="Rebound.Keyboard.MainWindow"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-    xmlns:local="using:Rebound.Keyboard"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:local="using:Rebound.Keyboard"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-    mc:Ignorable="d"
-    Title="Rebound.Keyboard">
-
-    <Window.SystemBackdrop>
-        <MicaBackdrop Kind="Base"/>
-    </Window.SystemBackdrop>
+    xmlns:winuiex="using:WinUIEx"
+    Title="Rebound.Keyboard"
+    Width="720"
+    Height="360"
+    MinWidth="640"
+    MinHeight="320"
+    IsMaximizable="False"
+    IsMinimizable="False"
+    mc:Ignorable="d">
 
     <Grid>
         <Grid.RowDefinitions>
-            <RowDefinition Height="32"/>
-            <!-- Title bar height -->
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="*"/>
+            <RowDefinition Height="32" />
+            <!--  Title bar height  -->
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
         </Grid.RowDefinitions>
 
-        <!-- Custom Title Bar -->
-        <Grid x:Name="AppTitleBar" Grid.Row="0" Background="Transparent">
+        <!--  Custom Title Bar  -->
+        <Grid>
+            <StackPanel
+                Margin="12,8,12,0"
+                VerticalAlignment="Top"
+                Orientation="Horizontal"
+                Spacing="8">
+                <TextBlock
+                    VerticalAlignment="Center"
+                    FontSize="12"
+                    Text="On-Screen Keyboard" />
+                <Border
+                    Padding="6,2,6,3"
+                    VerticalAlignment="Center"
+                    Background="{ThemeResource AccentFillColorDefaultBrush}"
+                    CornerRadius="2">
+                    <TextBlock
+                        FontSize="10"
+                        FontWeight="SemiBold"
+                        Foreground="{ThemeResource TextOnAccentFillColorPrimaryBrush}"
+                        Text="BETA" />
+                </Border>
+            </StackPanel>
+            <Border
+                Width="32"
+                Height="4"
+                HorizontalAlignment="Center"
+                VerticalAlignment="Center"
+                Background="{ThemeResource ControlSolidFillColorDefaultBrush}"
+                CornerRadius="2" />
+        </Grid>
+
+        <!--  Status bar and controls  -->
+        <Grid Grid.Row="1" Padding="8,0">
             <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="Auto"/>
-                <ColumnDefinition Width="*"/>
-                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="Auto" />
             </Grid.ColumnDefinitions>
 
-            <!-- App Icon and Controls on the left -->
-            <StackPanel Grid.Column="0" Orientation="Horizontal" Margin="0,0,0,0">
-                <Button x:Name="DockButton" Content="📌" ToolTipService.ToolTip="Dock to bottom" Width="46" Height="32" 
-                      Background="Transparent" BorderThickness="0" Click="KeyButton_Click" Tag="Dock" Foreground="White"/>
-            </StackPanel>
+            <Button
+                Padding="8"
+                Style="{StaticResource SubtleButtonStyle}"
+                ToolTipService.ToolTip="Emoji panel">
+                <FontIcon FontSize="16" Glyph="&#xE899;" />
+            </Button>
 
-            <!-- Title -->
-            <TextBlock Grid.Column="1" Text="Rebound Screen Keyboard" VerticalAlignment="Center" 
-                     HorizontalAlignment="Center" Margin="-35,0,0,0" Foreground="White" FontWeight="SemiBold"/>
-
-            <!-- Right side controls (empty for now) -->
-            <StackPanel Grid.Column="2" Orientation="Horizontal" Margin="0,0,12,0">
+            <!--  Controls  -->
+            <StackPanel
+                Grid.Column="1"
+                Margin="8,0"
+                Orientation="Horizontal"
+                Spacing="16">
+                <!--  Opacity Control  -->
+                <StackPanel Orientation="Horizontal" Spacing="8">
+                    <TextBlock
+                        VerticalAlignment="Center"
+                        Foreground="White"
+                        Text="Opacity:" />
+                    <Slider
+                        Width="100"
+                        VerticalAlignment="Center"
+                        Maximum="255"
+                        Minimum="63"
+                        Value="{x:Bind ViewModel.Opacity, Mode=TwoWay}" />
+                </StackPanel>
             </StackPanel>
         </Grid>
 
-        <!-- Status bar and controls -->
-        <Grid Grid.Row="1" Padding="12,6">
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="*"/>
-                <ColumnDefinition Width="Auto"/>
-            </Grid.ColumnDefinitions>
-
-            <!-- Status Text -->
-            <TextBlock x:Name="StatusText" 
-                     Text="Ready" 
-                     Grid.Column="0"
-                     VerticalAlignment="Center"
-                     Foreground="White"/>
-
-            <!-- Controls -->
-            <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="16">
-                <!-- Opacity Control -->
-                <StackPanel Orientation="Horizontal" Spacing="8">
-                    <TextBlock Text="Opacity:" VerticalAlignment="Center" Foreground="White"/>
-                    <Slider x:Name="OpacitySlider" Width="100" Minimum="30" Maximum="100" Value="100" ValueChanged="OpacitySlider_ValueChanged"/>
-                </StackPanel>
-
-                <!-- Font Size Control -->
-                <StackPanel Orientation="Horizontal" Spacing="8">
-                    <TextBlock Text="Font Size:" VerticalAlignment="Center" Foreground="White"/>
-                    <Slider x:Name="FontSizeSlider" Width="100" Minimum="12" Maximum="36" Value="18" ValueChanged="FontSizeSlider_ValueChanged"/>
-                </StackPanel>
-            </StackPanel>
-        </Grid>
-
-        <!-- Keyboard container with drop shadow -->
-        <Grid Grid.Row="2" 
+        <!--  Keyboard container with drop shadow  -->
+        <Grid
+            Grid.Row="2"
+            Margin="8"
+            Padding="8"
             Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
-            CornerRadius="8" 
-            Padding="12"
+            BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
             BorderThickness="1"
-            Margin="12"
-            BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}">
+            CornerRadius="8">
 
             <Grid.Shadow>
                 <ThemeShadow />
             </Grid.Shadow>
 
             <Grid.RowDefinitions>
-                <RowDefinition Height="*"/>
-                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*" />
+                <RowDefinition Height="Auto" />
             </Grid.RowDefinitions>
 
-            <!-- Main Keyboard layout -->
-            <Grid x:Name="KeyboardPanel" Grid.Row="0" RowSpacing="6" ColumnSpacing="6">
-                <Grid.RowDefinitions>
-                    <RowDefinition Height="*"/>
-                    <RowDefinition Height="*"/>
-                    <RowDefinition Height="*"/>
-                    <RowDefinition Height="*"/>
-                    <RowDefinition Height="*"/>
-                </Grid.RowDefinitions>
-
-                <!-- Row 1: Numbers -->
-                <Grid Grid.Row="0" ColumnSpacing="6">
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="*"/>
-                        <ColumnDefinition Width="*"/>
-                        <ColumnDefinition Width="*"/>
-                        <ColumnDefinition Width="*"/>
-                        <ColumnDefinition Width="*"/>
-                        <ColumnDefinition Width="*"/>
-                        <ColumnDefinition Width="*"/>
-                        <ColumnDefinition Width="*"/>
-                        <ColumnDefinition Width="*"/>
-                        <ColumnDefinition Width="*"/>
-                        <ColumnDefinition Width="2*"/>
-                    </Grid.ColumnDefinitions>
-
-                    <Button Content="1" Tag="1" Grid.Column="0" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Click="KeyButton_Click"/>
-                    <Button Content="2" Tag="2" Grid.Column="1" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Click="KeyButton_Click"/>
-                    <Button Content="3" Tag="3" Grid.Column="2" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Click="KeyButton_Click"/>
-                    <Button Content="4" Tag="4" Grid.Column="3" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Click="KeyButton_Click"/>
-                    <Button Content="5" Tag="5" Grid.Column="4" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Click="KeyButton_Click"/>
-                    <Button Content="6" Tag="6" Grid.Column="5" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Click="KeyButton_Click"/>
-                    <Button Content="7" Tag="7" Grid.Column="6" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Click="KeyButton_Click"/>
-                    <Button Content="8" Tag="8" Grid.Column="7" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Click="KeyButton_Click"/>
-                    <Button Content="9" Tag="9" Grid.Column="8" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Click="KeyButton_Click"/>
-                    <Button Content="0" Tag="0" Grid.Column="9" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Click="KeyButton_Click"/>
-                    <Button Content="Backspace" Tag="Backspace" Grid.Column="10" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Click="KeyButton_Click"/>
-                </Grid>
-
-                <!-- Row 2: QWERTYUIOP -->
-                <Grid Grid.Row="1" ColumnSpacing="6">
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="*"/>
-                        <ColumnDefinition Width="*"/>
-                        <ColumnDefinition Width="*"/>
-                        <ColumnDefinition Width="*"/>
-                        <ColumnDefinition Width="*"/>
-                        <ColumnDefinition Width="*"/>
-                        <ColumnDefinition Width="*"/>
-                        <ColumnDefinition Width="*"/>
-                        <ColumnDefinition Width="*"/>
-                        <ColumnDefinition Width="*"/>
-                    </Grid.ColumnDefinitions>
-
-                    <Button Content="q" Tag="q" Grid.Column="0" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Click="KeyButton_Click"/>
-                    <Button Content="w" Tag="w" Grid.Column="1" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Click="KeyButton_Click"/>
-                    <Button Content="e" Tag="e" Grid.Column="2" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Click="KeyButton_Click"/>
-                    <Button Content="r" Tag="r" Grid.Column="3" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Click="KeyButton_Click"/>
-                    <Button Content="t" Tag="t" Grid.Column="4" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Click="KeyButton_Click"/>
-                    <Button Content="y" Tag="y" Grid.Column="5" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Click="KeyButton_Click"/>
-                    <Button Content="u" Tag="u" Grid.Column="6" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Click="KeyButton_Click"/>
-                    <Button Content="i" Tag="i" Grid.Column="7" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Click="KeyButton_Click"/>
-                    <Button Content="o" Tag="o" Grid.Column="8" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Click="KeyButton_Click"/>
-                    <Button Content="p" Tag="p" Grid.Column="9" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Click="KeyButton_Click"/>
-                </Grid>
-
-                <!-- Row 3: ASDFGHJKL -->
-                <Grid Grid.Row="2" ColumnSpacing="6">
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="*"/>
-                        <ColumnDefinition Width="*"/>
-                        <ColumnDefinition Width="*"/>
-                        <ColumnDefinition Width="*"/>
-                        <ColumnDefinition Width="*"/>
-                        <ColumnDefinition Width="*"/>
-                        <ColumnDefinition Width="*"/>
-                        <ColumnDefinition Width="*"/>
-                        <ColumnDefinition Width="*"/>
-                        <ColumnDefinition Width="2*"/>
-                    </Grid.ColumnDefinitions>
-
-                    <Button Content="a" Tag="a" Grid.Column="0" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Click="KeyButton_Click"/>
-                    <Button Content="s" Tag="s" Grid.Column="1" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Click="KeyButton_Click"/>
-                    <Button Content="d" Tag="d" Grid.Column="2" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Click="KeyButton_Click"/>
-                    <Button Content="f" Tag="f" Grid.Column="3" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Click="KeyButton_Click"/>
-                    <Button Content="g" Tag="g" Grid.Column="4" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Click="KeyButton_Click"/>
-                    <Button Content="h" Tag="h" Grid.Column="5" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Click="KeyButton_Click"/>
-                    <Button Content="j" Tag="j" Grid.Column="6" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Click="KeyButton_Click"/>
-                    <Button Content="k" Tag="k" Grid.Column="7" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Click="KeyButton_Click"/>
-                    <Button Content="l" Tag="l" Grid.Column="8" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Click="KeyButton_Click"/>
-                    <Button Content="Enter" Tag="Enter" Grid.Column="9" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Click="KeyButton_Click"/>
-                </Grid>
-
-                <!-- Row 4: ZXCVBNM -->
-                <Grid Grid.Row="3" ColumnSpacing="6">
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="1.5*"/>
-                        <ColumnDefinition Width="*"/>
-                        <ColumnDefinition Width="*"/>
-                        <ColumnDefinition Width="*"/>
-                        <ColumnDefinition Width="*"/>
-                        <ColumnDefinition Width="*"/>
-                        <ColumnDefinition Width="*"/>
-                        <ColumnDefinition Width="*"/>
-                        <ColumnDefinition Width="1.5*"/>
-                    </Grid.ColumnDefinitions>
-
-                    <Button x:Name="ShiftKey" Content="Shift" Tag="Shift" Grid.Column="0" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Click="KeyButton_Click"/>
-                    <Button Content="z" Tag="z" Grid.Column="1" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Click="KeyButton_Click"/>
-                    <Button Content="x" Tag="x" Grid.Column="2" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Click="KeyButton_Click"/>
-                    <Button Content="c" Tag="c" Grid.Column="3" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Click="KeyButton_Click"/>
-                    <Button Content="v" Tag="v" Grid.Column="4" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Click="KeyButton_Click"/>
-                    <Button Content="b" Tag="b" Grid.Column="5" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Click="KeyButton_Click"/>
-                    <Button Content="n" Tag="n" Grid.Column="6" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Click="KeyButton_Click"/>
-                    <Button Content="m" Tag="m" Grid.Column="7" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Click="KeyButton_Click"/>
-                    <Button x:Name="CapsKey" Content="Caps" Tag="Caps" Grid.Column="8" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Click="KeyButton_Click"/>
-                </Grid>
-
-                <!-- Row 5: Space bar and special characters -->
-                <Grid Grid.Row="4" ColumnSpacing="6">
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="1.5*"/>
-                        <ColumnDefinition Width="7*"/>
-                        <ColumnDefinition Width="1.5*"/>
-                    </Grid.ColumnDefinitions>
-
-                    <Button x:Name="SpecialCharButton" Content="123" Tag="Special" Grid.Column="0" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Click="KeyButton_Click"/>
-                    <Button Content="Space" Tag="Space" Grid.Column="1" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Click="KeyButton_Click"/>
-                    <Button Content="Tab" Tag="Tab" Grid.Column="2" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Click="KeyButton_Click"/>
-                </Grid>
-            </Grid>
-
-            <!-- Special Characters Panel -->
-            <Grid x:Name="SpecialCharactersPanel" Grid.Row="1" Margin="0,6,0,0" RowSpacing="6" ColumnSpacing="6">
-                <Grid.RowDefinitions>
-                    <RowDefinition Height="Auto"/>
-                    <RowDefinition Height="Auto"/>
-                </Grid.RowDefinitions>
-
-                <!-- Row 1: Special Characters -->
-                <Grid Grid.Row="0" ColumnSpacing="6">
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="*"/>
-                        <ColumnDefinition Width="*"/>
-                        <ColumnDefinition Width="*"/>
-                        <ColumnDefinition Width="*"/>
-                        <ColumnDefinition Width="*"/>
-                        <ColumnDefinition Width="*"/>
-                        <ColumnDefinition Width="*"/>
-                        <ColumnDefinition Width="*"/>
-                        <ColumnDefinition Width="*"/>
-                        <ColumnDefinition Width="*"/>
-                        <ColumnDefinition Width="*"/>
-                    </Grid.ColumnDefinitions>
-
-                    <Button Content="!" Click="SpecialCharButton_Click" Grid.Column="0" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"/>
-                    <Button Content="@" Click="SpecialCharButton_Click" Grid.Column="1" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"/>
-                    <Button Content="#" Click="SpecialCharButton_Click" Grid.Column="2" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"/>
-                    <Button Content="$" Click="SpecialCharButton_Click" Grid.Column="3" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"/>
-                    <Button Content="%" Click="SpecialCharButton_Click" Grid.Column="4" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"/>
-                    <Button Content="^" Click="SpecialCharButton_Click" Grid.Column="5" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"/>
-                    <Button Content="&amp;" Click="SpecialCharButton_Click" Grid.Column="6" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"/>
-                    <Button Content="*" Click="SpecialCharButton_Click" Grid.Column="7" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"/>
-                    <Button Content="(" Click="SpecialCharButton_Click" Grid.Column="8" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"/>
-                    <Button Content=")" Click="SpecialCharButton_Click" Grid.Column="9" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"/>
-                    <Button Content="_" Click="SpecialCharButton_Click" Grid.Column="10" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"/>
-                </Grid>
-
-                <!-- Row 2: More Special Characters -->
-                <Grid Grid.Row="1" ColumnSpacing="6">
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="*"/>
-                        <ColumnDefinition Width="*"/>
-                        <ColumnDefinition Width="*"/>
-                        <ColumnDefinition Width="*"/>
-                        <ColumnDefinition Width="*"/>
-                        <ColumnDefinition Width="*"/>
-                        <ColumnDefinition Width="*"/>
-                        <ColumnDefinition Width="*"/>
-                        <ColumnDefinition Width="*"/>
-                        <ColumnDefinition Width="*"/>
-                        <ColumnDefinition Width="*"/>
-                    </Grid.ColumnDefinitions>
-
-                    <Button Content="+" Click="SpecialCharButton_Click" Grid.Column="0" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"/>
-                    <Button Content="-" Click="SpecialCharButton_Click" Grid.Column="1" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"/>
-                    <Button Content="=" Click="SpecialCharButton_Click" Grid.Column="2" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"/>
-                    <Button Content="[" Click="SpecialCharButton_Click" Grid.Column="3" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"/>
-                    <Button Content="]" Click="SpecialCharButton_Click" Grid.Column="4" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"/>
-                    <Button Content="\" Click="SpecialCharButton_Click" Grid.Column="5" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"/>
-                    <Button Content=";" Click="SpecialCharButton_Click" Grid.Column="6" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"/>
-                    <Button Content="'" Click="SpecialCharButton_Click" Grid.Column="7" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"/>
-                    <Button Content="," Click="SpecialCharButton_Click" Grid.Column="8" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"/>
-                    <Button Content="." Click="SpecialCharButton_Click" Grid.Column="9" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"/>
-                    <Button Content="/" Click="SpecialCharButton_Click" Grid.Column="10" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"/>
-                </Grid>
-            </Grid>
+            <!--  Main Keyboard layout  -->
+            <Grid
+                x:Name="KeyboardPanel"
+                Grid.Row="0"
+                ColumnSpacing="4"
+                RowSpacing="4" />
         </Grid>
     </Grid>
-</Window>
+</winuiex:WindowEx>

@@ -25,6 +25,8 @@ GetParent
 DwmSetWindowAttribute
 LoadImage
 PostMessage
+GetWindowLongPtr
+keybd_event
 CreateIcon
 MonitorFromWindow
 PrintWindow
@@ -72,7 +74,9 @@ BITMAPINFOHEADER
 IDataObject
 CoInitializeEx
 CoUninitialize
+SetForegroundWindow
 
+SWP_*
 
 // Copyright (c) Files Community
 // Licensed under the MIT License.
