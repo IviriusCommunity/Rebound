@@ -43,16 +43,14 @@ _Included in Rebound:_
 - **Files**
 - **Ivirius Text Editor**
 - **About Windows** (winver)
-- **Shell**: (Shutdown dialog, Run, Control Panel)
+- **Shell**: (Shutdown dialog, Run)
+- **Control Panel**
 
-_Can be installed via Rebound Hub:_ (optional)
+_Featured in Rebound Hub:_ (optional)
 - **Ambie**
 - **Wino Mail**
 - **Screenbox**
 - **FluentHub**
-
-_Featured:_
-- **Rectify11**
 
 ## 🛠️ Key Features Comparison
 
