@@ -121,7 +121,7 @@ public partial class ReboundViewModel : ObservableObject
         {
             foreach (var instruction in ReboundTotalInstructions.AppInstructions)
             {
-                await instruction.Uninstall();
+                await instruction.UninstallAsync();
             }
             ReboundWorkingEnvironment.RemoveFolder();
             ReboundWorkingEnvironment.RemoveTasksFolder();
@@ -134,11 +134,11 @@ public partial class ReboundViewModel : ObservableObject
     {
         foreach (var instruction in ReboundTotalInstructions.AppInstructions)
         {
-            if (instruction.IsInstalled) await instruction.Install().ConfigureAwait(true);
+            if (instruction.IsInstalled) await instruction.InstallAsync().ConfigureAwait(true);
         }
         foreach (var instruction in ReboundTotalInstructions.MandatoryInstructions)
         {
-            await instruction.Install().ConfigureAwait(true);
+            await instruction.InstallAsync().ConfigureAwait(true);
         }
         ReboundWorkingEnvironment.UpdateVersion();
         CheckForUpdates();

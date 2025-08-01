@@ -471,21 +471,21 @@
                                             FontWeight="SemiBold"
                                             Text="{x:Bind Name, Mode=OneWay}"
                                             TextWrapping="WrapWholeWords" />
-                                        <StackPanel
+                                        <Button
                                             Grid.Column="4"
-                                            Margin="0,-4,0,0"
-                                            Orientation="Horizontal"
-                                            Spacing="8">
-                                            <ToggleSwitch
-                                                Margin="0,-2,-108,-2"
-                                                IsOn="{x:Bind IsInstalled, Mode=TwoWay}"
-                                                OffContent=""
-                                                OnContent="" />
-                                        </StackPanel>
+                                            Command="{x:Bind ToggleCommand}"
+                                            Content="Enabled"
+                                            Style="{ThemeResource AccentButtonStyle}"
+                                            Visibility="{x:Bind IsInstalled, Mode=OneWay}" />
+                                        <Button
+                                            Grid.Column="4"
+                                            Command="{x:Bind ToggleCommand}"
+                                            Content="Disabled"
+                                            Visibility="{x:Bind IsInstalled, Mode=OneWay, Converter={StaticResource BoolToReverseVisibilityConverter}}" />
                                         <TextBlock
                                             Grid.Row="2"
                                             Grid.Column="2"
-                                            Grid.ColumnSpan="3"
+                                            Grid.ColumnSpan="2"
                                             Margin="0,-36,0,0"
                                             FontSize="12"
                                             Opacity="0.5"

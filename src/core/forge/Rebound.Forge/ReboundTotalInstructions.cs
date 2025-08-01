@@ -4,9 +4,9 @@ using System.Collections.ObjectModel;
 
 namespace Rebound.Forge;
 
-public static class ReboundTotalInstructions
+internal static class ReboundTotalInstructions
 {
-    public static ObservableCollection<ReboundAppInstructions> AppInstructions { get; } =
+    internal static ObservableCollection<ReboundAppInstructions> AppInstructions { get; } =
     [
         // Control Panel
         new()
@@ -161,7 +161,7 @@ public static class ReboundTotalInstructions
         }
     ];
 
-    public static ObservableCollection<ReboundAppInstructions> MandatoryInstructions { get; } =
+    internal static ObservableCollection<ReboundAppInstructions> MandatoryInstructions { get; } =
     [
         // Service Host
         new()
@@ -186,7 +186,7 @@ public static class ReboundTotalInstructions
         }
     ];
 
-    public static ReboundAppInstructions GetAppInstructions(string name)
+    internal static ReboundAppInstructions GetAppInstructions(string name)
     {
         foreach (var instruction in AppInstructions)
         {
@@ -198,7 +198,7 @@ public static class ReboundTotalInstructions
         throw new KeyNotFoundException($"App instructions with name '{name}' not found.");
     }
 
-    public static ReboundAppInstructions GetMandatoryInstructions(string name)
+    internal static ReboundAppInstructions GetMandatoryInstructions(string name)
     {
         foreach (var instruction in MandatoryInstructions)
         {

@@ -28,6 +28,7 @@
 		<CustomAdditionalCompileInputs Remove="Views\HomePage.xaml" />
 		<Resource Remove="Views\HomePage.xaml" />
 		<PRIResource Remove="Assets\Wallpapers\**" />
+		<None Remove="Assets\AppIcons\ReboundIcon.ico" />
 		<None Remove="Modding\Launchers\rosk.exe" />
 		<None Remove="Views\Rectify11Page.xaml" />
 		<AdditionalFiles Include="NativeMethods.txt" />

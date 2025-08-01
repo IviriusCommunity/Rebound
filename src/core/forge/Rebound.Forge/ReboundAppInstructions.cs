@@ -5,10 +5,11 @@ using System.Linq;
 using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using Microsoft.UI.Dispatching;
 
 namespace Rebound.Forge;
 
-public partial class ReboundAppInstructions : ObservableObject
+internal partial class ReboundAppInstructions : ObservableObject
 {
     private bool _suppress;
 
@@ -17,15 +18,6 @@ public partial class ReboundAppInstructions : ObservableObject
 
     [ObservableProperty]
     public partial bool IsIntact { get; set; } = true;
-
-    async partial void OnIsInstalledChanged(bool oldValue, bool newValue)
-    {
-        if (!_suppress)
-        {
-            if (newValue) await Install();
-            else await Uninstall();
-        }
-    }
 
     public string Name { get; set; } = string.Empty;
 
@@ -41,12 +33,9 @@ public partial class ReboundAppInstructions : ObservableObject
 
     public required ObservableCollection<IReboundAppInstruction> Instructions { get; set; }
 
-    public string ProcessName { get; set; }
+    public string ProcessName { get; set; } = string.Empty;
 
-    public ReboundAppInstructions()
-    {
-        Load();
-    }
+    public ReboundAppInstructions() => Load();
 
     public async void Load()
     {
@@ -54,20 +43,22 @@ public partial class ReboundAppInstructions : ObservableObject
         await Task.Delay(100);
         IsInstalled = GetIntegrity() == ReboundAppIntegrity.Installed;
         IsIntact = GetIntegrity() != ReboundAppIntegrity.Corrupt;
+        await Task.Delay(100);
         _suppress = false;
     }
 
     [RelayCommand]
-    public async Task Repair()
+    public async Task RepairAsync()
     {
-        await Install();
+        await InstallAsync();
     }
 
-    public async Task Install()
+    [RelayCommand]
+    public async Task InstallAsync()
     {
         // Find all running processes with the target name
         var runningProcesses = Process.GetProcessesByName(ProcessName).ToList();
-        bool wasRunning = runningProcesses.Any();
+        bool wasRunning = runningProcesses.Count != 0;
 
         // Save executable paths before killing the processes
         var pathsToRestart = new List<string>();
@@ -132,7 +123,21 @@ public partial class ReboundAppInstructions : ObservableObject
         }
     }
 
-    public async Task Uninstall()
+    [RelayCommand]
+    public async Task ToggleAsync()
+    {
+        if (IsInstalled)
+        {
+            await UninstallAsync();
+        }
+        else
+        {
+            await InstallAsync();
+        }
+    }
+
+    [RelayCommand]
+    public async Task UninstallAsync()
     {
         Process.GetProcessesByName(ProcessName).ToList().ForEach(p => p.Kill());
 
@@ -155,7 +160,7 @@ public partial class ReboundAppInstructions : ObservableObject
         var intactItems = 0;
         var totalItems = Instructions?.Count;
 
-        foreach (var instruction in Instructions)
+        foreach (var instruction in Instructions ?? [])
         {
             if (instruction.IsApplied()) intactItems++;
         }

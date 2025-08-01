@@ -140,7 +140,7 @@ public static class ReboundWorkingEnvironment
         {
             foreach (var instructions in ReboundTotalInstructions.MandatoryInstructions)
             {
-                await instructions.Install();
+                await instructions.InstallAsync();
             }
         }
         catch
@@ -155,7 +155,7 @@ public static class ReboundWorkingEnvironment
         {
             foreach (var instructions in ReboundTotalInstructions.MandatoryInstructions)
             {
-                await instructions.Uninstall();
+                await instructions.UninstallAsync();
             }
         }
         catch

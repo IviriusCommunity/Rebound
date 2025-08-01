@@ -1021,7 +1021,7 @@
                             <Grid
                                 x:Name="ContentGrid"
                                 MinWidth="64"
-                                MinHeight="58"
+                                MinHeight="56"
                                 HorizontalAlignment="Stretch">
 
                                 <Grid.RowDefinitions>
@@ -1034,9 +1034,9 @@
                                 <Viewbox
                                     x:Name="IconBox"
                                     Grid.Row="1"
-                                    Width="28"
-                                    Height="28"
-                                    Margin="0,-3.5,0,0"
+                                    Width="24"
+                                    Margin="0, -2, 0, 0"
+                                    Height="24"
                                     HorizontalAlignment="Center">
                                     <Viewbox.RenderTransform>
                                         <TranslateTransform x:Name="IconBoxTranslateTransform" Y="0" />
@@ -1047,7 +1047,7 @@
                                         VerticalContentAlignment="Stretch"
                                         local:AnimatedIcon.State="Normal"
                                         Content="{TemplateBinding Icon}"
-                                        FontSize="28"
+                                        FontSize="24"
                                         Foreground="{ThemeResource ControlStrongFillColorDefault}" />
                                 </Viewbox>
 
@@ -1142,7 +1142,7 @@
                                                 Storyboard.TargetName="IconBoxTranslateTransform"
                                                 Storyboard.TargetProperty="Y"
                                                 From="{x:Null}"
-                                                To="4.5"
+                                                To="4"
                                                 Duration="0:0:0.1" />
                                         </Storyboard>
                                     </VisualState.Storyboard>
@@ -1161,7 +1161,7 @@
                                                 Storyboard.TargetName="IconBoxTranslateTransform"
                                                 Storyboard.TargetProperty="Y"
                                                 From="{x:Null}"
-                                                To="4.5"
+                                                To="4"
                                                 Duration="0:0:0.1" />
                                         </Storyboard>
                                     </VisualState.Storyboard>
@@ -1181,7 +1181,7 @@
                                                 Storyboard.TargetName="IconBoxTranslateTransform"
                                                 Storyboard.TargetProperty="Y"
                                                 From="{x:Null}"
-                                                To="4.5"
+                                                To="4"
                                                 Duration="0:0:0.1" />
                                         </Storyboard>
                                     </VisualState.Storyboard>

@@ -148,7 +148,7 @@ internal sealed partial class HomePage : Page
         new AppCard
         {
             Title = "Screenbox",
-            Description = "Fluent file explorer app for Windows 10 and 11.",
+            Description = "Modern media player for all your devices.",
             IconPath = "/Assets/AppIcons/Screenbox.png",
             PicturePath = "/Assets/AppBanners/Screenbox.png",
             Link = "https://apps.microsoft.com/detail/9ntsnmsvcb5l",

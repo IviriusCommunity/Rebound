@@ -356,11 +356,11 @@ public partial class MainViewModel : ObservableObject
     {
         foreach (var instruction in ReboundTotalInstructions.AppInstructions)
         {
-            await instruction.Uninstall();
+            await instruction.UninstallAsync();
         }
         foreach (var instruction in ReboundTotalInstructions.MandatoryInstructions)
         {
-            await instruction.Uninstall();
+            await instruction.UninstallAsync();
         }
     }
 

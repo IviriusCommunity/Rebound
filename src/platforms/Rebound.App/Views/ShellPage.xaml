@@ -64,10 +64,7 @@
                     Content="Home"
                     Style="{ThemeResource CustomNavigationViewItemStyle}">
                     <NavigationViewItem.Icon>
-                        <FontIcon
-                            Margin="2"
-                            FontSize="12"
-                            Glyph="&#xE80F;" />
+                        <FontIcon Margin="2" Glyph="&#xE80F;" />
                     </NavigationViewItem.Icon>
                 </NavigationViewItem>
                 <NavigationViewItem
@@ -75,7 +72,7 @@
                     Content="Rebound"
                     Style="{ThemeResource CustomNavigationViewItemStyle}">
                     <NavigationViewItem.Icon>
-                        <ImageIcon Margin="16,8,16,24" Source="ms-appx:///Assets/AppIcons/ReboundIcon.ico" />
+                        <ImageIcon Width="24" Height="24" Source="ms-appx:///Assets/AppIcons/ReboundIcon24.png" />
                     </NavigationViewItem.Icon>
                 </NavigationViewItem>
             </NavigationView.MenuItems>
@@ -86,10 +83,7 @@
                     SelectsOnInvoked="False"
                     Style="{ThemeResource CustomNavigationViewItemStyle}">
                     <NavigationViewItem.Icon>
-                        <FontIcon
-                            Margin="2"
-                            FontSize="12"
-                            Glyph="&#xED15;" />
+                        <FontIcon Margin="2" Glyph="&#xED15;" />
                     </NavigationViewItem.Icon>
                     <interactivity:Interaction.Behaviors>
                         <interactivity:EventTriggerBehavior EventName="Tapped">

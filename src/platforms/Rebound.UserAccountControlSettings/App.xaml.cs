@@ -28,7 +28,7 @@ public partial class App : Application
                 FileName = "useraccountcontrolsettings.exe",
                 UseShellExecute = true,
                 Arguments = e.Arguments == "legacy" ? string.Empty : e.Arguments
-            });
+            }); 
             return;
         }
 
