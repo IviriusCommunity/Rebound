@@ -40,6 +40,9 @@ public class StartupTaskInstruction : IReboundAppInstruction
             TaskDefinition td = ts.NewTask();
             td.RegistrationInfo.Description = Description;
 
+            // Allow task to run on battery
+            td.Settings.DisallowStartIfOnBatteries = false;
+
             // Run with highest privileges (admin)
             td.Principal.RunLevel = RequireAdmin ? TaskRunLevel.Highest : TaskRunLevel.LUA;
 
