@@ -237,7 +237,7 @@ public partial class App : Application
             // Send WM_CLOSE asynchronously, non-blocking
             PInvoke.PostMessage(new(e.Handle), WM_CLOSE, new Windows.Win32.Foundation.WPARAM(0), IntPtr.Zero);
 
-            await PipeServer.BroadcastMessageAsync("Shell::SpawnCantRunWindow");
+            await PipeServer.BroadcastMessageAsync("Shell::SpawnCantRunDialog");
         }
     }
 
