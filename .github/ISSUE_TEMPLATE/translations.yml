@@ -1,0 +1,28 @@
+name: "🌐 Translation Contribution"
+description: "Help us translate Ivirius Text Editor."
+title: "🌐 Translation - "
+labels: ["🌐 Translations"]
+body:
+  - type: input
+    id: language
+    attributes:
+      label: "Language"
+      placeholder: "Which language do you want to help translate?"
+
+  - type: textarea
+    id: experience
+    attributes:
+      label: "Translation experience"
+      placeholder: "Tell us about your translation experience or tools you use."
+
+  - type: input
+    id: contact
+    attributes:
+      label: "Contact info"
+      placeholder: "How can we reach you? (optional)"
+
+  - type: textarea
+    id: additional
+    attributes:
+      label: "Additional notes"
+      placeholder: "Anything else you'd like to share?"
