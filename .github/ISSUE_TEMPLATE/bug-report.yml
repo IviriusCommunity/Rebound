@@ -3,7 +3,7 @@ description: "Report a bug or unexpected behavior."
 title: "🐞 Bug - "
 labels: ["🐞 Bug"]
 body:
-  - type: input
+  - type: textarea
     id: description
     attributes:
       label: "Describe the bug"
@@ -21,6 +21,14 @@ body:
         2. Click on '...'
         3. Scroll down to '...'
         4. See error
+
+  - type: input
+    id: version
+    attributes:
+      label: "Version"
+      placeholder: "The version of Rebound where this bug is observed."
+    validations:
+      required: true
 
   - type: input
     id: expected
