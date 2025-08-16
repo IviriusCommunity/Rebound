@@ -1,0 +1,24 @@
+name: "📃 Documentation Feedback"
+description: "Report issues or suggest improvements to the documentation."
+title: "📃 Documentation - "
+labels: ["📃 Documentation"]
+body:
+  - type: input
+    id: doc_issue
+    attributes:
+      label: "Documentation issue"
+      placeholder: "Describe the problem or suggestion for the docs."
+    validations:
+      required: true
+
+  - type: input
+    id: page
+    attributes:
+      label: "Page or section"
+      placeholder: "Where in the docs did you find this issue? Provide us with a link."
+
+  - type: textarea
+    id: additional
+    attributes:
+      label: "Additional context"
+      placeholder: "Extra info or screenshots."
