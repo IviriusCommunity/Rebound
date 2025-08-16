@@ -15,7 +15,7 @@ body:
     id: reason
     attributes:
       label: "Why is this feature important?"
-      placeholder: "Explain why this would be useful or how it improves the website."
+      placeholder: "Explain why this would be useful or how it improves the mod."
 
   - type: textarea
     id: additional
