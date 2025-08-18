@@ -1,0 +1,24 @@
+name: "✨ Feature Request"
+description: "Suggest a new feature or an enhancement."
+title: "✨ Feature Request - "
+labels: ["✨ Enhancement"]
+body:
+  - type: input
+    id: feature
+    attributes:
+      label: "Feature description"
+      placeholder: "Describe the feature or improvement you want."
+    validations:
+      required: true
+
+  - type: textarea
+    id: reason
+    attributes:
+      label: "Why is this feature important?"
+      placeholder: "Explain why this would be useful or how it improves the mod."
+
+  - type: textarea
+    id: additional
+    attributes:
+      label: "Additional context"
+      placeholder: "Any extra info or screenshots to add?"

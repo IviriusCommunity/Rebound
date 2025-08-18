@@ -1,0 +1,51 @@
+name: "🐞 Bug Report"
+description: "Report a bug or unexpected behavior."
+title: "🐞 Bug - "
+labels: ["🐞 Bug"]
+body:
+  - type: textarea
+    id: description
+    attributes:
+      label: "Describe the bug"
+      placeholder: "A clear and concise description of what the bug is."
+    validations:
+      required: true
+
+  - type: textarea
+    id: steps
+    attributes:
+      label: "Steps to reproduce"
+      description: "Steps to reproduce the behavior:"
+      placeholder: |
+        1. Go to '...'
+        2. Click on '...'
+        3. Scroll down to '...'
+        4. See error
+
+  - type: input
+    id: version
+    attributes:
+      label: "Version"
+      placeholder: "The version of Rebound where this bug is observed. Get it from Rebound Winver -> Rebound (panel) -> Copy button (top right corner)."
+    validations:
+      required: true
+
+  - type: input
+    id: expected
+    attributes:
+      label: "Expected behavior"
+      placeholder: "What you expected to happen."
+
+  - type: textarea
+    id: screenshots
+    attributes:
+      label: "Screenshots"
+      description: "If applicable, add screenshots to help explain your problem."
+      placeholder: "Paste links or markdown image tags here."
+
+  - type: textarea
+    id: additional
+    attributes:
+      label: "Additional context"
+      placeholder: "Add any other context about the problem here."
+
