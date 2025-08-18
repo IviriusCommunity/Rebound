@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using Microsoft.UI.Xaml;
+using Microsoft.UI.Xaml.Controls;
 using Rebound.Core.Helpers;
 using Rebound.Generators;
 using Rebound.Helpers;
@@ -33,6 +34,7 @@ public partial class App : Application
         BackgroundWindow.Minimize();
         BackgroundWindow.SetWindowOpacity(0);
         BackgroundWindow.Activate();
+        BackgroundWindow.Content = new Grid();
 
         RunWindow = new Run.RunWindow(() =>
         {

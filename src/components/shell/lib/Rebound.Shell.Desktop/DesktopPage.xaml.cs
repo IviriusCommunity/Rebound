@@ -40,9 +40,9 @@ public partial class WallpaperGlassBackdrop : CompositionBrushBackdrop
 {
     protected override Windows.UI.Composition.CompositionBrush CreateBrush(Windows.UI.Composition.Compositor compositor)
     {
-        var LuminosityOpacity = 0.7F; // Opacity for luminosity overlay
-        var TintOpacity = 0F; // Opacity for luminosity overlay
-        var TintColor = (App.DesktopWindow.Content as FrameworkElement).ActualTheme == ElementTheme.Light ? Color.FromArgb(255, 223, 223, 223) : Color.FromArgb(255, 32, 32, 32); // Opacity for luminosity overlay
+        var LuminosityOpacity = SettingsHelper.GetValue("UseMicaMenus", "rshell.desktop", false) ? 1F : 0.7F; // Opacity for luminosity overlay
+        var TintOpacity = SettingsHelper.GetValue("UseMicaMenus", "rshell.desktop", false) ? 0.8F : 0F; // Opacity for luminosity overlay
+        var TintColor = (App.BackgroundWindow.Content as FrameworkElement).ActualTheme == ElementTheme.Light ? Color.FromArgb(255, 223, 223, 223) : Color.FromArgb(255, 32, 32, 32);
 
         var baseBrush = SettingsHelper.GetValue("UseMicaMenus", "rshell.desktop", false) ? compositor.TryCreateBlurredWallpaperBackdropBrush() : compositor.CreateHostBackdropBrush();
 
@@ -174,8 +174,8 @@ public sealed partial class DesktopPage : Page
     private async void _timer2_Tick(object? sender, object e)
     {
         var usage = await GetSystemUsageAsync();
-        CPUUsageBlock.Text = $"{usage.cpuPercent:0}%";
-        MemUsageBlock.Text = $"{usage.memoryPercent:0}%";
+        ViewModel.CPUUsage = $"{usage.cpuPercent:0}%";
+        ViewModel.RAMUsage = $"{usage.memoryPercent:0}%";
     }
 
     public async Task<(double cpuPercent, double memoryPercent)> GetSystemUsageAsync()
@@ -194,6 +194,13 @@ public sealed partial class DesktopPage : Page
 
         return (cpuUsed, memPercent);
     }
+
+    private static readonly Windows.Win32.Foundation.HWND HWND_BOTTOM = new(1);
+
+    // Constants
+    private const int WS_EX_NOACTIVATE = 0x08000000;
+    private const int WS_EX_TOOLWINDOW = 0x00000080;
+    private const int WS_EX_LAYERED = 0x00080000;
 
     public async void QueryLiveWallpaper()
     {
@@ -269,14 +276,14 @@ public sealed partial class DesktopPage : Page
         var now = DateTime.Now;
 
         // Example: 12:03
-        TimeTextBlock.Text = now.ToString("hh:mm:ss tt");
+        ViewModel.CurrentTime = now.ToString("hh:mm:ss tt");
 
         // Example: Friday, 02.12.2025
-        DateTextBlock.Text = now.ToString("dddd, dd.MM.yyyy");
+        ViewModel.CurrentDate = now.ToString("dddd, dd.MM.yyyy");
 
-        CalendarWidgetDay.Text = now.ToString("dddd");
-        CalendarWidgetDate.Text = now.ToString("dd");
-        CalendarWidgetMonth.Text = now.ToString("MMMM yyyy");
+        ViewModel.CurrentDay = now.ToString("dddd");
+        ViewModel.CurrentDayOfMonth = now.ToString("dd");
+        ViewModel.CurrentMonthAndYear = now.ToString("MMMM yyyy");
 
         if (_lastDate.Date != now.Date)
         {

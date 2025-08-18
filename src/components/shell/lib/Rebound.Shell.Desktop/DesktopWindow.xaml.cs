@@ -31,7 +31,7 @@ public sealed partial class DesktopWindow : WindowEx
         this.MoveAndResize(0, 0, Display.GetDPIAwareDisplayRect(this).Width, Display.GetDPIAwareDisplayRect(this).Height);
         RootFrame.Navigate(typeof(DesktopPage), this);
         SystemBackdrop = new TransparentTintBackdrop();
-        this.ZOrderChanged += DesktopWindow_ZOrderChanged;
+        //this.ZOrderChanged += DesktopWindow_ZOrderChanged;
     }
 
     private void DesktopWindow_ZOrderChanged(object? sender, ZOrderInfo e)

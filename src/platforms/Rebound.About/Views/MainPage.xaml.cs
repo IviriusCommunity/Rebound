@@ -527,12 +527,12 @@ public sealed partial class MainPage : Page
                 Foreground = accentBrush,
                 FontWeight = Microsoft.UI.Text.FontWeights.Bold,
                 Text = "Resolution: "
-            });
+            });/*
             FetchTextBlock.Inlines.Add(new Run()
             {
                 Foreground = new SolidColorBrush(Colors.White),
                 Text = DisplayArea.GetFromWindowId(App.MainAppWindow.AppWindow.Id, DisplayAreaFallback.Primary).WorkArea.Width + "x" + DisplayArea.GetFromWindowId(App.MainAppWindow.AppWindow.Id, DisplayAreaFallback.Primary).WorkArea.Height + "\n"
-            });
+            });*/
             FetchTextBlock.Inlines.Add(new Run()
             {
                 Foreground = accentBrush,

@@ -451,6 +451,8 @@
         x:Name="MainGrid"
         Background="Transparent"
         PointerPressed="BackgroundGrid_PointerPressed">
+
+        <!--  Context menu  -->
         <Grid
             Width="0"
             Height="0"
@@ -580,12 +582,17 @@
                                 <ImageIcon Source="/Assets/shell32_16741.ico" />
                             </ToggleMenuFlyoutItem.Icon>
                         </ToggleMenuFlyoutItem>
-                        <ToggleMenuFlyoutItem Text="Calendar">
+                        <ToggleMenuFlyoutItem IsChecked="{x:Bind ViewModel.ShowCalendarWidget, Mode=TwoWay}" Text="Calendar">
                             <ToggleMenuFlyoutItem.Icon>
                                 <ImageIcon Source="/Assets/mssvp_508.ico" />
                             </ToggleMenuFlyoutItem.Icon>
                         </ToggleMenuFlyoutItem>
-                        <ToggleMenuFlyoutItem Text="CPU and RAM">
+                        <ToggleMenuFlyoutItem IsChecked="{x:Bind ViewModel.ShowCPUAndRAMWidget, Mode=TwoWay}" Text="CPU and RAM">
+                            <ToggleMenuFlyoutItem.Icon>
+                                <ImageIcon Source="/Assets/eqossnap_3000.ico" />
+                            </ToggleMenuFlyoutItem.Icon>
+                        </ToggleMenuFlyoutItem>
+                        <ToggleMenuFlyoutItem IsChecked="{x:Bind ViewModel.ShowInfoBar, Mode=TwoWay}" Text="Info bar">
                             <ToggleMenuFlyoutItem.Icon>
                                 <ImageIcon Source="/Assets/eqossnap_3000.ico" />
                             </ToggleMenuFlyoutItem.Icon>
@@ -778,59 +785,8 @@
                 </CommandBarFlyout>-->
             </Grid.ContextFlyout>
         </Grid>
-        <Image x:Name="Wallpaper" />
-        <Grid Visibility="{x:Bind ViewModel.ShowClockWidget, Mode=OneWay}">
-            <StackPanel
-                Margin="160"
-                HorizontalAlignment="Center"
-                VerticalAlignment="Top">
-                <TextBlock
-                    x:Name="TimeTextBlock"
-                    FontSize="96"
-                    FontWeight="SemiBold"
-                    Text="12:03"
-                    TextAlignment="Center">
-                    <ui:Effects.Shadow>
-                        <ui:AttachedDropShadow
-                            BlurRadius="16"
-                            CastTo="{x:Bind TimeTextBlock}"
-                            IsMasked="True"
-                            Opacity="0.5"
-                            Offset="0, 4"
-                            Color="Black" />
-                    </ui:Effects.Shadow>
-                </TextBlock>
-                <TextBlock
-                    x:Name="DateTextBlock"
-                    FontSize="48"
-                    Text="Friday, 02.12.2025"
-                    TextAlignment="Center">
-                    <ui:Effects.Shadow>
-                        <ui:AttachedDropShadow
-                            BlurRadius="8"
-                            CastTo="{x:Bind DateTextBlock}"
-                            IsMasked="True"
-                            Opacity="0.5"
-                            Offset="0, 4"
-                            Color="Black" />
-                    </ui:Effects.Shadow>
-                </TextBlock>
-            </StackPanel>
-            <StackPanel
-                Margin="160"
-                HorizontalAlignment="Center"
-                VerticalAlignment="Top">
-                <TextBlock
-                    FontSize="96"
-                    FontWeight="SemiBold"
-                    Text="{x:Bind TimeTextBlock.Text, Mode=OneWay}"
-                    TextAlignment="Center" />
-                <TextBlock
-                    FontSize="48"
-                    Text="{x:Bind DateTextBlock.Text, Mode=OneWay}"
-                    TextAlignment="Center" />
-            </StackPanel>
-        </Grid>
+
+        <!--  Desktop grid  -->
         <Grid
             AllowDrop="True"
             Background="Transparent"
@@ -1031,281 +987,440 @@
                     Opacity="0.2" />
             </Border>
         </Grid>
-        <Grid
-            Margin="8"
-            HorizontalAlignment="Right"
-            VerticalAlignment="Top">
-            <StackPanel Spacing="16">
-                <Grid Background="Transparent">
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="*" />
-                        <RowDefinition Height="Auto" />
-                        <RowDefinition Height="*" />
-                    </Grid.RowDefinitions>
-                    <Button
-                        Grid.Row="2"
-                        Margin="0"
-                        HorizontalAlignment="Stretch"
-                        VerticalAlignment="Stretch"
-                        ui:Effects.Shadow="{StaticResource CommonShadow}"
-                        CornerRadius="8"
-                        IsEnabled="False" />
-                    <Button
-                        Margin="0,0,0,-4"
-                        HorizontalAlignment="Stretch"
-                        VerticalAlignment="Stretch"
-                        CornerRadius="2"
-                        IsEnabled="False"
-                        Visibility="{x:Bind CalendarButton.IsChecked, Mode=OneWay}">
+
+        <!--  Widgets board  -->
+        <Grid>
+
+            <!--  Large clock  -->
+            <Grid Visibility="{x:Bind ViewModel.ShowClockWidget, Mode=OneWay}">
+                <StackPanel
+                    Margin="160"
+                    HorizontalAlignment="Center"
+                    VerticalAlignment="Top">
+                    <TextBlock
+                        x:Name="TimeTextBlock"
+                        FontSize="96"
+                        FontWeight="SemiBold"
+                        Foreground="{ThemeResource TextOnAccentFillColorDefaultBrush}"
+                        Text="{x:Bind ViewModel.CurrentTime, Mode=OneWay}"
+                        TextAlignment="Center">
                         <ui:Effects.Shadow>
-                            <media:AttachedCardShadow
-                                BlurRadius="32"
-                                CornerRadius="2"
+                            <ui:AttachedDropShadow
+                                BlurRadius="16"
+                                CastTo="{x:Bind TimeTextBlock}"
+                                IsMasked="True"
                                 Opacity="0.5"
-                                Offset="0, 16" />
+                                Offset="0, 4"
+                                Color="Black" />
                         </ui:Effects.Shadow>
-                    </Button>
-                    <ToggleButton
-                        x:Name="CalendarButton"
-                        Grid.Row="2"
-                        Width="160"
-                        Height="160"
-                        Padding="0"
-                        HorizontalContentAlignment="Stretch"
-                        VerticalContentAlignment="Stretch"
-                        BorderThickness="0"
-                        CornerRadius="4"
-                        IsThreeState="False">
-                        <Grid>
-                            <Grid.Background>
-                                <LinearGradientBrush StartPoint="0, 0" EndPoint="1, 1">
-                                    <GradientStop Color="#ff6112" />
-                                    <GradientStop Offset="1" Color="#963809" />
-                                </LinearGradientBrush>
-                            </Grid.Background>
-                            <StackPanel VerticalAlignment="Center">
-                                <TextBlock
-                                    x:Name="CalendarWidgetDay"
-                                    HorizontalAlignment="Center"
-                                    FontSize="16"
-                                    FontWeight="SemiBold"
-                                    Foreground="White"
-                                    Text="Wednesday" />
-                                <TextBlock
-                                    x:Name="CalendarWidgetDate"
-                                    Margin="0,-8,0,-4"
-                                    HorizontalAlignment="Center"
-                                    FontSize="56"
-                                    FontWeight="SemiBold"
-                                    Foreground="White"
-                                    Text="30" />
-                                <TextBlock
-                                    x:Name="CalendarWidgetMonth"
-                                    HorizontalAlignment="Center"
-                                    FontSize="16"
-                                    FontWeight="SemiBold"
-                                    Foreground="White"
-                                    Text="September 2025" />
-                            </StackPanel>
-                        </Grid>
-                    </ToggleButton>
-                    <Viewbox
-                        Width="160"
-                        Margin="0,0,0,-4"
-                        Visibility="{x:Bind CalendarButton.IsChecked, Mode=OneWay}">
-                        <CalendarView
-                            x:Name="CalendarControl"
-                            DayItemFontSize="18"
-                            DayItemFontWeight="SemiBold"
-                            FirstOfMonthLabelFontSize="18"
-                            FirstOfYearDecadeLabelFontSize="18"
-                            MonthYearItemFontSize="18"
-                            MonthYearItemFontWeight="SemiBold" />
-                    </Viewbox>
-                    <StackPanel
-                        Grid.Row="1"
-                        Margin="0,0,0,-4"
-                        HorizontalAlignment="Center"
-                        Orientation="Horizontal"
-                        Spacing="8">
-                        <Grid
-                            Width="8"
+                    </TextBlock>
+                    <TextBlock
+                        x:Name="DateTextBlock"
+                        FontSize="48"
+                        Foreground="{ThemeResource TextOnAccentFillColorDefaultBrush}"
+                        Text="{x:Bind ViewModel.CurrentDate, Mode=OneWay}"
+                        TextAlignment="Center">
+                        <ui:Effects.Shadow>
+                            <ui:AttachedDropShadow
+                                BlurRadius="8"
+                                CastTo="{x:Bind DateTextBlock}"
+                                IsMasked="True"
+                                Opacity="0.5"
+                                Offset="0, 4"
+                                Color="Black" />
+                        </ui:Effects.Shadow>
+                    </TextBlock>
+                </StackPanel>
+                <StackPanel
+                    Margin="160"
+                    HorizontalAlignment="Center"
+                    VerticalAlignment="Top">
+                    <TextBlock
+                        FontSize="96"
+                        FontWeight="SemiBold"
+                        Text="{x:Bind ViewModel.CurrentTime, Mode=OneWay}"
+                        TextAlignment="Center" />
+                    <TextBlock
+                        FontSize="48"
+                        Text="{x:Bind ViewModel.CurrentDate, Mode=OneWay}"
+                        TextAlignment="Center" />
+                </StackPanel>
+            </Grid>
+
+            <!--  Info bars  -->
+            <Grid Visibility="{x:Bind ViewModel.ShowInfoBar, Mode=OneWay}">
+
+                <!--  Info bar  -->
+                <Grid
+                    Margin="16"
+                    Padding="12"
+                    HorizontalAlignment="Center"
+                    VerticalAlignment="Top"
+                    Background="{ThemeResource SolidBackgroundFillColorBaseBrush}"
+                    BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                    BorderThickness="1"
+                    CornerRadius="4"
+                    Visibility="{x:Bind ViewModel.UseRosePine, Mode=OneWay, Converter={StaticResource BoolToInverseVisibilityConverter}}">
+                    <StackPanel Orientation="Horizontal" Spacing="8">
+                        <FontIcon FontSize="16" Glyph="&#xE917;" />
+                        <TextBlock Text="{x:Bind ViewModel.CurrentTime, Mode=OneWay}" />
+                        <Border
+                            Width="1"
                             Height="16"
-                            CornerRadius="2">
-                            <Grid.Background>
-                                <LinearGradientBrush StartPoint="0, 0" EndPoint="1, 1">
-                                    <GradientStop Color="#a34718" />
-                                    <GradientStop Offset="1" Color="#612508" />
-                                </LinearGradientBrush>
-                            </Grid.Background>
-                        </Grid>
-                        <Grid
-                            Width="8"
+                            Background="{ThemeResource DividerStrokeColorDefaultBrush}" />
+                        <FontIcon FontSize="16" Glyph="&#xEEA1;" />
+                        <TextBlock Text="CPU:" />
+                        <TextBlock Text="{x:Bind ViewModel.CPUUsage, Mode=OneWay}" />
+                        <Border
+                            Width="1"
                             Height="16"
-                            CornerRadius="2">
-                            <Grid.Background>
-                                <LinearGradientBrush StartPoint="0, 0" EndPoint="1, 1">
-                                    <GradientStop Color="#a34718" />
-                                    <GradientStop Offset="1" Color="#612508" />
-                                </LinearGradientBrush>
-                            </Grid.Background>
-                        </Grid>
-                        <Grid
-                            Width="8"
-                            Height="16"
-                            CornerRadius="2">
-                            <Grid.Background>
-                                <LinearGradientBrush StartPoint="0, 0" EndPoint="1, 1">
-                                    <GradientStop Color="#a34718" />
-                                    <GradientStop Offset="1" Color="#612508" />
-                                </LinearGradientBrush>
-                            </Grid.Background>
-                        </Grid>
-                        <Grid
-                            Width="8"
-                            Height="16"
-                            CornerRadius="2">
-                            <Grid.Background>
-                                <LinearGradientBrush StartPoint="0, 0" EndPoint="1, 1">
-                                    <GradientStop Color="#a34718" />
-                                    <GradientStop Offset="1" Color="#612508" />
-                                </LinearGradientBrush>
-                            </Grid.Background>
-                        </Grid>
-                        <Grid
-                            Width="8"
-                            Height="16"
-                            CornerRadius="2">
-                            <Grid.Background>
-                                <LinearGradientBrush StartPoint="0, 0" EndPoint="1, 1">
-                                    <GradientStop Color="#a34718" />
-                                    <GradientStop Offset="1" Color="#612508" />
-                                </LinearGradientBrush>
-                            </Grid.Background>
-                        </Grid>
-                        <Grid
-                            Width="8"
-                            Height="16"
-                            CornerRadius="2">
-                            <Grid.Background>
-                                <LinearGradientBrush StartPoint="0, 0" EndPoint="1, 1">
-                                    <GradientStop Color="#a34718" />
-                                    <GradientStop Offset="1" Color="#612508" />
-                                </LinearGradientBrush>
-                            </Grid.Background>
-                        </Grid>
-                        <Grid
-                            Width="8"
-                            Height="16"
-                            CornerRadius="2">
-                            <Grid.Background>
-                                <LinearGradientBrush StartPoint="0, 0" EndPoint="1, 1">
-                                    <GradientStop Color="#a34718" />
-                                    <GradientStop Offset="1" Color="#612508" />
-                                </LinearGradientBrush>
-                            </Grid.Background>
-                        </Grid>
-                        <Grid
-                            Width="8"
-                            Height="16"
-                            CornerRadius="2">
-                            <Grid.Background>
-                                <LinearGradientBrush StartPoint="0, 0" EndPoint="1, 1">
-                                    <GradientStop Color="#a34718" />
-                                    <GradientStop Offset="1" Color="#612508" />
-                                </LinearGradientBrush>
-                            </Grid.Background>
-                        </Grid>
+                            Background="{ThemeResource DividerStrokeColorDefaultBrush}" />
+                        <FontIcon FontSize="16" Glyph="&#xEEA0;" />
+                        <TextBlock Text="RAM:" />
+                        <TextBlock Text="{x:Bind ViewModel.RAMUsage, Mode=OneWay}" />
                     </StackPanel>
                 </Grid>
-                <Grid Width="160" Background="Transparent">
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="*" />
-                        <ColumnDefinition Width="*" />
-                    </Grid.ColumnDefinitions>
-                    <Button
-                        Margin="10,0"
-                        HorizontalAlignment="Stretch"
-                        VerticalAlignment="Stretch"
-                        CornerRadius="64"
-                        IsEnabled="False">
-                        <ui:Effects.Shadow>
-                            <media:AttachedCardShadow
-                                BlurRadius="32"
-                                CornerRadius="64"
-                                Opacity="0.5"
-                                Offset="0, 16" />
-                        </ui:Effects.Shadow>
-                    </Button>
-                    <Button
-                        Grid.Column="1"
-                        Margin="10,0"
-                        HorizontalAlignment="Stretch"
-                        VerticalAlignment="Stretch"
-                        CornerRadius="64"
-                        IsEnabled="False">
-                        <ui:Effects.Shadow>
-                            <media:AttachedCardShadow
-                                BlurRadius="32"
-                                CornerRadius="64"
-                                Opacity="0.5"
-                                Offset="0, 16" />
-                        </ui:Effects.Shadow>
-                    </Button>
-                    <Grid
-                        Width="60"
-                        Height="60"
-                        CornerRadius="30">
-                        <Grid.Background>
-                            <LinearGradientBrush StartPoint="0, 0" EndPoint="1, 1">
-                                <GradientStop Color="#ffa319" />
-                                <GradientStop Offset="1" Color="#d95e00" />
-                            </LinearGradientBrush>
-                        </Grid.Background>
-                        <Grid
-                            Width="54"
-                            Height="54"
-                            Background="{ThemeResource SolidBackgroundFillColorBase}"
-                            CornerRadius="30">
-                            <StackPanel VerticalAlignment="Center" Spacing="4">
-                                <FontIcon FontSize="16" Glyph="&#xEEA1;" />
-                                <TextBlock
-                                    x:Name="CPUUsageBlock"
-                                    HorizontalAlignment="Center"
-                                    FontSize="12"
-                                    Text="12%" />
-                            </StackPanel>
-                        </Grid>
-                    </Grid>
-                    <Grid
-                        Grid.Column="1"
-                        Width="60"
-                        Height="60"
-                        CornerRadius="30">
-                        <Grid.Background>
-                            <LinearGradientBrush StartPoint="0, 0" EndPoint="1, 1">
-                                <GradientStop Color="#26ffa5" />
-                                <GradientStop Offset="1" Color="#00ba7f" />
-                            </LinearGradientBrush>
-                        </Grid.Background>
-                        <Grid
-                            Width="54"
-                            Height="54"
-                            Background="{ThemeResource SolidBackgroundFillColorBase}"
-                            CornerRadius="30">
-                            <StackPanel VerticalAlignment="Center" Spacing="4">
-                                <FontIcon FontSize="16" Glyph="&#xEEA0;" />
-                                <TextBlock
-                                    x:Name="MemUsageBlock"
-                                    HorizontalAlignment="Center"
-                                    FontSize="12"
-                                    Text="67%" />
-                            </StackPanel>
-                        </Grid>
-                    </Grid>
+
+                <!--  Rose Pine info bar  -->
+                <Grid
+                    Margin="16"
+                    Padding="8"
+                    HorizontalAlignment="Center"
+                    VerticalAlignment="Top"
+                    Background="#191724"
+                    BorderBrush="#524f67"
+                    BorderThickness="1"
+                    CornerRadius="4"
+                    Visibility="{x:Bind ViewModel.UseRosePine, Mode=OneWay}">
+                    <StackPanel Orientation="Horizontal" Spacing="8">
+                        <FontIcon
+                            FontSize="16"
+                            Foreground="#e0def4"
+                            Glyph="&#xE917;" />
+                        <TextBlock
+                            FontFamily="Consolas"
+                            Foreground="#e0def4"
+                            Text="{x:Bind ViewModel.CurrentTime, Mode=OneWay}" />
+                        <Border
+                            Width="1"
+                            Height="16"
+                            Background="#524f67" />
+                        <FontIcon
+                            FontSize="16"
+                            Foreground="#e0def4"
+                            Glyph="&#xEEA1;" />
+                        <TextBlock
+                            FontFamily="Consolas"
+                            Foreground="#e0def4"
+                            Text="CPU:" />
+                        <TextBlock
+                            FontFamily="Consolas"
+                            Foreground="#e0def4"
+                            Text="{x:Bind ViewModel.CPUUsage, Mode=OneWay}" />
+                        <Border
+                            Width="1"
+                            Height="16"
+                            Background="#524f67" />
+                        <FontIcon
+                            FontSize="16"
+                            Foreground="#e0def4"
+                            Glyph="&#xEEA0;" />
+                        <TextBlock
+                            FontFamily="Consolas"
+                            Foreground="#e0def4"
+                            Text="RAM:" />
+                        <TextBlock
+                            FontFamily="Consolas"
+                            Foreground="#e0def4"
+                            Text="{x:Bind ViewModel.RAMUsage, Mode=OneWay}" />
+                    </StackPanel>
                 </Grid>
-            </StackPanel>
+
+            </Grid>
+
+            <!--  Stacked widgets board  -->
+            <Grid
+                Margin="8"
+                HorizontalAlignment="Right"
+                VerticalAlignment="Top">
+                <StackPanel Spacing="16">
+
+                    <!--  Calendar widget  -->
+                    <Grid Background="Transparent" Visibility="{x:Bind ViewModel.ShowCalendarWidget, Mode=OneWay}">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="*" />
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="*" />
+                        </Grid.RowDefinitions>
+                        <Button
+                            Grid.Row="2"
+                            Margin="0"
+                            HorizontalAlignment="Stretch"
+                            VerticalAlignment="Stretch"
+                            ui:Effects.Shadow="{StaticResource CommonShadow}"
+                            CornerRadius="8"
+                            IsEnabled="False" />
+                        <Button
+                            Margin="0,0,0,-4"
+                            HorizontalAlignment="Stretch"
+                            VerticalAlignment="Stretch"
+                            CornerRadius="2"
+                            IsEnabled="False"
+                            Visibility="{x:Bind CalendarButton.IsChecked, Mode=OneWay}">
+                            <ui:Effects.Shadow>
+                                <media:AttachedCardShadow
+                                    BlurRadius="32"
+                                    CornerRadius="2"
+                                    Opacity="0.5"
+                                    Offset="0, 16" />
+                            </ui:Effects.Shadow>
+                        </Button>
+                        <ToggleButton
+                            x:Name="CalendarButton"
+                            Grid.Row="2"
+                            Width="160"
+                            Height="160"
+                            Padding="0"
+                            HorizontalContentAlignment="Stretch"
+                            VerticalContentAlignment="Stretch"
+                            BorderThickness="0"
+                            CornerRadius="4"
+                            IsThreeState="False">
+                            <Grid>
+                                <Grid.Background>
+                                    <LinearGradientBrush StartPoint="0, 0" EndPoint="1, 1">
+                                        <GradientStop Color="{ThemeResource SystemAccentColorLight2}" />
+                                        <GradientStop Offset="1" Color="{ThemeResource SystemAccentColorDark2}" />
+                                    </LinearGradientBrush>
+                                </Grid.Background>
+                                <StackPanel VerticalAlignment="Center">
+                                    <TextBlock
+                                        HorizontalAlignment="Center"
+                                        FontSize="16"
+                                        FontWeight="SemiBold"
+                                        Foreground="White"
+                                        Text="{x:Bind ViewModel.CurrentDay, Mode=OneWay}" />
+                                    <TextBlock
+                                        Margin="0,-8,0,-4"
+                                        HorizontalAlignment="Center"
+                                        FontSize="56"
+                                        FontWeight="SemiBold"
+                                        Foreground="White"
+                                        Text="{x:Bind ViewModel.CurrentDayOfMonth, Mode=OneWay}" />
+                                    <TextBlock
+                                        x:Name="CalendarWidgetMonth"
+                                        HorizontalAlignment="Center"
+                                        FontSize="16"
+                                        FontWeight="SemiBold"
+                                        Foreground="White"
+                                        Text="{x:Bind ViewModel.CurrentMonthAndYear, Mode=OneWay}" />
+                                </StackPanel>
+                            </Grid>
+                        </ToggleButton>
+                        <Viewbox
+                            Width="160"
+                            Margin="0,0,0,-4"
+                            Visibility="{x:Bind CalendarButton.IsChecked, Mode=OneWay}">
+                            <CalendarView
+                                x:Name="CalendarControl"
+                                DayItemFontSize="18"
+                                DayItemFontWeight="SemiBold"
+                                FirstOfMonthLabelFontSize="18"
+                                FirstOfYearDecadeLabelFontSize="18"
+                                MonthYearItemFontSize="18"
+                                MonthYearItemFontWeight="SemiBold" />
+                        </Viewbox>
+                        <StackPanel
+                            Grid.Row="1"
+                            Margin="0,0,0,-4"
+                            HorizontalAlignment="Center"
+                            Orientation="Horizontal"
+                            Spacing="8">
+                            <Grid
+                                Width="8"
+                                Height="16"
+                                CornerRadius="2">
+                                <Grid.Background>
+                                    <LinearGradientBrush StartPoint="0, 0" EndPoint="1, 1">
+                                        <GradientStop Color="{ThemeResource SystemAccentColorDark1}" />
+                                        <GradientStop Offset="1" Color="{ThemeResource SystemAccentColorDark3}" />
+                                    </LinearGradientBrush>
+                                </Grid.Background>
+                            </Grid>
+                            <Grid
+                                Width="8"
+                                Height="16"
+                                CornerRadius="2">
+                                <Grid.Background>
+                                    <LinearGradientBrush StartPoint="0, 0" EndPoint="1, 1">
+                                        <GradientStop Color="{ThemeResource SystemAccentColorDark1}" />
+                                        <GradientStop Offset="1" Color="{ThemeResource SystemAccentColorDark3}" />
+                                    </LinearGradientBrush>
+                                </Grid.Background>
+                            </Grid>
+                            <Grid
+                                Width="8"
+                                Height="16"
+                                CornerRadius="2">
+                                <Grid.Background>
+                                    <LinearGradientBrush StartPoint="0, 0" EndPoint="1, 1">
+                                        <GradientStop Color="{ThemeResource SystemAccentColorDark1}" />
+                                        <GradientStop Offset="1" Color="{ThemeResource SystemAccentColorDark3}" />
+                                    </LinearGradientBrush>
+                                </Grid.Background>
+                            </Grid>
+                            <Grid
+                                Width="8"
+                                Height="16"
+                                CornerRadius="2">
+                                <Grid.Background>
+                                    <LinearGradientBrush StartPoint="0, 0" EndPoint="1, 1">
+                                        <GradientStop Color="{ThemeResource SystemAccentColorDark1}" />
+                                        <GradientStop Offset="1" Color="{ThemeResource SystemAccentColorDark3}" />
+                                    </LinearGradientBrush>
+                                </Grid.Background>
+                            </Grid>
+                            <Grid
+                                Width="8"
+                                Height="16"
+                                CornerRadius="2">
+                                <Grid.Background>
+                                    <LinearGradientBrush StartPoint="0, 0" EndPoint="1, 1">
+                                        <GradientStop Color="{ThemeResource SystemAccentColorDark1}" />
+                                        <GradientStop Offset="1" Color="{ThemeResource SystemAccentColorDark3}" />
+                                    </LinearGradientBrush>
+                                </Grid.Background>
+                            </Grid>
+                            <Grid
+                                Width="8"
+                                Height="16"
+                                CornerRadius="2">
+                                <Grid.Background>
+                                    <LinearGradientBrush StartPoint="0, 0" EndPoint="1, 1">
+                                        <GradientStop Color="{ThemeResource SystemAccentColorDark1}" />
+                                        <GradientStop Offset="1" Color="{ThemeResource SystemAccentColorDark3}" />
+                                    </LinearGradientBrush>
+                                </Grid.Background>
+                            </Grid>
+                            <Grid
+                                Width="8"
+                                Height="16"
+                                CornerRadius="2">
+                                <Grid.Background>
+                                    <LinearGradientBrush StartPoint="0, 0" EndPoint="1, 1">
+                                        <GradientStop Color="{ThemeResource SystemAccentColorDark1}" />
+                                        <GradientStop Offset="1" Color="{ThemeResource SystemAccentColorDark3}" />
+                                    </LinearGradientBrush>
+                                </Grid.Background>
+                            </Grid>
+                            <Grid
+                                Width="8"
+                                Height="16"
+                                CornerRadius="2">
+                                <Grid.Background>
+                                    <LinearGradientBrush StartPoint="0, 0" EndPoint="1, 1">
+                                        <GradientStop Color="{ThemeResource SystemAccentColorDark1}" />
+                                        <GradientStop Offset="1" Color="{ThemeResource SystemAccentColorDark3}" />
+                                    </LinearGradientBrush>
+                                </Grid.Background>
+                            </Grid>
+                        </StackPanel>
+                    </Grid>
+
+                    <!--  CPU/RAM widget  -->
+                    <Grid
+                        Width="160"
+                        Background="Transparent"
+                        Visibility="{x:Bind ViewModel.ShowCPUAndRAMWidget, Mode=OneWay}">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+                        <Button
+                            Margin="10,0"
+                            HorizontalAlignment="Stretch"
+                            VerticalAlignment="Stretch"
+                            CornerRadius="64"
+                            IsEnabled="False">
+                            <ui:Effects.Shadow>
+                                <media:AttachedCardShadow
+                                    BlurRadius="32"
+                                    CornerRadius="64"
+                                    Opacity="0.5"
+                                    Offset="0, 16" />
+                            </ui:Effects.Shadow>
+                        </Button>
+                        <Button
+                            Grid.Column="1"
+                            Margin="10,0"
+                            HorizontalAlignment="Stretch"
+                            VerticalAlignment="Stretch"
+                            CornerRadius="64"
+                            IsEnabled="False">
+                            <ui:Effects.Shadow>
+                                <media:AttachedCardShadow
+                                    BlurRadius="32"
+                                    CornerRadius="64"
+                                    Opacity="0.5"
+                                    Offset="0, 16" />
+                            </ui:Effects.Shadow>
+                        </Button>
+                        <Grid
+                            Width="60"
+                            Height="60"
+                            CornerRadius="30">
+                            <Grid.Background>
+                                <LinearGradientBrush StartPoint="0, 0" EndPoint="1, 1">
+                                    <GradientStop Color="{ThemeResource SystemAccentColorLight2}" />
+                                    <GradientStop Offset="1" Color="{ThemeResource SystemAccentColorDark1}" />
+                                </LinearGradientBrush>
+                            </Grid.Background>
+                            <Grid
+                                Width="54"
+                                Height="54"
+                                Background="{ThemeResource SolidBackgroundFillColorBase}"
+                                CornerRadius="30">
+                                <StackPanel VerticalAlignment="Center" Spacing="4">
+                                    <FontIcon FontSize="16" Glyph="&#xEEA1;" />
+                                    <TextBlock
+                                        HorizontalAlignment="Center"
+                                        FontSize="12"
+                                        Text="{x:Bind ViewModel.CPUUsage, Mode=OneWay}" />
+                                </StackPanel>
+                            </Grid>
+                        </Grid>
+                        <Grid
+                            Grid.Column="1"
+                            Width="60"
+                            Height="60"
+                            CornerRadius="30">
+                            <Grid.Background>
+                                <LinearGradientBrush StartPoint="0, 0" EndPoint="1, 1">
+                                    <GradientStop Color="{ThemeResource SystemAccentColorLight2}" />
+                                    <GradientStop Offset="1" Color="{ThemeResource SystemAccentColorDark1}" />
+                                </LinearGradientBrush>
+                            </Grid.Background>
+                            <Grid
+                                Width="54"
+                                Height="54"
+                                Background="{ThemeResource SolidBackgroundFillColorBase}"
+                                CornerRadius="30">
+                                <StackPanel VerticalAlignment="Center" Spacing="4">
+                                    <FontIcon FontSize="16" Glyph="&#xEEA0;" />
+                                    <TextBlock
+                                        HorizontalAlignment="Center"
+                                        FontSize="12"
+                                        Text="{x:Bind ViewModel.RAMUsage, Mode=OneWay}" />
+                                </StackPanel>
+                            </Grid>
+                        </Grid>
+                    </Grid>
+
+                </StackPanel>
+            </Grid>
         </Grid>
+
+        <!--  Options panel  -->
         <Grid
             x:Name="OptionsGrid"
             HorizontalAlignment="Right"
@@ -1363,6 +1478,12 @@
                                 </toolkit:SettingsCard.HeaderIcon>
                                 <ToggleSwitch IsOn="{x:Bind ViewModel.UseMicaMenus, Mode=TwoWay}" />
                             </toolkit:SettingsCard>
+                            <toolkit:SettingsCard Description="Use Rosé Pine where possible." Header="Rosé Pine">
+                                <toolkit:SettingsCard.HeaderIcon>
+                                    <FontIcon FontFamily="Segoe UI Emoji" Glyph="🌹" />
+                                </toolkit:SettingsCard.HeaderIcon>
+                                <ToggleSwitch IsOn="{x:Bind ViewModel.UseRosePine, Mode=TwoWay}" />
+                            </toolkit:SettingsCard>
                         </StackPanel>
                     </ScrollViewer>
                     <StackPanel
@@ -1383,6 +1504,8 @@
                 </Grid>
             </Grid>
         </Grid>
+
+        <!--  Loading grid  -->
         <Grid
             x:Name="LoadingGrid"
             Background="{ThemeResource SmokeFillColorDefaultBrush}"
@@ -1402,10 +1525,5 @@
                 VerticalAlignment="Center"
                 IsIndeterminate="True" />
         </Grid>
-        <TextBlock
-            x:Name="statusBlock"
-            Margin="128"
-            HorizontalAlignment="Right"
-            VerticalAlignment="Bottom" />
     </Grid>
 </Page>
