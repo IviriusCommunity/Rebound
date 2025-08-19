@@ -41,4 +41,8 @@ public partial class DesktopViewModel
     partial void OnShowClockWidgetChanged(bool value) => SettingsHelper.SetValue("ShowClockWidget", "rshell.desktop", value);
     partial void OnShowDesktopIconsChanged(bool value) => SettingsHelper.SetValue("ShowDesktopIcons", "rshell.desktop", value);
     partial void OnUseMicaMenusChanged(bool value) => SettingsHelper.SetValue("UseMicaMenus", "rshell.desktop", value);
+    partial void OnUseRosePineChanged(bool value) => SettingsHelper.SetValue("UseRosePine", "rshell.desktop", value);
+    partial void OnShowInfoBarChanged(bool value) => SettingsHelper.SetValue("ShowInfoBar", "rshell.desktop", value);
+    partial void OnShowCalendarWidgetChanged(bool value) => SettingsHelper.SetValue("ShowCalendarWidget", "rshell.desktop", value);
+    partial void OnShowCPUAndRAMWidgetChanged(bool value) => SettingsHelper.SetValue("ShowCPUAndRAMWidget", "rshell.desktop", value);
 }
