@@ -41,9 +41,12 @@ public sealed partial class RunWindow : WindowEx
 
     private async void WindowEx_Activated(object sender, Microsoft.UI.Xaml.WindowActivatedEventArgs args)
     {
-        this.SetWindowIcon($"{AppContext.BaseDirectory}\\Assets\\RunBox.ico");
-        await Task.Delay(100);
-        InputBox.Focus(FocusState.Programmatic);
+        if (args.WindowActivationState != WindowActivationState.Deactivated)
+        {
+            this.SetWindowIcon($"{AppContext.BaseDirectory}\\Assets\\RunBox.ico");
+            await Task.Delay(100);
+            InputBox.Focus(FocusState.Programmatic);
+        }
     }
 
     [RelayCommand]
