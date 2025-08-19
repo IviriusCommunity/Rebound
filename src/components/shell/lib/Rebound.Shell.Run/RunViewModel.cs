@@ -1,4 +1,6 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
+using Rebound.Helpers;
+using System.Collections.ObjectModel;
 
 namespace Rebound.Shell.Run
 {
@@ -9,5 +11,14 @@ namespace Rebound.Shell.Run
 
         [ObservableProperty]
         public partial bool RunAsAdmin { get; set; }
+
+        public RunViewModel()
+        {
+            RunAsAdmin = SettingsHelper.GetValue("RunAsAdmin", "rshell.run", false);
+        }
+
+        partial void OnRunAsAdminChanged(bool value) => SettingsHelper.SetValue("RunAsAdmin", "rshell.run", value);
+
+        public ObservableCollection<string> RunHistory { get; set; } = new();
     }
 }
