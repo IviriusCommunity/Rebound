@@ -75,12 +75,12 @@
             Grid.ColumnSpan="5"
             HorizontalAlignment="Stretch"
             VerticalAlignment="Top"
+            AutoMaximizeSuggestionArea="False"
             Header="Type the name of a program, file, or URL."
             ItemsSource="{x:Bind ViewModel.RunHistory, Mode=OneWay}"
             KeyDown="InputBox_KeyDown"
             QuerySubmitted="InputBox_QuerySubmitted"
             SuggestionChosen="InputBox_SuggestionChosen"
-            AutoMaximizeSuggestionArea="False"
             Text="{x:Bind ViewModel.Path, Mode=TwoWay}"
             TextChanged="InputBox_TextChanged">
             <AutoSuggestBox.QueryIcon>
@@ -131,9 +131,9 @@
             Grid.Column="3"
             HorizontalAlignment="Stretch"
             Command="{x:Bind RunCommand}"
-            IsEnabled="{x:Bind ViewModel.IsRunButtonEnabled, Mode=OneWay}"
             CommandParameter="{x:Bind ViewModel.RunAsAdmin, Mode=OneWay}"
             Content="Run"
+            IsEnabled="{x:Bind ViewModel.IsRunButtonEnabled, Mode=OneWay}"
             Style="{ThemeResource AccentButtonStyle}" />
         <Button
             Grid.Row="3"
@@ -150,6 +150,10 @@
             Grid.Column="7"
             HorizontalAlignment="Stretch"
             Command="{x:Bind BrowseCommand}"
-            Content="Browse" />
+            Content="Browse">
+            <Button.KeyboardAccelerators>
+                <KeyboardAccelerator Key="B" Modifiers="Menu" />
+            </Button.KeyboardAccelerators>
+        </Button>
     </Grid>
 </winuiex:WindowEx>
