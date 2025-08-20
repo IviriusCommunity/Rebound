@@ -147,6 +147,17 @@ public sealed partial class RunWindow : WindowEx
         {
             ViewModel.Path = ViewModel.RunHistory[^1]; // ^1 = last element
         }
+        CheckRunButtonEnabledState();
+    }
+
+    public void CheckRunButtonEnabledState()
+    {
+        if (string.IsNullOrEmpty(ViewModel.Path) || string.IsNullOrWhiteSpace(ViewModel.Path))
+        {
+            ViewModel.IsRunButtonEnabled = false;
+        }
+        else
+            ViewModel.IsRunButtonEnabled = true;
     }
 
     private void WindowEx_Closed(object sender, WindowEventArgs args)
@@ -320,30 +331,26 @@ public sealed partial class RunWindow : WindowEx
 
     private void InputBox_TextChanged(AutoSuggestBox sender, AutoSuggestBoxTextChangedEventArgs args)
     {
-        // Since selecting an item will also change the text,
-        // only listen to changes caused by user entering text.
+        // Only respond to direct user input (not programmatic text changes)
         if (args.Reason == AutoSuggestionBoxTextChangeReason.UserInput)
         {
-            if (string.IsNullOrEmpty(sender.Text) || string.IsNullOrWhiteSpace(sender.Text))
+            if (string.IsNullOrWhiteSpace(sender.Text))
             {
                 sender.ItemsSource = ViewModel.RunHistory;
-                return;
             }
-            var suitableItems = new List<string>();
-            var splitText = sender.Text.ToLower().Split(" ");
-            foreach (var cat in ViewModel.RunHistory)
+            else
             {
-                var found = splitText.All((key) =>
-                {
-                    return cat.ToLower().Contains(key);
-                });
-                if (found)
-                {
-                    suitableItems.Add(cat);
-                }
+                var splitText = sender.Text.ToLower().Split(" ");
+                var suitableItems = ViewModel.RunHistory
+                    .Where(historyItem => splitText.All(key => historyItem.ToLower().Contains(key)))
+                    .ToList();
+
+                sender.ItemsSource = suitableItems;
             }
-            sender.ItemsSource = suitableItems;
         }
+
+        // Ensure button state is always updated at the end
+        CheckRunButtonEnabledState();
     }
 
     private async void InputBox_KeyDown(object sender, KeyRoutedEventArgs e)
@@ -354,11 +361,22 @@ public sealed partial class RunWindow : WindowEx
 
     private async void InputBox_QuerySubmitted(object sender, AutoSuggestBoxQuerySubmittedEventArgs e)
     {
+        CheckRunButtonEnabledState();
         await DoRunLogicAsync();
     }
 
     private async void InputBox_SuggestionChosen(object sender, AutoSuggestBoxSuggestionChosenEventArgs e)
     {
+        // Check button states manually since SuggestionChosen does not trigger TextChanged
+        if (e.SelectedItem is string selectedItem && !string.IsNullOrEmpty(selectedItem) && !string.IsNullOrWhiteSpace(selectedItem))
+        {
+            ViewModel.IsRunButtonEnabled = true;
+        }
+        else
+        {
+            ViewModel.IsRunButtonEnabled = false;
+        }
+
         if (!InputBox.IsSuggestionListOpen)
             await DoRunLogicAsync();
     }

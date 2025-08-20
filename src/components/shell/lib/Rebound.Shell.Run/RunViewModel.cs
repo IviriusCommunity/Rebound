@@ -12,6 +12,9 @@ namespace Rebound.Shell.Run
         [ObservableProperty]
         public partial bool RunAsAdmin { get; set; }
 
+        [ObservableProperty]
+        public partial bool IsRunButtonEnabled { get; set; }
+
         public RunViewModel()
         {
             RunAsAdmin = SettingsHelper.GetValue("RunAsAdmin", "rshell.run", false);
