@@ -2,7 +2,7 @@
 
 using CommunityToolkit.Mvvm.ComponentModel;
 
-using Microsoft.UI.Xaml.Media;
+using Windows.UI.Xaml.Media;
 
 namespace Rebound.Models;
 

@@ -8,13 +8,12 @@
     xmlns:converters="using:CommunityToolkit.WinUI.Converters"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:forge="using:Rebound.Forge"
-    xmlns:header="using:WinUIGallery.Controls"
     xmlns:helpers="using:Rebound.Helpers.Environment"
     xmlns:interactivity="using:Microsoft.Xaml.Interactivity"
     xmlns:local="using:Rebound.Views"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:media="using:CommunityToolkit.WinUI.Media"
-    xmlns:mediawinui="using:Microsoft.UI.Xaml.Media"
+    xmlns:muxc="using:Microsoft.UI.Xaml.Controls"
     x:Name="ReboundView"
     mc:Ignorable="d">
     <Page.Resources>
@@ -113,13 +112,6 @@
                     <RowDefinition Height="Auto" />
                 </Grid.RowDefinitions>
 
-                <header:HomePageHeaderImage
-                    x:Name="BKGImage"
-                    Height="400"
-                    HorizontalAlignment="Stretch"
-                    VerticalAlignment="Top"
-                    Image="{ThemeResource HeroBackgroundBitmapImage}" />
-
                 <Grid
                     x:Name="TitleGrid"
                     Height="200"
@@ -150,16 +142,13 @@
                     HorizontalScrollMode="Enabled"
                     VerticalScrollBarVisibility="Hidden"
                     VerticalScrollMode="Disabled">
-                    <ItemsRepeater ItemsSource="{x:Bind LinkCards}">
-                        <ItemsRepeater.Layout>
-                            <StackLayout Orientation="Horizontal" Spacing="16" />
-                        </ItemsRepeater.Layout>
-                        <ItemsRepeater.ItemTemplate>
+                    <muxc:ItemsRepeater ItemsSource="{x:Bind LinkCards}">
+                        <muxc:ItemsRepeater.Layout>
+                            <muxc:StackLayout Orientation="Horizontal" Spacing="16" />
+                        </muxc:ItemsRepeater.Layout>
+                        <muxc:ItemsRepeater.ItemTemplate>
                             <DataTemplate x:DataType="local:LinkCard">
                                 <Grid CornerRadius="6">
-                                    <Grid.Background>
-                                        <local:GlassBrush />
-                                    </Grid.Background>
                                     <Button
                                         Width="240"
                                         Height="220"
@@ -208,8 +197,8 @@
                                     </Button>
                                 </Grid>
                             </DataTemplate>
-                        </ItemsRepeater.ItemTemplate>
-                    </ItemsRepeater>
+                        </muxc:ItemsRepeater.ItemTemplate>
+                    </muxc:ItemsRepeater>
                 </ScrollViewer>
 
                 <Grid
@@ -248,39 +237,39 @@
                             <MenuFlyout>
                                 <MenuFlyoutSubItem Text="Control Panel">
                                     <MenuFlyoutSubItem.Icon>
-                                        <ImageIcon Source="/Assets/AppIcons/ControlPanel.ico" />
+                                        <muxc:ImageIcon Source="/Assets/AppIcons/ControlPanel.ico" />
                                     </MenuFlyoutSubItem.Icon>
                                     <MenuFlyoutSubItem.Items>
                                         <ToggleMenuFlyoutItem IsChecked="{x:Bind ReboundViewModel.InstallWindowsTools, Mode=TwoWay}" Text="Windows Tools">
                                             <ToggleMenuFlyoutItem.Icon>
-                                                <ImageIcon Source="/Assets/AppIcons/WindowsTools.ico" />
+                                                <muxc:ImageIcon Source="/Assets/AppIcons/WindowsTools.ico" />
                                             </ToggleMenuFlyoutItem.Icon>
                                         </ToggleMenuFlyoutItem>
                                         <ToggleMenuFlyoutItem IsChecked="{x:Bind ReboundViewModel.InstallAppwiz, Mode=TwoWay}" Text="appwiz.cpl">
                                             <ToggleMenuFlyoutItem.Icon>
-                                                <ImageIcon Source="/Assets/AppIcons/Programs.ico" />
+                                                <muxc:ImageIcon Source="/Assets/AppIcons/Programs.ico" />
                                             </ToggleMenuFlyoutItem.Icon>
                                         </ToggleMenuFlyoutItem>
                                     </MenuFlyoutSubItem.Items>
                                 </MenuFlyoutSubItem>
                                 <MenuFlyoutSubItem Text="Rebound Shell">
                                     <MenuFlyoutSubItem.Icon>
-                                        <ImageIcon Source="/Assets/AppIcons/shell32_180.ico" />
+                                        <muxc:ImageIcon Source="/Assets/AppIcons/shell32_180.ico" />
                                     </MenuFlyoutSubItem.Icon>
                                     <MenuFlyoutSubItem.Items>
                                         <ToggleMenuFlyoutItem IsChecked="{x:Bind ReboundViewModel.InstallRun, Mode=TwoWay}" Text="Run">
                                             <ToggleMenuFlyoutItem.Icon>
-                                                <ImageIcon Source="/Assets/AppIcons/RunBox.ico" />
+                                                <muxc:ImageIcon Source="/Assets/AppIcons/RunBox.ico" />
                                             </ToggleMenuFlyoutItem.Icon>
                                         </ToggleMenuFlyoutItem>
                                         <ToggleMenuFlyoutItem IsChecked="{x:Bind ReboundViewModel.InstallShutdownDialog, Mode=TwoWay}" Text="Shutdown dialog">
                                             <ToggleMenuFlyoutItem.Icon>
-                                                <ImageIcon Source="/Assets/AppIcons/shell32_28.ico" />
+                                                <muxc:ImageIcon Source="/Assets/AppIcons/shell32_28.ico" />
                                             </ToggleMenuFlyoutItem.Icon>
                                         </ToggleMenuFlyoutItem>
                                         <ToggleMenuFlyoutItem IsChecked="{x:Bind ReboundViewModel.InstallThisAppCantRunOnYourPC, Mode=TwoWay}" Text="&quot;This app can't run on your PC&quot; dialog">
                                             <ToggleMenuFlyoutItem.Icon>
-                                                <ImageIcon Source="/Assets/AppIcons/mstscax_13404.ico" />
+                                                <muxc:ImageIcon Source="/Assets/AppIcons/mstscax_13404.ico" />
                                             </ToggleMenuFlyoutItem.Icon>
                                         </ToggleMenuFlyoutItem>
                                     </MenuFlyoutSubItem.Items>
@@ -288,7 +277,7 @@
                                 <MenuFlyoutSeparator />
                                 <ToggleMenuFlyoutItem IsChecked="{x:Bind ReboundViewModel.InstallShortcuts, Mode=TwoWay}" Text="Create new shortcuts for Rebound apps">
                                     <ToggleMenuFlyoutItem.Icon>
-                                        <ImageIcon Source="/Assets/AppIcons/shell32_16769.ico" />
+                                        <muxc:ImageIcon Source="/Assets/AppIcons/shell32_16769.ico" />
                                     </ToggleMenuFlyoutItem.Icon>
                                 </ToggleMenuFlyoutItem>
                             </MenuFlyout>
@@ -304,15 +293,15 @@
                     Text="Mandatory" />
                 <Grid Grid.Row="6" Padding="48,16,48,16">
                     <ContentControl IsEnabled="{x:Bind ReboundViewModel.IsReboundEnabled, Mode=OneWay}">
-                        <ItemsRepeater ItemsSource="{x:Bind forge:ReboundTotalInstructions.MandatoryInstructions}">
-                            <ItemsRepeater.Layout>
+                        <muxc:ItemsRepeater ItemsSource="{x:Bind forge:ReboundTotalInstructions.MandatoryInstructions}">
+                            <muxc:ItemsRepeater.Layout>
                                 <controls:StaggeredLayout
                                     ColumnSpacing="8"
                                     DesiredColumnWidth="400"
                                     ItemsStretch="Fill"
                                     RowSpacing="8" />
-                            </ItemsRepeater.Layout>
-                            <ItemsRepeater.ItemTemplate>
+                            </muxc:ItemsRepeater.Layout>
+                            <muxc:ItemsRepeater.ItemTemplate>
                                 <DataTemplate x:DataType="forge:ReboundAppInstructions">
                                     <Grid
                                         Padding="12"
@@ -374,14 +363,14 @@
                                             Opacity="0.5"
                                             Text="{x:Bind Description, Mode=OneWay}"
                                             TextWrapping="WrapWholeWords" />
-                                        <InfoBar
+                                        <muxc:InfoBar
                                             Title="This will do the following:"
                                             Grid.Row="4"
                                             Grid.ColumnSpan="5"
                                             IsClosable="False"
                                             IsOpen="True"
                                             Message="{x:Bind InstallationSteps, Mode=OneWay}" />
-                                        <InfoBar
+                                        <muxc:InfoBar
                                             Title="This mod is corrupted and needs to be repaired."
                                             Grid.Row="5"
                                             Grid.ColumnSpan="5"
@@ -390,14 +379,14 @@
                                             IsOpen="True"
                                             Severity="Error"
                                             Visibility="{x:Bind IsIntact, Mode=OneWay, Converter={StaticResource BoolToReverseVisibilityConverter}}">
-                                            <InfoBar.ActionButton>
+                                            <muxc:InfoBar.ActionButton>
                                                 <Button Command="{x:Bind RepairCommand}" Content="Repair" />
-                                            </InfoBar.ActionButton>
-                                        </InfoBar>
+                                            </muxc:InfoBar.ActionButton>
+                                        </muxc:InfoBar>
                                     </Grid>
                                 </DataTemplate>
-                            </ItemsRepeater.ItemTemplate>
-                        </ItemsRepeater>
+                            </muxc:ItemsRepeater.ItemTemplate>
+                        </muxc:ItemsRepeater>
                     </ContentControl>
                 </Grid>
                 <TextBlock
@@ -408,15 +397,15 @@
                     Text="Optional" />
                 <Grid Grid.Row="8" Padding="48,16,48,48">
                     <ContentControl IsEnabled="{x:Bind ReboundViewModel.IsReboundEnabled, Mode=OneWay}">
-                        <ItemsRepeater ItemsSource="{x:Bind forge:ReboundTotalInstructions.AppInstructions}">
-                            <ItemsRepeater.Layout>
+                        <muxc:ItemsRepeater ItemsSource="{x:Bind forge:ReboundTotalInstructions.AppInstructions}">
+                            <muxc:ItemsRepeater.Layout>
                                 <controls:StaggeredLayout
                                     ColumnSpacing="8"
                                     DesiredColumnWidth="400"
                                     ItemsStretch="Fill"
                                     RowSpacing="8" />
-                            </ItemsRepeater.Layout>
-                            <ItemsRepeater.ItemTemplate>
+                            </muxc:ItemsRepeater.Layout>
+                            <muxc:ItemsRepeater.ItemTemplate>
                                 <DataTemplate x:DataType="forge:ReboundAppInstructions">
                                     <Grid
                                         Padding="12"
@@ -491,14 +480,14 @@
                                             Opacity="0.5"
                                             Text="{x:Bind Description, Mode=OneWay}"
                                             TextWrapping="WrapWholeWords" />
-                                        <InfoBar
+                                        <muxc:InfoBar
                                             Title="This will do the following:"
                                             Grid.Row="4"
                                             Grid.ColumnSpan="5"
                                             IsClosable="False"
                                             IsOpen="True"
                                             Message="{x:Bind InstallationSteps, Mode=OneWay}" />
-                                        <InfoBar
+                                        <muxc:InfoBar
                                             Title="This mod is corrupted and needs to be repaired."
                                             Grid.Row="5"
                                             Grid.ColumnSpan="5"
@@ -507,14 +496,14 @@
                                             IsOpen="True"
                                             Severity="Error"
                                             Visibility="{x:Bind IsIntact, Mode=OneWay, Converter={StaticResource BoolToReverseVisibilityConverter}}">
-                                            <InfoBar.ActionButton>
+                                            <muxc:InfoBar.ActionButton>
                                                 <Button Command="{x:Bind RepairCommand}" Content="Repair" />
-                                            </InfoBar.ActionButton>
-                                        </InfoBar>
+                                            </muxc:InfoBar.ActionButton>
+                                        </muxc:InfoBar>
                                     </Grid>
                                 </DataTemplate>
-                            </ItemsRepeater.ItemTemplate>
-                        </ItemsRepeater>
+                            </muxc:ItemsRepeater.ItemTemplate>
+                        </muxc:ItemsRepeater>
                     </ContentControl>
                 </Grid>
             </Grid>
@@ -534,9 +523,6 @@
             CornerRadius="4"
             RowSpacing="8"
             Visibility="{x:Bind ReboundViewModel.IsUpdateAvailable, Mode=OneWay}">
-            <Grid.Background>
-                <local:GlassBrush />
-            </Grid.Background>
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto" />
                 <RowDefinition Height="*" />

@@ -9,20 +9,6 @@ namespace Rebound.Helpers.AppEnvironment;
 
 public static class AppHelper
 {
-    public static bool IsRunningAsAdmin(this Application application)
-    {
-        try
-        {
-            var identity = WindowsIdentity.GetCurrent();
-            var principal = new WindowsPrincipal(identity);
-            return principal.IsInRole(WindowsBuiltInRole.Administrator);
-        }
-        catch (ArgumentException)
-        {
-            return false;
-        }
-    }
-
     public static bool IsRunningAsAdmin()
     {
         try

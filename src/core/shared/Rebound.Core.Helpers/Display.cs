@@ -1,15 +1,17 @@
+using Microsoft.UI;
+using Microsoft.UI.Windowing;
 using Windows.Foundation;
 using Windows.Win32;
-using WinUIEx;
+using Windows.Win32.Foundation;
 
 namespace Rebound.Helpers;
 
 public static class Display
 {
-    public static double GetScale(WindowEx win)
+    public static double GetScale(AppWindow win)
     {
         // Get the handle to the current window
-        var hWnd = new Windows.Win32.Foundation.HWND(win.GetWindowHandle());
+        var hWnd = new HWND(Win32Interop.GetWindowFromWindowId(win.Id));
 
         // Get the device context for the window
         var hdc = PInvoke.GetDC(hWnd);
@@ -23,10 +25,10 @@ public static class Display
         return dpiX / 96.0;
     }
 
-    public static Rect GetDisplayRect(WindowEx win)
+    public static Rect GetDisplayRect(AppWindow win)
     {
         // Get the handle to the current window
-        var hWnd = new Windows.Win32.Foundation.HWND(win.GetWindowHandle());
+        var hWnd = new HWND(Win32Interop.GetWindowFromWindowId(win.Id));
 
         // Get the device context for the window
         var hdc = PInvoke.GetDC(hWnd);
@@ -47,10 +49,10 @@ public static class Display
         };
     }
 
-    public static Rect GetDPIAwareDisplayRect(WindowEx win)
+    public static Rect GetDPIAwareDisplayRect(AppWindow win)
     {
         // Get the handle to the current window
-        var hWnd = new Windows.Win32.Foundation.HWND(win.GetWindowHandle());
+        var hWnd = new HWND(Win32Interop.GetWindowFromWindowId(win.Id));
 
         // Get the device context for the window
         var hdc = PInvoke.GetDC(hWnd);

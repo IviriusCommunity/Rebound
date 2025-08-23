@@ -1,8 +1,10 @@
-﻿using System.Threading.Tasks;
+﻿using Microsoft.UI;
+using Microsoft.UI.Windowing;
+using System.Threading.Tasks;
 using Windows.Win32;
 using Windows.Win32.Foundation;
 using Windows.Win32.UI.WindowsAndMessaging;
-using WinUIEx;
+//using WinUIEx;
 
 #pragma warning disable IDE0079 // Remove unnecessary suppression
 #pragma warning disable CA2000 // Dispose objects before losing scope
@@ -11,9 +13,9 @@ namespace Rebound.Helpers;
 
 public static class WindowHelper
 {
-    public static void ForceBringToFront(this WindowEx window)
+    public static void ForceBringToFront(this AppWindow window)
     {
-        var hWnd = new HWND(window.GetWindowHandle());
+        var hWnd = new HWND(Win32Interop.GetWindowFromWindowId(window.Id));
 
         var thisThreadId = PInvoke.GetCurrentThreadId();
         var foregroundHwnd = PInvoke.GetForegroundWindow();
@@ -45,16 +47,17 @@ public static class WindowHelper
         }
 
         PInvoke.ShowWindow(hWnd, SHOW_WINDOW_CMD.SW_RESTORE);
-        window.Activate();
+        //window.Activate();
         PInvoke.BringWindowToTop(hWnd);
     }
 
-    public static void RemoveTitleBarIcon(this WindowEx window)
+    public static void RemoveTitleBarIcon(this AppWindow window)
     {
-        var exStyle = PInvoke.GetWindowLongPtr(new HWND(window.GetWindowHandle()), WINDOW_LONG_PTR_INDEX.GWL_EXSTYLE);
-        PInvoke.SetWindowLongPtr(new HWND(window.GetWindowHandle()), WINDOW_LONG_PTR_INDEX.GWL_EXSTYLE, exStyle | (nint)WINDOW_EX_STYLE.WS_EX_DLGMODALFRAME);
+        var hWnd = new HWND(Win32Interop.GetWindowFromWindowId(window.Id));
+        var exStyle = PInvoke.GetWindowLongPtr(hWnd, WINDOW_LONG_PTR_INDEX.GWL_EXSTYLE);
+        PInvoke.SetWindowLongPtr(hWnd, WINDOW_LONG_PTR_INDEX.GWL_EXSTYLE, exStyle | (nint)WINDOW_EX_STYLE.WS_EX_DLGMODALFRAME);
 
-        PInvoke.SetWindowPos(new HWND(window.GetWindowHandle()), HWND.Null, 0, 0, 0, 0,
+        PInvoke.SetWindowPos(hWnd, HWND.Null, 0, 0, 0, 0,
             SET_WINDOW_POS_FLAGS.SWP_NOMOVE |
             SET_WINDOW_POS_FLAGS.SWP_NOSIZE |
             SET_WINDOW_POS_FLAGS.SWP_NOZORDER |

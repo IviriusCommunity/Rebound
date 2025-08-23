@@ -70,45 +70,6 @@
 		</Content>
 	</ItemGroup>
 
-	<!-- Package References - These will only apply to projects that compile ahead-of-time (apps and libraries) -->
-	<ItemGroup>
-
-		<!-- WebView2 -->
-		<PackageReference Include="CommunityToolkit.WinUI.Controls.Segmented" Version="8.2.250402" />
-		<PackageReference Include="Microsoft.Web.WebView2" Version="1.0.3230-prerelease" />
-
-		<!-- Windows App SDK and WinUI -->
-		<PackageReference Include="Microsoft.Windows.SDK.BuildTools" Version="10.0.26100.1742" />
-		<PackageReference Include="System.ServiceProcess.ServiceController" Version="9.0.4" />
-		<PackageReference Update="Microsoft.WindowsAppSDK" Version="1.8.250410001-experimental1" />
-		<PackageReference Include="WinUIEx" Version="2.5.1" />
-
-		<!-- Windows Interop -->
-		<PackageReference Include="Microsoft.Windows.CsWinRT" Version="2.2.0" />
-		<PackageReference Include="Microsoft.Windows.CsWin32" Version="0.3.183">
-			<PrivateAssets>all</PrivateAssets>
-			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-		</PackageReference>
-
-		<!-- System and Management Libraries -->
-		<PackageReference Include="System.Drawing.Common" Version="10.0.0-preview.3.25173.2" />
-		<PackageReference Include="System.Management" Version="10.0.0-preview.3.25171.5" />
-
-		<!-- Task Scheduler -->
-		<PackageReference Include="TaskScheduler" Version="2.12.1" />
-
-		<!-- CommunityToolkit Libraries -->
-		<PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.0" />
-		<PackageReference Include="CommunityToolkit.WinUI.Converters" Version="8.2.250402" />
-		<PackageReference Include="CommunityToolkit.WinUI.Media" Version="8.2.250402" />
-		<PackageReference Include="CommunityToolkit.WinUI.Animations" Version="8.2.250402" />
-		<PackageReference Include="CommunityToolkit.WinUI.Behaviors" Version="8.2.250402" />
-		<PackageReference Include="CommunityToolkit.WinUI.Controls.Primitives" Version="8.2.250402" />
-		<PackageReference Include="CommunityToolkit.WinUI.Extensions" Version="8.2.250402" />
-		<PackageReference Include="CommunityToolkit.WinUI.Helpers" Version="8.2.250402" />
-		<PackageReference Include="CommunityToolkit.WinUI.Triggers" Version="8.2.250402" />
-		<PackageReference Include="CommunityToolkit.WinUI.Controls.SettingsControls" Version="8.2.250402" />
-	</ItemGroup>
 	<ItemGroup>
 		<ProjectReference Include="..\..\core\unpackaged\Rebound.Core.SourceGeneratorAttributes\Rebound.Core.SourceGeneratorAttributes.csproj" />
 		<ProjectReference Include="..\..\core\unpackaged\Rebound.Core.SourceGenerator\Rebound.Core.SourceGenerator.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />

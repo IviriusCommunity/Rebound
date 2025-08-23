@@ -1,6 +1,6 @@
 ﻿using System.Net.Http;
 using CommunityToolkit.WinUI.Helpers;
-using Microsoft.UI.Xaml.Controls;
+using Windows.UI.Xaml.Controls;
 using Rebound.Helpers;
 
 namespace Rebound.Views;
@@ -17,8 +17,8 @@ internal sealed partial class ShellPage : Page
         }
         else
         {
-            NavigationViewControl.Visibility = Microsoft.UI.Xaml.Visibility.Collapsed;
-            OverlayFrame.Visibility = Microsoft.UI.Xaml.Visibility.Visible;
+            NavigationViewControl.Visibility = Windows.UI.Xaml.Visibility.Collapsed;
+            OverlayFrame.Visibility = Windows.UI.Xaml.Visibility.Visible;
             OverlayFrame.Navigate(typeof(ReboundPage));
         }
         CheckForUpdates();
@@ -36,7 +36,7 @@ internal sealed partial class ShellPage : Page
 
                 if (Helpers.Environment.ReboundVersion.REBOUND_VERSION != webContent)
                 {
-                    UpdateButton.Visibility = Microsoft.UI.Xaml.Visibility.Visible;
+                    UpdateButton.Visibility = Windows.UI.Xaml.Visibility.Visible;
                 }
             }
         }
@@ -46,9 +46,9 @@ internal sealed partial class ShellPage : Page
         }
     }
 
-    private void Navigate(NavigationView sender, NavigationViewItemInvokedEventArgs args)
+    private void Navigate(Microsoft.UI.Xaml.Controls.NavigationView sender, Microsoft.UI.Xaml.Controls.NavigationViewItemInvokedEventArgs args)
     {
-        if ((NavigationViewItem)NavigationViewControl.SelectedItem == HomeItem) MainFrame.Navigate(typeof(HomePage));
-        if ((NavigationViewItem)NavigationViewControl.SelectedItem == ReboundItem) MainFrame.Navigate(typeof(ReboundPage));
+        if ((Microsoft.UI.Xaml.Controls.NavigationViewItem)NavigationViewControl.SelectedItem == HomeItem) MainFrame.Navigate(typeof(HomePage));
+        if ((Microsoft.UI.Xaml.Controls.NavigationViewItem)NavigationViewControl.SelectedItem == ReboundItem) MainFrame.Navigate(typeof(ReboundPage));
     }
 }

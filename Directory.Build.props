@@ -5,24 +5,24 @@
 
 		<!-- Versions -->
 		<TargetFramework>net9.0-windows10.0.26100.0</TargetFramework>
-		<SupportedOSPlatformVersion>10.0.22621.0</SupportedOSPlatformVersion>
 		<TargetPlatformMinVersion>10.0.17763.0</TargetPlatformMinVersion>
 
 		<!-- Project type -->
-		<UseWinUI>true</UseWinUI>
+		<UseUwp>true</UseUwp>
+		<UseUwpTools>true</UseUwpTools>
 
 		<!-- Advanced -->
 		<EnableComInterop>true</EnableComInterop>
 		<UseSourceGenerators>true</UseSourceGenerators>
+		<DisableRuntimeMarshalling>true</DisableRuntimeMarshalling>
+		<EnableMsixTooling>true</EnableMsixTooling>
 
 		<!-- Self-contained settings -->
-		<SelfContained>false</SelfContained>
-		<PublishSingleFile>false</PublishSingleFile>
-		<WindowsAppSDKSelfContained>true</WindowsAppSDKSelfContained>
-		<CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
 		<PublishReadyToRun>true</PublishReadyToRun>
 		<PublishAot>false</PublishAot>
-		<WindowsAppSDKSelfContained>false</WindowsAppSDKSelfContained>
+
+		<!-- Publishing Settings -->
+		<PublishProfile>win-$(Platform).pubxml</PublishProfile>
 
 		<!-- Trimmming -->
 		<PublishTrimmed>false</PublishTrimmed>
@@ -32,12 +32,16 @@
 
 	</PropertyGroup>
 
+	<ItemGroup>
+
+		<!-- Include the application manifest -->
+		<Manifest Include="$(ApplicationManifest)" />
+
+	</ItemGroup>
+	
 	<!-- General project settings - These will apply to every project regardless of its type -->
 	<PropertyGroup>
-
-		<!-- Windows SDK Settings -->
-		<WindowsSdkPackageVersion>10.0.22621.38</WindowsSdkPackageVersion>
-
+		
 		<!-- Code Analysis and Trimming -->
 		<AnalysisMode>All</AnalysisMode>
 		
@@ -47,31 +51,36 @@
 		<AllowUnsafeBlocks>true</AllowUnsafeBlocks>
 
 		<!-- Runtime Identifiers and Platform Targeting -->
-		<RuntimeIdentifiers>win-x64;</RuntimeIdentifiers>
+		<RuntimeIdentifier>win-x64</RuntimeIdentifier>
 		<Platforms>x64</Platforms>
 
 	</PropertyGroup>
+
+	<ItemGroup>
+		<AppxTargetDeviceFamilyItem Include="Windows.Desktop" />
+	</ItemGroup>
 
 	<!-- Package references -->
 	<ItemGroup Condition="'$(MSBuildProjectName)' != 'Rebound.Core.SourceGenerator' and '$(MSBuildProjectName)' != 'Rebound.Core.SourceGeneratorAttributes'">
 		
 		<!-- Windows SDK and WinUI -->
-		<PackageReference Include="Microsoft.Windows.SDK.BuildTools" Version="10.0.26100.4188" />
-		<PackageReference Include="DependencyPropertyGenerator" Version="1.5.0" />
-		<PackageReference Include="Microsoft.WindowsAppSDK" Version="1.8.250515001-experimental2" />
-		<PackageReference Include="WinUIEx" Version="2.6.0" />
-		<PackageReference Include="WinUI3Localizer" Version="3.0.0-alpha" />
+		<PackageReference Include="Microsoft.UI.Xaml" Version="2.8.7" />
+		<PackageReference Include="Microsoft.Windows.SDK.BuildTools.MSIX" Version="1.7.20250806.1">
+			<PrivateAssets>all</PrivateAssets>
+			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+		</PackageReference>
+		<PackageReference Include="Microsoft.WindowsAppSDK.Base" Version="1.8.250509001-experimental" />
+		<PackageReference Include="Microsoft.WindowsAppSDK.InteractiveExperiences" Version="1.8.250626001-experimental" />
 
 		<!-- Windows Interop -->
 		<PackageReference Include="Dongle.GuidRVAGen" Version="1.0.5" />
-		<PackageReference Include="Microsoft.Windows.CsWinRT" Version="2.2.0" />
 		<PackageReference Include="Microsoft.Windows.CsWin32" Version="0.3.183">
 			<PrivateAssets>all</PrivateAssets>
 			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
 		</PackageReference>
+		<PackageReference Include="TerraFX.Interop.Windows" Version="10.0.26100" />
 
 		<!-- System and Management -->
-		<PackageReference Include="System.Drawing.Common" Version="10.0.0-preview.5.25277.114" />
 		<PackageReference Include="System.Diagnostics.PerformanceCounter" Version="10.0.0-preview.6.25358.103" />
 		<PackageReference Include="System.ServiceProcess.ServiceController" Version="10.0.0-preview.5.25277.114" />
 		<PackageReference Include="System.IO.Pipes.AccessControl" Version="6.0.0-preview.5.21301.5" />
@@ -82,55 +91,17 @@
 
 		<!-- CommunityToolkit WinUI -->
 		<PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.0" />
-		<PackageReference Include="CommunityToolkit.WinUI.Animations" Version="8.2.250402" />
-		<PackageReference Include="CommunityToolkit.WinUI.Behaviors" Version="8.2.250402" />
-		<PackageReference Include="CommunityToolkit.WinUI.Converters" Version="8.2.250402" />
-		<PackageReference Include="CommunityToolkit.WinUI.Controls.Primitives" Version="8.2.250402" />
-		<PackageReference Include="CommunityToolkit.WinUI.Controls.Segmented" Version="8.2.250402" />
-		<PackageReference Include="CommunityToolkit.WinUI.Controls.SettingsControls" Version="8.2.250402" />
-		<PackageReference Include="CommunityToolkit.WinUI.Extensions" Version="8.2.250402" />
-		<PackageReference Include="CommunityToolkit.WinUI.Helpers" Version="8.2.250402" />
-		<PackageReference Include="CommunityToolkit.WinUI.Media" Version="8.2.250402" />
-		<PackageReference Include="CommunityToolkit.WinUI.Triggers" Version="8.2.250402" />
+		<PackageReference Include="CommunityToolkit.Uwp.Animations" Version="8.2.250402" />
+		<PackageReference Include="CommunityToolkit.Uwp.Behaviors" Version="8.2.250402" />
+		<PackageReference Include="CommunityToolkit.Uwp.Converters" Version="8.2.250402" />
+		<PackageReference Include="CommunityToolkit.Uwp.Controls.Primitives" Version="8.2.250402" />
+		<PackageReference Include="CommunityToolkit.Uwp.Controls.Segmented" Version="8.2.250402" />
+		<PackageReference Include="CommunityToolkit.Uwp.Controls.SettingsControls" Version="8.2.250402" />
+		<PackageReference Include="CommunityToolkit.Uwp.Extensions" Version="8.2.250402" />
+		<PackageReference Include="CommunityToolkit.Uwp.Helpers" Version="8.2.250402" />
+		<PackageReference Include="CommunityToolkit.Uwp.Media" Version="8.2.250402" />
+		<PackageReference Include="CommunityToolkit.Uwp.Triggers" Version="8.2.250402" />
 
 	</ItemGroup>
-
-	<!-- Global App Properties - These will only apply to apps -->
-	<PropertyGroup Label="Globals" Condition="'$(OutputType)' == 'WinExe'">
-
-		<!-- Code Analysis -->
-		<EnableAnalyzers>true</EnableAnalyzers>
-
-		<!-- WebView2 Configuration -->
-		<WebView2EnableCsWinRTProjection>False</WebView2EnableCsWinRTProjection>
-		<WebView2LoaderPreference>Static</WebView2LoaderPreference>
-
-		<!-- Publishing Settings -->
-		<PublishProfile>win-$(Platform).pubxml</PublishProfile>
-
-		<!-- ReadyToRun Optimization -->
-		<PublishReadyToRun Condition="'$(Configuration)' == 'Debug'">False</PublishReadyToRun>
-		<PublishReadyToRun Condition="'$(Configuration)' != 'Debug'">True</PublishReadyToRun>
-
-	</PropertyGroup>
-
-	<!-- Global App Items - These will only apply to WinExe (Application) projects -->
-	<ItemGroup Condition="'$(OutputType)' == 'WinExe'">
-		<!-- Include the application manifest -->
-		<Manifest Include="$(ApplicationManifest)" />
-	</ItemGroup>
-
-	<!-- MSIX Capability - Applied only if MSIX tooling is enabled -->
-	<ItemGroup Condition="'$(DisableMsixProjectCapabilityAddedByProject)'!='true' 
-                    and '$(EnableMsixTooling)'=='true' 
-                    and '$(OutputType)' == 'WinExe'">
-		<ProjectCapability Include="Msix" />
-	</ItemGroup>
-
-	<!-- Package and Publish Menu - Enabled if MSIX tooling is enabled -->
-	<PropertyGroup Condition="'$(DisableHasPackageAndPublishMenuAddedByProject)'!='true' 
-                        and '$(EnableMsixTooling)'=='true' 
-                        and '$(OutputType)' == 'WinExe'">
-		<HasPackageAndPublishMenu>true</HasPackageAndPublishMenu>
-	</PropertyGroup>
+	
 </Project>

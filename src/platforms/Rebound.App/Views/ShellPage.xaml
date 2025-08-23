@@ -9,6 +9,8 @@
     xmlns:local="using:Rebound.Views"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:models="using:Rebound.Models"
+    xmlns:muxc="using:Microsoft.UI.Xaml.Controls"
+    muxc:BackdropMaterial.ApplyToRootOrPageBackground="True"
     mc:Ignorable="d">
     <Grid>
         <StackPanel
@@ -48,7 +50,7 @@
                 <TextBlock Text="A new version of Rebound Hub is available for download" />
             </StackPanel>
         </Button>
-        <NavigationView
+        <muxc:NavigationView
             x:Name="NavigationViewControl"
             Margin="0,48,0,0"
             IsBackButtonVisible="Collapsed"
@@ -56,51 +58,47 @@
             IsSettingsVisible="False"
             ItemInvoked="Navigate"
             OpenPaneLength="72"
-            PaneDisplayMode="Left"
-            Style="{ThemeResource CustomNavigationViewStyle}">
-            <NavigationView.MenuItems>
-                <NavigationViewItem
+            PaneDisplayMode="Left">
+            <muxc:NavigationView.MenuItems>
+                <muxc:NavigationViewItem
                     x:Name="HomeItem"
-                    Content="Home"
-                    Style="{ThemeResource CustomNavigationViewItemStyle}">
-                    <NavigationViewItem.Icon>
+                    Content="Home">
+                    <muxc:NavigationViewItem.Icon>
                         <FontIcon Margin="2" Glyph="&#xE80F;" />
-                    </NavigationViewItem.Icon>
-                </NavigationViewItem>
-                <NavigationViewItem
+                    </muxc:NavigationViewItem.Icon>
+                </muxc:NavigationViewItem>
+                <muxc:NavigationViewItem
                     x:Name="ReboundItem"
-                    Content="Rebound"
-                    Style="{ThemeResource CustomNavigationViewItemStyle}">
-                    <NavigationViewItem.Icon>
-                        <ImageIcon Width="24" Height="24" Source="ms-appx:///Assets/AppIcons/ReboundIcon24.png" />
-                    </NavigationViewItem.Icon>
-                </NavigationViewItem>
-            </NavigationView.MenuItems>
-            <NavigationView.FooterMenuItems>
-                <NavigationViewItem
+                    Content="Rebound">
+                    <muxc:NavigationViewItem.Icon>
+                        <muxc:ImageIcon Width="24" Height="24" Source="ms-appx:///Assets/AppIcons/ReboundIcon24.png" />
+                    </muxc:NavigationViewItem.Icon>
+                </muxc:NavigationViewItem>
+            </muxc:NavigationView.MenuItems>
+            <muxc:NavigationView.FooterMenuItems>
+                <muxc:NavigationViewItem
                     x:Name="FeedbackItem"
                     Content="Feedback"
-                    SelectsOnInvoked="False"
-                    Style="{ThemeResource CustomNavigationViewItemStyle}">
-                    <NavigationViewItem.Icon>
+                    SelectsOnInvoked="False">
+                    <muxc:NavigationViewItem.Icon>
                         <FontIcon Margin="2" Glyph="&#xED15;" />
-                    </NavigationViewItem.Icon>
+                    </muxc:NavigationViewItem.Icon>
                     <interactivity:Interaction.Behaviors>
                         <interactivity:EventTriggerBehavior EventName="Tapped">
                             <behaviors:NavigateToUriAction NavigateUri="https://ivirius.com/contact" />
                         </interactivity:EventTriggerBehavior>
                     </interactivity:Interaction.Behaviors>
-                </NavigationViewItem>
-            </NavigationView.FooterMenuItems>
-            <NavigationView.Content>
+                </muxc:NavigationViewItem>
+            </muxc:NavigationView.FooterMenuItems>
+            <muxc:NavigationView.Content>
                 <Frame
                     x:Name="MainFrame"
                     Background="{ThemeResource CardBackgroundFillColorSecondaryBrush}"
                     BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
                     BorderThickness="1,1,0,0"
                     CornerRadius="8,0,0,0" />
-            </NavigationView.Content>
-        </NavigationView>
+            </muxc:NavigationView.Content>
+        </muxc:NavigationView>
         <Frame
             x:Name="OverlayFrame"
             Margin="0,48,0,0"

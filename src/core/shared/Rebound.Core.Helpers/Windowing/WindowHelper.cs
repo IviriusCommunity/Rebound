@@ -1,19 +1,19 @@
-﻿using System;
-using WinUIEx;
+﻿using Microsoft.UI.Windowing;
+using System;
 
 namespace Rebound.Helpers.Windowing;
 
 public static class WindowHelper
 {
-    public static void SetWindowIcon(this WindowEx window, string iconPath)
+    public static void SetWindowIcon(this AppWindow window, string iconPath)
     {
-        window.SetIcon(iconPath);
-        window.SetTaskBarIcon(Icon.FromFile(iconPath));
+        /*window.SetIcon(iconPath);
+        window.SetTaskBarIcon(Icon.FromFile(iconPath));*/
     }
 
-    public static void TurnOffDoubleClick(this WindowEx window)
+    public static void TurnOffDoubleClick(this AppWindow window)
     {
-        var windowManager = WindowManager.Get(window);
+        /*var windowManager = WindowManager.Get(window);
         windowManager.WindowMessageReceived += WindowManager_WindowMessageReceived;
 
         void WindowManager_WindowMessageReceived(object? sender, WinUIEx.Messaging.WindowMessageEventArgs e)
@@ -25,6 +25,6 @@ public static class WindowHelper
                 e.Handled = true;
                 return;
             }
-        }
+        }*/
     }
 }

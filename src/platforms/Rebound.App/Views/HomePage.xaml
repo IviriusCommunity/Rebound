@@ -5,11 +5,11 @@
     xmlns:behaviors="using:CommunityToolkit.WinUI.Behaviors"
     xmlns:controls="using:CommunityToolkit.WinUI.Controls"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-    xmlns:header="using:WinUIGallery.Controls"
     xmlns:interactivity="using:Microsoft.Xaml.Interactivity"
     xmlns:local="using:Rebound.Views"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:media="using:CommunityToolkit.WinUI.Media"
+    xmlns:muxc="using:Microsoft.UI.Xaml.Controls"
     mc:Ignorable="d">
     <ScrollViewer CornerRadius="8,0,0,0">
         <Grid>
@@ -20,13 +20,6 @@
                 <RowDefinition Height="Auto" />
                 <RowDefinition Height="Auto" />
             </Grid.RowDefinitions>
-
-            <header:HomePageHeaderImage
-                x:Name="BKGImage"
-                Height="400"
-                HorizontalAlignment="Stretch"
-                VerticalAlignment="Top"
-                Image="{ThemeResource HeroBackgroundBitmapImage}" />
 
             <Grid
                 x:Name="TitleGrid"
@@ -57,16 +50,13 @@
                 HorizontalScrollMode="Enabled"
                 VerticalScrollBarVisibility="Hidden"
                 VerticalScrollMode="Disabled">
-                <ItemsRepeater ItemsSource="{x:Bind LinkCards}">
-                    <ItemsRepeater.Layout>
-                        <StackLayout Orientation="Horizontal" Spacing="16" />
-                    </ItemsRepeater.Layout>
-                    <ItemsRepeater.ItemTemplate>
+                <muxc:ItemsRepeater ItemsSource="{x:Bind LinkCards}">
+                    <muxc:ItemsRepeater.Layout>
+                        <muxc:StackLayout Orientation="Horizontal" Spacing="16" />
+                    </muxc:ItemsRepeater.Layout>
+                    <muxc:ItemsRepeater.ItemTemplate>
                         <DataTemplate x:DataType="local:LinkCard">
                             <Grid CornerRadius="6">
-                                <Grid.Background>
-                                    <local:GlassBrush />
-                                </Grid.Background>
                                 <Button
                                     Width="240"
                                     Height="220"
@@ -115,8 +105,8 @@
                                 </Button>
                             </Grid>
                         </DataTemplate>
-                    </ItemsRepeater.ItemTemplate>
-                </ItemsRepeater>
+                    </muxc:ItemsRepeater.ItemTemplate>
+                </muxc:ItemsRepeater>
             </ScrollViewer>
 
             <TextBlock
@@ -126,16 +116,16 @@
                 Style="{ThemeResource SubtitleTextBlockStyle}"
                 Text="3rd Party Fluent Apps" />
 
-            <ItemsRepeater
+            <muxc:ItemsRepeater
                 Grid.Row="3"
                 Margin="48,0,48,48"
                 HorizontalAlignment="Stretch"
                 VerticalAlignment="Stretch"
                 ItemsSource="{x:Bind AppCards}">
-                <ItemsRepeater.Layout>
+                <muxc:ItemsRepeater.Layout>
                     <controls:WrapLayout HorizontalSpacing="8" VerticalSpacing="8" />
-                </ItemsRepeater.Layout>
-                <ItemsRepeater.ItemTemplate>
+                </muxc:ItemsRepeater.Layout>
+                <muxc:ItemsRepeater.ItemTemplate>
                     <DataTemplate x:DataType="local:AppCard">
                         <Button
                             Width="320"
@@ -224,9 +214,6 @@
                                         Source="{x:Bind PicturePath}"
                                         Stretch="Fill" />
                                     <Border>
-                                        <Border.Background>
-                                            <local:GlassBrush />
-                                        </Border.Background>
                                         <Image
                                             Margin="16"
                                             Source="{x:Bind PicturePath}"
@@ -241,8 +228,8 @@
                             </interactivity:Interaction.Behaviors>
                         </Button>
                     </DataTemplate>
-                </ItemsRepeater.ItemTemplate>
-            </ItemsRepeater>
+                </muxc:ItemsRepeater.ItemTemplate>
+            </muxc:ItemsRepeater>
         </Grid>
     </ScrollViewer>
 </Page>

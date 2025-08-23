@@ -32,6 +32,13 @@ MonitorFromWindow
 PrintWindow
 CoInitializeSecurity
 CoCreateInstance
+RegisterClass
+PostQuitMessage
+DefWindowProc
+LoadLibrary
+IDesktopWindowXamlSourceNative2
+ThrowIfFailed
+ICoreWindowInterop
 IApplicationActivationManager
 IShellLinkW
 GetMessage
