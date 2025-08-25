@@ -1,10 +1,15 @@
-﻿using System.IO;
-using Microsoft.Win32.TaskScheduler;
+﻿using System;
+using System.Diagnostics;
+using System.IO;
+using Windows.Win32;
+using Windows.Win32.System.TaskScheduler;
 
 namespace Rebound.Forge;
 
 public static class ReboundWorkingEnvironment
 {
+    private static ComPtr<ITaskService> _taskService = default;
+
     public static void UpdateVersion()
     {
         try
@@ -86,49 +91,113 @@ public static class ReboundWorkingEnvironment
     }
 
     // Tasks Folder
-    public static void EnsureTasksFolderIntegrity()
+    public static unsafe void EnsureTasksFolderIntegrity()
     {
         try
         {
-            using TaskService ts = new();
+            using var pszRoot = PInvoke.SysAllocString("\\");
+            using var pszRebound = PInvoke.SysAllocString("Rebound");
 
-            // Specify the path to the task in Task Scheduler
-            _ = ts.GetFolder(@"Rebound") ?? ts.RootFolder.CreateFolder(@"Rebound");
-        }
-        catch
-        {
+            // Get the task scheduler service for the current instance
+            var taskService = _taskService.Get();
 
-        }
-    }
+            // Connect to local Task Scheduler
+            taskService->Connect(new(), new(), new(), new());
 
-    public static void RemoveTasksFolder()
-    {
-        try
-        {
-            using TaskService ts = new();
+            // Get the root folder
+            using ComPtr<ITaskFolder> rootFolder = null;
+            taskService->GetFolder(pszRoot, rootFolder.GetAddressOf());
 
-            // Specify the path to the task in Task Scheduler
-            if (ts.GetFolder(@"Rebound") != null)
+            // Get the Rebound folder, or create if missing
+            using ComPtr<ITaskFolder> reboundFolder = null;
+            try
             {
-                ts.RootFolder.DeleteFolder(@"Rebound", false);
+                var hr = taskService->GetFolder(pszRebound, reboundFolder.GetAddressOf());
+                if (hr < 0)
+                    throw new InvalidOperationException("Failed to get or create Rebound folder in Task Scheduler.");
+            }
+            catch (InvalidOperationException)
+            {
+                rootFolder.Get()->CreateFolder(pszRebound, new(), reboundFolder.GetAddressOf());
             }
         }
-        catch
+        catch (Exception ex)
         {
-
+            Debug.WriteLine($"Task Scheduler error: {ex.Message}");
         }
     }
 
-    public static bool TaskFolderExists()
+    public static unsafe void RemoveTasksFolder()
     {
         try
         {
-            using TaskService ts = new();
+            using var pszRoot = PInvoke.SysAllocString("\\");
+            using var pszRebound = PInvoke.SysAllocString("Rebound");
 
-            return ts.GetFolder(@"Rebound") != null;
+            // Get the task scheduler service for the current instance
+            var taskService = _taskService.Get();
+
+            // Connect to local Task Scheduler
+            taskService->Connect(new(), new(), new(), new());
+
+            // Get the root folder
+            using ComPtr<ITaskFolder> rootFolder = null;
+            taskService->GetFolder(pszRoot, rootFolder.GetAddressOf());
+
+            // Get the Rebound folder, or create if missing
+            using ComPtr<ITaskFolder> reboundFolder = null;
+            try
+            {
+                var hr = taskService->GetFolder(pszRebound, reboundFolder.GetAddressOf());
+                if (hr < 0)
+                    return;
+                else
+                    rootFolder.Get()->DeleteFolder(pszRebound, 0); // 0 = no flags
+            }
+            catch (InvalidOperationException)
+            {
+                Debug.WriteLine($"Task Scheduler error (Remove)");
+            }
         }
-        catch
+        catch (Exception ex)
         {
+            Debug.WriteLine($"Task Scheduler error (Remove): {ex.Message}");
+        }
+    }
+
+    public static unsafe bool TaskFolderExists()
+    {
+        try
+        {
+            using var pszRoot = PInvoke.SysAllocString("\\");
+            using var pszRebound = PInvoke.SysAllocString("Rebound");
+
+            // Get the task scheduler service for the current instance
+            var taskService = _taskService.Get();
+
+            // Connect to local Task Scheduler
+            taskService->Connect(new(), new(), new(), new());
+
+            // Get the root folder
+            using ComPtr<ITaskFolder> rootFolder = null;
+            taskService->GetFolder(pszRoot, rootFolder.GetAddressOf());
+
+            // Get the Rebound folder, or create if missing
+            using ComPtr<ITaskFolder> reboundFolder = null;
+            try
+            {
+                var hr = taskService->GetFolder(pszRebound, reboundFolder.GetAddressOf());
+                return !(hr < 0);
+            }
+            catch (InvalidOperationException)
+            {
+                Debug.WriteLine($"Task Scheduler error (Exists)");
+                return false;
+            }
+        }
+        catch (Exception ex)
+        {
+            Debug.WriteLine($"Task Scheduler error (Exists): {ex.Message}");
             return false;
         }
     }

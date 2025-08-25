@@ -27,19 +27,17 @@ namespace Rebound;
 //[ReboundApp("Rebound.Hub", "")]
 public partial class App : Application
 {
-    private HWND _hwnd = default;
+    public static HWND _hwnd = default;
     private HWND _xamlHwnd = default;
-    private HWND _coreHwnd = default;
+    private bool _xamlInitialized = false; private HWND _coreHwnd = default;
 
-    private bool _xamlInitialized = false;
-
-    public static DesktopWindowXamlSource _desktopWindowXamlSource = null;
+    private DesktopWindowXamlSource _desktopWindowXamlSource = null;
     private WindowsXamlManager _xamlManager = null;
+    internal Frame Frame = null;
     private CoreWindow _coreWindow = null;
+    private ContentIsland contentIsland = null;
 
     private ComPtr<IDesktopWindowXamlSourceNative2> _nativeSource = default;
-
-    internal Frame Frame = null;
 
     public App(HWND hwnd)
     {
@@ -56,21 +54,29 @@ public partial class App : Application
 
     private unsafe void InitializeXaml()
     {
-        // Is this needed anymore? maybe for older builds?
+        // Load old WinRT libs (optional, for legacy compatibility)
         InternalLoadLibrary("twinapi.appcore.dll");
         InternalLoadLibrary("threadpoolwinrt.dll");
 
+        // Initialize XAML manager for this thread
         _xamlManager = WindowsXamlManager.InitializeForCurrentThread();
-        _desktopWindowXamlSource = new();
 
-        ThrowIfFailed(((IUnknown*)((IWinRTObject)_desktopWindowXamlSource).NativeObject.ThisPtr)->QueryInterface(__uuidof<IDesktopWindowXamlSourceNative2>(), (void**)_nativeSource.GetAddressOf()));
+        // Create DesktopWindowXamlSource
+        _desktopWindowXamlSource = new DesktopWindowXamlSource();
 
-        _nativeSource.Get()->AttachToWindow(_hwnd);
-        _nativeSource.Get()->get_WindowHandle((HWND*)Unsafe.AsPointer(ref _xamlHwnd));
+        // Get native interface
+        ComPtr<IDesktopWindowXamlSourceNative2> nativeSource = default;
+        ThrowIfFailed(((IUnknown*)((IWinRTObject)_desktopWindowXamlSource).NativeObject.ThisPtr)
+            ->QueryInterface(__uuidof<IDesktopWindowXamlSourceNative2>(), (void**)nativeSource.GetAddressOf()));
 
+        nativeSource.Get()->AttachToWindow(_hwnd);
+        nativeSource.Get()->get_WindowHandle((HWND*)Unsafe.AsPointer(ref _xamlHwnd));
+
+        // Resize to client
         RECT wRect;
         GetClientRect(_hwnd, &wRect);
-        SetWindowPos(_xamlHwnd, HWND.NULL, 0, 0, wRect.right - wRect.left, wRect.bottom - wRect.top, SWP_SHOWWINDOW | SWP_NOACTIVATE | SWP_NOZORDER);
+        SetWindowPos(_xamlHwnd, HWND.NULL, 0, 0, wRect.right - wRect.left, wRect.bottom - wRect.top,
+            SWP_SHOWWINDOW | SWP_NOACTIVATE | SWP_NOZORDER);
 
         _coreWindow = CoreWindow.GetForCurrentThread();
 
@@ -78,14 +84,14 @@ public partial class App : Application
         ThrowIfFailed(((IUnknown*)((IWinRTObject)_coreWindow).NativeObject.ThisPtr)->QueryInterface(__uuidof<ICoreWindowInterop>(), (void**)interop.GetAddressOf()));
         interop.Get()->get_WindowHandle((HWND*)Unsafe.AsPointer(ref _coreHwnd));
 
-        Frame = new Frame();
-        _desktopWindowXamlSource.Content = Frame;
-
         var appWindow = Microsoft.UI.Windowing.AppWindow.GetFromWindowId(Win32Interop.GetWindowIdFromWindow(_hwnd));
         appWindow.TitleBar.ExtendsContentIntoTitleBar = true;
         appWindow.TitleBar.PreferredHeightOption = Microsoft.UI.Windowing.TitleBarHeightOption.Tall;
         appWindow.TitleBar.ButtonBackgroundColor = Colors.Transparent;
         appWindow.TitleBar.ButtonInactiveBackgroundColor = Colors.Transparent;
+
+        Frame = new Frame();
+        _desktopWindowXamlSource.Content = Frame;
 
         _xamlInitialized = true;
         OnXamlInitialized();
@@ -154,11 +160,14 @@ public partial class App : Application
 
     internal unsafe bool PreTranslateMessage(MSG* msg)
     {
+        if (!_xamlInitialized) return false;
+
         BOOL result = false;
+        ComPtr<IDesktopWindowXamlSourceNative2> nativeSource = default;
+        ThrowIfFailed(((IUnknown*)((IWinRTObject)_desktopWindowXamlSource).NativeObject.ThisPtr)
+            ->QueryInterface(__uuidof<IDesktopWindowXamlSourceNative2>(), (void**)nativeSource.GetAddressOf()));
 
-        if (_xamlInitialized)
-            _nativeSource.Get()->PreTranslateMessage(msg, &result);
-
+        nativeSource.Get()->PreTranslateMessage(msg, &result);
         return result;
     }
 

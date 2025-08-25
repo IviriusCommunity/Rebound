@@ -34,13 +34,9 @@
 		<CustomAdditionalCompileInputs Remove="Views\HomePage.xaml" />
 		<Resource Remove="Views\HomePage.xaml" />
 		<Compile Remove="Styles\**" />
-		<Compile Remove="UserControls\**" />
 		<EmbeddedResource Remove="Styles\**" />
-		<EmbeddedResource Remove="UserControls\**" />
 		<None Remove="Styles\**" />
-		<None Remove="UserControls\**" />
 		<Page Remove="Styles\**" />
-		<Page Remove="UserControls\**" />
 		<PRIResource Remove="Assets\Wallpapers\**" />
 		<None Remove="Assets\AppIcons\ReboundIcon.ico" />
 		<None Remove="Modding\Launchers\rosk.exe" />
@@ -67,9 +63,6 @@
 	<Import Project="..\..\core\shared\Rebound.Core.Helpers\Rebound.Core.Helpers.projitems" Label="Shared" />
 	<ItemGroup>
 	  <PRIResource Remove="Styles\**" />
-	</ItemGroup>
-	<ItemGroup>
-	  <PRIResource Remove="UserControls\**" />
 	</ItemGroup>
 
 </Project>

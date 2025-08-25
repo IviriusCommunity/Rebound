@@ -49,10 +49,4 @@
     <Compile Include="$(MSBuildThisFileDirectory)WindowHelper.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Windowing\WindowHelper.cs" />
   </ItemGroup>
-  <ItemGroup>
-    <Page Include="$(MSBuildThisFileDirectory)Themes\Generic.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-  </ItemGroup>
 </Project>

@@ -8,7 +8,7 @@ internal static class ReboundTotalInstructions
 {
     internal static ObservableCollection<ReboundAppInstructions> AppInstructions { get; } =
     [
-        /*// Control Panel
+        // Control Panel
         new()
         {
             ProcessName = "Rebound Control Panel",
@@ -158,12 +158,12 @@ internal static class ReboundTotalInstructions
                 },
             ],
             PreferredInstallationTemplate = InstallationTemplate.Basic
-        }*/
+        }
     ];
 
     internal static ObservableCollection<ReboundAppInstructions> MandatoryInstructions { get; } =
     [
-        /*// Service Host
+        // Service Host
         new()
         {
             ProcessName = "Rebound Service Host",
@@ -183,7 +183,7 @@ internal static class ReboundTotalInstructions
                 }
             ],
             PreferredInstallationTemplate = InstallationTemplate.Basic
-        }*/
+        }
     ];
 
     internal static ReboundAppInstructions GetAppInstructions(string name)

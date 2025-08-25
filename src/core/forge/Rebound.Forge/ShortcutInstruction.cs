@@ -3,12 +3,15 @@ using System.IO;
 using System.Runtime.InteropServices;
 using Rebound.Helpers;
 using Windows.Win32;
+using Windows.Win32.Foundation;
 using Windows.Win32.UI.Shell;
 
 namespace Rebound.Forge;
 
 public class ShortcutInstruction : IReboundAppInstruction
 {
+    private ComPtr<IShellLinkW> _shellLink = default;
+
     public required string ExePath { get; set; }
     public required string ShortcutName { get; set; }
     public string? IconLocation { get; set; }
@@ -26,49 +29,39 @@ public class ShortcutInstruction : IReboundAppInstruction
 
             ReboundWorkingEnvironment.EnsureFolderIntegrity();
 
+            HRESULT hr;
+
             var startMenuFolder = Path.Combine(
                 Environment.GetFolderPath(Environment.SpecialFolder.CommonStartMenu),
                 "Programs", "Rebound");
 
             var shortcutPath = Path.Combine(startMenuFolder, $"{ShortcutName}.lnk");
 
-            var clsidShellLink = CLSID.CLSID_ShellLink;
-            var iidIShellLinkW = IShellLinkW.IID_Guid;
             var iidIPersistFile = IID.IID_IPersistFile;
 
-            IShellLinkW* pShellLink; 
-
-            Windows.Win32.Foundation.HRESULT hr = PInvoke.CoCreateInstance(
-                clsidShellLink,
-                null,
-                Windows.Win32.System.Com.CLSCTX.CLSCTX_INPROC_SERVER,
-                &iidIShellLinkW,
-                (void**)&pShellLink);
-
-            if (hr.Failed || pShellLink is null)
-                return;
+            var shellLink = _shellLink.Get(); 
 
             fixed (char* exePath = ExePath)
             {
-                pShellLink->SetPath(new Windows.Win32.Foundation.PCWSTR(exePath));
+                shellLink->SetPath(new Windows.Win32.Foundation.PCWSTR(exePath));
             }
 
             string workingDir = Path.GetDirectoryName(ExePath)!;
             fixed (char* workingDirPtr = workingDir)
             {
-                pShellLink->SetWorkingDirectory(new Windows.Win32.Foundation.PCWSTR(workingDirPtr));
+                shellLink->SetWorkingDirectory(new Windows.Win32.Foundation.PCWSTR(workingDirPtr));
             }
 
             if (!string.IsNullOrEmpty(IconLocation))
             {
                 fixed (char* iconPath = IconLocation)
                 {
-                    pShellLink->SetIconLocation(new Windows.Win32.Foundation.PCWSTR(iconPath), 0);
+                    shellLink->SetIconLocation(new Windows.Win32.Foundation.PCWSTR(iconPath), 0);
                 }
             }
 
             Windows.Win32.System.Com.IPersistFile* pPersistFile;
-            hr = ((Windows.Win32.System.Com.IUnknown*)pShellLink)->QueryInterface(iidIPersistFile, (void**)&pPersistFile);
+            hr = ((Windows.Win32.System.Com.IUnknown*)shellLink)->QueryInterface(iidIPersistFile, (void**)&pPersistFile);
 
             if (hr.Succeeded && pPersistFile is not null)
             {
@@ -80,7 +73,7 @@ public class ShortcutInstruction : IReboundAppInstruction
                 pPersistFile->Release();
             }
 
-            pShellLink->Release();
+            shellLink->Release();
         }
         catch
         {

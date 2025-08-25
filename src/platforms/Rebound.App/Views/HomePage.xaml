@@ -5,11 +5,13 @@
     xmlns:behaviors="using:CommunityToolkit.WinUI.Behaviors"
     xmlns:controls="using:CommunityToolkit.WinUI.Controls"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:gallery="using:WinUIGallery.Controls"
     xmlns:interactivity="using:Microsoft.Xaml.Interactivity"
     xmlns:local="using:Rebound.Views"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:media="using:CommunityToolkit.WinUI.Media"
     xmlns:muxc="using:Microsoft.UI.Xaml.Controls"
+    xmlns:ui="using:CommunityToolkit.WinUI"
     mc:Ignorable="d">
     <ScrollViewer CornerRadius="8,0,0,0">
         <Grid>
@@ -20,6 +22,8 @@
                 <RowDefinition Height="Auto" />
                 <RowDefinition Height="Auto" />
             </Grid.RowDefinitions>
+
+            <gallery:HomePageHeaderImage Image="/Assets/Backgrounds/WallpaperDark.png" />
 
             <Grid
                 x:Name="TitleGrid"
@@ -50,13 +54,22 @@
                 HorizontalScrollMode="Enabled"
                 VerticalScrollBarVisibility="Hidden"
                 VerticalScrollMode="Disabled">
-                <muxc:ItemsRepeater ItemsSource="{x:Bind LinkCards}">
-                    <muxc:ItemsRepeater.Layout>
-                        <muxc:StackLayout Orientation="Horizontal" Spacing="16" />
-                    </muxc:ItemsRepeater.Layout>
-                    <muxc:ItemsRepeater.ItemTemplate>
+                <ItemsControl ItemsSource="{x:Bind LinkCards}">
+                    <ItemsControl.ItemsPanel>
+                        <ItemsPanelTemplate>
+                            <StackPanel
+                                HorizontalAlignment="Left"
+                                VerticalAlignment="Top"
+                                Orientation="Horizontal"
+                                Spacing="16" />
+                        </ItemsPanelTemplate>
+                    </ItemsControl.ItemsPanel>
+                    <ItemsControl.ItemTemplate>
                         <DataTemplate x:DataType="local:LinkCard">
                             <Grid CornerRadius="6">
+                                <Grid.Background>
+                                    <media:AcrylicBrush BlurAmount="16" TintColor="{ThemeResource SolidBackgroundFillColorBase}" />
+                                </Grid.Background>
                                 <Button
                                     Width="240"
                                     Height="220"
@@ -105,8 +118,8 @@
                                 </Button>
                             </Grid>
                         </DataTemplate>
-                    </muxc:ItemsRepeater.ItemTemplate>
-                </muxc:ItemsRepeater>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
             </ScrollViewer>
 
             <TextBlock
@@ -116,120 +129,178 @@
                 Style="{ThemeResource SubtitleTextBlockStyle}"
                 Text="3rd Party Fluent Apps" />
 
-            <muxc:ItemsRepeater
+            <ItemsControl
                 Grid.Row="3"
                 Margin="48,0,48,48"
                 HorizontalAlignment="Stretch"
                 VerticalAlignment="Stretch"
                 ItemsSource="{x:Bind AppCards}">
-                <muxc:ItemsRepeater.Layout>
-                    <controls:WrapLayout HorizontalSpacing="8" VerticalSpacing="8" />
-                </muxc:ItemsRepeater.Layout>
-                <muxc:ItemsRepeater.ItemTemplate>
+                <ItemsControl.ItemsPanel>
+                    <ItemsPanelTemplate>
+                        <controls:WrapPanel HorizontalSpacing="16" VerticalSpacing="16" />
+                    </ItemsPanelTemplate>
+                </ItemsControl.ItemsPanel>
+                <ItemsControl.ItemTemplate>
                     <DataTemplate x:DataType="local:AppCard">
                         <Button
                             Width="320"
-                            Padding="12"
+                            Padding="0"
                             HorizontalContentAlignment="Stretch">
-                            <Grid ColumnSpacing="8" RowSpacing="8">
-                                <Grid.RowDefinitions>
-                                    <RowDefinition Height="Auto" />
-                                    <RowDefinition Height="Auto" />
-                                    <RowDefinition Height="Auto" />
-                                    <RowDefinition Height="Auto" />
-                                </Grid.RowDefinitions>
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="Auto" />
-                                    <ColumnDefinition Width="*" />
-                                </Grid.ColumnDefinitions>
+                            <ui:Effects.Shadow>
+                                <media:AttachedCardShadow
+                                    BlurRadius="24"
+                                    Opacity="0.2"
+                                    Offset="0, 8"
+                                    Color="{x:Bind AccentColor}" />
+                            </ui:Effects.Shadow>
+                            <Grid>
+                                <Border CornerRadius="3" Opacity="0.1">
+                                    <Border.Background>
+                                        <SolidColorBrush Color="{x:Bind AccentColor}" />
+                                    </Border.Background>
+                                </Border>
+                                <Border CornerRadius="3">
+                                    <Border.Background>
+                                        <media:AcrylicBrush
+                                            BlurAmount="8"
+                                            TintColor="{ThemeResource SolidBackgroundFillColorBase}"
+                                            TintOpacity="0.6" />
+                                    </Border.Background>
+                                </Border>
                                 <Grid
-                                    Grid.RowSpan="2"
-                                    HorizontalAlignment="Left"
-                                    VerticalAlignment="Top">
-                                    <Grid
+                                    Margin="12"
+                                    ColumnSpacing="8"
+                                    RowSpacing="8">
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="Auto" />
+                                        <RowDefinition Height="Auto" />
+                                        <RowDefinition Height="Auto" />
+                                        <RowDefinition Height="Auto" />
+                                    </Grid.RowDefinitions>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="Auto" />
+                                        <ColumnDefinition Width="*" />
+                                    </Grid.ColumnDefinitions>
+                                    <Border
+                                        Grid.RowSpan="2"
                                         Width="64"
-                                        Height="64"
-                                        Background="{ThemeResource SolidBackgroundFillColorBaseBrush}"
+                                        Height="64">
+                                        <ui:Effects.Shadow>
+                                            <media:AttachedCardShadow
+                                                BlurRadius="12"
+                                                Opacity="0.3"
+                                                Offset="0, 4"
+                                                Color="Black" />
+                                        </ui:Effects.Shadow>
+                                    </Border>
+                                    <Grid
+                                        Grid.RowSpan="2"
+                                        HorizontalAlignment="Left"
+                                        VerticalAlignment="Top">
+                                        <Grid
+                                            Width="64"
+                                            Height="64"
+                                            Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
+                                            CornerRadius="4">
+                                            <Image
+                                                Margin="-16"
+                                                Source="{x:Bind IconPath}"
+                                                Stretch="Fill" />
+                                            <Border
+                                                BorderBrush="{ThemeResource SolidBackgroundFillColorBase}"
+                                                BorderThickness="2"
+                                                CornerRadius="3" />
+                                            <Border CornerRadius="4">
+                                                <Border.Background>
+                                                    <media:AcrylicBrush
+                                                        BlurAmount="16"
+                                                        TintColor="{ThemeResource SolidBackgroundFillColorBase}"
+                                                        TintOpacity="0.7" />
+                                                </Border.Background>
+                                                <Image
+                                                    Width="48"
+                                                    Height="48"
+                                                    Margin="8"
+                                                    Source="{x:Bind IconPath}" />
+                                            </Border>
+                                        </Grid>
+                                    </Grid>
+                                    <TextBlock
+                                        Grid.Column="1"
+                                        FontSize="16"
+                                        FontWeight="SemiBold"
+                                        Text="{x:Bind Title}"
+                                        TextWrapping="Wrap" />
+                                    <TextBlock
+                                        Grid.Row="1"
+                                        Grid.Column="1"
+                                        Margin="0,-12,0,0"
+                                        FontSize="12"
+                                        Opacity="0.5"
+                                        Text="{x:Bind Description}"
+                                        TextWrapping="Wrap" />
+                                    <StackPanel
+                                        Grid.Row="2"
+                                        Grid.ColumnSpan="2"
+                                        Padding="8,2"
+                                        HorizontalAlignment="Left"
+                                        Background="{ThemeResource AccentFillColorDefaultBrush}"
+                                        BorderBrush="{ThemeResource AccentButtonBorderBrush}"
+                                        BorderThickness="1"
+                                        CornerRadius="9"
+                                        Orientation="Horizontal"
+                                        Spacing="8">
+                                        <TextBlock
+                                            FontSize="10"
+                                            FontWeight="SemiBold"
+                                            Foreground="{ThemeResource TextOnAccentFillColorPrimaryBrush}"
+                                            Text="{x:Bind Publisher}" />
+                                    </StackPanel>
+                                    <Border
+                                        Grid.Row="3"
+                                        Grid.ColumnSpan="2"
+                                        Height="160"
+                                        HorizontalAlignment="Stretch">
+                                        <ui:Effects.Shadow>
+                                            <media:AttachedCardShadow
+                                                BlurRadius="12"
+                                                Opacity="0.4"
+                                                Offset="0, 6"
+                                                Color="Black" />
+                                        </ui:Effects.Shadow>
+                                    </Border>
+                                    <Grid
+                                        Grid.Row="3"
+                                        Grid.ColumnSpan="2"
+                                        Height="160"
+                                        HorizontalAlignment="Stretch"
+                                        VerticalAlignment="Top"
                                         CornerRadius="4">
                                         <Image
-                                            Width="60"
-                                            Height="60"
-                                            Source="{x:Bind IconPath}"
+                                            Margin="4"
+                                            Source="{x:Bind PicturePath}"
                                             Stretch="Fill" />
-                                        <Border CornerRadius="4">
+                                        <Border>
                                             <Border.Background>
-                                                <media:AcrylicBrush
-                                                    BlurAmount="8"
-                                                    TintColor="{ThemeResource SolidBackgroundFillColorBase}"
-                                                    TintOpacity="0.5" />
+                                                <media:AcrylicBrush BlurAmount="24" TintColor="{ThemeResource SolidBackgroundFillColorBase}" />
                                             </Border.Background>
                                             <Image
-                                                Width="48"
-                                                Height="48"
-                                                Margin="8"
-                                                Source="{x:Bind IconPath}" />
+                                                Margin="16"
+                                                Source="{x:Bind PicturePath}"
+                                                Stretch="Uniform" />
                                         </Border>
                                     </Grid>
                                 </Grid>
-                                <TextBlock
-                                    Grid.Column="1"
-                                    FontSize="16"
-                                    FontWeight="SemiBold"
-                                    Text="{x:Bind Title}"
-                                    TextWrapping="Wrap" />
-                                <TextBlock
-                                    Grid.Row="1"
-                                    Grid.Column="1"
-                                    Margin="0,-12,0,0"
-                                    FontSize="12"
-                                    Opacity="0.5"
-                                    Text="{x:Bind Description}"
-                                    TextWrapping="Wrap" />
-                                <StackPanel
-                                    Grid.Row="2"
-                                    Grid.ColumnSpan="2"
-                                    Padding="8,2"
-                                    HorizontalAlignment="Left"
-                                    Background="{ThemeResource AccentFillColorDefaultBrush}"
-                                    BorderBrush="{ThemeResource AccentButtonBorderBrush}"
-                                    BorderThickness="1"
-                                    CornerRadius="9"
-                                    Orientation="Horizontal"
-                                    Spacing="8">
-                                    <TextBlock
-                                        FontSize="10"
-                                        FontWeight="SemiBold"
-                                        Foreground="{ThemeResource TextOnAccentFillColorPrimaryBrush}"
-                                        Text="{x:Bind Publisher}" />
-                                </StackPanel>
-                                <Grid
-                                    Grid.Row="3"
-                                    Grid.ColumnSpan="2"
-                                    Height="160"
-                                    HorizontalAlignment="Stretch"
-                                    VerticalAlignment="Top"
-                                    CornerRadius="4">
-                                    <Image
-                                        Margin="4"
-                                        Source="{x:Bind PicturePath}"
-                                        Stretch="Fill" />
-                                    <Border>
-                                        <Image
-                                            Margin="16"
-                                            Source="{x:Bind PicturePath}"
-                                            Stretch="Uniform" />
-                                    </Border>
-                                </Grid>
                             </Grid>
                             <interactivity:Interaction.Behaviors>
-                                <interactivity:EventTriggerBehavior EventName="Click">
+                                <interactivity:EventTriggerBehavior EventName="Tapped">
                                     <behaviors:NavigateToUriAction NavigateUri="{x:Bind Link}" />
                                 </interactivity:EventTriggerBehavior>
                             </interactivity:Interaction.Behaviors>
                         </Button>
                     </DataTemplate>
-                </muxc:ItemsRepeater.ItemTemplate>
-            </muxc:ItemsRepeater>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
         </Grid>
     </ScrollViewer>
 </Page>

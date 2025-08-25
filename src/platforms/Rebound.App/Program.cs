@@ -20,6 +20,7 @@ namespace Rebound
     {
         static private App _xamlApp = null;
 
+        [STAThread]
         static unsafe void Main(string[] args)
         {
             fixed (char* lpszClassName = "XamlIslandsClass")

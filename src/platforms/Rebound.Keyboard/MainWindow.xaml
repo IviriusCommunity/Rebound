@@ -65,7 +65,8 @@
 
             <Button
                 Padding="8"
-                Style="{StaticResource SubtleButtonStyle}"
+                Background="Transparent"
+                BorderBrush="Transparent"
                 ToolTipService.ToolTip="Emoji panel">
                 <FontIcon FontSize="16" Glyph="&#xE899;" />
             </Button>

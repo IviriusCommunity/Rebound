@@ -8,6 +8,7 @@
     xmlns:converters="using:CommunityToolkit.WinUI.Converters"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:forge="using:Rebound.Forge"
+    xmlns:gallery="using:WinUIGallery.Controls"
     xmlns:helpers="using:Rebound.Helpers.Environment"
     xmlns:interactivity="using:Microsoft.Xaml.Interactivity"
     xmlns:local="using:Rebound.Views"
@@ -112,6 +113,8 @@
                     <RowDefinition Height="Auto" />
                 </Grid.RowDefinitions>
 
+                <gallery:HomePageHeaderImage Image="/Assets/Backgrounds/WallpaperDark.png" />
+
                 <Grid
                     x:Name="TitleGrid"
                     Height="200"
@@ -142,11 +145,17 @@
                     HorizontalScrollMode="Enabled"
                     VerticalScrollBarVisibility="Hidden"
                     VerticalScrollMode="Disabled">
-                    <muxc:ItemsRepeater ItemsSource="{x:Bind LinkCards}">
-                        <muxc:ItemsRepeater.Layout>
-                            <muxc:StackLayout Orientation="Horizontal" Spacing="16" />
-                        </muxc:ItemsRepeater.Layout>
-                        <muxc:ItemsRepeater.ItemTemplate>
+                    <ItemsControl ItemsSource="{x:Bind LinkCards}">
+                        <ItemsControl.ItemsPanel>
+                            <ItemsPanelTemplate>
+                                <StackPanel
+                                    HorizontalAlignment="Left"
+                                    VerticalAlignment="Top"
+                                    Orientation="Horizontal"
+                                    Spacing="16" />
+                            </ItemsPanelTemplate>
+                        </ItemsControl.ItemsPanel>
+                        <ItemsControl.ItemTemplate>
                             <DataTemplate x:DataType="local:LinkCard">
                                 <Grid CornerRadius="6">
                                     <Button
@@ -197,8 +206,8 @@
                                     </Button>
                                 </Grid>
                             </DataTemplate>
-                        </muxc:ItemsRepeater.ItemTemplate>
-                    </muxc:ItemsRepeater>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
                 </ScrollViewer>
 
                 <Grid
@@ -217,9 +226,10 @@
                         IsThreeState="False" />
                     <Button
                         Grid.Column="1"
+                        Background="Transparent"
+                        BorderBrush="Transparent"
                         Command="{x:Bind ReboundViewModel.UpdateOrRepairAllCommand}"
-                        IsEnabled="{x:Bind ReboundViewModel.IsReboundEnabled, Mode=OneWay}"
-                        Style="{StaticResource SubtleButtonStyle}">
+                        IsEnabled="{x:Bind ReboundViewModel.IsReboundEnabled, Mode=OneWay}">
                         <StackPanel Orientation="Horizontal" Spacing="8">
                             <FontIcon FontSize="16" Glyph="&#xE90F;" />
                             <TextBlock Text="Repair" />
@@ -227,8 +237,9 @@
                     </Button>
                     <Button
                         Grid.Column="2"
-                        IsEnabled="{x:Bind ReboundViewModel.IsReboundEnabled, Mode=OneWay}"
-                        Style="{StaticResource SubtleButtonStyle}">
+                        Background="Transparent"
+                        BorderBrush="Transparent"
+                        IsEnabled="{x:Bind ReboundViewModel.IsReboundEnabled, Mode=OneWay}">
                         <StackPanel Orientation="Horizontal" Spacing="8">
                             <FontIcon FontSize="16" Glyph="&#xE713;" />
                             <TextBlock Text="Options" />
@@ -293,15 +304,16 @@
                     Text="Mandatory" />
                 <Grid Grid.Row="6" Padding="48,16,48,16">
                     <ContentControl IsEnabled="{x:Bind ReboundViewModel.IsReboundEnabled, Mode=OneWay}">
-                        <muxc:ItemsRepeater ItemsSource="{x:Bind forge:ReboundTotalInstructions.MandatoryInstructions}">
-                            <muxc:ItemsRepeater.Layout>
-                                <controls:StaggeredLayout
-                                    ColumnSpacing="8"
-                                    DesiredColumnWidth="400"
-                                    ItemsStretch="Fill"
-                                    RowSpacing="8" />
-                            </muxc:ItemsRepeater.Layout>
-                            <muxc:ItemsRepeater.ItemTemplate>
+                        <ItemsControl ItemsSource="{x:Bind forge:ReboundTotalInstructions.MandatoryInstructions}">
+                            <ItemsControl.ItemsPanel>
+                                <ItemsPanelTemplate>
+                                    <controls:StaggeredPanel
+                                        ColumnSpacing="8"
+                                        DesiredColumnWidth="400"
+                                        RowSpacing="8" />
+                                </ItemsPanelTemplate>
+                            </ItemsControl.ItemsPanel>
+                            <ItemsControl.ItemTemplate>
                                 <DataTemplate x:DataType="forge:ReboundAppInstructions">
                                     <Grid
                                         Padding="12"
@@ -385,8 +397,8 @@
                                         </muxc:InfoBar>
                                     </Grid>
                                 </DataTemplate>
-                            </muxc:ItemsRepeater.ItemTemplate>
-                        </muxc:ItemsRepeater>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
                     </ContentControl>
                 </Grid>
                 <TextBlock
@@ -397,15 +409,16 @@
                     Text="Optional" />
                 <Grid Grid.Row="8" Padding="48,16,48,48">
                     <ContentControl IsEnabled="{x:Bind ReboundViewModel.IsReboundEnabled, Mode=OneWay}">
-                        <muxc:ItemsRepeater ItemsSource="{x:Bind forge:ReboundTotalInstructions.AppInstructions}">
-                            <muxc:ItemsRepeater.Layout>
-                                <controls:StaggeredLayout
-                                    ColumnSpacing="8"
-                                    DesiredColumnWidth="400"
-                                    ItemsStretch="Fill"
-                                    RowSpacing="8" />
-                            </muxc:ItemsRepeater.Layout>
-                            <muxc:ItemsRepeater.ItemTemplate>
+                        <ItemsControl ItemsSource="{x:Bind forge:ReboundTotalInstructions.AppInstructions}">
+                            <ItemsControl.ItemsPanel>
+                                <ItemsPanelTemplate>
+                                    <controls:StaggeredPanel
+                                        ColumnSpacing="8"
+                                        DesiredColumnWidth="400"
+                                        RowSpacing="8" />
+                                </ItemsPanelTemplate>
+                            </ItemsControl.ItemsPanel>
+                            <ItemsControl.ItemTemplate>
                                 <DataTemplate x:DataType="forge:ReboundAppInstructions">
                                     <Grid
                                         Padding="12"
@@ -502,8 +515,8 @@
                                         </muxc:InfoBar>
                                     </Grid>
                                 </DataTemplate>
-                            </muxc:ItemsRepeater.ItemTemplate>
-                        </muxc:ItemsRepeater>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
                     </ContentControl>
                 </Grid>
             </Grid>

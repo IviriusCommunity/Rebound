@@ -1,5 +1,6 @@
 using System;
 using System.Collections.ObjectModel;
+using Windows.UI;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 
@@ -21,6 +22,7 @@ internal class AppCard
     public string? PicturePath { get; set; }
     public string? Link { get; set; }
     public string? Publisher { get; set; }
+    public Color AccentColor { get; set; }
 }
 
 internal sealed partial class HomePage : Page
@@ -80,7 +82,8 @@ internal sealed partial class HomePage : Page
             IconPath = "/Assets/AppIcons/Ambie.png",
             PicturePath = "/Assets/AppBanners/Ambie.jpeg",
             Link = "https://ambieapp.com/",
-            Publisher = "Jenius Apps"
+            Publisher = "Jenius Apps",
+            AccentColor = Color.FromArgb(255, 255, 204, 0)
         },
         new AppCard
         {
@@ -89,7 +92,8 @@ internal sealed partial class HomePage : Page
             IconPath = "/Assets/AppIcons/Character Map UWP.png",
             PicturePath = "/Assets/AppBanners/Character Map UWP.png",
             Link = "https://apps.microsoft.com/detail/9wzdncrdxf41",
-            Publisher = "Edi Wang"
+            Publisher = "Edi Wang",
+            AccentColor = Color.FromArgb(255, 0, 110, 255)
         },
         new AppCard
         {
@@ -98,7 +102,8 @@ internal sealed partial class HomePage : Page
             IconPath = "/Assets/AppIcons/Files.png",
             PicturePath = "/Assets/AppBanners/Files.png",
             Link = "https://files.community/",
-            Publisher = "Yair A"
+            Publisher = "Yair A",
+            AccentColor = Color.FromArgb(255, 255, 115, 0)
         },
         new AppCard
         {
@@ -107,7 +112,8 @@ internal sealed partial class HomePage : Page
             IconPath = "/Assets/AppIcons/Fluent Store.png",
             PicturePath = "/Assets/AppBanners/Fluent Store.png",
             Link = "https://josh.askharoun.com/fluentstore",
-            Publisher = "yoshiask"
+            Publisher = "yoshiask",
+            AccentColor = Color.FromArgb(255, 3, 158, 0)
         },
         new AppCard
         {
@@ -116,7 +122,8 @@ internal sealed partial class HomePage : Page
             IconPath = "/Assets/AppIcons/FluentHub.png",
             PicturePath = "/Assets/AppBanners/FluentHub.png",
             Link = "https://apps.microsoft.com/detail/9nkb9hx8rjz3",
-            Publisher = "0x5BFA"
+            Publisher = "0x5BFA",
+            AccentColor = Color.FromArgb(255, 209, 0, 115)
         },
         new AppCard
         {
@@ -125,7 +132,8 @@ internal sealed partial class HomePage : Page
             IconPath = "/Assets/AppIcons/Fluetro.png",
             PicturePath = "/Assets/AppBanners/Fluetro.jpeg",
             Link = "https://apps.microsoft.com/detail/9nsr7b2lt6ln",
-            Publisher = "FireCubeStudios"
+            Publisher = "FireCubeStudios",
+            AccentColor = Color.FromArgb(255, 209, 0, 0)
         },
         new AppCard
         {
@@ -134,7 +142,8 @@ internal sealed partial class HomePage : Page
             IconPath = "/Assets/AppIcons/PowerToys.png",
             PicturePath = "/Assets/AppBanners/PowerToys.png",
             Link = "https://learn.microsoft.com/en-us/windows/powertoys/",
-            Publisher = "Microsoft Corporation"
+            Publisher = "Microsoft Corporation",
+            AccentColor = Color.FromArgb(255, 255, 228, 161)
         },
         new AppCard
         {
@@ -143,7 +152,8 @@ internal sealed partial class HomePage : Page
             IconPath = "/Assets/AppIcons/Scanner.png",
             PicturePath = "/Assets/AppBanners/Scanner.jpg",
             Link = "https://simon-knuth.github.io/scanner/",
-            Publisher = "Simon Knuth"
+            Publisher = "Simon Knuth",
+            AccentColor = Color.FromArgb(255, 207, 86, 0)
         },
         new AppCard
         {
@@ -152,7 +162,8 @@ internal sealed partial class HomePage : Page
             IconPath = "/Assets/AppIcons/Screenbox.png",
             PicturePath = "/Assets/AppBanners/Screenbox.png",
             Link = "https://apps.microsoft.com/detail/9ntsnmsvcb5l",
-            Publisher = "Tung H."
+            Publisher = "Tung H.",
+            AccentColor = Color.FromArgb(255, 0, 168, 224)
         },
         new AppCard
         {
@@ -161,7 +172,8 @@ internal sealed partial class HomePage : Page
             IconPath = "/Assets/AppIcons/SecureFolderFS.png",
             PicturePath = "/Assets/AppBanners/SecureFolderFS.png",
             Link = "https://www.microsoft.com/store/apps/9NZ7CZRN7GG8",
-            Publisher = "d2dyno"
+            Publisher = "d2dyno",
+            AccentColor = Color.FromArgb(255, 0, 209, 224)
         },
         new AppCard
         {
@@ -170,7 +182,8 @@ internal sealed partial class HomePage : Page
             IconPath = "/Assets/AppIcons/WinoMail.png",
             PicturePath = "/Assets/AppBanners/Wino Mail.png",
             Link = "https://apps.microsoft.com/detail/9ncrcvjc50wl",
-            Publisher = "Burak Kaan Köse"
+            Publisher = "Burak Kaan Köse",
+            AccentColor = Color.FromArgb(255, 0, 149, 224)
         },
     ];
 
