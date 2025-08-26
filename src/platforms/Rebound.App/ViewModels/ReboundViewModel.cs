@@ -35,17 +35,17 @@ public partial class ReboundViewModel : ObservableObject
     public partial bool IsUpdateAvailable { get; set; }
 
     [ObservableProperty]
-    public partial string VersionText { get; set; }
+    public partial string VersionText { get; set; } = "";
 
     [ObservableProperty]
-    public partial string CurrentVersion { get; set; }
+    public partial string CurrentVersion { get; set; } = "";
 
     bool _isLoading;
 
     public ReboundViewModel()
     {
         _isLoading = true;
-        IsReboundEnabled = ReboundWorkingEnvironment.IsReboundEnabled();
+        IsReboundEnabled = WorkingEnvironment.IsReboundEnabled();
         InstallRun = SettingsHelper.GetValue<bool>("InstallRun", "rebound", true);
         InstallShutdownDialog = SettingsHelper.GetValue<bool>("InstallShutdownDialog", "rebound", true);
         InstallShortcuts = SettingsHelper.GetValue<bool>("InstallShortcuts", "rebound", true);
@@ -108,39 +108,39 @@ public partial class ReboundViewModel : ObservableObject
     {
         if (newValue)
         {
-            ReboundWorkingEnvironment.EnsureFolderIntegrity();
-            ReboundWorkingEnvironment.EnsureTasksFolderIntegrity();
-            ReboundWorkingEnvironment.EnsureMandatoryInstructionsIntegrity();
+            WorkingEnvironment.EnsureFolderIntegrity();
+            WorkingEnvironment.EnsureTasksFolderIntegrity();
+            WorkingEnvironment.EnsureMandatoryInstructionsIntegrity();
             if (newValue != oldValue && !_isLoading)
             {
-                ReboundWorkingEnvironment.UpdateVersion();
+                WorkingEnvironment.UpdateVersion();
                 CheckForUpdates();
             }
         }
         else
         {
-            foreach (var instruction in ReboundTotalInstructions.AppInstructions)
+            foreach (var instruction in Catalog.MandatoryMods)
             {
                 await instruction.UninstallAsync();
             }
-            ReboundWorkingEnvironment.RemoveFolder();
-            ReboundWorkingEnvironment.RemoveTasksFolder();
-            ReboundWorkingEnvironment.RemoveMandatoryInstructions();
+            WorkingEnvironment.RemoveFolder();
+            WorkingEnvironment.RemoveTasksFolder();
+            WorkingEnvironment.RemoveMandatoryInstructions();
         }
     }
 
     [RelayCommand]
     public async Task UpdateOrRepairAllAsync()
     {
-        foreach (var instruction in ReboundTotalInstructions.AppInstructions)
+        foreach (var instruction in Catalog.MandatoryMods)
         {
             if (instruction.IsInstalled) await instruction.InstallAsync().ConfigureAwait(true);
         }
-        foreach (var instruction in ReboundTotalInstructions.MandatoryInstructions)
+        foreach (var instruction in Catalog.MandatoryMods)
         {
             await instruction.InstallAsync().ConfigureAwait(true);
         }
-        ReboundWorkingEnvironment.UpdateVersion();
+        WorkingEnvironment.UpdateVersion();
         CheckForUpdates();
     }
 

@@ -15,11 +15,34 @@
 		<DefineConstants>DISABLE_XAML_GENERATED_MAIN;$(DefineConstants)</DefineConstants>
 
 		<DefaultLanguage>en-US</DefaultLanguage>
+
+		<GenerateAppInstallerFile>True</GenerateAppInstallerFile>
+
+		<AppxPackageSigningEnabled>True</AppxPackageSigningEnabled>
+
+		<PackageCertificateKeyFile>Rebound.App_TemporaryKey.pfx</PackageCertificateKeyFile>
+
+		<AppxPackageSigningTimestampDigestAlgorithm>SHA256</AppxPackageSigningTimestampDigestAlgorithm>
+
+		<AppxAutoIncrementPackageRevision>True</AppxAutoIncrementPackageRevision>
+
+		<GenerateTestArtifacts>True</GenerateTestArtifacts>
+
+		<AppxBundle>Never</AppxBundle>
+
+		<AppInstallerUri>D:\</AppInstallerUri>
+
+		<HoursBetweenUpdateChecks>0</HoursBetweenUpdateChecks>
 		
 	</PropertyGroup>
 
 	<ItemGroup>
 		<AppxTargetDeviceFamilyItem Include="Windows.Desktop" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<TrimmerRootAssembly Include="Windows.Win32" />
+		<TrimmerRootAssembly Include="Windows.Win32.System.Com" />
 	</ItemGroup>
 
 	<!-- Project content -->
@@ -47,9 +70,6 @@
 		<Content Update="Assets\**\*">
 			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
 		</Content>
-		<Page Update="Views\EmptyPage.xaml">
-			<Generator>MSBuild:Compile</Generator>
-		</Page>
 	</ItemGroup>
 
 	<!-- Project references -->

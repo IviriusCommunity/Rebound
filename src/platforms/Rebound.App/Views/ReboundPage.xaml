@@ -15,84 +15,95 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:media="using:CommunityToolkit.WinUI.Media"
     xmlns:muxc="using:Microsoft.UI.Xaml.Controls"
+    xmlns:ui="using:CommunityToolkit.WinUI"
     x:Name="ReboundView"
     mc:Ignorable="d">
     <Page.Resources>
-        <converters:BoolToObjectConverter
-            x:Key="BoolToReverseVisibilityConverter"
-            FalseValue="Visible"
-            TrueValue="Collapsed" />
-        <converters:BoolToObjectConverter x:Key="BoolToReboundEnabledConverter">
-            <converters:BoolToObjectConverter.TrueValue>
-                <Grid>
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="Auto" />
-                        <ColumnDefinition Width="Auto" />
-                        <ColumnDefinition Width="Auto" />
-                    </Grid.ColumnDefinitions>
-                    <FontIcon
-                        HorizontalAlignment="Left"
-                        FontSize="16"
-                        Glyph="&#xEC61;" />
-                    <StackPanel Margin="24,0,0,0" Spacing="0">
-                        <TextBlock Text="Rebound is enabled!" />
-                        <TextBlock
-                            FontSize="10"
-                            Opacity="0.5"
-                            Text="Press to disable Rebound and turn off all mods." />
-                    </StackPanel>
-                    <Border
-                        Grid.Column="1"
-                        Width="1"
-                        Margin="12,-9"
-                        Background="{ThemeResource TextOnAccentFillColorPrimaryBrush}" />
-                    <StackPanel Grid.Column="2" Spacing="0">
-                        <TextBlock Text="Hub version:" />
-                        <TextBlock
-                            FontSize="10"
-                            Opacity="0.5"
-                            Text="{x:Bind helpers:ReboundVersion.REBOUND_VERSION, Mode=OneWay}" />
-                    </StackPanel>
-                </Grid>
-            </converters:BoolToObjectConverter.TrueValue>
-            <converters:BoolToObjectConverter.FalseValue>
-                <Grid>
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="Auto" />
-                    </Grid.ColumnDefinitions>
-                    <FontIcon
-                        HorizontalAlignment="Left"
-                        FontFamily="Segoe UI Emoji"
-                        FontSize="16"
-                        Glyph="🙁" />
-                    <StackPanel Margin="32,0,0,0" Spacing="0">
-                        <TextBlock Text="Rebound is not enabled." />
-                        <StackPanel Orientation="Horizontal" Spacing="4">
-                            <Border
-                                Width="12"
-                                Height="12"
-                                Background="{ThemeResource AccentFillColorDefaultBrush}"
-                                CornerRadius="32">
-                                <Border
-                                    Width="4"
-                                    Height="4"
-                                    Background="{ThemeResource TextOnAccentFillColorPrimaryBrush}"
-                                    CornerRadius="32" />
-                            </Border>
+        <ResourceDictionary>
+            <ResourceDictionary.ThemeDictionaries>
+                <ResourceDictionary x:Key="Light">
+                    <ImageSource x:Key="HeroImage">/Assets/Backgrounds/WallpaperLight.png</ImageSource>
+                </ResourceDictionary>
+                <ResourceDictionary x:Key="Dark">
+                    <ImageSource x:Key="HeroImage">/Assets/Backgrounds/WallpaperDark.png</ImageSource>
+                </ResourceDictionary>
+            </ResourceDictionary.ThemeDictionaries>
+            <converters:BoolToObjectConverter
+                x:Key="BoolToReverseVisibilityConverter"
+                FalseValue="Visible"
+                TrueValue="Collapsed" />
+            <converters:BoolToObjectConverter x:Key="BoolToReboundEnabledConverter">
+                <converters:BoolToObjectConverter.TrueValue>
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+                        <FontIcon
+                            HorizontalAlignment="Left"
+                            FontSize="16"
+                            Glyph="&#xEC61;" />
+                        <StackPanel Margin="24,0,0,0" Spacing="0">
+                            <TextBlock Text="Rebound is enabled!" />
                             <TextBlock
                                 FontSize="10"
-                                FontWeight="SemiBold"
-                                Text="Press here to enable Rebound!" />
+                                Opacity="0.5"
+                                Text="Press to disable Rebound and turn off all mods." />
                         </StackPanel>
-                    </StackPanel>
-                </Grid>
-            </converters:BoolToObjectConverter.FalseValue>
-        </converters:BoolToObjectConverter>
-        <converters:BoolToObjectConverter
-            x:Key="BoolToOpacityConverter"
-            FalseValue="0.5"
-            TrueValue="1" />
-        <converters:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter" />
+                        <Border
+                            Grid.Column="1"
+                            Width="1"
+                            Margin="12,-9"
+                            Background="{ThemeResource TextOnAccentFillColorPrimaryBrush}" />
+                        <StackPanel Grid.Column="2" Spacing="0">
+                            <TextBlock Text="Hub version:" />
+                            <TextBlock
+                                FontSize="10"
+                                Opacity="0.5"
+                                Text="{x:Bind helpers:ReboundVersion.REBOUND_VERSION, Mode=OneWay}" />
+                        </StackPanel>
+                    </Grid>
+                </converters:BoolToObjectConverter.TrueValue>
+                <converters:BoolToObjectConverter.FalseValue>
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+                        <FontIcon
+                            HorizontalAlignment="Left"
+                            FontFamily="Segoe UI Emoji"
+                            FontSize="16"
+                            Glyph="🙁" />
+                        <StackPanel Margin="32,0,0,0" Spacing="0">
+                            <TextBlock Text="Rebound is not enabled." />
+                            <StackPanel Orientation="Horizontal" Spacing="4">
+                                <Border
+                                    Width="12"
+                                    Height="12"
+                                    Background="{ThemeResource AccentFillColorDefaultBrush}"
+                                    CornerRadius="32">
+                                    <Border
+                                        Width="4"
+                                        Height="4"
+                                        Background="{ThemeResource TextOnAccentFillColorPrimaryBrush}"
+                                        CornerRadius="32" />
+                                </Border>
+                                <TextBlock
+                                    FontSize="10"
+                                    FontWeight="SemiBold"
+                                    Text="Press here to enable Rebound!" />
+                            </StackPanel>
+                        </StackPanel>
+                    </Grid>
+                </converters:BoolToObjectConverter.FalseValue>
+            </converters:BoolToObjectConverter>
+            <converters:BoolToObjectConverter
+                x:Key="BoolToOpacityConverter"
+                FalseValue="0.5"
+                TrueValue="1" />
+            <converters:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter" />
+        </ResourceDictionary>
     </Page.Resources>
     <Grid>
         <ScrollViewer CornerRadius="8,0,0,0">
@@ -113,7 +124,7 @@
                     <RowDefinition Height="Auto" />
                 </Grid.RowDefinitions>
 
-                <gallery:HomePageHeaderImage Image="/Assets/Backgrounds/WallpaperDark.png" />
+                <gallery:HomePageHeaderImage x:Name="BKGImage" Image="{ThemeResource HeroImage}" />
 
                 <Grid
                     x:Name="TitleGrid"
@@ -148,16 +159,15 @@
                     <ItemsControl ItemsSource="{x:Bind LinkCards}">
                         <ItemsControl.ItemsPanel>
                             <ItemsPanelTemplate>
-                                <StackPanel
-                                    HorizontalAlignment="Left"
-                                    VerticalAlignment="Top"
-                                    Orientation="Horizontal"
-                                    Spacing="16" />
+                                <controls:WrapPanel HorizontalSpacing="16" VerticalSpacing="16" />
                             </ItemsPanelTemplate>
                         </ItemsControl.ItemsPanel>
                         <ItemsControl.ItemTemplate>
                             <DataTemplate x:DataType="local:LinkCard">
                                 <Grid CornerRadius="6">
+                                    <Grid.Background>
+                                        <media:AcrylicBrush BlurAmount="16" TintColor="{ThemeResource SolidBackgroundFillColorBase}" />
+                                    </Grid.Background>
                                     <Button
                                         Width="240"
                                         Height="220"
@@ -213,6 +223,7 @@
                 <Grid
                     Grid.Row="3"
                     Margin="48,16,48,8"
+                    HorizontalAlignment="Stretch"
                     ColumnSpacing="8">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="Auto" />
@@ -248,39 +259,39 @@
                             <MenuFlyout>
                                 <MenuFlyoutSubItem Text="Control Panel">
                                     <MenuFlyoutSubItem.Icon>
-                                        <muxc:ImageIcon Source="/Assets/AppIcons/ControlPanel.ico" />
+                                        <muxc:ImageIcon Source="/Assets/ReboundApps/ControlPanel.ico" />
                                     </MenuFlyoutSubItem.Icon>
                                     <MenuFlyoutSubItem.Items>
                                         <ToggleMenuFlyoutItem IsChecked="{x:Bind ReboundViewModel.InstallWindowsTools, Mode=TwoWay}" Text="Windows Tools">
                                             <ToggleMenuFlyoutItem.Icon>
-                                                <muxc:ImageIcon Source="/Assets/AppIcons/WindowsTools.ico" />
+                                                <muxc:ImageIcon Source="/Assets/Glyphs/WindowsTools.ico" />
                                             </ToggleMenuFlyoutItem.Icon>
                                         </ToggleMenuFlyoutItem>
                                         <ToggleMenuFlyoutItem IsChecked="{x:Bind ReboundViewModel.InstallAppwiz, Mode=TwoWay}" Text="appwiz.cpl">
                                             <ToggleMenuFlyoutItem.Icon>
-                                                <muxc:ImageIcon Source="/Assets/AppIcons/Programs.ico" />
+                                                <muxc:ImageIcon Source="/Assets/Glyphs/Programs.ico" />
                                             </ToggleMenuFlyoutItem.Icon>
                                         </ToggleMenuFlyoutItem>
                                     </MenuFlyoutSubItem.Items>
                                 </MenuFlyoutSubItem>
                                 <MenuFlyoutSubItem Text="Rebound Shell">
                                     <MenuFlyoutSubItem.Icon>
-                                        <muxc:ImageIcon Source="/Assets/AppIcons/shell32_180.ico" />
+                                        <muxc:ImageIcon Source="/Assets/ReboundApps/Shell.ico" />
                                     </MenuFlyoutSubItem.Icon>
                                     <MenuFlyoutSubItem.Items>
                                         <ToggleMenuFlyoutItem IsChecked="{x:Bind ReboundViewModel.InstallRun, Mode=TwoWay}" Text="Run">
                                             <ToggleMenuFlyoutItem.Icon>
-                                                <muxc:ImageIcon Source="/Assets/AppIcons/RunBox.ico" />
+                                                <muxc:ImageIcon Source="/Assets/Glyphs/RunBox.ico" />
                                             </ToggleMenuFlyoutItem.Icon>
                                         </ToggleMenuFlyoutItem>
                                         <ToggleMenuFlyoutItem IsChecked="{x:Bind ReboundViewModel.InstallShutdownDialog, Mode=TwoWay}" Text="Shutdown dialog">
                                             <ToggleMenuFlyoutItem.Icon>
-                                                <muxc:ImageIcon Source="/Assets/AppIcons/shell32_28.ico" />
+                                                <muxc:ImageIcon Source="/Assets/Glyphs/Shutdown.ico" />
                                             </ToggleMenuFlyoutItem.Icon>
                                         </ToggleMenuFlyoutItem>
                                         <ToggleMenuFlyoutItem IsChecked="{x:Bind ReboundViewModel.InstallThisAppCantRunOnYourPC, Mode=TwoWay}" Text="&quot;This app can't run on your PC&quot; dialog">
                                             <ToggleMenuFlyoutItem.Icon>
-                                                <muxc:ImageIcon Source="/Assets/AppIcons/mstscax_13404.ico" />
+                                                <muxc:ImageIcon Source="/Assets/Glyphs/Error.ico" />
                                             </ToggleMenuFlyoutItem.Icon>
                                         </ToggleMenuFlyoutItem>
                                     </MenuFlyoutSubItem.Items>
@@ -288,7 +299,7 @@
                                 <MenuFlyoutSeparator />
                                 <ToggleMenuFlyoutItem IsChecked="{x:Bind ReboundViewModel.InstallShortcuts, Mode=TwoWay}" Text="Create new shortcuts for Rebound apps">
                                     <ToggleMenuFlyoutItem.Icon>
-                                        <muxc:ImageIcon Source="/Assets/AppIcons/shell32_16769.ico" />
+                                        <muxc:ImageIcon Source="/Assets/Glyphs/Shortcut.ico" />
                                     </ToggleMenuFlyoutItem.Icon>
                                 </ToggleMenuFlyoutItem>
                             </MenuFlyout>
@@ -298,24 +309,27 @@
 
                 <TextBlock
                     Grid.Row="5"
-                    Margin="48,16,0,0"
+                    Margin="48,16,48,0"
+                    HorizontalAlignment="Stretch"
                     FontSize="20"
                     FontWeight="SemiBold"
                     Text="Mandatory" />
-                <Grid Grid.Row="6" Padding="48,16,48,16">
-                    <ContentControl IsEnabled="{x:Bind ReboundViewModel.IsReboundEnabled, Mode=OneWay}">
-                        <ItemsControl ItemsSource="{x:Bind forge:ReboundTotalInstructions.MandatoryInstructions}">
+                
+                <Grid
+                    Grid.Row="6"
+                    Margin="48,16"
+                    HorizontalAlignment="Stretch">
+                    <ContentControl HorizontalContentAlignment="Stretch" IsEnabled="{x:Bind ReboundViewModel.IsReboundEnabled, Mode=OneWay}">
+                        <ItemsControl ItemsSource="{x:Bind forge:Catalog.MandatoryMods}">
                             <ItemsControl.ItemsPanel>
                                 <ItemsPanelTemplate>
-                                    <controls:StaggeredPanel
-                                        ColumnSpacing="8"
-                                        DesiredColumnWidth="400"
-                                        RowSpacing="8" />
+                                    <controls:WrapPanel HorizontalSpacing="8" VerticalSpacing="8" />
                                 </ItemsPanelTemplate>
                             </ItemsControl.ItemsPanel>
                             <ItemsControl.ItemTemplate>
-                                <DataTemplate x:DataType="forge:ReboundAppInstructions">
+                                <DataTemplate x:DataType="forge:Mod">
                                     <Grid
+                                        Width="480"
                                         Padding="12"
                                         HorizontalAlignment="Stretch"
                                         Background="{ThemeResource CardBackgroundFillColorDefault}"
@@ -324,8 +338,7 @@
                                         CornerRadius="4">
                                         <Grid.RowDefinitions>
                                             <RowDefinition Height="Auto" />
-                                            <RowDefinition Height="8" />
-                                            <RowDefinition Height="Auto" />
+                                            <RowDefinition Height="*" />
                                             <RowDefinition Height="Auto" />
                                         </Grid.RowDefinitions>
                                         <Grid.ColumnDefinitions>
@@ -335,23 +348,48 @@
                                             <ColumnDefinition Width="16" />
                                             <ColumnDefinition Width="Auto" />
                                         </Grid.ColumnDefinitions>
-                                        <Grid
-                                            Grid.RowSpan="3"
+
+                                        <!--  Icon shadow  -->
+                                        <Border
+                                            Grid.RowSpan="2"
+                                            Width="64"
+                                            Height="64"
                                             HorizontalAlignment="Left"
                                             VerticalAlignment="Top">
-                                            <Grid Background="{ThemeResource SolidBackgroundFillColorBaseBrush}" CornerRadius="4" />
-                                            <Image
-                                                Width="56"
-                                                Height="56"
-                                                Margin="4"
-                                                Source="{x:Bind Icon}"
-                                                Stretch="Fill" />
+                                            <ui:Effects.Shadow>
+                                                <media:AttachedCardShadow
+                                                    BlurRadius="12"
+                                                    Opacity="0.3"
+                                                    Offset="0, 4"
+                                                    Color="Black" />
+                                            </ui:Effects.Shadow>
+                                        </Border>
+
+                                        <!--  Icon  -->
+                                        <Grid
+                                            Grid.RowSpan="2"
+                                            HorizontalAlignment="Left"
+                                            VerticalAlignment="Top">
+                                            <Grid
+                                                Width="64"
+                                                Height="64"
+                                                Background="{ThemeResource SolidBackgroundFillColorBaseBrush}"
+                                                CornerRadius="4">
+                                                <Image
+                                                    Margin="-8"
+                                                    Source="{x:Bind Icon}"
+                                                    Stretch="Fill" />
+                                                <Grid
+                                                    BorderBrush="{ThemeResource SolidBackgroundFillColorBaseBrush}"
+                                                    BorderThickness="2"
+                                                    CornerRadius="3" />
+                                            </Grid>
                                             <Border CornerRadius="4">
                                                 <Border.Background>
                                                     <media:AcrylicBrush
                                                         BlurAmount="8"
                                                         TintColor="{ThemeResource SolidBackgroundFillColorBase}"
-                                                        TintOpacity="0.5" />
+                                                        TintOpacity="0.7" />
                                                 </Border.Background>
                                                 <Image
                                                     Width="48"
@@ -360,67 +398,103 @@
                                                     Source="{x:Bind Icon}" />
                                             </Border>
                                         </Grid>
+
+                                        <!--  Name  -->
                                         <TextBlock
                                             Grid.Column="2"
-                                            FontSize="18"
+                                            FontSize="16"
                                             FontWeight="SemiBold"
                                             Text="{x:Bind Name, Mode=OneWay}"
                                             TextWrapping="WrapWholeWords" />
+
+                                        <!--  Description  -->
                                         <TextBlock
-                                            Grid.Row="2"
+                                            Grid.Row="1"
                                             Grid.Column="2"
-                                            Grid.ColumnSpan="3"
-                                            Margin="0,-44,0,8"
+                                            Margin="0,8,0,0"
                                             FontSize="12"
                                             Opacity="0.5"
                                             Text="{x:Bind Description, Mode=OneWay}"
                                             TextWrapping="WrapWholeWords" />
-                                        <muxc:InfoBar
-                                            Title="This will do the following:"
-                                            Grid.Row="4"
+
+                                        <!--  Buttons grid  -->
+                                        <Grid
+                                            Grid.Row="3"
                                             Grid.ColumnSpan="5"
-                                            IsClosable="False"
-                                            IsOpen="True"
-                                            Message="{x:Bind InstallationSteps, Mode=OneWay}" />
-                                        <muxc:InfoBar
-                                            Title="This mod is corrupted and needs to be repaired."
-                                            Grid.Row="5"
-                                            Grid.ColumnSpan="5"
-                                            Margin="0,8,0,0"
-                                            IsClosable="False"
-                                            IsOpen="True"
-                                            Severity="Error"
-                                            Visibility="{x:Bind IsIntact, Mode=OneWay, Converter={StaticResource BoolToReverseVisibilityConverter}}">
-                                            <muxc:InfoBar.ActionButton>
-                                                <Button Command="{x:Bind RepairCommand}" Content="Repair" />
-                                            </muxc:InfoBar.ActionButton>
-                                        </muxc:InfoBar>
+                                            Margin="0,16,0,0"
+                                            ColumnSpacing="8">
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="*" />
+                                                <ColumnDefinition Width="*" />
+                                                <ColumnDefinition Width="*" />
+                                            </Grid.ColumnDefinitions>
+                                            <Button HorizontalAlignment="Stretch" Style="{StaticResource AccentButtonStyle}">
+                                                <StackPanel Orientation="Horizontal" Spacing="8">
+                                                    <FontIcon FontSize="16" Glyph="&#xE946;" />
+                                                    <TextBlock Text="View info" />
+                                                </StackPanel>
+                                                <Button.Flyout>
+                                                    <Flyout>
+                                                        <StackPanel Spacing="8">
+                                                            <TextBlock FontWeight="SemiBold" Text="This will do the following:" />
+                                                            <TextBlock Text="{x:Bind InstallationSteps, Mode=OneWay}" />
+                                                        </StackPanel>
+                                                    </Flyout>
+                                                </Button.Flyout>
+                                            </Button>
+                                            <Button
+                                                Grid.Column="1"
+                                                HorizontalAlignment="Stretch"
+                                                ToolTipService.ToolTip="This mod is corrupted and needs to be repaired."
+                                                Visibility="{x:Bind IsIntact, Mode=OneWay, Converter={StaticResource BoolToReverseVisibilityConverter}}">
+                                                <StackPanel Orientation="Horizontal" Spacing="8">
+                                                    <Grid
+                                                        Width="16"
+                                                        Height="16"
+                                                        Background="{ThemeResource SystemFillColorCriticalBrush}"
+                                                        CornerRadius="16" />
+                                                    <FontIcon FontSize="16" Glyph="&#xE90F;" />
+                                                    <TextBlock Text="Repair" />
+                                                </StackPanel>
+                                                <Button.Flyout>
+                                                    <Flyout>
+                                                        <StackPanel Spacing="8">
+                                                            <TextBlock FontWeight="SemiBold" Text="This will do the following:" />
+                                                            <TextBlock Text="{x:Bind InstallationSteps, Mode=OneWay}" />
+                                                        </StackPanel>
+                                                    </Flyout>
+                                                </Button.Flyout>
+                                            </Button>
+                                        </Grid>
                                     </Grid>
                                 </DataTemplate>
                             </ItemsControl.ItemTemplate>
                         </ItemsControl>
                     </ContentControl>
                 </Grid>
+                
                 <TextBlock
                     Grid.Row="7"
                     Margin="48,0"
+                    HorizontalAlignment="Stretch"
                     FontSize="20"
                     FontWeight="SemiBold"
                     Text="Optional" />
-                <Grid Grid.Row="8" Padding="48,16,48,48">
-                    <ContentControl IsEnabled="{x:Bind ReboundViewModel.IsReboundEnabled, Mode=OneWay}">
-                        <ItemsControl ItemsSource="{x:Bind forge:ReboundTotalInstructions.AppInstructions}">
+                <Grid
+                    Grid.Row="8"
+                    Margin="48,16,48,48"
+                    HorizontalAlignment="Stretch">
+                    <ContentControl HorizontalContentAlignment="Stretch" IsEnabled="{x:Bind ReboundViewModel.IsReboundEnabled, Mode=OneWay}">
+                        <ItemsControl ItemsSource="{x:Bind forge:Catalog.Mods, Mode=OneWay}">
                             <ItemsControl.ItemsPanel>
                                 <ItemsPanelTemplate>
-                                    <controls:StaggeredPanel
-                                        ColumnSpacing="8"
-                                        DesiredColumnWidth="400"
-                                        RowSpacing="8" />
+                                    <controls:WrapPanel HorizontalSpacing="8" VerticalSpacing="8" />
                                 </ItemsPanelTemplate>
                             </ItemsControl.ItemsPanel>
                             <ItemsControl.ItemTemplate>
-                                <DataTemplate x:DataType="forge:ReboundAppInstructions">
+                                <DataTemplate x:DataType="forge:Mod">
                                     <Grid
+                                        Width="480"
                                         Padding="12"
                                         HorizontalAlignment="Stretch"
                                         Background="{ThemeResource CardBackgroundFillColorDefault}"
@@ -429,10 +503,7 @@
                                         CornerRadius="4">
                                         <Grid.RowDefinitions>
                                             <RowDefinition Height="Auto" />
-                                            <RowDefinition Height="8" />
-                                            <RowDefinition Height="Auto" />
-                                            <RowDefinition Height="8" />
-                                            <RowDefinition Height="Auto" />
+                                            <RowDefinition Height="*" />
                                             <RowDefinition Height="Auto" />
                                         </Grid.RowDefinitions>
                                         <Grid.ColumnDefinitions>
@@ -442,23 +513,48 @@
                                             <ColumnDefinition Width="16" />
                                             <ColumnDefinition Width="Auto" />
                                         </Grid.ColumnDefinitions>
-                                        <Grid
-                                            Grid.RowSpan="3"
+
+                                        <!--  Icon shadow  -->
+                                        <Border
+                                            Grid.RowSpan="2"
+                                            Width="64"
+                                            Height="64"
                                             HorizontalAlignment="Left"
                                             VerticalAlignment="Top">
-                                            <Grid Background="{ThemeResource SolidBackgroundFillColorBaseBrush}" CornerRadius="4" />
-                                            <Image
-                                                Width="56"
-                                                Height="56"
-                                                Margin="4"
-                                                Source="{x:Bind Icon}"
-                                                Stretch="Fill" />
+                                            <ui:Effects.Shadow>
+                                                <media:AttachedCardShadow
+                                                    BlurRadius="12"
+                                                    Opacity="0.3"
+                                                    Offset="0, 4"
+                                                    Color="Black" />
+                                            </ui:Effects.Shadow>
+                                        </Border>
+
+                                        <!--  Icon  -->
+                                        <Grid
+                                            Grid.RowSpan="2"
+                                            HorizontalAlignment="Left"
+                                            VerticalAlignment="Top">
+                                            <Grid
+                                                Width="64"
+                                                Height="64"
+                                                Background="{ThemeResource SolidBackgroundFillColorBaseBrush}"
+                                                CornerRadius="4">
+                                                <Image
+                                                    Margin="-8"
+                                                    Source="{x:Bind Icon}"
+                                                    Stretch="Fill" />
+                                                <Grid
+                                                    BorderBrush="{ThemeResource SolidBackgroundFillColorBaseBrush}"
+                                                    BorderThickness="2"
+                                                    CornerRadius="3" />
+                                            </Grid>
                                             <Border CornerRadius="4">
                                                 <Border.Background>
                                                     <media:AcrylicBrush
                                                         BlurAmount="8"
                                                         TintColor="{ThemeResource SolidBackgroundFillColorBase}"
-                                                        TintOpacity="0.5" />
+                                                        TintOpacity="0.7" />
                                                 </Border.Background>
                                                 <Image
                                                     Width="48"
@@ -467,52 +563,136 @@
                                                     Source="{x:Bind Icon}" />
                                             </Border>
                                         </Grid>
+
+                                        <!--  Name  -->
                                         <TextBlock
                                             Grid.Column="2"
-                                            FontSize="18"
+                                            FontSize="16"
                                             FontWeight="SemiBold"
                                             Text="{x:Bind Name, Mode=OneWay}"
                                             TextWrapping="WrapWholeWords" />
-                                        <Button
-                                            Grid.Column="4"
-                                            Command="{x:Bind ToggleCommand}"
-                                            Content="Enabled"
-                                            Style="{ThemeResource AccentButtonStyle}"
-                                            Visibility="{x:Bind IsInstalled, Mode=OneWay}" />
-                                        <Button
-                                            Grid.Column="4"
-                                            Command="{x:Bind ToggleCommand}"
-                                            Content="Disabled"
-                                            Visibility="{x:Bind IsInstalled, Mode=OneWay, Converter={StaticResource BoolToReverseVisibilityConverter}}" />
+
+                                        <!--  Description  -->
                                         <TextBlock
-                                            Grid.Row="2"
+                                            Grid.Row="1"
                                             Grid.Column="2"
-                                            Grid.ColumnSpan="2"
-                                            Margin="0,-36,0,0"
+                                            Margin="0,8,0,0"
                                             FontSize="12"
                                             Opacity="0.5"
                                             Text="{x:Bind Description, Mode=OneWay}"
                                             TextWrapping="WrapWholeWords" />
-                                        <muxc:InfoBar
-                                            Title="This will do the following:"
-                                            Grid.Row="4"
+
+                                        <!--  Status grid  -->
+                                        <Grid Grid.RowSpan="2" Grid.Column="4">
+
+                                            <!--  Enabled  -->
+                                            <StackPanel Spacing="8" Visibility="{x:Bind IsInstalled, Mode=OneWay}">
+                                                <StackPanel
+                                                    Padding="8,4"
+                                                    BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                                                    BorderThickness="1"
+                                                    CornerRadius="4"
+                                                    Orientation="Horizontal"
+                                                    Spacing="8">
+                                                    <StackPanel.Background>
+                                                        <media:AcrylicBrush
+                                                            BlurAmount="8"
+                                                            TintColor="{ThemeResource SystemFillColorSuccessBackground}"
+                                                            TintOpacity="0.7" />
+                                                    </StackPanel.Background>
+                                                    <FontIcon
+                                                        FontSize="16"
+                                                        Foreground="{ThemeResource SystemFillColorSuccessBrush}"
+                                                        Glyph="&#xEC61;" />
+                                                    <TextBlock Foreground="{ThemeResource SystemFillColorSuccessBrush}" Text="Enabled" />
+                                                </StackPanel>
+                                                <Button
+                                                    Grid.Column="4"
+                                                    HorizontalAlignment="Stretch"
+                                                    Command="{x:Bind UninstallCommand}"
+                                                    Content="Disable" />
+                                            </StackPanel>
+
+                                            <!--  Disabled  -->
+                                            <StackPanel Spacing="8" Visibility="{x:Bind IsInstalled, Mode=OneWay, Converter={StaticResource BoolToReverseVisibilityConverter}}">
+                                                <StackPanel
+                                                    Padding="8,4"
+                                                    BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                                                    BorderThickness="1"
+                                                    CornerRadius="4"
+                                                    Orientation="Horizontal"
+                                                    Spacing="8">
+                                                    <StackPanel.Background>
+                                                        <media:AcrylicBrush
+                                                            BlurAmount="8"
+                                                            TintColor="{ThemeResource SystemFillColorCriticalBackground}"
+                                                            TintOpacity="0.7" />
+                                                    </StackPanel.Background>
+                                                    <FontIcon
+                                                        FontSize="16"
+                                                        Foreground="{ThemeResource SystemFillColorCriticalBrush}"
+                                                        Glyph="&#xEB90;" />
+                                                    <TextBlock Foreground="{ThemeResource SystemFillColorCriticalBrush}" Text="Disabled" />
+                                                </StackPanel>
+                                                <Button
+                                                    Grid.Column="4"
+                                                    HorizontalAlignment="Stretch"
+                                                    Command="{x:Bind InstallCommand}"
+                                                    Content="Enable"
+                                                    Style="{StaticResource AccentButtonStyle}" />
+                                            </StackPanel>
+
+                                        </Grid>
+
+                                        <!--  Buttons grid  -->
+                                        <Grid
+                                            Grid.Row="3"
                                             Grid.ColumnSpan="5"
-                                            IsClosable="False"
-                                            IsOpen="True"
-                                            Message="{x:Bind InstallationSteps, Mode=OneWay}" />
-                                        <muxc:InfoBar
-                                            Title="This mod is corrupted and needs to be repaired."
-                                            Grid.Row="5"
-                                            Grid.ColumnSpan="5"
-                                            Margin="0,8,0,0"
-                                            IsClosable="False"
-                                            IsOpen="True"
-                                            Severity="Error"
-                                            Visibility="{x:Bind IsIntact, Mode=OneWay, Converter={StaticResource BoolToReverseVisibilityConverter}}">
-                                            <muxc:InfoBar.ActionButton>
-                                                <Button Command="{x:Bind RepairCommand}" Content="Repair" />
-                                            </muxc:InfoBar.ActionButton>
-                                        </muxc:InfoBar>
+                                            Margin="0,16,0,0"
+                                            ColumnSpacing="8">
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="*" />
+                                                <ColumnDefinition Width="*" />
+                                                <ColumnDefinition Width="*" />
+                                            </Grid.ColumnDefinitions>
+                                            <Button HorizontalAlignment="Stretch" Style="{StaticResource AccentButtonStyle}">
+                                                <StackPanel Orientation="Horizontal" Spacing="8">
+                                                    <FontIcon FontSize="16" Glyph="&#xE946;" />
+                                                    <TextBlock Text="View info" />
+                                                </StackPanel>
+                                                <Button.Flyout>
+                                                    <Flyout>
+                                                        <StackPanel Spacing="8">
+                                                            <TextBlock FontWeight="SemiBold" Text="This will do the following:" />
+                                                            <TextBlock Text="{x:Bind InstallationSteps, Mode=OneWay}" />
+                                                        </StackPanel>
+                                                    </Flyout>
+                                                </Button.Flyout>
+                                            </Button>
+                                            <Button
+                                                Grid.Column="1"
+                                                HorizontalAlignment="Stretch"
+                                                ToolTipService.ToolTip="This mod is corrupted and needs to be repaired."
+                                                Visibility="{x:Bind IsIntact, Mode=OneWay, Converter={StaticResource BoolToReverseVisibilityConverter}}">
+                                                <StackPanel Orientation="Horizontal" Spacing="8">
+                                                    <Grid
+                                                        Width="16"
+                                                        Height="16"
+                                                        Background="{ThemeResource SystemFillColorCriticalBrush}"
+                                                        CornerRadius="16" />
+                                                    <FontIcon FontSize="16" Glyph="&#xE90F;" />
+                                                    <TextBlock Text="Repair" />
+                                                </StackPanel>
+                                                <Button.Flyout>
+                                                    <Flyout>
+                                                        <StackPanel Spacing="8">
+                                                            <TextBlock FontWeight="SemiBold" Text="This will do the following:" />
+                                                            <TextBlock Text="{x:Bind InstallationSteps, Mode=OneWay}" />
+                                                        </StackPanel>
+                                                    </Flyout>
+                                                </Button.Flyout>
+                                            </Button>
+                                        </Grid>
                                     </Grid>
                                 </DataTemplate>
                             </ItemsControl.ItemTemplate>
@@ -536,6 +716,9 @@
             CornerRadius="4"
             RowSpacing="8"
             Visibility="{x:Bind ReboundViewModel.IsUpdateAvailable, Mode=OneWay}">
+            <Grid.Background>
+                <media:AcrylicBrush BlurAmount="16" TintColor="{ThemeResource SolidBackgroundFillColorBase}" />
+            </Grid.Background>
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto" />
                 <RowDefinition Height="*" />

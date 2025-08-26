@@ -34,7 +34,7 @@ public class TrustedPipeServer
 
         List<string> trustedPaths = [];
 
-        foreach (var instruction in ReboundTotalInstructions.AppInstructions)
+        foreach (var instruction in Catalog.Mods)
         {
             trustedPaths.Add(instruction.EntryExecutable);
         }

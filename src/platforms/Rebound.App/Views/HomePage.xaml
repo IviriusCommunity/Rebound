@@ -13,6 +13,18 @@
     xmlns:muxc="using:Microsoft.UI.Xaml.Controls"
     xmlns:ui="using:CommunityToolkit.WinUI"
     mc:Ignorable="d">
+    <Page.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.ThemeDictionaries>
+                <ResourceDictionary x:Key="Light">
+                    <ImageSource x:Key="HeroImage">/Assets/Backgrounds/WallpaperLight.png</ImageSource>
+                </ResourceDictionary>
+                <ResourceDictionary x:Key="Dark">
+                    <ImageSource x:Key="HeroImage">/Assets/Backgrounds/WallpaperDark.png</ImageSource>
+                </ResourceDictionary>
+            </ResourceDictionary.ThemeDictionaries>
+        </ResourceDictionary>
+    </Page.Resources>
     <ScrollViewer CornerRadius="8,0,0,0">
         <Grid>
             <Grid.RowDefinitions>
@@ -23,7 +35,7 @@
                 <RowDefinition Height="Auto" />
             </Grid.RowDefinitions>
 
-            <gallery:HomePageHeaderImage Image="/Assets/Backgrounds/WallpaperDark.png" />
+            <gallery:HomePageHeaderImage Image="{ThemeResource HeroImage}" />
 
             <Grid
                 x:Name="TitleGrid"
@@ -127,7 +139,7 @@
                 Margin="48,0,0,24"
                 FontSize="28"
                 Style="{ThemeResource SubtitleTextBlockStyle}"
-                Text="3rd Party Fluent Apps" />
+                Text="Featured Apps" />
 
             <ItemsControl
                 Grid.Row="3"

@@ -50,7 +50,7 @@ namespace Windows.Win32
 
 		[GuidRVAGen.Guid("00021500-0000-0000-C000-000000000046")]
 		public static partial Guid* IID_IQueryInfo { get; }
-	}
+    }
 
 	public static unsafe partial class CLSID
     {
@@ -74,7 +74,10 @@ namespace Windows.Win32
 
 		[GuidRVAGen.Guid("45BA127D-10A8-46EA-8AB7-56EA9078943C")]
 		public static partial Guid* CLSID_ApplicationActivationManager { get; }
-	}
+
+        [GuidRVAGen.Guid("0F87369F-A4E5-4CFC-BD3E-73E6154572DD")]
+        public static partial Guid* CLSID_TaskScheduler { get; }
+    }
 
 	public static unsafe partial class BHID
 	{

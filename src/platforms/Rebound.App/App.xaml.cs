@@ -3,10 +3,12 @@ using CommunityToolkit.WinUI.Helpers;
 using Microsoft.UI;
 using Microsoft.UI.Content;
 using Rebound.Generators;
+using Rebound.Helpers.Windowing;
 using Rebound.Views;
 using System;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
+using System.Threading;
 using TerraFX.Interop.Windows;
 using TerraFX.Interop.WinRT;
 using Windows.System;
@@ -89,12 +91,15 @@ public partial class App : Application
         appWindow.TitleBar.PreferredHeightOption = Microsoft.UI.Windowing.TitleBarHeightOption.Tall;
         appWindow.TitleBar.ButtonBackgroundColor = Colors.Transparent;
         appWindow.TitleBar.ButtonInactiveBackgroundColor = Colors.Transparent;
+        appWindow.SetTaskbarIcon($"{AppContext.BaseDirectory}\\Assets\\AppIcons\\ReboundHub.ico");
 
         Frame = new Frame();
         _desktopWindowXamlSource.Content = Frame;
 
         _xamlInitialized = true;
         OnXamlInitialized();
+
+        SynchronizationContext.SetSynchronizationContext(new DispatcherQueueSynchronizationContext(DispatcherQueue.GetForCurrentThread()));
 
         ThemeListener themeListener = new ThemeListener();
         themeListener.ThemeChanged += (args) =>

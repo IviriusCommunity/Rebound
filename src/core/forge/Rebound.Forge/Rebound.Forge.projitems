@@ -9,18 +9,23 @@
     <Import_RootNamespace>Rebound.Forge</Import_RootNamespace>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Include="$(MSBuildThisFileDirectory)IFEOEngine.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)IFEOInstruction.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)IReboundAppInstruction.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)LauncherInstruction.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)ReboundAppInstructions.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)ReboundTotalInstructions.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)ReboundWorkingEnvironment.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)ShortcutInstruction.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)StartupTaskInstruction.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)WindowHook.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Engines\IFEOEngine.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Cogs\IFEOCog.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)ICog.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Cogs\LauncherCog.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Mod.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Catalog.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)WorkingEnvironment.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Cogs\ShortcutCog.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Cogs\StartupTaskCog.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Hooks\WindowHook.cs" />
   </ItemGroup>
   <ItemGroup>
     <AdditionalFiles Include="$(MSBuildThisFileDirectory)NativeMethods.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="$(MSBuildThisFileDirectory)Cogs\" />
+    <Folder Include="$(MSBuildThisFileDirectory)Hooks\" />
+    <Folder Include="$(MSBuildThisFileDirectory)Engines\" />
   </ItemGroup>
 </Project>

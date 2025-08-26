@@ -24,7 +24,7 @@ namespace Rebound
         static unsafe void Main(string[] args)
         {
             fixed (char* lpszClassName = "XamlIslandsClass")
-            fixed (char* lpWindowName = "Xaml Islands Window")
+            fixed (char* lpWindowName = "Rebound Hub")
             {
                 WNDCLASSW wc;
                 wc.lpfnWndProc = &WndProc;
