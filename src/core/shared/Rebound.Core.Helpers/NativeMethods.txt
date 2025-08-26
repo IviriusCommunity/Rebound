@@ -36,6 +36,8 @@ RegisterClass
 PostQuitMessage
 DefWindowProc
 LoadLibrary
+CreateMenu
+CreateDispatcherQueueController
 IDesktopWindowXamlSourceNative2
 ITaskService
 ITaskFolder

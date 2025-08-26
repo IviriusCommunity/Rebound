@@ -8,7 +8,7 @@
 		<UseUwp>true</UseUwp>
 		<UseUwpTools>true</UseUwpTools>
 		<AssemblyName>Rebound Hub</AssemblyName>
-		<ApplicationIcon>Assets\AppIcons\Rebound.ico</ApplicationIcon>
+		<ApplicationIcon>Assets\AppIcons\ReboundHub.ico</ApplicationIcon>
 		<RootNamespace>Rebound</RootNamespace>
 		<ApplicationManifest>app.manifest</ApplicationManifest>
 
@@ -53,7 +53,6 @@
 		<Content Include="Modding\Launchers\rosk.exe">
 		  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
 		</Content>
-		<Content Include="NativeMethods.json" />
 		<CustomAdditionalCompileInputs Remove="Views\HomePage.xaml" />
 		<Resource Remove="Views\HomePage.xaml" />
 		<Compile Remove="Styles\**" />

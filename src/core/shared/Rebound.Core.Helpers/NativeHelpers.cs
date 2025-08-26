@@ -5,6 +5,7 @@ using System.Text;
 using Windows.Win32.Foundation;
 
 namespace Rebound.Core.Helpers;
+
 public static class NativeHelpers
 {
     public static bool ArgsMatchKnownEntries(this string appName, IEnumerable<string> matches, string args)
@@ -16,6 +17,16 @@ public static class NativeHelpers
             items.Add($"{appName} {match}");
         }
         return items.Contains(args, StringComparer.InvariantCultureIgnoreCase);
+    }
+
+    public static unsafe HWND ToCsWin32HWND(this TerraFX.Interop.Windows.HWND hwnd)
+    {
+        return *(HWND*)hwnd.Value;
+    }
+
+    public static unsafe TerraFX.Interop.Windows.HWND ToTerraFXHWND(this HWND hwnd)
+    {
+        return *(TerraFX.Interop.Windows.HWND*)hwnd.Value;
     }
 
     public static unsafe PCWSTR ToPCWSTR(this string value)

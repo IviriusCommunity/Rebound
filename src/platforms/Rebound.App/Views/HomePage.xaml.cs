@@ -73,7 +73,7 @@ internal sealed partial class HomePage : Page
             Title = "Ambie",
             Description = "Focus, study, or relax. Sounds for every mood.",
             IconPath = "/Assets/AppIcons/PartnerApps/Ambie.png",
-            PicturePath = "/Assets/AppBanners/Ambie.jpeg",
+            PicturePath = "/Assets/AppBanners/Ambie.png",
             Link = "https://ambieapp.com/",
             Publisher = "Jenius Apps",
             AccentColor = Color.FromArgb(255, 255, 204, 0)
@@ -123,7 +123,7 @@ internal sealed partial class HomePage : Page
             Title = "Fluetro PDF",
             Description = "Modern pdf viewer designed for Windows 11.",
             IconPath = "/Assets/AppIcons/PartnerApps/Fluetro.png",
-            PicturePath = "/Assets/AppBanners/Fluetro.jpeg",
+            PicturePath = "/Assets/AppBanners/Fluetro.png",
             Link = "https://apps.microsoft.com/detail/9nsr7b2lt6ln",
             Publisher = "FireCubeStudios",
             AccentColor = Color.FromArgb(255, 209, 0, 0)
@@ -143,7 +143,7 @@ internal sealed partial class HomePage : Page
             Title = "Scanner",
             Description = "An all-in-one scanner app built for the Universal Windows Platform.",
             IconPath = "/Assets/AppIcons/PartnerApps/Scanner.png",
-            PicturePath = "/Assets/AppBanners/Scanner.jpg",
+            PicturePath = "/Assets/AppBanners/Scanner.png",
             Link = "https://simon-knuth.github.io/scanner/",
             Publisher = "Simon Knuth",
             AccentColor = Color.FromArgb(255, 207, 86, 0)
@@ -183,14 +183,5 @@ internal sealed partial class HomePage : Page
     internal HomePage()
     {
         InitializeComponent();
-    }
-
-    private void OnCardClick(object sender, RoutedEventArgs e)
-    {
-        if (sender is Button button && button.DataContext is AppCard card && !string.IsNullOrEmpty(card.Link))
-        {
-            var uri = new Uri(card.Link);
-            _ = Windows.System.Launcher.LaunchUriAsync(uri);
-        }
     }
 }

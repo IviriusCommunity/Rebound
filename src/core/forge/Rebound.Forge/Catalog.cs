@@ -63,6 +63,7 @@ internal static class Catalog
         // On-Screen Keyboard
         new Mod(
             name: "On-Screen Keyboard",
+
             description: "Launches the TabTip panel.",
             icon: "ms-appx:///Assets/ReboundApps/OSK.ico",
             installationSteps: "Redirect app launch",

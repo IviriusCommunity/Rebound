@@ -42,6 +42,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)Files\WindowsStorage\WindowsStorableHelpers.PowerShell.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Files\WindowsStorage\WindowsStorableHelpers.Shell.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Files\WindowsStorage\WindowsStorableHelpers.Storage.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)IslandsWindow.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)NativeHelpers.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Pipe.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Services\SingleInstanceAppService.cs" />
