@@ -42,10 +42,6 @@ public partial class IslandsWindow : ObservableObject
 {
     private delegate LRESULT WndProcDelegate(HWND hwnd, uint msg, WPARAM wParam, LPARAM lParam);
 
-#pragma warning disable CA1823 // Avoid unused private fields
-    private WndProcDelegate _wndProcInstance;
-#pragma warning restore CA1823 // Avoid unused private fields
-
     private HWND _xamlHwnd;
     private bool _xamlInitialized; 
     private HWND _coreHwnd;
