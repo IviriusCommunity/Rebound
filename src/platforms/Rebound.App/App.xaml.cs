@@ -25,7 +25,6 @@ namespace Rebound;
 //[ReboundApp("Rebound.Hub", "")]
 public partial class App : Application
 {
-    public WindowsXamlManager _xamlManager = null;
     public App()
     {
         App.Current.UnhandledException += Current_UnhandledException;
@@ -55,7 +54,7 @@ public partial class App : Application
 
     private void Current_UnhandledException(object sender, Windows.UI.Xaml.UnhandledExceptionEventArgs e)
     {
-        e.Handled = true;
+        //e.Handled = true;
     }
 
     public static unsafe void CreateMainWindow()

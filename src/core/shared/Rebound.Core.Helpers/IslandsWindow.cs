@@ -188,6 +188,10 @@ public partial class IslandsWindow : ObservableObject
 
     public unsafe void InitializeXaml()
     {
+        AppWindow = AppWindow.GetFromWindowId(Win32Interop.GetWindowIdFromWindow(Handle));
+
+        AppWindowInitialized?.Invoke(this, new AppWindowInitializedEventArgs());
+
         // Load old WinRT libs (optional, for legacy compatibility)
         InternalLoadLibrary("twinapi.appcore.dll");
         InternalLoadLibrary("threadpoolwinrt.dll");
@@ -217,10 +221,6 @@ public partial class IslandsWindow : ObservableObject
         using ComPtr<ICoreWindowInterop> interop = default;
         ThrowIfFailed(((IUnknown*)((IWinRTObject)_coreWindow).NativeObject.ThisPtr)->QueryInterface(__uuidof<ICoreWindowInterop>(), (void**)interop.GetAddressOf()));
         interop.Get()->get_WindowHandle((HWND*)Unsafe.AsPointer(ref _coreHwnd));
-
-        var appWindow = AppWindow.GetFromWindowId(Win32Interop.GetWindowIdFromWindow(Handle));
-
-        AppWindowInitialized?.Invoke(this, new AppWindowInitializedEventArgs());
 
         _xamlInitialized = true;
 

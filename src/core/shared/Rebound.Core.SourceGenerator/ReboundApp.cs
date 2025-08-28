@@ -69,13 +69,14 @@ namespace Rebound.Generators
                     var compilationUnit = CompilationUnit()
                         .AddUsings(
                             UsingDirective(IdentifierName("System")),
-                            UsingDirective(IdentifierName("Windows.ApplicationModel")),
+                            UsingDirective(IdentifierName("Windows.ApplicationModel.Activation")),
                             UsingDirective(IdentifierName("Microsoft.UI.Xaml")),
                             UsingDirective(IdentifierName("Rebound.Helpers.Services")),
                             UsingDirective(IdentifierName("Windows.UI.StartScreen")),
                             UsingDirective(IdentifierName("System.Threading.Tasks")),
                             UsingDirective(IdentifierName("Windows.Foundation")),
-                            UsingDirective(IdentifierName("WinUIEx"))
+                            UsingDirective(IdentifierName("Rebound.Core.Helpers")),
+                            UsingDirective(IdentifierName("Rebound.Helpers.Services"))
                         )
                         .AddMembers(namespaceDeclaration)
                         .NormalizeWhitespace();
@@ -170,8 +171,8 @@ namespace Rebound.Generators
 
             // Create a static field for MainWindow
             var mainWindowField = FieldDeclaration(
-                    VariableDeclaration(IdentifierName("WindowEx"))
-                    .AddVariables(VariableDeclarator("MainAppWindow"))
+                    VariableDeclaration(IdentifierName("IslandsWindow"))
+                    .AddVariables(VariableDeclarator("MainWindow"))
                 )
                 .AddModifiers(Token(SyntaxKind.PublicKeyword), Token(SyntaxKind.StaticKeyword));
 
