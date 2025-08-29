@@ -11,7 +11,7 @@ internal static class Catalog
         // Control Panel
         new Mod(
             name: "Control Panel",
-            description: "Replacement for the Control Panel.",
+            description: "Replacement for the legacy Control Panel. Most pages and sections redirect to the Settings app and Wintoys. Some settings for Rebound can also be found here.",
             icon: "ms-appx:///Assets/ReboundApps/ControlPanel.ico",
             installationSteps: "•   Redirect app launch\n•   Create a start menu shortcut",
             instructions: new ObservableCollection<ICog>
@@ -37,7 +37,7 @@ internal static class Catalog
         // Disk Cleanup
         new Mod(
             name: "Disk Cleanup",
-            description: "Replacement for the Disk Cleanup utility.",
+            description: "Replacement for the Disk Cleanup utility. Comes with more cleanup options, including Rebound temporary files and logs.",
             icon: "ms-appx:///Assets/ReboundApps/DiskCleanup.ico",
             installationSteps: "•   Redirect app launch\n•   Create a start menu shortcut",
             instructions: new ObservableCollection<ICog>
@@ -64,7 +64,7 @@ internal static class Catalog
         new Mod(
             name: "On-Screen Keyboard",
 
-            description: "Launches the TabTip panel.",
+            description: "Launches the TabTip panel (temporarily). Will be replaced by a standalone app.",
             icon: "ms-appx:///Assets/ReboundApps/OSK.ico",
             installationSteps: "Redirect app launch",
             instructions: new ObservableCollection<ICog>
@@ -144,7 +144,7 @@ internal static class Catalog
         // Rebound About Windows
         new Mod(
             name: "About Windows",
-            description: "Replacement for the winver applet.",
+            description: "Replacement for the winver applet. Details about the currently installed Rebound version can be found here.",
             icon: "ms-appx:///Assets/ReboundApps/AboutWindows.ico",
             installationSteps: "•   Redirect app launch\n•   Create a start menu shortcut",
             instructions: new ObservableCollection<ICog>

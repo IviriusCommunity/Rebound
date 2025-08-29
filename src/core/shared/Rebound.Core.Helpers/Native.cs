@@ -1,12 +1,14 @@
-﻿using System;
+﻿// Copyright (C) Ivirius(TM) Community 2020 - 2025. All Rights Reserved.
+// Licensed under the MIT License.
+
+using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using Windows.Win32.Foundation;
 
 namespace Rebound.Core.Helpers;
 
-public static class NativeHelpers
+public static class Native
 {
     public static bool ArgsMatchKnownEntries(this string appName, IEnumerable<string> matches, string args)
     {

@@ -1,14 +1,8 @@
 using System.Collections.ObjectModel;
-using Microsoft.Graphics.Canvas.Effects;
-using Windows.UI.Composition;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
-using Windows.UI.Xaml.Media;
-using Rebound.Helpers;
+using Rebound.Core.Helpers;
 using Rebound.ViewModels;
-using Color = Windows.UI.Color;
-using Windows.UI.Core;
-using Windows.UI.Xaml.Hosting;
 
 namespace Rebound.Views;
 

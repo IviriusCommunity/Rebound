@@ -1,11 +1,10 @@
-﻿using System;
-using System.Diagnostics;
-using System.Runtime.InteropServices;
-using System.Security.Principal;
-using Microsoft.UI.Xaml;
-using Windows.Win32.Foundation;
+﻿// Copyright (C) Ivirius(TM) Community 2020 - 2025. All Rights Reserved.
+// Licensed under the MIT License.
 
-namespace Rebound.Helpers.AppEnvironment;
+using System;
+using System.Security.Principal;
+
+namespace Rebound.Core.Helpers.AppEnvironment;
 
 public static class AppHelper
 {
@@ -44,12 +43,9 @@ public static class AppHelper
             return;
         }
 
-        var packagePtr = Marshal.StringToHGlobalUni(package);
-        var argsPtr = Marshal.StringToHGlobalUni(args);
-
         activationManager.ActivateApplication(
-            new PCWSTR((char*)packagePtr),
-            new PCWSTR((char*)argsPtr),
+            package.ToPCWSTR(),
+            args.ToPCWSTR(),
             (Windows.Win32.UI.Shell.ACTIVATEOPTIONS)0x20000000,
             out _);
     }*/

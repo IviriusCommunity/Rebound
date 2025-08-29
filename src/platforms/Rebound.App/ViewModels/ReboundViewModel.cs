@@ -4,7 +4,7 @@ using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Rebound.Forge;
-using Rebound.Helpers;
+using Rebound.Core.Helpers;
 
 namespace Rebound.ViewModels;
 
@@ -65,8 +65,8 @@ public partial class ReboundViewModel : ObservableObject
 
             var content = File.ReadAllText(Path.Combine(directoryPath, "version.txt"));
             CurrentVersion = content;
-            VersionText = $"Current version: {content}  -  New version: {Helpers.Environment.ReboundVersion.REBOUND_VERSION}";
-            IsUpdateAvailable = Helpers.Environment.ReboundVersion.REBOUND_VERSION != content;
+            VersionText = $"Current version: {content}  -  New version: {Core.Helpers.Environment.ReboundVersion.REBOUND_VERSION}";
+            IsUpdateAvailable = Core.Helpers.Environment.ReboundVersion.REBOUND_VERSION != content;
         }
         catch
         {

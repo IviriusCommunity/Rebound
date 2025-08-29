@@ -1,7 +1,7 @@
 ﻿using System.Net.Http;
 using CommunityToolkit.WinUI.Helpers;
 using Windows.UI.Xaml.Controls;
-using Rebound.Helpers;
+using Rebound.Core.Helpers;
 
 namespace Rebound.Views;
 
@@ -34,7 +34,7 @@ internal sealed partial class ShellPage : Page
                 var url = "https://ivirius.com/reboundhubversion.txt";
                 var webContent = await client.GetStringAsync(url);
 
-                if (Helpers.Environment.ReboundVersion.REBOUND_VERSION != webContent)
+                if (Core.Helpers.Environment.ReboundVersion.REBOUND_VERSION != webContent)
                 {
                     UpdateButton.Visibility = Windows.UI.Xaml.Visibility.Visible;
                 }

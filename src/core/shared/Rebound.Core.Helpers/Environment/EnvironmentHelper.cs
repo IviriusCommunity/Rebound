@@ -1,6 +1,9 @@
-﻿namespace Rebound.Helpers;
+﻿// Copyright (C) Ivirius(TM) Community 2020 - 2025. All Rights Reserved.
+// Licensed under the MIT License.
 
-public static class EnvironmentHelper
+namespace Rebound.Core.Helpers.Environment;
+
+public static class WindowsEnvironment
 {
     public static string GetWindowsInstallationDrivePath()
     {

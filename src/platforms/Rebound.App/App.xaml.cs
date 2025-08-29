@@ -31,30 +31,21 @@ public partial class App : Application
         CreateMainWindow();
     }
 
-    private void OnSingleInstanceLaunched(object? sender, Helpers.Services.SingleInstanceLaunchEventArgs e)
+    private void Current_UnhandledException(object sender, Windows.UI.Xaml.UnhandledExceptionEventArgs e)
     {
-        if (e.IsFirstLaunch)
+        e.Handled = true;
+    }
+
+    public static void Activate(string[] args)
+    {
+        if (MainWindow != null)
         {
-            App.Current.UnhandledException += Current_UnhandledException;
-            CreateMainWindow();
+            MainWindow.Activate();
         }
         else
         {
-            if (MainWindow != null)
-            {
-                //_ = MainWindow.BringToFront();
-            }
-            else
-            {
-                CreateMainWindow();
-            }
-            return;
+            CreateMainWindow();
         }
-    }
-
-    private void Current_UnhandledException(object sender, Windows.UI.Xaml.UnhandledExceptionEventArgs e)
-    {
-        //e.Handled = true;
     }
 
     public static unsafe void CreateMainWindow()
@@ -74,7 +65,7 @@ public partial class App : Application
             frame.Navigate(typeof(Views.ShellPage));
             MainWindow.Content = frame;
         };
-        MainWindow.Activate();
+        MainWindow.Create();
     }
 
     public static IslandsWindow MainWindow { get; private set; }

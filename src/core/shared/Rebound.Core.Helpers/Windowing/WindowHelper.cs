@@ -1,30 +1,15 @@
-﻿using Microsoft.UI.Windowing;
-using System;
+﻿// Copyright (C) Ivirius(TM) Community 2020 - 2025. All Rights Reserved.
+// Licensed under the MIT License.
 
-namespace Rebound.Helpers.Windowing;
+using Microsoft.UI.Windowing;
+
+namespace Rebound.Core.Helpers.Windowing;
 
 public static class WindowHelper
 {
     public static void SetWindowIcon(this AppWindow window, string iconPath)
     {
-        /*window.SetIcon(iconPath);
-        window.SetTaskBarIcon(Icon.FromFile(iconPath));*/
-    }
-
-    public static void TurnOffDoubleClick(this AppWindow window)
-    {
-        /*var windowManager = WindowManager.Get(window);
-        windowManager.WindowMessageReceived += WindowManager_WindowMessageReceived;
-
-        void WindowManager_WindowMessageReceived(object? sender, WinUIEx.Messaging.WindowMessageEventArgs e)
-        {
-            if (e.Message.MessageId == 0x00A3) // WM_NCLBUTTONDBLCLK
-            {
-                // Prevent double-click from maximizing the window
-                e.Result = IntPtr.Zero;
-                e.Handled = true;
-                return;
-            }
-        }*/
+        window?.SetTitleBarIcon(iconPath);
+        window?.SetTaskbarIcon(iconPath);
     }
 }

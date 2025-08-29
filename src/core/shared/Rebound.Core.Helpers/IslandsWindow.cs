@@ -1,7 +1,11 @@
-﻿using CommunityToolkit.Mvvm.ComponentModel;
+﻿// Copyright (C) Ivirius(TM) Community 2020 - 2025. All Rights Reserved.
+// Licensed under the MIT License.
+
+using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.WinUI.Helpers;
 using Microsoft.UI;
 using Microsoft.UI.Windowing;
+using Rebound.Helpers;
 using System;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
@@ -128,8 +132,20 @@ public partial class IslandsWindow : ObservableObject, IDisposable
 
     public IslandsWindow() { }
 
+    public void Activate()
+    {
+        if (AppWindow != null)
+        {
+            AppWindow.Activate();
+        }
+        else
+        {
+            Create();
+        }
+    }
+
     // ---------- Activation & message loop ----------
-    public unsafe void Activate()
+    public unsafe void Create()
     {
         ThrowIfDisposed();
 
@@ -272,6 +288,11 @@ public partial class IslandsWindow : ObservableObject, IDisposable
             case WM_SETTINGCHANGE:
             case WM_THEMECHANGED:
                 ProcessCoreWindowMessage(msg, wParam, lParam);
+                break;
+
+            case WM_NCLBUTTONDBLCLK:
+                if (!IsMaximizable)
+                    return new LRESULT(0); // ignore double-click if not maximizable
                 break;
 
             case WM_SETFOCUS:

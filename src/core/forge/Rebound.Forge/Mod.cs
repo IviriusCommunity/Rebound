@@ -92,6 +92,19 @@ internal partial class Mod : ObservableObject
     }
 
     [RelayCommand]
+    public void Open()
+    {
+        try
+        {
+            Process.Start(EntryExecutable);
+        }
+        catch (Exception ex)
+        {
+            ReboundLogger.Log($"[Mod] Open failed for {Name}", ex);
+        }
+    }
+
+    [RelayCommand]
     public async Task UninstallAsync()
     {
         try
@@ -135,7 +148,7 @@ internal partial class Mod : ObservableObject
         int intactItems = Instructions?.Count(i => i.IsApplied()) ?? 0;
         int totalItems = Instructions?.Count ?? 0;
 
-        IsInstalled = intactItems == totalItems;
+        IsInstalled = intactItems != 0;
         IsIntact = intactItems == 0 || intactItems == totalItems;
 
         ReboundLogger.Log($"[Mod] Updated integrity for {Name}: Installed={IsInstalled}, Intact={IsIntact}, intactItems={intactItems}, totalItems={totalItems}");

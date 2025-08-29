@@ -4,8 +4,11 @@
   xmlns="http://schemas.microsoft.com/appx/manifest/foundation/windows10"
   xmlns:mp="http://schemas.microsoft.com/appx/2014/phone/manifest"
   xmlns:uap="http://schemas.microsoft.com/appx/manifest/uap/windows10"
+  xmlns:uap5="http://schemas.microsoft.com/appx/manifest/uap/windows10/5"
   xmlns:rescap="http://schemas.microsoft.com/appx/manifest/foundation/windows10/restrictedcapabilities"
-  IgnorableNamespaces="uap mp rescap">
+  xmlns:desktop4="http://schemas.microsoft.com/appx/manifest/desktop/windows10/4"
+  xmlns:iot2="http://schemas.microsoft.com/appx/manifest/iot/windows10/2"
+  IgnorableNamespaces="uap uap5 mp rescap desktop4 iot2">
 
 	<Identity
 	  Name="Rebound.Hub"
@@ -31,8 +34,8 @@
 
 	<Applications>
 		<Application Id="App"
-		  Executable="$targetnametoken$.exe"
-		  EntryPoint="windows.fullTrustApplication">
+		    Executable="$targetnametoken$.exe"
+			EntryPoint="windows.fullTrustApplication">
 			<uap:VisualElements
 			  DisplayName="Rebound Hub"
 			  Description="Rebound Hub"

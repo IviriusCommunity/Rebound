@@ -9,7 +9,7 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:forge="using:Rebound.Forge"
     xmlns:gallery="using:WinUIGallery.Controls"
-    xmlns:helpers="using:Rebound.Helpers.Environment"
+    xmlns:helpers="using:Rebound.Core.Helpers.Environment"
     xmlns:interactivity="using:Microsoft.Xaml.Interactivity"
     xmlns:local="using:Rebound.Views"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
@@ -22,12 +22,104 @@
         <ResourceDictionary>
             <ResourceDictionary.ThemeDictionaries>
                 <ResourceDictionary x:Key="Light">
+                    <SolidColorBrush x:Key="RepairButtonBackgroundBrush" Color="#ba6000" />
+                    <SolidColorBrush x:Key="RepairButtonBackgroundPointerOverBrush" Color="#cc7110" />
+                    <SolidColorBrush x:Key="RepairButtonBackgroundPressedBrush" Color="#ad5a00" />
                     <ImageSource x:Key="HeroImage">/Assets/Backgrounds/WallpaperLight.png</ImageSource>
                 </ResourceDictionary>
                 <ResourceDictionary x:Key="Dark">
+                    <SolidColorBrush x:Key="RepairButtonBackgroundBrush" Color="#ffa600" />
+                    <SolidColorBrush x:Key="RepairButtonBackgroundPointerOverBrush" Color="#ffad42" />
+                    <SolidColorBrush x:Key="RepairButtonBackgroundPressedBrush" Color="#de9b45" />
                     <ImageSource x:Key="HeroImage">/Assets/Backgrounds/WallpaperDark.png</ImageSource>
                 </ResourceDictionary>
             </ResourceDictionary.ThemeDictionaries>
+            <Style x:Key="RepairButtonStyle" TargetType="Button">
+                <Setter Property="Foreground" Value="{ThemeResource AccentButtonForeground}" />
+                <Setter Property="Background" Value="{ThemeResource RepairButtonBackgroundBrush}" />
+                <Setter Property="BackgroundSizing" Value="OuterBorderEdge" />
+                <Setter Property="BorderBrush" Value="{ThemeResource AccentButtonBorderBrush}" />
+                <Setter Property="CornerRadius" Value="{ThemeResource ControlCornerRadius}" />
+                <Setter Property="Template">
+                    <Setter.Value>
+                        <ControlTemplate TargetType="Button">
+                            <ContentPresenter
+                                x:Name="ContentPresenter"
+                                Padding="{TemplateBinding Padding}"
+                                HorizontalContentAlignment="{TemplateBinding HorizontalContentAlignment}"
+                                VerticalContentAlignment="{TemplateBinding VerticalContentAlignment}"
+                                AutomationProperties.AccessibilityView="Raw"
+                                Background="{TemplateBinding Background}"
+                                BackgroundSizing="{TemplateBinding BackgroundSizing}"
+                                BorderBrush="{TemplateBinding BorderBrush}"
+                                BorderThickness="{TemplateBinding BorderThickness}"
+                                Content="{TemplateBinding Content}"
+                                ContentTemplate="{TemplateBinding ContentTemplate}"
+                                ContentTransitions="{TemplateBinding ContentTransitions}"
+                                CornerRadius="{TemplateBinding CornerRadius}"
+                                Foreground="{TemplateBinding Foreground}">
+                                <ContentPresenter.BackgroundTransition>
+                                    <BrushTransition Duration="0:0:0.083" />
+                                </ContentPresenter.BackgroundTransition>
+
+                                <VisualStateManager.VisualStateGroups>
+                                    <VisualStateGroup x:Name="CommonStates">
+                                        <VisualState x:Name="Normal" />
+
+                                        <VisualState x:Name="PointerOver">
+
+                                            <Storyboard>
+                                                <ObjectAnimationUsingKeyFrames Storyboard.TargetName="ContentPresenter" Storyboard.TargetProperty="Background">
+                                                    <DiscreteObjectKeyFrame KeyTime="0" Value="{ThemeResource RepairButtonBackgroundPointerOverBrush}" />
+                                                </ObjectAnimationUsingKeyFrames>
+                                                <ObjectAnimationUsingKeyFrames Storyboard.TargetName="ContentPresenter" Storyboard.TargetProperty="BorderBrush">
+                                                    <DiscreteObjectKeyFrame KeyTime="0" Value="{ThemeResource AccentButtonBorderBrushPointerOver}" />
+                                                </ObjectAnimationUsingKeyFrames>
+                                                <ObjectAnimationUsingKeyFrames Storyboard.TargetName="ContentPresenter" Storyboard.TargetProperty="Foreground">
+                                                    <DiscreteObjectKeyFrame KeyTime="0" Value="{ThemeResource AccentButtonForegroundPointerOver}" />
+                                                </ObjectAnimationUsingKeyFrames>
+                                            </Storyboard>
+                                        </VisualState>
+
+                                        <VisualState x:Name="Pressed">
+
+                                            <Storyboard>
+                                                <ObjectAnimationUsingKeyFrames Storyboard.TargetName="ContentPresenter" Storyboard.TargetProperty="Background">
+                                                    <DiscreteObjectKeyFrame KeyTime="0" Value="{ThemeResource RepairButtonBackgroundPressedBrush}" />
+                                                </ObjectAnimationUsingKeyFrames>
+                                                <ObjectAnimationUsingKeyFrames Storyboard.TargetName="ContentPresenter" Storyboard.TargetProperty="BorderBrush">
+                                                    <DiscreteObjectKeyFrame KeyTime="0" Value="{ThemeResource AccentButtonBorderBrushPressed}" />
+                                                </ObjectAnimationUsingKeyFrames>
+                                                <ObjectAnimationUsingKeyFrames Storyboard.TargetName="ContentPresenter" Storyboard.TargetProperty="Foreground">
+                                                    <DiscreteObjectKeyFrame KeyTime="0" Value="{ThemeResource AccentButtonForegroundPressed}" />
+                                                </ObjectAnimationUsingKeyFrames>
+                                            </Storyboard>
+                                        </VisualState>
+
+                                        <VisualState x:Name="Disabled">
+
+                                            <Storyboard>
+                                                <ObjectAnimationUsingKeyFrames Storyboard.TargetName="ContentPresenter" Storyboard.TargetProperty="Background">
+                                                    <DiscreteObjectKeyFrame KeyTime="0" Value="{ThemeResource AccentButtonBackgroundDisabled}" />
+                                                </ObjectAnimationUsingKeyFrames>
+                                                <ObjectAnimationUsingKeyFrames Storyboard.TargetName="ContentPresenter" Storyboard.TargetProperty="BorderBrush">
+                                                    <DiscreteObjectKeyFrame KeyTime="0" Value="{ThemeResource AccentButtonBorderBrushDisabled}" />
+                                                </ObjectAnimationUsingKeyFrames>
+                                                <ObjectAnimationUsingKeyFrames Storyboard.TargetName="ContentPresenter" Storyboard.TargetProperty="Foreground">
+                                                    <DiscreteObjectKeyFrame KeyTime="0" Value="{ThemeResource AccentButtonForegroundDisabled}" />
+                                                </ObjectAnimationUsingKeyFrames>
+                                            </Storyboard>
+                                        </VisualState>
+
+                                    </VisualStateGroup>
+
+                                </VisualStateManager.VisualStateGroups>
+                            </ContentPresenter>
+
+                        </ControlTemplate>
+                    </Setter.Value>
+                </Setter>
+            </Style>
             <converters:BoolToObjectConverter
                 x:Key="BoolToReverseVisibilityConverter"
                 FalseValue="Visible"
@@ -102,6 +194,10 @@
                 x:Key="BoolToOpacityConverter"
                 FalseValue="0.5"
                 TrueValue="1" />
+            <converters:BoolToObjectConverter
+                x:Key="BoolNegationConverter"
+                FalseValue="True"
+                TrueValue="False" />
             <converters:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter" />
         </ResourceDictionary>
     </Page.Resources>
@@ -314,7 +410,7 @@
                     FontSize="20"
                     FontWeight="SemiBold"
                     Text="Mandatory" />
-                
+
                 <Grid
                     Grid.Row="6"
                     Margin="48,16"
@@ -472,7 +568,7 @@
                         </ItemsControl>
                     </ContentControl>
                 </Grid>
-                
+
                 <TextBlock
                     Grid.Row="7"
                     Margin="48,0"
@@ -494,7 +590,7 @@
                             <ItemsControl.ItemTemplate>
                                 <DataTemplate x:DataType="forge:Mod">
                                     <Grid
-                                        Width="480"
+                                        Width="320"
                                         Padding="12"
                                         HorizontalAlignment="Stretch"
                                         Background="{ThemeResource CardBackgroundFillColorDefault}"
@@ -517,8 +613,8 @@
                                         <!--  Icon shadow  -->
                                         <Border
                                             Grid.RowSpan="2"
-                                            Width="64"
-                                            Height="64"
+                                            Width="48"
+                                            Height="48"
                                             HorizontalAlignment="Left"
                                             VerticalAlignment="Top">
                                             <ui:Effects.Shadow>
@@ -536,13 +632,13 @@
                                             HorizontalAlignment="Left"
                                             VerticalAlignment="Top">
                                             <Grid
-                                                Width="64"
-                                                Height="64"
+                                                Width="48"
+                                                Height="48"
                                                 Background="{ThemeResource SolidBackgroundFillColorBaseBrush}"
                                                 CornerRadius="4">
                                                 <Image
                                                     Margin="-8"
-                                                    Source="{x:Bind Icon}"
+                                                    Source="{x:Bind Icon, Mode=OneWay}"
                                                     Stretch="Fill" />
                                                 <Grid
                                                     BorderBrush="{ThemeResource SolidBackgroundFillColorBaseBrush}"
@@ -557,10 +653,10 @@
                                                         TintOpacity="0.7" />
                                                 </Border.Background>
                                                 <Image
-                                                    Width="48"
-                                                    Height="48"
+                                                    Width="32"
+                                                    Height="32"
                                                     Margin="8"
-                                                    Source="{x:Bind Icon}" />
+                                                    Source="{x:Bind Icon, Mode=OneWay}" />
                                             </Border>
                                         </Grid>
 
@@ -576,122 +672,111 @@
                                         <TextBlock
                                             Grid.Row="1"
                                             Grid.Column="2"
-                                            Margin="0,8,0,0"
+                                            Grid.ColumnSpan="3"
+                                            Margin="0,0,0,16"
                                             FontSize="12"
                                             Opacity="0.5"
                                             Text="{x:Bind Description, Mode=OneWay}"
                                             TextWrapping="WrapWholeWords" />
 
-                                        <!--  Status grid  -->
-                                        <Grid Grid.RowSpan="2" Grid.Column="4">
-
-                                            <!--  Enabled  -->
-                                            <StackPanel Spacing="8" Visibility="{x:Bind IsInstalled, Mode=OneWay}">
-                                                <StackPanel
-                                                    Padding="8,4"
-                                                    BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
-                                                    BorderThickness="1"
-                                                    CornerRadius="4"
-                                                    Orientation="Horizontal"
-                                                    Spacing="8">
-                                                    <StackPanel.Background>
-                                                        <media:AcrylicBrush
-                                                            BlurAmount="8"
-                                                            TintColor="{ThemeResource SystemFillColorSuccessBackground}"
-                                                            TintOpacity="0.7" />
-                                                    </StackPanel.Background>
-                                                    <FontIcon
-                                                        FontSize="16"
-                                                        Foreground="{ThemeResource SystemFillColorSuccessBrush}"
-                                                        Glyph="&#xEC61;" />
-                                                    <TextBlock Foreground="{ThemeResource SystemFillColorSuccessBrush}" Text="Enabled" />
-                                                </StackPanel>
-                                                <Button
-                                                    Grid.Column="4"
-                                                    HorizontalAlignment="Stretch"
-                                                    Command="{x:Bind UninstallCommand}"
-                                                    Content="Disable" />
-                                            </StackPanel>
-
-                                            <!--  Disabled  -->
-                                            <StackPanel Spacing="8" Visibility="{x:Bind IsInstalled, Mode=OneWay, Converter={StaticResource BoolToReverseVisibilityConverter}}">
-                                                <StackPanel
-                                                    Padding="8,4"
-                                                    BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
-                                                    BorderThickness="1"
-                                                    CornerRadius="4"
-                                                    Orientation="Horizontal"
-                                                    Spacing="8">
-                                                    <StackPanel.Background>
-                                                        <media:AcrylicBrush
-                                                            BlurAmount="8"
-                                                            TintColor="{ThemeResource SystemFillColorCriticalBackground}"
-                                                            TintOpacity="0.7" />
-                                                    </StackPanel.Background>
-                                                    <FontIcon
-                                                        FontSize="16"
-                                                        Foreground="{ThemeResource SystemFillColorCriticalBrush}"
-                                                        Glyph="&#xEB90;" />
-                                                    <TextBlock Foreground="{ThemeResource SystemFillColorCriticalBrush}" Text="Disabled" />
-                                                </StackPanel>
-                                                <Button
-                                                    Grid.Column="4"
-                                                    HorizontalAlignment="Stretch"
-                                                    Command="{x:Bind InstallCommand}"
-                                                    Content="Enable"
-                                                    Style="{StaticResource AccentButtonStyle}" />
-                                            </StackPanel>
-
-                                        </Grid>
-
                                         <!--  Buttons grid  -->
                                         <Grid
-                                            Grid.Row="3"
+                                            Grid.Row="2"
                                             Grid.ColumnSpan="5"
-                                            Margin="0,16,0,0"
                                             ColumnSpacing="8">
                                             <Grid.ColumnDefinitions>
-                                                <ColumnDefinition Width="*" />
+                                                <ColumnDefinition Width="Auto" />
+                                                <ColumnDefinition Width="Auto" />
                                                 <ColumnDefinition Width="*" />
                                                 <ColumnDefinition Width="*" />
                                             </Grid.ColumnDefinitions>
-                                            <Button HorizontalAlignment="Stretch" Style="{StaticResource AccentButtonStyle}">
-                                                <StackPanel Orientation="Horizontal" Spacing="8">
-                                                    <FontIcon FontSize="16" Glyph="&#xE946;" />
-                                                    <TextBlock Text="View info" />
-                                                </StackPanel>
+                                            <Button
+                                                Padding="8"
+                                                HorizontalAlignment="Left"
+                                                Background="Transparent"
+                                                BorderBrush="Transparent">
+                                                <FontIcon FontSize="16" Glyph="&#xE946;" />
                                                 <Button.Flyout>
                                                     <Flyout>
-                                                        <StackPanel Spacing="8">
+                                                        <StackPanel Spacing="8" MaxWidth="240">
                                                             <TextBlock FontWeight="SemiBold" Text="This will do the following:" />
-                                                            <TextBlock Text="{x:Bind InstallationSteps, Mode=OneWay}" />
+                                                            <TextBlock Text="{x:Bind InstallationSteps, Mode=OneWay}" TextWrapping="WrapWholeWords" />
                                                         </StackPanel>
                                                     </Flyout>
                                                 </Button.Flyout>
                                             </Button>
                                             <Button
                                                 Grid.Column="1"
-                                                HorizontalAlignment="Stretch"
-                                                ToolTipService.ToolTip="This mod is corrupted and needs to be repaired."
-                                                Visibility="{x:Bind IsIntact, Mode=OneWay, Converter={StaticResource BoolToReverseVisibilityConverter}}">
-                                                <StackPanel Orientation="Horizontal" Spacing="8">
-                                                    <Grid
-                                                        Width="16"
-                                                        Height="16"
-                                                        Background="{ThemeResource SystemFillColorCriticalBrush}"
-                                                        CornerRadius="16" />
-                                                    <FontIcon FontSize="16" Glyph="&#xE90F;" />
-                                                    <TextBlock Text="Repair" />
-                                                </StackPanel>
+                                                Padding="8"
+                                                Background="Transparent"
+                                                BorderBrush="Transparent">
+                                                <FontIcon FontSize="16" Glyph="&#xE712;" />
                                                 <Button.Flyout>
-                                                    <Flyout>
-                                                        <StackPanel Spacing="8">
-                                                            <TextBlock FontWeight="SemiBold" Text="This will do the following:" />
-                                                            <TextBlock Text="{x:Bind InstallationSteps, Mode=OneWay}" />
-                                                        </StackPanel>
-                                                    </Flyout>
+                                                    <MenuFlyout>
+                                                        <MenuFlyoutItem
+                                                            Command="{x:Bind InstallCommand}"
+                                                            IsEnabled="{x:Bind IsInstalled, Mode=OneWay, Converter={StaticResource BoolNegationConverter}}"
+                                                            Text="Install">
+                                                            <MenuFlyoutItem.Icon>
+                                                                <FontIcon Glyph="&#xE896;" />
+                                                            </MenuFlyoutItem.Icon>
+                                                        </MenuFlyoutItem>
+                                                        <MenuFlyoutItem
+                                                            Command="{x:Bind UninstallCommand}"
+                                                            IsEnabled="{x:Bind IsInstalled, Mode=OneWay}"
+                                                            Text="Uninstall">
+                                                            <MenuFlyoutItem.Icon>
+                                                                <FontIcon Glyph="&#xE74D;" />
+                                                            </MenuFlyoutItem.Icon>
+                                                        </MenuFlyoutItem>
+                                                        <MenuFlyoutItem
+                                                            Command="{x:Bind RepairCommand}"
+                                                            IsEnabled="{x:Bind IsIntact, Mode=OneWay, Converter={StaticResource BoolNegationConverter}}"
+                                                            Text="Repair">
+                                                            <MenuFlyoutItem.Icon>
+                                                                <FontIcon Glyph="&#xE90F;" />
+                                                            </MenuFlyoutItem.Icon>
+                                                        </MenuFlyoutItem>
+                                                        <MenuFlyoutItem
+                                                            Command="{x:Bind OpenCommand}"
+                                                            IsEnabled="{x:Bind IsInstalled, Mode=OneWay}"
+                                                            Text="Open">
+                                                            <MenuFlyoutItem.Icon>
+                                                                <FontIcon Glyph="&#xE8A7;" />
+                                                            </MenuFlyoutItem.Icon>
+                                                        </MenuFlyoutItem>
+                                                    </MenuFlyout>
                                                 </Button.Flyout>
                                             </Button>
+                                            <Grid
+                                                Grid.Column="2"
+                                                Padding="8"
+                                                Background="Transparent"
+                                                HorizontalAlignment="Left"
+                                                ToolTipService.ToolTip="This mod is corrupted and needs to be repaired."
+                                                Visibility="{x:Bind IsIntact, Mode=OneWay, Converter={StaticResource BoolToReverseVisibilityConverter}}">
+                                                <FontIcon
+                                                    FontSize="16"
+                                                    Foreground="{ThemeResource RepairButtonBackgroundBrush}"
+                                                    Glyph="&#xF736;" />
+                                            </Grid>
+                                            <Grid Grid.Column="3" Visibility="{x:Bind IsIntact, Mode=OneWay}">
+                                                <Button
+                                                    HorizontalAlignment="Stretch"
+                                                    Content="Open"
+                                                    Visibility="{x:Bind IsInstalled, Mode=OneWay}" />
+                                                <Button
+                                                    HorizontalAlignment="Stretch"
+                                                    Content="Install"
+                                                    Style="{StaticResource AccentButtonStyle}"
+                                                    Visibility="{x:Bind IsInstalled, Mode=OneWay, Converter={StaticResource BoolToReverseVisibilityConverter}}" />
+                                            </Grid>
+                                            <Button
+                                                Grid.Column="3"
+                                                HorizontalAlignment="Stretch"
+                                                Content="Repair"
+                                                Style="{StaticResource RepairButtonStyle}"
+                                                Visibility="{x:Bind IsIntact, Mode=OneWay, Converter={StaticResource BoolToReverseVisibilityConverter}}" />
                                         </Grid>
                                     </Grid>
                                 </DataTemplate>

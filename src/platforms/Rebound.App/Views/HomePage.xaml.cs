@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.ObjectModel;
 using Windows.UI;
 using Windows.UI.Xaml;
@@ -90,6 +90,16 @@ internal sealed partial class HomePage : Page
         },
         new AppCard
         {
+            Title = "Fairmark",
+            Description = "Privacy-focused, local-first note-taking app built for control and simplicity.",
+            IconPath = "/Assets/AppIcons/PartnerApps/Fairmark.png",
+            PicturePath = "/Assets/AppBanners/Fairmark.png",
+            Link = "https://apps.microsoft.com/detail/9pdm2qk92715",
+            Publisher = "shefer's labs",
+            AccentColor = Color.FromArgb(255, 141, 93, 219)
+        },
+        new AppCard
+        {
             Title = "Files",
             Description = "Fluent file explorer app for Windows 10 and 11.",
             IconPath = "/Assets/AppIcons/PartnerApps/Files.png",
@@ -175,8 +185,18 @@ internal sealed partial class HomePage : Page
             IconPath = "/Assets/AppIcons/PartnerApps/WinoMail.png",
             PicturePath = "/Assets/AppBanners/Wino Mail.png",
             Link = "https://apps.microsoft.com/detail/9ncrcvjc50wl",
-            Publisher = "Burak Kaan K�se",
+            Publisher = "Burak Kaan Köse",
             AccentColor = Color.FromArgb(255, 0, 149, 224)
+        },
+        new AppCard
+        {
+            Title = "Wintoys",
+            Description = "Unlock the full potential of the operating system.",
+            IconPath = "/Assets/AppIcons/PartnerApps/Wintoys.png",
+            PicturePath = "/Assets/AppBanners/Wintoys.png",
+            Link = "https://apps.microsoft.com/detail/9p8ltpgcbzxd",
+            Publisher = "Bogdan Pătrăucean",
+            AccentColor = Color.FromArgb(255, 200, 200, 200)
         },
     ];
 

@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Diagnostics;
 using System.IO;
 using Windows.Win32;
 using Windows.Win32.Foundation;
@@ -22,8 +21,8 @@ internal static class WorkingEnvironment
             var directoryPath = Path.Combine(programFilesPath, "Rebound");
             var versionFile = Path.Combine(directoryPath, "version.txt");
 
-            File.WriteAllText(versionFile, $"{Helpers.Environment.ReboundVersion.REBOUND_VERSION}");
-            ReboundLogger.Log($"[WorkingEnvironment] Updated version.txt to {Helpers.Environment.ReboundVersion.REBOUND_VERSION}");
+            File.WriteAllText(versionFile, $"{Core.Helpers.Environment.ReboundVersion.REBOUND_VERSION}");
+            ReboundLogger.Log($"[WorkingEnvironment] Updated version.txt to {Core.Helpers.Environment.ReboundVersion.REBOUND_VERSION}");
         }
         catch (Exception ex)
         {
