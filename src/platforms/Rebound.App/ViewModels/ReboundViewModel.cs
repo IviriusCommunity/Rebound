@@ -40,6 +40,9 @@ public partial class ReboundViewModel : ObservableObject
     [ObservableProperty]
     public partial string CurrentVersion { get; set; } = "";
 
+    [ObservableProperty]
+    public partial bool HasSideloadedMods { get; set; }
+
     bool _isLoading;
 
     public ReboundViewModel()
@@ -52,6 +55,7 @@ public partial class ReboundViewModel : ObservableObject
         InstallThisAppCantRunOnYourPC = SettingsHelper.GetValue<bool>("InstallThisAppCantRunOnYourPC", "rebound", true);
         InstallAppwiz = SettingsHelper.GetValue<bool>("InstallAppwiz", "rebound", true);
         InstallWindowsTools = SettingsHelper.GetValue<bool>("InstallWindowsTools", "rebound", true);
+        HasSideloadedMods = Catalog.SideloadedMods.Count > 0;
         CheckForUpdates();
         _isLoading = false;
     }

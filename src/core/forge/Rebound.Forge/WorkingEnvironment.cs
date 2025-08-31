@@ -40,20 +40,35 @@ internal static class WorkingEnvironment
 
             var startMenuFolder = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.CommonStartMenu), "Programs", "Rebound");
 
+            var programDataPath = Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData); // = ProgramData
+            var modsFolder = Path.Combine(programDataPath, "Rebound", "Mods");
+
+            // Ensure Program Files\Rebound
             if (!Directory.Exists(directoryPath))
             {
                 Directory.CreateDirectory(directoryPath);
                 ReboundLogger.Log($"[WorkingEnvironment] Created directory: {directoryPath}");
             }
 
+            // Ensure Start Menu\Programs\Rebound
             if (!Directory.Exists(startMenuFolder))
             {
                 Directory.CreateDirectory(startMenuFolder);
                 ReboundLogger.Log($"[WorkingEnvironment] Created start menu folder: {startMenuFolder}");
             }
 
+            // Ensure ProgramData\Rebound\Mods
+            if (!Directory.Exists(modsFolder))
+            {
+                Directory.CreateDirectory(modsFolder);
+                ReboundLogger.Log($"[WorkingEnvironment] Created mods folder: {modsFolder}");
+            }
+
             File.SetAttributes(directoryPath, FileAttributes.Directory);
             File.SetAttributes(startMenuFolder, FileAttributes.Directory);
+            File.SetAttributes(Path.Combine(programDataPath, "Rebound"), FileAttributes.Directory);
+            File.SetAttributes(modsFolder, FileAttributes.Directory);
+
             ReboundLogger.Log("[WorkingEnvironment] Folder integrity ensured.");
         }
         catch (Exception ex)
@@ -92,8 +107,12 @@ internal static class WorkingEnvironment
             var directoryPath = Path.Combine(programFilesPath, "Rebound");
             var versionFile = Path.Combine(directoryPath, "version.txt");
 
-            bool exists = Directory.Exists(directoryPath) && File.Exists(versionFile);
-            ReboundLogger.Log($"[WorkingEnvironment] Folder exists check: {directoryPath} → Exists = {exists}");
+            var programDataPath = Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData);
+            var modsFolder = Path.Combine(programDataPath, "Rebound", "Mods");
+
+            bool exists = Directory.Exists(directoryPath) && File.Exists(versionFile) && Directory.Exists(modsFolder);
+
+            ReboundLogger.Log($"[WorkingEnvironment] Folder exists check: {directoryPath}, Mods = {modsFolder} → Exists = {exists}");
             return exists;
         }
         catch (Exception ex)

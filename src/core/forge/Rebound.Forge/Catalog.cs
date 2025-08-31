@@ -194,6 +194,8 @@ internal static class Catalog
         }
     ];
 
+    internal static ObservableCollection<Mod> SideloadedMods => new(ModParser.ParseMods());
+
     internal static Mod GetMod(string name)
     {
         foreach (var instruction in Mods)
