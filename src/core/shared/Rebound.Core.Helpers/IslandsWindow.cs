@@ -310,6 +310,12 @@ public partial class IslandsWindow : ObservableObject, IDisposable
         return new LRESULT(0);
     }
 
+    partial void OnTitleChanged(string oldValue, string newValue)
+    {
+        if (AppWindow != null)
+            AppWindow.Title = newValue;
+    }
+
     partial void OnContentChanged(UIElement value)
     {
         // fast path - set content if initialized and non-null

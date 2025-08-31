@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using System.Threading.Tasks;
 using Windows.Win32;
 using Windows.Win32.Foundation;
 using Windows.Win32.System.Com;
@@ -307,15 +308,15 @@ internal static class WorkingEnvironment
         }
     }
 
-    // Mandatory instructions
-    public static async void EnsureMandatoryInstructionsIntegrity()
+    // Mandatory mods
+    public static async void EnsureMandatoryModsIntegrity()
     {
         try
         {
-            foreach (var instructions in Catalog.MandatoryMods)
+            foreach (var mods in Catalog.MandatoryMods)
             {
-                ReboundLogger.Log("[WorkingEnvironment] Installing mandatory instruction: " + instructions.GetType().Name);
-                await instructions.InstallAsync();
+                ReboundLogger.Log("[WorkingEnvironment] Installing mandatory instruction: " + mods.GetType().Name);
+                await mods.InstallAsync();
             }
         }
         catch (Exception ex)
@@ -324,14 +325,14 @@ internal static class WorkingEnvironment
         }
     }
 
-    public static async void RemoveMandatoryInstructions()
+    public static async void RemoveMandatoryMods()
     {
         try
         {
-            foreach (var instructions in Catalog.MandatoryMods)
+            foreach (var mods in Catalog.MandatoryMods)
             {
-                ReboundLogger.Log("[WorkingEnvironment] Uninstalling mandatory instruction: " + instructions.GetType().Name);
-                await instructions.UninstallAsync();
+                ReboundLogger.Log("[WorkingEnvironment] Uninstalling mandatory instruction: " + mods.GetType().Name);
+                await mods.UninstallAsync();
             }
         }
         catch (Exception ex)
@@ -340,14 +341,14 @@ internal static class WorkingEnvironment
         }
     }
 
-    public static bool MandatoryInstructionsExist()
+    public static bool MandatoryModsExist()
     {
         try
         {
-            foreach (var instructions in Catalog.MandatoryMods)
+            foreach (var mods in Catalog.MandatoryMods)
             {
-                var integrity = instructions.GetIntegrity();
-                ReboundLogger.Log($"[WorkingEnvironment] Checking integrity for {instructions.GetType().Name}: {integrity}");
+                var integrity = mods.GetIntegrity();
+                ReboundLogger.Log($"[WorkingEnvironment] Checking integrity for {mods.GetType().Name}: {integrity}");
                 if (integrity != ModIntegrity.Installed)
                 {
                     return false;
@@ -368,16 +369,32 @@ internal static class WorkingEnvironment
         ReboundLogger.Log("[WorkingEnvironment] Enabling Rebound...");
         EnsureFolderIntegrity();
         EnsureTasksFolderIntegrity();
-        EnsureMandatoryInstructionsIntegrity();
+        EnsureMandatoryModsIntegrity();
         ReboundLogger.Log("[WorkingEnvironment] Rebound enabled.");
     }
 
-    public static void DisableRebound()
+    public static async Task DisableRebound()
     {
         ReboundLogger.Log("[WorkingEnvironment] Disabling Rebound...");
         RemoveFolder();
         RemoveTasksFolder();
-        RemoveMandatoryInstructions();
+        RemoveMandatoryMods();
+        foreach (var mod in Catalog.Mods)
+        {
+            if (mod.IsInstalled)
+            {
+                ReboundLogger.Log("[WorkingEnvironment] Uninstalling mod: " + mod.Name);
+                await mod.UninstallAsync();
+            }
+        }
+        foreach (var mod in Catalog.SideloadedMods)
+        {
+            if (mod.IsInstalled)
+            {
+                ReboundLogger.Log("[WorkingEnvironment] Uninstalling mod: " + mod.Name);
+                await mod.UninstallAsync();
+            }
+        }
         ReboundLogger.Log("[WorkingEnvironment] Rebound disabled.");
     }
 
@@ -389,10 +406,10 @@ internal static class WorkingEnvironment
         ReboundLogger.Log(TaskFolderExists()
             ? "[WorkingEnvironment] Rebound tasks folder exists."
             : "[WorkingEnvironment] Rebound tasks folder does not exist.");
-        ReboundLogger.Log(MandatoryInstructionsExist()
+        ReboundLogger.Log(MandatoryModsExist()
             ? "[WorkingEnvironment] All mandatory instructions are installed."
             : "[WorkingEnvironment] Some mandatory instructions are missing.");
 
-        return FolderExists() && TaskFolderExists() && MandatoryInstructionsExist();
+        return FolderExists() && TaskFolderExists() && MandatoryModsExist();
     }
 }

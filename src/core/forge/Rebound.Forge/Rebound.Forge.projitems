@@ -13,6 +13,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)Cogs\IFEOCog.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ICog.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Cogs\LauncherCog.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Logger.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Mod.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Catalog.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ModParser.cs" />

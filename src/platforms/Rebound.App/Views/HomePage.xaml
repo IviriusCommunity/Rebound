@@ -7,7 +7,7 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:gallery="using:WinUIGallery.Controls"
     xmlns:interactivity="using:Microsoft.Xaml.Interactivity"
-    xmlns:local="using:Rebound.Views"
+    xmlns:cards="using:Rebound.Cards"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:media="using:CommunityToolkit.WinUI.Media"
     xmlns:muxc="using:Microsoft.UI.Xaml.Controls"
@@ -77,7 +77,7 @@
                         </ItemsPanelTemplate>
                     </ItemsControl.ItemsPanel>
                     <ItemsControl.ItemTemplate>
-                        <DataTemplate x:DataType="local:LinkCard">
+                        <DataTemplate x:DataType="cards:LinkCard">
                             <Grid CornerRadius="6">
                                 <Grid.Background>
                                     <media:AcrylicBrush BlurAmount="16" TintColor="{ThemeResource SolidBackgroundFillColorBase}" />
@@ -153,7 +153,7 @@
                     </ItemsPanelTemplate>
                 </ItemsControl.ItemsPanel>
                 <ItemsControl.ItemTemplate>
-                    <DataTemplate x:DataType="local:AppCard">
+                    <DataTemplate x:DataType="cards:AppCard">
                         <Button
                             Width="320"
                             Padding="0"
@@ -256,17 +256,22 @@
                                         Grid.ColumnSpan="2"
                                         Padding="8,2"
                                         HorizontalAlignment="Left"
-                                        Background="{ThemeResource AccentFillColorDefaultBrush}"
                                         BorderBrush="{ThemeResource AccentButtonBorderBrush}"
                                         BorderThickness="1"
                                         CornerRadius="9"
                                         Orientation="Horizontal"
                                         Spacing="8">
+                                        <StackPanel.Background>
+                                            <SolidColorBrush Color="{x:Bind AccentColor}"/>
+                                        </StackPanel.Background>
                                         <TextBlock
                                             FontSize="10"
                                             FontWeight="SemiBold"
-                                            Foreground="{ThemeResource TextOnAccentFillColorPrimaryBrush}"
-                                            Text="{x:Bind Publisher}" />
+                                            Text="{x:Bind Publisher}">
+                                            <TextBlock.Foreground>
+                                                <SolidColorBrush Color="{x:Bind AccentTextColor}"/>
+                                            </TextBlock.Foreground>
+                                        </TextBlock>
                                     </StackPanel>
                                     <Border
                                         Grid.Row="3"

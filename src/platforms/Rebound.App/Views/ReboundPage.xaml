@@ -4,6 +4,7 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:SettingsControls="using:CommunityToolkit.WinUI.Controls"
     xmlns:behaviors="using:CommunityToolkit.WinUI.Behaviors"
+    xmlns:cards="using:Rebound.Cards"
     xmlns:controls="using:CommunityToolkit.WinUI.Controls"
     xmlns:converters="using:CommunityToolkit.WinUI.Converters"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
@@ -11,7 +12,6 @@
     xmlns:gallery="using:WinUIGallery.Controls"
     xmlns:helpers="using:Rebound.Core.Helpers.Environment"
     xmlns:interactivity="using:Microsoft.Xaml.Interactivity"
-    xmlns:local="using:Rebound.Views"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:media="using:CommunityToolkit.WinUI.Media"
     xmlns:muxc="using:Microsoft.UI.Xaml.Controls"
@@ -222,8 +222,10 @@
                     <RowDefinition Height="Auto" />
                 </Grid.RowDefinitions>
 
+                <!--  Header image  -->
                 <gallery:HomePageHeaderImage x:Name="BKGImage" Image="{ThemeResource HeroImage}" />
 
+                <!--  Header title  -->
                 <Grid
                     x:Name="TitleGrid"
                     Height="200"
@@ -243,6 +245,7 @@
                     </Grid>
                 </Grid>
 
+                <!--  Header cards  -->
                 <ScrollViewer
                     x:Name="CardsScrollViewer"
                     Grid.RowSpan="2"
@@ -254,14 +257,14 @@
                     HorizontalScrollMode="Enabled"
                     VerticalScrollBarVisibility="Hidden"
                     VerticalScrollMode="Disabled">
-                    <ItemsControl ItemsSource="{x:Bind LinkCards}">
+                    <ItemsControl ItemsSource="{x:Bind ReboundViewModel.LinkCards}">
                         <ItemsControl.ItemsPanel>
                             <ItemsPanelTemplate>
                                 <controls:WrapPanel HorizontalSpacing="16" VerticalSpacing="16" />
                             </ItemsPanelTemplate>
                         </ItemsControl.ItemsPanel>
                         <ItemsControl.ItemTemplate>
-                            <DataTemplate x:DataType="local:LinkCard">
+                            <DataTemplate x:DataType="cards:LinkCard">
                                 <Grid CornerRadius="6">
                                     <Grid.Background>
                                         <media:AcrylicBrush BlurAmount="16" TintColor="{ThemeResource SolidBackgroundFillColorBase}" />
@@ -318,6 +321,7 @@
                     </ItemsControl>
                 </ScrollViewer>
 
+                <!--  Actions toolbar  -->
                 <Grid
                     Grid.Row="3"
                     Margin="48,16,48,8"
@@ -331,7 +335,8 @@
                     <ToggleButton
                         Padding="12,8"
                         Content="{x:Bind ReboundViewModel.IsReboundEnabled, Mode=OneWay, Converter={StaticResource BoolToReboundEnabledConverter}}"
-                        IsChecked="{x:Bind ReboundViewModel.IsReboundEnabled, Mode=TwoWay}"
+                        IsChecked="{x:Bind ReboundViewModel.IsReboundEnabled, Mode=OneWay}"
+                        Command="{x:Bind ReboundViewModel.ToggleReboundCommand}"
                         IsThreeState="False" />
                     <Button
                         Grid.Column="1"
@@ -400,13 +405,18 @@
                                         <muxc:ImageIcon Source="/Assets/Glyphs/Shortcut.ico" />
                                     </ToggleMenuFlyoutItem.Icon>
                                 </ToggleMenuFlyoutItem>
+                                <ToggleMenuFlyoutItem IsChecked="{x:Bind ReboundViewModel.EnableAutomaticRepair, Mode=TwoWay}" Text="Enable automatic repair">
+                                    <ToggleMenuFlyoutItem.Icon>
+                                        <FontIcon Glyph="&#xE90F;" />
+                                    </ToggleMenuFlyoutItem.Icon>
+                                </ToggleMenuFlyoutItem>
                                 <MenuFlyoutSeparator />
-                                <MenuFlyoutItem Text="View log file">
+                                <MenuFlyoutItem Command="{x:Bind ReboundViewModel.ViewLogFileCommand}" Text="View log file">
                                     <MenuFlyoutItem.Icon>
                                         <FontIcon Glyph="&#xE8A7;" />
                                     </MenuFlyoutItem.Icon>
                                 </MenuFlyoutItem>
-                                <MenuFlyoutItem Text="Delete log file">
+                                <MenuFlyoutItem Command="{x:Bind ReboundViewModel.DeleteLogFileCommand}" Text="Delete log file">
                                     <MenuFlyoutItem.Icon>
                                         <FontIcon Glyph="&#xE74D;" />
                                     </MenuFlyoutItem.Icon>
@@ -416,6 +426,7 @@
                     </Button>
                 </Grid>
 
+                <!--  Mandatory mods  -->
                 <TextBlock
                     Grid.Row="5"
                     Margin="48,16,48,0"
@@ -560,12 +571,6 @@
                                                     </Flyout>
                                                 </Button.Flyout>
                                             </Button>
-
-                                            <!--  Open button  -->
-                                            <Button
-                                                Grid.Column="3"
-                                                HorizontalAlignment="Stretch"
-                                                Content="Open" />
                                         </Grid>
                                     </Grid>
                                 </DataTemplate>
@@ -574,6 +579,7 @@
                     </ContentControl>
                 </Grid>
 
+                <!--  Optional mods  -->
                 <TextBlock
                     Grid.Row="7"
                     Margin="48,0"
@@ -581,6 +587,7 @@
                     FontSize="20"
                     FontWeight="SemiBold"
                     Text="Optional" />
+
                 <Grid
                     Grid.Row="8"
                     Margin="48,16,48,48"
@@ -817,6 +824,8 @@
                         </ItemsControl>
                     </ContentControl>
                 </Grid>
+
+                <!--  Sideloaded mods  -->
                 <TextBlock
                     Grid.Row="9"
                     Margin="48,0"
@@ -825,6 +834,7 @@
                     FontWeight="SemiBold"
                     Text="Sideloaded"
                     Visibility="{x:Bind ReboundViewModel.HasSideloadedMods, Mode=OneWay}" />
+
                 <Grid
                     Grid.Row="10"
                     Margin="48,16,48,48"
@@ -1076,6 +1086,7 @@
             </Grid>
         </ScrollViewer>
 
+        <!--  Update available card  -->
         <Grid
             x:Name="UpdateAvailableGrid"
             Width="400"

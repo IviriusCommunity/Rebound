@@ -1,29 +1,10 @@
-﻿using System;
+﻿using Rebound.Cards;
+using System;
 using System.Collections.ObjectModel;
 using Windows.UI;
-using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 
 namespace Rebound.Views;
-
-internal class LinkCard
-{
-    public string? Title { get; set; }
-    public string? Description { get; set; }
-    public string? IconPath { get; set; }
-    public string? Link { get; set; }
-}
-
-internal class AppCard
-{
-    public string? Title { get; set; }
-    public string? Description { get; set; }
-    public string? IconPath { get; set; }
-    public string? PicturePath { get; set; }
-    public string? Link { get; set; }
-    public string? Publisher { get; set; }
-    public Color AccentColor { get; set; }
-}
 
 internal sealed partial class HomePage : Page
 {
@@ -76,7 +57,8 @@ internal sealed partial class HomePage : Page
             PicturePath = "/Assets/AppBanners/Ambie.png",
             Link = "https://ambieapp.com/",
             Publisher = "Jenius Apps",
-            AccentColor = Color.FromArgb(255, 255, 204, 0)
+            AccentColor = Color.FromArgb(255, 254, 206, 94),
+            AccentTextColor = Color.FromArgb(255, 0, 0, 0)
         },
         new AppCard
         {
@@ -86,7 +68,8 @@ internal sealed partial class HomePage : Page
             PicturePath = "/Assets/AppBanners/Character Map UWP.png",
             Link = "https://apps.microsoft.com/detail/9wzdncrdxf41",
             Publisher = "Edi Wang",
-            AccentColor = Color.FromArgb(255, 0, 110, 255)
+            AccentColor = Color.FromArgb(255, 53, 193, 241),
+            AccentTextColor = Color.FromArgb(255, 0, 0, 0)
         },
         new AppCard
         {
@@ -96,7 +79,8 @@ internal sealed partial class HomePage : Page
             PicturePath = "/Assets/AppBanners/Fairmark.png",
             Link = "https://apps.microsoft.com/detail/9pdm2qk92715",
             Publisher = "shefer's labs",
-            AccentColor = Color.FromArgb(255, 141, 93, 219)
+            AccentColor = Color.FromArgb(255, 142, 90, 220),
+            AccentTextColor = Color.FromArgb(255, 255, 255, 255)
         },
         new AppCard
         {
@@ -106,7 +90,8 @@ internal sealed partial class HomePage : Page
             PicturePath = "/Assets/AppBanners/Files.png",
             Link = "https://files.community/",
             Publisher = "Yair A",
-            AccentColor = Color.FromArgb(255, 255, 115, 0)
+            AccentColor = Color.FromArgb(255, 179, 67, 12),
+            AccentTextColor = Color.FromArgb(255, 255, 255, 255)
         },
         new AppCard
         {
@@ -116,7 +101,8 @@ internal sealed partial class HomePage : Page
             PicturePath = "/Assets/AppBanners/Fluent Store.png",
             Link = "https://josh.askharoun.com/fluentstore",
             Publisher = "yoshiask",
-            AccentColor = Color.FromArgb(255, 3, 158, 0)
+            AccentColor = Color.FromArgb(255, 57, 255, 192),
+            AccentTextColor = Color.FromArgb(255, 0, 0, 0)
         },
         new AppCard
         {
@@ -126,7 +112,8 @@ internal sealed partial class HomePage : Page
             PicturePath = "/Assets/AppBanners/FluentHub.png",
             Link = "https://apps.microsoft.com/detail/9nkb9hx8rjz3",
             Publisher = "0x5BFA",
-            AccentColor = Color.FromArgb(255, 209, 0, 115)
+            AccentColor = Color.FromArgb(255, 224, 60, 191),
+            AccentTextColor = Color.FromArgb(255, 255, 255, 255)
         },
         new AppCard
         {
@@ -136,7 +123,8 @@ internal sealed partial class HomePage : Page
             PicturePath = "/Assets/AppBanners/Fluetro.png",
             Link = "https://apps.microsoft.com/detail/9nsr7b2lt6ln",
             Publisher = "FireCubeStudios",
-            AccentColor = Color.FromArgb(255, 209, 0, 0)
+            AccentColor = Color.FromArgb(255, 209, 0, 0),
+            AccentTextColor = Color.FromArgb(255, 255, 255, 255)
         },
         new AppCard
         {
@@ -146,7 +134,8 @@ internal sealed partial class HomePage : Page
             PicturePath = "/Assets/AppBanners/PowerToys.png",
             Link = "https://learn.microsoft.com/en-us/windows/powertoys/",
             Publisher = "Microsoft Corporation",
-            AccentColor = Color.FromArgb(255, 255, 228, 161)
+            AccentColor = Color.FromArgb(255, 255, 228, 161),
+            AccentTextColor = Color.FromArgb(255, 0, 0, 0)
         },
         new AppCard
         {
@@ -156,7 +145,8 @@ internal sealed partial class HomePage : Page
             PicturePath = "/Assets/AppBanners/Scanner.png",
             Link = "https://simon-knuth.github.io/scanner/",
             Publisher = "Simon Knuth",
-            AccentColor = Color.FromArgb(255, 207, 86, 0)
+            AccentColor = Color.FromArgb(255, 255, 143, 107),
+            AccentTextColor = Color.FromArgb(255, 0, 0, 0)
         },
         new AppCard
         {
@@ -166,7 +156,8 @@ internal sealed partial class HomePage : Page
             PicturePath = "/Assets/AppBanners/Screenbox.png",
             Link = "https://apps.microsoft.com/detail/9ntsnmsvcb5l",
             Publisher = "Tung H.",
-            AccentColor = Color.FromArgb(255, 0, 168, 224)
+            AccentColor = Color.FromArgb(255, 53, 193, 241),
+            AccentTextColor = Color.FromArgb(255, 0, 0, 0)
         },
         new AppCard
         {
@@ -176,7 +167,19 @@ internal sealed partial class HomePage : Page
             PicturePath = "/Assets/AppBanners/SecureFolderFS.png",
             Link = "https://www.microsoft.com/store/apps/9NZ7CZRN7GG8",
             Publisher = "d2dyno",
-            AccentColor = Color.FromArgb(255, 0, 209, 224)
+            AccentColor = Color.FromArgb(255, 53, 193, 241),
+            AccentTextColor = Color.FromArgb(255, 0, 0, 0)
+        },
+        new AppCard
+        {
+            Title = "WindowSill",
+            Description = "Customizable command bar for power users.",
+            IconPath = "/Assets/AppIcons/PartnerApps/WindowSill.png",
+            PicturePath = "/Assets/AppBanners/WindowSill.png",
+            Link = "https://getwindowsill.app/",
+            Publisher = "etiennebaudoux",
+            AccentColor = Color.FromArgb(255, 255, 159, 164),
+            AccentTextColor = Color.FromArgb(255, 0, 0, 0)
         },
         new AppCard
         {
@@ -186,7 +189,8 @@ internal sealed partial class HomePage : Page
             PicturePath = "/Assets/AppBanners/Wino Mail.png",
             Link = "https://apps.microsoft.com/detail/9ncrcvjc50wl",
             Publisher = "Burak Kaan Köse",
-            AccentColor = Color.FromArgb(255, 0, 149, 224)
+            AccentColor = Color.FromArgb(255, 53, 193, 241),
+            AccentTextColor = Color.FromArgb(255, 0, 0, 0)
         },
         new AppCard
         {
@@ -196,7 +200,8 @@ internal sealed partial class HomePage : Page
             PicturePath = "/Assets/AppBanners/Wintoys.png",
             Link = "https://apps.microsoft.com/detail/9p8ltpgcbzxd",
             Publisher = "Bogdan Pătrăucean",
-            AccentColor = Color.FromArgb(255, 200, 200, 200)
+            AccentColor = Color.FromArgb(255, 200, 200, 200),
+            AccentTextColor = Color.FromArgb(255, 0, 0, 0)
         },
     ];
 

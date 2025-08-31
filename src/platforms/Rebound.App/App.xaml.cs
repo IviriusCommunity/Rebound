@@ -53,6 +53,7 @@ public partial class App : Application
         MainWindow = new();
         MainWindow.AppWindowInitialized += (s, e) =>
         {
+            MainWindow.Title = "Rebound Hub";
             MainWindow.AppWindow?.TitleBar.ExtendsContentIntoTitleBar = true;
             MainWindow.AppWindow?.TitleBar.PreferredHeightOption = TitleBarHeightOption.Tall;
             MainWindow.AppWindow?.TitleBar.ButtonBackgroundColor = Colors.Transparent;
