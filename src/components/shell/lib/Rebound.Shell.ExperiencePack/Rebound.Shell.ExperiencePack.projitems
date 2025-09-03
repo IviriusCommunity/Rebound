@@ -13,6 +13,5 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="$(MSBuildThisFileDirectory)StringHelper.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)WindowHook.cs" />
   </ItemGroup>
 </Project>

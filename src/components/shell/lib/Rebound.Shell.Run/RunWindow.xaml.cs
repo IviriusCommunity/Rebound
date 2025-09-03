@@ -3,11 +3,12 @@
 
 using CommunityToolkit.Mvvm.Input;
 using Microsoft.UI.Input;
-using Microsoft.UI.Xaml;
+using Windows.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
-using Microsoft.UI.Xaml.Input;
+using Rebound.Core.Helpers;
+using Rebound.Core.Helpers.Windowing;
 using Rebound.Helpers;
-using Rebound.Helpers.Windowing;
+using Rebound.Shell.ExperienceHost;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -19,11 +20,13 @@ using System.Xml;
 using Windows.Storage.Pickers;
 using Windows.System;
 using Windows.UI.Core;
-using WinUIEx;
+using Windows.UI.Xaml.Controls;
+using Windows.UI.Xaml.Input;
+using WinRT.Interop;
 
 namespace Rebound.Shell.Run;
 
-public sealed partial class RunWindow : WindowEx
+public sealed partial class RunWindow : Page
 {
     public static List<string> GetRunHistory(List<string>? defaultValue = null)
     {
@@ -122,18 +125,11 @@ public sealed partial class RunWindow : WindowEx
         }
     }
 
-    private readonly Action? onClosedCallback;
-
     public RunViewModel ViewModel { get; } = new();
 
-    public RunWindow(Action? onClosed = null)
+    public RunWindow()
     {
-        onClosedCallback = onClosed;
         InitializeComponent();
-        var scale = Display.GetScale(this);
-        this.Move((int)(25 * scale), (int)(Display.GetDisplayRect(this).Height - (48 + 25) * scale - Height * scale));
-        this.TurnOffDoubleClick();
-        ExtendsContentIntoTitleBar = true;
         var history = GetRunHistory();
         foreach(var item in history)
         {
@@ -160,27 +156,10 @@ public sealed partial class RunWindow : WindowEx
             ViewModel.IsRunButtonEnabled = true;
     }
 
-    private void WindowEx_Closed(object sender, WindowEventArgs args)
-    {
-        onClosedCallback?.Invoke();
-    }
-
-    private async void WindowEx_Activated(object sender, Microsoft.UI.Xaml.WindowActivatedEventArgs args)
-    {
-        if (args.WindowActivationState != WindowActivationState.Deactivated)
-        {
-            this.SetWindowIcon($"{AppContext.BaseDirectory}\\Assets\\RunBox.ico");
-            await Task.Delay(100);
-            InputBox.Focus(FocusState.Programmatic);
-            await Task.Delay(100);
-            InputBox.IsSuggestionListOpen = false;
-        }
-    }
-
     [RelayCommand]
     public void Cancel()
     {
-        Close();
+        App.CloseRunWindow();
     }
 
     [RelayCommand]
@@ -189,7 +168,12 @@ public sealed partial class RunWindow : WindowEx
         var openPicker = new FileOpenPicker();
 
         // Initialize the file picker with the current window handle
-        WinRT.Interop.InitializeWithWindow.Initialize(openPicker, this.GetWindowHandle());
+        unsafe
+        {
+            // Get the HWND from your Window
+            var hwnd = App.RunWindow?.Handle.ToCsWin32HWND();
+            InitializeWithWindow.Initialize(openPicker, (nint)hwnd.Value);
+        }
 
         // Let the user choose starting location
         openPicker.SuggestedStartLocation = PickerLocationId.ComputerFolder;
@@ -317,7 +301,7 @@ public sealed partial class RunWindow : WindowEx
             }
             ViewModel.RunHistory.Add(ViewModel.Path.Trim());
             SetRunHistory(ViewModel.RunHistory.ToList());
-            Close();
+            Cancel();
         }
     }
 

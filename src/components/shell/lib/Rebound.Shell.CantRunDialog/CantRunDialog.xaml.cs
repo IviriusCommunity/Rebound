@@ -3,13 +3,13 @@
 
 using System;
 using CommunityToolkit.Mvvm.Input;
-using Microsoft.UI.Xaml;
-using Rebound.Helpers;
-using WinUIEx;
+using Windows.UI.Xaml;
+using Rebound.Core.Helpers;
+using Windows.UI.Xaml.Controls;
 
 namespace Rebound.Shell.CantRunDialog;
 
-public sealed partial class CantRunDialog : WindowEx
+public sealed partial class CantRunDialog : Page
 {
     private readonly Action? onClosedCallback;
 
@@ -17,24 +17,11 @@ public sealed partial class CantRunDialog : WindowEx
     {
         onClosedCallback = onClosed;
         InitializeComponent();
-        this.CenterOnScreen();
-        ExtendsContentIntoTitleBar = true;
-        AppWindow.TitleBar.PreferredHeightOption = Microsoft.UI.Windowing.TitleBarHeightOption.Collapsed;
-    }
-
-    private void WindowEx_Closed(object sender, WindowEventArgs args)
-    {
-        onClosedCallback?.Invoke();
-    }
-
-    private void WindowEx_Activated(object sender, WindowActivatedEventArgs args)
-    {
-        this.SetTaskBarIcon(Icon.FromFile($"{AppContext.BaseDirectory}\\Assets\\Rebound.ico"));
     }
 
     [RelayCommand]
     public void Cancel()
     {
-        Close();
+
     }
 }

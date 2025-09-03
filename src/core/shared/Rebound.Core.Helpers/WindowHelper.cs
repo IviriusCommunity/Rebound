@@ -25,41 +25,43 @@ public static class WindowHelper
         TerraFX.Interop.Windows.Windows.SetForegroundWindow(hWnd.ToTerraFXHWND()); // bring to front
     }
 
-    public static void ForceBringToFront(this AppWindow window)
+    public static void ForceBringToFront(this IslandsWindow window)
     {
-        var hWnd = new HWND(Win32Interop.GetWindowFromWindowId(window.Id));
-
-        var thisThreadId = PInvoke.GetCurrentThreadId();
-        var foregroundHwnd = PInvoke.GetForegroundWindow();
+        var thisThreadId = TerraFX.Interop.Windows.Windows.GetCurrentThreadId();
+        var foregroundHwnd = TerraFX.Interop.Windows.Windows.GetForegroundWindow();
         uint lpdwProcessId;
         unsafe
         {
-            var foregroundThreadId = PInvoke.GetWindowThreadProcessId(foregroundHwnd, &lpdwProcessId);
+            var foregroundThreadId = TerraFX.Interop.Windows.Windows.GetWindowThreadProcessId(foregroundHwnd, &lpdwProcessId);
 
             if (thisThreadId != foregroundThreadId)
             {
                 // Attach input to foreground thread
-                PInvoke.AttachThreadInput(foregroundThreadId, thisThreadId, true);
+                TerraFX.Interop.Windows.Windows.AttachThreadInput(foregroundThreadId, thisThreadId, true);
 
                 // Ensure window is shown
-                PInvoke.ShowWindow(hWnd, SHOW_WINDOW_CMD.SW_SHOW);
+                TerraFX.Interop.Windows.Windows.ShowWindow(window.Handle, TerraFX.Interop.Windows.SW.SW_SHOW);
 
                 // Try to bring it to foreground
-                PInvoke.SetForegroundWindow(hWnd);
+                TerraFX.Interop.Windows.Windows.SetForegroundWindow(window.Handle);
 
                 // Detach input after done
-                PInvoke.AttachThreadInput(foregroundThreadId, thisThreadId, false);
+                TerraFX.Interop.Windows.Windows.AttachThreadInput(foregroundThreadId, thisThreadId, false);
             }
             else
             {
                 // Same thread, simpler path
-                PInvoke.ShowWindow(hWnd, SHOW_WINDOW_CMD.SW_SHOW);
-                PInvoke.SetForegroundWindow(hWnd);
+                TerraFX.Interop.Windows.Windows.ShowWindow(window.Handle, TerraFX.Interop.Windows.SW.SW_SHOW);
+                TerraFX.Interop.Windows.Windows.SetForegroundWindow(window.Handle);
             }
         }
 
-        PInvoke.ShowWindow(hWnd, SHOW_WINDOW_CMD.SW_RESTORE);
-        window.Activate();
-        PInvoke.BringWindowToTop(hWnd);
+        TerraFX.Interop.Windows.Windows.ShowWindow(window.Handle, TerraFX.Interop.Windows.SW.SW_RESTORE);
+        if (TerraFX.Interop.Windows.Windows.IsIconic(window.Handle) != 0) // if minimized
+        {
+            TerraFX.Interop.Windows.Windows.ShowWindow(window.Handle, TerraFX.Interop.Windows.SW.SW_RESTORE); // restore window
+        }
+        TerraFX.Interop.Windows.Windows.SetForegroundWindow(window.Handle);
+        TerraFX.Interop.Windows.Windows.BringWindowToTop(window.Handle);
     }
 }

@@ -1,6 +1,12 @@
 ﻿// Copyright (C) Ivirius(TM) Community 2020 - 2025. All Rights Reserved.
 // Licensed under the MIT License.
 
+using Rebound.Core.Helpers;
+using Rebound.Forge;
+using Rebound.Forge.Engines;
+using Rebound.Forge.Hooks;
+using Rebound.Generators;
+using Rebound.Helpers;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -8,28 +14,45 @@ using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.UI.Xaml;
-using Rebound.Core.Helpers;
-using Rebound.Forge;
-using Rebound.Generators;
-using Rebound.Helpers;
 using Windows.Storage;
 using Windows.System.UserProfile;
+using Windows.UI.Xaml;
 using Windows.Win32;
 using Windows.Win32.System.Shutdown;
-using WinUI3Localizer;
-using WinUIEx;
 
 namespace Rebound.ServiceHost;
 
-[ReboundApp("Rebound.ServiceHost", "")]
+//[ReboundApp("Rebound.ServiceHost", "")]
 public partial class App : Application
 {
     private TrustedPipeServer? PipeServer;
 
     public App()
-    {
+    {            // Window hooks
+        var thread = new Thread(() =>
+        {
+            var hook1 = new WindowHook("#32770", "Shut Down Windows", "explorer");
+            hook1.WindowDetected += Hook_WindowDetected_Shutdown;
 
+            var hook2 = new WindowHook("#32770", "Run", "explorer");
+            hook2.WindowDetected += Hook_WindowDetected_Run;
+
+            var hook3 = new WindowHook("#32770", "Create new task", "taskmgr");
+            hook3.WindowDetected += Hook_WindowDetected_Run;
+
+            var hook4 = new WindowHook("Shell_Dialog", "This app can’t run on your PC", "explorer");
+            hook4.WindowDetected += Hook_WindowDetected_CantRun;
+
+            // Keep message pump alive so all hooks keep working
+            NativeMessageLoop();
+        });
+
+        thread.SetApartmentState(ApartmentState.STA);
+        thread.IsBackground = false;
+        thread.Start();
+
+        // Server
+        _ = Task.Run(StartPipeServer);
     }
 
     private void StartPipeServer()
@@ -142,13 +165,13 @@ public partial class App : Application
         }
     }
 
-    public static ILocalizer Localizer { get; set; }
+    //public static ILocalizer Localizer { get; set; }
 
     private async void OnSingleInstanceLaunched(object? sender, Helpers.Services.SingleInstanceLaunchEventArgs e)
     {
         if (e.IsFirstLaunch)
         {
-            // Localizations
+            /*// Localizations
             var stringsFolderPath = Path.Combine(AppContext.BaseDirectory, "Strings");
 
             var stringsFolder = await StorageFolder.GetFolderFromPathAsync(stringsFolderPath);
@@ -171,7 +194,7 @@ public partial class App : Application
             else
             {
                 Localizer.SetLanguage("en-US");
-            }
+            }*/
 
             // Window hooks
             var thread = new Thread(() =>
@@ -179,11 +202,11 @@ public partial class App : Application
                 var hook1 = new WindowHook("#32770", "Shut Down Windows", "explorer");
                 hook1.WindowDetected += Hook_WindowDetected_Shutdown;
 
-                var hook2 = new WindowHook("#32770", "RunBoxTitle".GetLocalizedString(), "explorer");
+                /*var hook2 = new WindowHook("#32770", "RunBoxTitle".GetLocalizedString(), "explorer");
                 hook2.WindowDetected += Hook_WindowDetected_Run;
 
                 var hook3 = new WindowHook("#32770", "RunBoxTitleTaskManager".GetLocalizedString(), "taskmgr");
-                hook3.WindowDetected += Hook_WindowDetected_Run;
+                hook3.WindowDetected += Hook_WindowDetected_Run;*/
 
                 var hook4 = new WindowHook("Shell_Dialog", "This app can’t run on your PC", "explorer");
                 hook4.WindowDetected += Hook_WindowDetected_CantRun;
@@ -200,9 +223,9 @@ public partial class App : Application
             _ = Task.Run(StartPipeServer);
 
             // Activation
-            MainAppWindow = new MainWindow();
+            /*MainAppWindow = new MainWindow();
             MainAppWindow.Activate();
-            MainAppWindow.Show();
+            MainAppWindow.Show();*/
         }
     }
 

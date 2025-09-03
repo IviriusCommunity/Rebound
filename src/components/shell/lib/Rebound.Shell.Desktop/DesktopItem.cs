@@ -8,13 +8,13 @@ using System.IO;
 using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.ComponentModel;
 using Files.App.Storage;
-using Microsoft.UI.Xaml;
-using Microsoft.UI.Xaml.Media.Imaging;
-using Rebound.Helpers;
+using Windows.UI.Xaml.Media.Imaging;
+using Rebound.Core.Helpers;
 using Rebound.Shell.ExperiencePack;
 using Windows.Storage;
 using Windows.Storage.FileProperties;
 using Windows.Win32.UI.Shell;
+using Windows.UI.Xaml;
 
 namespace Rebound.Shell.Desktop;
 

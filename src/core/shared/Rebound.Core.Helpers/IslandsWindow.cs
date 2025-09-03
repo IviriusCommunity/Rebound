@@ -47,6 +47,8 @@ public partial class IslandsWindow : ObservableObject, IDisposable
     private const string WindowClassName = "XamlIslandsClass";
     private static readonly ushort _classAtom;
 
+    bool _closed;
+
     // Static WndProc (unmanaged entry)
     [UnmanagedCallersOnly]
     private static unsafe LRESULT WndProcStatic(HWND hwnd, uint msg, WPARAM wParam, LPARAM lParam)
@@ -129,6 +131,7 @@ public partial class IslandsWindow : ObservableObject, IDisposable
 
     public event EventHandler<XamlInitializedEventArgs>? XamlInitialized;
     public event EventHandler<AppWindowInitializedEventArgs>? AppWindowInitialized;
+    public event EventHandler? Closed;
 
     public IslandsWindow() { }
 
@@ -136,12 +139,125 @@ public partial class IslandsWindow : ObservableObject, IDisposable
     {
         if (AppWindow != null)
         {
-            AppWindow.Activate();
+            if (TerraFX.Interop.Windows.Windows.IsIconic(Handle) != 0) // if minimized
+            {
+                TerraFX.Interop.Windows.Windows.ShowWindow(Handle, TerraFX.Interop.Windows.SW.SW_RESTORE); // restore window
+            }
+            TerraFX.Interop.Windows.Windows.SetForegroundWindow(Handle); // 
         }
         else
         {
             Create();
         }
+    }
+
+    public void Minimize()
+    {
+        if (AppWindow != null && AppWindow.Presenter.Kind is AppWindowPresenterKind.Overlapped)
+            (AppWindow.Presenter as OverlappedPresenter).Minimize();
+    }
+
+    public void Maximize()
+    {
+        if (AppWindow != null && AppWindow.Presenter.Kind is AppWindowPresenterKind.Overlapped)
+            (AppWindow.Presenter as OverlappedPresenter).Maximize();
+    }
+
+    public void Restore()
+    {
+        if (AppWindow != null && AppWindow.Presenter.Kind is AppWindowPresenterKind.Overlapped)
+            (AppWindow.Presenter as OverlappedPresenter).Restore();
+    }
+
+    public void Close()
+    {
+        Closed?.Invoke(this, EventArgs.Empty);
+        AppWindow?.Destroy();
+        Dispose();
+    }
+
+    public void MoveAndResize(int x, int y, int width, int height)
+    {
+        if (AppWindow != null)
+        {
+            AppWindow.MoveAndResize(new()
+            {
+                X = x,
+                Y = y,
+                Width = width,
+                Height = height
+            });
+        }
+    }
+
+    public void Move(int x, int y)
+    {
+        if (AppWindow != null)
+        {
+            var rect = AppWindow.Size;
+            AppWindow.MoveAndResize(new()
+            {
+                X = x,
+                Y = y,
+                Width = rect.Width,
+                Height = rect.Height
+            });
+        }
+    }
+
+    public void Resize(int width, int height)
+    {
+        if (AppWindow != null)
+        {
+            var rect = AppWindow.Position;
+            AppWindow.MoveAndResize(new()
+            {
+                X = rect.X,
+                Y = rect.Y,
+                Width = width,
+                Height = height
+            });
+        }
+    }
+
+    public void SetExtendedWindowStyle(Windows.Win32.UI.WindowsAndMessaging.WINDOW_EX_STYLE style)
+    {
+        // Get current extended style
+        var exStyle = (Windows.Win32.UI.WindowsAndMessaging.WINDOW_EX_STYLE)GetWindowLongPtrW(Handle, GWL.GWL_EXSTYLE);
+        // Add the new style
+        exStyle |= style;
+        SetWindowLongPtrW(Handle, GWL.GWL_EXSTYLE, (nint)exStyle);
+        // Apply the changes
+        SetWindowPos(
+            Handle,
+            HWND.NULL,
+            0, 0, 0, 0,
+            SWP.SWP_NOMOVE | SWP.SWP_NOSIZE | SWP.SWP_NOZORDER | SWP.SWP_FRAMECHANGED
+        );
+    }
+
+    public void SetWindowStyle(Windows.Win32.UI.WindowsAndMessaging.WINDOW_STYLE style)
+    {
+        // Get current style
+        var ws = (Windows.Win32.UI.WindowsAndMessaging.WINDOW_STYLE)GetWindowLongPtrW(Handle, GWL.GWL_STYLE);
+        // Add the new style
+        ws |= style;
+        SetWindowLongPtrW(Handle, GWL.GWL_STYLE, (nint)ws);
+        // Apply the changes
+        SetWindowPos(
+            Handle,
+            HWND.NULL,
+            0, 0, 0, 0,
+            SWP.SWP_NOMOVE | SWP.SWP_NOSIZE | SWP.SWP_NOZORDER | SWP.SWP_FRAMECHANGED
+        );
+    }
+
+    public void SetWindowOpacity(byte opacity)
+    {
+        // Ensure layered style is set
+        SetExtendedWindowStyle(Windows.Win32.UI.WindowsAndMessaging.WINDOW_EX_STYLE.WS_EX_LAYERED);
+        // Apply opacity (0-255)
+        SetLayeredWindowAttributes(Handle, 0, opacity, LWA.LWA_ALPHA);
     }
 
     // ---------- Activation & message loop ----------
@@ -171,6 +287,12 @@ public partial class IslandsWindow : ObservableObject, IDisposable
 
             // AppWindow from the created HWND (fast)
             AppWindow = AppWindow.GetFromWindowId(Win32Interop.GetWindowIdFromWindow(Handle));
+            AppWindow.Closing += (s, e) =>
+            {
+                _closed = true;
+                Closed?.Invoke(this, EventArgs.Empty);
+                Dispose();
+            };
             AppWindowInitialized?.Invoke(this, new AppWindowInitializedEventArgs());
 
             // Initialize XAML once (no-op if already initialized)
@@ -180,12 +302,16 @@ public partial class IslandsWindow : ObservableObject, IDisposable
             MSG msg;
             while (GetMessageW(&msg, HWND.NULL, 0, 0))
             {
-                // PreTranslateMessage uses cached native pointer now => cheap
-                if (!PreTranslateMessage(&msg))
+                if (!_closed)
                 {
-                    TranslateMessage(&msg);
-                    DispatchMessageW(&msg);
+                    // PreTranslateMessage uses cached native pointer now => cheap
+                    if (!PreTranslateMessage(&msg))
+                    {
+                        TranslateMessage(&msg);
+                        DispatchMessageW(&msg);
+                    }
                 }
+                else return;
             }
         }
     }
@@ -262,7 +388,7 @@ public partial class IslandsWindow : ObservableObject, IDisposable
         if (!_xamlInitialized) return false;
         BOOL outResult = false;
         // _nativeSource is cached; avoid re-QI every time
-        ThrowIfFailed(_nativeSource.Get()->PreTranslateMessage(msg, &outResult));
+        if (!_closed) ThrowIfFailed(_nativeSource.Get()->PreTranslateMessage(msg, &outResult));
         return outResult;
     }
 
@@ -433,7 +559,7 @@ public partial class IslandsWindow : ObservableObject, IDisposable
 
         // Release WinRT/XAML objects in deterministic order
         _desktopWindowXamlSource?.Dispose();
-        _xamlManager?.Dispose();
+        //_xamlManager?.Dispose();
         _coreWindow = null;
 
         // Destroy the Win32 window if still present
@@ -442,6 +568,9 @@ public partial class IslandsWindow : ObservableObject, IDisposable
             DestroyWindow(Handle);
             Handle = HWND.NULL;
         }
+
+        AppWindow.Destroy();
+        AppWindow = null;
 
         GC.SuppressFinalize(this);
     }

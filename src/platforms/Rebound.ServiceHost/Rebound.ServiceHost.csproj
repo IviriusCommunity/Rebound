@@ -9,11 +9,22 @@
 		<ApplicationIcon>Assets\ServiceHost.ico</ApplicationIcon>
 		<ApplicationManifest>app.manifest</ApplicationManifest>
 
+		<DefineConstants>DISABLE_XAML_GENERATED_MAIN;$(DefineConstants)</DefineConstants>
+
 		<!-- Deployment -->
 		<EnableMsixTooling>true</EnableMsixTooling>
-		<WindowsPackageType>None</WindowsPackageType>
+		<DefaultLanguage>en-US</DefaultLanguage>
 
 	</PropertyGroup>
+
+	<ItemGroup>
+		<AppxTargetDeviceFamilyItem Include="Windows.Desktop" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<TrimmerRootAssembly Include="Windows.Win32" />
+		<TrimmerRootAssembly Include="Windows.Win32.System.Com" />
+	</ItemGroup>
 
 	<!-- Project content -->
 	<ItemGroup>
@@ -81,6 +92,11 @@
 	</ItemGroup>
 	<ItemGroup>
 	  <PRIResource Remove="Strings\it-IT\Resources.resw" />
+	</ItemGroup>
+	<ItemGroup>
+	  <AppxManifest Include="Package.appxmanifest">
+	    <SubType>Designer</SubType>
+	  </AppxManifest>
 	</ItemGroup>
 
 </Project>

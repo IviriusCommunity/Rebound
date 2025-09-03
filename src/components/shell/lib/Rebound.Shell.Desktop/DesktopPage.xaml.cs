@@ -14,14 +14,13 @@ using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.Input;
 using CommunityToolkit.WinUI;
 using Files.App.Storage;
-using Microsoft.Graphics.Canvas.Effects;
 using Microsoft.UI;
 using Microsoft.UI.Xaml;
-using Microsoft.UI.Xaml.Controls;
-using Microsoft.UI.Xaml.Controls.Primitives;
-using Microsoft.UI.Xaml.Input;
-using Microsoft.UI.Xaml.Media;
-using Microsoft.UI.Xaml.Navigation;
+using Windows.UI.Xaml.Controls;
+using Windows.UI.Xaml.Controls.Primitives;
+using Windows.UI.Xaml.Input;
+using Windows.UI.Xaml.Media;
+using Windows.UI.Xaml.Navigation;
 using Rebound.Helpers;
 using Rebound.Shell.ExperienceHost;
 using Windows.ApplicationModel.DataTransfer;
@@ -32,11 +31,13 @@ using Windows.System;
 using Windows.System.Diagnostics;
 using Windows.UI;
 using Windows.Win32;
-using WinUIEx;
+using Windows.UI.Xaml;
+using Colors = Windows.UI.Colors;
+using Thickness = Windows.UI.Xaml.Thickness;
 
 namespace Rebound.Shell.Desktop;
 
-public partial class WallpaperGlassBackdrop : CompositionBrushBackdrop
+/*public partial class WallpaperGlassBackdrop : CompositionBrushBackdrop
 {
     protected override Windows.UI.Composition.CompositionBrush CreateBrush(Windows.UI.Composition.Compositor compositor)
     {
@@ -99,13 +100,13 @@ public partial class WallpaperGlassBackdrop : CompositionBrushBackdrop
         // Return the final brush with both effects applied
         return colorEffectBrush;
     }
-}
+}*/
 
 public sealed partial class DesktopPage : Page
 {
     public ObservableCollection<DesktopItem> Items { get; set; } = [];
 
-    private DesktopWindow? Window;
+    //private DesktopWindow? Window;
 
     private const int CELL_WIDTH = 82;
     private const int CELL_HEIGHT = 102;
@@ -237,17 +238,17 @@ public sealed partial class DesktopPage : Page
     [RelayCommand]
     private void ExitDesktop()
     {
-        ((DesktopWindow)App.DesktopWindow).canClose = true;
+        /*((DesktopWindow)App.DesktopWindow).canClose = true;
         ((DesktopWindow)App.DesktopWindow).Close();
-        ((DesktopWindow)App.DesktopWindow).RestoreExplorerDesktop();
+        ((DesktopWindow)App.DesktopWindow).RestoreExplorerDesktop();*/
     }
 
     [RelayCommand]
     private async Task ExitShellAsync()
     {
-        ((DesktopWindow)App.DesktopWindow).canClose = true;
+        /*((DesktopWindow)App.DesktopWindow).canClose = true;
         ((DesktopWindow)App.DesktopWindow).Close();
-        ((DesktopWindow)App.DesktopWindow).RestoreExplorerDesktop();
+        ((DesktopWindow)App.DesktopWindow).RestoreExplorerDesktop();*/
         await Task.Delay(250).ConfigureAwait(true);
         Process.GetCurrentProcess().Kill();
     }
@@ -295,7 +296,7 @@ public sealed partial class DesktopPage : Page
     [RelayCommand]
     public void Refresh()
     {
-        DispatcherQueue.TryEnqueue(async () =>
+        DispatcherQueue.GetForCurrentThread().TryEnqueue(async () =>
         {
             // Clear items before loading to avoid adding duplicates
             Items.Clear();
@@ -304,7 +305,7 @@ public sealed partial class DesktopPage : Page
             var newItems = await GetDesktopFilesAsync().ConfigureAwait(true);
 
             // Ensure UI updates happen on UI thread
-            DispatcherQueue.TryEnqueue(() =>
+            DispatcherQueue.GetForCurrentThread().TryEnqueue(() =>
             {
                 foreach (var item in newItems)
                 {
@@ -341,7 +342,7 @@ public sealed partial class DesktopPage : Page
         if (index < 0) return;
 
         // Get the container (UIElement) for that item
-        var container = CanvasControl.GetOrCreateElement(index) as ItemContainer;
+        var container = CanvasControl.GetOrCreateElement(index) as ListViewItem;
         if (container != null)
         {
             container.Background = new SolidColorBrush(Colors.Transparent);
@@ -964,6 +965,6 @@ public sealed partial class DesktopPage : Page
     protected override void OnNavigatedTo(NavigationEventArgs e)
     {
         base.OnNavigatedTo(e);
-        Window = (DesktopWindow?)e?.Parameter;
+        //Window = (DesktopWindow?)e?.Parameter;
     }
 }

@@ -12,7 +12,10 @@
 
 		<!-- Deployment -->
 		<EnableMsixTooling>true</EnableMsixTooling>
-		<WindowsPackageType>None</WindowsPackageType>
+		<DefineConstants>DISABLE_XAML_GENERATED_MAIN;$(DefineConstants)</DefineConstants>
+
+		<DefaultLanguage>en-US</DefaultLanguage>
+
 
 	</PropertyGroup>
 

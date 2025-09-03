@@ -9,23 +9,23 @@ using System.IO;
 using System.Reflection.Emit;
 using System.Runtime.InteropServices;
 using System.Threading;
+using Microsoft.UI.Windowing;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Media;
-using Microsoft.UI.Xaml.Media.Imaging;
 using Microsoft.Win32;
+using Rebound.Core.Helpers;
 using Rebound.Helpers;
 using Windows.Win32;
 using Windows.Win32.Foundation;
 using Windows.Win32.Graphics.Dwm;
 using Windows.Win32.UI.WindowsAndMessaging;
-using WinUIEx;
 
 namespace Rebound.Shell.ExperienceHost;
 
 internal static class ProgManHook
 {
-    public static Bitmap CaptureScreenArea(Rectangle area)
+    /*public static Bitmap CaptureScreenArea(Rectangle area)
     {
         var hWndProgman = PInvoke.FindWindow("Progman", null);
         var hSHELLDLL_DefView = PInvoke.FindWindowEx(hWndProgman, HWND.Null, "SHELLDLL_DefView", null);
@@ -50,9 +50,9 @@ internal static class ProgManHook
         var bmp = System.Drawing.Image.FromHbitmap(hBitmap);
         PInvoke.DeleteObject(hBitmap);
         return bmp;
-    }
+    }*/
 
-    public static async void AttachToProgMan(this WindowEx window)
+    public static async void AttachToProgMan(this IslandsWindow window)
     {
         try
         {
@@ -79,7 +79,7 @@ internal static class ProgManHook
             }
 
             // Current window's handle
-            HWND hWndWindow = new(window.GetWindowHandle());
+            HWND hWndWindow = window.Handle.ToCsWin32HWND();
 
             // Set the parent of the current window to SHELLDLL_DefView
             PInvoke.SetParent(hWndWindow, hWndProgman);

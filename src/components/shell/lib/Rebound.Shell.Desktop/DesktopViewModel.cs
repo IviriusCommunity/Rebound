@@ -1,5 +1,5 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
-using Rebound.Helpers;
+using Rebound.Core.Helpers;
 
 namespace Rebound.Shell.Desktop;
 

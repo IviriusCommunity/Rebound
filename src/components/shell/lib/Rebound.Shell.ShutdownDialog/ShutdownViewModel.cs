@@ -3,8 +3,7 @@ using System.Linq;
 using System.Runtime.InteropServices;
 using CommunityToolkit.Mvvm.ComponentModel;
 using Microsoft.Win32;
-using Rebound.Helpers;
-using WinUI3Localizer;
+using Rebound.Core.Helpers;
 
 namespace Rebound.Shell.ShutdownDialog
 {
@@ -39,7 +38,7 @@ namespace Rebound.Shell.ShutdownDialog
                 }
                 return productName;
             }
-            return "Unknown".GetLocalizedString();
+            return "Unknown";
         }
     }
 }
