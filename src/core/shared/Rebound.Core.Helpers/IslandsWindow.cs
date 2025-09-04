@@ -462,40 +462,29 @@ public partial class IslandsWindow : ObservableObject, IDisposable
         }
     }
 
-    private unsafe RECT GetWindowRectForClientSize(int clientWidth, int clientHeight)
-    {
-        RECT rect = new() { left = 0, top = 0, right = clientWidth, bottom = clientHeight };
-        AdjustWindowRectEx(&rect, WS_OVERLAPPEDWINDOW & ~WS_CAPTION, false, 0); // use your current styles here
-        return rect;
-    }
-
     partial void OnXChanged(int value)
     {
-        var rect = GetWindowRectForClientSize(value, Height);
-        SetWindowPos(Handle, HWND.NULL, X, Y, rect.right - rect.left, rect.bottom - rect.top,
-            SWP_SHOWWINDOW | SWP_NOACTIVATE | SWP_NOZORDER | SWP_NOMOVE);
+        if (AppWindow != null)
+            AppWindow.Move(new(value, Y));
     }
 
     partial void OnYChanged(int value)
     {
-        var rect = GetWindowRectForClientSize(value, Height);
-        SetWindowPos(Handle, HWND.NULL, X, Y, rect.right - rect.left, rect.bottom - rect.top,
-            SWP_SHOWWINDOW | SWP_NOACTIVATE | SWP_NOZORDER | SWP_NOMOVE);
+        if (AppWindow != null)
+            AppWindow.Move(new(X, value));
     }
 
-    partial void OnWidthChanged(int value)
+    /*partial void OnWidthChanged(int value)
     {
-        var rect = GetWindowRectForClientSize(value, Height);
-        SetWindowPos(Handle, HWND.NULL, X, Y, rect.right - rect.left, rect.bottom - rect.top,
-            SWP_SHOWWINDOW | SWP_NOACTIVATE | SWP_NOZORDER | SWP_NOMOVE);
+        if (AppWindow != null)
+            AppWindow.Resize(new(value, Height));
     }
 
     partial void OnHeightChanged(int value)
     {
-        var rect = GetWindowRectForClientSize(value, Height);
-        SetWindowPos(Handle, HWND.NULL, X, Y, rect.right - rect.left, rect.bottom - rect.top,
-            SWP_SHOWWINDOW | SWP_NOACTIVATE | SWP_NOZORDER | SWP_NOMOVE);
-    }
+        if (AppWindow != null)
+            AppWindow.Resize(new(Width, value));
+    }*/
 
     partial void OnMinWidthChanged(int value)
     {
