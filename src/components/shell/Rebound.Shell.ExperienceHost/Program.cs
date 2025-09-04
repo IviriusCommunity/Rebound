@@ -25,37 +25,16 @@ namespace Rebound.Shell.ExperienceHost
         [STAThread]
         static unsafe void Main(string[] args)
         {
-            // Create a named mutex to check for existing instances
-            using (Mutex mutex = new Mutex(true, "Rebound.Shell", out bool isNewInstance))
+            // If this is the first instance, start the application
+            RoInitialize(RO_INIT_TYPE.RO_INIT_SINGLETHREADED);
+            _ = new App();
+
+            while (true)
             {
-                if (isNewInstance)
+                if (_actions.TryTake(out var action, Timeout.Infinite))
                 {
-                    // If this is the first instance, start the application
-                    RoInitialize(RO_INIT_TYPE.RO_INIT_SINGLETHREADED);
-                    _ = new App();
-
-                        foreach (var action in _actions.GetConsumingEnumerable())
-                        {
-                            action();
-                        }
-
-                    Thread.Sleep(Timeout.Infinite);
-                }
-                else
-                {
-                    // If another instance is running, activate the existing instance
-                    var processes = Process.GetProcessesByName(Process.GetCurrentProcess().ProcessName);
-                    foreach (var proc in processes)
-                    {
-                        if (proc.Id != Process.GetCurrentProcess().Id)
-                        {
-                            var a = proc.MainWindowHandle;
-                            HWND localHandle = new HWND(&a);
-                            if (localHandle != IntPtr.Zero)
-                                SetForegroundWindow(localHandle);
-                        }
-                    }
-                    Process.GetCurrentProcess().Kill();
+                    try { action(); }
+                    catch { }
                 }
             }
         }

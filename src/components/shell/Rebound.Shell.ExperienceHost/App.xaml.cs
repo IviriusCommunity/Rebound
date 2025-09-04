@@ -10,6 +10,7 @@ using Rebound.Helpers;
 using Rebound.Shell.Desktop;
 using System;
 using System.Collections.Concurrent;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Windows.System;
@@ -26,6 +27,8 @@ namespace Rebound.Shell.ExperienceHost;
 //[ReboundApp("Rebound.ShellExperienceHost", "")]
 public partial class App : Application
 {
+    private static bool _runWindowQueued = false;
+
     public App()
     {
         Run();
@@ -43,8 +46,21 @@ public partial class App : Application
             switch (msg)
             {
                 case "Shell::SpawnRunWindow":
-                    Program._actions.Add(ShowRunWindow);
-                    break;
+                    {
+                        // Only enqueue if not already queued
+                        if (!_runWindowQueued)
+                        {
+                            _runWindowQueued = true;
+
+                            Program._actions.Add(() =>
+                            {
+                                ShowRunWindow();
+                                // reset flag after action executed
+                                _runWindowQueued = false;
+                            });
+                        }
+                        break;
+                    }
                 /*case "Shell::SpawnShutdownDialog":
                     BackgroundWindow?.DispatcherQueue.TryEnqueue(ShowShutdownDialog);
                     break;
@@ -81,18 +97,20 @@ public partial class App : Application
         if (RunWindow is null)
         {
             RunWindow = new();
+            RunWindow.MoveAndResize(25, Display.GetAvailableRectForWindow(RunWindow.Handle).bottom - 265, 450, 240);
             RunWindow.AppWindowInitialized += (s, e) =>
             {
+                RunWindow.Title = "Run";
+                RunWindow.AppWindow?.SetIcon($"{AppContext.BaseDirectory}\\Assets\\RunBox.ico");
                 RunWindow.AppWindow?.TitleBar.ExtendsContentIntoTitleBar = true;
                 RunWindow.AppWindow?.TitleBar.ButtonBackgroundColor = Colors.Transparent;
                 RunWindow.AppWindow?.TitleBar.ButtonInactiveBackgroundColor = Colors.Transparent;
                 RunWindow.IsMaximizable = false;
                 RunWindow.IsMinimizable = false;
                 RunWindow.IsResizable = false;
-                RunWindow.MoveAndResize(25, Display.GetAvailableRectForWindow(RunWindow.Handle).bottom - 265, 450, 240);
-                RunWindow.Closed += (s, e) =>
+                RunWindow.Closing += (sender, args) =>
                 {
-                    DestroyRunWindow();
+                    RunWindow = null;
                 };
             };
             RunWindow.XamlInitialized += (s, e) =>
@@ -110,16 +128,10 @@ public partial class App : Application
         }
     }
 
-    public static void DestroyRunWindow()
-    {
-        //RunWindow?.Close();
-        RunWindow = null;
-    }
-
     public static void CloseRunWindow()
     {
         RunWindow?.Close();
-        RunWindow = null;
+        //RunWindow = null;
     }
 
     /*public static void ShowShutdownDialog()

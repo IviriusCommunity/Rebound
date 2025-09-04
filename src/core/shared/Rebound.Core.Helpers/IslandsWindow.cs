@@ -31,7 +31,10 @@ using WPARAM = TerraFX.Interop.Windows.WPARAM;
 #pragma warning disable CA1416 // Validate platform compatibility
 
 namespace Rebound.Core.Helpers;
-
+public class IslandsWindowClosingEventArgs : EventArgs
+{
+    public bool Handled { get; set; } = false;
+}
 public class XamlInitializedEventArgs : EventArgs
 {
 
@@ -89,6 +92,9 @@ public partial class IslandsWindow : ObservableObject, IDisposable
             // optional legacy compatibility - ignore failures
             InternalLoadLibrary("twinapi.appcore.dll"); InternalLoadLibrary("threadpoolwinrt.dll");
         }
+
+        // Initialize XAML manager for the thread
+        _xamlManager = WindowsXamlManager.InitializeForCurrentThread();
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -106,7 +112,7 @@ public partial class IslandsWindow : ObservableObject, IDisposable
     private HWND _coreHwnd;
 
     private DesktopWindowXamlSource? _desktopWindowXamlSource;
-    private WindowsXamlManager? _xamlManager;
+    private static WindowsXamlManager? _xamlManager;
     private CoreWindow? _coreWindow;
 
     // Cached native COM interfaces to avoid repeated QueryInterface
@@ -124,6 +130,8 @@ public partial class IslandsWindow : ObservableObject, IDisposable
     [ObservableProperty] public partial int MinHeight { get; set; } = 0;
     [ObservableProperty] public partial int Width { get; set; }
     [ObservableProperty] public partial int Height { get; set; }
+    [ObservableProperty] public partial int X { get; set; }
+    [ObservableProperty] public partial int Y { get; set; }
     [ObservableProperty] public partial int MaxWidth { get; set; } = int.MaxValue;
     [ObservableProperty] public partial int MaxHeight { get; set; } = int.MaxValue;
     [ObservableProperty] public partial string Title { get; set; } = "UWP XAML Islands Window";
@@ -131,6 +139,7 @@ public partial class IslandsWindow : ObservableObject, IDisposable
 
     public event EventHandler<XamlInitializedEventArgs>? XamlInitialized;
     public event EventHandler<AppWindowInitializedEventArgs>? AppWindowInitialized;
+    public event EventHandler<IslandsWindowClosingEventArgs>? Closing;
     public event EventHandler? Closed;
 
     public IslandsWindow() { }
@@ -171,53 +180,63 @@ public partial class IslandsWindow : ObservableObject, IDisposable
 
     public void Close()
     {
-        Closed?.Invoke(this, EventArgs.Empty);
-        AppWindow?.Destroy();
+        if (_closed) return;
+
+        var args = new IslandsWindowClosingEventArgs();
+        Closing?.Invoke(this, args);
+        if (args.Handled) return; // cancel closing if someone handled it
+
+        _closed = true;
+
+        // Destroy the AppWindow first (important!)
+        if (AppWindow != null)
+        {
+            AppWindow.Closing -= OnAppWindowClosing;
+            AppWindow.Destroy();
+            AppWindow = null;
+        }
+
+        // Dispose internal resources
         Dispose();
+
+        // Fire Closed event
+        Closed?.Invoke(this, EventArgs.Empty);
+    }
+
+    private void OnAppWindowClosing(AppWindow sender, AppWindowClosingEventArgs args)
+    {
+        var closingArgs = new IslandsWindowClosingEventArgs();
+        Closing?.Invoke(this, closingArgs);
+
+        if (closingArgs.Handled)
+        {
+            args.Cancel = true;
+            return;
+        }
+
+        _closed = true;
+        Dispose();
+        Closed?.Invoke(this, EventArgs.Empty);
     }
 
     public void MoveAndResize(int x, int y, int width, int height)
     {
-        if (AppWindow != null)
-        {
-            AppWindow.MoveAndResize(new()
-            {
-                X = x,
-                Y = y,
-                Width = width,
-                Height = height
-            });
-        }
+        X = x;
+        Y = y;
+        Width = width;
+        Height = height;
     }
 
     public void Move(int x, int y)
     {
-        if (AppWindow != null)
-        {
-            var rect = AppWindow.Size;
-            AppWindow.MoveAndResize(new()
-            {
-                X = x,
-                Y = y,
-                Width = rect.Width,
-                Height = rect.Height
-            });
-        }
+        X = x;
+        Y = y;
     }
 
     public void Resize(int width, int height)
     {
-        if (AppWindow != null)
-        {
-            var rect = AppWindow.Position;
-            AppWindow.MoveAndResize(new()
-            {
-                X = rect.X,
-                Y = rect.Y,
-                Width = width,
-                Height = height
-            });
-        }
+        Width = width;
+        Height = height;
     }
 
     public void SetExtendedWindowStyle(Windows.Win32.UI.WindowsAndMessaging.WINDOW_EX_STYLE style)
@@ -279,7 +298,7 @@ public partial class IslandsWindow : ObservableObject, IDisposable
                 className,
                 windowName,
                 WS_OVERLAPPEDWINDOW | WS_VISIBLE,
-                CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT,
+                X == default ? CW_USEDEFAULT : X, Y == default ? CW_USEDEFAULT : Y, Width == default ? CW_USEDEFAULT : Width, Height == default ? CW_USEDEFAULT : Height, 
                 HWND.NULL, HMENU.NULL, GetModuleHandleW(null), null);
 
             // write pointer once
@@ -287,12 +306,7 @@ public partial class IslandsWindow : ObservableObject, IDisposable
 
             // AppWindow from the created HWND (fast)
             AppWindow = AppWindow.GetFromWindowId(Win32Interop.GetWindowIdFromWindow(Handle));
-            AppWindow.Closing += (s, e) =>
-            {
-                _closed = true;
-                Closed?.Invoke(this, EventArgs.Empty);
-                Dispose();
-            };
+            AppWindow.Closing += OnAppWindowClosing;
             AppWindowInitialized?.Invoke(this, new AppWindowInitializedEventArgs());
 
             // Initialize XAML once (no-op if already initialized)
@@ -322,9 +336,6 @@ public partial class IslandsWindow : ObservableObject, IDisposable
         ThrowIfDisposed();
 
         if (_xamlInitialized) return; // fast path if already initialized
-
-        // Initialize XAML manager for the thread
-        _xamlManager = WindowsXamlManager.InitializeForCurrentThread();
 
         // Create DesktopWindowXamlSource and cache native pointer
         _desktopWindowXamlSource = new DesktopWindowXamlSource();
@@ -356,7 +367,7 @@ public partial class IslandsWindow : ObservableObject, IDisposable
         SynchronizationContext.SetSynchronizationContext(new DispatcherQueueSynchronizationContext(DispatcherQueue.GetForCurrentThread()));
 
         // Theme handling: create theme listener and set DWM attributes once
-        var themeListener = new ThemeListener();
+        using var themeListener = new ThemeListener();
         // Hook event (no capture allocations loop)
         themeListener.ThemeChanged += (args) =>
         {
@@ -388,7 +399,7 @@ public partial class IslandsWindow : ObservableObject, IDisposable
         if (!_xamlInitialized) return false;
         BOOL outResult = false;
         // _nativeSource is cached; avoid re-QI every time
-        if (!_closed) ThrowIfFailed(_nativeSource.Get()->PreTranslateMessage(msg, &outResult));
+        if (!_closed && _nativeSource.Get() != null) ThrowIfFailed(_nativeSource.Get()->PreTranslateMessage(msg, &outResult));
         return outResult;
     }
 
@@ -449,6 +460,41 @@ public partial class IslandsWindow : ObservableObject, IDisposable
         {
             _desktopWindowXamlSource.Content = value;
         }
+    }
+
+    private unsafe RECT GetWindowRectForClientSize(int clientWidth, int clientHeight)
+    {
+        RECT rect = new() { left = 0, top = 0, right = clientWidth, bottom = clientHeight };
+        AdjustWindowRectEx(&rect, WS_OVERLAPPEDWINDOW & ~WS_CAPTION, false, 0); // use your current styles here
+        return rect;
+    }
+
+    partial void OnXChanged(int value)
+    {
+        var rect = GetWindowRectForClientSize(value, Height);
+        SetWindowPos(Handle, HWND.NULL, X, Y, rect.right - rect.left, rect.bottom - rect.top,
+            SWP_SHOWWINDOW | SWP_NOACTIVATE | SWP_NOZORDER | SWP_NOMOVE);
+    }
+
+    partial void OnYChanged(int value)
+    {
+        var rect = GetWindowRectForClientSize(value, Height);
+        SetWindowPos(Handle, HWND.NULL, X, Y, rect.right - rect.left, rect.bottom - rect.top,
+            SWP_SHOWWINDOW | SWP_NOACTIVATE | SWP_NOZORDER | SWP_NOMOVE);
+    }
+
+    partial void OnWidthChanged(int value)
+    {
+        var rect = GetWindowRectForClientSize(value, Height);
+        SetWindowPos(Handle, HWND.NULL, X, Y, rect.right - rect.left, rect.bottom - rect.top,
+            SWP_SHOWWINDOW | SWP_NOACTIVATE | SWP_NOZORDER | SWP_NOMOVE);
+    }
+
+    partial void OnHeightChanged(int value)
+    {
+        var rect = GetWindowRectForClientSize(value, Height);
+        SetWindowPos(Handle, HWND.NULL, X, Y, rect.right - rect.left, rect.bottom - rect.top,
+            SWP_SHOWWINDOW | SWP_NOACTIVATE | SWP_NOZORDER | SWP_NOMOVE);
     }
 
     partial void OnMinWidthChanged(int value)
@@ -532,32 +578,17 @@ public partial class IslandsWindow : ObservableObject, IDisposable
         // Free pinned GCHandle and clear userdata
         if (_thisHandle.IsAllocated)
         {
-            var ptr = GCHandle.ToIntPtr(_thisHandle);
-            try
-            {
-                // Clear window userdata if possible
-                if (Handle != HWND.NULL)
-                    SetWindowLongPtr(Handle, GWLP.GWLP_USERDATA, IntPtr.Zero);
-            }
-            catch { /* swallow - best-effort */ }
-
+            SetWindowLongPtr(Handle, GWLP.GWLP_USERDATA, IntPtr.Zero);
             _thisHandle.Free();
         }
 
         // Release cached COM pointers
-        if (_nativeSource.Get() != null)
-        {
-            _nativeSource.Dispose();
-            _nativeSource = default;
-        }
+        _nativeSource.Dispose();
+        _nativeSource = default;
+        _coreWindowInterop.Dispose();
+        _coreWindowInterop = default;
 
-        if (_coreWindowInterop.Get() != null)
-        {
-            _coreWindowInterop.Dispose();
-            _coreWindowInterop = default;
-        }
-
-        // Release WinRT/XAML objects in deterministic order
+        // Release WinRT/XAML objects (keep manager alive if needed)
         _desktopWindowXamlSource?.Dispose();
         //_xamlManager?.Dispose();
         _coreWindow = null;
@@ -568,9 +599,6 @@ public partial class IslandsWindow : ObservableObject, IDisposable
             DestroyWindow(Handle);
             Handle = HWND.NULL;
         }
-
-        AppWindow.Destroy();
-        AppWindow = null;
 
         GC.SuppressFinalize(this);
     }
