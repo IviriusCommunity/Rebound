@@ -1,0 +1,87 @@
+<Solution>
+  <Configurations>
+    <Platform Name="ARM64" />
+    <Platform Name="x64" />
+    <Platform Name="x86" />
+  </Configurations>
+  <Folder Name="/eng/" />
+  <Folder Name="/eng/distribution/" />
+  <Folder Name="/eng/distribution/standalone/">
+    <Project Path="eng/distribution/standalone/Rebound.Installer/Rebound.Installer.csproj" />
+  </Folder>
+  <Folder Name="/src/" Id="02ea681e-c7d8-13c7-8484-4ac65e1b71e8">
+    <File Path="src/Directory.Build.props" />
+  </Folder>
+  <Folder Name="/src/apps/">
+    <Project Path="src/apps/Rebound.About/Rebound.About.csproj">
+      <Platform Project="x64" />
+    </Project>
+    <Project Path="src/apps/Rebound.Cleanup/Rebound.Cleanup.csproj">
+      <Platform Project="x64" />
+    </Project>
+    <Project Path="src/apps/Rebound.ControlPanel/Rebound.ControlPanel.csproj">
+      <Platform Project="x64" />
+    </Project>
+    <Project Path="src/apps/Rebound.Defrag/Rebound.Defrag.csproj">
+      <Platform Project="x64" />
+    </Project>
+    <Project Path="src/apps/Rebound.Dialer/Rebound.Dialer.csproj">
+      <Platform Project="x64" />
+    </Project>
+    <Project Path="src/apps/Rebound.Keyboard/Rebound.Keyboard.csproj">
+      <Platform Project="x64" />
+    </Project>
+    <Project Path="src/apps/Rebound.OnScreenKeyboard/Rebound.OnScreenKeyboard.vcxproj" Id="b461b611-1a7b-4397-9c9f-7d99bbcbc85f">
+      <Platform Solution="*|ARM64" Project="x64" />
+    </Project>
+    <Project Path="src/apps/Rebound.UserAccountControlSettings/Rebound.UserAccountControlSettings.csproj">
+      <Platform Project="x64" />
+    </Project>
+  </Folder>
+  <Folder Name="/src/core/" Id="fb5d6fae-fad5-4679-aec2-b8fb3878993e" />
+  <Folder Name="/src/core/forge/" Id="473f543c-1a05-4310-bf4c-f1df3286f45b">
+    <Project Path="src/core/forge/Rebound.Forge/Rebound.Forge.shproj" Id="60e629d7-383d-4e80-baae-d1358fe3265b" />
+  </Folder>
+  <Folder Name="/src/core/libs/" Id="4ec41458-d783-4ff2-b3a5-4baf78f04948">
+    <Project Path="src/core/libs/Rebound.Core.SourceGenerator/Rebound.Core.SourceGenerator.csproj">
+      <Platform Project="x64" />
+    </Project>
+    <Project Path="src/core/libs/Rebound.Core.SourceGeneratorAttributes/Rebound.Core.SourceGeneratorAttributes.csproj">
+      <Platform Project="x64" />
+    </Project>
+  </Folder>
+  <Folder Name="/src/core/shared/" Id="b45e0c30-0fe3-4881-b946-282baee5c13e">
+    <Project Path="src/core/shared/Rebound.Core.Helpers/Rebound.Core.Helpers.shproj" Id="5ef9adda-84fc-457d-815d-3331d2757d12" />
+    <Project Path="src/core/shared/Rebound.Core.SourceGenerator/Rebound.Core.SourceGenerator.shproj" Id="904676c0-e578-4a96-9f64-5b908b7d1182" />
+    <Project Path="src/core/shared/Rebound.Core.SourceGeneratorAttributes/Rebound.Core.SourceGeneratorAttributes.shproj" Id="a9c01609-e251-4a70-a6d4-d55a50acee63" />
+  </Folder>
+  <Folder Name="/src/platforms/" Id="cbff53eb-5ead-4b57-8ed6-53491d4790e6" />
+  <Folder Name="/src/platforms/management/">
+    <Project Path="src/platforms/management/Rebound.ManagementConsole/Rebound.ManagementConsole.csproj">
+      <Platform Project="x64" />
+    </Project>
+  </Folder>
+  <Folder Name="/src/platforms/shell/">
+    <Project Path="src/platforms/shell/Rebound.Shell/Rebound.Shell.ExperienceHost.csproj">
+      <Platform Project="x64" />
+      <Deploy />
+    </Project>
+  </Folder>
+  <Folder Name="/src/platforms/shell/lib/">
+    <Project Path="src/platforms/shell/lib/Rebound.Shell.CantRunDialog/Rebound.Shell.CantRunDialog.shproj" Id="95b0c01e-7c08-4d55-ac88-7ae5b3b6fbd5" />
+    <Project Path="src/platforms/shell/lib/Rebound.Shell.Desktop/Rebound.Shell.Desktop.shproj" Id="a1c1fd83-2e2a-4f68-b4b6-97b5c8deb90f" />
+    <Project Path="src/platforms/shell/lib/Rebound.Shell.ExperiencePack/Rebound.Shell.ExperiencePack.shproj" Id="5b0a4266-1527-467a-abc7-8aaae38eb5fa" />
+    <Project Path="src/platforms/shell/lib/Rebound.Shell.Run/Rebound.Shell.Run.shproj" Id="a8e65968-8e9a-4b64-b1c3-d69fc4e605b3" />
+    <Project Path="src/platforms/shell/lib/Rebound.Shell.ShutdownDialog/Rebound.Shell.ShutdownDialog.shproj" Id="79e065d5-90a9-4f75-bf5c-10daf62dcb66" />
+  </Folder>
+  <Folder Name="/src/system/">
+    <Project Path="src/system/Rebound.App/Rebound.Hub.csproj">
+      <Platform Project="x64" />
+      <Deploy />
+    </Project>
+    <Project Path="src/system/Rebound.ServiceHost/Rebound.ServiceHost.csproj">
+      <Platform Project="x64" />
+      <Deploy />
+    </Project>
+  </Folder>
+</Solution>

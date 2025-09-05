@@ -1,0 +1,65 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+	<!-- Properties -->
+	<PropertyGroup>
+
+		<!-- General -->
+		<OutputType>WinExe</OutputType>
+		<AssemblyName>Rebound About</AssemblyName>
+		<ApplicationIcon>Assets\AboutWindows.ico</ApplicationIcon>
+		<ApplicationManifest>app.manifest</ApplicationManifest>
+
+		<!-- Deployment -->
+		<EnableMsixTooling>true</EnableMsixTooling>
+		<WindowsPackageType>None</WindowsPackageType>
+
+	</PropertyGroup>
+
+	<!-- Project content -->
+	<ItemGroup>
+		<None Remove="Launcher.obj" />
+		<None Remove="Views\MainPage.xaml" />
+
+		<Content Include="Strings\**\*.resw">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</Content>
+		
+		<None Include="README.md" Pack="true" PackagePath="\" />
+
+		<Content Update="Assets\AboutWindows.ico">
+			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</Content>
+		<Content Update="Assets\Exe.ico">
+			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</Content>
+		<Content Update="Strings\zh-CN\Resources.resw">
+		  <SubType>Designer</SubType>
+		</Content>
+
+		<Page Update="Views\MainPage.xaml">
+			<Generator>MSBuild:Compile</Generator>
+		</Page>
+	</ItemGroup>
+
+	<!-- Project references -->
+
+	<!-- Shared project imports -->
+	<Import Project="..\..\core\forge\Rebound.Forge\Rebound.Forge.projitems" Label="Shared" />
+	<Import Project="..\..\core\shared\Rebound.Core.Helpers\Rebound.Core.Helpers.projitems" Label="Shared" />
+	<ItemGroup>
+	  <PRIResource Remove="Strings\ru-RU\Resources.resw" />
+	</ItemGroup>
+	<ItemGroup>
+	  <PRIResource Remove="Strings\ar-SA\Resources.resw" />
+	</ItemGroup>
+	<ItemGroup>
+	  <Folder Include="Strings\es-PY\" />
+	</ItemGroup>
+	<ItemGroup>
+	  <PRIResource Remove="Strings\zh-CN\Resources.resw" />
+	</ItemGroup>
+	<ItemGroup>
+	  <Content Include="NativeMethods.json" />
+	</ItemGroup>
+
+</Project>
