@@ -146,6 +146,19 @@ public sealed partial class RunWindow : Page
         CheckRunButtonEnabledState();
     }
 
+    private async void InputBox_Loaded(object sender, RoutedEventArgs e)
+    {
+        RunInit();
+    }
+
+    private async void RunInit()
+    {
+        //await Task.Delay(1);
+        //DispatcherQueue.GetForCurrentThread().TryEnqueue(() => InputBox.Focus(FocusState.Programmatic));
+        //await Task.Delay(25);
+        //DispatcherQueue.GetForCurrentThread().TryEnqueue(() => InputBox.IsSuggestionListOpen = false);
+    }
+
     public void CheckRunButtonEnabledState()
     {
         if (string.IsNullOrEmpty(ViewModel.Path) || string.IsNullOrWhiteSpace(ViewModel.Path))

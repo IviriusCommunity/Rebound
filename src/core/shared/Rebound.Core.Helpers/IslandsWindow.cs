@@ -292,25 +292,41 @@ public partial class IslandsWindow : ObservableObject, IDisposable
         fixed (char* className = WindowClassName)
         fixed (char* windowName = Title)
         {
-            // Create with WS_EX_NOREDIRECTIONBITMAP for XAML islands drawing
+            // 1. Create window hidden but with WS_EX_APPWINDOW
             Handle = CreateWindowExW(
-                WS_EX_NOREDIRECTIONBITMAP,
+                WS_EX_NOREDIRECTIONBITMAP | WS_EX_APPWINDOW, // ensure taskbar presence
                 className,
                 windowName,
-                WS_OVERLAPPEDWINDOW | WS_VISIBLE,
-                X == default ? CW_USEDEFAULT : X, Y == default ? CW_USEDEFAULT : Y, Width == default ? CW_USEDEFAULT : Width, Height == default ? CW_USEDEFAULT : Height, 
-                HWND.NULL, HMENU.NULL, GetModuleHandleW(null), null);
+                0, // hidden initially
+                X == default ? CW_USEDEFAULT : X,
+                Y == default ? CW_USEDEFAULT : Y,
+                Width == default ? CW_USEDEFAULT : Width,
+                Height == default ? CW_USEDEFAULT : Height,
+                HWND.NULL,
+                HMENU.NULL,
+                GetModuleHandleW(null),
+                null);
 
-            // write pointer once
+            // 2. Store pointer/userdata
             SetWindowLongPtr(Handle, GWLP.GWLP_USERDATA, gcPtr);
 
-            // AppWindow from the created HWND (fast)
+            // 3. Create AppWindow wrapper
             AppWindow = AppWindow.GetFromWindowId(Win32Interop.GetWindowIdFromWindow(Handle));
             AppWindow.Closing += OnAppWindowClosing;
             AppWindowInitialized?.Invoke(this, new AppWindowInitializedEventArgs());
 
-            // Initialize XAML once (no-op if already initialized)
+            // 4. Initialize XAML (now you can do heavy work without showing)
             InitializeXaml();
+
+            // 5. Set visible style and update frame
+            SetWindowLongPtrW(Handle, GWL.GWL_STYLE, WS_OVERLAPPEDWINDOW | WS_VISIBLE);
+            SetWindowPos(Handle, HWND.HWND_TOP, 0, 0, 0, 0,
+                SWP_NOMOVE | SWP_NOSIZE | SWP_NOZORDER | SWP_FRAMECHANGED);
+
+            // 6. Show window and bring to front
+            ShowWindow(Handle, SW.SW_SHOW);
+            SetForegroundWindow(Handle);
+            SetActiveWindow(Handle);
 
             // message loop: keep simple and minimal per-iteration work
             MSG msg;

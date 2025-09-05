@@ -72,7 +72,8 @@
             QuerySubmitted="InputBox_QuerySubmitted"
             SuggestionChosen="InputBox_SuggestionChosen"
             Text="{x:Bind ViewModel.Path, Mode=TwoWay}"
-            TextChanged="InputBox_TextChanged">
+            TextChanged="InputBox_TextChanged"
+            Loaded="InputBox_Loaded">
             <AutoSuggestBox.QueryIcon>
                 <FontIcon FontSize="12" Glyph="&#xE64D;" />
             </AutoSuggestBox.QueryIcon>
