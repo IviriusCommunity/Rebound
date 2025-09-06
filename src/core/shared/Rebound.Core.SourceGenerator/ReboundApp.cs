@@ -71,12 +71,11 @@ namespace Rebound.Generators
                             UsingDirective(IdentifierName("System")),
                             UsingDirective(IdentifierName("Windows.ApplicationModel.Activation")),
                             UsingDirective(IdentifierName("Microsoft.UI.Xaml")),
-                            UsingDirective(IdentifierName("Rebound.Helpers.Services")),
                             UsingDirective(IdentifierName("Windows.UI.StartScreen")),
                             UsingDirective(IdentifierName("System.Threading.Tasks")),
                             UsingDirective(IdentifierName("Windows.Foundation")),
                             UsingDirective(IdentifierName("Rebound.Core.Helpers")),
-                            UsingDirective(IdentifierName("Rebound.Helpers.Services"))
+                            UsingDirective(IdentifierName("Rebound.Core.Helpers.Services"))
                         )
                         .AddMembers(namespaceDeclaration)
                         .NormalizeWhitespace();
@@ -101,49 +100,45 @@ namespace Rebound.Generators
             }
         }
 
-        private ClassDeclarationSyntax GenerateClass(INamedTypeSymbol classSymbol, string singleProcessTaskName, List<LegacyLaunchItem>? legacyLaunchItems)
+        private ClassDeclarationSyntax GenerateClass(
+            INamedTypeSymbol classSymbol,
+            string singleProcessTaskName,
+            List<LegacyLaunchItem>? legacyLaunchItems)
         {
             var className = classSymbol.Name;
 
-            // Check if the OnLaunched method already exists
-            var existingOnLaunchedMethod = classSymbol.GetMembers()
-                .OfType<IMethodSymbol>()
-                .FirstOrDefault(m => m.Name == "OnLaunched" && m.Parameters.Length == 1 &&
-                                     m.Parameters[0].Type.Name == "LaunchActivatedEventArgs");
-            var onLaunchedMethod = existingOnLaunchedMethod == null
-                ? MethodDeclaration(PredefinedType(Token(SyntaxKind.VoidKeyword)), "OnLaunched")
-                    .AddModifiers(Token(SyntaxKind.ProtectedKeyword), Token(SyntaxKind.OverrideKeyword))
-                    .AddParameterListParameters(
-                        Parameter(Identifier("args")).WithType(IdentifierName("LaunchActivatedEventArgs"))
-                    )
-                    .WithBody(Block(
-                        // Initialize the list of statements
-                        new List<StatementSyntax>
-                        {
+            // --- Constructor setup ---
+            var constructorStatements = new List<StatementSyntax>
+            {
                 ParseStatement($@"_singleInstanceAppService = new SingleInstanceAppService(""{singleProcessTaskName}"");"),
-                ParseStatement(@"_singleInstanceAppService.Launched += OnSingleInstanceLaunched;"),
-                ParseStatement(@"_singleInstanceAppService.Launch(args.Arguments);")
-                        }
-                        .Concat(legacyLaunchItems != null ? [ParseStatement("InitializeJumpList();")] : [])
-                        .ToArray()  // Convert to an array to be passed to Block
-                    ))
-                : null;
+                ParseStatement(@"_singleInstanceAppService.Launched += OnSingleInstanceLaunched;")
+            };
 
+            if (legacyLaunchItems != null)
+            {
+                constructorStatements.Add(ParseStatement("InitializeJumpList();"));
+            }
+
+            var constructor = ConstructorDeclaration(className)
+                .AddModifiers(Token(SyntaxKind.PublicKeyword))
+                .WithBody(Block(constructorStatements));
+
+            // --- Optional InitializeJumpList() ---
             MethodDeclarationSyntax? initializeJumpListMethod = null;
             if (legacyLaunchItems != null)
             {
                 var legacyLaunchCode = string.Empty;
 
-                foreach (var x in legacyLaunchItems)
+                for (int i = 0; i < legacyLaunchItems.Count; i++)
                 {
+                    var x = legacyLaunchItems[i];
                     legacyLaunchCode += $@"
-    var item{legacyLaunchItems.IndexOf(x)} = Windows.UI.StartScreen.JumpListItem.CreateWithArguments(""{x.LaunchArg}"", ""{x.Name}"");
-    item{legacyLaunchItems.IndexOf(x)}.Logo = new Uri(""{x.IconPath}"");
-    jumpList.Items.Add(item{legacyLaunchItems.IndexOf(x)});
+    var item{i} = Windows.UI.StartScreen.JumpListItem.CreateWithArguments(""{x.LaunchArg}"", ""{x.Name}"");
+    item{i}.Logo = new Uri(""{x.IconPath}"");
+    jumpList.Items.Add(item{i});
 ";
                 }
 
-                // Check if the InitializeJumpList method already exists
                 var existingInitializeJumpListMethod = classSymbol.GetMembers()
                     .OfType<IMethodSymbol>()
                     .FirstOrDefault(m => m.Name == "InitializeJumpList" && m.Parameters.Length == 0 &&
@@ -162,47 +157,26 @@ namespace Rebound.Generators
                     : null;
             }
 
-            // Create a static field for SingleInstanceApp
+            // --- Static fields ---
             var singleInstanceAppField = FieldDeclaration(
                     VariableDeclaration(IdentifierName("SingleInstanceAppService"))
                     .AddVariables(VariableDeclarator("_singleInstanceAppService"))
                 )
                 .AddModifiers(Token(SyntaxKind.PrivateKeyword), Token(SyntaxKind.StaticKeyword));
 
-            // Create a static field for MainWindow
             var mainWindowField = FieldDeclaration(
                     VariableDeclaration(IdentifierName("IslandsWindow"))
                     .AddVariables(VariableDeclarator("MainWindow"))
                 )
                 .AddModifiers(Token(SyntaxKind.PublicKeyword), Token(SyntaxKind.StaticKeyword));
 
-            // Create the class and add members to it
+            // --- Class Declaration ---
             var classDeclaration = ClassDeclaration(className)
-                    .AddModifiers(Token(SyntaxKind.PartialKeyword));
+                .AddModifiers(Token(SyntaxKind.PartialKeyword))
+                .AddMembers(constructor, singleInstanceAppField, mainWindowField);
 
-            // Only add the members if they don't already exist
-            if (onLaunchedMethod != null) classDeclaration = classDeclaration.AddMembers(onLaunchedMethod);
-            if (initializeJumpListMethod != null && legacyLaunchItems != null) classDeclaration = classDeclaration.AddMembers(initializeJumpListMethod);
-
-            // Iterate over the class members to find the method where InitializeComponent should be added
-            foreach (var member in classDeclaration.Members.OfType<MethodDeclarationSyntax>())
-            {
-                // Check if the method has a body (it should for this use case)
-                if (member.Body != null)
-                {
-                    var initializeComponentStatement = ParseStatement("InitializeComponent();");
-
-                    // Add the InitializeComponent() statement to the method's body
-                    var updatedBody = member.Body.AddStatements(initializeComponentStatement);
-
-                    // Replace the old body with the updated one
-                    classDeclaration = classDeclaration.ReplaceNode(member.Body, updatedBody);
-                }
-            }
-
-            // Add the static field for SingleInstanceApp
-            classDeclaration = classDeclaration.AddMembers(singleInstanceAppField);
-            classDeclaration = classDeclaration.AddMembers(mainWindowField);
+            if (initializeJumpListMethod != null)
+                classDeclaration = classDeclaration.AddMembers(initializeJumpListMethod);
 
             return classDeclaration;
         }

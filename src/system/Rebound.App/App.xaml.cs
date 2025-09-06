@@ -1,6 +1,7 @@
 ﻿using Microsoft.UI.Windowing;
 using Rebound.Core.Helpers;
 using Rebound.Generators;
+using Rebound.Core.Helpers.Services;
 using System;
 using System.Diagnostics;
 using System.Runtime.CompilerServices;
@@ -22,13 +23,22 @@ using Colors = Windows.UI.Colors;
 
 namespace Rebound;
 
-//[ReboundApp("Rebound.Hub", "")]
+[ReboundApp("Rebound.Hub", "")]
 public partial class App : Application
 {
-    public App()
+    private void OnSingleInstanceLaunched(object sender, SingleInstanceLaunchEventArgs e)
     {
-        App.Current.UnhandledException += Current_UnhandledException;
-        CreateMainWindow();
+        Program._actions.Add(() =>
+        {
+            if (MainWindow != null)
+            {
+                MainWindow.Activate();
+            }
+            else
+            {
+                CreateMainWindow();
+            }
+        });
     }
 
     private void Current_UnhandledException(object sender, Windows.UI.Xaml.UnhandledExceptionEventArgs e)
@@ -69,5 +79,5 @@ public partial class App : Application
         MainWindow.Create();
     }
 
-    public static IslandsWindow MainWindow { get; private set; }
+    //public static IslandsWindow MainWindow { get; private set; }
 }

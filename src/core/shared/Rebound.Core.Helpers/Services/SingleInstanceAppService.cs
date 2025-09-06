@@ -8,7 +8,7 @@ using Microsoft.UI.Xaml;
 
 #nullable enable
 
-namespace Rebound.Helpers.Services;
+namespace Rebound.Core.Helpers.Services;
 
 public class SingleInstanceLaunchEventArgs(string arguments, bool isFirstLaunch) : EventArgs
 {

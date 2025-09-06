@@ -1,7 +1,6 @@
 ﻿using System;
 using System.IO;
 using Rebound.Core.Helpers;
-using Rebound.Helpers;
 using Windows.Win32;
 using Windows.Win32.Foundation;
 using Windows.Win32.System.Com;
