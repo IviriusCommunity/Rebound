@@ -62,7 +62,7 @@
     </Project>
   </Folder>
   <Folder Name="/src/platforms/shell/">
-    <Project Path="src/platforms/shell/Rebound.Shell/Rebound.Shell.ExperienceHost.csproj">
+    <Project Path="src/platforms/shell/Rebound.Shell/Rebound.Shell.csproj">
       <Platform Project="x64" />
       <Deploy />
     </Project>

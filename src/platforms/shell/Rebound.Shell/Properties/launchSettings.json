@@ -1,9 +1,9 @@
 {
   "profiles": {
-    "Rebound.Shell.ExperienceHost (Package)": {
+    "Rebound Shell (Package)": {
       "commandName": "MsixPackage"
     },
-    "Rebound.Shell.ExperienceHost (Unpackaged)": {
+    "Rebound Shell (Unpackaged)": {
       "commandName": "Project"
     }
   }

@@ -8,14 +8,14 @@
   IgnorableNamespaces="uap rescap">
 
   <Identity
-    Name="Rebound.Shell.ExperienceHost"
+    Name="Rebound.Shell"
     Publisher="CN=Desktop Ivirius"
     Version="1.0.0.0" />
 
   <mp:PhoneIdentity PhoneProductId="e9048a3e-7e54-411f-88be-1cfcc831d2e0" PhonePublisherId="00000000-0000-0000-0000-000000000000"/>
 
   <Properties>
-    <DisplayName>Rebound Shell Experience Host</DisplayName>
+    <DisplayName>Rebound Shell</DisplayName>
     <PublisherDisplayName>Desktop Ivirius</PublisherDisplayName>
     <Logo>Assets\Package\StoreLogo.png</Logo>
   </Properties>

@@ -31,17 +31,27 @@ public partial class App : Application
     {            // Window hooks
         var thread = new Thread(() =>
         {
-            var hook1 = new WindowHook("#32770", "Shut Down Windows", "explorer");
-            hook1.WindowDetected += Hook_WindowDetected_Shutdown;
+            /*var hook1 = new WindowHook("#32770", "Shut Down Windows", "explorer");
+            hook1.WindowDetected += Hook_WindowDetected_Shutdown;*/
 
-            var hook2 = new WindowHook("#32770", "Run", "explorer");
-            hook2.WindowDetected += Hook_WindowDetected_Run;
+            var runDialogHook = new WindowHook(
+                "#32770",
+                null,
+                "explorer",
+                new List<Win32Control>
+                {
+                    new StaticControl(), new StaticControl(), new StaticControl(),
+                    new ButtonControl(), new ButtonControl(), new ButtonControl(),
+                    new ComboBoxControl()
+                }
+            );
+            runDialogHook.WindowDetected += Hook_WindowDetected_Run;
 
-            var hook3 = new WindowHook("#32770", "Create new task", "taskmgr");
+            /*var hook3 = new WindowHook("#32770", "Create new task", "taskmgr");
             hook3.WindowDetected += Hook_WindowDetected_Run;
 
             var hook4 = new WindowHook("Shell_Dialog", "This app can’t run on your PC", "explorer");
-            hook4.WindowDetected += Hook_WindowDetected_CantRun;
+            hook4.WindowDetected += Hook_WindowDetected_CantRun;*/
 
             // Keep message pump alive so all hooks keep working
             NativeMessageLoop();
@@ -199,8 +209,8 @@ public partial class App : Application
             // Window hooks
             var thread = new Thread(() =>
             {
-                var hook1 = new WindowHook("#32770", "Shut Down Windows", "explorer");
-                hook1.WindowDetected += Hook_WindowDetected_Shutdown;
+                //var hook1 = new WindowHook("#32770", "Shut Down Windows", "explorer");
+                //hook1.WindowDetected += Hook_WindowDetected_Shutdown;
 
                 /*var hook2 = new WindowHook("#32770", "RunBoxTitle".GetLocalizedString(), "explorer");
                 hook2.WindowDetected += Hook_WindowDetected_Run;
@@ -208,9 +218,9 @@ public partial class App : Application
                 var hook3 = new WindowHook("#32770", "RunBoxTitleTaskManager".GetLocalizedString(), "taskmgr");
                 hook3.WindowDetected += Hook_WindowDetected_Run;*/
 
-                var hook4 = new WindowHook("Shell_Dialog", "This app can’t run on your PC", "explorer");
-                hook4.WindowDetected += Hook_WindowDetected_CantRun;
-
+                //var hook4 = new WindowHook("Shell_Dialog", "This app can’t run on your PC", "explorer");
+                //hook4.WindowDetected += Hook_WindowDetected_CantRun;
+                
                 // Keep message pump alive so all hooks keep working
                 NativeMessageLoop();
             });

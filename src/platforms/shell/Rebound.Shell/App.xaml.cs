@@ -13,6 +13,7 @@ using System.Collections.Concurrent;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using TerraFX.Interop.Windows;
 using Windows.System;
 using Windows.UI;
 using Windows.UI.Xaml;
@@ -123,8 +124,10 @@ public partial class App : Application
         }
         else
         {
-            RunWindow.Activate();
-            RunWindow.ForceBringToFront();
+            //RunWindow.ForceBringToFront();
+            TerraFX.Interop.Windows.Windows.ShowWindow(RunWindow.Handle, SW.SW_SHOW);
+            TerraFX.Interop.Windows.Windows.SetForegroundWindow(RunWindow.Handle);
+            TerraFX.Interop.Windows.Windows.SetActiveWindow(RunWindow.Handle);
         }
     }
 

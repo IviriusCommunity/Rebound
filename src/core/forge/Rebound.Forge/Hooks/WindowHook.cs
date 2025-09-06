@@ -11,7 +11,25 @@ using Windows.Win32.Foundation;
 using Windows.Win32.UI.Accessibility;
 
 namespace Rebound.Forge.Hooks;
+internal abstract class Win32Control
+{
+    public abstract string ClassName { get; }
+}
 
+internal class ButtonControl : Win32Control
+{
+    public override string ClassName => "Button";
+}
+
+internal class ComboBoxControl : Win32Control
+{
+    public override string ClassName => "ComboBox";
+}
+
+internal class StaticControl : Win32Control
+{
+    public override string ClassName => "Static";
+}
 internal class WindowDetectedEventArgs(IntPtr handle) : EventArgs
 {
     public IntPtr Handle { get; private set; } = handle;
@@ -22,79 +40,117 @@ internal unsafe class WindowHook
     private readonly string? ClassName;
     private readonly string? Name;
     private readonly string ProcessName;
+
+    private readonly List<Win32Control> ExpectedChildren;
     private HWINEVENTHOOK HookHandle { get; set; }
-    private static readonly delegate* unmanaged[Stdcall]<HWINEVENTHOOK, uint, HWND, int, int, uint, uint, void> WinEventProcPtr = &StaticWinEventProc;
 
-    private static readonly List<WindowHook> Instances = new(); // To associate events per instance
+    private static readonly List<WindowHook> Instances = new();
 
-    public WindowHook(string? lpClassName, string? lpName, string lpProcessName)
+    public WindowHook(string? lpClassName, string? lpName, string lpProcessName, List<Win32Control> expectedChildren)
     {
         ClassName = lpClassName;
         Name = lpName;
         ProcessName = lpProcessName;
+        ExpectedChildren = expectedChildren;
 
-        Instances.Add(this); // Store this for callback use
+        Instances.Add(this);
         HookHandle = PInvoke.SetWinEventHook(
-            EVENT_OBJECT_CREATE,
-            EVENT_OBJECT_CREATE,
+            EVENT_OBJECT_SHOW,
+            EVENT_OBJECT_SHOW,
             HMODULE.Null,
-            WinEventProcPtr,
+            &StaticWinEventProc,
             0,
             0,
             WINEVENT_OUTOFCONTEXT);
 
-        Trigger(); // Initial check
+        Trigger();
     }
-
-    public WindowHook(string? lpClassName, string? lpName) : this(lpClassName, lpName, string.Empty) { }
 
     public event EventHandler<WindowDetectedEventArgs>? WindowDetected;
 
     private void Trigger()
     {
         HWND handle = PInvoke.FindWindow(ClassName, Name);
-        if (handle == HWND.Null)
-            return;
+        if (handle == HWND.Null) return;
 
         if (!string.IsNullOrEmpty(ProcessName))
         {
-            uint pid;
+            uint pid = 0;
             _ = PInvoke.GetWindowThreadProcessId(handle, &pid);
             try
             {
-                if (Process.GetProcessById((int)pid).ProcessName.Equals(ProcessName, StringComparison.OrdinalIgnoreCase))
-                {
-                    WindowDetected?.Invoke(this, new(handle));
-                }
+                if (!Process.GetProcessById((int)pid).ProcessName.Equals(ProcessName, StringComparison.OrdinalIgnoreCase))
+                    return;
             }
-            catch
-            {
-                // Ignore process not found, etc.
-            }
+            catch { return; }
         }
-        else
-        {
-            WindowDetected?.Invoke(this, new(handle));
-        }
+
+        // Enumerate children and check types
+        if (!MatchesExpectedChildren(handle)) return;
+
+        WindowDetected?.Invoke(this, new(handle));
+    }
+    private static List<string>? s_children;
+
+    [UnmanagedCallersOnly(CallConvs = new[] { typeof(CallConvStdcall) })]
+    private static BOOL EnumChildCallbackWithParam(HWND hwnd, LPARAM lParam)
+    {
+        Span<char> buffer = stackalloc char[256];
+        _ = PInvoke.GetClassName(hwnd, buffer);
+
+        var list = (List<string>)GCHandle.FromIntPtr(new IntPtr(lParam)).Target!;
+        list.Add(new string(buffer.TrimEnd('\0')));
+
+        return true;
     }
 
-    // Function pointer target must be static
+    private unsafe bool MatchesExpectedChildren(HWND hwnd)
+    {
+        var children = new List<string>();
+        GCHandle handle = GCHandle.Alloc(children);
+        IntPtr ptr = (IntPtr)handle;
+
+        delegate* unmanaged[Stdcall]<HWND, LPARAM, BOOL> callback = &EnumChildCallbackWithParam;
+        PInvoke.EnumChildWindows(hwnd, callback, new LPARAM(ptr));
+
+        handle.Free();
+
+        // Count expected types
+        var expectedCounts = new Dictionary<string, int>();
+        foreach (var c in ExpectedChildren)
+        {
+            if (!expectedCounts.ContainsKey(c.ClassName))
+                expectedCounts[c.ClassName] = 0;
+            expectedCounts[c.ClassName]++;
+        }
+
+        // Count actual types
+        var actualCounts = new Dictionary<string, int>();
+        foreach (var cls in children)
+        {
+            if (!actualCounts.ContainsKey(cls)) actualCounts[cls] = 0;
+            actualCounts[cls]++;
+        }
+
+        // Check: each expected type must appear at least as many times as expected
+        foreach (var kv in expectedCounts)
+        {
+            if (!actualCounts.TryGetValue(kv.Key, out int count) || count < kv.Value)
+                return false; // missing expected control
+        }
+
+        return true;
+    }
+
     [UnmanagedCallersOnly(CallConvs = [typeof(CallConvStdcall)])]
-    private static void StaticWinEventProc(
-        HWINEVENTHOOK hWinEventHook,
-        uint eventType,
-        HWND hwnd,
-        int idObject,
-        int idChild,
-        uint dwEventThread,
-        uint dwmsEventTime)
+    private static void StaticWinEventProc(HWINEVENTHOOK hWinEventHook, uint eventType, HWND hwnd, int idObject, int idChild, uint dwEventThread, uint dwmsEventTime)
     {
         foreach (var instance in Instances)
         {
-            instance.Trigger(); // In a real app, match hook to instance
+            instance.Trigger();
         }
     }
 
-    private const uint EVENT_OBJECT_CREATE = 0x8000;
+    private const uint EVENT_OBJECT_SHOW = 0x8002;
     private const uint WINEVENT_OUTOFCONTEXT = 0;
 }
