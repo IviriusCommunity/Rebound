@@ -34,3 +34,4 @@ CoCreateInstance
 CLSID_ShellLink
 IID_IShellLinkW
 IID_IPersistFile
+CreateRemoteThread

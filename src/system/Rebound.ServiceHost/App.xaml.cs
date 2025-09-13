@@ -38,55 +38,42 @@ public partial class App : Application
 
     public static TrustedPipeServer? PipeServer;
     public App()
-    {            // Window hooks
+    {
+        // Window hooks
         var thread = new Thread(() =>
         {
-            /*var hook1 = new WindowHook("#32770", "Shut Down Windows", "explorer");
-            hook1.WindowDetected += Hook_WindowDetected_Shutdown;*/
-
             try
             {
                 uint explorerPid = GetProcessIdByName("explorer");
 
-                // Inject the x86 DLL
-                Injector.Inject(
-                    explorerPid,
-                    @$"{AppContext.BaseDirectory}\Hooks\Rebound.Forge.Hooks.Run.dll",
-                    "shell32.dll",
-                    "RunFileDlg"
-                );
+                // Determine explorer.exe architecture
+                TerraFX.Interop.Windows.BOOL isWow64 = false;
+                unsafe
+                {
+                    using (var process = Process.GetProcessById((int)explorerPid))
+                    {
+                        if (Environment.Is64BitOperatingSystem)
+                        {
+                            TerraFX.Interop.Windows.Windows.IsWow64Process(new(process.Handle.ToPointer()), &isWow64);
+                        }
+                    }
+                }
 
-                // Inject the x64 DLL
+                // Select correct DLL path
+                string dllPath = isWow64
+                    ? @$"{AppContext.BaseDirectory}\Hooks\Rebound.Forge.Hooks.Run.dll"
+                    : @$"{AppContext.BaseDirectory}\Hooks\Rebound.Forge.Hooks.Run.dll";
+
+                // Inject using LoadLibraryW from kernel32.dll
                 Injector.Inject(
                     explorerPid,
-                    @$"{AppContext.BaseDirectory}\Hooks\Rebound.Forge.Hooks.Run.dll",
-                    "shell32.dll",
-                    "RunFileDlg"
+                    dllPath
                 );
             }
             catch (Exception ex)
             {
                 Debug.WriteLine($"RunFileDlg hook failed: {ex}");
             }
-
-            /*var runDialogHook = new WindowHook(
-                "#32770",
-                null,
-                "explorer",
-                new List<Win32Control>
-                {
-                    new StaticControl(), new StaticControl(), new StaticControl(),
-                    new ButtonControl(), new ButtonControl(), new ButtonControl(),
-                    new ComboBoxControl()
-                }
-            );
-            runDialogHook.WindowDetected += Hook_WindowDetected_Run;*/
-
-            /*var hook3 = new WindowHook("#32770", "Create new task", "taskmgr");
-            hook3.WindowDetected += Hook_WindowDetected_Run;
-
-            var hook4 = new WindowHook("Shell_Dialog", "This app can’t run on your PC", "explorer");
-            hook4.WindowDetected += Hook_WindowDetected_CantRun;*/
 
             // Keep message pump alive so all hooks keep working
             NativeMessageLoop();
@@ -328,29 +315,64 @@ public class Injector
     const uint MEM_RESERVE = 0x2000;
     const uint PAGE_READWRITE = 0x04;
 
-    public static unsafe bool Inject(uint pid, string dllPath, string hookedDllName, string hookedFunctionName)
+    public static unsafe bool Inject(uint pid, string dllPath)
     {
-        var hProcess = TerraFX.Interop.Windows.Windows.OpenProcess(PROCESS_ALL_ACCESS, false, pid);
-        if (hProcess == IntPtr.Zero) return false;
-
-        var allocMem = TerraFX.Interop.Windows.Windows.VirtualAllocEx(hProcess, null, (uint)((dllPath.Length + 1) * 2), MEM_COMMIT | MEM_RESERVE, PAGE_READWRITE);
-        //if (allocMem == IntPtr.Zero) return false;
-
-        byte[] bytes = System.Text.Encoding.Unicode.GetBytes(dllPath);
-        fixed (byte* pBytes = bytes)
+        TerraFX.Interop.Windows.HANDLE hProcess = TerraFX.Interop.Windows.Windows.OpenProcess(dwDesiredAccess: PROCESS_ALL_ACCESS, bInheritHandle: false, dwProcessId: pid);
+        if (hProcess == IntPtr.Zero)
         {
-            if (!TerraFX.Interop.Windows.Windows.WriteProcessMemory(hProcess, allocMem, pBytes, (uint)bytes.Length, null))
-                return false;
+            Debug.WriteLine("Failed to open process.");
+            return false;
         }
 
-        var hKernel32 = TerraFX.Interop.Windows.Windows.GetModuleHandleW(hookedDllName.ToPCWSTR().Value);
-        var loadLibraryAddr = TerraFX.Interop.Windows.Windows.GetProcAddress(hKernel32, (sbyte*)hookedFunctionName.ToPCWSTR().Value);
+        // Ensure null-terminated Unicode string
+        var dllPathBytes = System.Text.Encoding.Unicode.GetBytes(dllPath + "\0");
+        void* allocMem = TerraFX.Interop.Windows.Windows.VirtualAllocEx(hProcess, lpAddress: null, dwSize: (uint)dllPathBytes.Length, flAllocationType: MEM_COMMIT | MEM_RESERVE, flProtect: PAGE_READWRITE);
+        if ((nint)allocMem == IntPtr.Zero)
+        {
+            Debug.WriteLine("Failed to allocate memory in target process.");
+            TerraFX.Interop.Windows.Windows.CloseHandle(hProcess);
+            return false;
+        }
 
-        delegate* unmanaged<void*, uint> startAddr = (delegate* unmanaged<void*, uint>)(nint)loadLibraryAddr;
+        fixed (byte* pBytes = dllPathBytes)
+        {
+            if (!TerraFX.Interop.Windows.Windows.WriteProcessMemory(hProcess, lpBaseAddress: allocMem, lpBuffer: pBytes, nSize: (uint)dllPathBytes.Length, lpNumberOfBytesWritten: null))
+            {
+                Debug.WriteLine("Failed to write DLL path to target process.");
+                TerraFX.Interop.Windows.Windows.CloseHandle(hProcess);
+                return false;
+            }
+        }
 
-        IntPtr hThread = TerraFX.Interop.Windows.Windows.CreateRemoteThread(hProcess, null, 0, startAddr, allocMem, 0, null);
-        if (hThread == IntPtr.Zero) return false;
+        TerraFX.Interop.Windows.HMODULE hKernel32 = TerraFX.Interop.Windows.Windows.GetModuleHandleW("kernel32.dll".ToPCWSTR().Value);
+        void* loadLibraryAddr = TerraFX.Interop.Windows.Windows.GetProcAddress(hKernel32, (sbyte*)Marshal.StringToHGlobalAnsi("LoadLibraryW"));
 
+        if (loadLibraryAddr == null)
+        {
+            Debug.WriteLine("Failed to get address of LoadLibraryW.");
+            TerraFX.Interop.Windows.Windows.CloseHandle(hProcess);
+            return false;
+        }
+
+        delegate* unmanaged <void*, uint> loadLibraryFunc = (delegate* unmanaged <void*, uint>)loadLibraryAddr;
+
+        IntPtr hThread = TerraFX.Interop.Windows.Windows.CreateRemoteThread(
+            hProcess,
+            null,
+            0,
+            loadLibraryFunc,
+            allocMem,
+            0,
+            null
+        );
+        if (hThread == IntPtr.Zero)
+        {
+            Debug.WriteLine("Failed to create remote thread.");
+            TerraFX.Interop.Windows.Windows.CloseHandle(hProcess);
+            return false;
+        }
+
+        TerraFX.Interop.Windows.Windows.CloseHandle(hProcess);
         return true;
     }
 }

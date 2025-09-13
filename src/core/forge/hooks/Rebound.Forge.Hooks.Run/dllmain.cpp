@@ -4,6 +4,25 @@
 #include <stdio.h>
 #include "pch.h"
 #include <stdint.h>  // C header (works in C and C++)
+#include <process.h>
+
+static HANDLE g_workerEvent = NULL;
+static SLIST_HEADER g_messageList; // for lock-free message queue
+
+// prototype
+unsigned __stdcall InjectorInitThread(void* param);
+void QueueMessage(const wchar_t* msg); // lightweight enqueue (caller must copy message or store pointer)
+
+// helper to queue message from hook: allocate a small node and push to SList then signal worker
+void QueueMessage(const wchar_t* msg) {
+    struct MsgNode { SLIST_ENTRY link; wchar_t msg[256]; };
+    MsgNode* node = (MsgNode*)HeapAlloc(GetProcessHeap(), 0, sizeof(MsgNode));
+    if (!node) return;
+    node->link.Next = NULL;
+    wcsncpy_s(node->msg, msg, _TRUNCATE);
+    InterlockedPushEntrySList(&g_messageList, (PSLIST_ENTRY)node);
+    if (g_workerEvent) SetEvent(g_workerEvent);
+}
 
 static void FlushInsCache(void* addr, SIZE_T size) {
     FlushInstructionCache(GetCurrentProcess(), addr, size);
@@ -138,32 +157,18 @@ static void SendToHostSimple(const wchar_t* message) {
     HANDLE h = CreateFileW(L"\\\\.\\pipe\\REBOUND_SERVICE_HOST", GENERIC_WRITE, 0, NULL, OPEN_EXISTING, 0, NULL);
     if (h == INVALID_HANDLE_VALUE) return;
     DWORD written = 0;
-    // send as UTF-16 little-endian (host expects UTF-8 in your C# impl so you'd need conversions;
-    // here we send UTF-16 and your server must accept it or convert).
-    WriteFile(h, message, (DWORD)(wcslen(message) * sizeof(wchar_t)), &written, NULL);
+    QueueMessage(message);
     CloseHandle(h);
 }
 
 // Hook function
 int WINAPI RunFileDlg_Hook(HWND hwnd, HICON icon, LPCWSTR path, LPCWSTR title, LPCWSTR prompt, UINT flags) {
-    OutputDebugStringW(L"[InlineHook] RunFileDlg intercepted");
-
-    // send simple message
-    SendToHostSimple(L"Shell::SpawnRunWindow");
-
-    // If you want to block the original call, return custom value:
-    // return 0;
-
-    // Otherwise call original via trampoline
+    QueueMessage(L"Shell::SpawnRunWindow"); // async, safe
     if (g_runfile_hook.trampoline) {
         auto trampoline = (RunFileDlg_t)g_runfile_hook.trampoline;
         return trampoline(hwnd, icon, path, title, prompt, flags);
     }
-
-    // fallback: call original directly if available (risky)
-    if (g_original_runfile) return g_original_runfile(hwnd, icon, path, title, prompt, flags);
-
-    return 0;
+    return 0; // block if trampoline failed
 }
 
 // Install function to call from your injector thread
@@ -173,7 +178,7 @@ bool InstallRunFileDlgHook() {
     if (!shell32) return false;
 
     // Use MAKEINTRESOURCE-style ordinal
-    FARPROC fp = GetProcAddress(shell32, (LPCSTR)61);
+    FARPROC fp = GetProcAddress(shell32, MAKEINTRESOURCEA(61));
     if (!fp) return false;
 
     void* target = (void*)fp;
@@ -191,4 +196,22 @@ bool InstallRunFileDlgHook() {
 
 bool RemoveRunFileDlgHook() {
     return UninstallInlineHook(&g_runfile_hook);
+}
+
+BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID) {
+    if (fdwReason == DLL_PROCESS_ATTACH) {
+        DisableThreadLibraryCalls(hinstDLL);
+        uintptr_t t = _beginthreadex(nullptr, 0, InjectorInitThread, nullptr, 0, nullptr);
+        if (t) CloseHandle((HANDLE)t);
+    }
+    else if (fdwReason == DLL_PROCESS_DETACH) {
+        RemoveRunFileDlgHook();
+    }
+    return TRUE;
+}
+
+unsigned __stdcall InjectorInitThread(void*) {
+    if (!InstallRunFileDlgHook())
+        OutputDebugStringW(L"[Injector] Hook install failed");
+    return 0;
 }
