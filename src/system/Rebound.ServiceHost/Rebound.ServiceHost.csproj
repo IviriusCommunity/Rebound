@@ -28,6 +28,7 @@
 
 	<!-- Project content -->
 	<ItemGroup>
+		<None Remove="Hooks\Rebound.Forge.Hooks.Run.dll" />
 		<None Remove="Views\MainPage.xaml" />
 
 		<Content Include="Strings\**\*.resw">
@@ -74,6 +75,9 @@
 	<Import Project="..\..\core\forge\Rebound.Forge\Rebound.Forge.projitems" Label="Shared" />
 	<Import Project="..\..\core\shared\Rebound.Core.Helpers\Rebound.Core.Helpers.projitems" Label="Shared" />
 	<ItemGroup>
+		<Content Include="Hooks\Rebound.Forge.Hooks.Run.dll">
+		  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</Content>
 		<Content Include="NativeMethods.json" />
 	</ItemGroup>
 	<ItemGroup>
@@ -97,4 +101,8 @@
 	  </AppxManifest>
 	</ItemGroup>
 
+	<ItemGroup>
+		<PackageReference Include="EasyHook" Version="2.7.7097" />
+	</ItemGroup>
+	
 </Project>

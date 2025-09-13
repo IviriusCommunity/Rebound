@@ -6,7 +6,6 @@ using Rebound.Forge;
 using Rebound.Forge.Engines;
 using Rebound.Forge.Hooks;
 using Rebound.Generators;
-using Rebound.Helpers;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -19,14 +18,25 @@ using Windows.System.UserProfile;
 using Windows.UI.Xaml;
 using Windows.Win32;
 using Windows.Win32.System.Shutdown;
+using EasyHook;
+using System.Runtime.InteropServices;
+using Windows.Win32.Foundation;
+using System.Security.Principal;
 
 namespace Rebound.ServiceHost;
 
 //[ReboundApp("Rebound.ServiceHost", "")]
 public partial class App : Application
 {
-    private TrustedPipeServer? PipeServer;
+    uint GetProcessIdByName(string processName)
+    {
+        var proc = Process.GetProcessesByName(processName).FirstOrDefault();
+        if (proc == null)
+            throw new InvalidOperationException($"Process '{processName}' not found.");
+        return (uint)proc.Id;
+    }
 
+    public static TrustedPipeServer? PipeServer;
     public App()
     {            // Window hooks
         var thread = new Thread(() =>
@@ -34,7 +44,32 @@ public partial class App : Application
             /*var hook1 = new WindowHook("#32770", "Shut Down Windows", "explorer");
             hook1.WindowDetected += Hook_WindowDetected_Shutdown;*/
 
-            var runDialogHook = new WindowHook(
+            try
+            {
+                uint explorerPid = GetProcessIdByName("explorer");
+
+                // Inject the x86 DLL
+                Injector.Inject(
+                    explorerPid,
+                    @$"{AppContext.BaseDirectory}\Hooks\Rebound.Forge.Hooks.Run.dll",
+                    "shell32.dll",
+                    "RunFileDlg"
+                );
+
+                // Inject the x64 DLL
+                Injector.Inject(
+                    explorerPid,
+                    @$"{AppContext.BaseDirectory}\Hooks\Rebound.Forge.Hooks.Run.dll",
+                    "shell32.dll",
+                    "RunFileDlg"
+                );
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"RunFileDlg hook failed: {ex}");
+            }
+
+            /*var runDialogHook = new WindowHook(
                 "#32770",
                 null,
                 "explorer",
@@ -45,7 +80,7 @@ public partial class App : Application
                     new ComboBoxControl()
                 }
             );
-            runDialogHook.WindowDetected += Hook_WindowDetected_Run;
+            runDialogHook.WindowDetected += Hook_WindowDetected_Run;*/
 
             /*var hook3 = new WindowHook("#32770", "Create new task", "taskmgr");
             hook3.WindowDetected += Hook_WindowDetected_Run;
@@ -177,7 +212,7 @@ public partial class App : Application
 
     //public static ILocalizer Localizer { get; set; }
 
-    private async void OnSingleInstanceLaunched(object? sender, Helpers.Services.SingleInstanceLaunchEventArgs e)
+    private async void OnSingleInstanceLaunched(object? sender, Core.Helpers.Services.SingleInstanceLaunchEventArgs e)
     {
         if (e.IsFirstLaunch)
         {
@@ -282,5 +317,40 @@ public partial class App : Application
             PInvoke.TranslateMessage(msg);
             PInvoke.DispatchMessage(msg);
         }
+    }
+}
+
+// New RunFileDlg hook (ordinal #61)
+public class Injector
+{
+    const uint PROCESS_ALL_ACCESS = 0x1F0FFF;
+    const uint MEM_COMMIT = 0x1000;
+    const uint MEM_RESERVE = 0x2000;
+    const uint PAGE_READWRITE = 0x04;
+
+    public static unsafe bool Inject(uint pid, string dllPath, string hookedDllName, string hookedFunctionName)
+    {
+        var hProcess = TerraFX.Interop.Windows.Windows.OpenProcess(PROCESS_ALL_ACCESS, false, pid);
+        if (hProcess == IntPtr.Zero) return false;
+
+        var allocMem = TerraFX.Interop.Windows.Windows.VirtualAllocEx(hProcess, null, (uint)((dllPath.Length + 1) * 2), MEM_COMMIT | MEM_RESERVE, PAGE_READWRITE);
+        //if (allocMem == IntPtr.Zero) return false;
+
+        byte[] bytes = System.Text.Encoding.Unicode.GetBytes(dllPath);
+        fixed (byte* pBytes = bytes)
+        {
+            if (!TerraFX.Interop.Windows.Windows.WriteProcessMemory(hProcess, allocMem, pBytes, (uint)bytes.Length, null))
+                return false;
+        }
+
+        var hKernel32 = TerraFX.Interop.Windows.Windows.GetModuleHandleW(hookedDllName.ToPCWSTR().Value);
+        var loadLibraryAddr = TerraFX.Interop.Windows.Windows.GetProcAddress(hKernel32, (sbyte*)hookedFunctionName.ToPCWSTR().Value);
+
+        delegate* unmanaged<void*, uint> startAddr = (delegate* unmanaged<void*, uint>)(nint)loadLibraryAddr;
+
+        IntPtr hThread = TerraFX.Interop.Windows.Windows.CreateRemoteThread(hProcess, null, 0, startAddr, allocMem, 0, null);
+        if (hThread == IntPtr.Zero) return false;
+
+        return true;
     }
 }

@@ -3,6 +3,7 @@ using Rebound.Core.Helpers;
 using Rebound.Generators;
 using Rebound.Core.Helpers.Services;
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Runtime.CompilerServices;
 using System.Threading;
@@ -26,6 +27,22 @@ namespace Rebound;
 [ReboundApp("Rebound.Hub", "")]
 public partial class App : Application
 {
+    private static readonly List<IslandsWindow> _openWindows = new();
+
+    private static void RegisterWindow(IslandsWindow window)
+    {
+        _openWindows.Add(window);
+        window.Closed += (s, e) =>
+        {
+            _openWindows.Remove(window);
+            if (_openWindows.Count == 0)
+            {
+                Application.Current.Exit();
+                Process.GetCurrentProcess().Kill();
+            }
+        };
+    }
+
     private void OnSingleInstanceLaunched(object sender, SingleInstanceLaunchEventArgs e)
     {
         Program._actions.Add(() =>
@@ -61,6 +78,7 @@ public partial class App : Application
     public static unsafe void CreateMainWindow()
     {
         MainWindow = new();
+        RegisterWindow(MainWindow);
         MainWindow.AppWindowInitialized += (s, e) =>
         {
             MainWindow.Title = "Rebound Hub";
