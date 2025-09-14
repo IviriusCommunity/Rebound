@@ -6,7 +6,7 @@ using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Rebound.Core.Helpers;
 using Rebound.Generators;
-using Rebound.Helpers;
+using Rebound.Core.Helpers;
 using Rebound.Shell.Desktop;
 using System;
 using System.Collections.Concurrent;
@@ -163,7 +163,7 @@ public partial class App : Application
         CantRunDialog.ForceBringToFront();
     }*/
 
-    private void OnSingleInstanceLaunched(object? sender, Helpers.Services.SingleInstanceLaunchEventArgs e)
+    private void OnSingleInstanceLaunched(object? sender, Core.Helpers.Services.SingleInstanceLaunchEventArgs e)
     {
         if (e.IsFirstLaunch)
         {

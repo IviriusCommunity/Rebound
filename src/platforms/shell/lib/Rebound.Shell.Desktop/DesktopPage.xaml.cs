@@ -21,7 +21,7 @@ using Windows.UI.Xaml.Controls.Primitives;
 using Windows.UI.Xaml.Input;
 using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Navigation;
-using Rebound.Helpers;
+using Rebound.Core.Helpers;
 using Rebound.Shell.ExperienceHost;
 using Windows.ApplicationModel.DataTransfer;
 using Windows.Foundation;

@@ -101,8 +101,4 @@
 	  </AppxManifest>
 	</ItemGroup>
 
-	<ItemGroup>
-		<PackageReference Include="EasyHook" Version="2.7.7097" />
-	</ItemGroup>
-	
 </Project>

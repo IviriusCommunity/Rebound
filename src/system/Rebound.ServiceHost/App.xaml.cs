@@ -18,7 +18,6 @@ using Windows.System.UserProfile;
 using Windows.UI.Xaml;
 using Windows.Win32;
 using Windows.Win32.System.Shutdown;
-using EasyHook;
 using System.Runtime.InteropServices;
 using Windows.Win32.Foundation;
 using System.Security.Principal;

@@ -1,217 +1,235 @@
-// hook_helpers.cpp
+#include "pch.h"
 #include <windows.h>
 #include <stdint.h>
-#include <stdio.h>
-#include "pch.h"
-#include <stdint.h>  // C header (works in C and C++)
 #include <process.h>
+#include <stdio.h>
+#include "MinHook.h"
+#include <string>
 
-static HANDLE g_workerEvent = NULL;
-static SLIST_HEADER g_messageList; // for lock-free message queue
+// --------------------------------------------
+// Typedefs
+// --------------------------------------------
+#ifdef _M_X64
+typedef int (WINAPI* RunFileDlg_t)(HWND, HICON, LPCWSTR, LPCWSTR, LPCWSTR, UINT);
+#else
+typedef int (WINAPI* RunFileDlg_t)(HWND, HICON, LPCWSTR, LPCWSTR, LPCWSTR, UINT);
+#endif
 
-// prototype
-unsigned __stdcall InjectorInitThread(void* param);
-void QueueMessage(const wchar_t* msg); // lightweight enqueue (caller must copy message or store pointer)
+// Original function pointer
+static RunFileDlg_t g_originalRunFileDlg = nullptr;
 
-// helper to queue message from hook: allocate a small node and push to SList then signal worker
+// --------------------------------------------
+// Forward declarations
+// --------------------------------------------
+DWORD WINAPI WorkerThreadStarter(LPVOID lpVoid);
+DWORD WINAPI HookThread(LPVOID hModule);
+bool InstallRunFileDlgHook();
+int WINAPI RunFileDlg_Hook(HWND, HICON, LPCWSTR, LPCWSTR, LPCWSTR, UINT);
+void RemoveRunFileDlgHook();
+
+// --------------------------------------------
+// Message queue for asynchronous pipe sending
+// --------------------------------------------
+struct MsgNode {
+    SLIST_ENTRY link;
+    wchar_t msg[256];
+};
+
+static volatile bool g_running = true;
+
+static SLIST_HEADER g_messageList;
+static HANDLE g_workerEvent = nullptr;
+
+std::string WideToUtf8(const wchar_t* wstr) {
+    if (!wstr) return {};
+    int size_needed = WideCharToMultiByte(CP_UTF8, 0, wstr, -1, nullptr, 0, nullptr, nullptr);
+    if (size_needed <= 0) return {};
+    std::string result(size_needed - 1, 0);
+    WideCharToMultiByte(CP_UTF8, 0, wstr, -1, result.data(), size_needed, nullptr, nullptr);
+    return result;
+}
+
 void QueueMessage(const wchar_t* msg) {
-    struct MsgNode { SLIST_ENTRY link; wchar_t msg[256]; };
     MsgNode* node = (MsgNode*)HeapAlloc(GetProcessHeap(), 0, sizeof(MsgNode));
     if (!node) return;
-    node->link.Next = NULL;
+
+    node->link.Next = nullptr;
     wcsncpy_s(node->msg, msg, _TRUNCATE);
+
     InterlockedPushEntrySList(&g_messageList, (PSLIST_ENTRY)node);
     if (g_workerEvent) SetEvent(g_workerEvent);
 }
 
-static void FlushInsCache(void* addr, SIZE_T size) {
-    FlushInstructionCache(GetCurrentProcess(), addr, size);
-}
-
-#ifdef _M_X64
-const SIZE_T OVERWRITE_SIZE = 12; // mov rax, imm64 (10) + jmp rax (2) = 12 bytes
-#else
-const SIZE_T OVERWRITE_SIZE = 5;  // x86 relative jmp = 5 bytes
-#endif
-
-// A small struct that holds hook metadata
-struct InlineHook {
-    void* target;            // address of original function
-    SIZE_T overwriteSize;    // bytes we overwrote
-    BYTE originalBytes[64];  // saved original bytes (enough)
-    void* trampoline;        // pointer to trampoline callable
-};
-
-// Helper to change page protection and write
-static bool WriteMemory(void* dst, const void* src, SIZE_T len) {
-    DWORD old;
-    if (!VirtualProtect(dst, len, PAGE_EXECUTE_READWRITE, &old)) return false;
-    memcpy(dst, src, len);
-    FlushInsCache(dst, len);
-    VirtualProtect(dst, len, old, &old);
-    return true;
-}
-
-// Allocate trampoline, copy original bytes and append jmp back
-static void* CreateTrampoline(void* target, SIZE_T overwriteSize) {
-    // allocate executable memory
-    SIZE_T trampSize = overwriteSize + 32; // extra for jump back
-    void* tramp = VirtualAlloc(nullptr, trampSize, MEM_COMMIT | MEM_RESERVE, PAGE_EXECUTE_READWRITE);
-    if (!tramp) return nullptr;
-
-    // copy original bytes
-    memcpy(tramp, target, overwriteSize);
-
-    // append jump back to original + overwriteSize
-    BYTE* p = (BYTE*)tramp + overwriteSize;
-
-#ifdef _M_X64
-    // mov rax, imm64
-    p[0] = 0x48; p[1] = 0xB8; // mov rax, imm64
-    uint64_t retAddr = (uint64_t)((BYTE*)target + overwriteSize);
-    memcpy(p + 2, &retAddr, sizeof(retAddr)); // imm64
-    p[10] = 0xFF; p[11] = 0xE0; // jmp rax
-    // total appended 12 bytes
-#else
-    // x86: relative jmp (E9 rel32)
-    uint32_t src = (uint32_t)((BYTE*)target + overwriteSize);
-    uint32_t dst = (uint32_t)(p + 5); // just placeholder; we'll overwrite with proper rel
-    // compute rel = src - (paddr + 5) ??? Actually we want jump from p to src, so:
-    uint32_t rel = src - (uint32_t)((uintptr_t)p + 5);
-    p[0] = 0xE9;
-    memcpy(p + 1, &rel, 4);
-#endif
-
-    FlushInsCache(tramp, trampSize);
-    return tramp;
-}
-
-// Install inline hook
-static bool InstallInlineHook(InlineHook* hook, void* target, void* detour) {
-    if (!hook || !target || !detour) return false;
-    hook->target = target;
-    hook->overwriteSize = OVERWRITE_SIZE;
-    if (hook->overwriteSize > sizeof(hook->originalBytes)) return false;
-
-    // save original bytes
-    memcpy(hook->originalBytes, target, hook->overwriteSize);
-
-    // create trampoline
-    hook->trampoline = CreateTrampoline(target, hook->overwriteSize);
-    if (!hook->trampoline) return false;
-
-    // craft jump to detour at target
-#ifdef _M_X64
-    // mov rax, imm64 ; jmp rax
-    BYTE patch[OVERWRITE_SIZE] = { 0 };
-    patch[0] = 0x48; patch[1] = 0xB8; // mov rax, imm64
-    uint64_t det = (uint64_t)detour;
-    memcpy(patch + 2, &det, sizeof(det));
-    patch[10] = 0xFF; patch[11] = 0xE0; // jmp rax
-    // if OVERWRITE_SIZE > 12, pad with NOPs
-    for (SIZE_T i = 12; i < hook->overwriteSize; ++i) patch[i] = 0x90;
-    if (!WriteMemory(target, patch, hook->overwriteSize)) return false;
-#else
-    // x86: E9 rel32
-    BYTE patch[OVERWRITE_SIZE];
-    uint32_t rel = (uint32_t)((uintptr_t)detour - ((uintptr_t)target + 5));
-    patch[0] = 0xE9;
-    memcpy(patch + 1, &rel, 4);
-    // if overwriteSize > 5, pad with NOPs
-    for (SIZE_T i = 5; i < hook->overwriteSize; ++i) patch[i] = 0x90;
-    if (!WriteMemory(target, patch, hook->overwriteSize)) return false;
-#endif
-
-    return true;
-}
-
-// Uninstall inline hook (restore original bytes, free trampoline)
-static bool UninstallInlineHook(InlineHook* hook) {
-    if (!hook || !hook->target) return false;
-
-    if (!WriteMemory(hook->target, hook->originalBytes, hook->overwriteSize)) return false;
-
-    if (hook->trampoline) {
-        VirtualFree(hook->trampoline, 0, MEM_RELEASE);
-        hook->trampoline = nullptr;
-    }
-    return true;
-}
-
-//////////////////////////////////////////
-// Example: hooking RunFileDlg ordinal #61
-//////////////////////////////////////////
-
-// typedef for the function signature (match your target; here we use generic)
-#ifdef _M_X64
-typedef int (WINAPI* RunFileDlg_t)(HWND, HICON, LPCWSTR, LPCWSTR, LPCWSTR, UINT);
-#else
-typedef int (WINAPI* RunFileDlg_t)(HWND, HICON, LPCWSTR, LPCWSTR, LPCWSTR, UINT);
-#endif
-
-static InlineHook g_runfile_hook = { 0 };
-static RunFileDlg_t g_original_runfile = nullptr;
-
-// Example pipe-send helper (simple, blocking) - adjust encoding/length as needed
-static void SendToHostSimple(const wchar_t* message) {
-    HANDLE h = CreateFileW(L"\\\\.\\pipe\\REBOUND_SERVICE_HOST", GENERIC_WRITE, 0, NULL, OPEN_EXISTING, 0, NULL);
-    if (h == INVALID_HANDLE_VALUE) return;
+void SendPipeMessage(const wchar_t* msg, HANDLE pipe) {
+    auto utf8 = WideToUtf8(msg);
     DWORD written = 0;
-    QueueMessage(message);
-    CloseHandle(h);
+    WriteFile(pipe, utf8.data(), (DWORD)utf8.size(), &written, nullptr);
 }
 
-// Hook function
-int WINAPI RunFileDlg_Hook(HWND hwnd, HICON icon, LPCWSTR path, LPCWSTR title, LPCWSTR prompt, UINT flags) {
-    QueueMessage(L"Shell::SpawnRunWindow"); // async, safe
-    if (g_runfile_hook.trampoline) {
-        auto trampoline = (RunFileDlg_t)g_runfile_hook.trampoline;
-        return trampoline(hwnd, icon, path, title, prompt, flags);
+const char* kMessage = "Shell::SpawnRunWindow\n"; // simple literal UTF-8
+
+DWORD WINAPI WorkerThreadLoop(LPVOID) {
+    HANDLE pipe = INVALID_HANDLE_VALUE;
+
+    while (true) {
+        WaitForSingleObject(g_workerEvent, INFINITE);
+
+        PSLIST_ENTRY entry;
+        while ((entry = InterlockedPopEntrySList(&g_messageList)) != nullptr) {
+            auto node = CONTAINING_RECORD(entry, MsgNode, link);
+
+            // ensure UTF-8 conversion with newline
+            std::string utf8 = WideToUtf8(node->msg);
+            utf8 += "\n";
+
+            // lazy pipe connect with retry
+            while (pipe == INVALID_HANDLE_VALUE) {
+                pipe = CreateFileA("\\\\.\\pipe\\REBOUND_SERVICE_HOST", GENERIC_WRITE, 0, nullptr, OPEN_EXISTING, 0, nullptr);
+                if (pipe == INVALID_HANDLE_VALUE) Sleep(50);
+            }
+
+            DWORD written = 0;
+            WriteFile(pipe, utf8.data(), (DWORD)utf8.size(), &written, nullptr);
+
+            HeapFree(GetProcessHeap(), 0, node);
+        }
     }
-    return 0; // block if trampoline failed
+
+    if (pipe != INVALID_HANDLE_VALUE) CloseHandle(pipe);
+    return 0;
 }
 
-// Install function to call from your injector thread
+DWORD WINAPI HookThread(LPVOID hModule) {
+    if (MH_Initialize() != MH_OK) {
+        OutputDebugStringW(L"[HookThread] MH_Initialize failed");
+        return 1;
+    }
+
+    // Setup pipe worker
+    g_workerEvent = CreateEvent(nullptr, FALSE, FALSE, nullptr);
+    if (g_workerEvent) {
+        InitializeSListHead(&g_messageList);
+        HANDLE hWorker = CreateThread(nullptr, 0, WorkerThreadStarter, nullptr, 0, nullptr);
+        if (hWorker) CloseHandle(hWorker);
+    }
+
+    // Install hook
+    if (!InstallRunFileDlgHook()) {
+        OutputDebugStringW(L"[HookThread] InstallRunFileDlgHook failed");
+    }
+    else {
+        OutputDebugStringW(L"[HookThread] Hook installed successfully!");
+    }
+
+    return 0;
+}
+
+DWORD WINAPI WorkerThreadStarter(LPVOID lpVoid) {
+    WorkerThreadLoop(lpVoid);
+    return 0;
+}
+
 bool InstallRunFileDlgHook() {
-    // Load shell32 and get ordinal #61
     HMODULE shell32 = LoadLibraryW(L"shell32.dll");
     if (!shell32) return false;
 
-    // Use MAKEINTRESOURCE-style ordinal
-    FARPROC fp = GetProcAddress(shell32, MAKEINTRESOURCEA(61));
-    if (!fp) return false;
+    FARPROC target = GetProcAddress(shell32, MAKEINTRESOURCEA(61) /*"RunFileDlg"*/);
+    if (!target) return false;
 
-    void* target = (void*)fp;
+    if (MH_CreateHook(target, &RunFileDlg_Hook,
+        reinterpret_cast<LPVOID*>(&g_originalRunFileDlg)) != MH_OK) return false;
 
-    // If you want to keep a direct original pointer as fallback, set it (not used if trampoline exists)
-    g_original_runfile = (RunFileDlg_t)fp;
-
-    // Install inline hook
-    if (!InstallInlineHook(&g_runfile_hook, target, (void*)&RunFileDlg_Hook)) {
-        return false;
-    }
+    if (MH_EnableHook(target) != MH_OK) return false;
 
     return true;
 }
 
-bool RemoveRunFileDlgHook() {
-    return UninstallInlineHook(&g_runfile_hook);
+// --------------------------------------------
+// MinHook hook for RunFileDlg
+// --------------------------------------------
+
+int WINAPI RunFileDlg_Hook(HWND hwnd, HICON icon, LPCWSTR path, LPCWSTR title, LPCWSTR prompt, UINT flags) {
+    QueueMessage(L"Shell::SpawnRunWindow");
+    //if (g_originalRunFileDlg) {
+    //    return g_originalRunFileDlg(hwnd, icon, path, title, prompt, flags);
+    //}
+    return 0;
 }
 
+void RemoveRunFileDlgHook() {
+    MH_DisableHook(MH_ALL_HOOKS);
+    MH_Uninitialize();
+}
+
+// --------------------------------------------
+// Injector thread
+// --------------------------------------------
+DWORD WINAPI InjectorThread(LPVOID) {
+    g_workerEvent = CreateEvent(nullptr, FALSE, FALSE, nullptr);
+    if (!g_workerEvent) return 1;
+
+    InitializeSListHead(&g_messageList);
+
+    HANDLE hWorker = CreateThread(nullptr, 0, WorkerThreadStarter, nullptr, 0, nullptr);
+    if (hWorker) CloseHandle(hWorker);
+
+    if (!InstallRunFileDlgHook())
+        OutputDebugStringW(L"[Injector] Hook install failed");
+
+    return 0;
+}
+
+DWORD WINAPI ProbeThread(LPVOID lpReserved)
+{
+    // Register a simple window class
+    WNDCLASS wc = {};
+    wc.lpfnWndProc = DefWindowProc;
+    wc.hInstance = GetModuleHandle(nullptr);
+    wc.lpszClassName = L"ProbeWindowClass";
+
+    if (!RegisterClass(&wc))
+        return 1;
+
+    // Create the window
+    HWND hwnd = CreateWindowEx(
+        0,
+        L"ProbeWindowClass",
+        L"Hook Probe",
+        WS_OVERLAPPEDWINDOW,
+        CW_USEDEFAULT, CW_USEDEFAULT, 300, 200,
+        nullptr, nullptr, GetModuleHandle(nullptr), nullptr
+    );
+
+    if (!hwnd)
+        return 1;
+
+    ShowWindow(hwnd, SW_SHOW);
+
+    // Simple message loop
+    MSG msg;
+    while (GetMessage(&msg, nullptr, 0, 0))
+    {
+        TranslateMessage(&msg);
+        DispatchMessage(&msg);
+    }
+
+    return 0;
+}
+
+// --------------------------------------------
+// DLL entry point
+// --------------------------------------------
 BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID) {
     if (fdwReason == DLL_PROCESS_ATTACH) {
         DisableThreadLibraryCalls(hinstDLL);
-        uintptr_t t = _beginthreadex(nullptr, 0, InjectorInitThread, nullptr, 0, nullptr);
-        if (t) CloseHandle((HANDLE)t);
+        CreateThread(nullptr, 0, HookThread, hinstDLL, 0, nullptr);
+        CreateThread(nullptr, 0, ProbeThread, nullptr, 0, nullptr); // << your probe window
     }
     else if (fdwReason == DLL_PROCESS_DETACH) {
-        RemoveRunFileDlgHook();
+        g_running = false;
+        SetEvent(g_workerEvent); // wake worker so it can exit
+        MH_DisableHook(MH_ALL_HOOKS);
+        MH_Uninitialize();
     }
     return TRUE;
-}
-
-unsigned __stdcall InjectorInitThread(void*) {
-    if (!InstallRunFileDlgHook())
-        OutputDebugStringW(L"[Injector] Hook install failed");
-    return 0;
 }

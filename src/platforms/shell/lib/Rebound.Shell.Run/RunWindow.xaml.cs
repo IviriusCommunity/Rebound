@@ -7,7 +7,7 @@ using Windows.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Rebound.Core.Helpers;
 using Rebound.Core.Helpers.Windowing;
-using Rebound.Helpers;
+using Rebound.Core.Helpers;
 using Rebound.Shell.ExperienceHost;
 using System;
 using System.Collections.Generic;
