@@ -5,6 +5,8 @@
 #include <stdio.h>
 #include "MinHook.h"
 #include <string>
+#include <combaseapi.h>
+#include <comdef.h> // For _com_error
 
 // --------------------------------------------
 // Typedefs
@@ -17,6 +19,19 @@ typedef int (WINAPI* RunFileDlg_t)(HWND, HICON, LPCWSTR, LPCWSTR, LPCWSTR, UINT)
 
 // Original function pointer
 static RunFileDlg_t g_originalRunFileDlg = nullptr;
+
+// {E7F6D0A3-1234-4567-89AB-1C2D3E4F5678}
+static const GUID IID_IReboundShellServer =
+{ 0xe7f6d0a3, 0x1234, 0x4567, {0x89, 0xab, 0x1c, 0x2d, 0x3e, 0x4f, 0x56, 0x78} };
+
+// {A1B2C3D4-5678-1234-ABCD-9876543210FE}
+static const GUID CLSID_ReboundShellServer =
+{ 0xa1b2c3d4, 0x5678, 0x1234, {0xab, 0xcd, 0x98, 0x76, 0x54, 0x32, 0x10, 0xfe} };
+
+struct IReboundShellServer : public IUnknown
+{
+    virtual HRESULT STDMETHODCALLTYPE OpenRunBox() = 0;
+};
 
 // --------------------------------------------
 // Forward declarations
@@ -147,12 +162,29 @@ bool InstallRunFileDlgHook() {
 // --------------------------------------------
 // MinHook hook for RunFileDlg
 // --------------------------------------------
-
 int WINAPI RunFileDlg_Hook(HWND hwnd, HICON icon, LPCWSTR path, LPCWSTR title, LPCWSTR prompt, UINT flags) {
-    QueueMessage(L"Shell::SpawnRunWindow");
+    HRESULT hr = CoInitializeEx(nullptr, COINIT_APARTMENTTHREADED);
+    if (FAILED(hr) && hr != RPC_E_CHANGED_MODE) {
+        OutputDebugStringA("CoInitializeEx failed");
+        return 0;
+    }
+
+    IReboundShellServer* pServer = nullptr;
+    hr = CoCreateInstance(CLSID_ReboundShellServer, nullptr, CLSCTX_LOCAL_SERVER, IID_IReboundShellServer, (void**)&pServer);
+    if (SUCCEEDED(hr) && pServer) {
+        pServer->OpenRunBox();
+        pServer->Release();
+    }
+    else {
+        OutputDebugStringA("Failed to connect to ReboundShellServer COM");
+    }
+
+    if (SUCCEEDED(hr)) CoUninitialize();
+
     //if (g_originalRunFileDlg) {
     //    return g_originalRunFileDlg(hwnd, icon, path, title, prompt, flags);
     //}
+
     return 0;
 }
 

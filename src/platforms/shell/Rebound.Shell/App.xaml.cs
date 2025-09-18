@@ -19,11 +19,35 @@ using Windows.UI;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.Win32.UI.WindowsAndMessaging;
+using System.Runtime.InteropServices;
 
 #pragma warning disable IDE0079 // Remove unnecessary suppression
 #pragma warning disable CA1515  // Consider making public types internal
 
 namespace Rebound.Shell.ExperienceHost;
+
+// Interface ID (GUID must be unique)
+[Guid("E7F6D0A3-1234-4567-89AB-1C2D3E4F5678")]
+[InterfaceType(ComInterfaceType.InterfaceIsIUnknown)]
+public interface IReboundShellServer
+{
+    void OpenRunBox();
+}
+
+// Class ID for the COM object
+[Guid("A1B2C3D4-5678-1234-ABCD-9876543210FE")]
+[ClassInterface(ClassInterfaceType.None)]
+[ComVisible(true)]
+public class ReboundShellServer : IReboundShellServer
+{
+    public void OpenRunBox()
+    {
+        Program._actions.Add(() =>
+        {
+            App.ShowRunWindow();
+        });
+    }
+}
 
 //[ReboundApp("Rebound.ShellExperienceHost", "")]
 public partial class App : Application
@@ -39,6 +63,8 @@ public partial class App : Application
 
     private async void Run()
     {
+        var server = new ReboundShellServer();
+
         ReboundPipeClient = new ReboundPipeClient();
         await ReboundPipeClient.ConnectAsync();
 
