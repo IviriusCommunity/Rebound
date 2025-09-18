@@ -5,12 +5,14 @@ using Microsoft.UI.Windowing;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Rebound.Core.Helpers;
-using Rebound.Generators;
 using Rebound.Core.Helpers;
+using Rebound.Generators;
 using Rebound.Shell.Desktop;
 using System;
 using System.Collections.Concurrent;
 using System.Linq;
+using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices;
 using System.Threading;
 using System.Threading.Tasks;
 using TerraFX.Interop.Windows;
@@ -18,34 +20,32 @@ using Windows.System;
 using Windows.UI;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
+using Windows.Win32;
 using Windows.Win32.UI.WindowsAndMessaging;
-using System.Runtime.InteropServices;
 
 #pragma warning disable IDE0079 // Remove unnecessary suppression
 #pragma warning disable CA1515  // Consider making public types internal
 
 namespace Rebound.Shell.ExperienceHost;
 
-// Interface ID (GUID must be unique)
 [Guid("E7F6D0A3-1234-4567-89AB-1C2D3E4F5678")]
-[InterfaceType(ComInterfaceType.InterfaceIsIUnknown)]
-public interface IReboundShellServer
+public unsafe struct IReboundShellServer : Windows.Win32.System.Com.IUnknown
 {
-    void OpenRunBox();
+    public void** lpVtbl;
+
+    public HRESULT OpenRunBox()
+    {
+        // vtable[3] → first slot after IUnknown methods
+        return ((delegate* unmanaged[Stdcall]<IReboundShellServer*, HRESULT>)(lpVtbl[3]))((IReboundShellServer*)Unsafe.AsPointer(ref this));
+    }
 }
 
-// Class ID for the COM object
-[Guid("A1B2C3D4-5678-1234-ABCD-9876543210FE")]
-[ClassInterface(ClassInterfaceType.None)]
-[ComVisible(true)]
-public class ReboundShellServer : IReboundShellServer
+public class ReboundShellServerImpl : IReboundShellServer
 {
-    public void OpenRunBox()
+    public HRESULT OpenRunBox()
     {
-        Program._actions.Add(() =>
-        {
-            App.ShowRunWindow();
-        });
+        Program._actions.Add(() => App.ShowRunWindow());
+        return HRESULT.S_OK;
     }
 }
 
@@ -63,7 +63,22 @@ public partial class App : Application
 
     private async void Run()
     {
-        var server = new ReboundShellServer();
+        unsafe
+        {
+            uint cookie;
+            Windows.Win32.ComPtr<IReboundShellServer> shellServer = default;
+
+            var hr = PInvoke.CoRegisterClassObject(
+                typeof(ReboundShellServerImpl).GUID,
+                (Windows.Win32.System.Com.IUnknown*)(shellServer.Get()),
+                (Windows.Win32.System.Com.CLSCTX)CLSCTX.CLSCTX_LOCAL_SERVER,
+                (Windows.Win32.System.Com.REGCLS)(REGCLS.REGCLS_MULTIPLEUSE | REGCLS.REGCLS_SUSPENDED),
+                out cookie);
+
+            if (hr.Failed) throw new COMException("CoRegisterClassObject failed", (int)hr);
+
+            PInvoke.CoResumeClassObjects();
+        }
 
         ReboundPipeClient = new ReboundPipeClient();
         await ReboundPipeClient.ConnectAsync();

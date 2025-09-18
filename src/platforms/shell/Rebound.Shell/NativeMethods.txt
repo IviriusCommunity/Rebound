@@ -35,3 +35,5 @@ SetWindowLong
 GetWindowLong
 SetLayeredWindowAttributes
 GetTopWindow
+CoRegisterClassObject
+CoResumeClassObjects
