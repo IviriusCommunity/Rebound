@@ -35,7 +35,9 @@
             Orientation="Horizontal"
             Spacing="8">
             <TextBlock
+                x:Name="WindowTitle"
                 VerticalAlignment="Center"
+                x:FieldModifier="public"
                 FontSize="12"
                 Text="Run" />
             <Border
@@ -69,11 +71,11 @@
             Header="Type the name of a program, file, or URL."
             ItemsSource="{x:Bind ViewModel.RunHistory, Mode=OneWay}"
             KeyDown="InputBox_KeyDown"
+            Loaded="InputBox_Loaded"
             QuerySubmitted="InputBox_QuerySubmitted"
             SuggestionChosen="InputBox_SuggestionChosen"
             Text="{x:Bind ViewModel.Path, Mode=TwoWay}"
-            TextChanged="InputBox_TextChanged"
-            Loaded="InputBox_Loaded">
+            TextChanged="InputBox_TextChanged">
             <AutoSuggestBox.QueryIcon>
                 <FontIcon FontSize="12" Glyph="&#xE64D;" />
             </AutoSuggestBox.QueryIcon>

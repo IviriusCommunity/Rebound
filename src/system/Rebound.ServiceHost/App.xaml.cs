@@ -2,77 +2,82 @@
 // Licensed under the MIT License.
 
 using Rebound.Core.Helpers;
-using Rebound.Forge;
 using Rebound.Forge.Engines;
 using Rebound.Forge.Hooks;
-using Rebound.Generators;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.IO;
-using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Windows.Storage;
-using Windows.System.UserProfile;
 using Windows.UI.Xaml;
 using Windows.Win32;
 using Windows.Win32.System.Shutdown;
 using System.Runtime.InteropServices;
-using Windows.Win32.Foundation;
-using System.Security.Principal;
 
 namespace Rebound.ServiceHost;
 
 //[ReboundApp("Rebound.ServiceHost", "")]
 public partial class App : Application
 {
-    uint GetProcessIdByName(string processName)
+    private static readonly HashSet<string> ExcludedProcesses = new(StringComparer.OrdinalIgnoreCase)
     {
-        var proc = Process.GetProcessesByName(processName).FirstOrDefault();
-        if (proc == null)
-            throw new InvalidOperationException($"Process '{processName}' not found.");
-        return (uint)proc.Id;
+        "csrss.exe",
+        "winlogon.exe",
+        "smss.exe",
+        "lsass.exe",
+        "dwm.exe",
+        "services.exe",
+        "Rebound.Shell.exe",
+        "Rebound.ServiceHost.exe"
+    };
+
+    private static void InjectIntoProcesses()
+    {
+        var allProcesses = Process.GetProcesses();
+
+        foreach (var proc in allProcesses)
+        {
+            try
+            {
+                // Skip excluded processes
+                if (ExcludedProcesses.Contains(proc.ProcessName + ".exe"))
+                    continue;
+
+                // Skip system-protected processes (optional extra safety)
+                if (proc.SessionId == 0) // system session
+                    continue;
+
+                // Skip if we cannot open
+                if (!Injector.CanOpenProcess(proc.Id))
+                    continue;
+
+                // Determine architecture
+                TerraFX.Interop.Windows.BOOL isWow64 = false;
+                if (Environment.Is64BitOperatingSystem)
+                {
+                    unsafe
+                    {
+                        TerraFX.Interop.Windows.Windows.IsWow64Process(new(proc.Handle.ToPointer()), &isWow64);
+                    }
+                }
+
+                if (isWow64) Injector.Inject((uint)proc.Id, @$"{AppContext.BaseDirectory}\Hooks\Rebound.Forge.Hooks.Run.dll");
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"Injection skipped for {proc.ProcessName}: {ex.Message}");
+            }
+        }
     }
 
-    public static TrustedPipeServer? PipeServer;
+    private static TrustedPipeServer? PipeServer;
+
     public App()
     {
         // Window hooks
         var thread = new Thread(() =>
         {
-            try
-            {
-                uint explorerPid = GetProcessIdByName("explorer");
-
-                // Determine explorer.exe architecture
-                TerraFX.Interop.Windows.BOOL isWow64 = false;
-                unsafe
-                {
-                    using (var process = Process.GetProcessById((int)explorerPid))
-                    {
-                        if (Environment.Is64BitOperatingSystem)
-                        {
-                            TerraFX.Interop.Windows.Windows.IsWow64Process(new(process.Handle.ToPointer()), &isWow64);
-                        }
-                    }
-                }
-
-                // Select correct DLL path
-                string dllPath = isWow64
-                    ? @$"{AppContext.BaseDirectory}\Hooks\Rebound.Forge.Hooks.Run.dll"
-                    : @$"{AppContext.BaseDirectory}\Hooks\Rebound.Forge.Hooks.Run.dll";
-
-                // Inject using LoadLibraryW from kernel32.dll
-                Injector.Inject(
-                    explorerPid,
-                    dllPath
-                );
-            }
-            catch (Exception ex)
-            {
-                Debug.WriteLine($"RunFileDlg hook failed: {ex}");
-            }
+            InjectIntoProcesses();
 
             // Keep message pump alive so all hooks keep working
             NativeMessageLoop();
@@ -309,6 +314,14 @@ public partial class App : Application
 // New RunFileDlg hook (ordinal #61)
 public class Injector
 {
+    public static bool CanOpenProcess(int pid)
+    {
+        var hProcess = TerraFX.Interop.Windows.Windows.OpenProcess(PROCESS_ALL_ACCESS, bInheritHandle: false, dwProcessId: (uint)pid);
+        if (hProcess == IntPtr.Zero) return false;
+        TerraFX.Interop.Windows.Windows.CloseHandle(hProcess);
+        return true;
+    }
+
     const uint PROCESS_ALL_ACCESS = 0x1F0FFF;
     const uint MEM_COMMIT = 0x1000;
     const uint MEM_RESERVE = 0x2000;

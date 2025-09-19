@@ -331,3 +331,4 @@ QITIPF_FLAGS
 GetKeyboardState
 MapVirtualKey
 GetKeyboardLayout
+OpenProcess

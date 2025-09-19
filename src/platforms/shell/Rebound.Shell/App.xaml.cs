@@ -1,53 +1,19 @@
 ﻿// Copyright (C) Ivirius(TM) Community 2020 - 2025. All Rights Reserved.
 // Licensed under the MIT License.
 
-using Microsoft.UI.Windowing;
-using Microsoft.UI.Xaml;
-using Microsoft.UI.Xaml.Controls;
 using Rebound.Core.Helpers;
-using Rebound.Core.Helpers;
-using Rebound.Generators;
-using Rebound.Shell.Desktop;
+using Rebound.Shell.Run;
 using System;
-using System.Collections.Concurrent;
-using System.Linq;
-using System.Runtime.CompilerServices;
-using System.Runtime.InteropServices;
-using System.Threading;
 using System.Threading.Tasks;
 using TerraFX.Interop.Windows;
-using Windows.System;
 using Windows.UI;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
-using Windows.Win32;
-using Windows.Win32.UI.WindowsAndMessaging;
 
 #pragma warning disable IDE0079 // Remove unnecessary suppression
 #pragma warning disable CA1515  // Consider making public types internal
 
 namespace Rebound.Shell.ExperienceHost;
-
-[Guid("E7F6D0A3-1234-4567-89AB-1C2D3E4F5678")]
-public unsafe struct IReboundShellServer : Windows.Win32.System.Com.IUnknown
-{
-    public void** lpVtbl;
-
-    public HRESULT OpenRunBox()
-    {
-        // vtable[3] → first slot after IUnknown methods
-        return ((delegate* unmanaged[Stdcall]<IReboundShellServer*, HRESULT>)(lpVtbl[3]))((IReboundShellServer*)Unsafe.AsPointer(ref this));
-    }
-}
-
-public class ReboundShellServerImpl : IReboundShellServer
-{
-    public HRESULT OpenRunBox()
-    {
-        Program._actions.Add(() => App.ShowRunWindow());
-        return HRESULT.S_OK;
-    }
-}
 
 //[ReboundApp("Rebound.ShellExperienceHost", "")]
 public partial class App : Application
@@ -63,22 +29,9 @@ public partial class App : Application
 
     private async void Run()
     {
-        unsafe
-        {
-            uint cookie;
-            Windows.Win32.ComPtr<IReboundShellServer> shellServer = default;
-
-            var hr = PInvoke.CoRegisterClassObject(
-                typeof(ReboundShellServerImpl).GUID,
-                (Windows.Win32.System.Com.IUnknown*)(shellServer.Get()),
-                (Windows.Win32.System.Com.CLSCTX)CLSCTX.CLSCTX_LOCAL_SERVER,
-                (Windows.Win32.System.Com.REGCLS)(REGCLS.REGCLS_MULTIPLEUSE | REGCLS.REGCLS_SUSPENDED),
-                out cookie);
-
-            if (hr.Failed) throw new COMException("CoRegisterClassObject failed", (int)hr);
-
-            PInvoke.CoResumeClassObjects();
-        }
+        var pipeServer = new TrustedPipeServer("REBOUND_SHELL");
+        _ = pipeServer.StartAsync();
+        pipeServer.MessageReceived += PipeServer_MessageReceived;
 
         ReboundPipeClient = new ReboundPipeClient();
         await ReboundPipeClient.ConnectAsync();
@@ -134,7 +87,19 @@ public partial class App : Application
         // Start your ReboundPipeClient
     }
 
-    public static void ShowRunWindow()
+    private async Task PipeServer_MessageReceived(string arg)
+    {
+        var parts = arg.Split("##");
+        if (parts[0] == "Shell::SpawnRunWindow")
+        {
+            var windowTitle = parts.Length > 1 ? parts[1].Trim() : "Run";
+            Program._actions.Add(() => ShowRunWindow(windowTitle));
+        }
+
+        return;
+    }
+
+    public static void ShowRunWindow(string title = "Run")
     {
         if (RunWindow is null)
         {
@@ -142,7 +107,7 @@ public partial class App : Application
             RunWindow.MoveAndResize(25, Display.GetAvailableRectForWindow(RunWindow.Handle).bottom - 265, 450, 240);
             RunWindow.AppWindowInitialized += (s, e) =>
             {
-                RunWindow.Title = "Run";
+                RunWindow.Title = title;
                 RunWindow.AppWindow?.SetIcon($"{AppContext.BaseDirectory}\\Assets\\RunBox.ico");
                 RunWindow.AppWindow?.TitleBar.ExtendsContentIntoTitleBar = true;
                 RunWindow.AppWindow?.TitleBar.ButtonBackgroundColor = Colors.Transparent;
@@ -158,8 +123,9 @@ public partial class App : Application
             RunWindow.XamlInitialized += (s, e) =>
             {
                 var frame = new Frame();
-                frame.Navigate(typeof(Run.RunWindow));
+                frame.Navigate(typeof(RunWindow));
                 RunWindow.Content = frame;
+                (frame.Content as RunWindow).WindowTitle.Text = title;
             };
             RunWindow.Create();
         }

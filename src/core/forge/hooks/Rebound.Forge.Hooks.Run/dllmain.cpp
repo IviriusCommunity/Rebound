@@ -5,8 +5,7 @@
 #include <stdio.h>
 #include "MinHook.h"
 #include <string>
-#include <combaseapi.h>
-#include <comdef.h> // For _com_error
+#include <tlhelp32.h>
 
 // --------------------------------------------
 // Typedefs
@@ -19,19 +18,6 @@ typedef int (WINAPI* RunFileDlg_t)(HWND, HICON, LPCWSTR, LPCWSTR, LPCWSTR, UINT)
 
 // Original function pointer
 static RunFileDlg_t g_originalRunFileDlg = nullptr;
-
-// {E7F6D0A3-1234-4567-89AB-1C2D3E4F5678}
-static const GUID IID_IReboundShellServer =
-{ 0xe7f6d0a3, 0x1234, 0x4567, {0x89, 0xab, 0x1c, 0x2d, 0x3e, 0x4f, 0x56, 0x78} };
-
-// {A1B2C3D4-5678-1234-ABCD-9876543210FE}
-static const GUID CLSID_ReboundShellServer =
-{ 0xa1b2c3d4, 0x5678, 0x1234, {0xab, 0xcd, 0x98, 0x76, 0x54, 0x32, 0x10, 0xfe} };
-
-struct IReboundShellServer : public IUnknown
-{
-    virtual HRESULT STDMETHODCALLTYPE OpenRunBox() = 0;
-};
 
 // --------------------------------------------
 // Forward declarations
@@ -64,24 +50,53 @@ std::string WideToUtf8(const wchar_t* wstr) {
     return result;
 }
 
-void QueueMessage(const wchar_t* msg) {
-    MsgNode* node = (MsgNode*)HeapAlloc(GetProcessHeap(), 0, sizeof(MsgNode));
-    if (!node) return;
+bool SendMessageToApp(const std::wstring& message)
+{
+    HANDLE hPipe = INVALID_HANDLE_VALUE;
 
-    node->link.Next = nullptr;
-    wcsncpy_s(node->msg, msg, _TRUNCATE);
+    // Try to connect to the named pipe, retry if not yet available
+    while (true)
+    {
+        hPipe = CreateFileW(
+            L"\\\\.\\pipe\\REBOUND_SHELL",  // Pipe name
+            GENERIC_WRITE,
+            0,
+            nullptr,
+            OPEN_EXISTING,
+            0,
+            nullptr
+        );
 
-    InterlockedPushEntrySList(&g_messageList, (PSLIST_ENTRY)node);
-    if (g_workerEvent) SetEvent(g_workerEvent);
+        if (hPipe != INVALID_HANDLE_VALUE)
+            break;
+
+        if (GetLastError() != ERROR_PIPE_BUSY)
+            return false; // pipe unavailable
+
+        // wait 50ms before retry
+        Sleep(50);
+    }
+
+    DWORD bytesWritten = 0;
+    std::string utf8Message;
+
+    // convert UTF-16 to UTF-8
+    int size_needed = WideCharToMultiByte(CP_UTF8, 0, message.c_str(), -1, nullptr, 0, nullptr, nullptr);
+    if (size_needed <= 0)
+    {
+        CloseHandle(hPipe);
+        return false;
+    }
+    utf8Message.resize(size_needed - 1); // exclude null terminator
+    WideCharToMultiByte(CP_UTF8, 0, message.c_str(), -1, utf8Message.data(), size_needed, nullptr, nullptr);
+
+    // append newline
+    utf8Message += "\n";
+
+    WriteFile(hPipe, utf8Message.data(), static_cast<DWORD>(utf8Message.size()), &bytesWritten, nullptr);
+    CloseHandle(hPipe);
+    return true;
 }
-
-void SendPipeMessage(const wchar_t* msg, HANDLE pipe) {
-    auto utf8 = WideToUtf8(msg);
-    DWORD written = 0;
-    WriteFile(pipe, utf8.data(), (DWORD)utf8.size(), &written, nullptr);
-}
-
-const char* kMessage = "Shell::SpawnRunWindow\n"; // simple literal UTF-8
 
 DWORD WINAPI WorkerThreadLoop(LPVOID) {
     HANDLE pipe = INVALID_HANDLE_VALUE;
@@ -159,54 +174,44 @@ bool InstallRunFileDlgHook() {
     return true;
 }
 
-// --------------------------------------------
-// MinHook hook for RunFileDlg
-// --------------------------------------------
-int WINAPI RunFileDlg_Hook(HWND hwnd, HICON icon, LPCWSTR path, LPCWSTR title, LPCWSTR prompt, UINT flags) {
-    HRESULT hr = CoInitializeEx(nullptr, COINIT_APARTMENTTHREADED);
-    if (FAILED(hr) && hr != RPC_E_CHANGED_MODE) {
-        OutputDebugStringA("CoInitializeEx failed");
-        return 0;
+bool IsReboundShellRunning()
+{
+    bool found = false;
+
+    HANDLE hSnapshot = CreateToolhelp32Snapshot(TH32CS_SNAPPROCESS, 0);
+    if (hSnapshot == INVALID_HANDLE_VALUE) return false;
+
+    PROCESSENTRY32 pe = {};
+    pe.dwSize = sizeof(PROCESSENTRY32);
+
+    if (Process32First(hSnapshot, &pe))
+    {
+        do
+        {
+            std::wstring exeName(pe.szExeFile);
+            if (exeName == L"Rebound Shell.exe")
+            {
+                found = true;
+                break;
+            }
+        } while (Process32Next(hSnapshot, &pe));
     }
 
-    IReboundShellServer* pServer = nullptr;
-    hr = CoCreateInstance(CLSID_ReboundShellServer, nullptr, CLSCTX_LOCAL_SERVER, IID_IReboundShellServer, (void**)&pServer);
-    if (SUCCEEDED(hr) && pServer) {
-        pServer->OpenRunBox();
-        pServer->Release();
-    }
-    else {
-        OutputDebugStringA("Failed to connect to ReboundShellServer COM");
-    }
-
-    if (SUCCEEDED(hr)) CoUninitialize();
-
-    //if (g_originalRunFileDlg) {
-    //    return g_originalRunFileDlg(hwnd, icon, path, title, prompt, flags);
-    //}
-
-    return 0;
+    CloseHandle(hSnapshot);
+    return found;
 }
 
-void RemoveRunFileDlgHook() {
-    MH_DisableHook(MH_ALL_HOOKS);
-    MH_Uninitialize();
-}
+int WINAPI RunFileDlg_Hook(HWND hwnd, HICON icon, LPCWSTR path, LPCWSTR title, LPCWSTR prompt, UINT flags)
+{
+    if (IsReboundShellRunning())
+    {
+        SendMessageToApp(L"Shell::SpawnRunWindow##" + std::wstring(title ? title : L""));
+        return 0; // skip original function
+    }
 
-// --------------------------------------------
-// Injector thread
-// --------------------------------------------
-DWORD WINAPI InjectorThread(LPVOID) {
-    g_workerEvent = CreateEvent(nullptr, FALSE, FALSE, nullptr);
-    if (!g_workerEvent) return 1;
-
-    InitializeSListHead(&g_messageList);
-
-    HANDLE hWorker = CreateThread(nullptr, 0, WorkerThreadStarter, nullptr, 0, nullptr);
-    if (hWorker) CloseHandle(hWorker);
-
-    if (!InstallRunFileDlgHook())
-        OutputDebugStringW(L"[Injector] Hook install failed");
+    // Failsafe: call the original if Rebound Shell isn't running
+    if (g_originalRunFileDlg)
+        return g_originalRunFileDlg(hwnd, icon, path, title, prompt, flags);
 
     return 0;
 }
@@ -226,16 +231,25 @@ DWORD WINAPI ProbeThread(LPVOID lpReserved)
     HWND hwnd = CreateWindowEx(
         0,
         L"ProbeWindowClass",
-        L"Hook Probe",
-        WS_OVERLAPPEDWINDOW,
-        CW_USEDEFAULT, CW_USEDEFAULT, 300, 200,
+        L"Rebound Shell Probe",
+        WS_OVERLAPPED | WS_CAPTION | WS_SYSMENU, // no maximize/minimize
+        CW_USEDEFAULT, CW_USEDEFAULT, 300, 100,
         nullptr, nullptr, GetModuleHandle(nullptr), nullptr
     );
 
     if (!hwnd)
         return 1;
 
+    // Create a simple static label
+    CreateWindowEx(
+        0, L"STATIC", L"Rebound Shell DLL injection successful!",
+        WS_CHILD | WS_VISIBLE | SS_CENTER,
+        10, 20, 280, 40,
+        hwnd, nullptr, GetModuleHandle(nullptr), nullptr
+    );
+
     ShowWindow(hwnd, SW_SHOW);
+    UpdateWindow(hwnd);
 
     // Simple message loop
     MSG msg;
@@ -252,10 +266,20 @@ DWORD WINAPI ProbeThread(LPVOID lpReserved)
 // DLL entry point
 // --------------------------------------------
 BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID) {
-    if (fdwReason == DLL_PROCESS_ATTACH) {
+
+    static HANDLE g_dllMutex = nullptr;
+
+    if (fdwReason == DLL_PROCESS_ATTACH){
+        g_dllMutex = CreateMutexW(nullptr, FALSE, L"Global\\ReboundShell_RunHook");
+        if (GetLastError() == ERROR_ALREADY_EXISTS)
+        {
+            // DLL already injected in this process
+            return FALSE;
+        }
+
         DisableThreadLibraryCalls(hinstDLL);
         CreateThread(nullptr, 0, HookThread, hinstDLL, 0, nullptr);
-        CreateThread(nullptr, 0, ProbeThread, nullptr, 0, nullptr); // << your probe window
+        //CreateThread(nullptr, 0, ProbeThread, nullptr, 0, nullptr);
     }
     else if (fdwReason == DLL_PROCESS_DETACH) {
         g_running = false;

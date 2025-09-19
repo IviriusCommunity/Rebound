@@ -182,9 +182,9 @@ public class ReboundPipeClient
     private Func<string, Task>? _onMessageReceived;
     private CancellationTokenSource? _cts;
 
-    public async Task ConnectAsync(CancellationToken cancellationToken = default)
+    public async Task ConnectAsync(CancellationToken cancellationToken = default, string name = "REBOUND_SERVICE_HOST")
     {
-        _pipeClient = new NamedPipeClientStream(".", "REBOUND_SERVICE_HOST", PipeDirection.InOut, PipeOptions.Asynchronous);
+        _pipeClient = new NamedPipeClientStream(".", name, PipeDirection.InOut, PipeOptions.Asynchronous);
         await _pipeClient.ConnectAsync(cancellationToken).ConfigureAwait(false);
     }
 
