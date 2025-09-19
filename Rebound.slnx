@@ -84,6 +84,9 @@
       <Platform Project="x64" />
       <Deploy />
     </Project>
+    <Project Path="src/system/Rebound.Launcher/Rebound.Launcher.vcxproj" Id="d771123e-cef3-4055-8a95-9c9930e06cd3">
+      <Platform Solution="*|ARM64" Project="x64" />
+    </Project>
     <Project Path="src/system/Rebound.ServiceHost/Rebound.ServiceHost.csproj">
       <Platform Project="x64" />
       <Deploy />
