@@ -78,10 +78,21 @@ struct Button {
     bool hovered = false;
     bool pressed = false;
 
+    Color currentBg;   // current background color for transition
+    Color targetBg;    // target background color
+
     bool HitTest(POINT pt) const {
         return PtInRect(&rect, pt) != FALSE;
     }
 };
+
+Color LerpColor(const Color& a, const Color& b, float t) {
+    BYTE r = (BYTE)(a.GetR() + (b.GetR() - a.GetR()) * t);
+    BYTE g = (BYTE)(a.GetG() + (b.GetG() - a.GetG()) * t);
+    BYTE b_ = (BYTE)(a.GetB() + (b.GetB() - a.GetB()) * t);
+    BYTE a_ = (BYTE)(a.GetA() + (b.GetA() - a.GetA()) * t);
+    return Color(a_, r, g, b_);
+}
 
 static std::vector<Button> g_buttons;
 
@@ -115,7 +126,7 @@ void DrawButton(Graphics& g, const Button& btn, REAL radius = 4.0f) {
     path.AddArc(rectF.X, rectF.GetBottom() - radius * 2, radius * 2, radius * 2, 90, 90);
     path.CloseFigure();
 
-    SolidBrush brush(bg);
+    SolidBrush brush(btn.currentBg);
     g.FillPath(&brush, &path);
 
     Pen pen(colors.border, 1.0f);
@@ -136,12 +147,40 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam) {
 
     switch (msg) {
     case WM_CREATE: {
-        // Define buttons
-        g_buttons = {
-            { L"Open Rebound", {12, 12, 132, 44} },
-            { L"Open Original", {140, 12, 260, 44} }
-        };
+        ButtonColors colors = GetButtonColors(IsDarkMode());
+
+        g_buttons.emplace_back();
+        g_buttons.back().text = L"Open Rebound";
+        g_buttons.back().rect = { 12, 12, 132, 44 };
+        g_buttons.back().currentBg = colors.bgNormal;
+        g_buttons.back().targetBg = colors.bgNormal;
+
+        g_buttons.emplace_back();
+        g_buttons.back().text = L"Open Original";
+        g_buttons.back().rect = { 140, 12, 260, 44 };
+        g_buttons.back().currentBg = colors.bgNormal;
+        g_buttons.back().targetBg = colors.bgNormal;
+        SetTimer(hWnd, 1, 16, NULL); // ~60 FPS updates
         return 0;
+    }
+
+    case WM_TIMER: {
+        bool needRedraw = false;
+        float step = 0.016f / 0.083f; // fraction per tick
+        for (auto& btn : g_buttons) {
+            ButtonColors colors = GetButtonColors(IsDarkMode());
+            Color desiredBg;
+            if (btn.pressed) desiredBg = colors.bgPressed;
+            else if (btn.hovered) desiredBg = colors.bgHover;
+            else desiredBg = colors.bgNormal;
+
+            btn.targetBg = desiredBg;
+            btn.currentBg = LerpColor(btn.currentBg, btn.targetBg, step);
+
+            if (btn.currentBg.GetValue() != btn.targetBg.GetValue()) needRedraw = true;
+        }
+        if (needRedraw) InvalidateRect(hWnd, nullptr, FALSE);
+        break;
     }
 
     case WM_PAINT: {
