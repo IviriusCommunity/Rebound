@@ -71,18 +71,42 @@ ButtonColors GetButtonColors(bool darkMode) {
     }
 }
 
-// ----- BUTTON STRUCTURE -----
+enum class HAlign {
+    Left,
+    Center,
+    Right,
+    Stretch
+};
+
+enum class VAlign {
+    Top,
+    Center,
+    Bottom,
+    Stretch
+};
+
+struct Margins {
+    float left;
+    float top;
+    float right;
+    float bottom;
+};
+
 struct Button {
     std::wstring text;
     RECT rect;
+    float width;
+    float height;
+    HAlign hAlign;   // horizontal alignment
+    VAlign vAlign;   // vertical alignment
+    Margins margin;  // per-side spacing
     bool hovered = false;
     bool pressed = false;
-
-    Color currentBg;   // current background color for transition
-    Color targetBg;    // target background color
+    Color currentBg;
+    Color targetBg;
 
     bool HitTest(POINT pt) const {
-        return PtInRect(&rect, pt) != FALSE;
+        return PtInRect(&rect, pt);
     }
 };
 
@@ -95,9 +119,56 @@ Color LerpColor(const Color& a, const Color& b, float t) {
 }
 
 static std::vector<Button> g_buttons;
+static int g_focusedButton = -1;
+static int g_mouseDownButton = -1;
+
+void UpdateButtonLayout(Button& btn, const Size& windowSize) {
+    float x = 0, y = 0;
+    float w = btn.width;
+    float h = btn.height;
+
+    // Horizontal alignment
+    switch (btn.hAlign) {
+    case HAlign::Left:
+        x = btn.margin.left;
+        break;
+    case HAlign::Right:
+        x = windowSize.Width - w - btn.margin.right;
+        break;
+    case HAlign::Center:
+        x = (windowSize.Width - w) / 2.0f;
+        break;
+    case HAlign::Stretch:
+        x = btn.margin.left;
+        w = windowSize.Width - btn.margin.left - btn.margin.right;
+        break;
+    }
+
+    // Vertical alignment
+    switch (btn.vAlign) {
+    case VAlign::Top:
+        y = btn.margin.top;
+        break;
+    case VAlign::Bottom:
+        y = windowSize.Height - h - btn.margin.bottom;
+        break;
+    case VAlign::Center:
+        y = (windowSize.Height - h) / 2.0f;
+        break;
+    case VAlign::Stretch:
+        y = btn.margin.top;
+        h = windowSize.Height - btn.margin.top - btn.margin.bottom;
+        break;
+    }
+
+    btn.rect.left = (LONG)x;
+    btn.rect.top = (LONG)y;
+    btn.rect.right = (LONG)(x + w);
+    btn.rect.bottom = (LONG)(y + h);
+}
 
 // ----- DRAWING LOGIC -----
-void DrawButton(Graphics& g, const Button& btn, REAL radius = 4.0f) {
+void DrawButton(Graphics& g, const Button& btn, int btnIndex, REAL radius = 4.0f) {
     bool darkMode = IsDarkMode();
     ButtonColors colors = GetButtonColors(darkMode);
 
@@ -132,6 +203,53 @@ void DrawButton(Graphics& g, const Button& btn, REAL radius = 4.0f) {
     Pen pen(colors.border, 1.0f);
     g.DrawPath(&pen, &path);
 
+    // Draw focus rectangle if this button has keyboard focus
+    if ((int)btnIndex == g_focusedButton) {
+        // Outer white border (2px)
+        float outerPenWidth = 2.0f;
+        float outerRadius = 4.0f; // corner radius
+        RectF outerRect(
+            (REAL)btn.rect.left - outerPenWidth + 0.5f,
+            (REAL)btn.rect.top - outerPenWidth + 0.5f,
+            (REAL)(btn.rect.right - btn.rect.left + 2 * outerPenWidth - 1),
+            (REAL)(btn.rect.bottom - btn.rect.top + 2 * outerPenWidth - 1)
+        );
+
+        GraphicsPath outerPath;
+        outerPath.AddArc(outerRect.X + outerPenWidth / 2, outerRect.Y + outerPenWidth / 2,
+            outerRadius * 2, outerRadius * 2, 180.0f, 90.0f);
+        outerPath.AddArc(outerRect.GetRight() - outerRadius * 2 - outerPenWidth / 2, outerRect.Y + outerPenWidth / 2,
+            outerRadius * 2, outerRadius * 2, 270.0f, 90.0f);
+        outerPath.AddArc(outerRect.GetRight() - outerRadius * 2 - outerPenWidth / 2, outerRect.GetBottom() - outerRadius * 2 - outerPenWidth / 2,
+            outerRadius * 2, outerRadius * 2, 0.0f, 90.0f);
+        outerPath.AddArc(outerRect.X + outerPenWidth / 2, outerRect.GetBottom() - outerRadius * 2 - outerPenWidth / 2,
+            outerRadius * 2, outerRadius * 2, 90.0f, 90.0f);
+        outerPath.CloseFigure();
+
+        Pen whitePen(Color(255, 255, 255, 255), outerPenWidth);
+        g.DrawPath(&whitePen, &outerPath);
+
+        // Inner black border (1px)
+        float innerPenWidth = 1.0f;
+        float innerRadius = 2.0f; // corner radius
+        RectF innerRect = outerRect;
+        innerRect.Inflate(-outerPenWidth, -outerPenWidth);
+
+        GraphicsPath innerPath;
+        innerPath.AddArc(innerRect.X + innerPenWidth / 2, innerRect.Y + innerPenWidth / 2,
+            innerRadius * 2, innerRadius * 2, 180.0f, 90.0f);
+        innerPath.AddArc(innerRect.GetRight() - innerRadius * 2 - innerPenWidth / 2, innerRect.Y + innerPenWidth / 2,
+            innerRadius * 2, innerRadius * 2, 270.0f, 90.0f);
+        innerPath.AddArc(innerRect.GetRight() - innerRadius * 2 - innerPenWidth / 2, innerRect.GetBottom() - innerRadius * 2 - innerPenWidth / 2,
+            innerRadius * 2, innerRadius * 2, 0.0f, 90.0f);
+        innerPath.AddArc(innerRect.X + innerPenWidth / 2, innerRect.GetBottom() - innerRadius * 2 - innerPenWidth / 2,
+            innerRadius * 2, innerRadius * 2, 90.0f, 90.0f);
+        innerPath.CloseFigure();
+
+        Pen blackPen(Color(255, 0, 0, 0), innerPenWidth);
+        g.DrawPath(&blackPen, &innerPath);
+    }
+
     FontFamily fontFamily(L"Segoe UI");
     Font font(&fontFamily, 12.0f, FontStyleRegular, UnitPixel);
     StringFormat sf;
@@ -143,24 +261,33 @@ void DrawButton(Graphics& g, const Button& btn, REAL radius = 4.0f) {
 
 // ----- WINDOW PROC -----
 LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam) {
-    static bool mouseDown = false;
-
     switch (msg) {
     case WM_CREATE: {
         ButtonColors colors = GetButtonColors(IsDarkMode());
 
         g_buttons.emplace_back();
-        g_buttons.back().text = L"Open Rebound";
-        g_buttons.back().rect = { 12, 12, 132, 44 };
-        g_buttons.back().currentBg = colors.bgNormal;
-        g_buttons.back().targetBg = colors.bgNormal;
+        auto& b1 = g_buttons.back();
+        b1.text = L"Open Rebound Hub";
+        b1.width = 160;
+        b1.height = 32;
+        b1.hAlign = HAlign::Right;
+        b1.vAlign = VAlign::Bottom;
+        b1.margin = { 0, 0, 190, 24 };
+        b1.currentBg = colors.bgNormal;
+        b1.targetBg = colors.bgNormal;
 
         g_buttons.emplace_back();
-        g_buttons.back().text = L"Open Original";
-        g_buttons.back().rect = { 140, 12, 260, 44 };
-        g_buttons.back().currentBg = colors.bgNormal;
-        g_buttons.back().targetBg = colors.bgNormal;
-        SetTimer(hWnd, 1, 16, NULL); // ~60 FPS updates
+        auto& b2 = g_buttons.back();
+        b2.text = L"Close";
+        b2.width = 160;
+        b2.height = 32;
+        b2.hAlign = HAlign::Right;
+        b2.vAlign = VAlign::Bottom;
+        b2.margin = { 0, 0, 24, 24 }; 
+        b2.currentBg = colors.bgNormal;
+        b2.targetBg = colors.bgNormal;
+
+        SetTimer(hWnd, 1, 16, NULL);
         return 0;
     }
 
@@ -192,7 +319,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam) {
         int width = rc.right - rc.left;
         int height = rc.bottom - rc.top;
 
-        // Create a compatible DC and bitmap
+        // Double buffering
         HDC memDC = CreateCompatibleDC(hdc);
         HBITMAP memBmp = CreateCompatibleBitmap(hdc, width, height);
         SelectObject(memDC, memBmp);
@@ -210,14 +337,13 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam) {
         g.FillRectangle(&brush, barRect);
 
         // Draw buttons
-        for (const Button& btn : g_buttons) {
-            DrawButton(g, btn);
+        for (size_t i = 0; i < g_buttons.size(); i++) {
+            UpdateButtonLayout(g_buttons[i], Size(width, height));
+            DrawButton(g, g_buttons[i], (int)i);
         }
 
-        // Blit to screen
         BitBlt(hdc, 0, 0, width, height, memDC, 0, 0, SRCCOPY);
 
-        // Cleanup
         DeleteObject(memBmp);
         DeleteDC(memDC);
 
@@ -228,42 +354,87 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam) {
     case WM_MOUSEMOVE: {
         POINT pt = { GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam) };
         bool needRedraw = false;
-        for (auto& btn : g_buttons) {
-            bool wasHover = btn.hovered;
-            btn.hovered = btn.HitTest(pt);
-            if (btn.hovered != wasHover) needRedraw = true;
+        for (size_t i = 0; i < g_buttons.size(); i++) {
+            bool wasHover = g_buttons[i].hovered;
+            g_buttons[i].hovered = g_buttons[i].HitTest(pt);
+
+            // Only keep pressed if the mouse is over this button
+            if (g_mouseDownButton == (int)i) {
+                if (g_buttons[i].hovered) {
+                    g_buttons[i].pressed = true;   // pressed if still inside
+                }
+                else {
+                    g_buttons[i].pressed = false;  // back to normal when outside
+                }
+            }
+
+            if (wasHover != g_buttons[i].hovered)
+                needRedraw = true;
         }
         if (needRedraw) InvalidateRect(hWnd, nullptr, TRUE);
         break;
     }
 
+    case WM_MOUSELEAVE: {
+        for (auto& btn : g_buttons) {
+            btn.hovered = false;
+            btn.pressed = false;
+        }
+        g_mouseDownButton = -1;
+        InvalidateRect(hWnd, nullptr, TRUE);
+        break;
+    }
+
     case WM_LBUTTONDOWN: {
         POINT pt = { GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam) };
-        for (auto& btn : g_buttons) {
-            btn.pressed = btn.HitTest(pt);
+        g_mouseDownButton = -1;
+        g_focusedButton = -1; // clear keyboard focus when mouse is used
+        for (size_t i = 0; i < g_buttons.size(); i++) {
+            if (g_buttons[i].HitTest(pt)) {
+                g_buttons[i].pressed = true;
+                g_mouseDownButton = (int)i;
+                break;
+            }
         }
-        mouseDown = true;
         InvalidateRect(hWnd, nullptr, TRUE);
         break;
     }
 
     case WM_LBUTTONUP: {
         POINT pt = { GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam) };
-        for (auto& btn : g_buttons) {
-            if (btn.pressed && btn.HitTest(pt)) {
-                // Button clicked
-                MessageBox(hWnd, btn.text.c_str(), L"Clicked", MB_OK);
-            }
-            btn.pressed = false;
+        if (g_mouseDownButton >= 0 && g_buttons[g_mouseDownButton].HitTest(pt)) {
+            MessageBox(hWnd, g_buttons[g_mouseDownButton].text.c_str(), L"Clicked", MB_OK);
         }
-        mouseDown = false;
+
+        for (auto& btn : g_buttons)
+            btn.pressed = false;
+        g_mouseDownButton = -1;
         InvalidateRect(hWnd, nullptr, TRUE);
         break;
     }
 
-    case WM_MOUSELEAVE: {
-        for (auto& btn : g_buttons) btn.hovered = false;
-        InvalidateRect(hWnd, nullptr, TRUE);
+    case WM_KEYDOWN: {
+        if (g_focusedButton == -1 && !g_buttons.empty())
+            g_focusedButton = 0;
+
+        switch (wParam) {
+        case VK_TAB:
+        case VK_RIGHT:
+        case VK_DOWN:
+            g_focusedButton = (g_focusedButton + 1) % g_buttons.size();
+            InvalidateRect(hWnd, nullptr, TRUE);
+            break;
+        case VK_LEFT:
+        case VK_UP:
+            g_focusedButton = (g_focusedButton - 1 + g_buttons.size()) % g_buttons.size();
+            InvalidateRect(hWnd, nullptr, TRUE);
+            break;
+        case VK_RETURN:
+        case VK_SPACE:
+            if (g_focusedButton >= 0)
+                MessageBox(hWnd, g_buttons[g_focusedButton].text.c_str(), L"Clicked", MB_OK);
+            break;
+        }
         break;
     }
 
@@ -272,7 +443,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam) {
         break;
 
     case WM_ERASEBKGND:
-        return 1; // avoid flicker
+        return 1;
 
     case WM_DESTROY:
         PostQuitMessage(0);
