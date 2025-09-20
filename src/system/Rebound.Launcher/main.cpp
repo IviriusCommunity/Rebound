@@ -402,7 +402,7 @@ void DrawButtonBase(Graphics& g, const Button& btn, int btnIndex, REAL radius) {
 
     // Draw text
     FontFamily fontFamily(L"Segoe UI");
-    Font font(&fontFamily, 12.0f, FontStyleRegular, UnitPixel);
+    Font font(&fontFamily, 14.0f, FontStyleRegular, UnitPixel);
     StringFormat sf;
     sf.SetAlignment(StringAlignmentCenter);
     sf.SetLineAlignment(StringAlignmentCenter);
@@ -461,7 +461,68 @@ void UpdateButtonLayout(Button& btn, const Size& windowSize) {
     btn.rect.bottom = (LONG)(y + h);
 }
 
+struct Label {
+    std::wstring text;
+    RECT rect{};
+    float width = 0, height = 0;
+    HAlign hAlign = HAlign::Left;
+    VAlign vAlign = VAlign::Top;
+    Margins margin{ 0,0,0,0 };
+
+    float fontSize = 12.0f;
+    bool semibold = false;
+
+    virtual ~Label() = default;
+
+    virtual void Draw(Graphics& g, const Color& themeColor) const {
+        RectF rectF((REAL)rect.left, (REAL)rect.top,
+            (REAL)(rect.right - rect.left),
+            (REAL)(rect.bottom - rect.top));
+
+        FontFamily fontFamily(L"Segoe UI");
+        INT style = semibold ? FontStyleBold : FontStyleRegular;
+        Font font(&fontFamily, fontSize, style, UnitPixel);
+
+        StringFormat sf;
+        sf.SetAlignment(StringAlignmentNear);
+        sf.SetLineAlignment(StringAlignmentNear);
+        sf.SetFormatFlags(StringFormatFlagsLineLimit); // wrap text
+        sf.SetTrimming(StringTrimmingWord);
+
+        SolidBrush brush(themeColor);
+        g.DrawString(text.c_str(), -1, &font, rectF, &sf, &brush);
+    }
+
+    void UpdateLayout(const Size& windowSize) {
+        float x = margin.left;
+        float y = margin.top;
+        float w = width;
+        float h = height;
+
+        switch (hAlign) {
+        case HAlign::Center: x = (windowSize.Width - w) / 2.0f; break;
+        case HAlign::Right:  x = windowSize.Width - w - margin.right; break;
+        case HAlign::Stretch: w = windowSize.Width - margin.left - margin.right; break;
+        default: break;
+        }
+
+        switch (vAlign) {
+        case VAlign::Center: y = (windowSize.Height - h) / 2.0f; break;
+        case VAlign::Bottom: y = windowSize.Height - h - margin.bottom; break;
+        case VAlign::Stretch: h = windowSize.Height - margin.top - margin.bottom; break;
+        default: break;
+        }
+
+        rect.left = (LONG)x;
+        rect.top = (LONG)y;
+        rect.right = (LONG)(x + w);
+        rect.bottom = (LONG)(y + h);
+    }
+};
+
 static ButtonManager g_btnMgr;
+
+static std::vector<std::unique_ptr<Label>> g_labels;
 
 // ----- WINDOW PROC -----
 LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam) {
@@ -472,6 +533,31 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam) {
             HAlign::Right, VAlign::Bottom, Margins{ 0,0,190,24 }));
         g_btnMgr.AddButton(std::make_unique<Button>(L"Close", 160, 32,
             HAlign::Right, VAlign::Bottom, Margins{ 0,0,24,24 }));
+
+        // Header label
+        auto header = std::make_unique<Label>();
+        header->text = L"Welcome to the Rebound IFEO Engine!";
+        header->fontSize = 20.0f;
+        header->semibold = true;
+        header->hAlign = HAlign::Stretch;
+        header->vAlign = VAlign::Top;
+        header->margin = { 24, 16, 24, 0 };
+        header->width = 250; // approximate wrapping width
+        header->height = 40;
+        g_labels.push_back(std::move(header));
+
+        // Sub-label
+        auto subLabel = std::make_unique<Label>();
+        subLabel->text = L"This tool helps you safely manage and launch the Rebound modding layer. It’s intended to be launched by other executables, not by users.";
+        subLabel->fontSize = 14.0f;
+        subLabel->semibold = false;
+        subLabel->hAlign = HAlign::Stretch;
+        subLabel->vAlign = VAlign::Top;
+        subLabel->margin = { 24, 60, 24, 0 };
+        subLabel->width = 250;
+        //subLabel->height = 32;
+        g_labels.push_back(std::move(subLabel));
+
         SetTimer(hWnd, 1, 16, NULL);
         return 0;
     }
@@ -496,6 +582,13 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam) {
         SolidBrush brush(colors.bgNormal);  // create named object
         g.FillRectangle(&brush, RectF(0, (REAL)(height - 80), (REAL)width, 80.0f));
 
+        // Labels
+        for (auto& lbl : g_labels) {
+            lbl->UpdateLayout(Size(width, height));
+            lbl->Draw(g, GetButtonColors(IsDarkMode()).textNormal);
+        }
+
+        // Buttons
         g_btnMgr.DrawAll(g, Size(width, height));
         BitBlt(hdc, 0, 0, width, height, memDC, 0, 0, SRCCOPY);
 
@@ -561,9 +654,9 @@ int WINAPI WinMain(HINSTANCE hInst, HINSTANCE, LPSTR, int) {
     wc.hCursor = LoadCursor(NULL, IDC_ARROW);
     RegisterClassEx(&wc);
 
-    HWND hwnd = CreateWindowEx(0, CLASS_NAME, L"Rebound - selector",
+    HWND hwnd = CreateWindowEx(0, CLASS_NAME, L"Rebound IFEO Engine",
         WS_OVERLAPPEDWINDOW & ~WS_MAXIMIZEBOX,
-        CW_USEDEFAULT, CW_USEDEFAULT, 300, 110,
+        CW_USEDEFAULT, CW_USEDEFAULT, 520, 252,
         NULL, NULL, hInst, NULL);
 
     ShowWindow(hwnd, SW_SHOW);
