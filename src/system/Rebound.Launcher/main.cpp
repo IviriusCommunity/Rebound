@@ -8,7 +8,9 @@
 #include <algorithm>
 #include <memory>
 #include <windowsx.h>
+#include <dwmapi.h>
 
+#pragma comment(lib, "dwmapi.lib")
 #pragma comment(lib, "Comctl32.lib")
 #pragma comment(lib, "gdiplus.lib")
 
@@ -524,11 +526,19 @@ static ButtonManager g_btnMgr;
 
 static std::vector<std::unique_ptr<Label>> g_labels;
 
+void SetWindowDarkMode(HWND hWnd, bool dark)
+{
+    const DWORD useDark = dark ? 1 : 0;
+    DwmSetWindowAttribute(hWnd, 20 /*DWMWA_USE_IMMERSIVE_DARK_MODE*/, &useDark, sizeof(useDark));
+}
+
 // ----- WINDOW PROC -----
 LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam) {
     switch (msg) {
     case WM_CREATE:
     {
+        SetWindowDarkMode(hWnd, IsDarkMode());
+
         g_btnMgr.AddButton(std::make_unique<AccentButton>(L"Open Rebound Hub", 160, 32,
             HAlign::Right, VAlign::Bottom, Margins{ 0,0,190,24 }));
         g_btnMgr.AddButton(std::make_unique<Button>(L"Close", 160, 32,
@@ -536,7 +546,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam) {
 
         // Header label
         auto header = std::make_unique<Label>();
-        header->text = L"Welcome to the Rebound IFEO Engine!";
+        header->text = L"Welcome to the Rebound Launcher!";
         header->fontSize = 20.0f;
         header->semibold = true;
         header->hAlign = HAlign::Stretch;
@@ -654,7 +664,7 @@ int WINAPI WinMain(HINSTANCE hInst, HINSTANCE, LPSTR, int) {
     wc.hCursor = LoadCursor(NULL, IDC_ARROW);
     RegisterClassEx(&wc);
 
-    HWND hwnd = CreateWindowEx(0, CLASS_NAME, L"Rebound IFEO Engine",
+    HWND hwnd = CreateWindowEx(0, CLASS_NAME, L"Rebound Launcher",
         WS_OVERLAPPEDWINDOW & ~WS_MAXIMIZEBOX,
         CW_USEDEFAULT, CW_USEDEFAULT, 520, 252,
         NULL, NULL, hInst, NULL);
