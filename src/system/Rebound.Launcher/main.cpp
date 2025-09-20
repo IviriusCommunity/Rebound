@@ -5,6 +5,8 @@
 #include <gdiplus.h>
 #include <string>
 #include <vector>
+#include <algorithm>
+#include <memory>
 #include <windowsx.h>
 
 #pragma comment(lib, "Comctl32.lib")
@@ -14,6 +16,21 @@ using namespace Gdiplus;
 
 const wchar_t CLASS_NAME[] = L"ReboundWrapperClass";
 HFONT g_hFont;
+
+enum class HAlign { Left, Center, Right, Stretch };
+enum class VAlign { Top, Center, Bottom, Stretch };
+
+struct Margins { float left, top, right, bottom; };
+
+struct ButtonColors {
+    Color bgNormal;
+    Color bgHover;
+    Color bgPressed;
+    Color border;
+    Color textNormal;
+    Color textHover;
+    Color textPressed;
+};
 
 // ----- THEMING LOGIC -----
 bool IsDarkMode() {
@@ -36,15 +53,20 @@ Color HslaToColor(float h, float s, float l, float a) {
     return Color(alpha, lum, lum, lum);
 }
 
-struct ButtonColors {
-    Color bgNormal;
-    Color bgHover;
-    Color bgPressed;
+struct ButtonDrawColors {
+    Color bg;
+    Color text;
+    bool hasBorder;
     Color border;
-    Color textNormal;
-    Color textHover;
-    Color textPressed;
 };
+
+Color LerpColor(const Color& a, const Color& b, float t) {
+    BYTE r = (BYTE)(a.GetR() + (b.GetR() - a.GetR()) * t);
+    BYTE g = (BYTE)(a.GetG() + (b.GetG() - a.GetG()) * t);
+    BYTE b_ = (BYTE)(a.GetB() + (b.GetB() - a.GetB()) * t);
+    BYTE a_ = (BYTE)(a.GetA() + (b.GetA() - a.GetA()) * t);
+    return Color(a_, r, g, b_);
+}
 
 ButtonColors GetButtonColors(bool darkMode) {
     if (darkMode) {
@@ -71,56 +93,328 @@ ButtonColors GetButtonColors(bool darkMode) {
     }
 }
 
-enum class HAlign {
-    Left,
-    Center,
-    Right,
-    Stretch
-};
+Color AdjustLuminance(const Color& c, float factor);
+Color LerpColor(const Color& a, const Color& b, float t);
+Color ToGrayscale(const Color& c, float amount);
+float GetRelativeLuminance(const Color& c);
+bool IsDarkMode();
 
-enum class VAlign {
-    Top,
-    Center,
-    Bottom,
-    Stretch
-};
+// Increase saturation by factor (>1)
+Color IncreaseSaturation(const Color& c, float factor) {
+    BYTE a = c.GetA();
+    float r = c.GetR() / 255.0f;
+    float g = c.GetG() / 255.0f;
+    float b = c.GetB() / 255.0f;
 
-struct Margins {
-    float left;
-    float top;
-    float right;
-    float bottom;
-};
+    // Compute gray (average)
+    float gray = (r + g + b) / 3.0f;
+
+    // Move each channel away from gray by factor
+    r = gray + (r - gray) * factor;
+    g = gray + (g - gray) * factor;
+    b = gray + (b - gray) * factor;
+
+    // Clamp
+    r = std::clamp(r, 0.0f, 1.0f);
+    g = std::clamp(g, 0.0f, 1.0f);
+    b = std::clamp(b, 0.0f, 1.0f);
+
+    return Color(a, (BYTE)(r * 255.0f), (BYTE)(g * 255.0f), (BYTE)(b * 255.0f));
+}
+
+struct Button;
+
+ButtonDrawColors GetButtonColorsForDraw(const Button& btn);
+void DrawButtonBase(Graphics& g, const Button& btn, int btnIndex, REAL radius = 4.0f);
+void UpdateButtonLayout(Button& btn, const Size& windowSize);
 
 struct Button {
     std::wstring text;
-    RECT rect;
-    float width;
-    float height;
-    HAlign hAlign;   // horizontal alignment
-    VAlign vAlign;   // vertical alignment
-    Margins margin;  // per-side spacing
+    RECT rect{};
+    float width = 0, height = 0;
+    HAlign hAlign = HAlign::Center;
+    VAlign vAlign = VAlign::Center;
+    Margins margin{ 0,0,0,0 };
+
     bool hovered = false;
     bool pressed = false;
-    Color currentBg;
-    Color targetBg;
 
-    bool HitTest(POINT pt) const {
-        return PtInRect(&rect, pt);
+    Color currentBg{};
+    Color targetBg{};
+
+    Button() = default;
+    Button(const std::wstring& t, float w_, float h_,
+        HAlign ha, VAlign va, Margins m)
+        : text(t), width(w_), height(h_), hAlign(ha), vAlign(va), margin(m) {
+    }
+
+    virtual ~Button() = default;
+
+    virtual ButtonColors GetColors(bool darkMode) const {
+        return ::GetButtonColors(darkMode);
+    }
+
+    virtual void Draw(Graphics& g, int btnIndex) const {
+        auto drawColors = GetButtonColorsForDraw(*this);
+        DrawButtonBase(g, *this, btnIndex, 4.0f);
+    }
+
+    virtual bool HitTest(POINT pt) const { return PtInRect(&rect, pt); }
+
+    virtual void UpdateLayout(const Size& windowSize) {
+        UpdateButtonLayout(*this, windowSize);
     }
 };
 
-Color LerpColor(const Color& a, const Color& b, float t) {
-    BYTE r = (BYTE)(a.GetR() + (b.GetR() - a.GetR()) * t);
-    BYTE g = (BYTE)(a.GetG() + (b.GetG() - a.GetG()) * t);
-    BYTE b_ = (BYTE)(a.GetB() + (b.GetB() - a.GetB()) * t);
-    BYTE a_ = (BYTE)(a.GetA() + (b.GetA() - a.GetA()) * t);
-    return Color(a_, r, g, b_);
+struct AccentButton : public Button {
+    using Button::Button;
+
+    virtual ButtonColors GetColors(bool darkMode) const override {
+        DWORD accentRGB = 0;
+        DWORD size = sizeof(accentRGB);
+        if (RegGetValueW(HKEY_CURRENT_USER,
+            L"Software\\Microsoft\\Windows\\DWM",
+            L"AccentColor", RRF_RT_REG_DWORD, nullptr,
+            &accentRGB, &size) != ERROR_SUCCESS) {
+            accentRGB = 0xFF0078D7; // fallback
+        }
+
+        BYTE a = (accentRGB >> 24) & 0xFF;
+        BYTE r = (accentRGB >> 0) & 0xFF;
+        BYTE g = (accentRGB >> 8) & 0xFF;
+        BYTE b = (accentRGB >> 16) & 0xFF;
+        Color baseAccent(a, r, g, b);
+
+        Color normal = darkMode ? IncreaseSaturation(AdjustLuminance(baseAccent, 1.6f), 0.9f)
+            : IncreaseSaturation(AdjustLuminance(baseAccent, 0.6f), 1.4f);
+        Color hover = LerpColor(normal, Color(255, 255, 255, 255), 0.05f);
+        Color pressed = ToGrayscale(normal, 0.2f);
+        Color text = darkMode ? Color(255, 0, 0, 0) : Color(255, 255, 255, 255);
+        Color textPressed = darkMode ? Color(160, 0, 0, 0) : Color(160, 255, 255, 255);
+
+        return { normal, hover, pressed, Color(0,0,0,0), text, text, textPressed };
+    }
+};
+
+
+ButtonDrawColors GetButtonColorsForDraw(const Button& btn)
+{
+    bool darkMode = IsDarkMode();
+    ButtonColors colors = btn.GetColors(darkMode); // <-- polymorphic call!
+
+    Color text;
+    bool hasBorder = true;
+
+    Color target;
+    if (btn.pressed) {
+        target = colors.bgPressed;
+        text = colors.textPressed;
+    }
+    else if (btn.hovered) {
+        target = colors.bgHover;
+        text = colors.textHover;
+    }
+    else {
+        target = colors.bgNormal;
+        text = colors.textNormal;
+    }
+
+    // Lerp currentBg toward target for smooth animation
+    float t = 0.083f; // tweak speed
+    const_cast<Button&>(btn).currentBg = LerpColor(btn.currentBg, target, t);
+
+    // If this is an AccentButton, we don't want a border
+    if (dynamic_cast<const AccentButton*>(&btn))
+        hasBorder = false;
+
+    return { target, text, hasBorder, colors.border };
+}
+
+struct ButtonManager {
+    std::vector<std::unique_ptr<Button>> buttons;
+    int focusedButton = -1;
+    int mouseDownButton = -1;
+
+    void AddButton(std::unique_ptr<Button> btn) {
+        buttons.push_back(std::move(btn)); // take ownership
+    }
+
+    Button* GetButton(size_t i) {
+        return buttons[i].get(); // return raw pointer if needed
+    }
+
+    void DrawAll(Graphics& g, const Size& winSize) {
+        for (size_t i = 0; i < buttons.size(); i++) {
+            buttons[i]->UpdateLayout(winSize);
+            buttons[i]->Draw(g, (int)i);
+        }
+    }
+
+    bool HandleMouseMove(POINT pt) {
+        bool needRedraw = false;
+        for (size_t i = 0; i < buttons.size(); i++) {
+            bool wasHover = buttons[i]->hovered;
+            buttons[i]->hovered = buttons[i]->HitTest(pt);
+
+            if (mouseDownButton == (int)i)
+                buttons[i]->pressed = buttons[i]->hovered;
+
+            if (wasHover != buttons[i]->hovered)
+                needRedraw = true;
+        }
+        return needRedraw;
+    }
+
+    void HandleMouseDown(POINT pt) {
+        mouseDownButton = -1;
+        focusedButton = -1;
+        for (size_t i = 0; i < buttons.size(); i++) {
+            if (buttons[i]->HitTest(pt)) {
+                buttons[i]->pressed = true;
+                mouseDownButton = (int)i;
+                break;
+            }
+        }
+    }
+
+    void HandleMouseUp(POINT pt, HWND hWnd) {
+        if (mouseDownButton >= 0 && buttons[mouseDownButton]->HitTest(pt))
+            MessageBox(hWnd, buttons[mouseDownButton]->text.c_str(), L"Clicked", MB_OK);
+
+        for (auto& btn : buttons) btn->pressed = false;
+        mouseDownButton = -1;
+    }
+
+    void HandleKeyboard(WPARAM key, HWND hWnd) {
+        if (focusedButton == -1 && !buttons.empty())
+            focusedButton = 0;
+
+        switch (key) {
+        case VK_TAB:
+        case VK_RIGHT:
+        case VK_DOWN:
+            focusedButton = (focusedButton + 1) % buttons.size();
+            break;
+        case VK_LEFT:
+        case VK_UP:
+            focusedButton = (focusedButton - 1 + buttons.size()) % buttons.size();
+            break;
+        case VK_RETURN:
+        case VK_SPACE:
+            if (focusedButton >= 0)
+                MessageBox(hWnd, buttons[focusedButton]->text.c_str(), L"Clicked", MB_OK);
+            break;
+        }
+    }
+};
+
+
+Color GetSystemAccentColor() {
+    DWORD accentArgb = 0xFF0078D7; // fallback: default Win10 blue
+    HKEY hKey;
+    if (RegOpenKeyExW(HKEY_CURRENT_USER,
+        L"Software\\Microsoft\\Windows\\DWM", 0, KEY_READ, &hKey) == ERROR_SUCCESS)
+    {
+        DWORD size = sizeof(accentArgb);
+        RegQueryValueExW(hKey, L"AccentColor", nullptr, nullptr, (LPBYTE)&accentArgb, &size);
+        RegCloseKey(hKey);
+    }
+
+    BYTE a = (accentArgb >> 24) & 0xFF;
+    BYTE r = (accentArgb >> 16) & 0xFF;
+    BYTE g = (accentArgb >> 8) & 0xFF;
+    BYTE b = accentArgb & 0xFF;
+
+    return Color(a, r, g, b);
+}
+
+// Relative luminance calculation (per WCAG)
+float GetRelativeLuminance(const Color& c) {
+    auto channel = [](float v) {
+        v /= 255.0f;
+        return (v <= 0.03928f) ? (v / 12.92f) : powf((v + 0.055f) / 1.055f, 2.4f);
+        };
+    float R = channel((float)c.GetR());
+    float G = channel((float)c.GetG());
+    float B = channel((float)c.GetB());
+    return 0.2126f * R + 0.7152f * G + 0.0722f * B;
+}
+
+// Adjust brightness perceptually
+Color AdjustLuminance(const Color& c, float factor) {
+    // factor > 1.0 = lighter, factor < 1.0 = darker
+    float r = c.GetR() * factor;
+    float g = c.GetG() * factor;
+    float b = c.GetB() * factor;
+    r = max(0.0f, min(255.0f, r));
+    g = max(0.0f, min(255.0f, g));
+    b = max(0.0f, min(255.0f, b));
+    return Color(c.GetA(), (BYTE)r, (BYTE)g, (BYTE)b);
+}
+
+// Desaturate (convert towards grayscale)
+Color ToGrayscale(const Color& c, float amount) {
+    // amount = 0 -> original, 1 -> full grayscale
+    BYTE gray = (BYTE)(0.3f * c.GetR() + 0.59f * c.GetG() + 0.11f * c.GetB());
+    BYTE r = (BYTE)(c.GetR() * (1 - amount) + gray * amount);
+    BYTE g = (BYTE)(c.GetG() * (1 - amount) + gray * amount);
+    BYTE b = (BYTE)(c.GetB() * (1 - amount) + gray * amount);
+    return Color(c.GetA(), r, g, b);
 }
 
 static std::vector<Button> g_buttons;
 static int g_focusedButton = -1;
 static int g_mouseDownButton = -1;
+
+void DrawButtonBase(Graphics& g, const Button& btn, int btnIndex, REAL radius) {
+    auto colors = GetButtonColorsForDraw(btn);
+
+    // Determine rect
+    RectF rectF((REAL)btn.rect.left, (REAL)btn.rect.top,
+        (REAL)(btn.rect.right - btn.rect.left),
+        (REAL)(btn.rect.bottom - btn.rect.top));
+
+    // Accent button expansion
+    if (dynamic_cast<const AccentButton*>(&btn)) {
+        rectF.X -= 0.5f;
+		rectF.Y -= 0.5f;
+        rectF.Width += 1.0f;
+        rectF.Height += 1.0f;
+    }
+
+    // Rounded rect path
+    GraphicsPath path;
+    path.AddArc(rectF.X, rectF.Y, radius * 2, radius * 2, 180, 90);
+    path.AddArc(rectF.GetRight() - radius * 2, rectF.Y, radius * 2, radius * 2, 270, 90);
+    path.AddArc(rectF.GetRight() - radius * 2, rectF.GetBottom() - radius * 2, radius * 2, radius * 2, 0, 90);
+    path.AddArc(rectF.X, rectF.GetBottom() - radius * 2, radius * 2, radius * 2, 90, 90);
+    path.CloseFigure();
+
+    // Fill background
+    SolidBrush brush(colors.bg);
+    g.FillPath(&brush, &path);
+
+    // Draw border if needed
+    if (colors.hasBorder) {
+        Pen pen(colors.border, 1.0f);
+        g.DrawPath(&pen, &path);
+    }
+
+    // Draw text
+    FontFamily fontFamily(L"Segoe UI");
+    Font font(&fontFamily, 12.0f, FontStyleRegular, UnitPixel);
+    StringFormat sf;
+    sf.SetAlignment(StringAlignmentCenter);
+    sf.SetLineAlignment(StringAlignmentCenter);
+    SolidBrush textBrush(colors.text);
+    g.DrawString(btn.text.c_str(), -1, &font, rectF, &sf, &textBrush);
+
+    // Focus outline (optional)
+    if (btnIndex == g_focusedButton) {
+        Pen focusPen(Color(255, 255, 255, 255), 2.0f);
+        g.DrawPath(&focusPen, &path);
+    }
+}
 
 void UpdateButtonLayout(Button& btn, const Size& windowSize) {
     float x = 0, y = 0;
@@ -167,276 +461,68 @@ void UpdateButtonLayout(Button& btn, const Size& windowSize) {
     btn.rect.bottom = (LONG)(y + h);
 }
 
-// ----- DRAWING LOGIC -----
-void DrawButton(Graphics& g, const Button& btn, int btnIndex, REAL radius = 4.0f) {
-    bool darkMode = IsDarkMode();
-    ButtonColors colors = GetButtonColors(darkMode);
-
-    Color bg, text;
-    if (btn.pressed) {
-        bg = colors.bgPressed;
-        text = colors.textPressed;
-    }
-    else if (btn.hovered) {
-        bg = colors.bgHover;
-        text = colors.textHover;
-    }
-    else {
-        bg = colors.bgNormal;
-        text = colors.textNormal;
-    }
-
-    RectF rectF((REAL)btn.rect.left + 1, (REAL)btn.rect.top + 1,
-        (REAL)(btn.rect.right - btn.rect.left - 2),
-        (REAL)(btn.rect.bottom - btn.rect.top - 2));
-
-    GraphicsPath path;
-    path.AddArc(rectF.X, rectF.Y, radius * 2, radius * 2, 180, 90);
-    path.AddArc(rectF.GetRight() - radius * 2, rectF.Y, radius * 2, radius * 2, 270, 90);
-    path.AddArc(rectF.GetRight() - radius * 2, rectF.GetBottom() - radius * 2, radius * 2, radius * 2, 0, 90);
-    path.AddArc(rectF.X, rectF.GetBottom() - radius * 2, radius * 2, radius * 2, 90, 90);
-    path.CloseFigure();
-
-    SolidBrush brush(btn.currentBg);
-    g.FillPath(&brush, &path);
-
-    Pen pen(colors.border, 1.0f);
-    g.DrawPath(&pen, &path);
-
-    // Draw focus rectangle if this button has keyboard focus
-    if ((int)btnIndex == g_focusedButton) {
-        // Outer white border (2px)
-        float outerPenWidth = 2.0f;
-        float outerRadius = 4.0f; // corner radius
-        RectF outerRect(
-            (REAL)btn.rect.left - outerPenWidth + 0.5f,
-            (REAL)btn.rect.top - outerPenWidth + 0.5f,
-            (REAL)(btn.rect.right - btn.rect.left + 2 * outerPenWidth - 1),
-            (REAL)(btn.rect.bottom - btn.rect.top + 2 * outerPenWidth - 1)
-        );
-
-        GraphicsPath outerPath;
-        outerPath.AddArc(outerRect.X + outerPenWidth / 2, outerRect.Y + outerPenWidth / 2,
-            outerRadius * 2, outerRadius * 2, 180.0f, 90.0f);
-        outerPath.AddArc(outerRect.GetRight() - outerRadius * 2 - outerPenWidth / 2, outerRect.Y + outerPenWidth / 2,
-            outerRadius * 2, outerRadius * 2, 270.0f, 90.0f);
-        outerPath.AddArc(outerRect.GetRight() - outerRadius * 2 - outerPenWidth / 2, outerRect.GetBottom() - outerRadius * 2 - outerPenWidth / 2,
-            outerRadius * 2, outerRadius * 2, 0.0f, 90.0f);
-        outerPath.AddArc(outerRect.X + outerPenWidth / 2, outerRect.GetBottom() - outerRadius * 2 - outerPenWidth / 2,
-            outerRadius * 2, outerRadius * 2, 90.0f, 90.0f);
-        outerPath.CloseFigure();
-
-        Pen whitePen(Color(255, 255, 255, 255), outerPenWidth);
-        g.DrawPath(&whitePen, &outerPath);
-
-        // Inner black border (1px)
-        float innerPenWidth = 1.0f;
-        float innerRadius = 2.0f; // corner radius
-        RectF innerRect = outerRect;
-        innerRect.Inflate(-outerPenWidth, -outerPenWidth);
-
-        GraphicsPath innerPath;
-        innerPath.AddArc(innerRect.X + innerPenWidth / 2, innerRect.Y + innerPenWidth / 2,
-            innerRadius * 2, innerRadius * 2, 180.0f, 90.0f);
-        innerPath.AddArc(innerRect.GetRight() - innerRadius * 2 - innerPenWidth / 2, innerRect.Y + innerPenWidth / 2,
-            innerRadius * 2, innerRadius * 2, 270.0f, 90.0f);
-        innerPath.AddArc(innerRect.GetRight() - innerRadius * 2 - innerPenWidth / 2, innerRect.GetBottom() - innerRadius * 2 - innerPenWidth / 2,
-            innerRadius * 2, innerRadius * 2, 0.0f, 90.0f);
-        innerPath.AddArc(innerRect.X + innerPenWidth / 2, innerRect.GetBottom() - innerRadius * 2 - innerPenWidth / 2,
-            innerRadius * 2, innerRadius * 2, 90.0f, 90.0f);
-        innerPath.CloseFigure();
-
-        Pen blackPen(Color(255, 0, 0, 0), innerPenWidth);
-        g.DrawPath(&blackPen, &innerPath);
-    }
-
-    FontFamily fontFamily(L"Segoe UI");
-    Font font(&fontFamily, 12.0f, FontStyleRegular, UnitPixel);
-    StringFormat sf;
-    sf.SetAlignment(StringAlignmentCenter);
-    sf.SetLineAlignment(StringAlignmentCenter);
-    SolidBrush textBrush(text);
-    g.DrawString(btn.text.c_str(), -1, &font, rectF, &sf, &textBrush);
-}
+static ButtonManager g_btnMgr;
 
 // ----- WINDOW PROC -----
 LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam) {
     switch (msg) {
-    case WM_CREATE: {
-        ButtonColors colors = GetButtonColors(IsDarkMode());
-
-        g_buttons.emplace_back();
-        auto& b1 = g_buttons.back();
-        b1.text = L"Open Rebound Hub";
-        b1.width = 160;
-        b1.height = 32;
-        b1.hAlign = HAlign::Right;
-        b1.vAlign = VAlign::Bottom;
-        b1.margin = { 0, 0, 190, 24 };
-        b1.currentBg = colors.bgNormal;
-        b1.targetBg = colors.bgNormal;
-
-        g_buttons.emplace_back();
-        auto& b2 = g_buttons.back();
-        b2.text = L"Close";
-        b2.width = 160;
-        b2.height = 32;
-        b2.hAlign = HAlign::Right;
-        b2.vAlign = VAlign::Bottom;
-        b2.margin = { 0, 0, 24, 24 }; 
-        b2.currentBg = colors.bgNormal;
-        b2.targetBg = colors.bgNormal;
-
+    case WM_CREATE:
+    {
+        g_btnMgr.AddButton(std::make_unique<AccentButton>(L"Open Rebound Hub", 160, 32,
+            HAlign::Right, VAlign::Bottom, Margins{ 0,0,190,24 }));
+        g_btnMgr.AddButton(std::make_unique<Button>(L"Close", 160, 32,
+            HAlign::Right, VAlign::Bottom, Margins{ 0,0,24,24 }));
         SetTimer(hWnd, 1, 16, NULL);
         return 0;
     }
 
-    case WM_TIMER: {
-        bool needRedraw = false;
-        float step = 0.016f / 0.083f; // fraction per tick
-        for (auto& btn : g_buttons) {
-            ButtonColors colors = GetButtonColors(IsDarkMode());
-            Color desiredBg;
-            if (btn.pressed) desiredBg = colors.bgPressed;
-            else if (btn.hovered) desiredBg = colors.bgHover;
-            else desiredBg = colors.bgNormal;
-
-            btn.targetBg = desiredBg;
-            btn.currentBg = LerpColor(btn.currentBg, btn.targetBg, step);
-
-            if (btn.currentBg.GetValue() != btn.targetBg.GetValue()) needRedraw = true;
-        }
-        if (needRedraw) InvalidateRect(hWnd, nullptr, FALSE);
-        break;
-    }
-
-    case WM_PAINT: {
+    case WM_PAINT:
+    {
         PAINTSTRUCT ps;
         HDC hdc = BeginPaint(hWnd, &ps);
+        RECT rc; GetClientRect(hWnd, &rc);
+        int width = rc.right - rc.left, height = rc.bottom - rc.top;
 
-        RECT rc;
-        GetClientRect(hWnd, &rc);
-        int width = rc.right - rc.left;
-        int height = rc.bottom - rc.top;
-
-        // Double buffering
         HDC memDC = CreateCompatibleDC(hdc);
         HBITMAP memBmp = CreateCompatibleBitmap(hdc, width, height);
         SelectObject(memDC, memBmp);
 
         Graphics g(memDC);
         g.SetSmoothingMode(SmoothingModeAntiAlias);
-
-        // Clear background
         g.Clear(Color(0, 0, 0, 0));
 
-        // Draw bottom bar
+        // Bottom bar
         ButtonColors colors = GetButtonColors(IsDarkMode());
-        RectF barRect(0, (REAL)(height - 80), (REAL)width, 80.0f);
-        SolidBrush brush(colors.bgNormal);
-        g.FillRectangle(&brush, barRect);
+        SolidBrush brush(colors.bgNormal);  // create named object
+        g.FillRectangle(&brush, RectF(0, (REAL)(height - 80), (REAL)width, 80.0f));
 
-        // Draw buttons
-        for (size_t i = 0; i < g_buttons.size(); i++) {
-            UpdateButtonLayout(g_buttons[i], Size(width, height));
-            DrawButton(g, g_buttons[i], (int)i);
-        }
-
+        g_btnMgr.DrawAll(g, Size(width, height));
         BitBlt(hdc, 0, 0, width, height, memDC, 0, 0, SRCCOPY);
 
-        DeleteObject(memBmp);
-        DeleteDC(memDC);
-
+        DeleteObject(memBmp); DeleteDC(memDC);
         EndPaint(hWnd, &ps);
         return 0;
     }
 
-    case WM_MOUSEMOVE: {
-        POINT pt = { GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam) };
-        bool needRedraw = false;
-        for (size_t i = 0; i < g_buttons.size(); i++) {
-            bool wasHover = g_buttons[i].hovered;
-            g_buttons[i].hovered = g_buttons[i].HitTest(pt);
-
-            // Only keep pressed if the mouse is over this button
-            if (g_mouseDownButton == (int)i) {
-                if (g_buttons[i].hovered) {
-                    g_buttons[i].pressed = true;   // pressed if still inside
-                }
-                else {
-                    g_buttons[i].pressed = false;  // back to normal when outside
-                }
-            }
-
-            if (wasHover != g_buttons[i].hovered)
-                needRedraw = true;
-        }
-        if (needRedraw) InvalidateRect(hWnd, nullptr, TRUE);
-        break;
-    }
-
-    case WM_MOUSELEAVE: {
-        for (auto& btn : g_buttons) {
-            btn.hovered = false;
-            btn.pressed = false;
-        }
-        g_mouseDownButton = -1;
-        InvalidateRect(hWnd, nullptr, TRUE);
-        break;
-    }
-
-    case WM_LBUTTONDOWN: {
-        POINT pt = { GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam) };
-        g_mouseDownButton = -1;
-        g_focusedButton = -1; // clear keyboard focus when mouse is used
-        for (size_t i = 0; i < g_buttons.size(); i++) {
-            if (g_buttons[i].HitTest(pt)) {
-                g_buttons[i].pressed = true;
-                g_mouseDownButton = (int)i;
-                break;
-            }
-        }
-        InvalidateRect(hWnd, nullptr, TRUE);
-        break;
-    }
-
-    case WM_LBUTTONUP: {
-        POINT pt = { GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam) };
-        if (g_mouseDownButton >= 0 && g_buttons[g_mouseDownButton].HitTest(pt)) {
-            MessageBox(hWnd, g_buttons[g_mouseDownButton].text.c_str(), L"Clicked", MB_OK);
-        }
-
-        for (auto& btn : g_buttons)
-            btn.pressed = false;
-        g_mouseDownButton = -1;
-        InvalidateRect(hWnd, nullptr, TRUE);
-        break;
-    }
-
-    case WM_KEYDOWN: {
-        if (g_focusedButton == -1 && !g_buttons.empty())
-            g_focusedButton = 0;
-
-        switch (wParam) {
-        case VK_TAB:
-        case VK_RIGHT:
-        case VK_DOWN:
-            g_focusedButton = (g_focusedButton + 1) % g_buttons.size();
+    case WM_MOUSEMOVE:
+        if (g_btnMgr.HandleMouseMove({ GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam) }))
             InvalidateRect(hWnd, nullptr, TRUE);
-            break;
-        case VK_LEFT:
-        case VK_UP:
-            g_focusedButton = (g_focusedButton - 1 + g_buttons.size()) % g_buttons.size();
-            InvalidateRect(hWnd, nullptr, TRUE);
-            break;
-        case VK_RETURN:
-        case VK_SPACE:
-            if (g_focusedButton >= 0)
-                MessageBox(hWnd, g_buttons[g_focusedButton].text.c_str(), L"Clicked", MB_OK);
-            break;
-        }
         break;
-    }
+
+    case WM_LBUTTONDOWN:
+        g_btnMgr.HandleMouseDown({ GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam) });
+        InvalidateRect(hWnd, nullptr, TRUE);
+        break;
+
+    case WM_LBUTTONUP:
+        g_btnMgr.HandleMouseUp({ GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam) }, hWnd);
+        InvalidateRect(hWnd, nullptr, TRUE);
+        break;
+
+    case WM_KEYDOWN:
+        g_btnMgr.HandleKeyboard(wParam, hWnd);
+        InvalidateRect(hWnd, nullptr, TRUE);
+        break;
 
     case WM_SIZE:
         InvalidateRect(hWnd, nullptr, TRUE);
@@ -475,7 +561,7 @@ int WINAPI WinMain(HINSTANCE hInst, HINSTANCE, LPSTR, int) {
     wc.hCursor = LoadCursor(NULL, IDC_ARROW);
     RegisterClassEx(&wc);
 
-    HWND hwnd = CreateWindowEx(0, CLASS_NAME, L"Rebound — selector",
+    HWND hwnd = CreateWindowEx(0, CLASS_NAME, L"Rebound - selector",
         WS_OVERLAPPEDWINDOW & ~WS_MAXIMIZEBOX,
         CW_USEDEFAULT, CW_USEDEFAULT, 300, 110,
         NULL, NULL, hInst, NULL);
