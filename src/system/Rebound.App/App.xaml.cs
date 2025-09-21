@@ -1,28 +1,18 @@
-﻿using Microsoft.UI.Windowing;
+﻿// Copyright (C) Ivirius(TM) Community 2020 - 2025. All Rights Reserved.
+// Licensed under the MIT License.
+
+using Microsoft.UI.Windowing;
 using Rebound.Core.Helpers;
 using Rebound.Generators;
 using Rebound.Core.Helpers.Services;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Runtime.CompilerServices;
-using System.Threading;
-using System.Threading.Tasks;
-using TerraFX.Interop.Windows;
-using TerraFX.Interop.WinRT;
-using Windows.System;
-using Windows.UI.WindowManagement;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
-using Windows.UI.Xaml.Hosting;
-using WinRT;
-using static TerraFX.Interop.Windows.SWP;
-using static TerraFX.Interop.Windows.Windows;
-using static TerraFX.Interop.Windows.WM;
-using static TerraFX.Interop.Windows.WS;
 using Colors = Windows.UI.Colors;
 
-namespace Rebound;
+namespace Rebound.Hub;
 
 [ReboundApp("Rebound.Hub", "")]
 public partial class App : Application
@@ -37,7 +27,7 @@ public partial class App : Application
             _openWindows.Remove(window);
             if (_openWindows.Count == 0)
             {
-                Application.Current.Exit();
+                Current.Exit();
                 Process.GetCurrentProcess().Kill();
             }
         };
@@ -48,31 +38,10 @@ public partial class App : Application
         Program._actions.Add(() =>
         {
             if (MainWindow != null)
-            {
                 MainWindow.Activate();
-            }
             else
-            {
                 CreateMainWindow();
-            }
         });
-    }
-
-    private void Current_UnhandledException(object sender, Windows.UI.Xaml.UnhandledExceptionEventArgs e)
-    {
-        e.Handled = true;
-    }
-
-    public static void Activate(string[] args)
-    {
-        if (MainWindow != null)
-        {
-            MainWindow.Activate();
-        }
-        else
-        {
-            CreateMainWindow();
-        }
     }
 
     public static unsafe void CreateMainWindow()
@@ -96,6 +65,4 @@ public partial class App : Application
         };
         MainWindow.Create();
     }
-
-    //public static IslandsWindow MainWindow { get; private set; }
 }

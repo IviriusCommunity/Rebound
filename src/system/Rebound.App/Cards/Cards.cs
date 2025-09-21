@@ -1,6 +1,9 @@
-﻿using Windows.UI;
+﻿// Copyright (C) Ivirius(TM) Community 2020 - 2025. All Rights Reserved.
+// Licensed under the MIT License.
 
-namespace Rebound.Cards;
+using Windows.UI;
+
+namespace Rebound.Hub.Cards;
 
 public class LinkCard
 {

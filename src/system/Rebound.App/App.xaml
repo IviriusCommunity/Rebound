@@ -1,14 +1,11 @@
 <Application
-    x:Class="Rebound.App"
+    x:Class="Rebound.Hub.App"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-    xmlns:controls="using:Microsoft.UI.Xaml.Controls"
-    xmlns:local="using:Rebound">
+    xmlns:controls="using:Microsoft.UI.Xaml.Controls">
     <Application.Resources>
         <controls:XamlControlsResources>
-            <controls:XamlControlsResources.MergedDictionaries>
-                
-            </controls:XamlControlsResources.MergedDictionaries>
+            <controls:XamlControlsResources.MergedDictionaries />
         </controls:XamlControlsResources>
     </Application.Resources>
 </Application>

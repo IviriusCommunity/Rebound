@@ -1,6 +1,9 @@
-﻿using CommunityToolkit.Mvvm.ComponentModel;
+﻿// Copyright (C) Ivirius(TM) Community 2020 - 2025. All Rights Reserved.
+// Licensed under the MIT License.
+
+using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using Rebound.Cards;
+using Rebound.Hub.Cards;
 using Rebound.Core.Helpers;
 using Rebound.Forge;
 using System;
@@ -11,9 +14,9 @@ using System.Linq;
 using System.Threading.Tasks;
 using Windows.System;
 
-namespace Rebound.ViewModels;
+namespace Rebound.Hub.ViewModels;
 
-public partial class ReboundViewModel : ObservableObject
+internal partial class ReboundViewModel : ObservableObject
 {
     public ObservableCollection<LinkCard> LinkCards { get; } =
     [
@@ -112,7 +115,7 @@ public partial class ReboundViewModel : ObservableObject
     {
         try
         {
-            var programFilesPath = System.Environment.GetFolderPath(System.Environment.SpecialFolder.CommonProgramFiles);
+            var programFilesPath = Environment.GetFolderPath(Environment.SpecialFolder.CommonProgramFiles);
             var directoryPath = Path.Combine(programFilesPath, "Rebound");
 
             var content = File.ReadAllText(Path.Combine(directoryPath, "version.txt"));

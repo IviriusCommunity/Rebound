@@ -33,6 +33,8 @@
 		<AppInstallerUri>D:\</AppInstallerUri>
 
 		<HoursBetweenUpdateChecks>0</HoursBetweenUpdateChecks>
+
+		<StartupObject>Rebound.Hub.Program</StartupObject>
 		
 	</PropertyGroup>
 

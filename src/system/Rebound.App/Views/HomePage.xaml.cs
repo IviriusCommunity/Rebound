@@ -1,10 +1,12 @@
-﻿using Rebound.Cards;
-using System;
+﻿// Copyright (C) Ivirius(TM) Community 2020 - 2025. All Rights Reserved.
+// Licensed under the MIT License.
+
+using Rebound.Hub.Cards;
 using System.Collections.ObjectModel;
 using Windows.UI;
 using Windows.UI.Xaml.Controls;
 
-namespace Rebound.Views;
+namespace Rebound.Hub.Views;
 
 internal sealed partial class HomePage : Page
 {
@@ -205,8 +207,5 @@ internal sealed partial class HomePage : Page
         },
     ];
 
-    internal HomePage()
-    {
-        InitializeComponent();
-    }
+    public HomePage() => InitializeComponent();
 }

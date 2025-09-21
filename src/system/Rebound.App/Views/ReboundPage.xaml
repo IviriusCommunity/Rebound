@@ -1,10 +1,10 @@
 <Page
-    x:Class="Rebound.Views.ReboundPage"
+    x:Class="Rebound.Hub.Views.ReboundPage"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:SettingsControls="using:CommunityToolkit.WinUI.Controls"
     xmlns:behaviors="using:CommunityToolkit.WinUI.Behaviors"
-    xmlns:cards="using:Rebound.Cards"
+    xmlns:cards="using:Rebound.Hub.Cards"
     xmlns:controls="using:CommunityToolkit.WinUI.Controls"
     xmlns:converters="using:CommunityToolkit.WinUI.Converters"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
