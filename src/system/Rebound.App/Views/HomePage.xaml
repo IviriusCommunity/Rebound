@@ -157,6 +157,7 @@
                         <Button
                             Width="320"
                             Padding="0"
+                            BorderThickness="0"
                             HorizontalContentAlignment="Stretch">
                             <ui:Effects.Shadow>
                                 <media:AttachedCardShadow
@@ -166,17 +167,17 @@
                                     Color="{x:Bind AccentColor}" />
                             </ui:Effects.Shadow>
                             <Grid>
-                                <Border CornerRadius="3" Opacity="0.1">
+                                <Border CornerRadius="4" Opacity="0.25">
                                     <Border.Background>
                                         <SolidColorBrush Color="{x:Bind AccentColor}" />
                                     </Border.Background>
                                 </Border>
-                                <Border CornerRadius="3">
+                                <Border CornerRadius="4">
                                     <Border.Background>
                                         <media:AcrylicBrush
                                             BlurAmount="8"
                                             TintColor="{ThemeResource SolidBackgroundFillColorBase}"
-                                            TintOpacity="0.6" />
+                                            TintOpacity="0.8" />
                                     </Border.Background>
                                 </Border>
                                 <Grid

@@ -49,7 +49,7 @@ namespace Files.App.Storage
 
 		public IAsyncEnumerable<IStorableChild> GetItemsAsync(StorableType type = StorableType.All, CancellationToken cancellationToken = default)
 		{
-			return GetItems().ToAsyncEnumerable();
+            return (IAsyncEnumerable<IStorableChild>)GetItems();
 
 			unsafe IEnumerable<IStorableChild> GetItems()
 			{
