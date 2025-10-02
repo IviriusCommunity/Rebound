@@ -1,19 +1,21 @@
 ﻿// Copyright (C) Ivirius(TM) Community 2020 - 2025. All Rights Reserved.
 // Licensed under the MIT License.
 
+using Microsoft.UI.Windowing;
+using Rebound.Core.Helpers;
+using Rebound.Core.Helpers;
+using Rebound.Core.Helpers.Services;
+using Rebound.Generators;
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using Microsoft.UI.Xaml;
-using Rebound.Core.Helpers;
-using Rebound.Generators;
-using Rebound.Helpers;
-using Rebound.Helpers.Services;
 using Windows.Storage;
 using Windows.System.UserProfile;
-using WinUI3Localizer;
-using WinUIEx;
+using Windows.UI;
+using Windows.UI.Xaml;
+using Windows.UI.Xaml.Controls;
 
 #pragma warning disable IDE0079 // Remove unnecessary suppression
 #pragma warning disable CA1515 // Consider making public types internal
@@ -23,71 +25,73 @@ namespace Rebound.About;
 [ReboundApp("Rebound.About", "Legacy winver*legacy*ms-appx:///Assets/Exe.ico")]
 public partial class App : Application
 {
+    private static readonly List<IslandsWindow> _openWindows = new();
+
     public static ReboundPipeClient ReboundPipeClient { get; set; }
 
-    public static ILocalizer Localizer { get; set; }
-
-    private async void OnSingleInstanceLaunched(object? sender, SingleInstanceLaunchEventArgs e)
+    private static void RegisterWindow(IslandsWindow window)
     {
-        if (e.IsFirstLaunch)
+        _openWindows.Add(window);
+        window.Closed += (s, e) =>
         {
-            ReboundPipeClient = new ReboundPipeClient();
-            await ReboundPipeClient.ConnectAsync();
-        }
-
-        if (e.Arguments == "legacy")
-        {
-            await ReboundPipeClient.SendMessageAsync("IFEOEngine::Pause#winver.exe");
-            Process.Start(new ProcessStartInfo
+            _openWindows.Remove(window);
+            if (_openWindows.Count == 0)
             {
-                FileName = "winver.exe",
-                UseShellExecute = true,
-            });
-            return;
-        }
+                Current.Exit();
+                Process.GetCurrentProcess().Kill();
+            }
+        };
+    }
 
-        if (e.IsFirstLaunch)
+    private void OnSingleInstanceLaunched(object sender, SingleInstanceLaunchEventArgs e)
+    {
+        Program._actions.Add(async () =>
         {
-            var stringsFolderPath = Path.Combine(AppContext.BaseDirectory, "Strings");
+            /*if (e.IsFirstLaunch)
+            {
+                ReboundPipeClient = new ReboundPipeClient();
+                await ReboundPipeClient.ConnectAsync();
+            }*/
 
-            var stringsFolder = await StorageFolder.GetFolderFromPathAsync(stringsFolderPath);
-
-            Localizer = new LocalizerBuilder()
-                .AddStringResourcesFolderForLanguageDictionaries(stringsFolderPath)
-                .SetOptions(options =>
+            if (e.Arguments == "legacy")
+            {
+                await ReboundPipeClient.SendMessageAsync("IFEOEngine::Pause#winver.exe");
+                Process.Start(new ProcessStartInfo
                 {
-                    options.DefaultLanguage = "en-US";
-                })
-                .Build();
-
-            var stringFolders = await stringsFolder.GetFoldersAsync(Windows.Storage.Search.CommonFolderQuery.DefaultQuery);
-
-            if (stringFolders.Any(item =>
-                item.Name.Equals(GlobalizationPreferences.Languages[0], StringComparison.OrdinalIgnoreCase)))
-            {
-                Localizer.SetLanguage(GlobalizationPreferences.Languages[0]);
+                    FileName = "winver.exe",
+                    UseShellExecute = true,
+                });
+                return;
             }
+
+            if (MainWindow != null)
+                MainWindow.Activate();
             else
-            {
-                Localizer.SetLanguage("en-US");
-            }
+                CreateMainWindow();
+        });
+    }
 
-            MainAppWindow = new MainWindow();
-
-            if (SettingsHelper.GetValue("FetchMode", "rebound", false))
-            {
-                MainAppWindow.SetWindowSize(850, 480);
-            }
-            else
-            {
-                MainAppWindow.Width = SettingsHelper.GetValue("IsSidebarOn", "winver", false) ? 720 : 520;
-                MainAppWindow.Height = SettingsHelper.GetValue("IsReboundOn", "winver", true) ? 640 : 500;
-            }
-            MainAppWindow.Activate();
-        }
-        else
+    public static unsafe void CreateMainWindow()
+    {
+        MainWindow = new();
+        RegisterWindow(MainWindow);
+        MainWindow.AppWindowInitialized += (s, e) =>
         {
-            MainAppWindow.BringToFront();
-        }
+            MainWindow.Title = "About Windows";
+            MainWindow.IsMaximizable = false;
+            MainWindow.IsMinimizable = false;
+            MainWindow.IsResizable = false;
+            MainWindow.AppWindow?.TitleBar.ExtendsContentIntoTitleBar = true;
+            MainWindow.AppWindow?.TitleBar.ButtonBackgroundColor = Colors.Transparent;
+            MainWindow.AppWindow?.TitleBar.ButtonInactiveBackgroundColor = Colors.Transparent;
+            MainWindow.AppWindow?.SetTaskbarIcon($"{AppContext.BaseDirectory}\\Assets\\AboutWindows.ico");
+        };
+        MainWindow.XamlInitialized += (s, e) =>
+        {
+            var frame = new Frame();
+            frame.Navigate(typeof(Views.MainPage));
+            MainWindow.Content = frame;
+        };
+        MainWindow.Create();
     }
 }

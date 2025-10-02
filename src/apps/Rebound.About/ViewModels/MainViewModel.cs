@@ -3,8 +3,7 @@ using System.Linq;
 using System.Runtime.InteropServices;
 using CommunityToolkit.Mvvm.ComponentModel;
 using Microsoft.Win32;
-using Rebound.Helpers;
-using WinUI3Localizer;
+using Rebound.Core.Helpers;
 
 namespace Rebound.About.ViewModels;
 
@@ -32,7 +31,7 @@ internal partial class MainViewModel : ObservableObject
     public partial string LegalInfo { get; set; } = GetInformation();
 
     [ObservableProperty]
-    public partial string CPUName { get; set; } = (Registry.GetValue(@"HKEY_LOCAL_MACHINE\HARDWARE\DESCRIPTION\System\CentralProcessor\0", "ProcessorNameString", "") ?? "").ToString() ?? "Unknown".GetLocalizedString();
+    public partial string CPUName { get; set; } = (Registry.GetValue(@"HKEY_LOCAL_MACHINE\HARDWARE\DESCRIPTION\System\CentralProcessor\0", "ProcessorNameString", "") ?? "").ToString() ?? "Unknown";
 
     [ObservableProperty]
     public partial string GPUName { get; set; } = GetGPUName();
@@ -105,7 +104,7 @@ internal partial class MainViewModel : ObservableObject
                 }
             }
         }
-        return gpuName ?? "Unknown".GetLocalizedString();
+        return gpuName ?? "Unknown";
     }
 
     private static string GetCurrentUserName()
@@ -120,7 +119,7 @@ internal partial class MainViewModel : ObservableObject
 
             return owner + (string.IsNullOrEmpty(owner2) ? string.Empty : (", " + owner2));
         }
-        return "UnknownLicenseHolders".GetLocalizedString();
+        return "UnknownLicenseHolders";
     }
 
     private static string GetDetailedWindowsVersion()
@@ -134,9 +133,9 @@ internal partial class MainViewModel : ObservableObject
             var buildNumber = key.GetValue("CurrentBuildNumber", "Unknown") as string;
             var buildLab = key.GetValue("UBR", "Unknown");
 
-            return String.Format("VersionOSBuild".GetLocalizedString(), versionName, buildNumber, buildLab);
+            return String.Format("VersionOSBuild", versionName, buildNumber, buildLab);
         }
-        return "Unknown".GetLocalizedString();
+        return "Unknown";
     }
 
     private static string GetProductName()
@@ -154,9 +153,9 @@ internal partial class MainViewModel : ObservableObject
             }
             return productName;
         }
-        return "Unknown".GetLocalizedString();
+        return "Unknown";
     }
 
     public static string GetInformation()
-        => String.Format("LegalInfo".GetLocalizedString(), GetProductName());
+        => String.Format("LegalInfo", GetProductName());
 }

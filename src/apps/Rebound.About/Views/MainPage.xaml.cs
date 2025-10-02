@@ -4,22 +4,17 @@
 using System;
 using System.Diagnostics;
 using System.Runtime.CompilerServices;
-using System.Runtime.InteropServices;
-using System.Runtime.InteropServices.Marshalling;
-using System.ServiceProcess;
-using System.Threading;
 using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.Input;
 using Microsoft.UI;
-using Microsoft.UI.Windowing;
-using Microsoft.UI.Xaml.Controls;
-using Microsoft.UI.Xaml.Documents;
-using Microsoft.UI.Xaml.Media;
 using Rebound.About.ViewModels;
 using Rebound.Core.Helpers;
-using Rebound.Helpers;
-using Rebound.Helpers.Environment;
+using Rebound.Core.Helpers;
+using Rebound.Core.Helpers.Environment;
 using Windows.ApplicationModel.DataTransfer;
+using Windows.UI.Xaml.Controls;
+using Windows.UI.Xaml.Documents;
+using Windows.UI.Xaml.Media;
 using Windows.Win32;
 using Windows.Win32.Foundation;
 using Windows.Win32.Security;
@@ -473,12 +468,12 @@ public sealed partial class MainPage : Page
     {
         if (SettingsHelper.GetValue("FetchMode", "rebound", false))
         {
-            FetchArea.Visibility = Microsoft.UI.Xaml.Visibility.Visible;
+            FetchArea.Visibility = Windows.UI.Xaml.Visibility.Visible;
             var accentBrush = (SolidColorBrush)App.Current.Resources["AccentFillColorDefaultBrush"];
             FetchTextBlock.Inlines.Add(new Run()
             {
                 Foreground = accentBrush,
-                FontWeight = Microsoft.UI.Text.FontWeights.Bold,
+                FontWeight = Windows.UI.Text.FontWeights.Bold,
                 Text = ViewModel.CurrentUser + "\n"
             });
             FetchTextBlock.Inlines.Add(new Run()
@@ -489,7 +484,7 @@ public sealed partial class MainPage : Page
             FetchTextBlock.Inlines.Add(new Run()
             {
                 Foreground = accentBrush,
-                FontWeight = Microsoft.UI.Text.FontWeights.Bold,
+                FontWeight = Windows.UI.Text.FontWeights.Bold,
                 Text = "OS: "
             });
             FetchTextBlock.Inlines.Add(new Run()
@@ -500,7 +495,7 @@ public sealed partial class MainPage : Page
             FetchTextBlock.Inlines.Add(new Run()
             {
                 Foreground = accentBrush,
-                FontWeight = Microsoft.UI.Text.FontWeights.Bold,
+                FontWeight = Windows.UI.Text.FontWeights.Bold,
                 Text = "Windows Version: "
             });
             FetchTextBlock.Inlines.Add(new Run()
@@ -513,7 +508,7 @@ public sealed partial class MainPage : Page
                 FetchTextBlock.Inlines.Add(new Run()
                 {
                     Foreground = accentBrush,
-                    FontWeight = Microsoft.UI.Text.FontWeights.Bold,
+                    FontWeight = Windows.UI.Text.FontWeights.Bold,
                     Text = "Rebound Version: "
                 });
                 FetchTextBlock.Inlines.Add(new Run()
@@ -525,7 +520,7 @@ public sealed partial class MainPage : Page
             FetchTextBlock.Inlines.Add(new Run()
             {
                 Foreground = accentBrush,
-                FontWeight = Microsoft.UI.Text.FontWeights.Bold,
+                FontWeight = Windows.UI.Text.FontWeights.Bold,
                 Text = "Resolution: "
             });/*
             FetchTextBlock.Inlines.Add(new Run()
@@ -536,7 +531,7 @@ public sealed partial class MainPage : Page
             FetchTextBlock.Inlines.Add(new Run()
             {
                 Foreground = accentBrush,
-                FontWeight = Microsoft.UI.Text.FontWeights.Bold,
+                FontWeight = Windows.UI.Text.FontWeights.Bold,
                 Text = "CPU: "
             });
             FetchTextBlock.Inlines.Add(new Run()
@@ -547,7 +542,7 @@ public sealed partial class MainPage : Page
             FetchTextBlock.Inlines.Add(new Run()
             {
                 Foreground = accentBrush,
-                FontWeight = Microsoft.UI.Text.FontWeights.Bold,
+                FontWeight = Windows.UI.Text.FontWeights.Bold,
                 Text = "GPU: "
             });
             FetchTextBlock.Inlines.Add(new Run()
@@ -558,7 +553,7 @@ public sealed partial class MainPage : Page
             FetchTextBlock.Inlines.Add(new Run()
             {
                 Foreground = accentBrush,
-                FontWeight = Microsoft.UI.Text.FontWeights.Bold,
+                FontWeight = Windows.UI.Text.FontWeights.Bold,
                 Text = "RAM: "
             });
             FetchTextBlock.Inlines.Add(new Run()
@@ -576,10 +571,10 @@ public sealed partial class MainPage : Page
     private void CopyLicenseOwners() => CopyToClipboard(ViewModel.LicenseOwners);
 
     [RelayCommand]
-    private static void CopyReboundVersion() => CopyToClipboard(Helpers.Environment.ReboundVersion.REBOUND_VERSION);
+    private static void CopyReboundVersion() => CopyToClipboard(Core.Helpers.Environment.ReboundVersion.REBOUND_VERSION);
 
     [RelayCommand]
-    private void CloseWindow() => App.MainAppWindow.Close();
+    private void CloseWindow() => App.MainWindow.Close();
 
     [RelayCommand]
     public async Task ToggleSidebarAsync()
@@ -591,9 +586,9 @@ public sealed partial class MainPage : Page
             {
                 await Task.Delay(2);
                 var radians = i * Math.PI / 180; // Convert degrees to radians
-                App.MainAppWindow.Width = 520 + 200 * Math.Sin(radians);
+                App.MainWindow.Width = (int)(520 + 200 * Math.Sin(radians));
             }
-            App.MainAppWindow.Width = 720;
+            App.MainWindow.Width = 720;
         }
         else
         {
@@ -601,9 +596,9 @@ public sealed partial class MainPage : Page
             {
                 await Task.Delay(2);
                 var radians = i * Math.PI / 180; // Convert degrees to radians
-                App.MainAppWindow.Width = 520 + 200 * Math.Sin(radians);
+                App.MainWindow.Width = (int)(520 + 200 * Math.Sin(radians));
             }
-            App.MainAppWindow.Width = 520;
+            App.MainWindow.Width = 520;
         }
     }
 
@@ -617,9 +612,9 @@ public sealed partial class MainPage : Page
             {
                 await Task.Delay(2);
                 var radians = i * Math.PI / 180; // Convert degrees to radians
-                App.MainAppWindow.Height = 500 + 140 * Math.Sin(radians);
+                App.MainWindow.Height = (int)(500 + 140 * Math.Sin(radians));
             }
-            App.MainAppWindow.Height = 640;
+            App.MainWindow.Height = 640;
         }
         else
         {
@@ -627,9 +622,9 @@ public sealed partial class MainPage : Page
             {
                 await Task.Delay(2);
                 var radians = i * Math.PI / 180; // Convert degrees to radians
-                App.MainAppWindow.Height = 500 + 140 * Math.Sin(radians);
+                App.MainWindow.Height = (int)(500 + 140 * Math.Sin(radians));
             }
-            App.MainAppWindow.Height = 500;
+            App.MainWindow.Height = 500;
         }
     }
 
@@ -640,7 +635,7 @@ public sealed partial class MainPage : Page
         Clipboard.SetContent(package);
     }
 
-    private void TextBlock_Tapped(object sender, Microsoft.UI.Xaml.Input.TappedRoutedEventArgs e)
+    private void TextBlock_Tapped(object sender, Windows.UI.Xaml.Input.TappedRoutedEventArgs e)
     {
         Process.GetCurrentProcess().Kill();
     }

@@ -7,10 +7,6 @@
 		<TargetFramework>net10.0-windows10.0.26100.0</TargetFramework>
 		<TargetPlatformMinVersion>10.0.22000.0</TargetPlatformMinVersion>
 
-		<!-- Project type -->
-		<UseUwp>true</UseUwp>
-		<UseUwpTools>true</UseUwpTools>
-
 		<!-- Advanced -->
 		<EnableComInterop>true</EnableComInterop>
 		<UseSourceGenerators>true</UseSourceGenerators>
@@ -19,24 +15,28 @@
 
 		<!-- Self-contained settings -->
 		<PublishReadyToRun>true</PublishReadyToRun>
-		<PublishAot>false</PublishAot>
+		<PublishAot>true</PublishAot>
 
 		<!-- Publishing Settings -->
 		<PublishProfile>win-$(Platform).pubxml</PublishProfile>
 
 		<!-- Trimmming -->
-		<PublishTrimmed>false</PublishTrimmed>
+		<PublishTrimmed>true</PublishTrimmed>
 		<Optimize>true</Optimize>
 		<OptimizationPreference>Speed</OptimizationPreference>
 		<IlcOptimizationPreference>Speed</IlcOptimizationPreference>
 
 	</PropertyGroup>
 
+	<!-- Trimmer Configuration -->
 	<ItemGroup>
+		<TrimmerRootAssembly Include="Windows.Win32" />
+		<TrimmerRootAssembly Include="Windows.Win32.System.Com" />
+	</ItemGroup>
 
-		<!-- Include the application manifest -->
+	<!-- Include the application manifest -->
+	<ItemGroup>
 		<Manifest Include="$(ApplicationManifest)" />
-
 	</ItemGroup>
 	
 	<!-- General project settings - These will apply to every project regardless of its type -->
@@ -56,6 +56,7 @@
 
 	</PropertyGroup>
 
+	<!-- Target Platforms -->
 	<ItemGroup>
 		<AppxTargetDeviceFamilyItem Include="Windows.Desktop" />
 	</ItemGroup>
