@@ -8,16 +8,16 @@
     xmlns:local="using:Rebound.About"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:media="using:CommunityToolkit.WinUI.Media"
+    xmlns:muxc="using:Microsoft.UI.Xaml.Controls"
     xmlns:ui="using:CommunityToolkit.WinUI"
     xmlns:viewModels="using:Rebound.About.ViewModels"
     d:DataContext="{d:DesignInstance Type=viewModels:MainViewModel}"
-    xmlns:muxc="using:Microsoft.UI.Xaml.Controls"
     muxc:BackdropMaterial.ApplyToRootOrPageBackground="True"
     mc:Ignorable="d">
 
     <Grid>
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="504" />
+            <ColumnDefinition Width="508" />
             <ColumnDefinition Width="*" />
         </Grid.ColumnDefinitions>
         <Grid.RowDefinitions>

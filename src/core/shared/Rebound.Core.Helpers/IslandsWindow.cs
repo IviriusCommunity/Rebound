@@ -490,17 +490,64 @@ public partial class IslandsWindow : ObservableObject, IDisposable
             AppWindow.Move(new(X, value));
     }
 
-    /*partial void OnWidthChanged(int value)
+    // Add these fields near the top with other fields
+    private bool _internalResize = false;
+
+    // Replace the commented-out methods with these:
+    partial void OnWidthChanged(int value)
     {
-        if (AppWindow != null)
-            AppWindow.Resize(new(value, Height));
+        // Only resize AppWindow if the change came from outside (not from WM_SIZE)
+        if (!_internalResize && AppWindow != null)
+        {
+            // Convert logical pixels to physical pixels
+            var currentSize = AppWindow.Size;
+            var physicalWidth = (int)(value * Display.GetScale(AppWindow));
+            AppWindow.Resize(new(physicalWidth, currentSize.Height));
+        }
     }
 
     partial void OnHeightChanged(int value)
     {
-        if (AppWindow != null)
-            AppWindow.Resize(new(Width, value));
-    }*/
+        // Only resize AppWindow if the change came from outside (not from WM_SIZE)
+        if (!_internalResize && AppWindow != null)
+        {
+            // Convert logical pixels to physical pixels
+            var currentSize = AppWindow.Size;
+            var physicalHeight = (int)(value * Display.GetScale(AppWindow));
+            AppWindow.Resize(new(currentSize.Width, physicalHeight));
+        }
+    }
+
+    // Update the OnResize method to set the flag and handle DPI:
+    internal void OnResize(int width, int height)
+    {
+        // avoid calling if not set
+        if (_xamlHwnd != default)
+        {
+            SetWindowPos(_xamlHwnd, HWND.NULL, 0, 0, width, height, SWP_SHOWWINDOW | SWP_NOACTIVATE | SWP_NOZORDER);
+        }
+
+        if (_coreHwnd != default)
+        {
+            SendMessageW(_coreHwnd, WM_SIZE, (WPARAM)width, (LPARAM)height);
+        }
+
+        // Convert physical pixels to logical pixels
+        var logicalWidth = (int)(width / Display.GetScale(AppWindow));
+        var logicalHeight = (int)(height / Display.GetScale(AppWindow));
+
+        // Set flag to prevent circular updates
+        _internalResize = true;
+        try
+        {
+            Width = logicalWidth;
+            Height = logicalHeight;
+        }
+        finally
+        {
+            _internalResize = false;
+        }
+    }
 
     partial void OnMinWidthChanged(int value)
     {
@@ -542,24 +589,6 @@ public partial class IslandsWindow : ObservableObject, IDisposable
     {
         if (AppWindow != null && AppWindow.Presenter.Kind is AppWindowPresenterKind.Overlapped)
             (AppWindow.Presenter as OverlappedPresenter).IsMinimizable = value;
-    }
-
-    internal void OnResize(int width, int height)
-    {
-        // avoid calling if not set
-        if (_xamlHwnd != default)
-        {
-            SetWindowPos(_xamlHwnd, HWND.NULL, 0, 0, width, height, SWP_SHOWWINDOW | SWP_NOACTIVATE | SWP_NOZORDER);
-        }
-
-        if (_coreHwnd != default)
-        {
-            // SendMessageW's WPARAM/LPARAM expectation — keep same shape as before
-            SendMessageW(_coreHwnd, WM_SIZE, (WPARAM)width, (LPARAM)height);
-        }
-
-        Width = width;
-        Height = height;
     }
 
     internal void ProcessCoreWindowMessage(uint message, WPARAM wParam, LPARAM lParam)

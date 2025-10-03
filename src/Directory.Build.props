@@ -32,6 +32,7 @@
 	<ItemGroup>
 		<TrimmerRootAssembly Include="Windows.Win32" />
 		<TrimmerRootAssembly Include="Windows.Win32.System.Com" />
+		<TrimmerRootAssembly Include="System.Management" />
 	</ItemGroup>
 
 	<!-- Include the application manifest -->
@@ -85,6 +86,7 @@
 		<PackageReference Include="System.Diagnostics.PerformanceCounter" Version="10.0.0-preview.6.25358.103" />
 		<PackageReference Include="System.ServiceProcess.ServiceController" Version="10.0.0-preview.5.25277.114" />
 		<PackageReference Include="System.IO.Pipes.AccessControl" Version="6.0.0-preview.5.21301.5" />
+		<PackageReference Include="System.Management" Version="7.0.0" />
 		<PackageReference Include="OwlCore.Storage" Version="0.14.0" />
 
 		<!-- Task Scheduler -->

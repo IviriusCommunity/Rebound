@@ -1,9 +1,12 @@
-﻿using System;
-using System.Linq;
-using System.Runtime.InteropServices;
-using CommunityToolkit.Mvvm.ComponentModel;
+﻿using CommunityToolkit.Mvvm.ComponentModel;
 using Microsoft.Win32;
 using Rebound.Core.Helpers;
+using System;
+using System.Linq;
+using System.Management;
+using System.Runtime.InteropServices;
+using TerraFX.Interop.Windows;
+using Windows.Win32.System.Com;
 
 namespace Rebound.About.ViewModels;
 
@@ -62,30 +65,32 @@ internal partial class MainViewModel : ObservableObject
         SettingsHelper.SetValue("IsReboundOn", "winver", value);
     }
 
-    public static string GetTotalRam()
+    public static unsafe string GetTotalRam()
     {
-        var lpBuffer = new Windows.Win32.System.SystemInformation.MEMORYSTATUSEX
+        try
         {
-            dwLength = (uint)Marshal.SizeOf<Windows.Win32.System.SystemInformation.MEMORYSTATUSEX>()
-        };
+            using var searcher = new ManagementObjectSearcher(
+                "SELECT TotalPhysicalMemory FROM Win32_ComputerSystem");
 
-        Windows.Win32.PInvoke.GlobalMemoryStatusEx(ref lpBuffer);
+            foreach (var obj in searcher.Get())
+            {
+                ulong totalBytes = (ulong)obj["TotalPhysicalMemory"];
+                double totalGb = totalBytes / (1024.0 * 1024 * 1024);
 
-        // Mimic Windows' display logic
-        int displayedSize;
-        var totalGb = lpBuffer.ullTotalPhys / 1024.0 / 1024 / 1024;
+                int[] commonSizes = { 1, 2, 4, 6, 8, 12, 16, 24, 32, 48, 64, 96, 128, 256 };
+                int displayedSize = commonSizes.FirstOrDefault(s => totalGb <= s);
+                if (displayedSize == 0)
+                    displayedSize = (int)Math.Round(totalGb / 8.0) * 8;
 
-        // Common marketed RAM sizes in ascending order
-        int[] commonSizes = { 1, 2, 4, 6, 8, 12, 16, 24, 32, 48, 64, 96, 128, 256 };
+                return $"{displayedSize} GB";
+            }
 
-        displayedSize = commonSizes.FirstOrDefault(size => totalGb < size);
-        if (displayedSize == 0)
-        {
-            // If it's larger than all predefined sizes, round to nearest multiple of 8
-            displayedSize = (int)Math.Round(totalGb / 8) * 8;
+            return "No results";
         }
-
-        return $"{displayedSize} GB";
+        catch (Exception ex)
+        {
+            return $"Error: {ex.Message}";
+        }
     }
 
     public static string GetGPUName()
