@@ -3,22 +3,25 @@
 
 using Rebound.Core.Helpers;
 using Rebound.Forge.Engines;
-using Rebound.Forge.Hooks;
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Runtime.InteropServices;
 using System.Threading;
 using System.Threading.Tasks;
 using Windows.UI.Xaml;
 using Windows.Win32;
 using Windows.Win32.System.Shutdown;
-using System.Runtime.InteropServices;
 
 namespace Rebound.ServiceHost;
 
 //[ReboundApp("Rebound.ServiceHost", "")]
 public partial class App : Application
 {
+    private static readonly ConcurrentDictionary<int, byte> InjectedProcessIds = new();
+    private static readonly SemaphoreSlim InjectionSemaphore = new(4);
+
     private static readonly HashSet<string> ExcludedProcesses = new(StringComparer.OrdinalIgnoreCase)
     {
         "csrss.exe",
@@ -31,42 +34,152 @@ public partial class App : Application
         "Rebound.ServiceHost.exe"
     };
 
-    private static void InjectIntoProcesses()
+    private static async Task InjectIntoProcessAsync(Process proc, int injectTimeoutMs = 10_000)
+    {
+        try
+        {
+            // Quick pre-checks (no long lock)
+            if (InjectedProcessIds.ContainsKey(proc.Id))
+                return;
+
+            if (ExcludedProcesses.Contains(proc.ProcessName + ".exe"))
+                return;
+
+            if (proc.SessionId == 0)
+                return;
+
+            if (!Injector.CanOpenProcess(proc.Id))
+                return;
+
+            if (Environment.Is64BitOperatingSystem)
+            {
+                TerraFX.Interop.Windows.BOOL isWow64 = false;
+                unsafe
+                {
+                    _ = TerraFX.Interop.Windows.Windows.IsWow64Process(new(proc.Handle.ToPointer()), &isWow64);
+                }
+
+                if (isWow64)
+                {
+                    Debug.WriteLine($"Skipping 32-bit process: {proc.ProcessName}");
+                    return;
+                }
+            }
+
+            // Acquire a semaphore slot so we don't start too many simultaneous injections.
+            await InjectionSemaphore.WaitAsync().ConfigureAwait(false);
+            try
+            {
+                // Double-check after acquiring a slot (race with other injectors)
+                if (InjectedProcessIds.ContainsKey(proc.Id))
+                    return;
+
+                // Run the bounded injector on a threadpool thread to keep this method async-friendly.
+                var success = await Task.Run(() => Injector.Inject((uint)proc.Id, @$"{AppContext.BaseDirectory}\Hooks\Rebound.Forge.Hooks.Run.dll", (uint)injectTimeoutMs)).ConfigureAwait(false);
+
+                if (success)
+                {
+                    InjectedProcessIds.TryAdd(proc.Id, 0);
+                    Debug.WriteLine($"Successfully injected into {proc.ProcessName} (PID: {proc.Id})");
+                }
+                else
+                {
+                    Debug.WriteLine($"Injection failed/timeout for {proc.ProcessName} (PID: {proc.Id})");
+                    // Optionally add to an exclusion list to avoid retrying too often
+                }
+            }
+            finally
+            {
+                InjectionSemaphore.Release();
+            }
+        }
+        catch (Exception ex)
+        {
+            Debug.WriteLine($"Injection error for {proc.ProcessName}: {ex.Message}");
+        }
+    }
+
+    private static void InjectIntoExistingProcesses()
     {
         var allProcesses = Process.GetProcesses();
+        Debug.WriteLine($"Scanning {allProcesses.Length} existing processes...");
 
         foreach (var proc in allProcesses)
         {
+            if (!InjectedProcessIds.ContainsKey(proc.Id))
+            {
+                // Fire & forget but observe exceptions:
+                _ = InjectIntoProcessAsync(proc).ContinueWith(t =>
+                {
+                    if (t.Exception != null)
+                    {
+                        Debug.WriteLine($"InjectIntoProcessAsync exception: {t.Exception.Flatten().InnerException?.Message}");
+                    }
+                }, TaskScheduler.Default);
+            }
+        }
+
+        Debug.WriteLine($"Initial injection complete. Injected into {InjectedProcessIds.Count} processes.");
+    }
+
+    private static void MonitorNewProcesses()
+    {
+        Debug.WriteLine("Starting continuous process monitoring...");
+
+        while (true)
+        {
             try
             {
-                // Skip excluded processes
-                if (ExcludedProcesses.Contains(proc.ProcessName + ".exe"))
-                    continue;
+                var allProcesses = Process.GetProcesses();
 
-                // Skip system-protected processes (optional extra safety)
-                if (proc.SessionId == 0) // system session
-                    continue;
-
-                // Skip if we cannot open
-                if (!Injector.CanOpenProcess(proc.Id))
-                    continue;
-
-                // Determine architecture
-                TerraFX.Interop.Windows.BOOL isWow64 = false;
-                if (Environment.Is64BitOperatingSystem)
+                foreach (var proc in allProcesses)
                 {
-                    unsafe
+                    // If not already injected or currently being injected
+                    if (!InjectedProcessIds.ContainsKey(proc.Id))
                     {
-                        TerraFX.Interop.Windows.Windows.IsWow64Process(new(proc.Handle.ToPointer()), &isWow64);
+                        // Fire & forget async injection
+                        _ = InjectIntoProcessAsync(proc).ContinueWith(t =>
+                        {
+                            if (t.Exception != null)
+                            {
+                                Debug.WriteLine($"InjectIntoProcessAsync exception in {proc.ProcessName}: " +
+                                                $"{t.Exception.Flatten().InnerException?.Message}");
+                            }
+                        }, TaskScheduler.Default);
                     }
                 }
 
-                if (isWow64) Injector.Inject((uint)proc.Id, @$"{AppContext.BaseDirectory}\Hooks\Rebound.Forge.Hooks.Run.dll");
+                // Clean up dead processes from tracking
+                var toRemove = new List<int>();
+
+                foreach (var kvp in InjectedProcessIds)
+                {
+                    var pid = kvp.Key;
+                    try
+                    {
+                        var proc = Process.GetProcessById(pid);
+                        if (proc.HasExited)
+                            toRemove.Add(pid);
+                    }
+                    catch
+                    {
+                        // Process no longer exists
+                        toRemove.Add(pid);
+                    }
+                }
+
+                foreach (var pid in toRemove)
+                {
+                    InjectedProcessIds.TryRemove(pid, out _);
+                }
             }
             catch (Exception ex)
             {
-                Debug.WriteLine($"Injection skipped for {proc.ProcessName}: {ex.Message}");
+                Debug.WriteLine($"Error in process monitor: {ex.Message}");
             }
+
+            // Poll every 500ms for new processes
+            Thread.Sleep(500);
         }
     }
 
@@ -77,7 +190,16 @@ public partial class App : Application
         // Window hooks
         var thread = new Thread(() =>
         {
-            InjectIntoProcesses();
+            // Inject into all existing processes first
+            InjectIntoExistingProcesses();
+
+            // Start monitoring for new processes in background
+            var monitorThread = new Thread(MonitorNewProcesses)
+            {
+                IsBackground = false,
+                Name = "Process Monitor"
+            };
+            monitorThread.Start();
 
             // Keep message pump alive so all hooks keep working
             NativeMessageLoop();
@@ -133,18 +255,22 @@ public partial class App : Application
             return;
 
         if (arg == "Shell::RestartToUEFI")
+        {
             RunShutdownCommand("/r /fw /t 0");
-
+        }
         else if (arg == "Shell::RestartToRecovery")
+        {
             RunShutdownCommand("/r /o /t 0");
-
+        }
         else if (arg == "Shell::Shutdown")
+        {
             RunShutdownCommand("/s /t 0");
-
+        }
         else if (arg == "Shell::Restart")
+        {
             RunShutdownCommand("/r /t 0");
-
-        else if (arg.StartsWith("Shell::ShutdownServer#"))
+        }
+        else if (arg.StartsWith("Shell::ShutdownServer#", StringComparison.InvariantCultureIgnoreCase))
         {
             var parts = arg["Shell::ShutdownServer#".Length..].ToCharArray();
 
@@ -162,7 +288,7 @@ public partial class App : Application
             }
         }
 
-        else if (arg.StartsWith("IFEOEngine::Pause#"))
+        else if (arg.StartsWith("IFEOEngine::Pause#", StringComparison.InvariantCultureIgnoreCase))
         {
             var part = arg["IFEOEngine::Pause#".Length..];
 
@@ -174,14 +300,11 @@ public partial class App : Application
         return;
     }
 
-    private void RunShutdownCommand(string args, SHUTDOWN_REASON reason)
-    {
-        _ = PInvoke.InitiateSystemShutdownEx(
+    private static void RunShutdownCommand(string args, SHUTDOWN_REASON reason) => _ = PInvoke.InitiateSystemShutdownEx(
             null, "Shutdown initiated via broker".ToPWSTR(),
-            0, true, args.Contains("/r"), reason);
-    }
+            0, true, args.Contains("/r", StringComparison.InvariantCultureIgnoreCase), reason);
 
-    private void RunShutdownCommand(string arguments)
+    private static void RunShutdownCommand(string arguments)
     {
         var psi = new ProcessStartInfo
         {
@@ -192,7 +315,7 @@ public partial class App : Application
         };
         try
         {
-            Process.Start(psi);
+            _ = Process.Start(psi);
         }
         catch (Exception ex)
         {
@@ -201,174 +324,95 @@ public partial class App : Application
         }
     }
 
-    //public static ILocalizer Localizer { get; set; }
-
-    private async void OnSingleInstanceLaunched(object? sender, Core.Helpers.Services.SingleInstanceLaunchEventArgs e)
-    {
-        if (e.IsFirstLaunch)
-        {
-            /*// Localizations
-            var stringsFolderPath = Path.Combine(AppContext.BaseDirectory, "Strings");
-
-            var stringsFolder = await StorageFolder.GetFolderFromPathAsync(stringsFolderPath);
-
-            Localizer = new LocalizerBuilder()
-                .AddStringResourcesFolderForLanguageDictionaries(stringsFolderPath)
-                .SetOptions(options =>
-                {
-                    options.DefaultLanguage = "en-US";
-                })
-                .Build();
-
-            var stringFolders = await stringsFolder.GetFoldersAsync(Windows.Storage.Search.CommonFolderQuery.DefaultQuery);
-
-            if (stringFolders.Any(item =>
-                item.Name.Equals(GlobalizationPreferences.Languages[0], StringComparison.OrdinalIgnoreCase)))
-            {
-                Localizer.SetLanguage(GlobalizationPreferences.Languages[0]);
-            }
-            else
-            {
-                Localizer.SetLanguage("en-US");
-            }*/
-
-            // Window hooks
-            var thread = new Thread(() =>
-            {
-                //var hook1 = new WindowHook("#32770", "Shut Down Windows", "explorer");
-                //hook1.WindowDetected += Hook_WindowDetected_Shutdown;
-
-                /*var hook2 = new WindowHook("#32770", "RunBoxTitle".GetLocalizedString(), "explorer");
-                hook2.WindowDetected += Hook_WindowDetected_Run;
-
-                var hook3 = new WindowHook("#32770", "RunBoxTitleTaskManager".GetLocalizedString(), "taskmgr");
-                hook3.WindowDetected += Hook_WindowDetected_Run;*/
-
-                //var hook4 = new WindowHook("Shell_Dialog", "This app can’t run on your PC", "explorer");
-                //hook4.WindowDetected += Hook_WindowDetected_CantRun;
-                
-                // Keep message pump alive so all hooks keep working
-                NativeMessageLoop();
-            });
-
-            thread.SetApartmentState(ApartmentState.STA);
-            thread.IsBackground = true;
-            thread.Start();
-
-            // Server
-            _ = Task.Run(StartPipeServer);
-
-            // Activation
-            /*MainAppWindow = new MainWindow();
-            MainAppWindow.Activate();
-            MainAppWindow.Show();*/
-        }
-    }
-
-    private const uint WM_CLOSE = 0x10; // WM_CLOSE constant
-
-    private async void Hook_WindowDetected_Run(object? sender, WindowDetectedEventArgs e)
-    {
-        if (SettingsHelper.GetValue("InstallRun", "rebound", true))
-        {
-            // Send WM_CLOSE message to close the window
-            PInvoke.SendMessage(new(e.Handle), WM_CLOSE, 0, 0);
-
-            await PipeServer.BroadcastMessageAsync("Shell::SpawnRunWindow");
-        }
-    }
-
-    private async void Hook_WindowDetected_Shutdown(object? sender, WindowDetectedEventArgs e)
-    {
-        if (SettingsHelper.GetValue("InstallShutdownDialog", "rebound", true))
-        {
-            PInvoke.PostMessage(new(e.Handle), WM_CLOSE, new Windows.Win32.Foundation.WPARAM(0), IntPtr.Zero);
-            PInvoke.DestroyWindow(new(e.Handle));
-
-            await PipeServer.BroadcastMessageAsync("Shell::SpawnShutdownDialog");
-        }
-    }
-
-    private async void Hook_WindowDetected_CantRun(object? sender, WindowDetectedEventArgs e)
-    {
-        if (PInvoke.IsWindow(new(e.Handle)) && SettingsHelper.GetValue("InstallThisAppCantRunOnYourPC", "rebound", true))
-        {
-            // Send WM_CLOSE asynchronously, non-blocking
-            PInvoke.PostMessage(new(e.Handle), WM_CLOSE, new Windows.Win32.Foundation.WPARAM(0), IntPtr.Zero);
-
-            await PipeServer.BroadcastMessageAsync("Shell::SpawnCantRunDialog");
-        }
-    }
-
     private static void NativeMessageLoop()
     {
         while (true)
         {
-            PInvoke.GetMessage(out var msg, Windows.Win32.Foundation.HWND.Null, 0, 0);
-            PInvoke.TranslateMessage(msg);
-            PInvoke.DispatchMessage(msg);
+            _ = PInvoke.GetMessage(out var msg, Windows.Win32.Foundation.HWND.Null, 0, 0);
+            _ = PInvoke.TranslateMessage(msg);
+            _ = PInvoke.DispatchMessage(msg);
         }
     }
 }
 
 // New RunFileDlg hook (ordinal #61)
-public class Injector
+internal class Injector
 {
     public static bool CanOpenProcess(int pid)
     {
         var hProcess = TerraFX.Interop.Windows.Windows.OpenProcess(PROCESS_ALL_ACCESS, bInheritHandle: false, dwProcessId: (uint)pid);
         if (hProcess == IntPtr.Zero) return false;
-        TerraFX.Interop.Windows.Windows.CloseHandle(hProcess);
+        _ = TerraFX.Interop.Windows.Windows.CloseHandle(hProcess);
         return true;
     }
 
-    const uint PROCESS_ALL_ACCESS = 0x1F0FFF;
-    const uint MEM_COMMIT = 0x1000;
-    const uint MEM_RESERVE = 0x2000;
-    const uint PAGE_READWRITE = 0x04;
+    private const uint PROCESS_ALL_ACCESS = 0x1F0FFF;
+    private const uint MEM_COMMIT = 0x1000;
+    private const uint MEM_RESERVE = 0x2000;
+    private const uint PAGE_READWRITE = 0x04;
+    private const uint MEM_RELEASE = 0x8000;
+    private const uint INFINITE = 0xFFFFFFFF;
 
-    public static unsafe bool Inject(uint pid, string dllPath)
+    public static unsafe bool Inject(uint pid, string dllPath, uint waitTimeoutMs = 10_000)
     {
-        TerraFX.Interop.Windows.HANDLE hProcess = TerraFX.Interop.Windows.Windows.OpenProcess(dwDesiredAccess: PROCESS_ALL_ACCESS, bInheritHandle: false, dwProcessId: pid);
+        var hProcess = TerraFX.Interop.Windows.Windows.OpenProcess(
+            dwDesiredAccess: PROCESS_ALL_ACCESS,
+            bInheritHandle: false,
+            dwProcessId: pid);
+
         if (hProcess == IntPtr.Zero)
         {
-            Debug.WriteLine("Failed to open process.");
+            Debug.WriteLine($"Failed to open process {pid}. Error: {Marshal.GetLastWin32Error()}");
             return false;
         }
 
-        // Ensure null-terminated Unicode string
         var dllPathBytes = System.Text.Encoding.Unicode.GetBytes(dllPath + "\0");
-        void* allocMem = TerraFX.Interop.Windows.Windows.VirtualAllocEx(hProcess, lpAddress: null, dwSize: (uint)dllPathBytes.Length, flAllocationType: MEM_COMMIT | MEM_RESERVE, flProtect: PAGE_READWRITE);
+        var allocMem = TerraFX.Interop.Windows.Windows.VirtualAllocEx(
+            hProcess,
+            lpAddress: null,
+            dwSize: (uint)dllPathBytes.Length,
+            flAllocationType: MEM_COMMIT | MEM_RESERVE,
+            flProtect: PAGE_READWRITE);
+
         if ((nint)allocMem == IntPtr.Zero)
         {
-            Debug.WriteLine("Failed to allocate memory in target process.");
-            TerraFX.Interop.Windows.Windows.CloseHandle(hProcess);
+            Debug.WriteLine($"Failed to allocate memory in target process. Error: {Marshal.GetLastWin32Error()}");
+            _ = TerraFX.Interop.Windows.Windows.CloseHandle(hProcess);
             return false;
         }
 
         fixed (byte* pBytes = dllPathBytes)
         {
-            if (!TerraFX.Interop.Windows.Windows.WriteProcessMemory(hProcess, lpBaseAddress: allocMem, lpBuffer: pBytes, nSize: (uint)dllPathBytes.Length, lpNumberOfBytesWritten: null))
+            if (!TerraFX.Interop.Windows.Windows.WriteProcessMemory(
+                hProcess,
+                lpBaseAddress: allocMem,
+                lpBuffer: pBytes,
+                nSize: (uint)dllPathBytes.Length,
+                lpNumberOfBytesWritten: null))
             {
-                Debug.WriteLine("Failed to write DLL path to target process.");
-                TerraFX.Interop.Windows.Windows.CloseHandle(hProcess);
+                Debug.WriteLine($"Failed to write DLL path to target process. Error: {Marshal.GetLastWin32Error()}");
+                _ = TerraFX.Interop.Windows.Windows.VirtualFreeEx(hProcess, allocMem, 0, MEM_RELEASE);
+                _ = TerraFX.Interop.Windows.Windows.CloseHandle(hProcess);
                 return false;
             }
         }
 
-        TerraFX.Interop.Windows.HMODULE hKernel32 = TerraFX.Interop.Windows.Windows.GetModuleHandleW("kernel32.dll".ToPCWSTR().Value);
-        void* loadLibraryAddr = TerraFX.Interop.Windows.Windows.GetProcAddress(hKernel32, (sbyte*)Marshal.StringToHGlobalAnsi("LoadLibraryW"));
+        var hKernel32 = TerraFX.Interop.Windows.Windows.GetModuleHandleW("kernel32.dll".ToPCWSTR().Value);
+        var loadLibraryAddr = TerraFX.Interop.Windows.Windows.GetProcAddress(
+            hKernel32,
+            (sbyte*)Marshal.StringToHGlobalAnsi("LoadLibraryW"));
 
         if (loadLibraryAddr == null)
         {
             Debug.WriteLine("Failed to get address of LoadLibraryW.");
-            TerraFX.Interop.Windows.Windows.CloseHandle(hProcess);
+            _ = TerraFX.Interop.Windows.Windows.VirtualFreeEx(hProcess, allocMem, 0, MEM_RELEASE);
+            _ = TerraFX.Interop.Windows.Windows.CloseHandle(hProcess);
             return false;
         }
 
-        delegate* unmanaged <void*, uint> loadLibraryFunc = (delegate* unmanaged <void*, uint>)loadLibraryAddr;
+        var loadLibraryFunc = (delegate* unmanaged<void*, uint>)loadLibraryAddr;
 
-        IntPtr hThread = TerraFX.Interop.Windows.Windows.CreateRemoteThread(
+        var hThread = TerraFX.Interop.Windows.Windows.CreateRemoteThread(
             hProcess,
             null,
             0,
@@ -377,14 +421,54 @@ public class Injector
             0,
             null
         );
+
         if (hThread == IntPtr.Zero)
         {
-            Debug.WriteLine("Failed to create remote thread.");
-            TerraFX.Interop.Windows.Windows.CloseHandle(hProcess);
+            var error = Marshal.GetLastWin32Error();
+            Debug.WriteLine($"Failed to create remote thread in process {pid}. Error: {error}");
+            _ = TerraFX.Interop.Windows.Windows.VirtualFreeEx(hProcess, allocMem, 0, MEM_RELEASE);
+            _ = TerraFX.Interop.Windows.Windows.CloseHandle(hProcess);
             return false;
         }
 
-        TerraFX.Interop.Windows.Windows.CloseHandle(hProcess);
+        // Wait with timeout
+        uint waitResult = TerraFX.Interop.Windows.Windows.WaitForSingleObject(hThread, waitTimeoutMs);
+
+        uint exitCode = 0;
+        if (waitResult == TerraFX.Interop.Windows.WAIT.WAIT_OBJECT_0)
+        {
+            _ = TerraFX.Interop.Windows.Windows.GetExitCodeThread(hThread, &exitCode);
+        }
+        else if (waitResult == TerraFX.Interop.Windows.WAIT.WAIT_TIMEOUT)
+        {
+            Debug.WriteLine($"LoadLibraryW timed out in process {pid} after {waitTimeoutMs}ms.");
+            // Clean up handles and memory, but the remote thread may still be running inside LoadLibraryW.
+            _ = TerraFX.Interop.Windows.Windows.VirtualFreeEx(hProcess, allocMem, 0, MEM_RELEASE);
+            _ = TerraFX.Interop.Windows.Windows.CloseHandle(hThread);
+            _ = TerraFX.Interop.Windows.Windows.CloseHandle(hProcess);
+            return false;
+        }
+        else
+        {
+            Debug.WriteLine($"WaitForSingleObject failed for process {pid}. Error: {Marshal.GetLastWin32Error()}");
+            _ = TerraFX.Interop.Windows.Windows.VirtualFreeEx(hProcess, allocMem, 0, MEM_RELEASE);
+            _ = TerraFX.Interop.Windows.Windows.CloseHandle(hThread);
+            _ = TerraFX.Interop.Windows.Windows.CloseHandle(hProcess);
+            return false;
+        }
+
+        // Normal cleanup
+        _ = TerraFX.Interop.Windows.Windows.VirtualFreeEx(hProcess, allocMem, 0, MEM_RELEASE);
+        _ = TerraFX.Interop.Windows.Windows.CloseHandle(hThread);
+        _ = TerraFX.Interop.Windows.Windows.CloseHandle(hProcess);
+
+        if (exitCode == 0)
+        {
+            Debug.WriteLine($"DLL injection FAILED for process {pid} - LoadLibraryW returned NULL (DLL not loaded or dependencies missing)");
+            return false;
+        }
+
+        Debug.WriteLine($"Successfully injected into x64 process {pid} - Module handle: 0x{exitCode:X}");
         return true;
     }
 }

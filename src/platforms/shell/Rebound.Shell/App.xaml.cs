@@ -92,8 +92,21 @@ public partial class App : Application
         var parts = arg.Split("##");
         if (parts[0] == "Shell::SpawnRunWindow")
         {
-            var windowTitle = parts.Length > 1 ? parts[1].Trim() : "Run";
-            Program._actions.Add(() => ShowRunWindow(windowTitle));
+            if (RunWindow == null)
+            {
+                var windowTitle = parts.Length > 1 ? parts[1].Trim() : "Run";
+                Program._actions.Add(() =>
+                {
+                    ShowRunWindow(windowTitle);
+                    _runWindowQueued = false; // runs only when this queued action executes
+                });
+            }
+            else
+            {
+                TerraFX.Interop.Windows.Windows.ShowWindow(RunWindow.Handle, SW.SW_SHOW);
+                TerraFX.Interop.Windows.Windows.SetForegroundWindow(RunWindow.Handle);
+                TerraFX.Interop.Windows.Windows.SetActiveWindow(RunWindow.Handle);
+            }
         }
 
         return;
@@ -104,9 +117,9 @@ public partial class App : Application
         if (RunWindow is null)
         {
             RunWindow = new();
-            RunWindow.MoveAndResize(25, Display.GetAvailableRectForWindow(RunWindow.Handle).bottom - 265, 450, 240);
             RunWindow.AppWindowInitialized += (s, e) =>
             {
+                RunWindow.MoveAndResize((int)(25 * Display.GetScale(RunWindow.AppWindow)), Display.GetAvailableRectForWindow(RunWindow.Handle).bottom - (int)(265 * Display.GetScale(RunWindow.AppWindow)), 450, 240);
                 RunWindow.Title = title;
                 RunWindow.AppWindow?.SetIcon($"{AppContext.BaseDirectory}\\Assets\\RunBox.ico");
                 RunWindow.AppWindow?.TitleBar.ExtendsContentIntoTitleBar = true;

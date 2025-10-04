@@ -29,13 +29,35 @@ internal static class ReboundLogger
 
             lock (_lock)
             {
-                File.AppendAllText(LogFile, line + Environment.NewLine);
+                try
+                {
+                    // Defensive: ensure directory still exists (someone may have deleted it).
+                    var dir = Path.GetDirectoryName(LogFile);
+                    var dir2 = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData) + "\\Rebound";
+                    if (!string.IsNullOrEmpty(dir2))
+                    {
+                        Directory.CreateDirectory(dir2);
+                    }
+                    File.SetAttributes(dir2, FileAttributes.Directory);
+                    if (!string.IsNullOrEmpty(dir))
+                    {
+                        Directory.CreateDirectory(dir);
+                    }
+                    File.SetAttributes(dir, FileAttributes.Directory);
+
+                    File.AppendAllText(LogFile, line + Environment.NewLine);
+                }
+                catch (IOException ioEx)
+                {
+                    // Could be file locked or disk issue — at least surface to debug output.
+                    Debug.WriteLine("ReboundLogger IO error: " + ioEx);
+                }
             }
         }
-        catch
+        catch (Exception outerEx)
         {
             // If logging itself fails, at least write to debug output
-            Debug.WriteLine("Logging failed: " + message);
+            Debug.WriteLine("ReboundLogger: Logging failed: " + message + " — " + outerEx);
         }
     }
 }
