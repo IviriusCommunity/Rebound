@@ -126,8 +126,11 @@
   <data name="CopyWindowsVer.Text" xml:space="preserve">
     <value>Скопировать версию Windows</value>
   </data>
-  <data name="CurrentUser.Text" xml:space="preserve">
+  <data name="CurrentUser" xml:space="preserve">
     <value>Текущий пользователь</value>
+  </data>
+  <data name="HelloUser" xml:space="preserve">
+    <value>Hello, {0}!</value>
   </data>
   <data name="LegalInfo" xml:space="preserve">
     <value>Операционная система {0} и её пользовательский интерфейс защищены торговым знаком и другими незавершенными или существующими правами интеллектуальной собственности в Соединенных Штатах и других странах/регионах.</value>
@@ -144,7 +147,7 @@
   <data name="ReboundInfo.Text" xml:space="preserve">
     <value>Rebound — это мод для Windows, который не изменяет системные файлы. Текущая установка Windows содержит дополнительные приложения для запуска Rebound.</value>
   </data>
-  <data name="TitleTextBlock.Text" xml:space="preserve">
+  <data name="Title.Text" xml:space="preserve">
     <value>Сведения о Windows</value>
   </data>
   <data name="ToLabel.Text" xml:space="preserve">

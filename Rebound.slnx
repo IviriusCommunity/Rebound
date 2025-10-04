@@ -15,7 +15,7 @@
   <Folder Name="/src/apps/">
     <Project Path="src/apps/Rebound.About/Rebound.About.csproj">
       <Platform Project="x64" />
-      <Deploy Solution="Debug|x64" />
+      <Deploy Solution="*|x64" />
     </Project>
     <Project Path="src/apps/Rebound.Cleanup/Rebound.Cleanup.csproj">
       <Platform Project="x64" />

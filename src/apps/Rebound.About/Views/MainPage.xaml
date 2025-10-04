@@ -16,16 +16,15 @@
     mc:Ignorable="d">
 
     <Grid>
-        <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="508" />
-            <ColumnDefinition Width="*" />
-        </Grid.ColumnDefinitions>
         <Grid.RowDefinitions>
-            <RowDefinition Height="Auto" />
             <RowDefinition Height="Auto" />
             <RowDefinition Height="*" />
             <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
         </Grid.RowDefinitions>
+
+        <!--  Blur logo  -->
         <StackPanel
             Grid.Row="0"
             Margin="0,52,0,24"
@@ -34,7 +33,6 @@
             Orientation="Horizontal"
             Spacing="24">
             <Grid VerticalAlignment="Center">
-                <Path Data="M 0 4 C 0 2 2 0 4 0 L 33 0 L 33 33 L 0 33 M 35 0 L 64 0 C 66 0 68 2 68 4 L 68 33 L 35 33 M 33 35 L 0 35 L 0 64 C 0 66 2 68 4 68 L 33 68 M 35 35 L 68 35 L 68 64 C 68 66 66 68 64 68 L 35 68" Fill="{StaticResource AccentFillColorDefaultBrush}" />
                 <Path Data="M 0 4 C 0 2 2 0 4 0 L 33 0 L 33 33 L 0 33 M 35 0 L 64 0 C 66 0 68 2 68 4 L 68 33 L 35 33 M 33 35 L 0 35 L 0 64 C 0 66 2 68 4 68 L 33 68 M 35 35 L 68 35 L 68 64 C 68 66 66 68 64 68 L 35 68">
                     <Path.Fill>
                         <LinearGradientBrush StartPoint="0, 0" EndPoint="1, 1">
@@ -63,11 +61,15 @@
                 </TextBlock.Foreground>
             </TextBlock>
         </StackPanel>
+
+        <!--  Blur  -->
         <Grid Visibility="{x:Bind ViewModel.ShowBlurAndGlow, Mode=OneWay}">
             <Grid.Background>
                 <media:BackdropBlurBrush Amount="36.0" />
             </Grid.Background>
         </Grid>
+
+        <!--  Logo  -->
         <StackPanel
             Grid.Row="0"
             Margin="0,52,0,24"
@@ -76,7 +78,6 @@
             Orientation="Horizontal"
             Spacing="24">
             <Grid VerticalAlignment="Center">
-                <Path Data="M 0 4 C 0 2 2 0 4 0 L 33 0 L 33 33 L 0 33 M 35 0 L 64 0 C 66 0 68 2 68 4 L 68 33 L 35 33 M 33 35 L 0 35 L 0 64 C 0 66 2 68 4 68 L 33 68 M 35 35 L 68 35 L 68 64 C 68 66 66 68 64 68 L 35 68" Fill="{StaticResource AccentFillColorDefaultBrush}" />
                 <Path Data="M 0 4 C 0 2 2 0 4 0 L 33 0 L 33 33 L 0 33 M 35 0 L 64 0 C 66 0 68 2 68 4 L 68 33 L 35 33 M 33 35 L 0 35 L 0 64 C 0 66 2 68 4 68 L 33 68 M 35 35 L 68 35 L 68 64 C 68 66 66 68 64 68 L 35 68">
                     <Path.Fill>
                         <LinearGradientBrush StartPoint="0, 0" EndPoint="1, 1">
@@ -105,12 +106,14 @@
                 </TextBlock.Foreground>
             </TextBlock>
         </StackPanel>
+
+        <!--  Title bar  -->
         <StackPanel
             Margin="12,8"
             VerticalAlignment="Top"
             Orientation="Horizontal"
             Spacing="8">
-            <TextBlock FontSize="12" Text="About Windows" />
+            <TextBlock x:Uid="Title" FontSize="12" />
             <Border
                 Padding="6,2,6,3"
                 VerticalAlignment="Center"
@@ -124,6 +127,8 @@
                     Text="BETA" />
             </Border>
         </StackPanel>
+
+        <!--  Glow line  -->
         <Grid Margin="0,142,0,0" Visibility="{x:Bind ViewModel.ShowBlurAndGlow, Mode=OneWay}">
             <Grid.Background>
                 <LinearGradientBrush StartPoint="0, 0" EndPoint="1, 1">
@@ -137,9 +142,10 @@
                 <media:AttachedCardShadow Color="{ThemeResource SystemAccentColorLight2}" />
             </ui:Effects.Shadow>
         </Grid>
+
+        <!--  Windows version  -->
         <Border
             Grid.Row="1"
-            MinHeight="272"
             Background="{ThemeResource LayerFillColorDefaultBrush}"
             BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
             BorderThickness="0,1,0,0">
@@ -161,14 +167,14 @@
                         Text="Microsoft Windows"
                         TextWrapping="WrapWholeWords" />
                     <TextBlock Text="{x:Bind ViewModel.DetailedWindowsVersion}" TextWrapping="WrapWholeWords" />
-                    <TextBlock />
+                    <TextBlock x:Uid="CopyrightLabel" />
                     <TextBlock Text="{x:Bind ViewModel.LegalInfo}" TextWrapping="WrapWholeWords" />
-                    <TextBlock>
-                        <Run />
+                    <TextBlock TextWrapping="WrapWholeWords">
+                        <Run x:Uid="LicensedUnderLabel" />
                         <Hyperlink NavigateUri="https://support.microsoft.com/en-us/windows/microsoft-software-license-terms-e26eedad-97a2-5250-2670-aad156b654bd">
-                            <Run />
+                            <Run x:Uid="MicrosoftLicenseTermsLabel" />
                         </Hyperlink>
-                        <Run />
+                        <Run x:Uid="ToLabel" />
                     </TextBlock>
                     <TextBlock x:Name="User" Text="{x:Bind ViewModel.LicenseOwners}" />
                 </StackPanel>
@@ -183,17 +189,20 @@
                     <FontIcon FontSize="16" Glyph="&#xE8C8;" />
                     <Button.Flyout>
                         <MenuFlyout>
-                            <MenuFlyoutItem Command="{x:Bind CopyWindowsVersionCommand}" />
-                            <MenuFlyoutItem Command="{x:Bind CopyLicenseOwnersCommand}" />
+                            <MenuFlyoutItem x:Uid="CopyWindowsVer" Command="{x:Bind CopyWindowsVersionCommand}" />
+                            <MenuFlyoutItem x:Uid="CopyLicenseOwners" Command="{x:Bind CopyLicenseOwnersCommand}" />
                         </MenuFlyout>
                     </Button.Flyout>
                 </Button>
             </Grid>
         </Border>
+
+        <!--  Rebound version  -->
         <Border
-            Grid.Row="2"
+            Grid.Row="3"
             BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
-            BorderThickness="0,1,0,0">
+            BorderThickness="0"
+            Visibility="{x:Bind ViewModel.IsReboundOn, Mode=OneWay}">
             <Grid Padding="16">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="Auto" />
@@ -212,7 +221,7 @@
                         Text="Rebound"
                         TextWrapping="WrapWholeWords" />
                     <TextBlock Text="{x:Bind environment:ReboundVersion.REBOUND_VERSION}" />
-                    <TextBlock TextWrapping="WrapWholeWords" />
+                    <TextBlock x:Uid="ReboundInfo" TextWrapping="WrapWholeWords" />
                 </StackPanel>
                 <Button
                     Grid.Column="2"
@@ -227,18 +236,18 @@
                 </Button>
             </Grid>
         </Border>
+
+        <!--  Bottom bar  -->
         <Grid
-            Grid.Row="3"
+            Grid.Row="4"
             Grid.ColumnSpan="2"
             Height="80"
             Padding="24"
-            Background="{ThemeResource SystemControlBackgroundAltMediumLowBrush}">
-            <Border
-                Height="1"
-                Margin="-24"
-                VerticalAlignment="Top"
-                Background="{ThemeResource CardStrokeColorDefaultBrush}" />
+            Background="{ThemeResource SystemControlBackgroundAltMediumLowBrush}"
+            BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+            BorderThickness="0,1,0,0">
             <Button
+                x:Uid="OKButton"
                 Width="120"
                 HorizontalAlignment="Right"
                 VerticalAlignment="Center"
@@ -248,55 +257,43 @@
                     <KeyboardAccelerator Key="Escape" />
                 </Button.KeyboardAccelerators>
             </Button>
-            <ToggleButton
-                Margin="0,-4"
-                Padding="8"
+            <muxc:PersonPicture
+                Width="28"
                 HorizontalAlignment="Left"
+                ProfilePicture="{x:Bind UserPicture, Mode=OneWay}" />
+            <TextBlock
+                Margin="40,0,180,0"
+                HorizontalAlignment="Stretch"
                 VerticalAlignment="Center"
-                Background="Transparent"
-                BorderBrush="Transparent"
-                Command="{x:Bind ToggleSidebarCommand}"
-                IsChecked="{x:Bind ViewModel.IsSidebarOn, Mode=TwoWay}"
-                IsThreeState="False">
-                <FontIcon FontSize="16" Glyph="&#xEEA1;" />
-            </ToggleButton>
-            <ToggleButton
-                Margin="40,-4,0,-4"
-                Padding="8"
-                HorizontalAlignment="Left"
-                VerticalAlignment="Center"
-                Background="Transparent"
-                BorderBrush="Transparent"
-                Command="{x:Bind ToggleReboundCommand}"
-                IsChecked="{x:Bind ViewModel.IsReboundOn, Mode=TwoWay}"
-                IsThreeState="False">
-                <FontIcon FontSize="16" Glyph="&#xE946;" />
-            </ToggleButton>
+                Text="{x:Bind ViewModel.CurrentUser, Mode=OneWay}"
+                TextWrapping="WrapWholeWords" />
         </Grid>
+
+        <!--  Specs cards  -->
         <Grid
-            Grid.RowSpan="3"
-            Grid.Column="1"
+            Grid.Row="2"
+            MinHeight="120"
             Padding="12"
             Background="{ThemeResource LayerOnMicaBaseAltFillColorDefaultBrush}"
             BorderBrush="{ThemeResource DividerStrokeColorDefaultBrush}"
-            BorderThickness="1,0,0,0"
-            RowSpacing="12">
-            <Grid.RowDefinitions>
-                <RowDefinition Height="Auto" />
-                <RowDefinition Height="*" />
-                <RowDefinition Height="*" />
-                <RowDefinition Height="*" />
-                <RowDefinition Height="*" />
-            </Grid.RowDefinitions>
-            <TextBlock FontWeight="SemiBold" Text="Specifications" />
-            <Grid
-                Grid.Row="1"
-                Padding="12"
-                Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
-                BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
-                BorderThickness="1"
-                CornerRadius="4">
+            BorderThickness="0,1"
+            ColumnSpacing="12"
+            RowSpacing="12"
+            Visibility="{x:Bind ViewModel.IsSidebarOn, Mode=OneWay}">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="*" />
+            </Grid.ColumnDefinitions>
+            <Grid Padding="4">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="*" />
+                </Grid.RowDefinitions>
                 <StackPanel
+                    HorizontalAlignment="Center"
                     VerticalAlignment="Top"
                     Orientation="Horizontal"
                     Spacing="8">
@@ -304,117 +301,101 @@
                     <TextBlock FontWeight="SemiBold" Text="CPU" />
                 </StackPanel>
                 <TextBlock
-                    VerticalAlignment="Bottom"
-                    FontSize="12"
-                    Opacity="0.75"
+                    Grid.Row="1"
+                    HorizontalAlignment="Center"
+                    VerticalAlignment="Center"
+                    FontWeight="SemiBold"
+                    HorizontalTextAlignment="Center"
                     Text="{x:Bind ViewModel.CPUName}"
                     TextWrapping="WrapWholeWords" />
             </Grid>
             <Grid
-                Grid.Row="2"
-                Padding="12"
-                Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
-                BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
-                BorderThickness="1"
-                CornerRadius="4">
+                Grid.Column="1"
+                Width="1"
+                Margin="4,8"
+                Background="{ThemeResource DividerStrokeColorDefaultBrush}"
+                CornerRadius="0.5" />
+            <Grid Grid.Column="2" Padding="4">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="*" />
+                </Grid.RowDefinitions>
                 <StackPanel
+                    HorizontalAlignment="Center"
                     VerticalAlignment="Top"
                     Orientation="Horizontal"
                     Spacing="8">
-                    <FontIcon FontSize="16" Glyph="&#xE7F4;" />
+                    <FontIcon FontSize="16" Glyph="&#xE7F7;" />
                     <TextBlock FontWeight="SemiBold" Text="GPU" />
                 </StackPanel>
                 <TextBlock
-                    VerticalAlignment="Bottom"
-                    FontSize="12"
-                    Opacity="0.75"
+                    Grid.Row="1"
+                    HorizontalAlignment="Center"
+                    VerticalAlignment="Center"
+                    FontWeight="SemiBold"
+                    HorizontalTextAlignment="Center"
                     Text="{x:Bind ViewModel.GPUName}"
                     TextWrapping="WrapWholeWords" />
             </Grid>
             <Grid
-                Grid.Row="3"
-                Padding="12"
-                Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
-                BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
-                BorderThickness="1"
-                CornerRadius="4">
+                Grid.Column="3"
+                Width="1"
+                Margin="4,8"
+                Background="{ThemeResource DividerStrokeColorDefaultBrush}"
+                CornerRadius="0.5" />
+            <Grid Grid.Column="4" Padding="4">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="*" />
+                </Grid.RowDefinitions>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="*" />
+                </Grid.ColumnDefinitions>
                 <StackPanel
+                    Grid.ColumnSpan="3"
+                    HorizontalAlignment="Center"
                     VerticalAlignment="Top"
                     Orientation="Horizontal"
                     Spacing="8">
                     <FontIcon FontSize="16" Glyph="&#xEEA0;" />
                     <TextBlock FontWeight="SemiBold" Text="RAM" />
                 </StackPanel>
-                <TextBlock
-                    VerticalAlignment="Bottom"
-                    FontSize="12"
-                    Opacity="0.75"
-                    Text="{x:Bind ViewModel.RAM}"
-                    TextWrapping="WrapWholeWords" />
-            </Grid>
-            <Grid
-                Grid.Row="4"
-                Padding="12"
-                Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
-                BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
-                BorderThickness="1"
-                CornerRadius="4">
                 <StackPanel
-                    VerticalAlignment="Top"
-                    Orientation="Horizontal"
-                    Spacing="8">
-                    <FontIcon FontSize="16" Glyph="&#xE77B;" />
-                    <TextBlock FontWeight="SemiBold" />
-                </StackPanel>
-                <TextBlock
-                    VerticalAlignment="Bottom"
-                    FontSize="12"
-                    Opacity="0.75"
-                    Text="{x:Bind ViewModel.CurrentUser}"
-                    TextWrapping="WrapWholeWords" />
-            </Grid>
-        </Grid>
-        <Grid
-            x:Name="FetchArea"
-            Grid.RowSpan="5"
-            Grid.ColumnSpan="5"
-            Background="Black"
-            Visibility="Collapsed">
-            <Border
-                Height="32"
-                VerticalAlignment="Top"
-                Background="{ThemeResource SolidBackgroundFillColorBaseBrush}" />
-            <StackPanel
-                Margin="12,8"
-                VerticalAlignment="Top"
-                Orientation="Horizontal"
-                Spacing="8">
-                <TextBlock FontSize="12" />
-                <Border
-                    Padding="6,2,6,3"
+                    Grid.Row="1"
+                    HorizontalAlignment="Center"
                     VerticalAlignment="Center"
-                    Background="{ThemeResource AccentFillColorDefaultBrush}"
-                    CornerRadius="2"
-                    Visibility="Collapsed">
+                    Spacing="4">
                     <TextBlock
-                        FontSize="10"
+                        HorizontalAlignment="Center"
                         FontWeight="SemiBold"
-                        Foreground="{ThemeResource TextOnAccentFillColorPrimaryBrush}"
-                        Text="BETA" />
-                </Border>
-            </StackPanel>
-            <TextBlock
-                x:Name="FetchTextBlock"
-                Margin="4,32,0,0"
-                FontFamily="Consolas"
-                IsTextSelectionEnabled="True" />
-            <TextBlock
-                Margin="0,0,8,32"
-                HorizontalAlignment="Right"
-                VerticalAlignment="Bottom"
-                FontFamily="Consolas"
-                Tapped="TextBlock_Tapped"
-                Text="[ PRESS HERE TO EXIT ]" />
+                        Text="Physical" />
+                    <TextBlock
+                        HorizontalAlignment="Center"
+                        FontSize="12"
+                        Opacity="0.75"
+                        Text="{x:Bind ViewModel.RAM}"
+                        TextWrapping="WrapWholeWords" />
+                </StackPanel>
+                <StackPanel
+                    Grid.Row="1"
+                    Grid.Column="2"
+                    HorizontalAlignment="Center"
+                    VerticalAlignment="Center"
+                    Spacing="4">
+                    <TextBlock
+                        HorizontalAlignment="Center"
+                        FontWeight="SemiBold"
+                        Text="Usable" />
+                    <TextBlock
+                        HorizontalAlignment="Center"
+                        FontSize="12"
+                        Opacity="0.75"
+                        Text="{x:Bind ViewModel.UsableRAM}"
+                        TextWrapping="WrapWholeWords" />
+                </StackPanel>
+            </Grid>
         </Grid>
     </Grid>
 </Page>

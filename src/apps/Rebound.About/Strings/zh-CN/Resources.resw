@@ -126,8 +126,11 @@
   <data name="CopyWindowsVer.Text" xml:space="preserve">
     <value>复制Windows版本</value>
   </data>
-  <data name="CurrentUser.Text" xml:space="preserve">
+  <data name="CurrentUser" xml:space="preserve">
     <value>当前用户</value>
+  </data>
+  <data name="HelloUser" xml:space="preserve">
+    <value>Hello, {0}!</value>
   </data>
   <data name="LegalInfo" xml:space="preserve">
     <value>{0}操作系统及其用户界面受美国及其他国家/地区的商标和其他正在申请或已存在的知识产权保护。</value>
@@ -144,7 +147,7 @@
   <data name="ReboundInfo.Text" xml:space="preserve">
     <value>Rebound是一款不修改系统文件的Windows插件。当前的Windows安装包含运行Rebound所需的额外应用程序。</value>
   </data>
-  <data name="TitleTextBlock.Text" xml:space="preserve">
+  <data name="Title.Text" xml:space="preserve">
     <value>关于Windows</value>
   </data>
   <data name="ToLabel.Text" xml:space="preserve">

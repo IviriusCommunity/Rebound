@@ -21,6 +21,7 @@
 		<PublishProfile>win-$(Platform).pubxml</PublishProfile>
 
 		<!-- Trimmming -->
+		<SelfContained>true</SelfContained>
 		<PublishTrimmed>true</PublishTrimmed>
 		<Optimize>true</Optimize>
 		<OptimizationPreference>Speed</OptimizationPreference>

@@ -24,12 +24,13 @@
 	<PropertyGroup>
 		<AppxPackageSigningEnabled>True</AppxPackageSigningEnabled>
 		<AppxPackageSigningTimestampDigestAlgorithm>SHA256</AppxPackageSigningTimestampDigestAlgorithm>
-		<AppxAutoIncrementPackageRevision>True</AppxAutoIncrementPackageRevision>
+		<AppxAutoIncrementPackageRevision>False</AppxAutoIncrementPackageRevision>
 		<AppxBundle>Never</AppxBundle>
 		<GenerateTestArtifacts>True</GenerateTestArtifacts>
 		<GenerateAppInstallerFile>True</GenerateAppInstallerFile>
 		<AppInstallerUri>D:\</AppInstallerUri>
 		<HoursBetweenUpdateChecks>0</HoursBetweenUpdateChecks>
+		<PackageCertificateKeyFile>C:\Users\zaita\source\repos\Rebound\src\apps\Rebound.About\Rebound.About_TemporaryKey.pfx</PackageCertificateKeyFile>
 	</PropertyGroup>
 
 	<!-- Project content -->

@@ -1,20 +1,31 @@
 ﻿// Copyright (C) Ivirius(TM) Community 2020 - 2025. All Rights Reserved.
 // Licensed under the MIT License.
 
-using System;
-using System.Diagnostics;
-using System.Runtime.CompilerServices;
-using System.Threading.Tasks;
+using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Microsoft.UI;
+using Microsoft.Win32;
 using Rebound.About.ViewModels;
 using Rebound.Core.Helpers;
 using Rebound.Core.Helpers;
 using Rebound.Core.Helpers.Environment;
+using System;
+using System.Diagnostics;
+using System.IO;
+using System.Linq;
+using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices.WindowsRuntime;
+using System.Security.Principal;
+using System.Threading.Tasks;
 using Windows.ApplicationModel.DataTransfer;
+using Windows.Storage;
+using Windows.Storage.Streams;
+using Windows.System;
+using Windows.System.UserProfile;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Documents;
 using Windows.UI.Xaml.Media;
+using Windows.UI.Xaml.Media.Imaging;
 using Windows.Win32;
 using Windows.Win32.Foundation;
 using Windows.Win32.Security;
@@ -23,6 +34,7 @@ using WinRT;
 
 namespace Rebound.About.Views;
 
+[INotifyPropertyChanged]
 public sealed partial class MainPage : Page
 {
     public unsafe partial struct IDefragClient : IComIID
@@ -292,6 +304,67 @@ public sealed partial class MainPage : Page
         public static partial ref readonly Guid Guid { get; }
     }
 
+    [ObservableProperty]
+    public partial BitmapImage UserPicture { get; set; }
+
+    private static async Task<BitmapImage?> GetUserPictureAsync()
+    {
+        // Step 1: Check the user-specific AccountPictures folder
+        string userAccountPictures = Path.Combine(
+            Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
+            "Microsoft", "Windows", "AccountPictures");
+
+        string picturePath = null;
+
+        if (Directory.Exists(userAccountPictures))
+        {
+            var accountFiles = Directory.GetFiles(userAccountPictures, "*.accountpicture-ms");
+            if (accountFiles.Length > 0)
+            {
+                // Pick the latest one
+                picturePath = accountFiles
+                    .OrderByDescending(f => File.GetLastWriteTime(f))
+                    .First();
+            }
+        }
+
+        // Step 2: Fallback to the system-wide default
+        if (picturePath == null)
+        {
+            string defaultPicture = Path.Combine(
+                Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData),
+                "Microsoft", "User Account Pictures", "user.png");
+
+            if (File.Exists(defaultPicture))
+                picturePath = defaultPicture;
+        }
+
+        if (picturePath == null)
+            return null;
+
+        // Step 3: Convert .accountpicture-ms to PNG stream if needed
+        Stream stream;
+        if (Path.GetExtension(picturePath).Equals(".accountpicture-ms", StringComparison.OrdinalIgnoreCase))
+        {
+            byte[] fileBytes = File.ReadAllBytes(picturePath);
+            const int headerOffset = 0x100;
+            stream = new MemoryStream(fileBytes, headerOffset, fileBytes.Length - headerOffset);
+        }
+        else
+        {
+            stream = File.OpenRead(picturePath);
+        }
+
+        // Step 4: Load into BitmapImage
+        var bitmap = new BitmapImage();
+        using (stream)
+        {
+            await bitmap.SetSourceAsync(stream.AsRandomAccessStream());
+        }
+
+        return bitmap;
+    }
+
     private MainViewModel ViewModel { get; } = new();
 
     IDefragClient DefragClient;
@@ -301,13 +374,13 @@ public sealed partial class MainPage : Page
         InitializeComponent();
         Load();
 
-        unsafe
+        /*unsafe
         {
             IDefragEnginePriv engine;
 
             var result = ReRegisterEngine(&engine);
             Debug.WriteLine(result);
-        }
+        }*/
 
         // I'm too lazy to test RE'd COM somewhere else
         //LoadDefragCOM();
@@ -464,104 +537,12 @@ public sealed partial class MainPage : Page
         }
     }
 
-    public void Load()
+    public async void Load()
     {
-        if (SettingsHelper.GetValue("FetchMode", "rebound", false))
+        DispatcherQueue.GetForCurrentThread().TryEnqueue(async () =>
         {
-            FetchArea.Visibility = Windows.UI.Xaml.Visibility.Visible;
-            var accentBrush = (SolidColorBrush)App.Current.Resources["AccentFillColorDefaultBrush"];
-            FetchTextBlock.Inlines.Add(new Run()
-            {
-                Foreground = accentBrush,
-                FontWeight = Windows.UI.Text.FontWeights.Bold,
-                Text = ViewModel.CurrentUser + "\n"
-            });
-            FetchTextBlock.Inlines.Add(new Run()
-            {
-                Foreground = new SolidColorBrush(Colors.White),
-                Text = new string('=', ViewModel.CurrentUser.Length) + "\n"
-            });
-            FetchTextBlock.Inlines.Add(new Run()
-            {
-                Foreground = accentBrush,
-                FontWeight = Windows.UI.Text.FontWeights.Bold,
-                Text = "OS: "
-            });
-            FetchTextBlock.Inlines.Add(new Run()
-            {
-                Foreground = new SolidColorBrush(Colors.White),
-                Text = ViewModel.WindowsVersionName + "\n"
-            });
-            FetchTextBlock.Inlines.Add(new Run()
-            {
-                Foreground = accentBrush,
-                FontWeight = Windows.UI.Text.FontWeights.Bold,
-                Text = "Windows Version: "
-            });
-            FetchTextBlock.Inlines.Add(new Run()
-            {
-                Foreground = new SolidColorBrush(Colors.White),
-                Text = ViewModel.DetailedWindowsVersion + "\n"
-            });
-            if (ViewModel.IsReboundOn)
-            {
-                FetchTextBlock.Inlines.Add(new Run()
-                {
-                    Foreground = accentBrush,
-                    FontWeight = Windows.UI.Text.FontWeights.Bold,
-                    Text = "Rebound Version: "
-                });
-                FetchTextBlock.Inlines.Add(new Run()
-                {
-                    Foreground = new SolidColorBrush(Colors.White),
-                    Text = ReboundVersion.REBOUND_VERSION + "\n"
-                });
-            }
-            FetchTextBlock.Inlines.Add(new Run()
-            {
-                Foreground = accentBrush,
-                FontWeight = Windows.UI.Text.FontWeights.Bold,
-                Text = "Resolution: "
-            });/*
-            FetchTextBlock.Inlines.Add(new Run()
-            {
-                Foreground = new SolidColorBrush(Colors.White),
-                Text = DisplayArea.GetFromWindowId(App.MainAppWindow.AppWindow.Id, DisplayAreaFallback.Primary).WorkArea.Width + "x" + DisplayArea.GetFromWindowId(App.MainAppWindow.AppWindow.Id, DisplayAreaFallback.Primary).WorkArea.Height + "\n"
-            });*/
-            FetchTextBlock.Inlines.Add(new Run()
-            {
-                Foreground = accentBrush,
-                FontWeight = Windows.UI.Text.FontWeights.Bold,
-                Text = "CPU: "
-            });
-            FetchTextBlock.Inlines.Add(new Run()
-            {
-                Foreground = new SolidColorBrush(Colors.White),
-                Text = ViewModel.CPUName + "\n"
-            });
-            FetchTextBlock.Inlines.Add(new Run()
-            {
-                Foreground = accentBrush,
-                FontWeight = Windows.UI.Text.FontWeights.Bold,
-                Text = "GPU: "
-            });
-            FetchTextBlock.Inlines.Add(new Run()
-            {
-                Foreground = new SolidColorBrush(Colors.White),
-                Text = ViewModel.GPUName + "\n"
-            });
-            FetchTextBlock.Inlines.Add(new Run()
-            {
-                Foreground = accentBrush,
-                FontWeight = Windows.UI.Text.FontWeights.Bold,
-                Text = "RAM: "
-            });
-            FetchTextBlock.Inlines.Add(new Run()
-            {
-                Foreground = new SolidColorBrush(Colors.White),
-                Text = ViewModel.RAM + "\n"
-            });
-        }
+            UserPicture = await GetUserPictureAsync();
+        });
     }
 
     [RelayCommand]
@@ -576,7 +557,7 @@ public sealed partial class MainPage : Page
     [RelayCommand]
     private void CloseWindow() => App.MainWindow.Close();
 
-    [RelayCommand]
+    /*[RelayCommand]
     public async Task ToggleSidebarAsync()
     {
         await Task.Delay(50);
@@ -626,7 +607,7 @@ public sealed partial class MainPage : Page
             }
             App.MainWindow.Height = 500;
         }
-    }
+    }*/
 
     private static void CopyToClipboard(string content)
     {

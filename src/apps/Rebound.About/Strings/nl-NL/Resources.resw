@@ -126,8 +126,11 @@
   <data name="CopyWindowsVer.Text" xml:space="preserve">
     <value>Kopiëren Windows Versie</value>
   </data>
-  <data name="CurrentUser.Text" xml:space="preserve">
+  <data name="CurrentUser" xml:space="preserve">
     <value>Huidige gebruiker</value>
+  </data>
+  <data name="HelloUser" xml:space="preserve">
+    <value>Hello, {0}!</value>
   </data>
   <data name="LegalInfo" xml:space="preserve">
     <value>Dit product is in licentie gegeven. Het {0} besturingssysteem en de gebruikersinterface ervan worden beschermd door handelsmerken en andere hangende of bestaande intellectuele eigendomsrechten in de Verenigde Staten en andere landen/regio's.</value>
@@ -144,7 +147,7 @@
   <data name="ReboundInfo.Text" xml:space="preserve">
     <value>Rebound is een Windows-mod die geen systeembestanden wijzigt. De huidige Windows-installatie bevat extra apps om Rebound te draaien.</value>
   </data>
-  <data name="TitleTextBlock.Text" xml:space="preserve">
+  <data name="Title.Text" xml:space="preserve">
     <value>Over Windows</value>
   </data>
   <data name="ToLabel.Text" xml:space="preserve">

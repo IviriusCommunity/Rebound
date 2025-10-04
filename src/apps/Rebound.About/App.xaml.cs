@@ -79,11 +79,11 @@ public partial class App : Application
         {
             MainWindow.Title = "About Windows";
             MainWindow.Width = 520;
-            MainWindow.Height = 640;
+            MainWindow.Height = 720;
             MainWindow.Move((int)(50 * Display.GetScale(MainWindow.AppWindow)), (int)(50 * Display.GetScale(MainWindow.AppWindow)));
             MainWindow.IsMaximizable = false;
             MainWindow.IsMinimizable = false;
-            MainWindow.IsResizable = false;
+            //MainWindow.IsResizable = false;
             MainWindow.AppWindow?.TitleBar.ExtendsContentIntoTitleBar = true;
             MainWindow.AppWindow?.TitleBar.ButtonBackgroundColor = Colors.Transparent;
             MainWindow.AppWindow?.TitleBar.ButtonInactiveBackgroundColor = Colors.Transparent;
