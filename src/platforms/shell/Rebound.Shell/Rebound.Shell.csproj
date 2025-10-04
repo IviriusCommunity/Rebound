@@ -19,6 +19,12 @@
 
 	</PropertyGroup>
 
+	<!-- UWP Properties -->
+	<PropertyGroup>
+		<UseUwp>true</UseUwp>
+		<UseUwpTools>true</UseUwpTools>
+	</PropertyGroup>
+
 	<ItemGroup>
 	  <None Remove="Assets\r11logo.png" />
 	  <None Remove="Assets\RunBox.ico" />
