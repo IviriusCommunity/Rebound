@@ -27,6 +27,9 @@ LoadImage
 PostMessage
 GetWindowLongPtr
 keybd_event
+DrawIconEx
+ExtractIconEx
+GetIconInfo
 CreateIcon
 MonitorFromWindow
 PrintWindow

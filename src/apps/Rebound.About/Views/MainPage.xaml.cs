@@ -309,60 +309,29 @@ public sealed partial class MainPage : Page
 
     private static async Task<BitmapImage?> GetUserPictureAsync()
     {
-        // Step 1: Check the user-specific AccountPictures folder
-        string userAccountPictures = Path.Combine(
-            Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
-            "Microsoft", "Windows", "AccountPictures");
+        string sid = WindowsIdentity.GetCurrent().User?.Value;
+        if (sid == null)
+            return new BitmapImage(new Uri("ms-appx:///Assets/DefaultUser.png"));
 
-        string picturePath = null;
+        string regPath = $@"SOFTWARE\Microsoft\Windows\CurrentVersion\AccountPicture\Users\{sid}";
 
-        if (Directory.Exists(userAccountPictures))
+        using (RegistryKey key = Registry.LocalMachine.OpenSubKey(regPath))
         {
-            var accountFiles = Directory.GetFiles(userAccountPictures, "*.accountpicture-ms");
-            if (accountFiles.Length > 0)
+            if (key != null)
             {
-                // Pick the latest one
-                picturePath = accountFiles
-                    .OrderByDescending(f => File.GetLastWriteTime(f))
-                    .First();
+                // Prefer the largest image available (Image1080 > Image192 > etc.)
+                string imagePath = key.GetValue("Image1080") as string
+                                ?? key.GetValue("Image192") as string
+                                ?? key.GetValue("Image64") as string;
+
+                if (!string.IsNullOrEmpty(imagePath) && System.IO.File.Exists(imagePath))
+                {
+                    return new BitmapImage(new Uri(imagePath));
+                }
             }
         }
 
-        // Step 2: Fallback to the system-wide default
-        if (picturePath == null)
-        {
-            string defaultPicture = Path.Combine(
-                Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData),
-                "Microsoft", "User Account Pictures", "user.png");
-
-            if (File.Exists(defaultPicture))
-                picturePath = defaultPicture;
-        }
-
-        if (picturePath == null)
-            return null;
-
-        // Step 3: Convert .accountpicture-ms to PNG stream if needed
-        Stream stream;
-        if (Path.GetExtension(picturePath).Equals(".accountpicture-ms", StringComparison.OrdinalIgnoreCase))
-        {
-            byte[] fileBytes = File.ReadAllBytes(picturePath);
-            const int headerOffset = 0x100;
-            stream = new MemoryStream(fileBytes, headerOffset, fileBytes.Length - headerOffset);
-        }
-        else
-        {
-            stream = File.OpenRead(picturePath);
-        }
-
-        // Step 4: Load into BitmapImage
-        var bitmap = new BitmapImage();
-        using (stream)
-        {
-            await bitmap.SetSourceAsync(stream.AsRandomAccessStream());
-        }
-
-        return bitmap;
+        return new BitmapImage(new Uri("ms-appx:///Assets/DefaultUser.png"));
     }
 
     private MainViewModel ViewModel { get; } = new();

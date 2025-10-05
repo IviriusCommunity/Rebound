@@ -11,6 +11,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Threading.Tasks;
 using Windows.Storage;
 using Windows.System.UserProfile;
 using Windows.UI;
@@ -43,33 +44,48 @@ public partial class App : Application
         };
     }
 
-    private void OnSingleInstanceLaunched(object sender, SingleInstanceLaunchEventArgs e)
+    private void OnSingleInstanceLaunched(object sender, SingleInstanceLaunchEventArgs e) => Program._actions.Add(async () =>
     {
-        Program._actions.Add(async () =>
+        if (e.IsFirstLaunch)
         {
-            /*if (e.IsFirstLaunch)
-            {
-                ReboundPipeClient = new ReboundPipeClient();
-                await ReboundPipeClient.ConnectAsync();
-            }*/
+            ReboundPipeClient = new ReboundPipeClient();
 
-            if (e.Arguments == "legacy")
+            // Start connecting asynchronously
+            var connectTask = ReboundPipeClient.ConnectAsync();
+
+            // Wait either for completion or for 1 second
+            var delayTask = Task.Delay(1000);
+            var completedTask = await Task.WhenAny(connectTask, delayTask);
+
+            if (completedTask == delayTask)
             {
-                await ReboundPipeClient.SendMessageAsync("IFEOEngine::Pause#winver.exe");
-                Process.Start(new ProcessStartInfo
-                {
-                    FileName = "winver.exe",
-                    UseShellExecute = true,
-                });
-                return;
+                await ReboundDialog.ShowAsync(
+                    "Rebound Service Host Not Found",
+                    "Rebound Service Host does not appear to be running.\nPlease start it and try again.",
+                    DialogIcon.Warning
+                );
             }
 
-            if (MainWindow != null)
-                MainWindow.Activate();
-            else
-                CreateMainWindow();
-        });
-    }
+            // Await completion regardless
+            await connectTask;
+        }
+
+        if (e.Arguments == "legacy")
+        {
+            await ReboundPipeClient.SendMessageAsync("IFEOEngine::Pause#winver.exe");
+            Process.Start(new ProcessStartInfo
+            {
+                FileName = "winver.exe",
+                UseShellExecute = true,
+            });
+            return;
+        }
+
+        if (MainWindow != null)
+            MainWindow.Activate();
+        else
+            CreateMainWindow();
+    });
 
     public static unsafe void CreateMainWindow()
     {

@@ -27,6 +27,8 @@
 		<OptimizationPreference>Speed</OptimizationPreference>
 		<IlcOptimizationPreference>Speed</IlcOptimizationPreference>
 
+		<WindowsAppSDKSelfContained>true</WindowsAppSDKSelfContained>
+		
 	</PropertyGroup>
 
 	<!-- Trimmer Configuration -->

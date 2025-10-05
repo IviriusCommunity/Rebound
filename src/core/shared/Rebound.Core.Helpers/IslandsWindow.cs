@@ -5,18 +5,29 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.WinUI.Helpers;
 using Microsoft.UI;
 using Microsoft.UI.Windowing;
+using Microsoft.UI.Xaml.Controls;
 using Rebound.Core.Helpers;
 using System;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Threading;
+using System.Threading.Tasks;
 using TerraFX.Interop.Windows;
 using TerraFX.Interop.WinRT;
+using Windows.Graphics;
+using Windows.Graphics.Imaging;
+using Windows.Storage.Streams;
 using Windows.System;
+using Windows.UI;
 using Windows.UI.Core;
 using Windows.UI.Xaml;
+using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Hosting;
+using Windows.UI.Xaml.Media;
+using Windows.UI.Xaml.Media.Imaging;
+using Windows.Win32;
 using WinRT;
+using static System.Net.Mime.MediaTypeNames;
 using static TerraFX.Interop.Windows.SWP;
 using static TerraFX.Interop.Windows.Windows;
 using static TerraFX.Interop.Windows.WM;
@@ -43,6 +54,252 @@ public class XamlInitializedEventArgs : EventArgs
 public class AppWindowInitializedEventArgs : EventArgs
 {
 
+}
+
+public sealed class ReboundDialog : IslandsWindow
+{
+    private TaskCompletionSource<bool> _tcs = new();
+
+    public static async Task ShowAsync(string title, string message, DialogIcon icon = DialogIcon.Info)
+    {
+        var dlg = new ReboundDialog(title, message, icon);
+        dlg.Create(); // creates and shows window
+        await dlg._tcs.Task;
+    }
+
+    public ReboundDialog(string title, string message, DialogIcon icon)
+    {
+        Title = title;
+
+        XamlInitialized += (_, _) =>
+        {
+            // Create the dialog page
+            var page = new Page();
+            BackdropMaterial.SetApplyToRootOrPageBackground(page, true);
+
+            // Root grid for full layout (title bar + content)
+            var rootGrid = new Grid
+            {
+                RowDefinitions =
+        {
+            new RowDefinition { Height = GridLength.Auto }, // Title bar
+            new RowDefinition { Height = new GridLength(1, GridUnitType.Star) } // Content
+        },
+                CornerRadius = new CornerRadius(8)
+            };
+
+            // ==== TITLE BAR ====
+            var titleBar = new Border
+            {
+                Padding = new Thickness(8),
+            };
+
+            var titleText = new TextBlock
+            {
+                Text = title,
+                FontSize = 12,
+                VerticalAlignment = VerticalAlignment.Center
+            };
+
+            titleBar.Child = titleText;
+            rootGrid.Children.Add(titleBar);
+
+            // ==== CONTENT AREA ====
+            var contentGrid = new Grid
+            {
+                Padding = new Thickness(20, 20, 20, 0),
+                RowDefinitions =
+        {
+            new RowDefinition { Height = GridLength.Auto },
+            new RowDefinition { Height = GridLength.Auto },
+            new RowDefinition { Height = new GridLength(1, GridUnitType.Star) },
+            new RowDefinition { Height = GridLength.Auto } // footer
+        }
+            };
+            Grid.SetRow(contentGrid, 1);
+
+            var stack = new StackPanel { Orientation = Orientation.Horizontal };
+
+            var iconImg = new Windows.UI.Xaml.Controls.Image
+            {
+                Source = LoadSystemIcon(icon),
+                Width = 48,
+                Height = 48,
+                Margin = new Thickness(0, 0, 16, 0),
+                VerticalAlignment = VerticalAlignment.Top
+            };
+
+            stack.Children.Add(iconImg);
+
+            var textStack = new StackPanel();
+            textStack.Children.Add(new TextBlock
+            {
+                Text = title,
+                FontSize = 20,
+                FontWeight = Windows.UI.Text.FontWeights.SemiBold,
+                Margin = new Thickness(0, 0, 0, 8)
+            });
+            textStack.Children.Add(new TextBlock
+            {
+                Text = message,
+                TextWrapping = TextWrapping.WrapWholeWords,
+                MaxWidth = 320
+            });
+
+            stack.Children.Add(textStack);
+            contentGrid.Children.Add(stack);
+
+            // ==== FOOTER BAR ====
+            var footerBar = new Border
+            {
+                Background = (Brush)Windows.UI.Xaml.Application.Current.Resources["SystemControlBackgroundAltMediumLowBrush"],
+                Padding = new Thickness(24),
+                Margin = new (-20, 0, -20, 0)
+            };
+            Grid.SetRow(footerBar, 3);
+
+            var footerGrid = new Grid();
+            var okButton = new Button
+            {
+                Content = "OK",
+                Style = (Style)Windows.UI.Xaml.Application.Current.Resources["AccentButtonStyle"],
+                HorizontalAlignment = HorizontalAlignment.Right,
+                Width = 100
+            };
+
+            okButton.Click += (_, _) =>
+            {
+                _tcs.TrySetResult(true);
+                Close();
+            };
+
+            footerGrid.Children.Add(okButton);
+            footerBar.Child = footerGrid;
+            contentGrid.Children.Add(footerBar);
+
+            rootGrid.Children.Add(contentGrid);
+
+            // Attach content to the Page and then to the window
+            page.Content = rootGrid;
+            Content = page;
+        };
+
+        AppWindowInitialized += (_, _) =>
+        {
+            this.Title = title;
+            this.AppWindow.TitleBar.ExtendsContentIntoTitleBar = true;
+            this.AppWindow?.TitleBar.ButtonBackgroundColor = Windows.UI.Colors.Transparent;
+            this.AppWindow?.TitleBar.ButtonInactiveBackgroundColor = Windows.UI.Colors.Transparent;
+            this.Width = 480;
+            this.Height = 256;
+            this.IsMaximizable = false;
+            this.IsMinimizable = false;
+            this.IsResizable = false;
+        };
+    }
+
+    private static unsafe BitmapImage? LoadSystemIcon(DialogIcon icon)
+    {
+        string dll = System.Environment.SystemDirectory + "\\imageres.dll";
+        int iconIndex = icon switch
+        {
+            DialogIcon.Warning => 79,
+            DialogIcon.Error => 98,
+            DialogIcon.Info => 81,
+            DialogIcon.Shield => 1028,
+            _ => 277
+        };
+
+        Windows.Win32.UI.WindowsAndMessaging.HICON largeIcon = default;
+        PInvoke.ExtractIconEx(dll.ToPCWSTR(), iconIndex, &largeIcon, null, 1);
+
+        /*if (largeIcon == Windows.Win32.UI.WindowsAndMessaging.HICON.NULL)
+            return null;*/
+
+        // Get icon info
+        Windows.Win32.UI.WindowsAndMessaging.ICONINFO iconInfo;
+        if (!PInvoke.GetIconInfo(largeIcon, &iconInfo))
+            return null;
+
+        Windows.Win32.Graphics.Gdi.BITMAP bmp;
+        if (PInvoke.GetObject(iconInfo.hbmColor, sizeof(Windows.Win32.Graphics.Gdi.BITMAP), &bmp) == 0)
+            return null;
+
+        int width = bmp.bmWidth;
+        int height = Math.Abs(bmp.bmHeight);
+
+        // Create compatible DC
+        var hdcScreen = PInvoke.GetDC(new());
+        var hdcMem = PInvoke.CreateCompatibleDC(hdcScreen);
+        var hBitmap = PInvoke.CreateCompatibleBitmap(hdcScreen, width, height);
+        var old = PInvoke.SelectObject(hdcMem, hBitmap);
+
+        // Draw the icon into the memory DC
+        PInvoke.DrawIconEx(hdcMem, 0, 0, largeIcon, width, height, 0, new(), Windows.Win32.UI.WindowsAndMessaging.DI_FLAGS.DI_NORMAL);
+
+        // Convert HBITMAP → byte array (BGRA)
+        int bytesPerPixel = 4;
+        int stride = width * bytesPerPixel;
+        int bufferSize = stride * height;
+        byte[] pixelData = new byte[bufferSize];
+
+        fixed (byte* pPixels = pixelData)
+        {
+            Windows.Win32.Graphics.Gdi.BITMAPINFO bmi = new()
+            {
+                bmiHeader =
+            {
+                biSize = (uint)sizeof(Windows.Win32.Graphics.Gdi.BITMAPINFOHEADER),
+                biWidth = width,
+                biHeight = -height, // top-down DIB
+                biPlanes = 1,
+                biBitCount = 32,
+                biCompression = (uint)BI.BI_RGB
+            }
+            };
+
+            PInvoke.GetDIBits(hdcMem, hBitmap, 0, (uint)height, pPixels, &bmi, Windows.Win32.Graphics.Gdi.DIB_USAGE.DIB_RGB_COLORS);
+        }
+
+        // Clean up GDI resources
+        PInvoke.SelectObject(hdcMem, old);
+        PInvoke.DeleteDC(hdcMem);
+        PInvoke.ReleaseDC(new(), hdcScreen);
+        PInvoke.DeleteObject(hBitmap);
+        PInvoke.DeleteObject(iconInfo.hbmColor);
+        PInvoke.DeleteObject(iconInfo.hbmMask);
+        PInvoke.DestroyIcon(largeIcon);
+
+        // Convert to BitmapImage
+        using var stream = new InMemoryRandomAccessStream();
+        var encoder = BitmapEncoder.CreateAsync(BitmapEncoder.PngEncoderId, stream).AsTask().Result;
+        {
+            encoder.SetPixelData(
+                Windows.Graphics.Imaging.BitmapPixelFormat.Bgra8,
+                Windows.Graphics.Imaging.BitmapAlphaMode.Premultiplied,
+                (uint)width,
+                (uint)height,
+                96, 96,
+                pixelData
+            );
+            encoder.FlushAsync().AsTask().Wait();
+        }
+
+        var image = new BitmapImage();
+        stream.Seek(0);
+        image.SetSource(stream);
+
+        return image;
+    }
+}
+
+public enum DialogIcon
+{
+    None,
+    Info,
+    Warning,
+    Error,
+    Shield
 }
 
 public partial class IslandsWindow : ObservableObject, IDisposable
@@ -116,8 +373,8 @@ public partial class IslandsWindow : ObservableObject, IDisposable
     private CoreWindow? _coreWindow;
 
     // Cached native COM interfaces to avoid repeated QueryInterface
-    private ComPtr<IDesktopWindowXamlSourceNative2> _nativeSource;
-    private ComPtr<ICoreWindowInterop> _coreWindowInterop;
+    private TerraFX.Interop.Windows.ComPtr<IDesktopWindowXamlSourceNative2> _nativeSource;
+    private TerraFX.Interop.Windows.ComPtr<ICoreWindowInterop> _coreWindowInterop;
 
     // Public properties from your original
     public HWND Handle { get; private set; }
