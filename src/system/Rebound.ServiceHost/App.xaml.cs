@@ -2,7 +2,9 @@
 // Licensed under the MIT License.
 
 using Rebound.Core.Helpers;
+using Rebound.Core.Helpers.Services;
 using Rebound.Forge.Engines;
+using Rebound.Generators;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
@@ -16,7 +18,7 @@ using Windows.Win32.System.Shutdown;
 
 namespace Rebound.ServiceHost;
 
-//[ReboundApp("Rebound.ServiceHost", "")]
+[ReboundApp("Rebound.ServiceHost", "")]
 public partial class App : Application
 {
     private static readonly ConcurrentDictionary<int, byte> InjectedProcessIds = new();
@@ -185,33 +187,48 @@ public partial class App : Application
 
     private static TrustedPipeServer? PipeServer;
 
-    public App()
+    private void OnSingleInstanceLaunched(object sender, SingleInstanceLaunchEventArgs e) => Program._actions.Add(async () =>
     {
-        // Window hooks
-        var thread = new Thread(() =>
+        if (e.IsFirstLaunch)
         {
-            // Inject into all existing processes first
-            InjectIntoExistingProcesses();
-
-            // Start monitoring for new processes in background
-            var monitorThread = new Thread(MonitorNewProcesses)
+            // Hook thread
+            var hookThread = new Thread(() =>
             {
-                IsBackground = false,
-                Name = "Process Monitor"
+                InjectIntoExistingProcesses();
+
+                var monitorThread = new Thread(MonitorNewProcesses)
+                {
+                    IsBackground = true,
+                    Name = "Process Monitor"
+                };
+                monitorThread.Start();
+
+                // Keep message loop running for hooks
+                NativeMessageLoop();
+            })
+            {
+                IsBackground = true,
+                Name = "Hook Thread"
             };
-            monitorThread.Start();
+            hookThread.SetApartmentState(ApartmentState.STA);
+            hookThread.Start();
 
-            // Keep message pump alive so all hooks keep working
+            // Pipe server thread
+            var pipeThread = new Thread(() =>
+            {
+                StartPipeServer();
+            })
+            {
+                IsBackground = true,
+                Name = "Pipe Server Thread"
+            };
+            pipeThread.SetApartmentState(ApartmentState.MTA); // Pipe doesn't need STA
+            pipeThread.Start();
+
             NativeMessageLoop();
-        });
-
-        thread.SetApartmentState(ApartmentState.STA);
-        thread.IsBackground = false;
-        thread.Start();
-
-        // Server
-        _ = Task.Run(StartPipeServer);
-    }
+        }
+        else Process.GetCurrentProcess().Kill();
+    });
 
     private void StartPipeServer()
     {

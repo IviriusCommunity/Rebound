@@ -51,6 +51,23 @@ public static class Display
         return dpiX / 96.0;
     }
 
+    public static double GetScale()
+    {
+        // Get the handle to the current window
+        var hWnd = new HWND(0);
+
+        // Get the device context for the window
+        var hdc = PInvoke.GetDC(hWnd);
+
+        // Get the DPI
+        var dpiX = PInvoke.GetDeviceCaps(hdc, GET_DEVICE_CAPS_INDEX.LOGPIXELSX);
+
+        // Release the device context
+        _ = PInvoke.ReleaseDC(hWnd, hdc);
+
+        return dpiX / 96.0;
+    }
+
     public static Rect GetDisplayRect(AppWindow win)
     {
         // Get the handle to the current window

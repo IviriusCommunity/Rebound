@@ -393,6 +393,9 @@ public partial class IslandsWindow : ObservableObject, IDisposable
     [ObservableProperty] public partial int MaxHeight { get; set; } = int.MaxValue;
     [ObservableProperty] public partial string Title { get; set; } = "UWP XAML Islands Window";
     [ObservableProperty] public partial UIElement Content { get; set; }
+    [ObservableProperty] public partial bool IsPersistenceEnabled { get; set; } = false;
+    [ObservableProperty] public partial string PersistenceKey { get; set; } = nameof(IslandsWindow);
+    [ObservableProperty] public partial string PersistanceFileName { get; set; } = "rebound";
 
     public event EventHandler<XamlInitializedEventArgs>? XamlInitialized;
     public event EventHandler<AppWindowInitializedEventArgs>? AppWindowInitialized;
@@ -443,6 +446,8 @@ public partial class IslandsWindow : ObservableObject, IDisposable
         Closing?.Invoke(this, args);
         if (args.Handled) return; // cancel closing if someone handled it
 
+        SaveWindowState();
+
         _closed = true;
 
         // Destroy the AppWindow first (important!)
@@ -471,6 +476,8 @@ public partial class IslandsWindow : ObservableObject, IDisposable
             return;
         }
 
+        SaveWindowState();
+
         _closed = true;
         Dispose();
         Closed?.Invoke(this, EventArgs.Empty);
@@ -494,6 +501,26 @@ public partial class IslandsWindow : ObservableObject, IDisposable
     {
         Width = width;
         Height = height;
+    }
+
+    private void LoadWindowState()
+    {
+        if (!IsPersistenceEnabled) return;
+
+        X = SettingsHelper.GetValue($"{PersistenceKey}_X", PersistanceFileName, X);
+        Y = SettingsHelper.GetValue($"{PersistenceKey}_Y", PersistanceFileName, Y);
+        Width = SettingsHelper.GetValue($"{PersistenceKey}_Width", PersistanceFileName, Width == 0 ? 800 : Width);
+        Height = SettingsHelper.GetValue($"{PersistenceKey}_Height", PersistanceFileName, Height == 0 ? 600 : Height);
+    }
+
+    private void SaveWindowState()
+    {
+        if (!IsPersistenceEnabled) return;
+
+        SettingsHelper.SetValue($"{PersistenceKey}_X", PersistanceFileName, X);
+        SettingsHelper.SetValue($"{PersistenceKey}_Y", PersistanceFileName, Y);
+        SettingsHelper.SetValue($"{PersistenceKey}_Width", PersistanceFileName, Width);
+        SettingsHelper.SetValue($"{PersistenceKey}_Height", PersistanceFileName, Height);
     }
 
     public void SetExtendedWindowStyle(Windows.Win32.UI.WindowsAndMessaging.WINDOW_EX_STYLE style)
@@ -540,21 +567,17 @@ public partial class IslandsWindow : ObservableObject, IDisposable
     public unsafe void Create()
     {
         ThrowIfDisposed();
-
-        // pin instance and store pointer in window userdata
-        _thisHandle = GCHandle.Alloc(this, GCHandleType.Normal); // normal is fine; we free in Dispose
+        _thisHandle = GCHandle.Alloc(this, GCHandleType.Normal);
         IntPtr gcPtr = GCHandle.ToIntPtr(_thisHandle);
 
-        // CreateWindowEx: class name is static, Title can change — pass Title's pointer temporarily
         fixed (char* className = WindowClassName)
         fixed (char* windowName = Title)
         {
-            // 1. Create window hidden but with WS_EX_APPWINDOW
             Handle = CreateWindowExW(
-                WS_EX_NOREDIRECTIONBITMAP | WS_EX_APPWINDOW, // ensure taskbar presence
+                WS_EX_NOREDIRECTIONBITMAP | WS_EX_APPWINDOW,
                 className,
                 windowName,
-                0, // hidden initially
+                0,
                 X == default ? CW_USEDEFAULT : X,
                 Y == default ? CW_USEDEFAULT : Y,
                 Width == default ? CW_USEDEFAULT : Width,
@@ -564,34 +587,29 @@ public partial class IslandsWindow : ObservableObject, IDisposable
                 GetModuleHandleW(null),
                 null);
 
-            // 2. Store pointer/userdata
             SetWindowLongPtr(Handle, GWLP.GWLP_USERDATA, gcPtr);
 
-            // 3. Create AppWindow wrapper
             AppWindow = AppWindow.GetFromWindowId(Win32Interop.GetWindowIdFromWindow(Handle));
             AppWindow.Closing += OnAppWindowClosing;
             AppWindowInitialized?.Invoke(this, new AppWindowInitializedEventArgs());
 
-            // 4. Initialize XAML (now you can do heavy work without showing)
+            LoadWindowState();
+
             InitializeXaml();
 
-            // 5. Set visible style and update frame
             SetWindowLongPtrW(Handle, GWL.GWL_STYLE, WS_OVERLAPPEDWINDOW | WS_VISIBLE);
             SetWindowPos(Handle, HWND.HWND_TOP, 0, 0, 0, 0,
                 SWP_NOMOVE | SWP_NOSIZE | SWP_NOZORDER | SWP_FRAMECHANGED);
 
-            // 6. Show window and bring to front
             ShowWindow(Handle, SW.SW_SHOW);
             SetForegroundWindow(Handle);
             SetActiveWindow(Handle);
 
-            // message loop: keep simple and minimal per-iteration work
             MSG msg;
             while (GetMessageW(&msg, HWND.NULL, 0, 0))
             {
                 if (!_closed)
                 {
-                    // PreTranslateMessage uses cached native pointer now => cheap
                     if (!PreTranslateMessage(&msg))
                     {
                         TranslateMessage(&msg);
@@ -695,6 +713,24 @@ public partial class IslandsWindow : ObservableObject, IDisposable
                     break;
                 }
 
+            case WM_DPICHANGED:
+                {
+                    int newDpi = (int)(wParam & 0xFFFF); // DPI is in the low-order word
+                    float newScale = newDpi / 96.0f;
+
+                    OnDpiChanged(newScale);
+
+                    // Windows gives you a suggested new window rect in lParam:
+                    RECT* suggestedRect = (RECT*)lParam;
+                    SetWindowPos(hwnd, HWND.NULL,
+                        suggestedRect->left, suggestedRect->top,
+                        suggestedRect->right - suggestedRect->left,
+                        suggestedRect->bottom - suggestedRect->top,
+                        SWP_NOZORDER | SWP_NOACTIVATE);
+
+                    return 0;
+                }
+
             case WM_SETTINGCHANGE:
             case WM_THEMECHANGED:
                 ProcessCoreWindowMessage(msg, wParam, lParam);
@@ -720,6 +756,43 @@ public partial class IslandsWindow : ObservableObject, IDisposable
         return new LRESULT(0);
     }
 
+    private unsafe void OnDpiChanged(float newScale)
+    {
+        if (AppWindow is null || AppWindow.Presenter is not OverlappedPresenter presenter)
+            return;
+
+        // Reapply DPI-dependent constraints
+        presenter.PreferredMinimumWidth = (int)(MinWidth * newScale);
+        presenter.PreferredMaximumWidth = (int)(MaxWidth * newScale);
+        presenter.PreferredMinimumHeight = (int)(MinHeight * newScale);
+        presenter.PreferredMaximumHeight = (int)(MaxHeight * newScale);
+
+        // Convert logical values to physical pixels
+        int scaledX = (int)(X * newScale);
+        int scaledY = (int)(Y * newScale);
+        int scaledWidth = (int)(Width * newScale);
+        int scaledHeight = (int)(Height * newScale);
+
+        // Set flag to prevent OnWidth/Height circular updates
+        _internalResize = true;
+        try
+        {
+            AppWindow.Move(new Windows.Graphics.PointInt32(scaledX, scaledY));
+            AppWindow.Resize(new Windows.Graphics.SizeInt32(scaledWidth, scaledHeight));
+        }
+        finally
+        {
+            _internalResize = false;
+        }
+
+        // Update XAML island bounds
+        RECT clientRect;
+        GetClientRect(Handle, &clientRect);
+        int clientWidth = clientRect.right - clientRect.left;
+        int clientHeight = clientRect.bottom - clientRect.top;
+        SetWindowPos(_xamlHwnd, HWND.NULL, 0, 0, clientWidth, clientHeight, SWP_SHOWWINDOW | SWP_NOACTIVATE | SWP_NOZORDER);
+    }
+
     partial void OnTitleChanged(string oldValue, string newValue)
     {
         if (AppWindow != null)
@@ -737,14 +810,22 @@ public partial class IslandsWindow : ObservableObject, IDisposable
 
     partial void OnXChanged(int value)
     {
-        if (AppWindow != null)
-            AppWindow.Move(new(value, Y));
+        if (!_internalResize && AppWindow != null)
+        {
+            var scale = Display.GetScale(AppWindow);
+            int physicalX = (int)(value * scale);
+            AppWindow.Move(new Windows.Graphics.PointInt32(physicalX, AppWindow.Position.Y));
+        }
     }
 
     partial void OnYChanged(int value)
     {
-        if (AppWindow != null)
-            AppWindow.Move(new(X, value));
+        if (!_internalResize && AppWindow != null)
+        {
+            var scale = Display.GetScale(AppWindow);
+            int physicalY = (int)(value * scale);
+            AppWindow.Move(new Windows.Graphics.PointInt32(AppWindow.Position.X, physicalY));
+        }
     }
 
     // Add these fields near the top with other fields
@@ -808,26 +889,38 @@ public partial class IslandsWindow : ObservableObject, IDisposable
 
     partial void OnMinWidthChanged(int value)
     {
-        if (AppWindow != null && AppWindow.Presenter.Kind is AppWindowPresenterKind.Overlapped)
-            (AppWindow.Presenter as OverlappedPresenter).PreferredMinimumWidth = value;
+        if (AppWindow is not null && AppWindow.Presenter is OverlappedPresenter presenter)
+        {
+            var scale = Display.GetScale(AppWindow);
+            presenter.PreferredMinimumWidth = (int)(value * scale);
+        }
     }
 
     partial void OnMaxWidthChanged(int value)
     {
-        if (AppWindow != null && AppWindow.Presenter.Kind is AppWindowPresenterKind.Overlapped)
-            (AppWindow.Presenter as OverlappedPresenter).PreferredMaximumWidth = value;
+        if (AppWindow is not null && AppWindow.Presenter is OverlappedPresenter presenter)
+        {
+            var scale = Display.GetScale(AppWindow);
+            presenter.PreferredMaximumWidth = (int)(value * scale);
+        }
     }
 
     partial void OnMinHeightChanged(int value)
     {
-        if (AppWindow != null && AppWindow.Presenter.Kind is AppWindowPresenterKind.Overlapped)
-            (AppWindow.Presenter as OverlappedPresenter).PreferredMinimumHeight = value;
+        if (AppWindow is not null && AppWindow.Presenter is OverlappedPresenter presenter)
+        {
+            var scale = Display.GetScale(AppWindow);
+            presenter.PreferredMinimumHeight = (int)(value * scale);
+        }
     }
 
     partial void OnMaxHeightChanged(int value)
     {
-        if (AppWindow != null && AppWindow.Presenter.Kind is AppWindowPresenterKind.Overlapped)
-            (AppWindow.Presenter as OverlappedPresenter).PreferredMaximumHeight = value;
+        if (AppWindow is not null && AppWindow.Presenter is OverlappedPresenter presenter)
+        {
+            var scale = Display.GetScale(AppWindow);
+            presenter.PreferredMaximumHeight = (int)(value * scale);
+        }
     }
 
     partial void OnIsResizableChanged(bool value)

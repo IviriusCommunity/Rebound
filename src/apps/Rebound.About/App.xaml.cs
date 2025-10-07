@@ -90,13 +90,21 @@ public partial class App : Application
     public static unsafe void CreateMainWindow()
     {
         MainWindow = new();
+        MainWindow.IsPersistenceEnabled = true;
+        MainWindow.PersistenceKey = "Rebound.About.MainWindow";
+        MainWindow.PersistanceFileName = "winver";
         RegisterWindow(MainWindow);
         MainWindow.AppWindowInitialized += (s, e) =>
         {
             MainWindow.Title = "About Windows";
             MainWindow.Width = 520;
-            MainWindow.Height = 720;
-            MainWindow.Move((int)(50 * Display.GetScale(MainWindow.AppWindow)), (int)(50 * Display.GetScale(MainWindow.AppWindow)));
+            MainWindow.Height = 740;
+            MainWindow.MinWidth = 520;
+            MainWindow.MinHeight = 440;
+            MainWindow.MaxWidth = 920;
+            MainWindow.MaxHeight = 1000;
+            MainWindow.X = (int)(50 * Display.GetScale(MainWindow.AppWindow));
+            MainWindow.Y = (int)(50 * Display.GetScale(MainWindow.AppWindow));
             MainWindow.IsMaximizable = false;
             MainWindow.IsMinimizable = false;
             //MainWindow.IsResizable = false;
