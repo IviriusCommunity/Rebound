@@ -46,45 +46,69 @@ public partial class App : Application
 
     private void OnSingleInstanceLaunched(object sender, SingleInstanceLaunchEventArgs e) => Program._actions.Add(async () =>
     {
+        bool reboundAvailable = false;
+
         if (e.IsFirstLaunch)
         {
             ReboundPipeClient = new ReboundPipeClient();
 
-            // Start connecting asynchronously
-            var connectTask = ReboundPipeClient.ConnectAsync();
-
-            // Wait either for completion or for 1 second
-            var delayTask = Task.Delay(1000);
-            var completedTask = await Task.WhenAny(connectTask, delayTask);
-
-            if (completedTask == delayTask)
+            // Start connecting asynchronously, fire-and-forget
+            _ = Task.Run(async () =>
             {
-                await ReboundDialog.ShowAsync(
-                    "Rebound Service Host Not Found",
-                    "Rebound Service Host does not appear to be running.\nPlease start it and try again.",
-                    DialogIcon.Warning
-                );
-            }
+                try
+                {
+                    var connectTask = ReboundPipeClient.ConnectAsync();
+                    var delayTask = Task.Delay(1000);
 
-            // Await completion regardless
-            await connectTask;
+                    var completedTask = await Task.WhenAny(connectTask, delayTask);
+
+                    if (completedTask == delayTask)
+                    {
+                        await ReboundDialog.ShowAsync(
+                            "Rebound Service Host Not Found",
+                            "Rebound Service Host does not appear to be running.\nPlease start it and try again.",
+                            DialogIcon.Warning
+                        );
+                    }
+
+                    await connectTask; // await to propagate exceptions if needed
+                    reboundAvailable = true;
+                }
+                catch
+                {
+                    reboundAvailable = false;
+                }
+            });
         }
 
+        // Spawn or activate the main window immediately
+        if (MainWindow != null)
+            MainWindow.Activate();
+        else
+            CreateMainWindow();
+
+        // Handle legacy launch
         if (e.Arguments == "legacy")
         {
+            if (!reboundAvailable)
+            {
+                // Warn the user immediately if Rebound is unavailable
+                await ReboundDialog.ShowAsync(
+                    "Cannot Use Legacy Launch",
+                    "Legacy launch feature is disabled because the Rebound Service Host is not running.",
+                    DialogIcon.Warning
+                );
+                return;
+            }
+
+            // Safe to use legacy feature
             await ReboundPipeClient.SendMessageAsync("IFEOEngine::Pause#winver.exe");
             Process.Start(new ProcessStartInfo
             {
                 FileName = "winver.exe",
                 UseShellExecute = true,
             });
-            return;
         }
-
-        if (MainWindow != null)
-            MainWindow.Activate();
-        else
-            CreateMainWindow();
     });
 
     public static unsafe void CreateMainWindow()
