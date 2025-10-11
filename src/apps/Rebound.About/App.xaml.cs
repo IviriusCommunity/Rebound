@@ -1,25 +1,19 @@
 ﻿// Copyright (C) Ivirius(TM) Community 2020 - 2025. All Rights Reserved.
 // Licensed under the MIT License.
 
-using Microsoft.UI.Windowing;
-using Rebound.Core.Helpers;
 using Rebound.Core.Helpers;
 using Rebound.Core.Helpers.Services;
 using Rebound.Generators;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.IO;
-using System.Linq;
 using System.Threading.Tasks;
-using Windows.Storage;
-using Windows.System.UserProfile;
 using Windows.UI;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 
-#pragma warning disable IDE0079 // Remove unnecessary suppression
-#pragma warning disable CA1515 // Consider making public types internal
+#pragma warning disable IDE0079
+#pragma warning disable CA1515
 
 namespace Rebound.About;
 
@@ -28,7 +22,7 @@ public partial class App : Application
 {
     private static readonly List<IslandsWindow> _openWindows = new();
 
-    public static ReboundPipeClient ReboundPipeClient { get; set; }
+    public static PipeClient ReboundPipeClient { get; private set; }
 
     private static void RegisterWindow(IslandsWindow window)
     {
@@ -44,41 +38,16 @@ public partial class App : Application
         };
     }
 
-    private void OnSingleInstanceLaunched(object sender, SingleInstanceLaunchEventArgs e) => Program._actions.Add(async () =>
+    private void OnSingleInstanceLaunched(object sender, SingleInstanceLaunchEventArgs e) => Program.QueueAction(async () =>
     {
-        bool reboundAvailable = false;
-
+        Debug.WriteLine($"App launched with arguments: {e.Arguments}, IsFirstLaunch: {e.IsFirstLaunch}");
         if (e.IsFirstLaunch)
         {
-            ReboundPipeClient = new ReboundPipeClient();
+            // Initialize pipe client if not already
+            ReboundPipeClient ??= new();
 
-            // Start connecting asynchronously, fire-and-forget
-            _ = Task.Run(async () =>
-            {
-                try
-                {
-                    var connectTask = ReboundPipeClient.ConnectAsync();
-                    var delayTask = Task.Delay(1000);
-
-                    var completedTask = await Task.WhenAny(connectTask, delayTask);
-
-                    if (completedTask == delayTask)
-                    {
-                        await ReboundDialog.ShowAsync(
-                            "Rebound Service Host Not Found",
-                            "Rebound Service Host does not appear to be running.\nPlease start it and try again.",
-                            DialogIcon.Warning
-                        );
-                    }
-
-                    await connectTask; // await to propagate exceptions if needed
-                    reboundAvailable = true;
-                }
-                catch
-                {
-                    reboundAvailable = false;
-                }
-            });
+            // Start listening (optional, for future messages)
+            ReboundPipeClient.MessageReceived += OnPipeMessageReceived;
         }
 
         // Spawn or activate the main window immediately
@@ -90,34 +59,47 @@ public partial class App : Application
         // Handle legacy launch
         if (e.Arguments == "legacy")
         {
-            if (!reboundAvailable)
+            Debug.WriteLine("Legacy launch");
+
+            try
             {
-                // Warn the user immediately if Rebound is unavailable
+                await ReboundPipeClient.SendAsync("IFEOEngine::Pause#winver.exe");
+
+                Process.Start(new ProcessStartInfo
+                {
+                    FileName = "winver.exe",
+                    UseShellExecute = true,
+                });
+            }
+            catch
+            {
                 await ReboundDialog.ShowAsync(
-                    "Cannot Use Legacy Launch",
-                    "Legacy launch feature is disabled because the Rebound Service Host is not running.",
+                    "Legacy Launch Failed",
+                    "Could not communicate with Rebound Service Host.\nPlease ensure it is running and try again.",
                     DialogIcon.Warning
                 );
-                return;
             }
-
-            // Safe to use legacy feature
-            await ReboundPipeClient.SendMessageAsync("IFEOEngine::Pause#winver.exe");
-            Process.Start(new ProcessStartInfo
-            {
-                FileName = "winver.exe",
-                UseShellExecute = true,
-            });
         }
     });
 
+    private static Task OnPipeMessageReceived(string message)
+    {
+        // Optional: handle incoming messages from ServiceHost if needed
+        Debug.WriteLine($"Pipe message received: {message}");
+        return Task.CompletedTask;
+    }
+
     public static unsafe void CreateMainWindow()
     {
-        MainWindow = new();
-        MainWindow.IsPersistenceEnabled = true;
-        MainWindow.PersistenceKey = "Rebound.About.MainWindow";
-        MainWindow.PersistanceFileName = "winver";
+        MainWindow = new()
+        {
+            IsPersistenceEnabled = true,
+            PersistenceKey = "Rebound.About.MainWindow",
+            PersistanceFileName = "winver"
+        };
+
         RegisterWindow(MainWindow);
+
         MainWindow.AppWindowInitialized += (s, e) =>
         {
             MainWindow.Title = "About Windows";
@@ -131,18 +113,21 @@ public partial class App : Application
             MainWindow.Y = (int)(50 * Display.GetScale(MainWindow.AppWindow));
             MainWindow.IsMaximizable = false;
             MainWindow.IsMinimizable = false;
-            //MainWindow.IsResizable = false;
             MainWindow.AppWindow?.TitleBar.ExtendsContentIntoTitleBar = true;
             MainWindow.AppWindow?.TitleBar.ButtonBackgroundColor = Colors.Transparent;
             MainWindow.AppWindow?.TitleBar.ButtonInactiveBackgroundColor = Colors.Transparent;
             MainWindow.AppWindow?.SetTaskbarIcon($"{AppContext.BaseDirectory}\\Assets\\AboutWindows.ico");
         };
+
         MainWindow.XamlInitialized += (s, e) =>
         {
             var frame = new Frame();
             frame.Navigate(typeof(Views.MainPage));
             MainWindow.Content = frame;
         };
+
         MainWindow.Create();
     }
+
+    public static IslandsWindow? MainWindow { get; set; } = null;
 }

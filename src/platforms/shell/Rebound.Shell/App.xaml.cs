@@ -2,8 +2,10 @@
 // Licensed under the MIT License.
 
 using Rebound.Core.Helpers;
+using Rebound.Generators;
 using Rebound.Shell.Run;
 using System;
+using System.Diagnostics;
 using System.Threading.Tasks;
 using TerraFX.Interop.Windows;
 using Windows.UI;
@@ -15,76 +17,77 @@ using Windows.UI.Xaml.Controls;
 
 namespace Rebound.Shell.ExperienceHost;
 
-//[ReboundApp("Rebound.ShellExperienceHost", "")]
+[ReboundApp("Rebound.ShellExperienceHost", "")]
 public partial class App : Application
 {
     private static bool _runWindowQueued = false;
 
-    public App()
-    {
-        Run();
-    }
-
     public static ReboundPipeClient ReboundPipeClient { get; set; }
 
-    private async void Run()
+    private async void OnSingleInstanceLaunched(object? sender, Core.Helpers.Services.SingleInstanceLaunchEventArgs e)
     {
-        var pipeServer = new TrustedPipeServer("REBOUND_SHELL");
-        _ = pipeServer.StartAsync();
-        pipeServer.MessageReceived += PipeServer_MessageReceived;
-
-        ReboundPipeClient = new ReboundPipeClient();
-        await ReboundPipeClient.ConnectAsync();
-
-        ReboundPipeClient.StartListening(async (msg) =>
+        if (e.IsFirstLaunch)
         {
-            switch (msg)
+            var pipeServer = new TrustedPipeServer("REBOUND_SHELL", true);
+            pipeServer.MessageReceived += PipeServer_MessageReceived;
+            _ = pipeServer.StartAsync();
+
+            ReboundPipeClient = new ReboundPipeClient();
+            await ReboundPipeClient.ConnectAsync();
+
+            ReboundPipeClient.StartListening(async (msg) =>
             {
-                case "Shell::SpawnRunWindow":
-                    {
-                        // Only enqueue if not already queued
-                        if (!_runWindowQueued)
+                switch (msg)
+                {
+                    case "Shell::SpawnRunWindow":
                         {
-                            _runWindowQueued = true;
-
-                            Program._actions.Add(() =>
+                            // Only enqueue if not already queued
+                            if (!_runWindowQueued)
                             {
-                                ShowRunWindow();
-                                // reset flag after action executed
-                                _runWindowQueued = false;
-                            });
+                                _runWindowQueued = true;
+
+                                Program.QueueAction(() =>
+                                {
+                                    ShowRunWindow();
+                                    // reset flag after action executed
+                                    _runWindowQueued = false;
+
+                                    return Task.CompletedTask;
+                                });
+                            }
+                            break;
                         }
+                    /*case "Shell::SpawnShutdownDialog":
+                        BackgroundWindow?.DispatcherQueue.TryEnqueue(ShowShutdownDialog);
                         break;
-                    }
-                /*case "Shell::SpawnShutdownDialog":
-                    BackgroundWindow?.DispatcherQueue.TryEnqueue(ShowShutdownDialog);
-                    break;
-                case "Shell::SpawnCantRunDialog":
-                    BackgroundWindow?.DispatcherQueue.TryEnqueue(ShowCantRunDialog);
-                    break;*/
-                default:
-                    break;
-            }
-        });
-        /*ShutdownDialog = new ShutdownDialog.ShutdownDialog(() =>
-        {
-            ShutdownDialog = null;
-        });
+                    case "Shell::SpawnCantRunDialog":
+                        BackgroundWindow?.DispatcherQueue.TryEnqueue(ShowCantRunDialog);
+                        break;*/
+                    default:
+                        break;
+                }
+            });
+            /*ShutdownDialog = new ShutdownDialog.ShutdownDialog(() =>
+            {
+                ShutdownDialog = null;
+            });
 
-        CantRunDialog = new CantRunDialog.CantRunDialog(() =>
-        {
-            CantRunDialog = null;
-        });
+            CantRunDialog = new CantRunDialog.CantRunDialog(() =>
+            {
+                CantRunDialog = null;
+            });
 
-        if (SettingsHelper.GetValue("AllowDesktopFeature", "rebound", false))
-        {
-            // Desktop window
-            DesktopWindow = new DesktopWindow(ShowShutdownDialog);
-            DesktopWindow.Activate();
-            DesktopWindow.AttachToProgMan();
-        }*/
+            if (SettingsHelper.GetValue("AllowDesktopFeature", "rebound", false))
+            {
+                // Desktop window
+                DesktopWindow = new DesktopWindow(ShowShutdownDialog);
+                DesktopWindow.Activate();
+                DesktopWindow.AttachToProgMan();
+            }*/
 
-        // Start your ReboundPipeClient
+            // Start your ReboundPipeClient
+        }
+        else Process.GetCurrentProcess().Kill();
     }
 
     private async Task PipeServer_MessageReceived(string arg)
@@ -95,10 +98,12 @@ public partial class App : Application
             if (RunWindow == null)
             {
                 var windowTitle = parts.Length > 1 ? parts[1].Trim() : "Run";
-                Program._actions.Add(() =>
+                Program.QueueAction(() =>
                 {
                     ShowRunWindow(windowTitle);
                     _runWindowQueued = false; // runs only when this queued action executes
+
+                    return Task.CompletedTask;
                 });
             }
             else
@@ -182,14 +187,6 @@ public partial class App : Application
         CantRunDialog.Activate();
         CantRunDialog.ForceBringToFront();
     }*/
-
-    private void OnSingleInstanceLaunched(object? sender, Core.Helpers.Services.SingleInstanceLaunchEventArgs e)
-    {
-        if (e.IsFirstLaunch)
-        {
-            Run();
-        }
-    }
 
     public static IslandsWindow? RunWindow { get; set; }
     public static IslandsWindow? ContextMenuWindow { get; set; }

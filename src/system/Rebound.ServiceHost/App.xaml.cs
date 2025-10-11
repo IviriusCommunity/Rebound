@@ -185,9 +185,9 @@ public partial class App : Application
         }
     }
 
-    private static TrustedPipeServer? PipeServer;
+    private static PipeHost? PipeServer;
 
-    private void OnSingleInstanceLaunched(object sender, SingleInstanceLaunchEventArgs e) => Program._actions.Add(async () =>
+    private void OnSingleInstanceLaunched(object sender, SingleInstanceLaunchEventArgs e) => Program.QueueAction(async () =>
     {
         if (e.IsFirstLaunch)
         {
@@ -222,7 +222,7 @@ public partial class App : Application
                 IsBackground = true,
                 Name = "Pipe Server Thread"
             };
-            pipeThread.SetApartmentState(ApartmentState.MTA); // Pipe doesn't need STA
+            pipeThread.SetApartmentState(ApartmentState.STA);
             pipeThread.Start();
 
             NativeMessageLoop();
@@ -232,10 +232,9 @@ public partial class App : Application
 
     private void StartPipeServer()
     {
-        PipeServer = new TrustedPipeServer("REBOUND_SERVICE_HOST");
-        _ = PipeServer.StartAsync();
-
+        PipeServer = new("REBOUND_SERVICE_HOST");
         PipeServer.MessageReceived += PipeServer_MessageReceived;
+        _ = PipeServer.StartAsync();
     }
 
     private static readonly SHUTDOWN_REASON[] MajorReasons =
@@ -266,7 +265,7 @@ public partial class App : Application
         SHUTDOWN_REASON.SHTDN_REASON_FLAG_DIRTY_UI
     ];
 
-    private async Task PipeServer_MessageReceived(string arg)
+    private async Task PipeServer_MessageReceived(PipeConnection connection, string arg)
     {
         if (string.IsNullOrEmpty(arg))
             return;

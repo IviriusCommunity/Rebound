@@ -70,10 +70,11 @@
 		
 		<!-- Windows SDK and WinUI -->
 		<PackageReference Include="Microsoft.UI.Xaml" Version="2.8.7" />
-		<PackageReference Include="Microsoft.Windows.SDK.BuildTools.MSIX" Version="1.7.20250829.1">
+		<!--<PackageReference Include="Microsoft.Windows.SDK.BuildTools.MSIX" Version="1.7.20250829.1">
 			<PrivateAssets>all</PrivateAssets>
 			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-		</PackageReference>
+		</PackageReference>-->
+		<PackageReference Include="Microsoft.Windows.SDK.BuildTools.MSIX" Version="1.7.20250829.1"/>
 		<PackageReference Include="Microsoft.WindowsAppSDK.Base" Version="1.8.250831001" />
 		<PackageReference Include="Microsoft.WindowsAppSDK.InteractiveExperiences" Version="1.8.250906004" />
 
@@ -87,9 +88,8 @@
 
 		<!-- System and Management -->
 		<PackageReference Include="System.Diagnostics.PerformanceCounter" Version="10.0.0-preview.6.25358.103" />
-		<PackageReference Include="System.ServiceProcess.ServiceController" Version="10.0.0-preview.5.25277.114" />
+		<!--<PackageReference Include="System.ServiceProcess.ServiceController" Version="10.0.0-preview.5.25277.114" />-->
 		<PackageReference Include="System.IO.Pipes.AccessControl" Version="6.0.0-preview.5.21301.5" />
-		<PackageReference Include="System.Management" Version="7.0.0" />
 		<PackageReference Include="OwlCore.Storage" Version="0.14.0" />
 
 		<!-- Task Scheduler -->

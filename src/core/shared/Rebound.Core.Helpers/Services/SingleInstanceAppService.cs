@@ -2,156 +2,107 @@
 using System.Diagnostics;
 using System.IO;
 using System.IO.Pipes;
-using System.Linq;
 using System.Threading;
-using Microsoft.UI.Xaml;
-
-#nullable enable
 
 namespace Rebound.Core.Helpers.Services;
 
-public class SingleInstanceLaunchEventArgs(string arguments, bool isFirstLaunch) : EventArgs
+public class SingleInstanceLaunchEventArgs : EventArgs
 {
-    public string Arguments { get; private set; } = arguments;
-    public bool IsFirstLaunch { get; private set; } = isFirstLaunch;
+    public string Arguments { get; }
+    public bool IsFirstLaunch { get; }
+
+    public SingleInstanceLaunchEventArgs(string arguments, bool isFirstLaunch)
+    {
+        Arguments = arguments;
+        IsFirstLaunch = isFirstLaunch;
+    }
 }
 
 public partial class SingleInstanceAppService : IDisposable
 {
-    private readonly string _mutexName = "";
-    private readonly string _pipeName = "";
-    private readonly object _namedPiperServerThreadLock = new();
-
-    private bool _isDisposed = false;
+    private readonly string _mutexName;
+    private readonly string _pipeName;
+    private Mutex? _mutex;
+    private NamedPipeServerStream? _serverStream;
     private bool _isFirstInstance;
-
-    private Mutex? _mutexApplication;
-    private NamedPipeServerStream? _namedPipeServerStream;
+    private bool _disposed;
 
     public event EventHandler<SingleInstanceLaunchEventArgs>? Launched;
 
     public SingleInstanceAppService(string appId)
     {
-        _mutexName = "MUTEX_" + appId;
-        _pipeName = "PIPE_" + appId;
+        _mutexName = $"MUTEX_{appId}";
+        _pipeName = $"PIPE_{appId}";
     }
 
     public void Launch(string arguments)
     {
-        if (string.IsNullOrEmpty(arguments))
-        {
-            // The arguments from LaunchActivatedEventArgs can be empty, when
-            // the user specified arguments (e.g. when using an execution alias). For this reason we
-            // alternatively check for arguments using a different API.
-            var argList = System.Environment.GetCommandLineArgs();
-            if (argList.Length > 1)
-            {
-                arguments = string.Join(' ', argList.Skip(1));
-            }
-        }
+        if (_mutex == null)
+            _mutex = new Mutex(true, _mutexName, out _isFirstInstance);
 
-        if (IsFirstApplicationInstance())
+        if (_isFirstInstance)
         {
-            CreateNamedPipeServer();
-            Launched?.Invoke(this, new SingleInstanceLaunchEventArgs(arguments, isFirstLaunch: true));
+            StartPipeServer();
+            Launched?.Invoke(this, new SingleInstanceLaunchEventArgs(arguments, true));
         }
         else
         {
-            SendArgumentsToRunningInstance(arguments);
-
+            SendArgsToFirstInstance(arguments);
             Process.GetCurrentProcess().Kill();
         }
     }
 
-    public void Dispose()
+    private void StartPipeServer()
     {
-        if (_isDisposed)
-            return;
+        _serverStream = new NamedPipeServerStream(_pipeName, PipeDirection.In, 1,
+            PipeTransmissionMode.Message, PipeOptions.Asynchronous);
 
-        _isDisposed = true;
-
-        _namedPipeServerStream?.Dispose();
-        _mutexApplication?.Dispose();
+        _serverStream.BeginWaitForConnection(OnPipeConnected, _serverStream);
     }
 
-    private bool IsFirstApplicationInstance()
+    private void OnPipeConnected(IAsyncResult ar)
     {
-        // Allow for multiple runs but only try and get the mutex once
-        if (_mutexApplication == null)
+        var server = (NamedPipeServerStream)ar.AsyncState!;
+        try
         {
-            _mutexApplication = new Mutex(true, _mutexName, out _isFirstInstance);
+            server.EndWaitForConnection(ar);
+
+            string args;
+            using (var sr = new StreamReader(server))
+            {
+                args = sr.ReadToEnd();
+            }
+
+            Launched?.Invoke(this, new SingleInstanceLaunchEventArgs(args, false));
         }
-
-        return _isFirstInstance;
+        catch { /* ignore errors */ }
+        finally
+        {
+            server.Dispose();
+            StartPipeServer(); // keep server ready for next instance
+        }
     }
 
-    /// <summary>
-    /// Starts a new pipe server if one isn't already active.
-    /// </summary>
-    private void CreateNamedPipeServer()
-    {
-        _namedPipeServerStream = new NamedPipeServerStream(
-            _pipeName, PipeDirection.In,
-            maxNumberOfServerInstances: 1,
-            PipeTransmissionMode.Byte,
-            PipeOptions.Asynchronous,
-            inBufferSize: 0,
-            outBufferSize: 0);
-
-        _namedPipeServerStream.BeginWaitForConnection(OnNamedPipeServerConnected, _namedPipeServerStream);
-    }
-
-    private void SendArgumentsToRunningInstance(string arguments)
+    private void SendArgsToFirstInstance(string arguments)
     {
         try
         {
-            using var namedPipeClientStream = new NamedPipeClientStream(".", _pipeName, PipeDirection.Out);
-            namedPipeClientStream.Connect(3000); // Maximum wait 3 seconds
-            using var sw = new StreamWriter(namedPipeClientStream);
+            using var client = new NamedPipeClientStream(".", _pipeName, PipeDirection.Out);
+            client.Connect(3000); // 3s timeout
+            using var sw = new StreamWriter(client);
             sw.Write(arguments);
             sw.Flush();
         }
-        catch (Exception)
-        {
-
-        }
+        catch { /* ignore errors */ }
     }
 
-    private void OnNamedPipeServerConnected(IAsyncResult asyncResult)
+    public void Dispose()
     {
-        try
-        {
-            if (_namedPipeServerStream == null)
-                return;
+        if (_disposed) return;
+        _disposed = true;
 
-            _namedPipeServerStream.EndWaitForConnection(asyncResult);
-
-            // Read the arguments from the pipe
-            lock (_namedPiperServerThreadLock)
-            {
-                using var sr = new StreamReader(_namedPipeServerStream);
-                var args = sr.ReadToEnd();
-                Launched?.Invoke(this, new SingleInstanceLaunchEventArgs(args, isFirstLaunch: false));
-            }
-        }
-        catch (ObjectDisposedException)
-        {
-            // EndWaitForConnection will throw when the pipe closes before there is a connection.
-            // In that case, we don't create more pipes and just return.
-            // This will happen when the app is closed and therefor the pipe is closed as well.
-            return;
-        }
-        catch (Exception)
-        {
-            // ignored
-        }
-        finally
-        {
-            // Close the original pipe (we will create a new one each time)
-            _namedPipeServerStream?.Dispose();
-        }
-
-        // Create a new pipe for next connection
-        CreateNamedPipeServer();
+        _serverStream?.Dispose();
+        _mutex?.ReleaseMutex();
+        _mutex?.Dispose();
     }
 }
