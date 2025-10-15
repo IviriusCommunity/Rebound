@@ -24,6 +24,7 @@ internal partial class Mod : ObservableObject
     public string InstallationSteps { get; }
     public InstallationTemplate PreferredInstallationTemplate { get; set; } = InstallationTemplate.Extras;
     public ObservableCollection<ICog> Instructions { get; }
+    public ObservableCollection<ModSetting>? Settings { get; set; } = new();
     public string ProcessName { get; }
 
     public Mod(
@@ -32,7 +33,8 @@ internal partial class Mod : ObservableObject
         string icon,
         string installationSteps,
         ObservableCollection<ICog> instructions,
-        string processName)
+        string processName,
+        ObservableCollection<ModSetting>? settings = null)
     {
         Name = name;
         Description = description;
@@ -40,6 +42,7 @@ internal partial class Mod : ObservableObject
         InstallationSteps = installationSteps;
         Instructions = instructions;
         ProcessName = processName;
+        Settings = settings;
 
         UpdateIntegrity();
     }

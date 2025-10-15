@@ -8,7 +8,6 @@
     xmlns:interactivity="using:Microsoft.Xaml.Interactivity"
     xmlns:local="using:Rebound.Hub.Views"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-    xmlns:models="using:Rebound.Hub.Models"
     xmlns:muxc="using:Microsoft.UI.Xaml.Controls"
     muxc:BackdropMaterial.ApplyToRootOrPageBackground="True"
     mc:Ignorable="d">
@@ -69,51 +68,7 @@
                         <PathIcon Data="F1 M 0 2 C 0 1 1 0 2 0 L 7 0 L 7 7 L 0 7 M 0 9 L 7 9 L 7 16 L 2 16 C 1 16 0 15 0 14 M 9 0 L 14 0 C 15 0 16 1 16 2 L 16 7 L 9 7 M 9 9 L 16 9 L 16 14 C 16 15 15 16 14 16 L 9 16 M 10 10 L 10 15 L 14 15 C 14.52 14.996 14.991 14.578 15 14 L 15 10 M 6 1 L 2 1 C 1.488 1.009 1.003 1.462 1 2 L 1 6 L 6 6 M 6 10 L 1 10 L 1 14 C 0.995 14.523 1.488 14.994 2 15 L 6 15 M 10 1 L 10 6 L 15 6 L 15 2 C 14.995 1.474 14.534 1.012 14 1" />
                     </muxc:NavigationViewItem.Icon>
                 </muxc:NavigationViewItem>
-                <muxc:NavigationViewItemSeparator/>
-                <muxc:NavigationViewItem SelectsOnInvoked="False" Content="Generic apps">
-                    <muxc:NavigationViewItem.Icon>
-                        <FontIcon Glyph="&#xECAA;" />
-                    </muxc:NavigationViewItem.Icon>
-                    <muxc:NavigationViewItem.MenuItems>
-                        <muxc:NavigationViewItem Content="About Windows">
-                            <muxc:NavigationViewItem.Icon>
-                                <muxc:ImageIcon Source="/Assets/ReboundApps/AboutWindows.ico" />
-                            </muxc:NavigationViewItem.Icon>
-                        </muxc:NavigationViewItem>
-                        <muxc:NavigationViewItem Content="Control Panel">
-                            <muxc:NavigationViewItem.Icon>
-                                <muxc:ImageIcon Source="/Assets/ReboundApps/ControlPanel.ico" />
-                            </muxc:NavigationViewItem.Icon>
-                        </muxc:NavigationViewItem>
-                        <muxc:NavigationViewItem Content="Disk Cleanup">
-                            <muxc:NavigationViewItem.Icon>
-                                <muxc:ImageIcon Source="/Assets/ReboundApps/DiskCleanup.ico" />
-                            </muxc:NavigationViewItem.Icon>
-                        </muxc:NavigationViewItem>
-                        <muxc:NavigationViewItem Content="UAC Settings">
-                            <muxc:NavigationViewItem.Icon>
-                                <muxc:ImageIcon Source="/Assets/ReboundApps/UACSettings.ico" />
-                            </muxc:NavigationViewItem.Icon>
-                        </muxc:NavigationViewItem>
-                    </muxc:NavigationViewItem.MenuItems>
-                </muxc:NavigationViewItem>
-                <muxc:NavigationViewItem SelectsOnInvoked="False" Content="Shell">
-                    <muxc:NavigationViewItem.Icon>
-                        <FontIcon Glyph="&#xE8FC;" />
-                    </muxc:NavigationViewItem.Icon>
-                    <muxc:NavigationViewItem.MenuItems>
-                        <muxc:NavigationViewItem Content="Rebound Shell">
-                            <muxc:NavigationViewItem.Icon>
-                                <muxc:ImageIcon Source="/Assets/ReboundApps/Shell.ico" />
-                            </muxc:NavigationViewItem.Icon>
-                        </muxc:NavigationViewItem>
-                        <muxc:NavigationViewItem Content="Run">
-                            <muxc:NavigationViewItem.Icon>
-                                <muxc:ImageIcon Source="/Assets/Glyphs/RunBox.ico" />
-                            </muxc:NavigationViewItem.Icon>
-                        </muxc:NavigationViewItem>
-                    </muxc:NavigationViewItem.MenuItems>
-                </muxc:NavigationViewItem>
+                <muxc:NavigationViewItemSeparator />
             </muxc:NavigationView.MenuItems>
             <muxc:NavigationView.FooterMenuItems>
                 <muxc:NavigationViewItem
@@ -133,7 +88,6 @@
             <muxc:NavigationView.Content>
                 <Frame
                     x:Name="MainFrame"
-                    Background="{ThemeResource CardBackgroundFillColorSecondaryBrush}"
                     BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
                     BorderThickness="1,1,0,0"
                     CornerRadius="8,0,0,0" />

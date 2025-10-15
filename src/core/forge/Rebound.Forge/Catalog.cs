@@ -160,7 +160,18 @@ internal static class Catalog
                     ExePath = $"{Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles)}\\Rebound\\rwinver\\Rebound About.exe"
                 },
             },
-            processName: "Rebound About"
+            processName: "Rebound About",
+            settings: new ObservableCollection<ModSetting>
+            {
+                new ModSetting(
+                    name: "Show Rebound Version",
+                    description: "Show the installed Rebound version above the bottom bar.",
+                    type: ModSettingType.Boolean)
+                {
+                    Identifier = "ShowReboundVersion",
+                    AppName = "rwinver"
+                }
+            }
         )
         {
             EntryExecutable = $"{Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles)}\\Rebound\\rwinver\\Rebound About.exe",

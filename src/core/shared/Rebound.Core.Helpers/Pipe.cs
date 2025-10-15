@@ -201,7 +201,7 @@ namespace Rebound.Core.Helpers
 #else
                 if (!string.IsNullOrEmpty(exePath))
                 {
-                    foreach (var mod in Catalog.Mods)
+                    foreach (var mod in Rebound.Forge.Catalog.Mods)
                     {
                         if (string.Equals(mod.EntryExecutable, exePath, StringComparison.OrdinalIgnoreCase))
                         {

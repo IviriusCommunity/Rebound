@@ -17,6 +17,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)Mod.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Catalog.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ModParser.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)ModSetting.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)WorkingEnvironment.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Cogs\ShortcutCog.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Cogs\StartupTaskCog.cs" />

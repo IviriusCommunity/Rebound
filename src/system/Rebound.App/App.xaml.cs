@@ -65,4 +65,6 @@ public partial class App : Application
         };
         MainWindow.Create();
     }
+
+    public static IslandsWindow MainWindow { get; set; }
 }

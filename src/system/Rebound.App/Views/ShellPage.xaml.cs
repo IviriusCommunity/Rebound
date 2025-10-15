@@ -2,11 +2,14 @@
 // Licensed under the MIT License.
 
 using CommunityToolkit.WinUI.Helpers;
+using Microsoft.UI.Xaml.Controls;
 using Rebound.Core.Helpers;
 using Rebound.Forge;
 using System;
+using System.Linq;
 using System.Net.Http;
 using Windows.UI.Xaml.Controls;
+using Windows.UI.Xaml.Media.Imaging;
 
 #pragma warning disable CA2007 // Consider calling ConfigureAwait on the awaited task
 #pragma warning disable CA1031 // Do not catch general exception types
@@ -28,6 +31,17 @@ internal sealed partial class ShellPage : Page
             NavigationViewControl.Visibility = Windows.UI.Xaml.Visibility.Collapsed;
             OverlayFrame.Visibility = Windows.UI.Xaml.Visibility.Visible;
             OverlayFrame.Navigate(typeof(ReboundPage));
+        }
+
+        foreach (var mod in Catalog.Mods)
+        {
+            var item = new Microsoft.UI.Xaml.Controls.NavigationViewItem
+            {
+                Content = mod.Name,
+                Tag = mod.Name,
+                Icon = new ImageIcon() { Source = new BitmapImage(new(mod.Icon)) }
+            };
+            NavigationViewControl.MenuItems.Add(item);
         }
 
         CheckForUpdates();
@@ -59,5 +73,13 @@ internal sealed partial class ShellPage : Page
             MainFrame.Navigate(typeof(HomePage));
         if ((Microsoft.UI.Xaml.Controls.NavigationViewItem)NavigationViewControl.SelectedItem == ReboundItem)
             MainFrame.Navigate(typeof(ReboundPage));
+        else
+        {
+            var mod = Catalog.Mods.FirstOrDefault(m => m.Name == (string)((Microsoft.UI.Xaml.Controls.NavigationViewItem)NavigationViewControl.SelectedItem).Tag);
+            if (mod != null)
+            {
+                MainFrame.Content = new ModPage(mod);
+            }
+        }
     }
 }
