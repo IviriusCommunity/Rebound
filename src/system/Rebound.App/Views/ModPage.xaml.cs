@@ -18,6 +18,27 @@ using Windows.UI.Xaml.Navigation;
 
 namespace Rebound.Hub.Views;
 
+internal class GlyphToIconSourceConverter : IValueConverter
+{
+    public object Convert(object value, Type targetType, object parameter, string language)
+    {
+        if (value is string s)
+        {
+            if (string.IsNullOrWhiteSpace(s))
+                return null;
+
+            return new FontIcon
+            {
+                Glyph = s
+            };
+        }
+        else return null;
+    }
+
+    public object ConvertBack(object value, Type targetType, object parameter, string language)
+        => throw new NotImplementedException();
+}
+
 internal class ModSeverityToInfoBarSeverityConverter : IValueConverter
 {
     public object Convert(object value, Type targetType, object parameter, string language)
@@ -52,7 +73,7 @@ internal partial class ModSettingTemplateSelector : DataTemplateSelector
             ModEnumSetting => EnumSettingTemplate,
             ModInfoBar => InfoBarTemplate,
             ModLabel => LabelTemplate,
-            _ => base.SelectTemplateCore(item)
+            _ => base.SelectTemplateCore(item, container)
         };
     }
 }

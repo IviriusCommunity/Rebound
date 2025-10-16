@@ -132,20 +132,34 @@
                 x:Key="ModTypeToVisibilityConverter_String"
                 GreaterThan="0"
                 LessThan="2" />
+            <converters:EmptyStringToObjectConverter
+                x:Key="EmptyStringToObjectConverter"
+                EmptyValue="False"
+                NotEmptyValue="True" />
+            <local:GlyphToIconSourceConverter x:Key="GlyphToIconSourceConverter" />
             <DataTemplate x:Key="BoolSettingTemplate" x:DataType="forge:ModBoolSetting">
-                <toolkitControls:SettingsCard Description="{x:Bind Description}" Header="{x:Bind Name}">
+                <toolkitControls:SettingsCard
+                    Description="{x:Bind Description}"
+                    Header="{x:Bind Name}"
+                    HeaderIcon="{x:Bind IconGlyph, Converter={StaticResource GlyphToIconSourceConverter}}">
                     <ToggleSwitch IsOn="{x:Bind Value, Mode=TwoWay}" />
                 </toolkitControls:SettingsCard>
             </DataTemplate>
 
             <DataTemplate x:Key="StringSettingTemplate" x:DataType="forge:ModStringSetting">
-                <toolkitControls:SettingsCard Description="{x:Bind Description}" Header="{x:Bind Name}">
+                <toolkitControls:SettingsCard
+                    Description="{x:Bind Description}"
+                    Header="{x:Bind Name}"
+                    HeaderIcon="{x:Bind IconGlyph, Converter={StaticResource GlyphToIconSourceConverter}}">
                     <TextBox PlaceholderText="{x:Bind PlaceholderText}" Text="{x:Bind Value, Mode=TwoWay}" />
                 </toolkitControls:SettingsCard>
             </DataTemplate>
 
             <DataTemplate x:Key="EnumSettingTemplate" x:DataType="forge:ModEnumSetting">
-                <toolkitControls:SettingsCard Description="{x:Bind Description}" Header="{x:Bind Name}">
+                <toolkitControls:SettingsCard
+                    Description="{x:Bind Description}"
+                    Header="{x:Bind Name}"
+                    HeaderIcon="{x:Bind IconGlyph, Converter={StaticResource GlyphToIconSourceConverter}}">
                     <ComboBox ItemsSource="{x:Bind Options}" SelectedIndex="{x:Bind Value, Mode=TwoWay}" />
                 </toolkitControls:SettingsCard>
             </DataTemplate>
@@ -154,14 +168,18 @@
                 <muxc:InfoBar
                     Title="{x:Bind Title}"
                     IsClosable="{x:Bind IsClosable}"
+                    IsOpen="True"
                     Message="{x:Bind Message}"
                     Severity="{x:Bind Severity, Converter={StaticResource ModSeverityConverter}}" />
             </DataTemplate>
 
             <DataTemplate x:Key="LabelTemplate" x:DataType="forge:ModLabel">
-                <TextBlock Style="{StaticResource BodyStrongTextBlockStyle}" Text="{x:Bind Text}" />
+                <TextBlock
+                    Margin="0,32,0,8"
+                    Style="{StaticResource BodyStrongTextBlockStyle}"
+                    Text="{x:Bind Text}" />
             </DataTemplate>
-            
+
             <local:ModSeverityToInfoBarSeverityConverter x:Key="ModSeverityConverter" />
 
             <!--  The selector  -->
@@ -174,8 +192,11 @@
                 StringSettingTemplate="{StaticResource StringSettingTemplate}" />
         </ResourceDictionary>
     </Page.Resources>
-    <ScrollViewer HorizontalAlignment="Stretch" IsEnabled="{x:Bind forge:WorkingEnvironment.IsReboundEnabled()}">
-        <ContentControl HorizontalContentAlignment="Stretch" Content="{x:Bind Mod}">
+    <ScrollViewer HorizontalAlignment="Stretch">
+        <ContentControl
+            HorizontalContentAlignment="Stretch"
+            Content="{x:Bind Mod}"
+            IsEnabled="{x:Bind forge:WorkingEnvironment.IsReboundEnabled()}">
             <ContentControl.ContentTemplate>
                 <DataTemplate x:DataType="forge:Mod">
                     <Grid>
@@ -347,12 +368,7 @@
                                     IsClosable="False"
                                     IsOpen="True"
                                     Message="{x:Bind InstallationSteps, Mode=OneWay}" />
-                                <TextBlock
-                                    Margin="0,24,0,8"
-                                    FontWeight="SemiBold"
-                                    Text="Settings"
-                                    Visibility="{x:Bind Settings, Mode=OneWay, Converter={StaticResource CollectionVisibilityConverter}}" />
-                                <ItemsControl ItemTemplateSelector="{StaticResource ModSettingSelector}" ItemsSource="{Binding Settings}">
+                                <ItemsControl ItemTemplateSelector="{StaticResource ModSettingSelector}" ItemsSource="{x:Bind Settings, Mode=OneWay}">
                                     <ItemsControl.ItemsPanel>
                                         <ItemsPanelTemplate>
                                             <StackPanel Orientation="Vertical" Spacing="4" />

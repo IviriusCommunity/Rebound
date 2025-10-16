@@ -179,6 +179,53 @@ internal static class Catalog
                     IsClosable = false,
                     Title = "You will still be able to see the Rebound version inside Rebound Hub.",
                     Severity = ModInfoBarSeverity.Informational
+                },
+                new ModLabel()
+                {
+                    Text = "Other stuff"
+                },
+                new ModBoolSetting()
+                {
+                    Name = "Show Rebound version",
+                    Description = "Show the installed Rebound version above the bottom bar.",
+                    Identifier = "ShowReboundVersion",
+                    AppName = "rwinver"
+                },
+                new ModBoolSetting()
+                {
+                    Name = "Show Rebound version",
+                    IconGlyph = "\uEA6A",
+                    Description = "Show the installed Rebound version above the bottom bar.",
+                    Identifier = "ShowReboundVersion",
+                    AppName = "rwinver"
+                },
+                new ModStringSetting()
+                {
+                    Name = "Show Rebound version",
+                    Identifier = "ShowReboundVersion",
+                    PlaceholderText = "Type here...",
+                    AppName = "rwinver"
+                },
+                new ModEnumSetting()
+                {
+                    Name = "Show Rebound version",
+                    Description = "Show the installed Rebound version above the bottom bar.",
+                    Identifier = "ShowReboundVersion",
+                    AppName = "rwinver",
+                    Options = new() { "Option 1", "Option 2", "Option 3" }
+                },
+                new ModBoolSetting()
+                {
+                    Name = "Show Rebound version",
+                    Description = "Show the installed Rebound version above the bottom bar.",
+                    Identifier = "ShowReboundVersion",
+                    AppName = "rwinver"
+                },
+                new ModInfoBar()
+                {
+                    IsClosable = true,
+                    Title = "You will still be able to see the Rebound version inside Rebound Hub.",
+                    Severity = ModInfoBarSeverity.Error
                 }
             }
         )
