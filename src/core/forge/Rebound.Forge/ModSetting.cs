@@ -13,85 +13,93 @@ using System.Threading.Tasks;
 
 namespace Rebound.Forge;
 
-public enum ModSettingType
+internal enum ModInfoBarSeverity
 {
-    Boolean,
-    String,
-    Number,
-    Selection
+    Informational,
+    Success,
+    Warning,
+    Error,
 }
 
-internal partial class ModSetting : ObservableObject
+internal interface IModSetting : IModItem { }
+
+internal interface IModItem { }
+
+internal partial class ModInfoBar : ObservableObject, IModItem
+{
+    [ObservableProperty] public partial string Title { get; set; }
+    [ObservableProperty] public partial string Message { get; set; }
+    [ObservableProperty] public partial ModInfoBarSeverity Severity { get; set; }
+    [ObservableProperty] public partial bool IsClosable { get; set; }
+}
+
+internal partial class ModLabel : ObservableObject, IModItem
+{
+    [ObservableProperty] public partial string Text { get; set; }
+}
+
+internal partial class ModBoolSetting : ObservableObject, IModSetting
 {
     [ObservableProperty] public partial string Name { get; set; }
     [ObservableProperty] public partial string Description { get; set; }
     [ObservableProperty] public partial string Identifier { get; set; }
     [ObservableProperty] public partial string AppName { get; set; }
-    [ObservableProperty] public partial int Type { get; set; }
+    [ObservableProperty] public partial string IconGlyph { get; set; }
 
-    [ObservableProperty] public partial bool BoolValue { get; set; }
-    [ObservableProperty] public partial string StringValue { get; set; } = string.Empty;
-    [ObservableProperty] public partial double NumberValue { get; set; }
-    [ObservableProperty] public partial int SelectionValue { get; set; } = new();
+    [ObservableProperty] public partial bool Value { get; set; }
 
-    [ObservableProperty] public partial ObservableCollection<string> SelectionOptions { get; set; } = new();
-
-    public ModSetting(string name, string description, ModSettingType type)
+    public ModBoolSetting(bool defaultValue = default)
     {
-        Name = name;
-        Description = description;
-        Type = (int)type;
-        this.PropertyChanged += OnAnyPropertyChanged;
-
-        switch (Type)
-        {
-            case (int)ModSettingType.Boolean:
-                BoolValue = SettingsHelper.GetValue<bool>(Identifier, AppName, false);
-                break;
-            case (int)ModSettingType.String:
-                StringValue = SettingsHelper.GetValue<string>(Identifier, AppName, string.Empty) ?? string.Empty;
-                break;
-            case (int)ModSettingType.Number:
-                NumberValue = SettingsHelper.GetValue<double>(Identifier, AppName, 0.0);
-                break;
-            case (int)ModSettingType.Selection:
-                SelectionValue = SettingsHelper.GetValue<int>(Identifier, AppName, 0);
-                break;
-        }
+        Value = SettingsHelper.GetValue(Identifier, AppName, defaultValue);
     }
 
-    public void OnAnyPropertyChanged(object? sender, System.ComponentModel.PropertyChangedEventArgs e)
+    partial void OnValueChanged(bool value)
     {
-        switch (Type)
-        {
-            case (int)ModSettingType.Boolean:
-                if (e.PropertyName == nameof(BoolValue))
-                {
-                    ReboundLogger.Log($"[ModSetting] {Name} changed to {BoolValue}");
-                    SettingsHelper.SetValue(Identifier, AppName, BoolValue);
-                }
-                break;
-            case (int)ModSettingType.String:
-                if (e.PropertyName == nameof(StringValue))
-                {
-                    ReboundLogger.Log($"[ModSetting] {Name} changed to {StringValue}");
-                    SettingsHelper.SetValue(Identifier, AppName, StringValue);
-                }
-                break;
-            case (int)ModSettingType.Number:
-                if (e.PropertyName == nameof(NumberValue))
-                {
-                    ReboundLogger.Log($"[ModSetting] {Name} changed to {NumberValue}");
-                    SettingsHelper.SetValue(Identifier, AppName, NumberValue);
-                }
-                break;
-            case (int)ModSettingType.Selection:
-                if (e.PropertyName == nameof(SelectionValue))
-                {
-                    ReboundLogger.Log($"[ModSetting] {Name} changed to {SelectionValue}");
-                    SettingsHelper.SetValue(Identifier, AppName, SelectionValue);
-                }
-                break;
-        }
+        SettingsHelper.SetValue(Identifier, AppName, value);
+    }
+}
+
+internal partial class ModStringSetting : ObservableObject, IModSetting
+{
+    [ObservableProperty] public partial string Name { get; set; }
+    [ObservableProperty] public partial string Description { get; set; }
+    [ObservableProperty] public partial string Identifier { get; set; }
+    [ObservableProperty] public partial string AppName { get; set; }
+    [ObservableProperty] public partial string IconGlyph { get; set; }
+    [ObservableProperty] public partial string PlaceholderText { get; set; }
+
+    [ObservableProperty] public partial string Value { get; set; }
+
+    public ModStringSetting(string defaultValue = default)
+    {
+        Value = SettingsHelper.GetValue(Identifier, AppName, defaultValue);
+    }
+
+    partial void OnValueChanged(string value)
+    {
+        SettingsHelper.SetValue(Identifier, AppName, value);
+    }
+}
+
+internal partial class ModEnumSetting : ObservableObject, IModSetting
+{
+    [ObservableProperty] public partial string Name { get; set; }
+    [ObservableProperty] public partial string Description { get; set; }
+    [ObservableProperty] public partial string Identifier { get; set; }
+    [ObservableProperty] public partial string AppName { get; set; }
+    [ObservableProperty] public partial string IconGlyph { get; set; }
+
+    [ObservableProperty] public partial int Value { get; set; }
+
+    public ObservableCollection<string> Options { get; set; } = new();
+
+    public ModEnumSetting(int defaultValue = default)
+    {
+        Value = SettingsHelper.GetValue(Identifier, AppName, defaultValue);
+    }
+
+    partial void OnValueChanged(int value)
+    {
+        SettingsHelper.SetValue(Identifier, AppName, value);
     }
 }

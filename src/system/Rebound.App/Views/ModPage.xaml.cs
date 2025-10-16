@@ -1,6 +1,8 @@
-﻿using Rebound.Forge;
+﻿using Microsoft.UI.Xaml.Controls;
+using Rebound.Forge;
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices.WindowsRuntime;
@@ -14,12 +16,47 @@ using Windows.UI.Xaml.Input;
 using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Navigation;
 
-// The Blank Page item template is documented at https://go.microsoft.com/fwlink/?LinkId=234238
-
 namespace Rebound.Hub.Views;
-/// <summary>
-/// An empty page that can be used on its own or navigated to within a Frame.
-/// </summary>
+
+internal class ModSeverityToInfoBarSeverityConverter : IValueConverter
+{
+    public object Convert(object value, Type targetType, object parameter, string language)
+    {
+        return value is ModInfoBarSeverity severity
+            ? (InfoBarSeverity)(int)severity
+            : InfoBarSeverity.Informational;
+    }
+
+    public object ConvertBack(object value, Type targetType, object parameter, string language)
+    {
+        return value is InfoBarSeverity severity
+            ? (ModInfoBarSeverity)(int)severity
+            : ModInfoBarSeverity.Informational;
+    }
+}
+
+internal partial class ModSettingTemplateSelector : DataTemplateSelector
+{
+    public DataTemplate BoolSettingTemplate { get; set; }
+    public DataTemplate StringSettingTemplate { get; set; }
+    public DataTemplate EnumSettingTemplate { get; set; }
+    public DataTemplate InfoBarTemplate { get; set; }
+    public DataTemplate LabelTemplate { get; set; }
+
+    protected override DataTemplate SelectTemplateCore(object item, DependencyObject container)
+    {
+        return item switch
+        {
+            ModBoolSetting => BoolSettingTemplate,
+            ModStringSetting => StringSettingTemplate,
+            ModEnumSetting => EnumSettingTemplate,
+            ModInfoBar => InfoBarTemplate,
+            ModLabel => LabelTemplate,
+            _ => base.SelectTemplateCore(item)
+        };
+    }
+}
+
 public sealed partial class ModPage : Page
 {
     Mod Mod { get; set; } = null!;

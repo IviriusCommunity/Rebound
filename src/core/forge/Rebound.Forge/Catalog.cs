@@ -161,15 +161,24 @@ internal static class Catalog
                 },
             },
             processName: "Rebound About",
-            settings: new ObservableCollection<ModSetting>
+            settings: new ObservableCollection<IModItem>
             {
-                new ModSetting(
-                    name: "Show Rebound Version",
-                    description: "Show the installed Rebound version above the bottom bar.",
-                    type: ModSettingType.Boolean)
+                new ModLabel()
                 {
+                    Text = "Layout"
+                },
+                new ModBoolSetting()
+                {
+                    Name = "Show Rebound version",
+                    Description = "Show the installed Rebound version above the bottom bar.",
                     Identifier = "ShowReboundVersion",
                     AppName = "rwinver"
+                },
+                new ModInfoBar()
+                {
+                    IsClosable = false,
+                    Title = "You will still be able to see the Rebound version inside Rebound Hub.",
+                    Severity = ModInfoBarSeverity.Informational
                 }
             }
         )
