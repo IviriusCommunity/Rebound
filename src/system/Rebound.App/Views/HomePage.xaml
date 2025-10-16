@@ -157,7 +157,6 @@
                         <Button
                             Width="320"
                             Padding="0"
-                            BorderThickness="0"
                             HorizontalContentAlignment="Stretch">
                             <ui:Effects.Shadow>
                                 <media:AttachedCardShadow
