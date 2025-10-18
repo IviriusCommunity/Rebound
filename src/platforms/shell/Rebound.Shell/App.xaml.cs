@@ -28,7 +28,7 @@ public partial class App : Application
             // Run pipe server in a dedicated background thread
             Thread pipeThread = new(async () =>
             {
-                using var pipeServer = new PipeHost("REBOUND_SHELL", true);
+                using var pipeServer = new PipeHost("REBOUND_SHELL", AccessLevel.Everyone);
                 pipeServer.MessageReceived += PipeServer_MessageReceived;
 
                 await pipeServer.StartAsync();

@@ -503,7 +503,7 @@ public partial class IslandsWindow : ObservableObject, IDisposable
         Height = height;
     }
 
-    private void LoadWindowState()
+    public void LoadWindowState()
     {
         if (!IsPersistenceEnabled) return;
 
@@ -593,7 +593,7 @@ public partial class IslandsWindow : ObservableObject, IDisposable
             AppWindow.Closing += OnAppWindowClosing;
             AppWindowInitialized?.Invoke(this, new AppWindowInitializedEventArgs());
 
-            LoadWindowState();
+            //LoadWindowState();
 
             InitializeXaml();
 
@@ -885,6 +885,13 @@ public partial class IslandsWindow : ObservableObject, IDisposable
         {
             _internalResize = false;
         }
+    }
+
+    public void BringToFront()
+    {
+        TerraFX.Interop.Windows.Windows.ShowWindow(Handle, SW.SW_SHOW);
+        TerraFX.Interop.Windows.Windows.SetForegroundWindow(Handle);
+        TerraFX.Interop.Windows.Windows.SetActiveWindow(Handle);
     }
 
     partial void OnMinWidthChanged(int value)

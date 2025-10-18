@@ -2,7 +2,6 @@
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
@@ -100,61 +99,49 @@ internal class Program
     public static BlockingCollection<Action> _actions = new();
     public static void QueueAction(Func<System.Threading.Tasks.Task> action)
     {
-        System.Diagnostics.Debug.WriteLine($""[Program] QueueAction called, current queue size: {_actions.Count}"");
         _actions.Add(() =>
         {
-            System.Diagnostics.Debug.WriteLine($""[Program] Executing queued action"");
             try
             {
                 _ = action();
             }
             catch (Exception ex)
             {
-                System.Diagnostics.Debug.WriteLine($""[Program] Exception in queued action: {ex.Message}"");
+
             }
         });
-        System.Diagnostics.Debug.WriteLine($""[Program] Action queued, new queue size: {_actions.Count}"");
     }
 
     [STAThread]
     static unsafe void Main(string[] args)
     {
-        System.Diagnostics.Debug.WriteLine($""[Program] Main started"");
         TerraFX.Interop.WinRT.WinRT.RoInitialize(TerraFX.Interop.WinRT.RO_INIT_TYPE.RO_INIT_SINGLETHREADED);
 
         var app = new App();
-        System.Diagnostics.Debug.WriteLine($""[Program] App instance created"");
 
         // Start processing actions on a background thread
         var processingStarted = new System.Threading.ManualResetEventSlim(false);
         var processingThread = new System.Threading.Thread(() =>
         {
-            System.Diagnostics.Debug.WriteLine($""[Program] Processing thread started, Thread ID: {System.Threading.Thread.CurrentThread.ManagedThreadId}"");
             processingStarted.Set();
-            System.Diagnostics.Debug.WriteLine($""[Program] About to enter blocking Take() loop..."");
             while (true)
             {
                 try
                 {
-                    System.Diagnostics.Debug.WriteLine($""[Program] Calling Take() - will block until item available. Queue count: {_actions.Count}"");
                     // Take blocks until an item is available
                     var action = _actions.Take();
-                    System.Diagnostics.Debug.WriteLine($""[Program] Got action from queue (remaining: {_actions.Count}), executing..."");
                     try 
                     { 
                         action(); 
                     } 
                     catch (Exception ex) 
                     { 
-                        System.Diagnostics.Debug.WriteLine($""[Program] Exception executing action: {ex.Message}"");
-                        System.Diagnostics.Debug.WriteLine($""[Program] Stack trace: {ex.StackTrace}"");
+
                     }
-                    System.Diagnostics.Debug.WriteLine($""[Program] Action executed"");
                 }
                 catch (Exception ex)
                 {
-                    System.Diagnostics.Debug.WriteLine($""[Program] Exception in processing loop: {ex.Message}"");
-                    System.Diagnostics.Debug.WriteLine($""[Program] Stack trace: {ex.StackTrace}"");
+
                 }
             }
         })
@@ -165,20 +152,15 @@ internal class Program
         processingThread.Start();
 
         // Wait for the processing thread to be ready
-        System.Diagnostics.Debug.WriteLine($""[Program] Waiting for processing thread to be ready..."");
         processingStarted.Wait();
-        System.Diagnostics.Debug.WriteLine($""[Program] Processing thread ready"");
 
         // Now launch - this will either start the server (first instance) or send message and exit (second instance)
-        System.Diagnostics.Debug.WriteLine($""[Program] Calling Launch with args: {string.Join("" "", args)}"");
         app._singleInstanceAppService.Launch(string.Join("" "", args));
-        System.Diagnostics.Debug.WriteLine($""[Program] Launch returned"");
 
         // Keep the main thread alive for the first instance
-        System.Diagnostics.Debug.WriteLine($""[Program] Main thread waiting on processing thread..."");
         processingThread.Join();
     }
-}").NormalizeWhitespace() as ClassDeclarationSyntax ?? throw new Exception("Failed to generate Program class");
+}")?.NormalizeWhitespace() as ClassDeclarationSyntax ?? throw new Exception("Failed to generate Program class");
     }
 }
 

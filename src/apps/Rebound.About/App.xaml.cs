@@ -3,27 +3,28 @@
 
 using Rebound.Core.Helpers;
 using Rebound.Core.Helpers.Services;
+using Rebound.Forge;
 using Rebound.Generators;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Threading;
-using System.Threading.Tasks;
 using Windows.UI;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 
 #pragma warning disable IDE0079
 #pragma warning disable CA1515
+#pragma warning disable CA1031
 
 namespace Rebound.About;
 
 [ReboundApp("Rebound.About", "Legacy winver*legacy*ms-appx:///Assets/Exe.ico")]
 public partial class App : Application
 {
-    private static readonly List<IslandsWindow> _openWindows = new();
+    private static readonly List<IslandsWindow> _openWindows = [];
 
-    public static PipeClient ReboundPipeClient { get; private set; }
+    public static PipeClient? ReboundPipeClient { get; private set; }
 
     private static void RegisterWindow(IslandsWindow window)
     {
@@ -41,14 +42,8 @@ public partial class App : Application
 
     private async void OnSingleInstanceLaunched(object sender, SingleInstanceLaunchEventArgs e)
     {
-        Debug.WriteLine($"[App] ===== OnSingleInstanceLaunched ENTRY ===== Args={e.Arguments}, IsFirst={e.IsFirstLaunch}");
-        Debug.WriteLine($"[App] Current Thread ID: {Thread.CurrentThread.ManagedThreadId}");
-        Debug.WriteLine($"[App] Current Thread IsBackground: {Thread.CurrentThread.IsBackground}");
-
         try
         {
-            Debug.WriteLine($"[App] About to call Program.QueueAction");
-            Debug.WriteLine($"[App] ===== INSIDE QueueAction ===== Thread ID: {Thread.CurrentThread.ManagedThreadId}");
             if (e.IsFirstLaunch)
             {
                 // Initialize pipe client if not already
@@ -60,7 +55,7 @@ public partial class App : Application
                 // Pipe server thread
                 var pipeThread = new Thread(async () =>
                 {
-                    await ReboundPipeClient.ConnectAsync();
+                    await ReboundPipeClient.ConnectAsync().ConfigureAwait(false);
                 })
                 {
                     IsBackground = true,
@@ -73,9 +68,7 @@ public partial class App : Application
                 {
                     // Spawn or activate the main window immediately
                     if (MainWindow != null)
-                    {
-
-                    }
+                        MainWindow.BringToFront();
                     else
                         CreateMainWindow();
                 });
@@ -84,11 +77,9 @@ public partial class App : Application
             // Handle legacy launch
             if (e.Arguments == "legacy")
             {
-                Debug.WriteLine("Legacy launch");
-
                 try
                 {
-                    await ReboundPipeClient.SendAsync("IFEOEngine::Pause#winver.exe");
+                    await (ReboundPipeClient?.SendAsync("IFEOEngine::Pause#winver.exe"))!.ConfigureAwait(false);
 
                     Process.Start(new ProcessStartInfo
                     {
@@ -104,19 +95,15 @@ public partial class App : Application
                             "Legacy Launch Failed",
                             "Could not communicate with Rebound Service Host.\nPlease ensure it is running and try again.",
                             DialogIcon.Warning
-                        );
+                        ).ConfigureAwait(false);
                     });
                 }
             }
-            Debug.WriteLine($"[App] Program.QueueAction returned");
         }
         catch (Exception ex)
         {
-            Debug.WriteLine($"[App] EXCEPTION in OnSingleInstanceLaunched: {ex.GetType().Name}: {ex.Message}");
-            Debug.WriteLine($"[App] StackTrace: {ex.StackTrace}");
+            ReboundLogger.Log("[Rebound About] Single instance launch error", ex);
         }
-
-        Debug.WriteLine($"[App] ===== OnSingleInstanceLaunched EXIT =====");
     }
 
     private static void OnPipeMessageReceived(string message)
@@ -126,6 +113,7 @@ public partial class App : Application
 
     public static unsafe void CreateMainWindow()
     {
+        // Create the window
         MainWindow = new()
         {
             IsPersistenceEnabled = true,
@@ -133,27 +121,37 @@ public partial class App : Application
             PersistanceFileName = "winver"
         };
 
+        // Register in the window list
         RegisterWindow(MainWindow);
 
+        // AppWindow init
         MainWindow.AppWindowInitialized += (s, e) =>
         {
             MainWindow.Title = "About Windows";
+            
+            // Window metrics
             MainWindow.Width = 520;
             MainWindow.Height = 740;
             MainWindow.MinWidth = 520;
             MainWindow.MinHeight = 440;
             MainWindow.MaxWidth = 920;
             MainWindow.MaxHeight = 1000;
-            MainWindow.X = (int)(50 * Display.GetScale(MainWindow.AppWindow));
-            MainWindow.Y = (int)(50 * Display.GetScale(MainWindow.AppWindow));
+            MainWindow.X = (int)(50 * Display.GetScale(MainWindow.AppWindow!));
+            MainWindow.Y = (int)(50 * Display.GetScale(MainWindow.AppWindow!));
+
+            // Window properties
             MainWindow.IsMaximizable = false;
             MainWindow.IsMinimizable = false;
             MainWindow.AppWindow?.TitleBar.ExtendsContentIntoTitleBar = true;
             MainWindow.AppWindow?.TitleBar.ButtonBackgroundColor = Colors.Transparent;
             MainWindow.AppWindow?.TitleBar.ButtonInactiveBackgroundColor = Colors.Transparent;
             MainWindow.AppWindow?.SetTaskbarIcon($"{AppContext.BaseDirectory}\\Assets\\AboutWindows.ico");
+
+            // Load persistance
+            MainWindow.LoadWindowState();
         };
 
+        // Load main page
         MainWindow.XamlInitialized += (s, e) =>
         {
             var frame = new Frame();
@@ -161,8 +159,9 @@ public partial class App : Application
             MainWindow.Content = frame;
         };
 
+        // Spawn the window
         MainWindow.Create();
     }
 
-    public static IslandsWindow? MainWindow { get; set; } = null;
+    public static IslandsWindow? MainWindow { get; set; }
 }
