@@ -63,28 +63,28 @@ public sealed partial class ShutdownDialog : Page
     [RelayCommand]
     public void RestartToUEFI()
     {
-        App.ReboundPipeClient.SendMessageAsync("Shell::RestartToUEFI");
+        //App.ReboundPipeClient.SendMessageAsync("Shell::RestartToUEFI");
         //Close();
     }
 
     [RelayCommand]
     public void RestartToRecovery()
     {
-        App.ReboundPipeClient.SendMessageAsync("Shell::RestartToRecovery");
+        //App.ReboundPipeClient.SendMessageAsync("Shell::RestartToRecovery");
         //Close();
     }
 
     [RelayCommand]
     public void Shutdown()
     {
-        App.ReboundPipeClient.SendMessageAsync(isServer ? $"Shell::ShutdownServer#{OperationReason.SelectedIndex}{OperationMode.SelectedIndex}" : "Shell::Shutdown");
+        //App.ReboundPipeClient.SendMessageAsync(isServer ? $"Shell::ShutdownServer#{OperationReason.SelectedIndex}{OperationMode.SelectedIndex}" : "Shell::Shutdown");
         //Close();
     }
 
     [RelayCommand]
     public void Restart()
     {
-        App.ReboundPipeClient.SendMessageAsync("Shell::Restart");
+        //App.ReboundPipeClient.SendMessageAsync("Shell::Restart");
         //Close();
     }
 

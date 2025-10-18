@@ -3,6 +3,7 @@ using System.Diagnostics;
 using System.IO;
 using System.IO.Pipes;
 using System.Threading;
+using System.Threading.Tasks;
 
 namespace Rebound.Core.Helpers.Services;
 
@@ -23,9 +24,9 @@ public partial class SingleInstanceAppService : IDisposable
     private readonly string _mutexName;
     private readonly string _pipeName;
     private Mutex? _mutex;
-    private NamedPipeServerStream? _serverStream;
     private bool _isFirstInstance;
     private bool _disposed;
+    private CancellationTokenSource? _cts;
 
     public event EventHandler<SingleInstanceLaunchEventArgs>? Launched;
 
@@ -42,58 +43,53 @@ public partial class SingleInstanceAppService : IDisposable
 
         if (_isFirstInstance)
         {
-            StartPipeServer();
+            _cts = new CancellationTokenSource();
+            _ = RunPipeServerAsync(_cts.Token); // fire-and-forget
             Launched?.Invoke(this, new SingleInstanceLaunchEventArgs(arguments, true));
         }
         else
         {
-            SendArgsToFirstInstance(arguments);
+            _ = SendArgsToFirstInstanceAsync(arguments);
             Process.GetCurrentProcess().Kill();
         }
     }
 
-    private void StartPipeServer()
+    private async Task RunPipeServerAsync(CancellationToken ct)
     {
-        _serverStream = new NamedPipeServerStream(_pipeName, PipeDirection.In, 1,
-            PipeTransmissionMode.Message, PipeOptions.Asynchronous);
-
-        _serverStream.BeginWaitForConnection(OnPipeConnected, _serverStream);
-    }
-
-    private void OnPipeConnected(IAsyncResult ar)
-    {
-        var server = (NamedPipeServerStream)ar.AsyncState!;
-        try
+        while (!ct.IsCancellationRequested)
         {
-            server.EndWaitForConnection(ar);
+            using var server = new NamedPipeServerStream(
+                _pipeName,
+                PipeDirection.In,
+                NamedPipeServerStream.MaxAllowedServerInstances,
+                PipeTransmissionMode.Message,
+                PipeOptions.Asynchronous);
 
-            string args;
-            using (var sr = new StreamReader(server))
+            try
             {
-                args = sr.ReadToEnd();
-            }
+                await server.WaitForConnectionAsync(ct);
 
-            Launched?.Invoke(this, new SingleInstanceLaunchEventArgs(args, false));
-        }
-        catch { /* ignore errors */ }
-        finally
-        {
-            server.Dispose();
-            StartPipeServer(); // keep server ready for next instance
+                using var sr = new StreamReader(server);
+                var args = await sr.ReadLineAsync() ?? string.Empty;
+
+                Launched?.Invoke(this, new SingleInstanceLaunchEventArgs(args, false));
+            }
+            catch (OperationCanceledException) { break; }
+            catch (Exception ex) { Debug.WriteLine($"Pipe server error: {ex.Message}"); }
         }
     }
 
-    private void SendArgsToFirstInstance(string arguments)
+    private async Task SendArgsToFirstInstanceAsync(string arguments)
     {
         try
         {
-            using var client = new NamedPipeClientStream(".", _pipeName, PipeDirection.Out);
-            client.Connect(3000); // 3s timeout
-            using var sw = new StreamWriter(client);
-            sw.Write(arguments);
-            sw.Flush();
+            using var client = new NamedPipeClientStream(".", _pipeName, PipeDirection.Out, PipeOptions.Asynchronous);
+            await client.ConnectAsync(3000);
+
+            using var sw = new StreamWriter(client) { AutoFlush = true };
+            await sw.WriteLineAsync(arguments);
         }
-        catch { /* ignore errors */ }
+        catch (Exception ex) { Debug.WriteLine($"Pipe client error: {ex.Message}"); }
     }
 
     public void Dispose()
@@ -101,8 +97,10 @@ public partial class SingleInstanceAppService : IDisposable
         if (_disposed) return;
         _disposed = true;
 
-        _serverStream?.Dispose();
-        _mutex?.ReleaseMutex();
+        _cts?.Cancel();
+        _cts?.Dispose();
+        if (_isFirstInstance)
+            _mutex?.ReleaseMutex();
         _mutex?.Dispose();
     }
 }

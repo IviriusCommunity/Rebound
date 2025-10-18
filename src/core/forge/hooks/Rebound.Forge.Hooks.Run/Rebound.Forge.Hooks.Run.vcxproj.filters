@@ -34,6 +34,6 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <Library Include="C:\Users\Desktop Ivirius\source\repos\minhook\build\VC17\lib\Release\libMinHook.x64.lib" />
+    <Library Include="$(SolutionDir)src\core\forge\hooks\Rebound.Forge.Hooks.Run\libMinHook.x64.lib" />
   </ItemGroup>
 </Project>

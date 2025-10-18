@@ -214,9 +214,11 @@ public partial class App : Application
             hookThread.Start();
 
             // Pipe server thread
-            var pipeThread = new Thread(() =>
+            var pipeThread = new Thread(async () =>
             {
-                StartPipeServer();
+                PipeServer = new("REBOUND_SERVICE_HOST");
+                PipeServer.MessageReceived += PipeServer_MessageReceived;
+                await PipeServer.StartAsync();
             })
             {
                 IsBackground = true,
@@ -229,13 +231,6 @@ public partial class App : Application
         }
         else Process.GetCurrentProcess().Kill();
     });
-
-    private void StartPipeServer()
-    {
-        PipeServer = new("REBOUND_SERVICE_HOST");
-        PipeServer.MessageReceived += PipeServer_MessageReceived;
-        _ = PipeServer.StartAsync();
-    }
 
     private static readonly SHUTDOWN_REASON[] MajorReasons =
     [
@@ -265,7 +260,7 @@ public partial class App : Application
         SHUTDOWN_REASON.SHTDN_REASON_FLAG_DIRTY_UI
     ];
 
-    private async Task PipeServer_MessageReceived(PipeConnection connection, string arg)
+    private async void PipeServer_MessageReceived(PipeConnection connection, string arg)
     {
         if (string.IsNullOrEmpty(arg))
             return;

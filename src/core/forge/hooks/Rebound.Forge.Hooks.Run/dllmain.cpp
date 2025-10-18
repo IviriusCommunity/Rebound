@@ -187,7 +187,7 @@ DWORD WINAPI WorkerThreadLoop(LPVOID) {
 
             // lazy pipe connect with retry
             while (pipe == INVALID_HANDLE_VALUE && g_running) {
-                pipe = CreateFileA("\\\\.\\pipe\\REBOUND_SERVICE_HOST", GENERIC_WRITE, 0, nullptr, OPEN_EXISTING, 0, nullptr);
+                pipe = CreateFileA("\\\\.\\pipe\\REBOUND_SHELL", GENERIC_WRITE, 0, nullptr, OPEN_EXISTING, 0, nullptr);
                 if (pipe == INVALID_HANDLE_VALUE) Sleep(50);
             }
 
