@@ -82,11 +82,9 @@ public partial class App : Application
         }
     });
 
-    private static Task OnPipeMessageReceived(string message)
+    private static void OnPipeMessageReceived(string message)
     {
-        // Optional: handle incoming messages from ServiceHost if needed
-        Debug.WriteLine($"Pipe message received: {message}");
-        return Task.CompletedTask;
+
     }
 
     public static unsafe void CreateMainWindow()
