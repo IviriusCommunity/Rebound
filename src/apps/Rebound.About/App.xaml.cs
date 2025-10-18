@@ -7,6 +7,7 @@ using Rebound.Generators;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Threading;
 using System.Threading.Tasks;
 using Windows.UI;
 using Windows.UI.Xaml;
@@ -38,49 +39,85 @@ public partial class App : Application
         };
     }
 
-    private void OnSingleInstanceLaunched(object sender, SingleInstanceLaunchEventArgs e) => Program.QueueAction(async () =>
+    private async void OnSingleInstanceLaunched(object sender, SingleInstanceLaunchEventArgs e)
     {
-        Debug.WriteLine($"App launched with arguments: {e.Arguments}, IsFirstLaunch: {e.IsFirstLaunch}");
-        if (e.IsFirstLaunch)
+        Debug.WriteLine($"[App] ===== OnSingleInstanceLaunched ENTRY ===== Args={e.Arguments}, IsFirst={e.IsFirstLaunch}");
+        Debug.WriteLine($"[App] Current Thread ID: {Thread.CurrentThread.ManagedThreadId}");
+        Debug.WriteLine($"[App] Current Thread IsBackground: {Thread.CurrentThread.IsBackground}");
+
+        try
         {
-            // Initialize pipe client if not already
-            ReboundPipeClient ??= new();
-
-            // Start listening (optional, for future messages)
-            ReboundPipeClient.MessageReceived += OnPipeMessageReceived;
-        }
-
-        // Spawn or activate the main window immediately
-        if (MainWindow != null)
-            MainWindow.Activate();
-        else
-            CreateMainWindow();
-
-        // Handle legacy launch
-        if (e.Arguments == "legacy")
-        {
-            Debug.WriteLine("Legacy launch");
-
-            try
+            Debug.WriteLine($"[App] About to call Program.QueueAction");
+            Debug.WriteLine($"[App] ===== INSIDE QueueAction ===== Thread ID: {Thread.CurrentThread.ManagedThreadId}");
+            if (e.IsFirstLaunch)
             {
-                await ReboundPipeClient.SendAsync("IFEOEngine::Pause#winver.exe");
+                // Initialize pipe client if not already
+                ReboundPipeClient ??= new();
 
-                Process.Start(new ProcessStartInfo
+                // Start listening (optional, for future messages)
+                ReboundPipeClient.MessageReceived += OnPipeMessageReceived;
+
+                // Pipe server thread
+                var pipeThread = new Thread(async () =>
                 {
-                    FileName = "winver.exe",
-                    UseShellExecute = true,
+                    await ReboundPipeClient.ConnectAsync();
+                })
+                {
+                    IsBackground = true,
+                    Name = "Pipe Server Thread"
+                };
+                pipeThread.SetApartmentState(ApartmentState.STA);
+                pipeThread.Start();
+
+                Program.QueueAction(async () =>
+                {
+                    // Spawn or activate the main window immediately
+                    if (MainWindow != null)
+                    {
+
+                    }
+                    else
+                        CreateMainWindow();
                 });
             }
-            catch
+
+            // Handle legacy launch
+            if (e.Arguments == "legacy")
             {
-                await ReboundDialog.ShowAsync(
-                    "Legacy Launch Failed",
-                    "Could not communicate with Rebound Service Host.\nPlease ensure it is running and try again.",
-                    DialogIcon.Warning
-                );
+                Debug.WriteLine("Legacy launch");
+
+                try
+                {
+                    await ReboundPipeClient.SendAsync("IFEOEngine::Pause#winver.exe");
+
+                    Process.Start(new ProcessStartInfo
+                    {
+                        FileName = "winver.exe",
+                        UseShellExecute = true,
+                    });
+                }
+                catch
+                {
+                    Program.QueueAction(async () =>
+                    {
+                        await ReboundDialog.ShowAsync(
+                            "Legacy Launch Failed",
+                            "Could not communicate with Rebound Service Host.\nPlease ensure it is running and try again.",
+                            DialogIcon.Warning
+                        );
+                    });
+                }
             }
+            Debug.WriteLine($"[App] Program.QueueAction returned");
         }
-    });
+        catch (Exception ex)
+        {
+            Debug.WriteLine($"[App] EXCEPTION in OnSingleInstanceLaunched: {ex.GetType().Name}: {ex.Message}");
+            Debug.WriteLine($"[App] StackTrace: {ex.StackTrace}");
+        }
+
+        Debug.WriteLine($"[App] ===== OnSingleInstanceLaunched EXIT =====");
+    }
 
     private static void OnPipeMessageReceived(string message)
     {

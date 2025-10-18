@@ -216,7 +216,7 @@ public partial class App : Application
             // Pipe server thread
             var pipeThread = new Thread(async () =>
             {
-                PipeServer = new("REBOUND_SERVICE_HOST");
+                PipeServer = new("REBOUND_SERVICE_HOST", AccessLevel.ModWhitelist);
                 PipeServer.MessageReceived += PipeServer_MessageReceived;
                 await PipeServer.StartAsync();
             })
