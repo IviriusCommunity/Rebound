@@ -3,13 +3,13 @@
 
 using Rebound.Core.Helpers;
 using Rebound.Core.Helpers.Services;
+using Rebound.Forge;
 using Rebound.Forge.Engines;
 using Rebound.Generators;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Runtime.InteropServices;
 using System.Threading;
 using System.Threading.Tasks;
 using Windows.UI.Xaml;
@@ -50,7 +50,7 @@ public partial class App : Application
             if (proc.SessionId == 0)
                 return;
 
-            if (!Injector.CanOpenProcess(proc.Id))
+            if (!DLLInjector.CanOpenProcess(proc.Id))
                 return;
 
             if (Environment.Is64BitOperatingSystem)
@@ -77,7 +77,7 @@ public partial class App : Application
                     return;
 
                 // Run the bounded injector on a threadpool thread to keep this method async-friendly.
-                var success = await Task.Run(() => Injector.Inject((uint)proc.Id, @$"{AppContext.BaseDirectory}\Hooks\Rebound.Forge.Hooks.Run.dll", (uint)injectTimeoutMs)).ConfigureAwait(false);
+                var success = await Task.Run(() => DLLInjector.Inject((uint)proc.Id, @$"{AppContext.BaseDirectory}\Hooks\Rebound.Forge.Hooks.Run.dll", (uint)injectTimeoutMs)).ConfigureAwait(false);
 
                 if (success)
                 {
@@ -346,140 +346,3 @@ public partial class App : Application
     }
 }
 
-// New RunFileDlg hook (ordinal #61)
-internal class Injector
-{
-    public static bool CanOpenProcess(int pid)
-    {
-        var hProcess = TerraFX.Interop.Windows.Windows.OpenProcess(PROCESS_ALL_ACCESS, bInheritHandle: false, dwProcessId: (uint)pid);
-        if (hProcess == IntPtr.Zero) return false;
-        _ = TerraFX.Interop.Windows.Windows.CloseHandle(hProcess);
-        return true;
-    }
-
-    private const uint PROCESS_ALL_ACCESS = 0x1F0FFF;
-    private const uint MEM_COMMIT = 0x1000;
-    private const uint MEM_RESERVE = 0x2000;
-    private const uint PAGE_READWRITE = 0x04;
-    private const uint MEM_RELEASE = 0x8000;
-    private const uint INFINITE = 0xFFFFFFFF;
-
-    public static unsafe bool Inject(uint pid, string dllPath, uint waitTimeoutMs = 10_000)
-    {
-        var hProcess = TerraFX.Interop.Windows.Windows.OpenProcess(
-            dwDesiredAccess: PROCESS_ALL_ACCESS,
-            bInheritHandle: false,
-            dwProcessId: pid);
-
-        if (hProcess == IntPtr.Zero)
-        {
-            Debug.WriteLine($"Failed to open process {pid}. Error: {Marshal.GetLastWin32Error()}");
-            return false;
-        }
-
-        var dllPathBytes = System.Text.Encoding.Unicode.GetBytes(dllPath + "\0");
-        var allocMem = TerraFX.Interop.Windows.Windows.VirtualAllocEx(
-            hProcess,
-            lpAddress: null,
-            dwSize: (uint)dllPathBytes.Length,
-            flAllocationType: MEM_COMMIT | MEM_RESERVE,
-            flProtect: PAGE_READWRITE);
-
-        if ((nint)allocMem == IntPtr.Zero)
-        {
-            Debug.WriteLine($"Failed to allocate memory in target process. Error: {Marshal.GetLastWin32Error()}");
-            _ = TerraFX.Interop.Windows.Windows.CloseHandle(hProcess);
-            return false;
-        }
-
-        fixed (byte* pBytes = dllPathBytes)
-        {
-            if (!TerraFX.Interop.Windows.Windows.WriteProcessMemory(
-                hProcess,
-                lpBaseAddress: allocMem,
-                lpBuffer: pBytes,
-                nSize: (uint)dllPathBytes.Length,
-                lpNumberOfBytesWritten: null))
-            {
-                Debug.WriteLine($"Failed to write DLL path to target process. Error: {Marshal.GetLastWin32Error()}");
-                _ = TerraFX.Interop.Windows.Windows.VirtualFreeEx(hProcess, allocMem, 0, MEM_RELEASE);
-                _ = TerraFX.Interop.Windows.Windows.CloseHandle(hProcess);
-                return false;
-            }
-        }
-
-        var hKernel32 = TerraFX.Interop.Windows.Windows.GetModuleHandleW("kernel32.dll".ToPCWSTR().Value);
-        var loadLibraryAddr = TerraFX.Interop.Windows.Windows.GetProcAddress(
-            hKernel32,
-            (sbyte*)Marshal.StringToHGlobalAnsi("LoadLibraryW"));
-
-        if (loadLibraryAddr == null)
-        {
-            Debug.WriteLine("Failed to get address of LoadLibraryW.");
-            _ = TerraFX.Interop.Windows.Windows.VirtualFreeEx(hProcess, allocMem, 0, MEM_RELEASE);
-            _ = TerraFX.Interop.Windows.Windows.CloseHandle(hProcess);
-            return false;
-        }
-
-        var loadLibraryFunc = (delegate* unmanaged<void*, uint>)loadLibraryAddr;
-
-        var hThread = TerraFX.Interop.Windows.Windows.CreateRemoteThread(
-            hProcess,
-            null,
-            0,
-            loadLibraryFunc,
-            allocMem,
-            0,
-            null
-        );
-
-        if (hThread == IntPtr.Zero)
-        {
-            var error = Marshal.GetLastWin32Error();
-            Debug.WriteLine($"Failed to create remote thread in process {pid}. Error: {error}");
-            _ = TerraFX.Interop.Windows.Windows.VirtualFreeEx(hProcess, allocMem, 0, MEM_RELEASE);
-            _ = TerraFX.Interop.Windows.Windows.CloseHandle(hProcess);
-            return false;
-        }
-
-        // Wait with timeout
-        uint waitResult = TerraFX.Interop.Windows.Windows.WaitForSingleObject(hThread, waitTimeoutMs);
-
-        uint exitCode = 0;
-        if (waitResult == TerraFX.Interop.Windows.WAIT.WAIT_OBJECT_0)
-        {
-            _ = TerraFX.Interop.Windows.Windows.GetExitCodeThread(hThread, &exitCode);
-        }
-        else if (waitResult == TerraFX.Interop.Windows.WAIT.WAIT_TIMEOUT)
-        {
-            Debug.WriteLine($"LoadLibraryW timed out in process {pid} after {waitTimeoutMs}ms.");
-            // Clean up handles and memory, but the remote thread may still be running inside LoadLibraryW.
-            _ = TerraFX.Interop.Windows.Windows.VirtualFreeEx(hProcess, allocMem, 0, MEM_RELEASE);
-            _ = TerraFX.Interop.Windows.Windows.CloseHandle(hThread);
-            _ = TerraFX.Interop.Windows.Windows.CloseHandle(hProcess);
-            return false;
-        }
-        else
-        {
-            Debug.WriteLine($"WaitForSingleObject failed for process {pid}. Error: {Marshal.GetLastWin32Error()}");
-            _ = TerraFX.Interop.Windows.Windows.VirtualFreeEx(hProcess, allocMem, 0, MEM_RELEASE);
-            _ = TerraFX.Interop.Windows.Windows.CloseHandle(hThread);
-            _ = TerraFX.Interop.Windows.Windows.CloseHandle(hProcess);
-            return false;
-        }
-
-        // Normal cleanup
-        _ = TerraFX.Interop.Windows.Windows.VirtualFreeEx(hProcess, allocMem, 0, MEM_RELEASE);
-        _ = TerraFX.Interop.Windows.Windows.CloseHandle(hThread);
-        _ = TerraFX.Interop.Windows.Windows.CloseHandle(hProcess);
-
-        if (exitCode == 0)
-        {
-            Debug.WriteLine($"DLL injection FAILED for process {pid} - LoadLibraryW returned NULL (DLL not loaded or dependencies missing)");
-            return false;
-        }
-
-        Debug.WriteLine($"Successfully injected into x64 process {pid} - Module handle: 0x{exitCode:X}");
-        return true;
-    }
-}

@@ -22,23 +22,7 @@ namespace Rebound.About;
 [ReboundApp("Rebound.About", "Legacy winver*legacy*ms-appx:///Assets/Exe.ico")]
 public partial class App : Application
 {
-    private static readonly List<IslandsWindow> _openWindows = [];
-
     public static PipeClient? ReboundPipeClient { get; private set; }
-
-    private static void RegisterWindow(IslandsWindow window)
-    {
-        _openWindows.Add(window);
-        window.Closed += (s, e) =>
-        {
-            _openWindows.Remove(window);
-            if (_openWindows.Count == 0)
-            {
-                Current.Exit();
-                Process.GetCurrentProcess().Kill();
-            }
-        };
-    }
 
     private async void OnSingleInstanceLaunched(object sender, SingleInstanceLaunchEventArgs e)
     {
@@ -55,7 +39,21 @@ public partial class App : Application
                 // Pipe server thread
                 var pipeThread = new Thread(async () =>
                 {
-                    await ReboundPipeClient.ConnectAsync().ConfigureAwait(false);
+                    try
+                    {
+                        await ReboundPipeClient.ConnectAsync().ConfigureAwait(false);
+                    }
+                    catch
+                    {
+                        Program.QueueAction(async () =>
+                        {
+                            await ReboundDialog.ShowAsync(
+                                "Rebound Service Host not found.",
+                                "Could not find Rebound Service Host.\nPlease ensure it is running in the background.",
+                                DialogIcon.Warning
+                            ).ConfigureAwait(false);
+                        });
+                    }
                 })
                 {
                     IsBackground = true,
@@ -120,9 +118,6 @@ public partial class App : Application
             PersistenceKey = "Rebound.About.MainWindow",
             PersistanceFileName = "winver"
         };
-
-        // Register in the window list
-        RegisterWindow(MainWindow);
 
         // AppWindow init
         MainWindow.AppWindowInitialized += (s, e) =>

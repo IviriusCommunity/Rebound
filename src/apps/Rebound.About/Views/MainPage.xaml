@@ -50,7 +50,7 @@
                 FontFamily="Segoe UI Variable"
                 FontSize="54"
                 FontWeight="SemiBold"
-                Text="{x:Bind ViewModel.WindowsVersionName}">
+                Text="{x:Bind viewModels:MainViewModel.WindowsVersionName}">
                 <TextBlock.Foreground>
                     <LinearGradientBrush StartPoint="0, 0" EndPoint="1, 1">
                         <LinearGradientBrush.GradientStops>
@@ -95,7 +95,7 @@
                 FontFamily="Segoe UI Variable"
                 FontSize="54"
                 FontWeight="SemiBold"
-                Text="{x:Bind ViewModel.WindowsVersionName}">
+                Text="{x:Bind viewModels:MainViewModel.WindowsVersionName}">
                 <TextBlock.Foreground>
                     <LinearGradientBrush StartPoint="0, 0" EndPoint="1, 1">
                         <LinearGradientBrush.GradientStops>
@@ -166,9 +166,9 @@
                         FontWeight="SemiBold"
                         Text="Microsoft Windows"
                         TextWrapping="WrapWholeWords" />
-                    <TextBlock Text="{x:Bind ViewModel.DetailedWindowsVersion}" TextWrapping="WrapWholeWords" />
+                    <TextBlock Text="{x:Bind viewModels:MainViewModel.DetailedWindowsVersion}" TextWrapping="WrapWholeWords" />
                     <TextBlock x:Uid="CopyrightLabel" />
-                    <TextBlock Text="{x:Bind ViewModel.LegalInfo}" TextWrapping="WrapWholeWords" />
+                    <TextBlock Text="{x:Bind viewModels:MainViewModel.LegalInfo}" TextWrapping="WrapWholeWords" />
                     <TextBlock TextWrapping="WrapWholeWords">
                         <Run x:Uid="LicensedUnderLabel" />
                         <Hyperlink NavigateUri="https://support.microsoft.com/en-us/windows/microsoft-software-license-terms-e26eedad-97a2-5250-2670-aad156b654bd">
@@ -176,7 +176,7 @@
                         </Hyperlink>
                         <Run x:Uid="ToLabel" />
                     </TextBlock>
-                    <TextBlock x:Name="User" Text="{x:Bind ViewModel.LicenseOwners}" />
+                    <TextBlock x:Name="User" Text="{x:Bind viewModels:MainViewModel.LicenseOwners}" />
                 </StackPanel>
                 <Button
                     Grid.Column="2"
@@ -265,7 +265,7 @@
                 Margin="40,0,180,0"
                 HorizontalAlignment="Stretch"
                 VerticalAlignment="Center"
-                Text="{x:Bind ViewModel.CurrentUser, Mode=OneWay}"
+                Text="{x:Bind viewModels:MainViewModel.CurrentUser, Mode=OneWay}"
                 TextWrapping="WrapWholeWords" />
         </Grid>
 
@@ -306,7 +306,7 @@
                     VerticalAlignment="Center"
                     FontWeight="SemiBold"
                     HorizontalTextAlignment="Center"
-                    Text="{x:Bind ViewModel.CPUName}"
+                    Text="{x:Bind viewModels:MainViewModel.CPUName}"
                     TextWrapping="WrapWholeWords" />
             </Grid>
             <Grid
@@ -334,7 +334,7 @@
                     VerticalAlignment="Center"
                     FontWeight="SemiBold"
                     HorizontalTextAlignment="Center"
-                    Text="{x:Bind ViewModel.GPUName}"
+                    Text="{x:Bind viewModels:MainViewModel.GPUName}"
                     TextWrapping="WrapWholeWords" />
             </Grid>
             <Grid
@@ -375,7 +375,7 @@
                         HorizontalAlignment="Center"
                         FontSize="12"
                         Opacity="0.75"
-                        Text="{x:Bind ViewModel.RAM}"
+                        Text="{x:Bind viewModels:MainViewModel.RAM}"
                         TextWrapping="WrapWholeWords" />
                 </StackPanel>
                 <StackPanel
@@ -392,7 +392,7 @@
                         HorizontalAlignment="Center"
                         FontSize="12"
                         Opacity="0.75"
-                        Text="{x:Bind ViewModel.UsableRAM}"
+                        Text="{x:Bind viewModels:MainViewModel.UsableRAM}"
                         TextWrapping="WrapWholeWords" />
                 </StackPanel>
             </Grid>

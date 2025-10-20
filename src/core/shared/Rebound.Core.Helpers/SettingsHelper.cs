@@ -4,6 +4,7 @@
 using System;
 using System.Globalization;
 using System.IO;
+using System.Threading;
 using System.Xml;
 
 namespace Rebound.Core.Helpers;
@@ -101,5 +102,98 @@ public static class SettingsHelper
         {
 
         }
+    }
+}
+
+public sealed class SettingsListener : IDisposable
+{
+    private readonly string _appName;
+    private readonly string _settingsPath;
+    private readonly FileSystemWatcher _watcher;
+    private readonly SynchronizationContext? _uiContext = SynchronizationContext.Current;
+    private DateTime _lastEventTime = DateTime.MinValue;
+
+    public event EventHandler<SettingChangedEventArgs>? SettingChanged;
+
+    public SettingsListener(string appName)
+    {
+        _appName = appName;
+        var basePath = Path.Combine(System.Environment.GetFolderPath(System.Environment.SpecialFolder.LocalApplicationData), "Rebound");
+        _settingsPath = Path.Combine(basePath, $"{appName}.xml");
+
+        if (!Directory.Exists(basePath))
+            Directory.CreateDirectory(basePath);
+
+        _watcher = new FileSystemWatcher(basePath, $"{appName}.xml")
+        {
+            NotifyFilter = NotifyFilters.LastWrite | NotifyFilters.Size | NotifyFilters.FileName,
+            EnableRaisingEvents = true
+        };
+
+        _watcher.Changed += OnFileChanged;
+        _watcher.Created += OnFileChanged;
+        _watcher.Renamed += OnFileChanged;
+        _watcher.Deleted += OnFileChanged;
+    }
+
+    private void OnFileChanged(object? sender, FileSystemEventArgs e)
+    {
+        // Debounce frequent duplicate events
+        var now = DateTime.Now;
+        if ((now - _lastEventTime).TotalMilliseconds < 200)
+            return;
+
+        _lastEventTime = now;
+
+        try
+        {
+            Thread.Sleep(100); // let the file finish writing
+
+            if (!File.Exists(_settingsPath))
+                return;
+
+            var doc = new XmlDocument();
+            doc.Load(_settingsPath);
+
+            var root = doc.DocumentElement;
+            if (root == null)
+                return;
+
+            foreach (XmlNode node in root.ChildNodes)
+            {
+                if (node is XmlElement element)
+                {
+                    var key = element.Name;
+                    var value = element.InnerText;
+
+                    void Raise() => SettingChanged?.Invoke(this, new SettingChangedEventArgs(key, value));
+                    if (_uiContext != null)
+                        _uiContext.Post(_ => Raise(), null);
+                    else
+                        Raise();
+                }
+            }
+        }
+        catch
+        {
+            // Ignore transient IO or XML errors
+        }
+    }
+
+    public void Dispose()
+    {
+        _watcher.Dispose();
+    }
+}
+
+public sealed class SettingChangedEventArgs : EventArgs
+{
+    public string Key { get; }
+    public string Value { get; }
+
+    public SettingChangedEventArgs(string key, string value)
+    {
+        Key = key;
+        Value = value;
     }
 }

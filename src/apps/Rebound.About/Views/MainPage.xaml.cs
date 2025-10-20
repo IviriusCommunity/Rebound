@@ -3,34 +3,22 @@
 
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using Microsoft.UI;
 using Microsoft.Win32;
 using Rebound.About.ViewModels;
-using Rebound.Core.Helpers;
-using Rebound.Core.Helpers;
 using Rebound.Core.Helpers.Environment;
 using System;
 using System.Diagnostics;
-using System.IO;
-using System.Linq;
 using System.Runtime.CompilerServices;
-using System.Runtime.InteropServices.WindowsRuntime;
 using System.Security.Principal;
 using System.Threading.Tasks;
 using Windows.ApplicationModel.DataTransfer;
-using Windows.Storage;
-using Windows.Storage.Streams;
 using Windows.System;
-using Windows.System.UserProfile;
 using Windows.UI.Xaml.Controls;
-using Windows.UI.Xaml.Documents;
-using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Media.Imaging;
 using Windows.Win32;
 using Windows.Win32.Foundation;
 using Windows.Win32.Security;
 using Windows.Win32.System.Com;
-using WinRT;
 
 namespace Rebound.About.Views;
 
@@ -309,29 +297,7 @@ public sealed partial class MainPage : Page
 
     private static async Task<BitmapImage?> GetUserPictureAsync()
     {
-        string sid = WindowsIdentity.GetCurrent().User?.Value;
-        if (sid == null)
-            return new BitmapImage(new Uri("ms-appx:///Assets/DefaultUser.png"));
-
-        string regPath = $@"SOFTWARE\Microsoft\Windows\CurrentVersion\AccountPicture\Users\{sid}";
-
-        using (RegistryKey key = Registry.LocalMachine.OpenSubKey(regPath))
-        {
-            if (key != null)
-            {
-                // Prefer the largest image available (Image1080 > Image192 > etc.)
-                string imagePath = key.GetValue("Image1080") as string
-                                ?? key.GetValue("Image192") as string
-                                ?? key.GetValue("Image64") as string;
-
-                if (!string.IsNullOrEmpty(imagePath) && System.IO.File.Exists(imagePath))
-                {
-                    return new BitmapImage(new Uri(imagePath));
-                }
-            }
-        }
-
-        return new BitmapImage(new Uri("ms-appx:///Assets/DefaultUser.png"));
+        return new BitmapImage(new Uri(SystemInformation.GetUserPicturePath()!));
     }
 
     private MainViewModel ViewModel { get; } = new();
@@ -515,13 +481,13 @@ public sealed partial class MainPage : Page
     }
 
     [RelayCommand]
-    private void CopyWindowsVersion() => CopyToClipboard(ViewModel.DetailedWindowsVersion);
+    private void CopyWindowsVersion() => CopyToClipboard(MainViewModel.DetailedWindowsVersion);
 
     [RelayCommand]
-    private void CopyLicenseOwners() => CopyToClipboard(ViewModel.LicenseOwners);
+    private void CopyLicenseOwners() => CopyToClipboard(MainViewModel.LicenseOwners);
 
     [RelayCommand]
-    private static void CopyReboundVersion() => CopyToClipboard(Core.Helpers.Environment.ReboundVersion.REBOUND_VERSION);
+    private static void CopyReboundVersion() => CopyToClipboard(ReboundVersion.REBOUND_VERSION);
 
     [RelayCommand]
     private void CloseWindow() => App.MainWindow.Close();

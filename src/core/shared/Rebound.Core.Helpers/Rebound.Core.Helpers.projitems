@@ -16,6 +16,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)Display.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Environment\EnvironmentHelper.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Environment\ReboundVersion.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Environment\SystemInformation.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Files\CsWin32\ComHeapPtr`1.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Files\CsWin32\ComPtr`1.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Files\CsWin32\Extras.cs" />

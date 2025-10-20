@@ -42,7 +42,6 @@ public partial class App : Application
 
     private void PipeServer_MessageReceived(PipeConnection connection, string arg)
     {
-        Debug.WriteLine($"[Shell Experience Host] Received IPC message: {arg}");
         var parts = arg.Split("##");
         if (parts[0] == "Shell::SpawnRunWindow")
         {
@@ -57,9 +56,7 @@ public partial class App : Application
             }
             else
             {
-                TerraFX.Interop.Windows.Windows.ShowWindow(RunWindow.Handle, SW.SW_SHOW);
-                TerraFX.Interop.Windows.Windows.SetForegroundWindow(RunWindow.Handle);
-                TerraFX.Interop.Windows.Windows.SetActiveWindow(RunWindow.Handle);
+                RunWindow.BringToFront();
             }
         }
 

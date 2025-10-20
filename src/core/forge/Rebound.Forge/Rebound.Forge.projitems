@@ -9,6 +9,7 @@
     <Import_RootNamespace>Rebound.Forge</Import_RootNamespace>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="$(MSBuildThisFileDirectory)DLLInjector.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Engines\IFEOEngine.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Cogs\IFEOCog.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ICog.cs" />

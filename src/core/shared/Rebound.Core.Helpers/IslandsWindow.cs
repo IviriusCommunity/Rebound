@@ -6,6 +6,7 @@ using CommunityToolkit.WinUI.Helpers;
 using Microsoft.UI;
 using Microsoft.UI.Windowing;
 using Microsoft.UI.Xaml.Controls;
+using Rebound.About;
 using Rebound.Core.Helpers;
 using System;
 using System.Runtime.CompilerServices;
@@ -307,7 +308,7 @@ public partial class IslandsWindow : ObservableObject, IDisposable
     private const string WindowClassName = "XamlIslandsClass";
     private static readonly ushort _classAtom;
 
-    bool _closed;
+    public bool _closed { get; private set; }
 
     // Static WndProc (unmanaged entry)
     [UnmanagedCallersOnly]
@@ -605,7 +606,9 @@ public partial class IslandsWindow : ObservableObject, IDisposable
             SetForegroundWindow(Handle);
             SetActiveWindow(Handle);
 
-            MSG msg;
+            App.RegisterWindow(this);
+
+            /*MSG msg;
             while (GetMessageW(&msg, HWND.NULL, 0, 0))
             {
                 if (!_closed)
@@ -617,7 +620,7 @@ public partial class IslandsWindow : ObservableObject, IDisposable
                     }
                 }
                 else return;
-            }
+            }*/
         }
     }
 
@@ -685,7 +688,7 @@ public partial class IslandsWindow : ObservableObject, IDisposable
     }
 
     // Cached PreTranslateMessage using cached _nativeSource
-    internal unsafe bool PreTranslateMessage(MSG* msg)
+    public unsafe bool PreTranslateMessage(MSG* msg)
     {
         if (!_xamlInitialized) return false;
         BOOL outResult = false;

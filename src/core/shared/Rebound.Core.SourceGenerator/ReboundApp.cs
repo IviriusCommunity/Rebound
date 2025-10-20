@@ -32,15 +32,16 @@ public class ReboundAppSourceGenerator : ISourceGenerator
                 var namespaceName = classSymbol.ContainingNamespace.ToDisplayString();
 
                 var appClass = GenerateAppClass(classSymbol, singleInstanceTaskName);
-                var programClass = GenerateProgramClass();
+                //var programClass = GenerateProgramClass();
 
                 var namespaceDecl = NamespaceDeclaration(IdentifierName(namespaceName))
-                    .AddMembers(appClass, programClass);
+                    .AddMembers(appClass/*, programClass*/);
 
                 var compilationUnit = CompilationUnit()
                     .AddUsings(
                         UsingDirective(IdentifierName("System")),
                         UsingDirective(IdentifierName("System.Threading")),
+                        UsingDirective(IdentifierName("System.Threading.Tasks")),
                         UsingDirective(IdentifierName("System.Collections.Concurrent")),
                         UsingDirective(IdentifierName("Rebound.Core.Helpers.Services"))
                     )
@@ -96,69 +97,52 @@ public class ReboundAppSourceGenerator : ISourceGenerator
         return ParseMemberDeclaration(@"
 internal class Program
 {
-    public static BlockingCollection<Action> _actions = new();
-    public static void QueueAction(Func<System.Threading.Tasks.Task> action)
-    {
-        _actions.Add(() =>
-        {
-            try
-            {
-                _ = action();
-            }
-            catch (Exception ex)
-            {
+    private static readonly ConcurrentQueue<Func<Task>> _actions = new();
+    private static readonly SemaphoreSlim _actionSignal = new(0);
 
-            }
-        });
+    public static void QueueAction(Func<Task> action)
+    {
+        _actions.Enqueue(action);
+        _actionSignal.Release(); // signal that a new action is available
     }
 
     [STAThread]
-    static unsafe void Main(string[] args)
+    static async Task Main(string[] args)
     {
-        TerraFX.Interop.WinRT.WinRT.RoInitialize(TerraFX.Interop.WinRT.RO_INIT_TYPE.RO_INIT_SINGLETHREADED);
+        TerraFX.Interop.WinRT.WinRT.RoInitialize(
+            TerraFX.Interop.WinRT.RO_INIT_TYPE.RO_INIT_SINGLETHREADED);
 
         var app = new App();
 
-        // Start processing actions on a background thread
-        var processingStarted = new System.Threading.ManualResetEventSlim(false);
-        var processingThread = new System.Threading.Thread(() =>
+        // Start the continuous queue processor on the same STA thread
+        _ = ProcessQueueAsync(); // fire-and-forget on STA thread
+
+        // Launch single-instance logic (blocking)
+        app._singleInstanceAppService.Launch(string.Join("" "", args));
+
+        // Keep main alive for WinUI / STA requirements
+        await Task.Delay(-1); // infinite delay, non-blocking
+    }
+
+    private static async Task ProcessQueueAsync()
+    {
+        while (true)
         {
-            processingStarted.Set();
-            while (true)
+            await _actionSignal.WaitAsync(); // wait until an action is queued
+
+            while (_actions.TryDequeue(out var action))
             {
                 try
                 {
-                    // Take blocks until an item is available
-                    var action = _actions.Take();
-                    try 
-                    { 
-                        action(); 
-                    } 
-                    catch (Exception ex) 
-                    { 
-
-                    }
+                    // Start action but don't await it, so multiple actions run ""in parallel"" on the same thread
+                    _ = action();
                 }
                 catch (Exception ex)
                 {
-
+                    // log or handle
                 }
             }
-        })
-        {
-            IsBackground = false
-        };
-        processingThread.SetApartmentState(System.Threading.ApartmentState.STA);
-        processingThread.Start();
-
-        // Wait for the processing thread to be ready
-        processingStarted.Wait();
-
-        // Now launch - this will either start the server (first instance) or send message and exit (second instance)
-        app._singleInstanceAppService.Launch(string.Join("" "", args));
-
-        // Keep the main thread alive for the first instance
-        processingThread.Join();
+        }
     }
 }")?.NormalizeWhitespace() as ClassDeclarationSyntax ?? throw new Exception("Failed to generate Program class");
     }
