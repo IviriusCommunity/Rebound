@@ -71,6 +71,11 @@ public partial class App : Application
                         CreateMainWindow();
                 });
             }
+            else
+            {
+                if (MainWindow != null)
+                    MainWindow.BringToFront();
+            }
 
             // Handle legacy launch
             if (e.Arguments == "legacy")
