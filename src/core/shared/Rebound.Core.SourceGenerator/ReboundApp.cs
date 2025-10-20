@@ -32,10 +32,10 @@ public class ReboundAppSourceGenerator : ISourceGenerator
                 var namespaceName = classSymbol.ContainingNamespace.ToDisplayString();
 
                 var appClass = GenerateAppClass(classSymbol, singleInstanceTaskName);
-                //var programClass = GenerateProgramClass();
+                var programClass = GenerateProgramClass();
 
                 var namespaceDecl = NamespaceDeclaration(IdentifierName(namespaceName))
-                    .AddMembers(appClass/*, programClass*/);
+                    .AddMembers(appClass, programClass);
 
                 var compilationUnit = CompilationUnit()
                     .AddUsings(
@@ -43,7 +43,10 @@ public class ReboundAppSourceGenerator : ISourceGenerator
                         UsingDirective(IdentifierName("System.Threading")),
                         UsingDirective(IdentifierName("System.Threading.Tasks")),
                         UsingDirective(IdentifierName("System.Collections.Concurrent")),
-                        UsingDirective(IdentifierName("Rebound.Core.Helpers.Services"))
+                        UsingDirective(IdentifierName("System.Collections.Generic")),
+                        UsingDirective(IdentifierName("TerraFX.Interop.Windows")),
+                        UsingDirective(IdentifierName("Rebound.Core.Helpers.Services")),
+                        UsingDirective(IdentifierName("Rebound.Core.Helpers"))
                     )
                     .AddMembers(namespaceDecl)
                     .NormalizeWhitespace();
@@ -107,40 +110,44 @@ internal class Program
     }
 
     [STAThread]
-    static async Task Main(string[] args)
+    static unsafe void Main(string[] args)
     {
         TerraFX.Interop.WinRT.WinRT.RoInitialize(
             TerraFX.Interop.WinRT.RO_INIT_TYPE.RO_INIT_SINGLETHREADED);
 
         var app = new App();
 
-        // Start the continuous queue processor on the same STA thread
-        _ = ProcessQueueAsync(); // fire-and-forget on STA thread
+        // Launch single-instance logic (blocking) on a background thread
+        Task.Run(() => app._singleInstanceAppService.Launch(string.Join("" "", args)));
 
-        // Launch single-instance logic (blocking)
-        app._singleInstanceAppService.Launch(string.Join("" "", args));
-
-        // Keep main alive for WinUI / STA requirements
-        await Task.Delay(-1); // infinite delay, non-blocking
-    }
-
-    private static async Task ProcessQueueAsync()
-    {
+        MSG msg;
         while (true)
         {
-            await _actionSignal.WaitAsync(); // wait until an action is queued
-
-            while (_actions.TryDequeue(out var action))
+            // Process all Windows messages in the queue without blocking
+            while (TerraFX.Interop.Windows.Windows.PeekMessageW(&msg, HWND.NULL, 0, 0, PM.PM_REMOVE))
             {
-                try
+                foreach (var window in _windowList._openWindows.ToArray())
                 {
-                    // Start action but don't await it, so multiple actions run ""in parallel"" on the same thread
-                    _ = action();
+                    if (!window._closed)
+                    {
+                        if (!window.PreTranslateMessage(&msg))
+                        {
+                            TerraFX.Interop.Windows.Windows.TranslateMessage(&msg);
+                            TerraFX.Interop.Windows.Windows.DispatchMessageW(&msg);
+                        }
+                    }
                 }
-                catch (Exception ex)
-                {
-                    // log or handle
-                }
+            }
+
+            // Process queued actions if any
+            var actionsToRun = new List<Func<Task>>();
+            while (_actions.TryDequeue(out var action))
+                actionsToRun.Add(action);
+
+            foreach (var action in actionsToRun.ToArray()) // snapshot to avoid collection modified issues
+            {
+                try { _ = action(); }
+                catch { /* log */ }
             }
         }
     }

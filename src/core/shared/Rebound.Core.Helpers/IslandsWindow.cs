@@ -6,9 +6,10 @@ using CommunityToolkit.WinUI.Helpers;
 using Microsoft.UI;
 using Microsoft.UI.Windowing;
 using Microsoft.UI.Xaml.Controls;
-using Rebound.About;
 using Rebound.Core.Helpers;
 using System;
+using System.Collections.Generic;
+using System.Diagnostics;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Threading;
@@ -43,6 +44,26 @@ using WPARAM = TerraFX.Interop.Windows.WPARAM;
 #pragma warning disable CA1416 // Validate platform compatibility
 
 namespace Rebound.Core.Helpers;
+
+public static class _windowList
+{
+    public static readonly List<IslandsWindow> _openWindows = [];
+
+    public static void RegisterWindow(IslandsWindow window)
+    {
+        _openWindows.Add(window);
+        window.Closed += (s, e) =>
+        {
+            _openWindows.Remove(window);
+            if (_openWindows.Count == 0)
+            {
+                Windows.UI.Xaml.Application.Current.Exit();
+                Process.GetCurrentProcess().Kill();
+            }
+        };
+    }
+}
+
 public class IslandsWindowClosingEventArgs : EventArgs
 {
     public bool Handled { get; set; } = false;
@@ -606,7 +627,7 @@ public partial class IslandsWindow : ObservableObject, IDisposable
             SetForegroundWindow(Handle);
             SetActiveWindow(Handle);
 
-            App.RegisterWindow(this);
+            _windowList.RegisterWindow(this);
 
             /*MSG msg;
             while (GetMessageW(&msg, HWND.NULL, 0, 0))
