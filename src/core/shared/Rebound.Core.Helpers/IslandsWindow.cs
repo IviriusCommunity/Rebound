@@ -49,13 +49,15 @@ internal static class _windowList
 {
     public static readonly List<IslandsWindow> _openWindows = [];
 
+    public static bool KeepAlive = false;
+
     public static void RegisterWindow(IslandsWindow window)
     {
         _openWindows.Add(window);
         window.Closed += (s, e) =>
         {
             _openWindows.Remove(window);
-            if (_openWindows.Count == 0)
+            if (_openWindows.Count == 0 && !KeepAlive)
             {
                 Windows.UI.Xaml.Application.Current.Exit();
                 Process.GetCurrentProcess().Kill();

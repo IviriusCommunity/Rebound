@@ -60,20 +60,25 @@ internal partial class MainViewModel : ObservableObject
     [ObservableProperty] public partial bool ShowHelloUser { get; set; }
     [ObservableProperty] public partial bool ShowBlurAndGlow { get; set; }
 
+    private readonly SettingsListener _listener;
+
     public MainViewModel()
     {
         UpdateSettings();
-        var listener1 = new SettingsListener();
-        listener1.SettingChanged += Listener_SettingChanged;
+        _listener = new SettingsListener();
+        _listener.SettingChanged += Listener_SettingChanged;
     }
 
     private void Listener_SettingChanged(object? sender, SettingChangedEventArgs e) => UpdateSettings();
 
     private void UpdateSettings()
     {
-        IsSidebarOn = SettingsHelper.GetValue("IsSidebarOn", "winver", true);
-        IsReboundOn = SettingsHelper.GetValue("IsReboundOn", "winver", true);
-        ShowBlurAndGlow = SettingsHelper.GetValue("ShowBlurAndGlow", "rebound", true);
-        ShowHelloUser = SettingsHelper.GetValue("ShowHelloUser", "winver", true);
+        Program.QueueAction(async () =>
+        {
+            IsSidebarOn = SettingsHelper.GetValue("IsSidebarOn", "winver", true);
+            IsReboundOn = SettingsHelper.GetValue("IsReboundOn", "winver", true);
+            ShowBlurAndGlow = SettingsHelper.GetValue("ShowBlurAndGlow", "rebound", true);
+            ShowHelloUser = SettingsHelper.GetValue("ShowHelloUser", "winver", true);
+        });
     }
 }

@@ -172,7 +172,7 @@ public sealed partial class RunWindow : Page
     [RelayCommand]
     public void Cancel()
     {
-        Program._actions.Add(() =>
+        Program.QueueAction(async () =>
         {
             App.CloseRunWindow();
         });

@@ -25,6 +25,7 @@ public partial class App : Application
     {
         if (e.IsFirstLaunch)
         {
+            _windowList.KeepAlive = true;
             // Run pipe server in a dedicated background thread
             Thread pipeThread = new(async () =>
             {

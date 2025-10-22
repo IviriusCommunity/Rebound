@@ -2,9 +2,13 @@
 // Licensed under the MIT License.
 
 using System;
+using System.ComponentModel;
 using System.Diagnostics;
 using System.Globalization;
 using System.IO;
+using System.Linq;
+using System.Runtime.InteropServices;
+using System.Text;
 using System.Threading;
 using System.Xml;
 using TerraFX.Interop.Windows;
@@ -109,49 +113,97 @@ public static class SettingsHelper
     }
 }
 
-public sealed class SettingsListener
+public sealed class SettingsListener : IDisposable
 {
     public event EventHandler<SettingChangedEventArgs>? SettingChanged;
 
+    private readonly string _basePath;
+    private readonly Timer _timer;
+    private readonly int _pollIntervalMs = 500; // check twice per second
+    private FileSystemSnapshot _lastSnapshot;
+
     public SettingsListener()
     {
-        System.Threading.Tasks.Task.Run(async () =>
-        {
-            var basePath = Path.Combine(System.Environment.GetFolderPath(System.Environment.SpecialFolder.UserProfile), ".rebound");
-            var storageFolder = await Windows.Storage.StorageFolder.GetFolderFromPathAsync(basePath);
+        _basePath = Path.Combine(
+            System.Environment.GetFolderPath(System.Environment.SpecialFolder.UserProfile),
+            ".rebound"
+        );
 
-            if (!Directory.Exists(basePath))
-                Directory.CreateDirectory(basePath);
-            File.SetAttributes(basePath, FileAttributes.Directory);
+        if (!Directory.Exists(_basePath))
+            Directory.CreateDirectory(_basePath);
 
-            var x = storageFolder.CreateFileQueryWithOptions(new());
-            x?.ContentsChanged += X_ContentsChanged;
-        });
+        _lastSnapshot = FileSystemSnapshot.Capture(_basePath);
+
+        _timer = new Timer(OnTimerTick, null, _pollIntervalMs, _pollIntervalMs);
     }
 
-    private void X_ContentsChanged(IStorageQueryResultBase sender, object args)
+    private void OnTimerTick(object? state)
     {
-        Debug.WriteLine("Internal screaming");
-
         try
         {
-            SettingChanged?.Invoke(this, new SettingChangedEventArgs("", ""));
+            var current = FileSystemSnapshot.Capture(_basePath);
+
+            if (!_lastSnapshot.Equals(current))
+            {
+                _lastSnapshot = current;
+                SettingChanged?.Invoke(this, new SettingChangedEventArgs("", ""));
+            }
         }
         catch
         {
-            // Ignore transient IO or XML errors
+            // Ignore transient IO issues
         }
+    }
+
+    public void Dispose()
+    {
+        _timer.Dispose();
+    }
+
+    // Helper to capture file state
+    private class FileSystemSnapshot
+    {
+        public readonly (string path, DateTime lastWrite)[] Files;
+
+        private FileSystemSnapshot((string, DateTime)[] files)
+        {
+            Files = files;
+        }
+
+        public static FileSystemSnapshot Capture(string folder)
+        {
+            var files = Directory.GetFiles(folder, "*", SearchOption.AllDirectories)
+                                 .Select(f => (f, File.GetLastWriteTimeUtc(f)))
+                                 .ToArray();
+            return new FileSystemSnapshot(files);
+        }
+
+        public override bool Equals(object? obj)
+        {
+            if (obj is not FileSystemSnapshot other) return false;
+            if (Files.Length != other.Files.Length) return false;
+
+            for (int i = 0; i < Files.Length; i++)
+            {
+                if (Files[i].path != other.Files[i].path || Files[i].lastWrite != other.Files[i].lastWrite)
+                    return false;
+            }
+
+            return true;
+        }
+
+        public override int GetHashCode() => 0; // not used
     }
 }
 
-public sealed class SettingChangedEventArgs : EventArgs
+public class SettingChangedEventArgs : EventArgs
 {
-    public string Key { get; }
+    public string Name { get; }
     public string Value { get; }
 
-    public SettingChangedEventArgs(string key, string value)
+    public SettingChangedEventArgs(string name, string value)
     {
-        Key = key;
+        Name = name;
         Value = value;
     }
 }
