@@ -45,7 +45,7 @@ using WPARAM = TerraFX.Interop.Windows.WPARAM;
 
 namespace Rebound.Core.Helpers;
 
-public static class _windowList
+internal static class _windowList
 {
     public static readonly List<IslandsWindow> _openWindows = [];
 
@@ -66,7 +66,7 @@ public static class _windowList
 
 public class IslandsWindowClosingEventArgs : EventArgs
 {
-    public bool Handled { get; set; } = false;
+    public bool Handled { get; set; }
 }
 public class XamlInitializedEventArgs : EventArgs
 {
@@ -84,9 +84,9 @@ public sealed class ReboundDialog : IslandsWindow
 
     public static async Task ShowAsync(string title, string message, DialogIcon icon = DialogIcon.Info)
     {
-        var dlg = new ReboundDialog(title, message, icon);
+        using var dlg = new ReboundDialog(title, message, icon);
         dlg.Create(); // creates and shows window
-        await dlg._tcs.Task;
+        await dlg._tcs.Task.ConfigureAwait(false);
     }
 
     public ReboundDialog(string title, string message, DialogIcon icon)
@@ -104,10 +104,10 @@ public sealed class ReboundDialog : IslandsWindow
             var rootGrid = new Grid
             {
                 RowDefinitions =
-        {
-            new RowDefinition { Height = GridLength.Auto }, // Title bar
-            new RowDefinition { Height = new GridLength(1, GridUnitType.Star) } // Content
-        },
+                {
+                    new RowDefinition { Height = GridLength.Auto }, // Title bar
+                    new RowDefinition { Height = new GridLength(1, GridUnitType.Star) } // Content
+                },
                 CornerRadius = new CornerRadius(8)
             };
 
@@ -132,12 +132,12 @@ public sealed class ReboundDialog : IslandsWindow
             {
                 Padding = new Thickness(20, 20, 20, 0),
                 RowDefinitions =
-        {
-            new RowDefinition { Height = GridLength.Auto },
-            new RowDefinition { Height = GridLength.Auto },
-            new RowDefinition { Height = new GridLength(1, GridUnitType.Star) },
-            new RowDefinition { Height = GridLength.Auto } // footer
-        }
+                {
+                    new RowDefinition { Height = GridLength.Auto },
+                    new RowDefinition { Height = GridLength.Auto },
+                    new RowDefinition { Height = new GridLength(1, GridUnitType.Star) },
+                    new RowDefinition { Height = GridLength.Auto } // footer
+                }
             };
             Grid.SetRow(contentGrid, 1);
 
@@ -209,16 +209,16 @@ public sealed class ReboundDialog : IslandsWindow
 
         AppWindowInitialized += (_, _) =>
         {
-            this.Title = title;
-            this.AppWindow.TitleBar.ExtendsContentIntoTitleBar = true;
-            this.AppWindow?.TitleBar.ButtonBackgroundColor = Windows.UI.Colors.Transparent;
-            this.AppWindow?.TitleBar.ButtonInactiveBackgroundColor = Windows.UI.Colors.Transparent;
-            this.Width = 480;
-            this.Height = 256;
-            this.IsMaximizable = false;
-            this.IsMinimizable = false;
-            this.IsResizable = false;
-            this.CenterWindow();
+            Title = title;
+            AppWindow?.TitleBar.ExtendsContentIntoTitleBar = true;
+            AppWindow?.TitleBar.ButtonBackgroundColor = Windows.UI.Colors.Transparent;
+            AppWindow?.TitleBar.ButtonInactiveBackgroundColor = Windows.UI.Colors.Transparent;
+            Width = 480;
+            Height = 256;
+            IsMaximizable = false;
+            IsMinimizable = false;
+            IsResizable = false;
+            CenterWindow();
         };
     }
 
@@ -282,13 +282,13 @@ public sealed class ReboundDialog : IslandsWindow
             }
             };
 
-            PInvoke.GetDIBits(hdcMem, hBitmap, 0, (uint)height, pPixels, &bmi, Windows.Win32.Graphics.Gdi.DIB_USAGE.DIB_RGB_COLORS);
+            _ = PInvoke.GetDIBits(hdcMem, hBitmap, 0, (uint)height, pPixels, &bmi, Windows.Win32.Graphics.Gdi.DIB_USAGE.DIB_RGB_COLORS);
         }
 
         // Clean up GDI resources
         PInvoke.SelectObject(hdcMem, old);
         PInvoke.DeleteDC(hdcMem);
-        PInvoke.ReleaseDC(new(), hdcScreen);
+        _ = PInvoke.ReleaseDC(new(), hdcScreen);
         PInvoke.DeleteObject(hBitmap);
         PInvoke.DeleteObject(iconInfo.hbmColor);
         PInvoke.DeleteObject(iconInfo.hbmMask);
@@ -348,7 +348,9 @@ public partial class IslandsWindow : ObservableObject, IDisposable
         return window.WndProc(hwnd, msg, wParam, lParam);
     }
 
+#pragma warning disable CA1810 // Initialize reference type static fields inline
     static IslandsWindow()
+#pragma warning restore CA1810 // Initialize reference type static fields inline
     {
         // Register window class once (safe if multiple instances)
         unsafe
@@ -412,14 +414,14 @@ public partial class IslandsWindow : ObservableObject, IDisposable
     [ObservableProperty] public partial int MaxWidth { get; set; } = int.MaxValue;
     [ObservableProperty] public partial int MaxHeight { get; set; } = int.MaxValue;
     [ObservableProperty] public partial string Title { get; set; } = "UWP XAML Islands Window";
-    [ObservableProperty] public partial UIElement Content { get; set; }
+    [ObservableProperty] public partial UIElement? Content { get; set; }
     [ObservableProperty] public partial bool IsPersistenceEnabled { get; set; } = false;
     [ObservableProperty] public partial string PersistenceKey { get; set; } = nameof(IslandsWindow);
     [ObservableProperty] public partial string PersistanceFileName { get; set; } = "rebound";
 
-    private bool _internalResize = false;
-    private bool _isInitializing = false;
-    private bool _boundsApplied = false;
+    private bool _internalResize;
+    private bool _isInitializing;
+    private bool _boundsApplied;
     private WindowBounds _pendingBounds = new();
 
     // Stored in LOGICAL pixels (DPI-independent)
@@ -447,11 +449,11 @@ public partial class IslandsWindow : ObservableObject, IDisposable
     {
         if (AppWindow != null)
         {
-            if (TerraFX.Interop.Windows.Windows.IsIconic(Handle) != 0) // if minimized
+            if (IsIconic(Handle) != 0) // if minimized
             {
-                TerraFX.Interop.Windows.Windows.ShowWindow(Handle, TerraFX.Interop.Windows.SW.SW_RESTORE); // restore window
+                ShowWindow(Handle, SW.SW_RESTORE); // restore window
             }
-            TerraFX.Interop.Windows.Windows.SetForegroundWindow(Handle); // 
+            SetForegroundWindow(Handle); // 
         }
         else
         {
@@ -462,19 +464,19 @@ public partial class IslandsWindow : ObservableObject, IDisposable
     public void Minimize()
     {
         if (AppWindow != null && AppWindow.Presenter.Kind is AppWindowPresenterKind.Overlapped)
-            (AppWindow.Presenter as OverlappedPresenter).Minimize();
+            (AppWindow.Presenter.As<OverlappedPresenter>()).Minimize();
     }
 
     public void Maximize()
     {
         if (AppWindow != null && AppWindow.Presenter.Kind is AppWindowPresenterKind.Overlapped)
-            (AppWindow.Presenter as OverlappedPresenter).Maximize();
+            (AppWindow.Presenter.As<OverlappedPresenter>()).Maximize();
     }
 
     public void Restore()
     {
         if (AppWindow != null && AppWindow.Presenter.Kind is AppWindowPresenterKind.Overlapped)
-            (AppWindow.Presenter as OverlappedPresenter).Restore();
+            (AppWindow.Presenter.As<OverlappedPresenter>()).Restore();
     }
 
     public void Close()
@@ -814,8 +816,8 @@ public partial class IslandsWindow : ObservableObject, IDisposable
         {
             X = SettingsHelper.GetValue($"{PersistenceKey}_X", PersistanceFileName, -1),
             Y = SettingsHelper.GetValue($"{PersistenceKey}_Y", PersistanceFileName, -1),
-            Width = SettingsHelper.GetValue($"{PersistenceKey}_Width", PersistanceFileName, 800),
-            Height = SettingsHelper.GetValue($"{PersistenceKey}_Height", PersistanceFileName, 600)
+            Width = SettingsHelper.GetValue($"{PersistenceKey}_Width", PersistanceFileName, -1),
+            Height = SettingsHelper.GetValue($"{PersistenceKey}_Height", PersistanceFileName, -1)
         };
     }
 
@@ -1105,19 +1107,19 @@ public partial class IslandsWindow : ObservableObject, IDisposable
     partial void OnIsResizableChanged(bool value)
     {
         if (AppWindow != null && AppWindow.Presenter.Kind is AppWindowPresenterKind.Overlapped)
-            (AppWindow.Presenter as OverlappedPresenter).IsResizable = value;
+            (AppWindow.Presenter.As<OverlappedPresenter>()).IsResizable = value;
     }
 
     partial void OnIsMaximizableChanged(bool value)
     {
         if (AppWindow != null && AppWindow.Presenter.Kind is AppWindowPresenterKind.Overlapped)
-            (AppWindow.Presenter as OverlappedPresenter).IsMaximizable = value;
+            (AppWindow.Presenter.As<OverlappedPresenter>()).IsMaximizable = value;
     }
 
     partial void OnIsMinimizableChanged(bool value)
     {
         if (AppWindow != null && AppWindow.Presenter.Kind is AppWindowPresenterKind.Overlapped)
-            (AppWindow.Presenter as OverlappedPresenter).IsMinimizable = value;
+            (AppWindow.Presenter.As<OverlappedPresenter>()).IsMinimizable = value;
     }
 
     internal void ProcessCoreWindowMessage(uint message, WPARAM wParam, LPARAM lParam)
@@ -1173,6 +1175,6 @@ public partial class IslandsWindow : ObservableObject, IDisposable
 
     private void ThrowIfDisposed()
     {
-        if (_disposed) throw new ObjectDisposedException(nameof(IslandsWindow));
+        ObjectDisposedException.ThrowIf(_disposed, nameof(IslandsWindow));
     }
 }

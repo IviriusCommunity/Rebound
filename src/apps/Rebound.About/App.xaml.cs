@@ -6,7 +6,6 @@ using Rebound.Core.Helpers.Services;
 using Rebound.Forge;
 using Rebound.Generators;
 using System;
-using System.Collections.Generic;
 using System.Diagnostics;
 using System.Threading;
 using Windows.UI;
@@ -121,7 +120,11 @@ public partial class App : Application
         {
             IsPersistenceEnabled = true,
             PersistenceKey = "Rebound.About.MainWindow",
-            PersistanceFileName = "winver"
+            PersistanceFileName = "winver",
+            Width = 520,
+            Height = 740,
+            X = 50,
+            Y = 50
         };
 
         // AppWindow init
@@ -130,14 +133,10 @@ public partial class App : Application
             MainWindow.Title = "About Windows";
             
             // Window metrics
-            MainWindow.Width = 520;
-            MainWindow.Height = 740;
             MainWindow.MinWidth = 520;
             MainWindow.MinHeight = 440;
             MainWindow.MaxWidth = 920;
             MainWindow.MaxHeight = 1000;
-            MainWindow.X = 50;
-            MainWindow.Y = 50;
 
             // Window properties
             MainWindow.IsMaximizable = false;

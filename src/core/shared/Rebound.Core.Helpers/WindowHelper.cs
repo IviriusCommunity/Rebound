@@ -25,7 +25,7 @@ public static class WindowHelper
         TerraFX.Interop.Windows.Windows.SetForegroundWindow(hWnd.ToTerraFXHWND()); // bring to front
     }
 
-    public static void ForceBringToFront(this IslandsWindow window)
+    internal static void ForceBringToFront(this IslandsWindow window)
     {
         var thisThreadId = TerraFX.Interop.Windows.Windows.GetCurrentThreadId();
         var foregroundHwnd = TerraFX.Interop.Windows.Windows.GetForegroundWindow();
