@@ -30,7 +30,12 @@ public partial class App : Application
 
     public static unsafe void CreateMainWindow()
     {
-        MainWindow = new();
+        MainWindow = new()
+        {
+            IsPersistenceEnabled = true,
+            PersistanceFileName = "reboundhub",
+            PersistenceKey = "Rebound.Hub.MainWindow"
+        };
         
         MainWindow.AppWindowInitialized += (s, e) =>
         {
