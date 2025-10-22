@@ -92,6 +92,7 @@ public sealed class ReboundDialog : IslandsWindow
     public ReboundDialog(string title, string message, DialogIcon icon)
     {
         Title = title;
+        IsPersistenceEnabled = false;
 
         XamlInitialized += (_, _) =>
         {
@@ -113,7 +114,7 @@ public sealed class ReboundDialog : IslandsWindow
             // ==== TITLE BAR ====
             var titleBar = new Border
             {
-                Padding = new Thickness(8),
+                Padding = new Thickness(12, 8, 0, 0),
             };
 
             var titleText = new TextBlock
@@ -217,6 +218,7 @@ public sealed class ReboundDialog : IslandsWindow
             this.IsMaximizable = false;
             this.IsMinimizable = false;
             this.IsResizable = false;
+            this.CenterWindow();
         };
     }
 
@@ -407,10 +409,6 @@ public partial class IslandsWindow : ObservableObject, IDisposable
     [ObservableProperty] public partial bool IsResizable { get; set; } = true;
     [ObservableProperty] public partial int MinWidth { get; set; } = 0;
     [ObservableProperty] public partial int MinHeight { get; set; } = 0;
-    [ObservableProperty] public partial int Width { get; set; }
-    [ObservableProperty] public partial int Height { get; set; }
-    [ObservableProperty] public partial int X { get; set; }
-    [ObservableProperty] public partial int Y { get; set; }
     [ObservableProperty] public partial int MaxWidth { get; set; } = int.MaxValue;
     [ObservableProperty] public partial int MaxHeight { get; set; } = int.MaxValue;
     [ObservableProperty] public partial string Title { get; set; } = "UWP XAML Islands Window";
@@ -418,6 +416,25 @@ public partial class IslandsWindow : ObservableObject, IDisposable
     [ObservableProperty] public partial bool IsPersistenceEnabled { get; set; } = false;
     [ObservableProperty] public partial string PersistenceKey { get; set; } = nameof(IslandsWindow);
     [ObservableProperty] public partial string PersistanceFileName { get; set; } = "rebound";
+
+    private bool _internalResize = false;
+    private bool _isInitializing = false;
+    private bool _boundsApplied = false;
+    private WindowBounds _pendingBounds = new();
+
+    // Stored in LOGICAL pixels (DPI-independent)
+    [ObservableProperty] public partial int Width { get; set; } = 800;
+    [ObservableProperty] public partial int Height { get; set; } = 600;
+    [ObservableProperty] public partial int X { get; set; } = -1; // -1 = center/default
+    [ObservableProperty] public partial int Y { get; set; } = -1;
+
+    private class WindowBounds
+    {
+        public int X { get; set; } = -1;
+        public int Y { get; set; } = -1;
+        public int Width { get; set; } = 800;
+        public int Height { get; set; } = 600;
+    }
 
     public event EventHandler<XamlInitializedEventArgs>? XamlInitialized;
     public event EventHandler<AppWindowInitializedEventArgs>? AppWindowInitialized;
@@ -529,20 +546,19 @@ public partial class IslandsWindow : ObservableObject, IDisposable
     {
         if (!IsPersistenceEnabled) return;
 
-        X = SettingsHelper.GetValue($"{PersistenceKey}_X", PersistanceFileName, X);
-        Y = SettingsHelper.GetValue($"{PersistenceKey}_Y", PersistanceFileName, Y);
-        Width = SettingsHelper.GetValue($"{PersistenceKey}_Width", PersistanceFileName, Width == 0 ? 800 : Width);
-        Height = SettingsHelper.GetValue($"{PersistenceKey}_Height", PersistanceFileName, Height == 0 ? 600 : Height);
-    }
+        // Only apply persisted values if they are valid (non-default)
+        int persistedX = SettingsHelper.GetValue($"{PersistenceKey}_X", PersistanceFileName, X);
+        int persistedY = SettingsHelper.GetValue($"{PersistenceKey}_Y", PersistanceFileName, Y);
+        int persistedWidth = SettingsHelper.GetValue($"{PersistenceKey}_Width", PersistanceFileName, Width == 0 ? 800 : Width);
+        int persistedHeight = SettingsHelper.GetValue($"{PersistenceKey}_Height", PersistanceFileName, Height == 0 ? 600 : Height);
 
-    private void SaveWindowState()
-    {
-        if (!IsPersistenceEnabled) return;
-
-        SettingsHelper.SetValue($"{PersistenceKey}_X", PersistanceFileName, X);
-        SettingsHelper.SetValue($"{PersistenceKey}_Y", PersistanceFileName, Y);
-        SettingsHelper.SetValue($"{PersistenceKey}_Width", PersistanceFileName, Width);
-        SettingsHelper.SetValue($"{PersistenceKey}_Height", PersistanceFileName, Height);
+        if (persistedWidth >0 && persistedHeight >0)
+        {
+            X = persistedX;
+            Y = persistedY;
+            Width = persistedWidth;
+            Height = persistedHeight;
+        }
     }
 
     public void SetExtendedWindowStyle(Windows.Win32.UI.WindowsAndMessaging.WINDOW_EX_STYLE style)
@@ -586,11 +602,34 @@ public partial class IslandsWindow : ObservableObject, IDisposable
     }
 
     // ---------- Activation & message loop ----------
+
     public unsafe void Create()
     {
         ThrowIfDisposed();
+
+        _isInitializing = true;
         _thisHandle = GCHandle.Alloc(this, GCHandleType.Normal);
         IntPtr gcPtr = GCHandle.ToIntPtr(_thisHandle);
+
+        // 1. Load persisted state FIRST (if enabled)
+        if (IsPersistenceEnabled)
+        {
+            var persistedBounds = LoadPersistedBounds();
+            // Only override if valid persisted values exist
+            if (persistedBounds.Width > 0 && persistedBounds.Height > 0)
+            {
+                Width = persistedBounds.Width;
+                Height = persistedBounds.Height;
+                X = persistedBounds.X;
+                Y = persistedBounds.Y;
+            }
+        }
+
+        // Store the logical bounds before window creation
+        _pendingBounds.X = X;
+        _pendingBounds.Y = Y;
+        _pendingBounds.Width = Width;
+        _pendingBounds.Height = Height;
 
         fixed (char* className = WindowClassName)
         fixed (char* windowName = Title)
@@ -600,10 +639,8 @@ public partial class IslandsWindow : ObservableObject, IDisposable
                 className,
                 windowName,
                 0,
-                X == default ? CW_USEDEFAULT : X,
-                Y == default ? CW_USEDEFAULT : Y,
-                Width == default ? CW_USEDEFAULT : Width,
-                Height == default ? CW_USEDEFAULT : Height,
+                CW_USEDEFAULT, CW_USEDEFAULT,
+                CW_USEDEFAULT, CW_USEDEFAULT,
                 HWND.NULL,
                 HMENU.NULL,
                 GetModuleHandleW(null),
@@ -613,9 +650,9 @@ public partial class IslandsWindow : ObservableObject, IDisposable
 
             AppWindow = AppWindow.GetFromWindowId(Win32Interop.GetWindowIdFromWindow(Handle));
             AppWindow.Closing += OnAppWindowClosing;
-            AppWindowInitialized?.Invoke(this, new AppWindowInitializedEventArgs());
 
-            //LoadWindowState();
+            // 2. Fire event BEFORE applying bounds (so user can override)
+            AppWindowInitialized?.Invoke(this, new AppWindowInitializedEventArgs());
 
             InitializeXaml();
 
@@ -623,25 +660,18 @@ public partial class IslandsWindow : ObservableObject, IDisposable
             SetWindowPos(Handle, HWND.HWND_TOP, 0, 0, 0, 0,
                 SWP_NOMOVE | SWP_NOSIZE | SWP_NOZORDER | SWP_FRAMECHANGED);
 
-            ShowWindow(Handle, SW.SW_SHOW);
+            _isInitializing = false;
+
+            // 3. Apply bounds after window is shown and stable
+            ApplyPendingBounds();
+
+            ShowWindow(Handle, SW.SW_SHOWNORMAL);
+            BringWindowToTop(Handle);
             SetForegroundWindow(Handle);
             SetActiveWindow(Handle);
+            SetFocus(Handle);
 
             _windowList.RegisterWindow(this);
-
-            /*MSG msg;
-            while (GetMessageW(&msg, HWND.NULL, 0, 0))
-            {
-                if (!_closed)
-                {
-                    if (!PreTranslateMessage(&msg))
-                    {
-                        TranslateMessage(&msg);
-                        DispatchMessageW(&msg);
-                    }
-                }
-                else return;
-            }*/
         }
     }
 
@@ -718,6 +748,154 @@ public partial class IslandsWindow : ObservableObject, IDisposable
         return outResult;
     }
 
+    public unsafe void ApplyPendingBounds()
+    {
+        if (AppWindow == null || !IsPersistenceEnabled) return;
+
+        _boundsApplied = true;
+
+        var scale = Display.GetScale(AppWindow);
+
+        // Convert logical to physical
+        int physicalWidth = (int)(_pendingBounds.Width * scale);
+        int physicalHeight = (int)(_pendingBounds.Height * scale);
+
+        _internalResize = true;
+        try
+        {
+            // Resize first
+            AppWindow.Resize(new Windows.Graphics.SizeInt32(physicalWidth, physicalHeight));
+
+            // Then position (or center if default)
+            if (_pendingBounds.X >= 0 && _pendingBounds.Y >= 0)
+            {
+                int physicalX = (int)(_pendingBounds.X * scale);
+                int physicalY = (int)(_pendingBounds.Y * scale);
+                AppWindow.Move(new Windows.Graphics.PointInt32(physicalX, physicalY));
+
+                // Update logical properties to reflect actual position (fixes Issue #1)
+                X = _pendingBounds.X;
+                Y = _pendingBounds.Y;
+            }
+            else
+            {
+                // Center on screen
+                CenterWindow();
+            }
+        }
+        finally
+        {
+            _internalResize = false;
+        }
+    }
+
+    public void CenterWindow()
+    {
+        if (AppWindow == null) return;
+
+        var displayArea = DisplayArea.GetFromWindowId(AppWindow.Id, DisplayAreaFallback.Primary);
+        var workArea = displayArea.WorkArea;
+        var size = AppWindow.Size;
+
+        int centerX = workArea.X + (workArea.Width - size.Width) / 2;
+        int centerY = workArea.Y + (workArea.Height - size.Height) / 2;
+
+        AppWindow.Move(new Windows.Graphics.PointInt32(centerX, centerY));
+
+        // Update logical properties to reflect actual position
+        var scale = Display.GetScale(AppWindow);
+        X = (int)(centerX / scale);
+        Y = (int)(centerY / scale);
+    }
+
+    private WindowBounds LoadPersistedBounds()
+    {
+        return new WindowBounds
+        {
+            X = SettingsHelper.GetValue($"{PersistenceKey}_X", PersistanceFileName, -1),
+            Y = SettingsHelper.GetValue($"{PersistenceKey}_Y", PersistanceFileName, -1),
+            Width = SettingsHelper.GetValue($"{PersistenceKey}_Width", PersistanceFileName, 800),
+            Height = SettingsHelper.GetValue($"{PersistenceKey}_Height", PersistanceFileName, 600)
+        };
+    }
+
+    private void SaveWindowState()
+    {
+        if (!IsPersistenceEnabled || AppWindow == null) return;
+
+        var scale = Display.GetScale(AppWindow);
+
+        // Compensate for title bar extension
+        // When ExtendsContentIntoTitleBar is true, Windows removes ~6-7 physical pixels
+        // We need to save the adjusted height so it restores correctly
+        int heightToSave = Height;
+        if (AppWindow.TitleBar.ExtendsContentIntoTitleBar)
+        {
+            int titleBarCompensation = (int)(8 * scale); // 8 logical pixels * DPI scale
+            heightToSave += (int)(titleBarCompensation / scale); // Add back in logical pixels
+        }
+
+        // Always save current logical values
+        SettingsHelper.SetValue($"{PersistenceKey}_X", PersistanceFileName, X);
+        SettingsHelper.SetValue($"{PersistenceKey}_Y", PersistanceFileName, Y);
+        SettingsHelper.SetValue($"{PersistenceKey}_Width", PersistanceFileName, Width);
+        SettingsHelper.SetValue($"{PersistenceKey}_Height", PersistanceFileName, heightToSave);
+    }
+
+    internal void OnResize(int physicalWidth, int physicalHeight)
+    {
+        // Update XAML island
+        if (_xamlHwnd != default)
+        {
+            SetWindowPos(_xamlHwnd, HWND.NULL, 0, 0, physicalWidth, physicalHeight,
+                SWP_SHOWWINDOW | SWP_NOACTIVATE | SWP_NOZORDER);
+        }
+
+        if (_coreHwnd != default)
+        {
+            SendMessageW(_coreHwnd, WM_SIZE, (WPARAM)physicalWidth, (LPARAM)physicalHeight);
+        }
+
+        // Convert physical to logical and update properties
+        if (AppWindow != null && !_isInitializing)
+        {
+            var scale = Display.GetScale(AppWindow);
+            var logicalWidth = (int)(physicalWidth / scale);
+            var logicalHeight = (int)(physicalHeight / scale);
+
+            _internalResize = true;
+            try
+            {
+                Width = logicalWidth;
+                Height = logicalHeight;
+            }
+            finally
+            {
+                _internalResize = false;
+            }
+        }
+    }
+
+    // Helper method to update position when window moves
+    private void UpdatePositionFromAppWindow()
+    {
+        if (AppWindow == null || _internalResize) return;
+
+        var scale = Display.GetScale(AppWindow);
+        var position = AppWindow.Position;
+
+        _internalResize = true;
+        try
+        {
+            X = (int)(position.X / scale);
+            Y = (int)(position.Y / scale);
+        }
+        finally
+        {
+            _internalResize = false;
+        }
+    }
+
     // ---------- Window proc / message handlers ----------
     private unsafe LRESULT WndProc(HWND hwnd, uint msg, WPARAM wParam, LPARAM lParam)
     {
@@ -727,6 +905,10 @@ public partial class IslandsWindow : ObservableObject, IDisposable
                 // Create might be called if created earlier — Ensure idempotence
                 if (!_xamlInitialized)
                     InitializeXaml();
+                break;
+
+            case WM_MOVE:
+                UpdatePositionFromAppWindow();
                 break;
 
             case WM_SIZE:
@@ -852,9 +1034,6 @@ public partial class IslandsWindow : ObservableObject, IDisposable
         }
     }
 
-    // Add these fields near the top with other fields
-    private bool _internalResize = false;
-
     // Replace the commented-out methods with these:
     partial void OnWidthChanged(int value)
     {
@@ -877,37 +1056,6 @@ public partial class IslandsWindow : ObservableObject, IDisposable
             var currentSize = AppWindow.Size;
             var physicalHeight = (int)(value * Display.GetScale(AppWindow));
             AppWindow.Resize(new(currentSize.Width, physicalHeight));
-        }
-    }
-
-    // Update the OnResize method to set the flag and handle DPI:
-    internal void OnResize(int width, int height)
-    {
-        // avoid calling if not set
-        if (_xamlHwnd != default)
-        {
-            SetWindowPos(_xamlHwnd, HWND.NULL, 0, 0, width, height, SWP_SHOWWINDOW | SWP_NOACTIVATE | SWP_NOZORDER);
-        }
-
-        if (_coreHwnd != default)
-        {
-            SendMessageW(_coreHwnd, WM_SIZE, (WPARAM)width, (LPARAM)height);
-        }
-
-        // Convert physical pixels to logical pixels
-        var logicalWidth = (int)(width / Display.GetScale(AppWindow));
-        var logicalHeight = (int)(height / Display.GetScale(AppWindow));
-
-        // Set flag to prevent circular updates
-        _internalResize = true;
-        try
-        {
-            Width = logicalWidth;
-            Height = logicalHeight;
-        }
-        finally
-        {
-            _internalResize = false;
         }
     }
 

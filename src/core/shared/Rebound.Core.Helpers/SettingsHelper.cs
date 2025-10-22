@@ -2,10 +2,13 @@
 // Licensed under the MIT License.
 
 using System;
+using System.Diagnostics;
 using System.Globalization;
 using System.IO;
 using System.Threading;
 using System.Xml;
+using TerraFX.Interop.Windows;
+using Windows.Storage.Search;
 
 namespace Rebound.Core.Helpers;
 
@@ -16,7 +19,7 @@ public static class SettingsHelper
         try
         {
             // Define the path for the XML file
-            var localAppDataPath = Path.Combine(System.Environment.GetFolderPath(System.Environment.SpecialFolder.LocalApplicationData), "Rebound");
+            var localAppDataPath = Path.Combine(System.Environment.GetFolderPath(System.Environment.SpecialFolder.UserProfile), ".rebound");
             var filePath = Path.Combine(localAppDataPath, $"{appName}.xml");
 
             // Check if the file exists
@@ -41,7 +44,7 @@ public static class SettingsHelper
 
             return defaultValue;
         }
-        catch
+        catch (Exception ex) 
         {
             return defaultValue;
         }
@@ -51,13 +54,14 @@ public static class SettingsHelper
     {
         try
         {
-            var localAppDataPath = Path.Combine(System.Environment.GetFolderPath(System.Environment.SpecialFolder.LocalApplicationData), "Rebound");
+            var localAppDataPath = Path.Combine(System.Environment.GetFolderPath(System.Environment.SpecialFolder.UserProfile), ".rebound");
             var filePath = Path.Combine(localAppDataPath, $"{appName}.xml");
 
             if (!Directory.Exists(localAppDataPath))
             {
                 Directory.CreateDirectory(localAppDataPath);
             }
+            File.SetAttributes(localAppDataPath, FileAttributes.Directory);
 
             var doc = new XmlDocument();
 
@@ -105,84 +109,38 @@ public static class SettingsHelper
     }
 }
 
-public sealed class SettingsListener : IDisposable
+public sealed class SettingsListener
 {
-    private readonly string _appName;
-    private readonly string _settingsPath;
-    private readonly FileSystemWatcher _watcher;
-    private readonly SynchronizationContext? _uiContext = SynchronizationContext.Current;
-    private DateTime _lastEventTime = DateTime.MinValue;
-
     public event EventHandler<SettingChangedEventArgs>? SettingChanged;
 
-    public SettingsListener(string appName)
+    public SettingsListener()
     {
-        _appName = appName;
-        var basePath = Path.Combine(System.Environment.GetFolderPath(System.Environment.SpecialFolder.LocalApplicationData), "Rebound");
-        _settingsPath = Path.Combine(basePath, $"{appName}.xml");
-
-        if (!Directory.Exists(basePath))
-            Directory.CreateDirectory(basePath);
-
-        _watcher = new FileSystemWatcher(basePath, $"{appName}.xml")
+        System.Threading.Tasks.Task.Run(async () =>
         {
-            NotifyFilter = NotifyFilters.LastWrite | NotifyFilters.Size | NotifyFilters.FileName,
-            EnableRaisingEvents = true
-        };
+            var basePath = Path.Combine(System.Environment.GetFolderPath(System.Environment.SpecialFolder.UserProfile), ".rebound");
+            var storageFolder = await Windows.Storage.StorageFolder.GetFolderFromPathAsync(basePath);
 
-        _watcher.Changed += OnFileChanged;
-        _watcher.Created += OnFileChanged;
-        _watcher.Renamed += OnFileChanged;
-        _watcher.Deleted += OnFileChanged;
+            if (!Directory.Exists(basePath))
+                Directory.CreateDirectory(basePath);
+            File.SetAttributes(basePath, FileAttributes.Directory);
+
+            var x = storageFolder.CreateFileQueryWithOptions(new());
+            x?.ContentsChanged += X_ContentsChanged;
+        });
     }
 
-    private void OnFileChanged(object? sender, FileSystemEventArgs e)
+    private void X_ContentsChanged(IStorageQueryResultBase sender, object args)
     {
-        // Debounce frequent duplicate events
-        var now = DateTime.Now;
-        if ((now - _lastEventTime).TotalMilliseconds < 200)
-            return;
-
-        _lastEventTime = now;
+        Debug.WriteLine("Internal screaming");
 
         try
         {
-            Thread.Sleep(100); // let the file finish writing
-
-            if (!File.Exists(_settingsPath))
-                return;
-
-            var doc = new XmlDocument();
-            doc.Load(_settingsPath);
-
-            var root = doc.DocumentElement;
-            if (root == null)
-                return;
-
-            foreach (XmlNode node in root.ChildNodes)
-            {
-                if (node is XmlElement element)
-                {
-                    var key = element.Name;
-                    var value = element.InnerText;
-
-                    void Raise() => SettingChanged?.Invoke(this, new SettingChangedEventArgs(key, value));
-                    if (_uiContext != null)
-                        _uiContext.Post(_ => Raise(), null);
-                    else
-                        Raise();
-                }
-            }
+            SettingChanged?.Invoke(this, new SettingChangedEventArgs("", ""));
         }
         catch
         {
             // Ignore transient IO or XML errors
         }
-    }
-
-    public void Dispose()
-    {
-        _watcher.Dispose();
     }
 }
 

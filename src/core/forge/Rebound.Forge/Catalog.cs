@@ -167,12 +167,13 @@ internal static class Catalog
                 {
                     Text = "Layout"
                 },
-                new ModBoolSetting()
+                new ModBoolSetting(true)
                 {
                     Name = "Show Rebound version",
+                    IconGlyph = "\uE946",
                     Description = "Show the installed Rebound version above the bottom bar.",
-                    Identifier = "ShowReboundVersion",
-                    AppName = "rwinver"
+                    Identifier = "IsReboundOn",
+                    AppName = "winver"
                 },
                 new ModInfoBar()
                 {
@@ -180,53 +181,22 @@ internal static class Catalog
                     Title = "You will still be able to see the Rebound version inside Rebound Hub.",
                     Severity = ModInfoBarSeverity.Informational
                 },
-                new ModLabel()
+                new ModBoolSetting(true)
                 {
-                    Text = "Other stuff"
+                    Name = "Show specs",
+                    IconGlyph = "\uE950",
+                    Description = "Show a section with specs (CPU, GPU, RAM).",
+                    Identifier = "IsSidebarOn",
+                    AppName = "winver"
                 },
-                new ModBoolSetting()
+                new ModBoolSetting(true)
                 {
-                    Name = "Show Rebound version",
-                    Description = "Show the installed Rebound version above the bottom bar.",
-                    Identifier = "ShowReboundVersion",
-                    AppName = "rwinver"
+                    Name = "Show \"Hello User\"",
+                    IconGlyph = "\uE77B",
+                    Description = "Show the greeting text alongside the user's profile picture in the bottom bar.",
+                    Identifier = "ShowHelloUser",
+                    AppName = "winver"
                 },
-                new ModBoolSetting()
-                {
-                    Name = "Show Rebound version",
-                    IconGlyph = "\uEA6A",
-                    Description = "Show the installed Rebound version above the bottom bar.",
-                    Identifier = "ShowReboundVersion",
-                    AppName = "rwinver"
-                },
-                new ModStringSetting()
-                {
-                    Name = "Show Rebound version",
-                    Identifier = "ShowReboundVersion",
-                    PlaceholderText = "Type here...",
-                    AppName = "rwinver"
-                },
-                new ModEnumSetting()
-                {
-                    Name = "Show Rebound version",
-                    Description = "Show the installed Rebound version above the bottom bar.",
-                    Identifier = "ShowReboundVersion",
-                    AppName = "rwinver",
-                    Options = new() { "Option 1", "Option 2", "Option 3" }
-                },
-                new ModBoolSetting()
-                {
-                    Name = "Show Rebound version",
-                    Description = "Show the installed Rebound version above the bottom bar.",
-                    Identifier = "ShowReboundVersion",
-                    AppName = "rwinver"
-                },
-                new ModInfoBar()
-                {
-                    IsClosable = true,
-                    Title = "You will still be able to see the Rebound version inside Rebound Hub.",
-                    Severity = ModInfoBarSeverity.Error
-                }
             }
         )
         {

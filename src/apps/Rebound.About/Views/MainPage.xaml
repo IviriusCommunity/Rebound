@@ -260,13 +260,15 @@
             <muxc:PersonPicture
                 Width="28"
                 HorizontalAlignment="Left"
-                ProfilePicture="{x:Bind UserPicture, Mode=OneWay}" />
+                ProfilePicture="{x:Bind UserPicture, Mode=OneWay}"
+                Visibility="{x:Bind ViewModel.ShowHelloUser, Mode=OneWay}" />
             <TextBlock
                 Margin="40,0,180,0"
                 HorizontalAlignment="Stretch"
                 VerticalAlignment="Center"
                 Text="{x:Bind viewModels:MainViewModel.CurrentUser, Mode=OneWay}"
-                TextWrapping="WrapWholeWords" />
+                TextWrapping="WrapWholeWords"
+                Visibility="{x:Bind ViewModel.ShowHelloUser, Mode=OneWay}" />
         </Grid>
 
         <!--  Specs cards  -->

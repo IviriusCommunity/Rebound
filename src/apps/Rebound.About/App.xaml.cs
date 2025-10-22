@@ -30,6 +30,15 @@ public partial class App : Application
         {
             if (e.IsFirstLaunch)
             {
+                Program.QueueAction(async () =>
+                {
+                    // Spawn or activate the main window immediately
+                    if (MainWindow != null)
+                        MainWindow.BringToFront();
+                    else
+                        CreateMainWindow();
+                });
+
                 // Initialize pipe client if not already
                 ReboundPipeClient ??= new();
 
@@ -61,15 +70,6 @@ public partial class App : Application
                 };
                 pipeThread.SetApartmentState(ApartmentState.STA);
                 pipeThread.Start();
-
-                Program.QueueAction(async () =>
-                {
-                    // Spawn or activate the main window immediately
-                    if (MainWindow != null)
-                        MainWindow.BringToFront();
-                    else
-                        CreateMainWindow();
-                });
             }
             else
             {
@@ -136,8 +136,8 @@ public partial class App : Application
             MainWindow.MinHeight = 440;
             MainWindow.MaxWidth = 920;
             MainWindow.MaxHeight = 1000;
-            MainWindow.X = (int)(50 * Display.GetScale(MainWindow.AppWindow!));
-            MainWindow.Y = (int)(50 * Display.GetScale(MainWindow.AppWindow!));
+            MainWindow.X = 50;
+            MainWindow.Y = 50;
 
             // Window properties
             MainWindow.IsMaximizable = false;
@@ -146,9 +146,6 @@ public partial class App : Application
             MainWindow.AppWindow?.TitleBar.ButtonBackgroundColor = Colors.Transparent;
             MainWindow.AppWindow?.TitleBar.ButtonInactiveBackgroundColor = Colors.Transparent;
             MainWindow.AppWindow?.SetTaskbarIcon($"{AppContext.BaseDirectory}\\Assets\\AboutWindows.ico");
-
-            // Load persistance
-            MainWindow.LoadWindowState();
         };
 
         // Load main page

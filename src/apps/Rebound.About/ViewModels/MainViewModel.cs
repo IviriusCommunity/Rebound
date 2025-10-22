@@ -57,23 +57,23 @@ internal partial class MainViewModel : ObservableObject
 
     [ObservableProperty] public partial bool IsSidebarOn { get; set; }
     [ObservableProperty] public partial bool IsReboundOn { get; set; }
+    [ObservableProperty] public partial bool ShowHelloUser { get; set; }
     [ObservableProperty] public partial bool ShowBlurAndGlow { get; set; }
 
     public MainViewModel()
     {
         UpdateSettings();
-        using var listener1 = new SettingsListener("winver");
+        var listener1 = new SettingsListener();
         listener1.SettingChanged += Listener_SettingChanged;
-        using var listener2 = new SettingsListener("rebound");
-        listener2.SettingChanged += Listener_SettingChanged;
     }
 
     private void Listener_SettingChanged(object? sender, SettingChangedEventArgs e) => UpdateSettings();
 
     private void UpdateSettings()
     {
-        IsSidebarOn = SettingsHelper.GetValue("IsSidebarOn", "winver", false);
+        IsSidebarOn = SettingsHelper.GetValue("IsSidebarOn", "winver", true);
         IsReboundOn = SettingsHelper.GetValue("IsReboundOn", "winver", true);
         ShowBlurAndGlow = SettingsHelper.GetValue("ShowBlurAndGlow", "rebound", true);
+        ShowHelloUser = SettingsHelper.GetValue("ShowHelloUser", "winver", true);
     }
 }
