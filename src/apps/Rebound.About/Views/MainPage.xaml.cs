@@ -297,7 +297,9 @@ public sealed partial class MainPage : Page
 
     private static async Task<BitmapImage?> GetUserPictureAsync()
     {
-        return new BitmapImage(new Uri(SystemInformation.GetUserPicturePath()!));
+        var picturePath = SystemInformation.GetUserPicturePath();
+        if (!string.IsNullOrEmpty(picturePath)) return new BitmapImage(new Uri(picturePath));
+        else return null;
     }
 
     private MainViewModel ViewModel { get; } = new();

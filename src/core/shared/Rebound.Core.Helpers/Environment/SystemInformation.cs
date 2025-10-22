@@ -65,23 +65,30 @@ internal class SystemInformation
 
     public static string? GetUserPicturePath()
     {
-        var sid = WindowsIdentity.GetCurrent().User?.Value;
-        if (sid == null) return null;
-
-        string regPath = $@"SOFTWARE\Microsoft\Windows\CurrentVersion\AccountPicture\Users\{sid}";
-
-        using var key = Registry.LocalMachine.OpenSubKey(regPath);
-        if (key != null)
+        try
         {
-            // Prefer the largest image available (Image1080 > Image192 > etc.)
-            var imagePath = key.GetValue("Image1080") as string
-                            ?? key.GetValue("Image192") as string
-                            ?? key.GetValue("Image64") as string;
+            var sid = WindowsIdentity.GetCurrent().User?.Value;
+            if (sid == null) return null;
 
-            if (!string.IsNullOrEmpty(imagePath) && System.IO.File.Exists(imagePath))
+            string regPath = $@"SOFTWARE\Microsoft\Windows\CurrentVersion\AccountPicture\Users\{sid}";
+
+            using var key = Registry.LocalMachine.OpenSubKey(regPath);
+            if (key != null)
             {
-                return imagePath;
+                // Prefer the largest image available (Image1080 > Image192 > etc.)
+                var imagePath = key.GetValue("Image1080") as string
+                                ?? key.GetValue("Image192") as string
+                                ?? key.GetValue("Image64") as string;
+
+                if (!string.IsNullOrEmpty(imagePath) && System.IO.File.Exists(imagePath))
+                {
+                    return imagePath;
+                }
             }
+        }
+        catch
+        {
+
         }
 
         return null;
