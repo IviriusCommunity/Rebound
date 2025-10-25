@@ -7,8 +7,6 @@ using Rebound.Forge;
 using Rebound.Forge.Engines;
 using Rebound.Generators;
 using System;
-using System.Collections.Concurrent;
-using System.Collections.Generic;
 using System.Diagnostics;
 using System.Threading;
 using System.Threading.Tasks;
@@ -21,170 +19,6 @@ namespace Rebound.ServiceHost;
 [ReboundApp("Rebound.ServiceHost", "")]
 public partial class App : Application
 {
-    private static readonly ConcurrentDictionary<int, byte> InjectedProcessIds = new();
-    private static readonly SemaphoreSlim InjectionSemaphore = new(4);
-
-    private static readonly HashSet<string> ExcludedProcesses = new(StringComparer.OrdinalIgnoreCase)
-    {
-        "csrss.exe",
-        "winlogon.exe",
-        "smss.exe",
-        "lsass.exe",
-        "dwm.exe",
-        "services.exe",
-        "Rebound.Shell.exe",
-        "Rebound.ServiceHost.exe"
-    };
-
-    private static async Task InjectIntoProcessAsync(Process proc, int injectTimeoutMs = 10_000)
-    {
-        try
-        {
-            // Quick pre-checks (no long lock)
-            if (InjectedProcessIds.ContainsKey(proc.Id))
-                return;
-
-            if (ExcludedProcesses.Contains(proc.ProcessName + ".exe"))
-                return;
-
-            if (proc.SessionId == 0)
-                return;
-
-            if (!DLLInjector.CanOpenProcess(proc.Id))
-                return;
-
-            if (Environment.Is64BitOperatingSystem)
-            {
-                TerraFX.Interop.Windows.BOOL isWow64 = false;
-                unsafe
-                {
-                    _ = TerraFX.Interop.Windows.Windows.IsWow64Process(new(proc.Handle.ToPointer()), &isWow64);
-                }
-
-                if (isWow64)
-                {
-                    Debug.WriteLine($"Skipping 32-bit process: {proc.ProcessName}");
-                    return;
-                }
-            }
-
-            // Acquire a semaphore slot so we don't start too many simultaneous injections.
-            await InjectionSemaphore.WaitAsync().ConfigureAwait(false);
-            try
-            {
-                // Double-check after acquiring a slot (race with other injectors)
-                if (InjectedProcessIds.ContainsKey(proc.Id))
-                    return;
-
-                // Run the bounded injector on a threadpool thread to keep this method async-friendly.
-                var success = await Task.Run(() => DLLInjector.Inject((uint)proc.Id, @$"{AppContext.BaseDirectory}\Hooks\Rebound.Forge.Hooks.Run.dll", (uint)injectTimeoutMs)).ConfigureAwait(false);
-
-                if (success)
-                {
-                    InjectedProcessIds.TryAdd(proc.Id, 0);
-                    Debug.WriteLine($"Successfully injected into {proc.ProcessName} (PID: {proc.Id})");
-                }
-                else
-                {
-                    Debug.WriteLine($"Injection failed/timeout for {proc.ProcessName} (PID: {proc.Id})");
-                    // Optionally add to an exclusion list to avoid retrying too often
-                }
-            }
-            finally
-            {
-                InjectionSemaphore.Release();
-            }
-        }
-        catch (Exception ex)
-        {
-            Debug.WriteLine($"Injection error for {proc.ProcessName}: {ex.Message}");
-        }
-    }
-
-    private static void InjectIntoExistingProcesses()
-    {
-        var allProcesses = Process.GetProcesses();
-        Debug.WriteLine($"Scanning {allProcesses.Length} existing processes...");
-
-        foreach (var proc in allProcesses)
-        {
-            if (!InjectedProcessIds.ContainsKey(proc.Id))
-            {
-                // Fire & forget but observe exceptions:
-                _ = InjectIntoProcessAsync(proc).ContinueWith(t =>
-                {
-                    if (t.Exception != null)
-                    {
-                        Debug.WriteLine($"InjectIntoProcessAsync exception: {t.Exception.Flatten().InnerException?.Message}");
-                    }
-                }, TaskScheduler.Default);
-            }
-        }
-
-        Debug.WriteLine($"Initial injection complete. Injected into {InjectedProcessIds.Count} processes.");
-    }
-
-    private static void MonitorNewProcesses()
-    {
-        Debug.WriteLine("Starting continuous process monitoring...");
-
-        while (true)
-        {
-            try
-            {
-                var allProcesses = Process.GetProcesses();
-
-                foreach (var proc in allProcesses)
-                {
-                    // If not already injected or currently being injected
-                    if (!InjectedProcessIds.ContainsKey(proc.Id))
-                    {
-                        // Fire & forget async injection
-                        _ = InjectIntoProcessAsync(proc).ContinueWith(t =>
-                        {
-                            if (t.Exception != null)
-                            {
-                                Debug.WriteLine($"InjectIntoProcessAsync exception in {proc.ProcessName}: " +
-                                                $"{t.Exception.Flatten().InnerException?.Message}");
-                            }
-                        }, TaskScheduler.Default);
-                    }
-                }
-
-                // Clean up dead processes from tracking
-                var toRemove = new List<int>();
-
-                foreach (var kvp in InjectedProcessIds)
-                {
-                    var pid = kvp.Key;
-                    try
-                    {
-                        var proc = Process.GetProcessById(pid);
-                        if (proc.HasExited)
-                            toRemove.Add(pid);
-                    }
-                    catch
-                    {
-                        // Process no longer exists
-                        toRemove.Add(pid);
-                    }
-                }
-
-                foreach (var pid in toRemove)
-                {
-                    InjectedProcessIds.TryRemove(pid, out _);
-                }
-            }
-            catch (Exception ex)
-            {
-                Debug.WriteLine($"Error in process monitor: {ex.Message}");
-            }
-
-            // Poll every 500ms for new processes
-            Thread.Sleep(500);
-        }
-    }
-
     private static PipeHost? PipeServer;
 
     private void OnSingleInstanceLaunched(object sender, SingleInstanceLaunchEventArgs e) => Program.QueueAction(async () =>
@@ -194,9 +28,18 @@ public partial class App : Application
             // Hook thread
             var hookThread = new Thread(() =>
             {
-                InjectIntoExistingProcesses();
+                string reboundRunDll = $"{AppContext.BaseDirectory}\\Hooks\\Rebound.Forge.Hooks.Run.dll";
 
-                var monitorThread = new Thread(MonitorNewProcesses)
+                // Since some processes like task manager are heavily locked down to prevent malicious injection,
+                // it's required to enable SeDebugPrivilege to allow injection inside those processes.
+                _ = DLLInjector.TryEnableSeDebugPrivilege(out _);
+
+                // Initial injection pass
+                DLLInjector.InjectIntoExistingProcesses(reboundRunDll);
+
+                // DLL injection should also be done for any processes created after service start
+                // This is also here to inject into explorer again if it crashes, or into Task Manager if it's restarted
+                var monitorThread = new Thread(() => { DLLInjector.MonitorNewProcessesLoop(reboundRunDll); })
                 {
                     IsBackground = true,
                     Name = "Process Monitor"
@@ -218,7 +61,7 @@ public partial class App : Application
             {
                 PipeServer = new("REBOUND_SERVICE_HOST", AccessLevel.ModWhitelist);
                 PipeServer.MessageReceived += PipeServer_MessageReceived;
-                await PipeServer.StartAsync();
+                await PipeServer.StartAsync().ConfigureAwait(false);
             })
             {
                 IsBackground = true,
