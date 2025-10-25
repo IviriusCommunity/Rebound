@@ -199,10 +199,11 @@ namespace Rebound.Core.Helpers
 
             if (TryGetClientProcess(server, out var proc))
             {
+#if !DEBUG
+                // Since processes like Rebound Shell can't access the PID of Task Manager and other elevated apps, the following two lines will be moved to the ModWhiteList access list value.
                 exePath = proc?.MainModule?.FileName;
                 pid = proc?.Id ?? -1;
 
-#if !DEBUG
                 switch (_accessLevel)
                 {
                     case AccessLevel.Everyone:

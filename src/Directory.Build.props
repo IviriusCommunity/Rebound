@@ -23,7 +23,6 @@
 		<!-- Trimmming -->
 		<SelfContained>true</SelfContained>
 		<PublishTrimmed>true</PublishTrimmed>
-		<Optimize>true</Optimize>
 		<OptimizationPreference>Speed</OptimizationPreference>
 		<IlcOptimizationPreference>Speed</IlcOptimizationPreference>
 
