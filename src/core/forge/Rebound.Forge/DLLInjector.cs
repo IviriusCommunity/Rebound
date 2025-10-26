@@ -1,4 +1,7 @@
-﻿using Rebound.Core.Helpers;
+﻿// Copyright (C) Ivirius(TM) Community 2020 - 2025. All Rights Reserved.
+// Licensed under the MIT License.
+
+using Rebound.Core.Helpers;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
@@ -13,6 +16,39 @@ using TerraFX.Interop.Windows;
 namespace Rebound.Forge;
 
 internal class DLLInjector
+{
+    string _dllPath;
+
+    /// <summary>
+    /// Contains the names of processes that are targeted for monitoring or interaction.
+    /// </summary>
+    /// <remarks>Add process names to this list to specify which processes should be included in the
+    /// operation. The list is initialized as empty and can be modified at runtime.
+    /// If the list is left empty, all processes will be targeted.</remarks>
+    public List<string> TargetProcesses { get; set; } = [];
+
+    /// <summary>
+    /// Initializes a new instance of the DLLInjector class with the specified DLL file path.
+    /// </summary>
+    /// <param name="dllPath">The full path to the DLL file to be injected. Must not be null or empty.</param>
+    public DLLInjector(string dllPath) => _dllPath = dllPath;
+
+    /// <summary>
+    /// Starts the DLL injection process for existing and newly launched target processes.
+    /// </summary>
+    /// <remarks>This method initiates injection into all currently running target processes and begins
+    /// monitoring for new processes to inject as they start. The monitoring runs asynchronously and continues until the
+    /// application is terminated. Ensure that the DLL path and target process list are correctly configured before
+    /// calling this method.</remarks>
+    public void StartInjection()
+    {
+        DLLInjectionAPI.InjectIntoExistingProcesses(_dllPath, TargetProcesses);
+        Task.Run(() => DLLInjectionAPI.MonitorNewProcessesLoop(_dllPath, TargetProcesses));
+    }
+}
+
+
+internal static class DLLInjectionAPI
 {
     private static readonly ConcurrentDictionary<int, byte> InjectedProcessIds = new();
     private static readonly SemaphoreSlim InjectionSemaphore = new(4);
@@ -140,7 +176,7 @@ internal class DLLInjector
 
             // Final checks: return if the session ID is zero or if there's not enough permissions to open the process
             if (proc.SessionId == 0) return;
-            if (!DLLInjector.CanOpenProcess(pid)) return;
+            if (!CanOpenProcess(pid)) return;
 
             // Reserve in-progress marker (2 == in-progress)
             if (!InjectedProcessIds.TryAdd(pid, 2)) return;
@@ -196,7 +232,7 @@ internal class DLLInjector
                 {
                     try
                     {
-                        return DLLInjector.Inject((uint)pid, dllPath, (uint)injectTimeoutMs);
+                        return Inject((uint)pid, dllPath, (uint)injectTimeoutMs);
                     }
                     catch (Exception e)
                     {
@@ -256,22 +292,69 @@ internal class DLLInjector
     /// injection into every process; processes with elevated security or insufficient permissions may prevent
     /// injection. Exceptions encountered during injection are logged for diagnostic purposes.</remarks>
     /// <param name="dllPath">The full file path to the DLL to be injected into each process. Must refer to a valid, accessible DLL file.</param>
-    public static void InjectIntoExistingProcesses(string dllPath)
+    public static void InjectIntoExistingProcesses(string dllPath, List<string>? targetProcesses)
     {
         // Get every running process
         var procs = Process.GetProcesses();
         Debug.WriteLine($"Scanning {procs.Length} processes...");
 
-        // Perform injection on a separate thread to prevent random processes with built in
-        // DLL injection security from hogging the entire injection thread
-        foreach (var p in procs)
-            Task.Run(() =>
-            InjectIntoProcessAsync(p, dllPath).ContinueWith(t =>
+        // Normalize targetProcesses into a HashSet for fast, case-insensitive lookups.
+        // Accept entries like "notepad" or "notepad.exe".
+        HashSet<string>? normalizedTargets = null;
+
+        if (targetProcesses != null && targetProcesses.Count > 0)
+        {
+            normalizedTargets = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+            foreach (var t in targetProcesses)
             {
-                if (t.Exception != null)
-                    Debug.WriteLine(t.Exception.Flatten().InnerException?.Message);
-            },
-            TaskScheduler.Default));
+                if (string.IsNullOrWhiteSpace(t)) continue;
+                var n = t.Trim();
+                if (n.EndsWith(".exe", StringComparison.OrdinalIgnoreCase))
+                    n = n.Substring(0, n.Length - 4);
+                normalizedTargets.Add(n);
+            }
+        }
+
+        List<Process> filteredProcs;
+        if (normalizedTargets != null)
+        {
+            filteredProcs = new List<Process>();
+            foreach (var proc in procs)
+            {
+                try
+                {
+                    // Process.ProcessName is the exe name without extension; compare using normalizedTargets.
+                    if (normalizedTargets.Contains(proc.ProcessName ?? string.Empty))
+                    {
+                        filteredProcs.Add(proc);
+                    }
+                }
+                catch
+                {
+                    // Ignore processes that can't be accessed
+                }
+            }
+            Debug.WriteLine($"Filtered to {filteredProcs.Count} target processes.");
+        }
+        else
+        {
+            // No targets given -> inject into everything
+            filteredProcs = new List<Process>(procs);
+        }
+
+        // Perform injection on a separate thread per process
+        foreach (var p in filteredProcs)
+        {
+            // capture local var so Task.Run uses the right one
+            var capture = p;
+            Task.Run(() =>
+                InjectIntoProcessAsync(capture, dllPath).ContinueWith(t =>
+                {
+                    if (t.Exception != null)
+                        Debug.WriteLine(t.Exception.Flatten().InnerException?.Message);
+                },
+                TaskScheduler.Default));
+        }
     }
 
     // Monitor new processes using CreateToolhelp32Snapshot; trim-friendly and fast when polled frequently
@@ -288,7 +371,7 @@ internal class DLLInjector
     /// <param name="dllPath">The full path to the DLL file to inject into new processes. Must not be null or empty.</param>
     /// <param name="pollMs">The interval, in milliseconds, between each scan for new processes. Must be greater than zero. The default is
     /// 200 milliseconds.</param>
-    public static void MonitorNewProcessesLoop(string dllPath, int pollMs = 200)
+    public static void MonitorNewProcessesLoop(string dllPath, List<string> targetProcesses, int pollMs = 200)
     {
         // Ensure only one monitor is running
         if (_monitorRunning)
@@ -296,6 +379,23 @@ internal class DLLInjector
 
         _monitorRunning = true;
         Debug.WriteLine("Starting Toolhelp-based process monitor...");
+
+        // Normalize targetProcesses into a HashSet for fast, case-insensitive lookups.
+        // Accept entries like "notepad" or "notepad.exe".
+        HashSet<string> normalizedTargets = null;
+        if (targetProcesses != null && targetProcesses.Count > 0)
+        {
+            normalizedTargets = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+            foreach (var t in targetProcesses)
+            {
+                if (string.IsNullOrWhiteSpace(t)) continue;
+                var n = t.Trim();
+                if (n.EndsWith(".exe", StringComparison.OrdinalIgnoreCase))
+                    n = n.Substring(0, n.Length - 4);
+                normalizedTargets.Add(n);
+            }
+        }
+        // If normalizedTargets == null, treat as "inject into everything".
 
         // Keep track of seen processes to avoid re-checking them
         var seen = new HashSet<int>();
@@ -322,9 +422,26 @@ internal class DLLInjector
                         {
                             seen.Add(pid); continue;
                         }
+
+                        // If a target list was provided, only inject if the process name matches.
+                        if (normalizedTargets != null)
+                        {
+                            // ProcessName returns the executable name without ".exe"
+                            var procName = proc.ProcessName ?? string.Empty; // safe fallback
+                            if (!normalizedTargets.Contains(procName))
+                            {
+                                // Not a target — skip injection but mark as seen
+                                seen.Add(pid);
+                                continue;
+                            }
+                        }
+
                         Task.Run(() => InjectIntoProcessAsync(proc, dllPath));
                     }
-                    catch { /* Process vanished, we'll never know why */ }
+                    catch
+                    {
+                        /* Process vanished or cannot be opened; we'll never know why */
+                    }
                     finally
                     {
                         seen.Add(pid);

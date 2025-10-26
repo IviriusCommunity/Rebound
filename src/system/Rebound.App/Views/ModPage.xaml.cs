@@ -1,4 +1,7 @@
-﻿using Microsoft.UI.Xaml.Controls;
+﻿// Copyright (C) Ivirius(TM) Community 2020 - 2025. All Rights Reserved.
+// Licensed under the MIT License.
+
+using Microsoft.UI.Xaml.Controls;
 using Rebound.Forge;
 using System;
 using System.Collections.Generic;

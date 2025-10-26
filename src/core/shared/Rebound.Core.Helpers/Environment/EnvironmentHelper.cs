@@ -1,10 +1,32 @@
 ﻿// Copyright (C) Ivirius(TM) Community 2020 - 2025. All Rights Reserved.
 // Licensed under the MIT License.
 
+using System;
+using System.Security.Principal;
+using System.Threading.Tasks;
+using Windows.System;
+
 namespace Rebound.Core.Helpers.Environment;
 
 public static class WindowsEnvironment
 {
+    public static async Task<User?> GetCurrentUserAsync()
+    {
+        string currentSid = WindowsIdentity.GetCurrent().User!.Value;
+
+        var users = await User.FindAllAsync();
+        foreach (var user in users)
+        {
+            var nonRoamableIdObj = await user.GetPropertyAsync("System.Devices.NonRoamableId");
+            string? nonRoamableId = nonRoamableIdObj as string;
+
+            if (nonRoamableId == currentSid)
+                return user;
+        }
+
+        return null;
+    }
+
     public static string GetWindowsInstallationDrivePath()
     {
         // Get the system directory path

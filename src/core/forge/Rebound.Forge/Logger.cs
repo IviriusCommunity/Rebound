@@ -1,4 +1,7 @@
-﻿using System;
+﻿// Copyright (C) Ivirius(TM) Community 2020 - 2025. All Rights Reserved.
+// Licensed under the MIT License.
+
+using System;
 using System.Diagnostics;
 using System.IO;
 using System.Threading;
@@ -7,12 +10,6 @@ namespace Rebound.Forge;
 
 internal static class ReboundLogger
 {
-    public static readonly string LogFile = Path.Combine(
-        Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
-        "Rebound",
-        "Temp",
-        ".log");
-
     private static readonly object _lock = new();
 
     public static void Log(string message, Exception? ex = null)
@@ -32,7 +29,7 @@ internal static class ReboundLogger
                 try
                 {
                     // Defensive: ensure directory still exists (someone may have deleted it).
-                    var dir = Path.GetDirectoryName(LogFile);
+                    var dir = Path.GetDirectoryName(WorkingEnvironment.LogFile);
                     var dir2 = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData) + "\\Rebound";
                     if (!string.IsNullOrEmpty(dir2))
                     {
@@ -45,7 +42,7 @@ internal static class ReboundLogger
                     }
                     File.SetAttributes(dir, FileAttributes.Directory);
 
-                    File.AppendAllText(LogFile, line + Environment.NewLine);
+                    File.AppendAllText(WorkingEnvironment.LogFile, line + Environment.NewLine);
                 }
                 catch (IOException ioEx)
                 {

@@ -32,14 +32,20 @@ public partial class App : Application
 
                 // Since some processes like task manager are heavily locked down to prevent malicious injection,
                 // it's required to enable SeDebugPrivilege to allow injection inside those processes.
-                _ = DLLInjector.TryEnableSeDebugPrivilege(out _);
+                _ = DLLInjectionAPI.TryEnableSeDebugPrivilege(out _);
 
-                // Initial injection pass
-                DLLInjector.InjectIntoExistingProcesses(reboundRunDll);
-
-                // DLL injection should also be done for any processes created after service start
-                // This is also here to inject into explorer again if it crashes, or into Task Manager if it's restarted
-                var monitorThread = new Thread(() => { DLLInjector.MonitorNewProcessesLoop(reboundRunDll); })
+                // Start the DLL injector in a separate thread
+                var monitorThread = new Thread(() =>
+                {
+                    var injector = new DLLInjector(reboundRunDll);
+                    injector.TargetProcesses.AddRange(
+                    [
+                        "explorer.exe",
+                        "taskmgr.exe",
+                        "procexp.exe"
+                    ]);
+                    injector.StartInjection();
+                })
                 {
                     IsBackground = true,
                     Name = "Process Monitor"

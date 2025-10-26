@@ -9,6 +9,8 @@
     <Import_RootNamespace>Rebound.Forge</Import_RootNamespace>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="$(MSBuildThisFileDirectory)Cogs\PackageCog.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Cogs\StorePackageCog.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)DLLInjector.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Engines\IFEOEngine.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Cogs\IFEOCog.cs" />
@@ -28,7 +30,6 @@
     <AdditionalFiles Include="$(MSBuildThisFileDirectory)NativeMethods.txt" />
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="$(MSBuildThisFileDirectory)Cogs\" />
     <Folder Include="$(MSBuildThisFileDirectory)Hooks\" />
     <Folder Include="$(MSBuildThisFileDirectory)Engines\" />
   </ItemGroup>

@@ -1,3 +1,6 @@
+// Copyright (C) Ivirius(TM) Community 2020 - 2025. All Rights Reserved.
+// Licensed under the MIT License.
+
 #include "pch.h"
 #include <windows.h>
 #include <stdint.h>

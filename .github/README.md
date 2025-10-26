@@ -48,9 +48,19 @@ _Included in Rebound:_
 
 _Featured in Rebound Hub:_ (optional)
 - **Ambie**
-- **Wino Mail**
-- **Screenbox**
+- **Character Map UWP**
+- **Fairmark**
+- **Files**
+- **Fluent Store**
 - **FluentHub**
+- **Fluetro PDF**
+- **PowerToys**
+- **Scanner**
+- **Screenbox**
+- **SecureFolderFS**
+- **WindowSill**
+- **Wino Mail**
+- **Wintoys**
 
 ## 🛠️ Key Features Comparison
 
