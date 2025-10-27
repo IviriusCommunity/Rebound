@@ -3,6 +3,7 @@
 
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using Microsoft.UI.Xaml.Controls;
 using Microsoft.Win32;
 using Rebound.About.ViewModels;
 using Rebound.Core.Helpers.Environment;
@@ -292,6 +293,23 @@ public sealed partial class MainPage : Page
         public static partial ref readonly Guid Guid { get; }
     }
 
+    public InfoBarSeverity WindowsActivationSeverity
+    {
+        get
+        {
+            return SystemInformation.GetWindowsActivationType() switch
+            {
+                WindowsActivationType.Unlicensed => InfoBarSeverity.Error,
+                WindowsActivationType.Activated => InfoBarSeverity.Success,
+                WindowsActivationType.GracePeriod => InfoBarSeverity.Warning,
+                WindowsActivationType.NonGenuine => InfoBarSeverity.Error,
+                WindowsActivationType.ExtendedGracePeriod => InfoBarSeverity.Warning,
+                WindowsActivationType.Unknown => InfoBarSeverity.Informational,
+                _ => InfoBarSeverity.Informational
+            };
+        }
+    }
+
     [ObservableProperty]
     public partial BitmapImage UserPicture { get; set; }
 
@@ -492,59 +510,7 @@ public sealed partial class MainPage : Page
     private static void CopyReboundVersion() => CopyToClipboard(ReboundVersion.REBOUND_VERSION);
 
     [RelayCommand]
-    private void CloseWindow() => App.MainWindow.Close();
-
-    /*[RelayCommand]
-    public async Task ToggleSidebarAsync()
-    {
-        await Task.Delay(50);
-        if (ViewModel.IsSidebarOn)
-        {
-            for (var i = 0; i <= 100; i += 3)
-            {
-                await Task.Delay(2);
-                var radians = i * Math.PI / 180; // Convert degrees to radians
-                App.MainWindow.Width = (int)(520 + 200 * Math.Sin(radians));
-            }
-            App.MainWindow.Width = 720;
-        }
-        else
-        {
-            for (var i = 100; i >= 0; i -= 3)
-            {
-                await Task.Delay(2);
-                var radians = i * Math.PI / 180; // Convert degrees to radians
-                App.MainWindow.Width = (int)(520 + 200 * Math.Sin(radians));
-            }
-            App.MainWindow.Width = 520;
-        }
-    }
-
-    [RelayCommand]
-    public async Task ToggleReboundAsync()
-    {
-        await Task.Delay(50);
-        if (ViewModel.IsReboundOn)
-        {
-            for (var i = 0; i <= 100; i += 3)
-            {
-                await Task.Delay(2);
-                var radians = i * Math.PI / 180; // Convert degrees to radians
-                App.MainWindow.Height = (int)(500 + 140 * Math.Sin(radians));
-            }
-            App.MainWindow.Height = 640;
-        }
-        else
-        {
-            for (var i = 100; i >= 0; i -= 3)
-            {
-                await Task.Delay(2);
-                var radians = i * Math.PI / 180; // Convert degrees to radians
-                App.MainWindow.Height = (int)(500 + 140 * Math.Sin(radians));
-            }
-            App.MainWindow.Height = 500;
-        }
-    }*/
+    private void CloseWindow() => App.MainWindow?.Close();
 
     private static void CopyToClipboard(string content)
     {

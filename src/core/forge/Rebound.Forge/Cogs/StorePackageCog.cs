@@ -44,7 +44,7 @@ namespace Rebound.Forge.Cogs
                 var storeContext = StoreContext.GetForUser(user);
                 var result = await storeContext.DownloadAndInstallStorePackagesAsync(new List<string> { StoreProductId });
 
-                ReboundLogger.Log($"[StorePackageCog] Store install completed with status: {result.ExtendedErrorCode}");
+                ReboundLogger.Log($"[StorePackageCog] Store install completed with status: {result.OverallState}");
             }
             catch (Exception ex)
             {
@@ -68,7 +68,7 @@ namespace Rebound.Forge.Cogs
                 var storeContext = StoreContext.GetForUser(user);
                 var result = await storeContext.UninstallStorePackageByStoreIdAsync(StoreProductId);
 
-                ReboundLogger.Log($"[StorePackageCog] Uninstall completed with status: {result.ExtendedErrorCode}");
+                ReboundLogger.Log($"[StorePackageCog] Uninstall completed with status: {result.Status}");
             }
             catch (Exception ex)
             {

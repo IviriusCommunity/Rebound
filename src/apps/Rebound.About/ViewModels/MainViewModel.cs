@@ -48,6 +48,24 @@ internal partial class MainViewModel : ObservableObject
         }
     }
 
+    public static string WindowsActivationInfo
+    {
+        get
+        {
+            var resourceLoader = Windows.ApplicationModel.Resources.ResourceLoader.GetForCurrentView();
+            return resourceLoader.GetString(SystemInformation.GetWindowsActivationType() switch
+            {
+                WindowsActivationType.Unlicensed => "ActivationStatusUnlicensed",
+                WindowsActivationType.Activated => "ActivationStatusActivated",
+                WindowsActivationType.GracePeriod => "ActivationStatusGracePeriod",
+                WindowsActivationType.NonGenuine => "ActivationStatusNonGenuine",
+                WindowsActivationType.ExtendedGracePeriod => "ActivationStatusExtendedGracePeriod",
+                WindowsActivationType.Unknown => "ActivationStatusUnknown",
+                _ => "ActivationStatusUnknown"
+            });
+        }
+    }
+
     public static string WindowsVersionTitle => SystemInformation.GetOSName();
     public static string LicenseOwners => SystemInformation.GetLicenseOwners();
     public static string LegalInfo => string.Format(null, Windows.ApplicationModel.Resources.ResourceLoader.GetForCurrentView().GetString("LegalInfo"), SystemInformation.GetOSName());

@@ -3,13 +3,59 @@
 
 using Microsoft.Win32;
 using System;
+using System.Diagnostics;
 using System.Runtime.InteropServices;
 using System.Security.Principal;
+using TerraFX.Interop.Windows;
 using Windows.Win32.Foundation;
 
 namespace Rebound.Core.Helpers.Environment;
 
-internal class SystemInformation
+internal enum WindowsActivationType
+{
+    Unlicensed,
+    Activated,
+    GracePeriod,
+    NonGenuine,
+    ExtendedGracePeriod,
+    Unknown
+}
+
+internal enum SL_INFORMATION_CLASS
+{
+    SL_CLASS_WINDOWS_ACTIVATION_STATE = 0x0000000A,
+}
+
+[StructLayout(LayoutKind.Sequential)]
+internal struct USER_INFO_2
+{
+    public PCWSTR usri2_name;
+    public PCWSTR usri2_password;
+    public uint usri2_password_age;
+    public uint usri2_priv;
+    public PCWSTR usri2_home_dir;
+    public PCWSTR usri2_comment;
+    public uint usri2_flags;
+    public PCWSTR usri2_script_path;
+    public uint usri2_auth_flags;
+    public PCWSTR usri2_full_name;
+    public PCWSTR usri2_usr_comment;
+    public PCWSTR usri2_parms;
+    public PCWSTR usri2_workstations;
+    public uint usri2_last_logon;
+    public uint usri2_last_logoff;
+    public uint usri2_acct_expires;
+    public uint usri2_max_storage;
+    public uint usri2_units_per_week;
+    public TerraFX.Interop.Windows.HANDLE usri2_logon_hours;
+    public uint usri2_bad_pw_count;
+    public uint usri2_num_logons;
+    public PCWSTR usri2_logon_server;
+    public uint usri2_country_code;
+    public uint usri2_code_page;
+}
+
+internal static partial class SystemInformation
 {
     public static string NormalizeTrademarkSymbols(string input) => input
             .Replace("(R)", "®", StringComparison.InvariantCultureIgnoreCase)
@@ -19,33 +65,46 @@ internal class SystemInformation
             .Replace("(C)", "©", StringComparison.InvariantCultureIgnoreCase)
             .Replace("(c)", "©", StringComparison.InvariantCultureIgnoreCase);
 
-    [StructLayout(LayoutKind.Sequential)]
-    internal struct USER_INFO_2
+    [LibraryImport("slc.dll")]
+    internal static unsafe partial int SLGetWindowsInformationDWORD(
+        char* slInfoClass,
+        uint* pdwValue
+    );
+
+    internal static unsafe TerraFX.Interop.Windows.HRESULT SLGetWindowsInformationDWORD(PCWSTR slInfoClass, uint* pdwValue)
     {
-        public PCWSTR usri2_name;
-        public PCWSTR usri2_password;
-        public uint usri2_password_age;
-        public uint usri2_priv;
-        public PCWSTR usri2_home_dir;
-        public PCWSTR usri2_comment;
-        public uint usri2_flags;
-        public PCWSTR usri2_script_path;
-        public uint usri2_auth_flags;
-        public PCWSTR usri2_full_name;
-        public PCWSTR usri2_usr_comment;
-        public PCWSTR usri2_parms;
-        public PCWSTR usri2_workstations;
-        public uint usri2_last_logon;
-        public uint usri2_last_logoff;
-        public uint usri2_acct_expires;
-        public uint usri2_max_storage;
-        public uint usri2_units_per_week;
-        public HANDLE usri2_logon_hours;
-        public uint usri2_bad_pw_count;
-        public uint usri2_num_logons;
-        public PCWSTR usri2_logon_server;
-        public uint usri2_country_code;
-        public uint usri2_code_page;
+        var hr = SLGetWindowsInformationDWORD(slInfoClass.Value, pdwValue);
+        return new(hr);
+    }
+
+    public static unsafe WindowsActivationType GetWindowsActivationType()
+    {
+        try
+        {
+            uint state;
+            var hr = SLGetWindowsInformationDWORD("ActivationState".ToPCWSTR(), &state);
+
+            Debug.WriteLine($"SLGetWindowsInformationDWORD returned HRESULT: 0x{hr.Value:X8}, State: {state}");
+
+            if (hr == 0) // S_OK
+            {
+                return state switch
+                {
+                    0 => WindowsActivationType.Unlicensed,
+                    1 => WindowsActivationType.Activated,
+                    2 => WindowsActivationType.GracePeriod,
+                    3 => WindowsActivationType.NonGenuine,
+                    4 => WindowsActivationType.ExtendedGracePeriod,
+                    _ => WindowsActivationType.Unknown,
+                };
+            }
+        }
+        catch
+        {
+            // Ignore exceptions
+        }
+
+        return WindowsActivationType.Unknown;
     }
 
     public static string GetOSName()
