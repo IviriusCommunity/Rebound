@@ -10,6 +10,7 @@
     xmlns:local="using:Rebound.About"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:media="using:CommunityToolkit.WinUI.Media"
+    xmlns:mica="using:MicaForUWP.Media"
     xmlns:muxc="using:Microsoft.UI.Xaml.Controls"
     xmlns:ui="using:CommunityToolkit.WinUI"
     xmlns:viewModels="using:Rebound.About.ViewModels"
@@ -195,18 +196,20 @@
                 x:Name="segmentedControl"
                 Padding="8"
                 HorizontalAlignment="Stretch"
-                BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                Background="{ThemeResource ControlOnImageFillColorDefaultBrush}"
+                BorderBrush="{ThemeResource DividerStrokeColorDefaultBrush}"
                 BorderThickness="0,1,0,0"
                 CornerRadius="0"
                 SelectedIndex="0"
-                Style="{StaticResource PivotSegmentedStyle}">
+                Style="{StaticResource PivotSegmentedStyle}"
+                Visibility="{x:Bind ViewModel.ShowTabs, Mode=OneWay}">
                 <controls:SegmentedItem
                     Content="Information"
                     Icon="{ui:FontIcon Glyph=&#xE946;}"
                     Tag="information" />
                 <controls:SegmentedItem
                     Content="License"
-                    Icon="{ui:FontIcon Glyph=&#xEEA1;}"
+                    Icon="{ui:FontIcon Glyph=&#xEB95;}"
                     Tag="specifications" />
             </controls:Segmented>
             <controls:SwitchPresenter Grid.Row="1" Value="{Binding SelectedItem.Tag, ElementName=segmentedControl}">
@@ -437,7 +440,7 @@
                             <RowDefinition Height="Auto" />
                         </Grid.RowDefinitions>
 
-                        <!--  Windows version  -->
+                        <!--  License info  -->
                         <Border
                             Background="{ThemeResource LayerFillColorDefaultBrush}"
                             BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
@@ -482,144 +485,49 @@
                             </Grid>
                         </Border>
 
-                        <!--  Rebound version  -->
-                        <Border Grid.Row="1">
-                            <muxc:InfoBar IsOpen="True" IsClosable="False"
+                        <!--  Rebound legal info  -->
+                        <Border
+                            Grid.Row="1"
+                            Background="{ThemeResource LayerOnMicaBaseAltFillColorDefaultBrush}"
+                            BorderBrush="{ThemeResource DividerStrokeColorDefaultBrush}"
+                            BorderThickness="0,1">
+                            <Grid Padding="16">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto" />
+                                    <ColumnDefinition Width="16" />
+                                    <ColumnDefinition Width="*" />
+                                </Grid.ColumnDefinitions>
+                                <FontIcon
+                                    VerticalAlignment="Top"
+                                    FontSize="16"
+                                    Foreground="{ThemeResource AccentTextFillColorPrimaryBrush}"
+                                    Glyph="&#xF167;" />
+                                <StackPanel Grid.Column="2" Spacing="10">
+                                    <TextBlock
+                                        Margin="0,-3,0,8"
+                                        FontWeight="SemiBold"
+                                        Text="Rebound legal information"
+                                        TextWrapping="WrapWholeWords" />
+                                    <TextBlock Text="All Rebound apps are the intellectual property of the Ivirius Community. Third-party apps remain the property of their respective owners and may be subject to separate licenses. If you redistribute or fork this software, you must comply with those third-party license terms and obtain any necessary permissions from their creators." TextWrapping="WrapWholeWords" />
+                                    <TextBlock
+                                        FontWeight="SemiBold"
+                                        Text="Rebound is not a Microsoft product and we are not affiliated with Microsoft."
+                                        TextWrapping="WrapWholeWords" />
+                                </StackPanel>
+                            </Grid>
+                        </Border>
+
+                        <!--  Activation info  -->
+                        <Border Grid.Row="2" Visibility="{x:Bind ViewModel.ShowActivationInfo, Mode=OneWay}">
+                            <muxc:InfoBar
                                 Title="Activation state"
                                 BorderThickness="0"
                                 CornerRadius="0"
+                                IsClosable="False"
+                                IsOpen="True"
                                 Message="{x:Bind viewModels:MainViewModel.WindowsActivationInfo, Mode=OneWay}"
                                 Severity="{x:Bind WindowsActivationSeverity, Mode=OneWay}" />
                         </Border>
-
-                        <!--  Specs cards  -->
-                        <Grid
-                            Grid.Row="2"
-                            MinHeight="120"
-                            Padding="12"
-                            Background="{ThemeResource LayerOnMicaBaseAltFillColorDefaultBrush}"
-                            BorderBrush="{ThemeResource DividerStrokeColorDefaultBrush}"
-                            BorderThickness="0,1"
-                            ColumnSpacing="12"
-                            RowSpacing="12"
-                            Visibility="{x:Bind ViewModel.IsSidebarOn, Mode=OneWay}">
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="*" />
-                                <ColumnDefinition Width="Auto" />
-                                <ColumnDefinition Width="*" />
-                                <ColumnDefinition Width="Auto" />
-                                <ColumnDefinition Width="*" />
-                            </Grid.ColumnDefinitions>
-                            <Grid Padding="4">
-                                <Grid.RowDefinitions>
-                                    <RowDefinition Height="Auto" />
-                                    <RowDefinition Height="*" />
-                                </Grid.RowDefinitions>
-                                <StackPanel
-                                    HorizontalAlignment="Center"
-                                    VerticalAlignment="Top"
-                                    Orientation="Horizontal"
-                                    Spacing="8">
-                                    <FontIcon FontSize="16" Glyph="&#xEEA1;" />
-                                    <TextBlock FontWeight="SemiBold" Text="CPU" />
-                                </StackPanel>
-                                <TextBlock
-                                    Grid.Row="1"
-                                    HorizontalAlignment="Center"
-                                    VerticalAlignment="Center"
-                                    FontWeight="SemiBold"
-                                    HorizontalTextAlignment="Center"
-                                    Text="{x:Bind viewModels:MainViewModel.CPUName}"
-                                    TextWrapping="WrapWholeWords" />
-                            </Grid>
-                            <Grid
-                                Grid.Column="1"
-                                Width="1"
-                                Margin="4,8"
-                                Background="{ThemeResource DividerStrokeColorDefaultBrush}"
-                                CornerRadius="0.5" />
-                            <Grid Grid.Column="2" Padding="4">
-                                <Grid.RowDefinitions>
-                                    <RowDefinition Height="Auto" />
-                                    <RowDefinition Height="*" />
-                                </Grid.RowDefinitions>
-                                <StackPanel
-                                    HorizontalAlignment="Center"
-                                    VerticalAlignment="Top"
-                                    Orientation="Horizontal"
-                                    Spacing="8">
-                                    <FontIcon FontSize="16" Glyph="&#xE7F7;" />
-                                    <TextBlock FontWeight="SemiBold" Text="GPU" />
-                                </StackPanel>
-                                <TextBlock
-                                    Grid.Row="1"
-                                    HorizontalAlignment="Center"
-                                    VerticalAlignment="Center"
-                                    FontWeight="SemiBold"
-                                    HorizontalTextAlignment="Center"
-                                    Text="{x:Bind viewModels:MainViewModel.GPUName}"
-                                    TextWrapping="WrapWholeWords" />
-                            </Grid>
-                            <Grid
-                                Grid.Column="3"
-                                Width="1"
-                                Margin="4,8"
-                                Background="{ThemeResource DividerStrokeColorDefaultBrush}"
-                                CornerRadius="0.5" />
-                            <Grid Grid.Column="4" Padding="4">
-                                <Grid.RowDefinitions>
-                                    <RowDefinition Height="Auto" />
-                                    <RowDefinition Height="*" />
-                                </Grid.RowDefinitions>
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="*" />
-                                    <ColumnDefinition Width="Auto" />
-                                    <ColumnDefinition Width="*" />
-                                </Grid.ColumnDefinitions>
-                                <StackPanel
-                                    Grid.ColumnSpan="3"
-                                    HorizontalAlignment="Center"
-                                    VerticalAlignment="Top"
-                                    Orientation="Horizontal"
-                                    Spacing="8">
-                                    <FontIcon FontSize="16" Glyph="&#xEEA0;" />
-                                    <TextBlock FontWeight="SemiBold" Text="RAM" />
-                                </StackPanel>
-                                <StackPanel
-                                    Grid.Row="1"
-                                    HorizontalAlignment="Center"
-                                    VerticalAlignment="Center"
-                                    Spacing="4">
-                                    <TextBlock
-                                        HorizontalAlignment="Center"
-                                        FontWeight="SemiBold"
-                                        Text="Physical" />
-                                    <TextBlock
-                                        HorizontalAlignment="Center"
-                                        FontSize="12"
-                                        Opacity="0.75"
-                                        Text="{x:Bind viewModels:MainViewModel.RAM}"
-                                        TextWrapping="WrapWholeWords" />
-                                </StackPanel>
-                                <StackPanel
-                                    Grid.Row="1"
-                                    Grid.Column="2"
-                                    HorizontalAlignment="Center"
-                                    VerticalAlignment="Center"
-                                    Spacing="4">
-                                    <TextBlock
-                                        HorizontalAlignment="Center"
-                                        FontWeight="SemiBold"
-                                        Text="Usable" />
-                                    <TextBlock
-                                        HorizontalAlignment="Center"
-                                        FontSize="12"
-                                        Opacity="0.75"
-                                        Text="{x:Bind viewModels:MainViewModel.UsableRAM}"
-                                        TextWrapping="WrapWholeWords" />
-                                </StackPanel>
-                            </Grid>
-                        </Grid>
 
                     </Grid>
                 </controls:Case>

@@ -117,6 +117,24 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
+  <data name="ActivationStatusActivated" xml:space="preserve">
+    <value>The current installation of Windows is activated with a valid product key.</value>
+  </data>
+  <data name="ActivationStatusExtendedGracePeriod" xml:space="preserve">
+    <value>This installation is in the activation extended grace period. Please activate Windows before the grace period ends to keep using your PC.</value>
+  </data>
+  <data name="ActivationStatusGracePeriod" xml:space="preserve">
+    <value>This installation is in the activation grace period. Please activate Windows before the grace period ends to keep using your PC.</value>
+  </data>
+  <data name="ActivationStatusNonGenuine" xml:space="preserve">
+    <value>This installation of Windows is not genuine. Please purchase a Windows product key from microsoft.com or the Microsoft Store.</value>
+  </data>
+  <data name="ActivationStatusUnknown" xml:space="preserve">
+    <value>Couldn't retrieve activation status.</value>
+  </data>
+  <data name="ActivationStatusUnlicensed" xml:space="preserve">
+    <value>Windows is not activated. Consider purchasing a Windows product key to unlock every feature.</value>
+  </data>
   <data name="CopyLicenseOwners.Text" xml:space="preserve">
     <value>Copiază deținătorii de licență</value>
   </data>

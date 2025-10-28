@@ -8,5 +8,5 @@ namespace Rebound.Core.Helpers.Environment;
 
 public static class ReboundVersion
 {
-    public const string REBOUND_VERSION = "v0.0.10 Beta";
+    public const string REBOUND_VERSION = "v0.0.10.1 Developer Preview";
 }

@@ -147,13 +147,13 @@ internal partial class ReboundViewModel : ObservableObject
     [RelayCommand]
     public async Task ViewLogFileAsync()
     {
-        await Launcher.LaunchUriAsync(new(ReboundLogger.LogFile));
+        await Launcher.LaunchUriAsync(new(WorkingEnvironment.LogFile));
     }
 
     [RelayCommand]
     public void DeleteLogFile()
     {
-        File.Delete(ReboundLogger.LogFile);
+        File.Delete(WorkingEnvironment.LogFile);
     }
 
     [RelayCommand]

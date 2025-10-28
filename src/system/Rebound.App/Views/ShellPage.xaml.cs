@@ -73,6 +73,8 @@ internal sealed partial class ShellPage : Page
             MainFrame.Navigate(typeof(HomePage));
         if ((Microsoft.UI.Xaml.Controls.NavigationViewItem)NavigationViewControl.SelectedItem == ReboundItem)
             MainFrame.Navigate(typeof(ReboundPage));
+        if (args.IsSettingsInvoked)
+            MainFrame.Navigate(typeof(SettingsPage));
         else
         {
             var mod = Catalog.Mods.FirstOrDefault(m => m.Name == (string)((Microsoft.UI.Xaml.Controls.NavigationViewItem)NavigationViewControl.SelectedItem).Tag);

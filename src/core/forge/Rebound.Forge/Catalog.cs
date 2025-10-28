@@ -200,6 +200,22 @@ internal static class Catalog
                     Identifier = "ShowHelloUser",
                     AppName = "winver"
                 },
+                new ModBoolSetting(true)
+                {
+                    Name = "Show activation state",
+                    IconGlyph = "\uEB95",
+                    Description = "Show the Windows activation state for the current installation.",
+                    Identifier = "ShowActivationInfo",
+                    AppName = "winver"
+                },
+                new ModBoolSetting(true)
+                {
+                    Name = "Tabs",
+                    IconGlyph = "\uEC6C",
+                    Description = "Display tabs below the Windows logo.",
+                    Identifier = "ShowTabs",
+                    AppName = "winver"
+                },
             }
         )
         {

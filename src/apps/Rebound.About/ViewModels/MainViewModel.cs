@@ -80,6 +80,8 @@ internal partial class MainViewModel : ObservableObject
     [ObservableProperty] public partial bool IsReboundOn { get; set; }
     [ObservableProperty] public partial bool ShowHelloUser { get; set; }
     [ObservableProperty] public partial bool ShowBlurAndGlow { get; set; }
+    [ObservableProperty] public partial bool ShowTabs { get; set; }
+    [ObservableProperty] public partial bool ShowActivationInfo { get; set; }
 
     private readonly SettingsListener _listener;
 
@@ -100,6 +102,8 @@ internal partial class MainViewModel : ObservableObject
             IsReboundOn = SettingsHelper.GetValue("IsReboundOn", "winver", true);
             ShowBlurAndGlow = SettingsHelper.GetValue("ShowBlurAndGlow", "rebound", true);
             ShowHelloUser = SettingsHelper.GetValue("ShowHelloUser", "winver", true);
+            ShowTabs = SettingsHelper.GetValue("ShowTabs", "winver", true);
+            ShowActivationInfo = SettingsHelper.GetValue("ShowActivationInfo", "winver", true);
         });
     }
 }

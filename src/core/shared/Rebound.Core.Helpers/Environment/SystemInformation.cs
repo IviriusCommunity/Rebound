@@ -3,11 +3,12 @@
 
 using Microsoft.Win32;
 using System;
-using System.Diagnostics;
 using System.Runtime.InteropServices;
 using System.Security.Principal;
 using TerraFX.Interop.Windows;
 using Windows.Win32.Foundation;
+using static TerraFX.Interop.Windows.Windows;
+using HRESULT = TerraFX.Interop.Windows.HRESULT;
 
 namespace Rebound.Core.Helpers.Environment;
 
@@ -19,11 +20,6 @@ internal enum WindowsActivationType
     NonGenuine,
     ExtendedGracePeriod,
     Unknown
-}
-
-internal enum SL_INFORMATION_CLASS
-{
-    SL_CLASS_WINDOWS_ACTIVATION_STATE = 0x0000000A,
 }
 
 [StructLayout(LayoutKind.Sequential)]
@@ -57,6 +53,27 @@ internal struct USER_INFO_2
 
 internal static partial class SystemInformation
 {
+    // COM CLSIDs / IIDs
+    // CLSID_WbemLocator = {4590F811-1D3A-11D0-891F-00AA004B2E24}
+    static readonly Guid CLSID_WbemLocator = new("4590F811-1D3A-11D0-891F-00AA004B2E24");
+
+    // HRESULT
+    const int S_OK = 0;
+
+    // WBEM flags (wbemcli.h)
+    const int WBEM_FLAG_RETURN_IMMEDIATELY = 0x10;
+    const int WBEM_FLAG_FORWARD_ONLY = 0x20;
+    const uint WBEM_INFINITE = 0xFFFFFFFF;
+
+    // RPC authentication constants (rpcdce.h)
+    const uint RPC_C_AUTHN_WINNT = 10;
+    const uint RPC_C_AUTHZ_NONE = 0;
+    const uint RPC_C_AUTHN_LEVEL_CALL = 3;
+    const uint RPC_C_IMP_LEVEL_IMPERSONATE = 3;
+
+    // EOAC flags (objidlbase.h)
+    const uint EOAC_NONE = 0x0;
+
     public static string NormalizeTrademarkSymbols(string input) => input
             .Replace("(R)", "®", StringComparison.InvariantCultureIgnoreCase)
             .Replace("(r)", "®", StringComparison.InvariantCultureIgnoreCase)
@@ -65,46 +82,106 @@ internal static partial class SystemInformation
             .Replace("(C)", "©", StringComparison.InvariantCultureIgnoreCase)
             .Replace("(c)", "©", StringComparison.InvariantCultureIgnoreCase);
 
-    [LibraryImport("slc.dll")]
-    internal static unsafe partial int SLGetWindowsInformationDWORD(
-        char* slInfoClass,
-        uint* pdwValue
-    );
-
-    internal static unsafe TerraFX.Interop.Windows.HRESULT SLGetWindowsInformationDWORD(PCWSTR slInfoClass, uint* pdwValue)
-    {
-        var hr = SLGetWindowsInformationDWORD(slInfoClass.Value, pdwValue);
-        return new(hr);
-    }
-
     public static unsafe WindowsActivationType GetWindowsActivationType()
     {
+        HRESULT hr;
+        WindowsActivationType result = WindowsActivationType.Unknown;
+
+        ComPtr<IWbemLocator> pLocator = null;
+        ComPtr<IWbemServices> pServices = null;
+        ComPtr<IEnumWbemClassObject> pEnumerator = null;
+
         try
         {
-            uint state;
-            var hr = SLGetWindowsInformationDWORD("ActivationState".ToPCWSTR(), &state);
+            var clsid = CLSID_WbemLocator;
+            var iid = IID.IID_IWbemLocator;
 
-            Debug.WriteLine($"SLGetWindowsInformationDWORD returned HRESULT: 0x{hr.Value:X8}, State: {state}");
+            // Create IWbemLocator
+            hr = CoCreateInstance(
+                &clsid,          // Correct TerraFX CLSID
+                null,
+                (uint)CLSCTX.CLSCTX_INPROC_SERVER,
+                &iid,
+                (void**)&pLocator
+            );
+            if (FAILED(hr))
+                throw new Exception($"CoCreateInstance failed: 0x{hr.Value:X8}");
 
-            if (hr == 0) // S_OK
+            // Connect to WMI namespace ROOT\CIMV2
+            hr = pLocator.Get()->ConnectServer(
+                "ROOT\\CIMV2".ToPCWSTR().Value,
+                null,
+                null,
+                null,
+                0,
+                null,
+                null,
+                pServices.GetAddressOf()
+            );
+            if (FAILED(hr))
+                throw new Exception($"ConnectServer failed: 0x{hr.Value:X8}");
+
+            // Set security levels on the proxy
+            hr = CoSetProxyBlanket(
+                (IUnknown*)pServices.Get(),
+                (uint)RPC_C_AUTHN_WINNT,
+                (uint)RPC_C_AUTHZ_NONE,
+                null,
+                (uint)RPC_C_AUTHN_LEVEL_CALL,
+                (uint)RPC_C_IMP_LEVEL_IMPERSONATE,
+                null,
+                (uint)EOAC_NONE
+            );
+            if (FAILED(hr))
+                throw new Exception($"CoSetProxyBlanket failed: 0x{hr.Value:X8}");
+
+            // Query for SoftwareLicensingProduct entries
+            hr = pServices.Get()->ExecQuery(
+                "WQL".ToPCWSTR().Value,
+                "SELECT LicenseStatus FROM SoftwareLicensingProduct WHERE PartialProductKey IS NOT NULL".ToPCWSTR().Value,
+                WBEM_FLAG_FORWARD_ONLY | WBEM_FLAG_RETURN_IMMEDIATELY,
+                null,
+                pEnumerator.GetAddressOf()
+            );
+            if (FAILED(hr))
+                throw new Exception($"ExecQuery failed: 0x{hr.Value:X8}");
+
+            // Enumerate results
+            IWbemClassObject* pObj = null;
+            uint returned = 0;
+
+            while (pEnumerator.Get()->Next(unchecked((int)WBEM_INFINITE), 1, &pObj, &returned) == S_OK && returned != 0)
             {
-                return state switch
+                VARIANT vtStatus;
+                VariantInit(&vtStatus);
+
+                pObj->Get("LicenseStatus".ToPCWSTR().Value, 0, &vtStatus, null, null);
+                uint status = vtStatus.uintVal;
+                VariantClear(&vtStatus);
+                pObj->Release();
+
+                result = status switch
                 {
                     0 => WindowsActivationType.Unlicensed,
                     1 => WindowsActivationType.Activated,
                     2 => WindowsActivationType.GracePeriod,
                     3 => WindowsActivationType.NonGenuine,
                     4 => WindowsActivationType.ExtendedGracePeriod,
-                    _ => WindowsActivationType.Unknown,
+                    _ => WindowsActivationType.Unknown
                 };
+
+                break; // only first valid entry needed
             }
         }
-        catch
+        finally
         {
-            // Ignore exceptions
+            if (pEnumerator.Get() is not null) pEnumerator.Get()->Release();
+            if (pServices.Get() is not null) pServices.Get()->Release();
+            if (pLocator.Get() is not null) pLocator.Get()->Release();
+            CoUninitialize();
         }
 
-        return WindowsActivationType.Unknown;
+        return result;
     }
 
     public static string GetOSName()
