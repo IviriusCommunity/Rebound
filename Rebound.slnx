@@ -11,6 +11,7 @@
   </Folder>
   <Folder Name="/src/" Id="02ea681e-c7d8-13c7-8484-4ac65e1b71e8">
     <File Path="src/Directory.Build.props" />
+    <File Path="src/Rebound.Hub_TemporaryKey.pfx" />
   </Folder>
   <Folder Name="/src/apps/">
     <Project Path="src/apps/Rebound.About/Rebound.About.csproj">

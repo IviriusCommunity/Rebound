@@ -22,7 +22,7 @@
 
 	<!-- Packaging Properties -->
 	<PropertyGroup>
-		<AppxPackageSigningEnabled>False</AppxPackageSigningEnabled>
+		<AppxPackageSigningEnabled>True</AppxPackageSigningEnabled>
 		<AppxPackageSigningTimestampDigestAlgorithm>SHA256</AppxPackageSigningTimestampDigestAlgorithm>
 		<AppxAutoIncrementPackageRevision>False</AppxAutoIncrementPackageRevision>
 		<AppxBundle>Always</AppxBundle>
@@ -30,7 +30,7 @@
 		<GenerateAppInstallerFile>True</GenerateAppInstallerFile>
 		<AppInstallerUri>D:\</AppInstallerUri>
 		<HoursBetweenUpdateChecks>0</HoursBetweenUpdateChecks>
-		<PackageCertificateKeyFile>Rebound.About_TemporaryKey.pfx</PackageCertificateKeyFile>
+		<PackageCertificateKeyFile>C:\Users\zaita\source\repos\Rebound\src\Rebound.Hub_TemporaryKey.pfx</PackageCertificateKeyFile>
 		<AppxBundlePlatforms>x64</AppxBundlePlatforms>
 	</PropertyGroup>
 

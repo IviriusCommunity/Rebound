@@ -30,6 +30,7 @@
 		<AppInstallerUri>D:\</AppInstallerUri>
 		<HoursBetweenUpdateChecks>0</HoursBetweenUpdateChecks>
 		<AppxBundlePlatforms>x64</AppxBundlePlatforms>
+		<PackageCertificateThumbprint>8FB16923A201F35FC4AFB0C767CD9C7904D2C727</PackageCertificateThumbprint>
 	</PropertyGroup>
 
 	<!-- Content Files -->
