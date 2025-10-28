@@ -1,6 +1,7 @@
 ﻿// Copyright (C) Ivirius(TM) Community 2020 - 2025. All Rights Reserved.
 // Licensed under the MIT License.
 
+using Rebound.Forge.Cogs;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -11,7 +12,7 @@ internal static class Catalog
 {
     internal static ObservableCollection<Mod> Mods { get; } =
     [
-        // Control Panel
+        /*// Control Panel
         new Mod(
             name: "Control Panel",
             description: "Replacement for the legacy Control Panel. Most pages and sections redirect to the Settings app and Wintoys. Some settings for Rebound can also be found here.",
@@ -88,7 +89,7 @@ internal static class Catalog
         {
             EntryExecutable = $"{Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles)}\\Rebound\\rosk.exe",
             PreferredInstallationTemplate = InstallationTemplate.Extras
-        },
+        },*/
         
         // Rebound Shell
         new Mod(
@@ -111,14 +112,15 @@ internal static class Catalog
                     ExePath = $"{Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles)}\\Rebound\\rshell\\Rebound Shell.exe"
                 },
             },
-            processName: "Rebound Shell"
+            processName: "Rebound Shell",
+            category: ModCategory.Customization
         )
         {
             EntryExecutable = $"{Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles)}\\Rebound\\rshell\\Rebound Shell.exe",
             PreferredInstallationTemplate = InstallationTemplate.Extras
         },
         
-        // Rebound User Account Control Settings
+        /*// Rebound User Account Control Settings
         new Mod(
             name: "UAC Settings",
             description: "Replacement for the useraccountcontrolsettings applet.",
@@ -142,8 +144,34 @@ internal static class Catalog
         {
             EntryExecutable = $"{Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles)}\\Rebound\\ruseraccountcontrolsettings\\Rebound User Account Control Settings.exe",
             PreferredInstallationTemplate = InstallationTemplate.Basic
-        },
+        },*/
         
+        // Character Map
+        new Mod(
+            name: "Character Map",
+            description: "Utility for searching through characters in any installed font. (3rd party)",
+            icon: "ms-appx:///Assets/AppIcons/PartnerApps/Character Map UWP.png",
+            installationSteps: "Install Character Map UWP from the Microsoft Store",
+            instructions:
+            [
+                new StorePackageCog()
+                {
+                    StoreProductId = "9WZDNCRDXF41",
+                    PackageFamilyName = "58027.265370AB8DB33_fjemmk5ta3a5g"
+                }
+            ],
+            processName: "Character Map UWP",
+            category: ModCategory.Productivity,
+            settings:
+            [
+                new ModInfoBar()
+                {
+                    IsClosable = false,
+                    Title = "Settings for this app can be found inside the app itself."
+                }
+            ]
+        ),
+
         // Rebound About Windows
         new Mod(
             name: "About Windows",
@@ -164,6 +192,7 @@ internal static class Catalog
                 },
             },
             processName: "Rebound About",
+            category: ModCategory.Customization,
             settings: new ObservableCollection<IModItem>
             {
                 new ModLabel()
@@ -227,7 +256,7 @@ internal static class Catalog
     internal static ObservableCollection<Mod> MandatoryMods { get; } =
     [
         // Service Host
-        new Mod(
+        /*new Mod(
             name: "Service Host",
             description: "Mandatory background service required for Rebound apps to run properly.",
             icon: "ms-appx:///Assets/ReboundApps/ServiceHost.ico",
@@ -247,7 +276,7 @@ internal static class Catalog
         {
             EntryExecutable = $"{Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles)}\\Rebound\\rsvchost\\Rebound Service Host.exe",
             PreferredInstallationTemplate = InstallationTemplate.Basic
-        }
+        }*/
     ];
 
     internal static ObservableCollection<Mod> SideloadedMods => new(ModParser.ParseMods());

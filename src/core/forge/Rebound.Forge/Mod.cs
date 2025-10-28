@@ -4,6 +4,7 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Microsoft.UI.Dispatching;
+using Rebound.Core.Helpers;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -15,6 +16,16 @@ using System.Threading.Tasks;
 
 namespace Rebound.Forge;
 
+internal enum ModCategory
+{
+    General,
+    Productivity,
+    SystemAdministration,
+    Customization,
+    Extras,
+    Sideloaded
+}
+
 internal partial class Mod : ObservableObject
 {
     [ObservableProperty] public partial bool IsInstalled { get; set; } = false;
@@ -25,6 +36,7 @@ internal partial class Mod : ObservableObject
     public string EntryExecutable { get; set; } = string.Empty;
     public string Icon { get; }
     public string InstallationSteps { get; }
+    public ModCategory Category { get; }
     public InstallationTemplate PreferredInstallationTemplate { get; set; } = InstallationTemplate.Extras;
     public ObservableCollection<ICog> Instructions { get; }
     public ObservableCollection<IModItem>? Settings { get; set; } = new();
@@ -37,6 +49,7 @@ internal partial class Mod : ObservableObject
         string installationSteps,
         ObservableCollection<ICog> instructions,
         string processName,
+        ModCategory category,
         ObservableCollection<IModItem>? settings = null)
     {
         Name = name;
@@ -46,6 +59,7 @@ internal partial class Mod : ObservableObject
         Instructions = instructions;
         ProcessName = processName;
         Settings = settings;
+        Category = category;
 
         UpdateIntegrity();
     }
@@ -78,7 +92,7 @@ internal partial class Mod : ObservableObject
 
             // Apply all instructions
             foreach (var instruction in Instructions)
-                instruction.Apply();
+                await instruction.ApplyAsync();
 
             // Update status
             UpdateIntegrity();
@@ -125,7 +139,7 @@ internal partial class Mod : ObservableObject
             await Task.Delay(200);
 
             foreach (var instruction in Instructions)
-                instruction.Remove();
+                await instruction.RemoveAsync();
 
             UpdateIntegrity();
 
@@ -151,18 +165,35 @@ internal partial class Mod : ObservableObject
 
     private void UpdateIntegrity()
     {
-        int intactItems = Instructions?.Count(i => i.IsApplied()) ?? 0;
-        int totalItems = Instructions?.Count ?? 0;
+        // Queue an async action on the UI thread
+        UIThreadQueue.QueueAction(async () =>
+        {
+            int intactItems = 0;
+            if (Instructions != null)
+            {
+                // Wait for all IsAppliedAsync calls to complete
+                var results = await Task.WhenAll(Instructions.Select(i => i.IsAppliedAsync()));
+                intactItems = results.Count(applied => applied);
+            }
 
-        IsInstalled = intactItems != 0;
-        IsIntact = intactItems == 0 || intactItems == totalItems;
+            int totalItems = Instructions?.Count ?? 0;
 
-        ReboundLogger.Log($"[Mod] Updated integrity for {Name}: Installed={IsInstalled}, Intact={IsIntact}, intactItems={intactItems}, totalItems={totalItems}");
+            IsInstalled = intactItems != 0;
+            IsIntact = intactItems == 0 || intactItems == totalItems;
+
+            ReboundLogger.Log($"[Mod] Updated integrity for {Name}: Installed={IsInstalled}, Intact={IsIntact}, intactItems={intactItems}, totalItems={totalItems}");
+        });
     }
 
-    public ModIntegrity GetIntegrity()
+    public async Task<ModIntegrity> GetIntegrityAsync()
     {
-        int intactItems = Instructions?.Count(i => i.IsApplied()) ?? 0;
+        int intactItems = 0;
+        if (Instructions != null)
+        {
+            var results = await Task.WhenAll(Instructions.Select(i => i.IsAppliedAsync()));
+            intactItems = results.Count(applied => applied);
+        }
+
         int totalItems = Instructions?.Count ?? 0;
 
         return intactItems == totalItems

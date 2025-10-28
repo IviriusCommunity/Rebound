@@ -13,6 +13,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="$(MSBuildThisFileDirectory)AppEnvironment\AppHelper.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Program.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Display.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Environment\EnvironmentHelper.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Environment\ReboundVersion.cs" />

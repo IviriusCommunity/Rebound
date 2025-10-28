@@ -3,7 +3,9 @@
 
 using Rebound.Core.Helpers;
 using System;
+using System.Linq;
 using System.Security.Principal;
+using System.Threading.Tasks;
 using Windows.Management.Deployment;
 
 namespace Rebound.Forge.Cogs
@@ -20,12 +22,11 @@ namespace Rebound.Forge.Cogs
         public required string PackageURI { get; set; }
 
         /// <summary>
-        /// The package full name (as seen in PackageManager or PowerShell Get-AppxPackage).
-        /// Example: Contoso.MyApp_1.0.0.0_x64__8wekyb3d8bbwe
+        /// The package family name (as seen in PackageManager or PowerShell Get-AppxPackage).
         /// </summary>
-        public required string PackageFullName { get; set; }
+        public required string PackageFamilyName { get; set; }
 
-        public async void Apply()
+        public async Task ApplyAsync()
         {
             try
             {
@@ -39,47 +40,53 @@ namespace Rebound.Forge.Cogs
 
                 await deployment;
 
-                ReboundLogger.Log($"[PackageCog] Successfully installed package: {PackageFullName}");
+                ReboundLogger.Log($"[PackageCog] Successfully installed package: {PackageFamilyName}");
             }
             catch (Exception ex)
             {
-                ReboundLogger.Log($"[PackageCog] Installation failed for {PackageFullName}.", ex);
+                ReboundLogger.Log($"[PackageCog] Installation failed for {PackageFamilyName}.", ex);
             }
         }
 
-        public async void Remove()
+        public async Task RemoveAsync()
         {
             try
             {
-                ReboundLogger.Log($"[PackageCog] Removing package: {PackageFullName}");
+                ReboundLogger.Log($"[PackageCog] Removing package: {PackageFamilyName}");
 
                 var packageManager = new PackageManager();
-                await packageManager.RemovePackageAsync(PackageFullName);
+                await packageManager.RemovePackageAsync(PackageFamilyName);
 
-                ReboundLogger.Log($"[PackageCog] Successfully removed package: {PackageFullName}");
+                ReboundLogger.Log($"[PackageCog] Successfully removed package: {PackageFamilyName}");
             }
             catch (Exception ex)
             {
-                ReboundLogger.Log($"[PackageCog] Removal failed for {PackageFullName}.", ex);
+                ReboundLogger.Log($"[PackageCog] Removal failed for {PackageFamilyName}.", ex);
             }
         }
 
-        public bool IsApplied()
+        public async Task<bool> IsAppliedAsync()
         {
             try
             {
                 var packageManager = new PackageManager();
                 var currentSid = WindowsIdentity.GetCurrent().User?.Value;
-                var package = packageManager.FindPackageForUser(currentSid!, PackageFullName);
+                if (currentSid == null)
+                {
+                    ReboundLogger.Log("[PackageCog] Could not get current user SID.");
+                    return false;
+                }
 
-                bool installed = package != null;
+                // Filter installed packages by PackageFamilyName instead of FullName
+                var packages = packageManager.FindPackagesForUser(currentSid, PackageFamilyName);
+                bool installed = packages.Any(); // Any version installed is fine
+
                 ReboundLogger.Log($"[PackageCog] IsApplied check: {(installed ? "Installed" : "Not installed")}");
-
                 return installed;
             }
             catch (Exception ex)
             {
-                ReboundLogger.Log($"[PackageCog] IsApplied check failed for {PackageFullName}.", ex);
+                ReboundLogger.Log($"[PackageCog] IsApplied check failed for {PackageFamilyName}.", ex);
                 return false;
             }
         }

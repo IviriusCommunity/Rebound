@@ -101,7 +101,7 @@ public class ReboundAppSourceGenerator : ISourceGenerator
     {
         // Program class with _actions queue and QueueAction helper
         return ParseMemberDeclaration(@"
-internal class Program
+internal static partial class Program
 {
     private static readonly ConcurrentQueue<Func<Task>> _actions = new();
     private static readonly SemaphoreSlim _actionSignal = new(0);
@@ -150,6 +150,17 @@ internal class Program
             foreach (var action in actionsToRun.ToArray()) // snapshot to avoid collection modified issues
             {
                 try { _ = action(); }
+                catch { /* log */ }
+            }
+
+            // Process queued actions if any
+            var actionsToRun2 = new List<Func<Task>>();
+            while (Rebound.Core.Helpers.UIThreadQueue._actions.TryDequeue(out var action2))
+                actionsToRun2.Add(action2);
+
+            foreach (var action2 in actionsToRun2.ToArray()) // snapshot to avoid collection modified issues
+            {
+                try { _ = action2(); }
                 catch { /* log */ }
             }
         }

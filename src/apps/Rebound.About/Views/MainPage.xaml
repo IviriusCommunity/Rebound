@@ -488,7 +488,6 @@
                         <!--  Rebound legal info  -->
                         <Border
                             Grid.Row="1"
-                            Background="{ThemeResource LayerOnMicaBaseAltFillColorDefaultBrush}"
                             BorderBrush="{ThemeResource DividerStrokeColorDefaultBrush}"
                             BorderThickness="0,1">
                             <Grid Padding="16">

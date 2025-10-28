@@ -153,7 +153,11 @@ public partial class App : Application
             var part = arg["IFEOEngine::Pause#".Length..];
 
             await IFEOEngine.PauseIFEOEntryAsync(part);
-            await Task.Delay(1000);
+        }
+        else if (arg.StartsWith("IFEOEngine::Resume#", StringComparison.InvariantCultureIgnoreCase))
+        {
+            var part = arg["IFEOEngine::Resume#".Length..];
+
             await IFEOEngine.ResumeIFEOEntryAsync(part);
         }
 

@@ -33,15 +33,45 @@ internal sealed partial class ShellPage : Page
             OverlayFrame.Navigate(typeof(ReboundPage));
         }
 
-        foreach (var mod in Catalog.Mods)
+        // Group mods by category
+        var categoryGroups = Catalog.Mods
+            .GroupBy(m => m.Category)
+            .OrderBy(g => g.Key);
+
+        foreach (var categoryGroup in categoryGroups)
         {
-            var item = new Microsoft.UI.Xaml.Controls.NavigationViewItem
+            // Create the category NavigationViewItem
+            var categoryItem = new Microsoft.UI.Xaml.Controls.NavigationViewItem
             {
-                Content = mod.Name,
-                Tag = mod.Name,
-                Icon = new ImageIcon() { Source = new BitmapImage(new(mod.Icon)) }
+                Content = categoryGroup.Key.ToString(),
+                Tag = categoryGroup.Key.ToString(),
+                Icon = new FontIcon
+                {
+                    Glyph = categoryGroup.Key switch
+                    {
+                        ModCategory.General => "\uE8B0",
+                        ModCategory.Productivity => "\uE762",
+                        ModCategory.SystemAdministration => "\uEA18",
+                        ModCategory.Customization => "\uE771",
+                        ModCategory.Extras => "\uE794",
+                        ModCategory.Sideloaded => "\uE74C",
+                    }
+                }
             };
-            NavigationViewControl.MenuItems.Add(item);
+
+            // Add mods as sub-items
+            foreach (var mod in categoryGroup)
+            {
+                var modItem = new Microsoft.UI.Xaml.Controls.NavigationViewItem
+                {
+                    Content = mod.Name,
+                    Tag = mod.Name,
+                    Icon = new ImageIcon { Source = new BitmapImage(new Uri(mod.Icon)) }
+                };
+                categoryItem.MenuItems.Add(modItem);
+            }
+
+            NavigationViewControl.MenuItems.Add(categoryItem);
         }
 
         CheckForUpdates();

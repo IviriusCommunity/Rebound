@@ -3,13 +3,14 @@
 
 using System;
 using System.IO;
+using System.Threading.Tasks;
 using Rebound.Core.Helpers;
 using Windows.Win32;
 using Windows.Win32.Foundation;
 using Windows.Win32.System.Com;
 using Windows.Win32.UI.Shell;
 
-namespace Rebound.Forge;
+namespace Rebound.Forge.Cogs;
 
 internal class ShortcutCog : ICog
 {
@@ -24,7 +25,7 @@ internal class ShortcutCog : ICog
             Environment.GetFolderPath(Environment.SpecialFolder.CommonStartMenu),
             "Programs", "Rebound", $"{shortcutName}.lnk");
 
-    public unsafe void Apply()
+    public unsafe async Task ApplyAsync()
     {
         try
         {
@@ -107,7 +108,7 @@ internal class ShortcutCog : ICog
         ReboundLogger.Log($"[ShortcutCog] Apply finished for: {ShortcutName}");
     }
 
-    public void Remove()
+    public async Task RemoveAsync()
     {
         try
         {
@@ -137,7 +138,7 @@ internal class ShortcutCog : ICog
         }
     }
 
-    public bool IsApplied()
+    public async Task<bool> IsAppliedAsync()
     {
         try
         {

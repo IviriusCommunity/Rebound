@@ -4,10 +4,11 @@
 using Rebound.Core.Helpers;
 using System;
 using System.Text;
+using System.Threading.Tasks;
 using Windows.Win32;
 using Windows.Win32.System.Registry;
 
-namespace Rebound.Forge;
+namespace Rebound.Forge.Cogs;
 
 internal class IFEOCog : ICog
 {
@@ -22,7 +23,7 @@ internal class IFEOCog : ICog
 
     }
 
-    public unsafe void Apply()
+    public unsafe async Task ApplyAsync()
     {
         try
         {
@@ -70,7 +71,7 @@ internal class IFEOCog : ICog
         }
     }
 
-    public unsafe void Remove()
+    public unsafe async Task RemoveAsync()
     {
         try
         {
@@ -95,7 +96,7 @@ internal class IFEOCog : ICog
         }
     }
 
-    public unsafe bool IsApplied()
+    public unsafe async Task<bool> IsAppliedAsync()
     {
         try
         {

@@ -354,13 +354,13 @@ internal static class WorkingEnvironment
         }
     }
 
-    public static bool MandatoryModsExist()
+    public static async Task<bool> MandatoryModsExist()
     {
         try
         {
             foreach (var mods in Catalog.MandatoryMods)
             {
-                var integrity = mods.GetIntegrity();
+                var integrity = await mods.GetIntegrityAsync();
                 ReboundLogger.Log($"[WorkingEnvironment] Checking integrity for {mods.GetType().Name}: {integrity}");
                 if (integrity != ModIntegrity.Installed)
                 {
@@ -411,7 +411,7 @@ internal static class WorkingEnvironment
         ReboundLogger.Log("[WorkingEnvironment] Rebound disabled.");
     }
 
-    public static bool IsReboundEnabled()
+    public static async Task<bool> IsReboundEnabled()
     {
         ReboundLogger.Log(FolderExists()
             ? "[WorkingEnvironment] Rebound folder exists."
@@ -419,10 +419,10 @@ internal static class WorkingEnvironment
         ReboundLogger.Log(TaskFolderExists()
             ? "[WorkingEnvironment] Rebound tasks folder exists."
             : "[WorkingEnvironment] Rebound tasks folder does not exist.");
-        ReboundLogger.Log(MandatoryModsExist()
+        ReboundLogger.Log(await MandatoryModsExist()
             ? "[WorkingEnvironment] All mandatory instructions are installed."
             : "[WorkingEnvironment] Some mandatory instructions are missing.");
 
-        return FolderExists() && TaskFolderExists() && MandatoryModsExist();
+        return FolderExists() && TaskFolderExists() && await MandatoryModsExist();
     }
 }

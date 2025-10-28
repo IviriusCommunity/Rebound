@@ -3,8 +3,9 @@
 
 using System;
 using System.IO;
+using System.Threading.Tasks;
 
-namespace Rebound.Forge;
+namespace Rebound.Forge.Cogs;
 
 internal class LauncherCog : ICog
 {
@@ -17,7 +18,7 @@ internal class LauncherCog : ICog
 
     }
 
-    public void Apply()
+    public async Task ApplyAsync()
     {
         try
         {
@@ -36,7 +37,7 @@ internal class LauncherCog : ICog
         }
     }
 
-    public void Remove()
+    public async Task RemoveAsync()
     {
         try
         {
@@ -58,7 +59,7 @@ internal class LauncherCog : ICog
         }
     }
 
-    public bool IsApplied()
+    public async Task<bool> IsAppliedAsync()
     {
         try
         {

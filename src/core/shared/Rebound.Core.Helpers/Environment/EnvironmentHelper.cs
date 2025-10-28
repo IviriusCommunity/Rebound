@@ -10,23 +10,6 @@ namespace Rebound.Core.Helpers.Environment;
 
 public static class WindowsEnvironment
 {
-    public static async Task<User?> GetCurrentUserAsync()
-    {
-        string currentSid = WindowsIdentity.GetCurrent().User!.Value;
-
-        var users = await User.FindAllAsync();
-        foreach (var user in users)
-        {
-            var nonRoamableIdObj = await user.GetPropertyAsync("System.Devices.NonRoamableId");
-            string? nonRoamableId = nonRoamableIdObj as string;
-
-            if (nonRoamableId == currentSid)
-                return user;
-        }
-
-        return null;
-    }
-
     public static string GetWindowsInstallationDrivePath()
     {
         // Get the system directory path

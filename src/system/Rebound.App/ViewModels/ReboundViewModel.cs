@@ -72,7 +72,14 @@ internal partial class ReboundViewModel : ObservableObject
 
     public ReboundViewModel()
     {
-        IsReboundEnabled = WorkingEnvironment.IsReboundEnabled();
+        LoadSettings();
+        CheckForUpdates();
+        _ = InitializeAsync();
+    }
+
+    private async void LoadSettings()
+    {
+        IsReboundEnabled = await WorkingEnvironment.IsReboundEnabled();
         InstallRun = SettingsHelper.GetValue("InstallRun", "rebound", true);
         InstallShutdownDialog = SettingsHelper.GetValue("InstallShutdownDialog", "rebound", true);
         InstallShortcuts = SettingsHelper.GetValue("InstallShortcuts", "rebound", true);
@@ -81,8 +88,6 @@ internal partial class ReboundViewModel : ObservableObject
         InstallWindowsTools = SettingsHelper.GetValue("InstallWindowsTools", "rebound", true);
         EnableAutomaticRepair = SettingsHelper.GetValue("EnableAutomaticRepair", "rebound", false);
         HasSideloadedMods = Catalog.SideloadedMods.Count > 0;
-        CheckForUpdates();
-        _ = InitializeAsync();
     }
 
     partial void OnInstallRunChanged(bool oldValue, bool newValue) => SettingsHelper.SetValue("InstallRun", "rebound", newValue);

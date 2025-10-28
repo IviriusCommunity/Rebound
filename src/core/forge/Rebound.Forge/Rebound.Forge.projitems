@@ -10,6 +10,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="$(MSBuildThisFileDirectory)Cogs\PackageCog.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Cogs\StartupPackageCog.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Cogs\StorePackageCog.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)DLLInjector.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Engines\IFEOEngine.cs" />
