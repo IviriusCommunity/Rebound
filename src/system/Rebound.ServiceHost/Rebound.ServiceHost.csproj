@@ -21,15 +21,19 @@
 	<PropertyGroup>
 		<UseUwp>true</UseUwp>
 		<UseUwpTools>true</UseUwpTools>
+		<GenerateAppInstallerFile>True</GenerateAppInstallerFile>
+		<AppxPackageSigningEnabled>True</AppxPackageSigningEnabled>
+		<PackageCertificateKeyFile>C:\Users\zaita\source\repos\Rebound\src\Rebound.Hub_TemporaryKey.pfx</PackageCertificateKeyFile>
+		<AppxPackageSigningTimestampDigestAlgorithm>SHA256</AppxPackageSigningTimestampDigestAlgorithm>
+		<AppxAutoIncrementPackageRevision>True</AppxAutoIncrementPackageRevision>
+		<GenerateTestArtifacts>True</GenerateTestArtifacts>
+		<AppxBundle>Never</AppxBundle>
+		<AppInstallerUri>D:\</AppInstallerUri>
+		<HoursBetweenUpdateChecks>0</HoursBetweenUpdateChecks>
 	</PropertyGroup>
 
 	<ItemGroup>
 		<AppxTargetDeviceFamilyItem Include="Windows.Desktop" />
-	</ItemGroup>
-
-	<ItemGroup>
-		<TrimmerRootAssembly Include="Windows.Win32" />
-		<TrimmerRootAssembly Include="Windows.Win32.System.Com" />
 	</ItemGroup>
 
 	<!-- Project content -->
@@ -74,9 +78,7 @@
 	<!-- Project References -->
 	<ItemGroup>
 		<ProjectReference Include="..\..\core\libs\Rebound.Core.SourceGeneratorAttributes\Rebound.Core.SourceGeneratorAttributes.csproj" />
-		<ProjectReference Include="..\..\core\libs\Rebound.Core.SourceGenerator\Rebound.Core.SourceGenerator.csproj"
-						  OutputItemType="Analyzer"
-						  ReferenceOutputAssembly="false" />
+		<ProjectReference Include="..\..\core\libs\Rebound.Core.SourceGenerator\Rebound.Core.SourceGenerator.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
 	</ItemGroup>
 
 	<!-- Shared Project Imports -->
