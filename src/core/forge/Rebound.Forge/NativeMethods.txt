@@ -35,3 +35,13 @@ GetDeviceCaps
 ReleaseDC
 RtlGetVersion
 OSVERSIONINFOEX
+ITaskService
+SysAllocString
+RegCreateKeyEx
+RegSetValueEx
+RegDeleteKey
+RegOpenKeyEx
+RegQueryValueEx
+RegCloseKey
+ILogonTrigger
+IExecAction

@@ -1,8 +1,8 @@
 ﻿// Copyright (C) Ivirius(TM) Community 2020 - 2025. All Rights Reserved.
 // Licensed under the MIT License.
 
+using Rebound.Core;
 using Rebound.Core.Helpers;
-using Rebound.Core.Helpers.Environment;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -21,7 +21,7 @@ namespace Rebound.Forge.Cogs
     /// <summary>
     /// Handles installation and management of Microsoft Store apps by product ID.
     /// </summary>
-    internal class StorePackageCog : ICog
+    public class StorePackageCog : ICog
     {
         /// <summary>
         /// The Microsoft Store product ID.

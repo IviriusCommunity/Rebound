@@ -3,7 +3,7 @@
 
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using Microsoft.UI.Dispatching;
+using Rebound.Core;
 using Rebound.Core.Helpers;
 using System;
 using System.Collections.Generic;
@@ -16,7 +16,7 @@ using System.Threading.Tasks;
 
 namespace Rebound.Forge;
 
-internal enum ModInfoBarSeverity
+public enum ModInfoBarSeverity
 {
     Informational,
     Success,
@@ -24,11 +24,11 @@ internal enum ModInfoBarSeverity
     Error,
 }
 
-internal interface IModSetting : IModItem { }
+public interface IModSetting : IModItem { }
 
-internal interface IModItem { }
+public interface IModItem { }
 
-internal partial class ModInfoBar : ObservableObject, IModItem
+public partial class ModInfoBar : ObservableObject, IModItem
 {
     [ObservableProperty] public partial string Title { get; set; }
     [ObservableProperty] public partial string Message { get; set; }
@@ -36,12 +36,12 @@ internal partial class ModInfoBar : ObservableObject, IModItem
     [ObservableProperty] public partial bool IsClosable { get; set; }
 }
 
-internal partial class ModLabel : ObservableObject, IModItem
+public partial class ModLabel : ObservableObject, IModItem
 {
     [ObservableProperty] public partial string Text { get; set; }
 }
 
-internal partial class ModBoolSetting : ObservableObject, IModSetting
+public partial class ModBoolSetting : ObservableObject, IModSetting
 {
     [ObservableProperty] public partial string Name { get; set; }
     [ObservableProperty] public partial string Description { get; set; }
@@ -53,16 +53,16 @@ internal partial class ModBoolSetting : ObservableObject, IModSetting
 
     public ModBoolSetting(bool defaultValue = default)
     {
-        Value = SettingsHelper.GetValue(Identifier, AppName, defaultValue);
+        Value = SettingsManager.GetValue(Identifier, AppName, defaultValue);
     }
 
     partial void OnValueChanged(bool value)
     {
-        SettingsHelper.SetValue(Identifier, AppName, value);
+        SettingsManager.SetValue(Identifier, AppName, value);
     }
 }
 
-internal partial class ModStringSetting : ObservableObject, IModSetting
+public partial class ModStringSetting : ObservableObject, IModSetting
 {
     [ObservableProperty] public partial string Name { get; set; }
     [ObservableProperty] public partial string Description { get; set; }
@@ -75,16 +75,16 @@ internal partial class ModStringSetting : ObservableObject, IModSetting
 
     public ModStringSetting(string defaultValue = default)
     {
-        Value = SettingsHelper.GetValue(Identifier, AppName, defaultValue);
+        Value = SettingsManager.GetValue(Identifier, AppName, defaultValue);
     }
 
     partial void OnValueChanged(string value)
     {
-        SettingsHelper.SetValue(Identifier, AppName, value);
+        SettingsManager.SetValue(Identifier, AppName, value);
     }
 }
 
-internal partial class ModEnumSetting : ObservableObject, IModSetting
+public partial class ModEnumSetting : ObservableObject, IModSetting
 {
     [ObservableProperty] public partial string Name { get; set; }
     [ObservableProperty] public partial string Description { get; set; }
@@ -98,11 +98,11 @@ internal partial class ModEnumSetting : ObservableObject, IModSetting
 
     public ModEnumSetting(int defaultValue = default)
     {
-        Value = SettingsHelper.GetValue(Identifier, AppName, defaultValue);
+        Value = SettingsManager.GetValue(Identifier, AppName, defaultValue);
     }
 
     partial void OnValueChanged(int value)
     {
-        SettingsHelper.SetValue(Identifier, AppName, value);
+        SettingsManager.SetValue(Identifier, AppName, value);
     }
 }

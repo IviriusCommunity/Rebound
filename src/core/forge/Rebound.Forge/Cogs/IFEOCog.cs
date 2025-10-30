@@ -1,6 +1,7 @@
 ﻿// Copyright (C) Ivirius(TM) Community 2020 - 2025. All Rights Reserved.
 // Licensed under the MIT License.
 
+using Rebound.Core;
 using Rebound.Core.Helpers;
 using System;
 using System.Text;
@@ -10,7 +11,7 @@ using Windows.Win32.System.Registry;
 
 namespace Rebound.Forge.Cogs;
 
-internal class IFEOCog : ICog
+public class IFEOCog : ICog
 {
     private const string BaseRegistryPath = @"SOFTWARE\Microsoft\Windows NT\CurrentVersion\Image File Execution Options";
 

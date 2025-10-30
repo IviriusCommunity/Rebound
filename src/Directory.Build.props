@@ -1,42 +1,5 @@
 <Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
 
-	<!-- Application and library only - These will apply to everything that isn't a source code generator -->
-	<PropertyGroup Condition="'$(MSBuildProjectName)' != 'Rebound.Core.SourceGenerator' and '$(MSBuildProjectName)' != 'Rebound.Core.SourceGeneratorAttributes'">
-
-		<!-- Versions -->
-		<TargetFramework>net10.0-windows10.0.26100.0</TargetFramework>
-		<TargetPlatformMinVersion>10.0.22000.0</TargetPlatformMinVersion>
-
-		<!-- Advanced -->
-		<EnableComInterop>true</EnableComInterop>
-		<UseSourceGenerators>true</UseSourceGenerators>
-		<DisableRuntimeMarshalling>true</DisableRuntimeMarshalling>
-		<EnableMsixTooling>true</EnableMsixTooling>
-
-		<!-- Self-contained settings -->
-		<PublishReadyToRun>true</PublishReadyToRun>
-		<PublishAot>true</PublishAot>
-
-		<!-- Publishing Settings -->
-		<PublishProfile>win-$(Platform).pubxml</PublishProfile>
-
-		<!-- Trimmming -->
-		<SelfContained>true</SelfContained>
-		<PublishTrimmed>true</PublishTrimmed>
-		<OptimizationPreference>Speed</OptimizationPreference>
-		<IlcOptimizationPreference>Speed</IlcOptimizationPreference>
-
-		<WindowsAppSDKSelfContained>true</WindowsAppSDKSelfContained>
-
-		<EnableSourceLink>false</EnableSourceLink>
-		
-	</PropertyGroup>
-
-	<!-- Include the application manifest -->
-	<ItemGroup>
-		<Manifest Include="$(ApplicationManifest)" />
-	</ItemGroup>
-	
 	<!-- General project settings - These will apply to every project regardless of its type -->
 	<PropertyGroup>
 		
@@ -59,51 +22,4 @@
 		<AppxTargetDeviceFamilyItem Include="Windows.Desktop" />
 	</ItemGroup>
 
-	<!-- Package references -->
-	<ItemGroup Condition="'$(MSBuildProjectName)' != 'Rebound.Core.SourceGenerator' and '$(MSBuildProjectName)' != 'Rebound.Core.SourceGeneratorAttributes'">
-		
-		<!-- Windows SDK and WinUI -->
-		<PackageReference Include="Microsoft.UI.Xaml" Version="2.8.7" />
-		<!--<PackageReference Include="Microsoft.Windows.SDK.BuildTools.MSIX" Version="1.7.20250829.1">
-			<PrivateAssets>all</PrivateAssets>
-			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-		</PackageReference>-->
-		<PackageReference Include="Microsoft.Windows.SDK.BuildTools.MSIX" Version="1.7.20250829.1"/>
-		<PackageReference Include="Microsoft.WindowsAppSDK.Base" Version="1.8.250831001" />
-		<PackageReference Include="Microsoft.WindowsAppSDK.InteractiveExperiences" Version="1.8.250906004" />
-
-		<PackageReference Include="MicaForUWP" Version="0.2.13" />
-		
-		<!-- Windows Interop -->
-		<PackageReference Include="Dongle.GuidRVAGen" Version="1.0.5" />
-		<PackageReference Include="Microsoft.Windows.CsWin32" Version="0.3.205">
-			<PrivateAssets>all</PrivateAssets>
-			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-		</PackageReference>
-		<PackageReference Include="TerraFX.Interop.Windows" Version="10.0.26100.3" />
-
-		<!-- System and Management -->
-		<PackageReference Include="System.Diagnostics.PerformanceCounter" Version="10.0.0-preview.6.25358.103" />
-		<!--<PackageReference Include="System.ServiceProcess.ServiceController" Version="10.0.0-preview.5.25277.114" />-->
-		<PackageReference Include="System.IO.Pipes.AccessControl" Version="6.0.0-preview.5.21301.5" />
-		<PackageReference Include="OwlCore.Storage" Version="0.14.0" />
-
-		<!-- Task Scheduler -->
-		<PackageReference Include="TaskScheduler" Version="2.12.2" />
-
-		<!-- CommunityToolkit WinUI -->
-		<PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.0" />
-		<PackageReference Include="CommunityToolkit.Uwp.Animations" Version="8.2.250402" />
-		<PackageReference Include="CommunityToolkit.Uwp.Behaviors" Version="8.2.250402" />
-		<PackageReference Include="CommunityToolkit.Uwp.Converters" Version="8.2.250402" />
-		<PackageReference Include="CommunityToolkit.Uwp.Controls.Primitives" Version="8.2.250402" />
-		<PackageReference Include="CommunityToolkit.Uwp.Controls.Segmented" Version="8.2.250402" />
-		<PackageReference Include="CommunityToolkit.Uwp.Controls.SettingsControls" Version="8.2.250402" />
-		<PackageReference Include="CommunityToolkit.Uwp.Extensions" Version="8.2.250402" />
-		<PackageReference Include="CommunityToolkit.Uwp.Helpers" Version="8.2.250402" />
-		<PackageReference Include="CommunityToolkit.Uwp.Media" Version="8.2.250402" />
-		<PackageReference Include="CommunityToolkit.Uwp.Triggers" Version="8.2.250402" />
-
-	</ItemGroup>
-	
 </Project>

@@ -15,7 +15,7 @@ using TerraFX.Interop.Windows;
 
 namespace Rebound.Forge;
 
-internal class DLLInjector
+public class DLLInjector
 {
     string _dllPath;
 
@@ -48,7 +48,7 @@ internal class DLLInjector
 }
 
 
-internal static class DLLInjectionAPI
+public static class DLLInjectionAPI
 {
     private static readonly ConcurrentDictionary<int, byte> InjectedProcessIds = new();
     private static readonly SemaphoreSlim InjectionSemaphore = new(4);

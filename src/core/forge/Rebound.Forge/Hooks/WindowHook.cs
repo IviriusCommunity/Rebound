@@ -11,31 +11,32 @@ using Windows.Win32.Foundation;
 using Windows.Win32.UI.Accessibility;
 
 namespace Rebound.Forge.Hooks;
-internal abstract class Win32Control
+
+public abstract class Win32Control
 {
     public abstract string ClassName { get; }
 }
 
-internal class ButtonControl : Win32Control
+public class ButtonControl : Win32Control
 {
     public override string ClassName => "Button";
 }
 
-internal class ComboBoxControl : Win32Control
+public class ComboBoxControl : Win32Control
 {
     public override string ClassName => "ComboBox";
 }
 
-internal class StaticControl : Win32Control
+public class StaticControl : Win32Control
 {
     public override string ClassName => "Static";
 }
-internal class WindowDetectedEventArgs(IntPtr handle) : EventArgs
+public class WindowDetectedEventArgs(IntPtr handle) : EventArgs
 {
     public IntPtr Handle { get; private set; } = handle;
 }
 
-internal unsafe class WindowHook
+public unsafe class WindowHook
 {
     private readonly string? ClassName;
     private readonly string? Name;

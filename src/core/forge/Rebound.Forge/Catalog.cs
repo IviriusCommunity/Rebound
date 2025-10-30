@@ -8,9 +8,9 @@ using System.Collections.ObjectModel;
 
 namespace Rebound.Forge;
 
-internal static class Catalog
+public static class Catalog
 {
-    internal static ObservableCollection<Mod> Mods { get; } =
+    public static ObservableCollection<Mod> Mods { get; } =
     [
         /*// Control Panel
         new Mod(
@@ -253,7 +253,7 @@ internal static class Catalog
         }
     ];
 
-    internal static ObservableCollection<Mod> MandatoryMods { get; } =
+    public static ObservableCollection<Mod> MandatoryMods { get; } =
     [
         // Service Host
         /*new Mod(
@@ -279,9 +279,9 @@ internal static class Catalog
         }*/
     ];
 
-    internal static ObservableCollection<Mod> SideloadedMods => new(ModParser.ParseMods());
+    public static ObservableCollection<Mod> SideloadedMods => new(ModParser.ParseMods());
 
-    internal static Mod GetMod(string name)
+    public static Mod GetMod(string name)
     {
         foreach (var instruction in Mods)
         {
@@ -293,7 +293,7 @@ internal static class Catalog
         throw new KeyNotFoundException($"App instructions with name '{name}' not found.");
     }
 
-    internal static Mod GetMandatoryMod(string name)
+    public static Mod GetMandatoryMod(string name)
     {
         foreach (var instruction in MandatoryMods)
         {

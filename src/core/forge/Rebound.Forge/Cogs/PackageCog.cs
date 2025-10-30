@@ -1,6 +1,7 @@
 ﻿// Copyright (C) Ivirius(TM) Community 2020 - 2025. All Rights Reserved.
 // Licensed under the MIT License.
 
+using Rebound.Core;
 using Rebound.Core.Helpers;
 using System;
 using System.Linq;
@@ -13,7 +14,7 @@ namespace Rebound.Forge.Cogs
     /// <summary>
     /// Handles the installation, removal, and verification of sideloaded MSIX/AppX packages.
     /// </summary>
-    internal class PackageCog : ICog
+    public class PackageCog : ICog
     {
         /// <summary>
         /// URI to the MSIX or APPX package (supports http, https, and file schemes).

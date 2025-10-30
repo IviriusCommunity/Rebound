@@ -3,20 +3,15 @@
 
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using Microsoft.UI.Dispatching;
-using Rebound.Core.Helpers;
-using System;
-using System.Collections.Generic;
+using Rebound.Core;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
-using System.IO;
 using System.Linq;
-using System.Threading;
 using System.Threading.Tasks;
 
 namespace Rebound.Forge;
 
-internal enum ModCategory
+public enum ModCategory
 {
     General,
     Productivity,
@@ -26,7 +21,7 @@ internal enum ModCategory
     Sideloaded
 }
 
-internal partial class Mod : ObservableObject
+public partial class Mod : ObservableObject
 {
     [ObservableProperty] public partial bool IsInstalled { get; set; } = false;
     [ObservableProperty] public partial bool IsIntact { get; set; } = true;
@@ -60,8 +55,6 @@ internal partial class Mod : ObservableObject
         ProcessName = processName;
         Settings = settings;
         Category = category;
-
-        UpdateIntegrity();
     }
 
     [RelayCommand]
@@ -95,7 +88,7 @@ internal partial class Mod : ObservableObject
                 await instruction.ApplyAsync();
 
             // Update status
-            UpdateIntegrity();
+            await UpdateIntegrityAsync();
 
             // Restart processes if needed
             foreach (var path in pathsToRestart)
@@ -141,7 +134,7 @@ internal partial class Mod : ObservableObject
             foreach (var instruction in Instructions)
                 await instruction.RemoveAsync();
 
-            UpdateIntegrity();
+            await UpdateIntegrityAsync();
 
             ReboundLogger.Log($"[Mod] Uninstallation finished for {Name}");
         }
@@ -163,26 +156,22 @@ internal partial class Mod : ObservableObject
             await InstallAsync();
     }
 
-    private void UpdateIntegrity()
+    private async Task UpdateIntegrityAsync()
     {
-        // Queue an async action on the UI thread
-        UIThreadQueue.QueueAction(async () =>
+        int intactItems = 0;
+        if (Instructions != null)
         {
-            int intactItems = 0;
-            if (Instructions != null)
-            {
-                // Wait for all IsAppliedAsync calls to complete
-                var results = await Task.WhenAll(Instructions.Select(i => i.IsAppliedAsync()));
-                intactItems = results.Count(applied => applied);
-            }
+            // Wait for all IsAppliedAsync calls to complete
+            var results = await Task.WhenAll(Instructions.Select(i => i.IsAppliedAsync()));
+            intactItems = results.Count(applied => applied);
+        }
 
-            int totalItems = Instructions?.Count ?? 0;
+        int totalItems = Instructions?.Count ?? 0;
 
-            IsInstalled = intactItems != 0;
-            IsIntact = intactItems == 0 || intactItems == totalItems;
+        IsInstalled = intactItems != 0;
+        IsIntact = intactItems == 0 || intactItems == totalItems;
 
-            ReboundLogger.Log($"[Mod] Updated integrity for {Name}: Installed={IsInstalled}, Intact={IsIntact}, intactItems={intactItems}, totalItems={totalItems}");
-        });
+        ReboundLogger.Log($"[Mod] Updated integrity for {Name}: Installed={IsInstalled}, Intact={IsIntact}, intactItems={intactItems}, totalItems={totalItems}");
     }
 
     public async Task<ModIntegrity> GetIntegrityAsync()

@@ -4,6 +4,7 @@
 using System;
 using System.IO;
 using System.Threading.Tasks;
+using Rebound.Core;
 using Rebound.Core.Helpers;
 using Windows.Win32;
 using Windows.Win32.Foundation;
@@ -12,7 +13,7 @@ using Windows.Win32.UI.Shell;
 
 namespace Rebound.Forge.Cogs;
 
-internal class ShortcutCog : ICog
+public class ShortcutCog : ICog
 {
     public required string ExePath { get; set; }
 
@@ -37,7 +38,7 @@ internal class ShortcutCog : ICog
             using ComPtr<IShellLinkW> shellLink = default;
 
             // Check if shortcut installation is enabled in settings
-            if (!SettingsHelper.GetValue("InstallShortcuts", "rebound", true))
+            if (!SettingsManager.GetValue("InstallShortcuts", "rebound", true))
             {
                 ReboundLogger.Log("[ShortcutCog] Shortcut installation disabled via settings. Exiting Apply.");
                 return;
@@ -116,7 +117,7 @@ internal class ShortcutCog : ICog
 
             var shortcutPath = GetShortcutPath(ShortcutName);
 
-            if (!SettingsHelper.GetValue("InstallShortcuts", "rebound", true))
+            if (!SettingsManager.GetValue("InstallShortcuts", "rebound", true))
             {
                 ReboundLogger.Log("[ShortcutCog] Shortcut removal disabled via settings. Exiting Remove.");
                 return;
@@ -146,7 +147,7 @@ internal class ShortcutCog : ICog
 
             var shortcutPath = GetShortcutPath(ShortcutName);
 
-            if (!SettingsHelper.GetValue("InstallShortcuts", "rebound", true))
+            if (!SettingsManager.GetValue("InstallShortcuts", "rebound", true))
             {
                 ReboundLogger.Log("[ShortcutCog] Shortcut installation disabled via settings. Returning true.");
                 return true;

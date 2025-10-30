@@ -1,14 +1,17 @@
 ﻿// Copyright (C) Ivirius(TM) Community 2020 - 2025. All Rights Reserved.
 // Licensed under the MIT License.
 
+using Rebound.Core;
 using System;
-using System.IO;
-using System.Text;
 using System.Threading.Tasks;
+using Windows.Win32;
+using Windows.Win32.Foundation;
+using Windows.Win32.System.Com;
+using Windows.Win32.System.TaskScheduler;
 
 namespace Rebound.Forge.Cogs;
 
-internal class StartupPackageCog : ICog
+public class StartupPackageCog : ICog
 {
     /// <summary>
     /// Package Family Name of the UWP / MSIX app.
@@ -17,113 +20,217 @@ internal class StartupPackageCog : ICog
     public required string TargetPackageFamilyName { get; set; }
 
     public required string Name { get; set; }
-
     public required string Description { get; set; }
-
     public required bool RequireAdmin { get; set; }
-
-    /// <summary>
-    /// Path to the XML task file that will be created.
-    /// </summary>
-    private string TaskXmlPath => Path.Combine(
-        Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
-        "Microsoft", "Windows", "Start Menu", "Programs", "Startup", $"{Name}.xml"
-    );
 
     public StartupPackageCog() { }
 
-    /// <summary>
-    /// Generates the XML string for the task scheduler task.
-    /// </summary>
-    private string GenerateTaskXml()
-    {
-        // Arguments: use explorer.exe to launch UWP app
-        string command = "explorer.exe";
-        string arguments = $"shell:AppsFolder\\{TargetPackageFamilyName}!App";
-
-        // Run level
-        string runLevel = RequireAdmin ? "HighestAvailable" : "LeastPrivilege";
-
-        return $@"<?xml version=""1.0"" encoding=""UTF-16""?>
-<Task version=""1.4"" xmlns=""http://schemas.microsoft.com/windows/2004/02/mit/task"">
-  <RegistrationInfo>
-    <Description>{System.Security.SecurityElement.Escape(Description)}</Description>
-  </RegistrationInfo>
-  <Triggers>
-    <LogonTrigger>
-      <Enabled>true</Enabled>
-    </LogonTrigger>
-  </Triggers>
-  <Principals>
-    <Principal id=""Author"">
-      <RunLevel>{runLevel}</RunLevel>
-      <LogonType>InteractiveToken</LogonType>
-    </Principal>
-  </Principals>
-  <Settings>
-    <DisallowStartIfOnBatteries>false</DisallowStartIfOnBatteries>
-    <AllowStartOnDemand>true</AllowStartOnDemand>
-  </Settings>
-  <Actions Context=""Author"">
-    <Exec>
-      <Command>{command}</Command>
-      <Arguments>{arguments}</Arguments>
-    </Exec>
-  </Actions>
-</Task>";
-    }
-
-    /// <summary>
-    /// Applies (creates) the scheduled task XML file.
-    /// </summary>
-    public async Task ApplyAsync()
+    public async unsafe Task ApplyAsync()
     {
         try
         {
-            string xml = GenerateTaskXml();
-            Directory.CreateDirectory(Path.GetDirectoryName(TaskXmlPath)!);
-            await File.WriteAllTextAsync(TaskXmlPath, xml, Encoding.Unicode);
+            HRESULT hr;
+            using ComPtr<ITaskService> taskService = default;
 
-            ReboundLogger.Log($"[StartupTaskCog] Task XML created at {TaskXmlPath} for {TargetPackageFamilyName}");
+            using var pszRoot = PInvoke.SysAllocString("\\");
+            using var pszRebound = PInvoke.SysAllocString("Rebound");
+            using var pszDescription = PInvoke.SysAllocString(Description);
+            using var pszName = PInvoke.SysAllocString(Name);
+            using var pszCommand = PInvoke.SysAllocString("explorer.exe");
+            using var pszArguments = PInvoke.SysAllocString($"shell:AppsFolder\\{TargetPackageFamilyName}!App");
+
+            ReboundLogger.Log("[StartupPackageCog] Apply started.");
+
+            fixed (Guid* iidITaskService = &ITaskService.IID_Guid)
+            {
+                hr = PInvoke.CoCreateInstance(
+                    CLSID.CLSID_TaskScheduler,
+                    null,
+                    CLSCTX.CLSCTX_INPROC_SERVER,
+                    iidITaskService,
+                    (void**)taskService.GetAddressOf());
+            }
+
+            if (hr.Failed || taskService.Get() is null)
+            {
+                ReboundLogger.Log($"[StartupPackageCog] Failed to create ITaskService. HRESULT=0x{hr.Value:X}");
+                return;
+            }
+
+            taskService.Get()->Connect(new(), new(), new(), new());
+            ReboundLogger.Log("[StartupPackageCog] Connected to Task Scheduler.");
+
+            using ComPtr<ITaskFolder> rootFolder = null;
+            hr = taskService.Get()->GetFolder(pszRoot, rootFolder.GetAddressOf());
+            if (hr.Failed)
+            {
+                ReboundLogger.Log($"[StartupPackageCog] Failed to get root folder. HRESULT=0x{hr.Value:X}");
+                return;
+            }
+
+            using ComPtr<ITaskFolder> reboundFolder = null;
+            hr = taskService.Get()->GetFolder(pszRebound, reboundFolder.GetAddressOf());
+            if (hr.Failed || reboundFolder.Get() is null)
+            {
+                ReboundLogger.Log("[StartupPackageCog] Rebound folder not found, attempting to create it.");
+                hr = rootFolder.Get()->CreateFolder(pszRebound, new(), reboundFolder.GetAddressOf());
+                if (hr.Failed)
+                {
+                    ReboundLogger.Log($"[StartupPackageCog] Failed to create Rebound folder. HRESULT=0x{hr.Value:X}");
+                    return;
+                }
+                ReboundLogger.Log("[StartupPackageCog] Successfully created Rebound folder.");
+            }
+
+            using ComPtr<ITaskDefinition> taskDef = null;
+            taskService.Get()->NewTask(0, taskDef.GetAddressOf());
+
+            using ComPtr<IRegistrationInfo> registrationInfo = null;
+            taskDef.Get()->get_RegistrationInfo(registrationInfo.GetAddressOf());
+            registrationInfo.Get()->put_Description(PInvoke.SysAllocString(Description));
+
+            using ComPtr<ITaskSettings> settings = null;
+            taskDef.Get()->get_Settings(settings.GetAddressOf());
+            settings.Get()->put_DisallowStartIfOnBatteries(VARIANT_BOOL.VARIANT_FALSE);
+
+            using ComPtr<IPrincipal> principal = null;
+            taskDef.Get()->get_Principal(principal.GetAddressOf());
+            principal.Get()->put_RunLevel(
+                RequireAdmin ? TASK_RUNLEVEL_TYPE.TASK_RUNLEVEL_HIGHEST : TASK_RUNLEVEL_TYPE.TASK_RUNLEVEL_LUA);
+
+            using ComPtr<ITriggerCollection> triggers = null;
+            taskDef.Get()->get_Triggers(triggers.GetAddressOf());
+
+            using ComPtr<ILogonTrigger> trigger = null;
+            triggers.Get()->Create(TASK_TRIGGER_TYPE2.TASK_TRIGGER_LOGON, (ITrigger**)trigger.GetAddressOf());
+
+            using ComPtr<IActionCollection> actions = null;
+            taskDef.Get()->get_Actions(actions.GetAddressOf());
+
+            using ComPtr<IExecAction> action = null;
+            actions.Get()->Create(TASK_ACTION_TYPE.TASK_ACTION_EXEC, (IAction**)action.GetAddressOf());
+            action.Get()->put_Path(pszCommand);
+            action.Get()->put_Arguments(pszArguments);
+
+            using ComPtr<IRegisteredTask> registeredTask = null;
+            reboundFolder.Get()->RegisterTaskDefinition(
+                pszName,
+                taskDef,
+                0x6, // Create or Update
+                new(),
+                new(),
+                TASK_LOGON_TYPE.TASK_LOGON_INTERACTIVE_TOKEN,
+                new(),
+                registeredTask.GetAddressOf());
+
+            ReboundLogger.Log($"[StartupPackageCog] Task '{Name}' for {TargetPackageFamilyName} successfully applied.");
         }
         catch (Exception ex)
         {
-            ReboundLogger.Log("[StartupTaskCog] ApplyAsync failed.", ex);
+            ReboundLogger.Log("[StartupPackageCog] ApplyAsync failed with exception.", ex);
         }
     }
 
-    /// <summary>
-    /// Removes the scheduled task XML file.
-    /// </summary>
-    public async Task RemoveAsync()
+    public async unsafe Task RemoveAsync()
     {
         try
         {
-            if (File.Exists(TaskXmlPath))
+            HRESULT hr;
+            using ComPtr<ITaskService> taskService = default;
+
+            using var pszRoot = PInvoke.SysAllocString("\\");
+            using var pszRebound = PInvoke.SysAllocString("Rebound");
+            using var pszName = PInvoke.SysAllocString(Name);
+
+            ReboundLogger.Log("[StartupPackageCog] Remove started.");
+
+            fixed (Guid* iidITaskService = &ITaskService.IID_Guid)
             {
-                File.Delete(TaskXmlPath);
-                ReboundLogger.Log($"[StartupTaskCog] Task XML removed: {TaskXmlPath}");
+                hr = PInvoke.CoCreateInstance(
+                    CLSID.CLSID_TaskScheduler,
+                    null,
+                    CLSCTX.CLSCTX_INPROC_SERVER,
+                    iidITaskService,
+                    (void**)taskService.GetAddressOf());
             }
-            else
+
+            if (hr.Failed || taskService.Get() is null)
             {
-                ReboundLogger.Log("[StartupTaskCog] Task XML does not exist, nothing to remove.");
+                ReboundLogger.Log($"[StartupPackageCog] Failed to create ITaskService. HRESULT=0x{hr.Value:X}");
+                return;
             }
+
+            taskService.Get()->Connect(new(), new(), new(), new());
+            ReboundLogger.Log("[StartupPackageCog] Connected to Task Scheduler.");
+
+            using ComPtr<ITaskFolder> reboundFolder = null;
+            hr = taskService.Get()->GetFolder(pszRebound, reboundFolder.GetAddressOf());
+            if (hr.Failed || reboundFolder.Get() is null)
+            {
+                ReboundLogger.Log("[StartupPackageCog] Rebound folder not found, nothing to remove.");
+                return;
+            }
+
+            hr = reboundFolder.Get()->DeleteTask(pszName, 0);
+            if (hr.Failed)
+            {
+                ReboundLogger.Log($"[StartupPackageCog] Failed to delete task. HRESULT=0x{hr.Value:X}");
+                return;
+            }
+
+            ReboundLogger.Log($"[StartupPackageCog] Task '{Name}' for {TargetPackageFamilyName} successfully removed.");
         }
         catch (Exception ex)
         {
-            ReboundLogger.Log("[StartupTaskCog] RemoveAsync failed.", ex);
+            ReboundLogger.Log("[StartupPackageCog] RemoveAsync failed with exception.", ex);
         }
-
-        await Task.CompletedTask;
     }
 
-    /// <summary>
-    /// Checks if the task XML exists.
-    /// </summary>
-    public async Task<bool> IsAppliedAsync()
+    public async unsafe Task<bool> IsAppliedAsync()
     {
-        bool exists = File.Exists(TaskXmlPath);
-        ReboundLogger.Log($"[StartupTaskCog] Task XML exists: {exists}");
-        return await Task.FromResult(exists);
+        try
+        {
+            HRESULT hr;
+            using ComPtr<ITaskService> taskService = default;
+
+            using var pszRebound = PInvoke.SysAllocString("Rebound");
+            using var pszName = PInvoke.SysAllocString(Name);
+
+            fixed (Guid* iidITaskService = &ITaskService.IID_Guid)
+            {
+                hr = PInvoke.CoCreateInstance(
+                    CLSID.CLSID_TaskScheduler,
+                    null,
+                    CLSCTX.CLSCTX_INPROC_SERVER,
+                    iidITaskService,
+                    (void**)taskService.GetAddressOf());
+            }
+
+            if (hr.Failed || taskService.Get() is null)
+            {
+                ReboundLogger.Log($"[StartupPackageCog] Failed to create ITaskService. HRESULT=0x{hr.Value:X}");
+                return false;
+            }
+
+            taskService.Get()->Connect(new(), new(), new(), new());
+
+            using ComPtr<ITaskFolder> reboundFolder = null;
+            hr = taskService.Get()->GetFolder(pszRebound, reboundFolder.GetAddressOf());
+            if (hr.Failed || reboundFolder.Get() is null)
+                return false;
+
+            using ComPtr<IRegisteredTask> registeredTask = null;
+            hr = reboundFolder.Get()->GetTask(pszName, registeredTask.GetAddressOf());
+            if (hr.Failed || registeredTask.Get() is null)
+                return false;
+
+            registeredTask.Get()->get_Enabled(out var enabled);
+            return enabled;
+        }
+        catch (Exception ex)
+        {
+            ReboundLogger.Log("[StartupPackageCog] IsAppliedAsync failed with exception.", ex);
+            return false;
+        }
     }
 }

@@ -1,13 +1,14 @@
 ﻿// Copyright (C) Ivirius(TM) Community 2020 - 2025. All Rights Reserved.
 // Licensed under the MIT License.
 
+using Rebound.Core;
 using System;
 using System.IO;
 using System.Threading.Tasks;
 
 namespace Rebound.Forge.Cogs;
 
-internal class LauncherCog : ICog
+public class LauncherCog : ICog
 {
     public required string Path { get; set; }
 

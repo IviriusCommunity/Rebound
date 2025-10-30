@@ -1,11 +1,11 @@
 ﻿// Copyright (C) Ivirius(TM) Community 2020 - 2025. All Rights Reserved.
 // Licensed under the MIT License.
 
+using Rebound.Core;
 using System;
 using System.IO;
 using System.Security.Principal;
 using System.Threading.Tasks;
-using Windows.System;
 using Windows.Win32;
 using Windows.Win32.Foundation;
 using Windows.Win32.System.Com;
@@ -13,20 +13,8 @@ using Windows.Win32.System.TaskScheduler;
 
 namespace Rebound.Forge;
 
-internal static class WorkingEnvironment
+public static class WorkingEnvironment
 {
-    public static readonly string StartMenuFolder =
-        Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.CommonStartMenu),
-                     "Programs", "Rebound");
-
-    public static readonly string DataFolder =
-        Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile),
-                     ".rebound");
-
-    public static readonly string LogFile =
-        Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile),
-                     ".rebound", "Temp", ".log");
-
     public static void UpdateVersion()
     {
         try
@@ -35,8 +23,8 @@ internal static class WorkingEnvironment
             var directoryPath = Path.Combine(programFilesPath, "Rebound");
             var versionFile = Path.Combine(directoryPath, "version.txt");
 
-            File.WriteAllText(versionFile, $"{Core.Helpers.Environment.ReboundVersion.REBOUND_VERSION}");
-            ReboundLogger.Log($"[WorkingEnvironment] Updated version.txt to {Core.Helpers.Environment.ReboundVersion.REBOUND_VERSION}");
+            File.WriteAllText(versionFile, $"{Core.Variables.ReboundVersion}");
+            ReboundLogger.Log($"[WorkingEnvironment] Updated version.txt to {Core.Variables.ReboundVersion}");
         }
         catch (Exception ex)
         {

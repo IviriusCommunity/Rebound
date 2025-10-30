@@ -1,0 +1,14 @@
+ExtractIconEx
+GetIconInfo
+GetObject
+GetDC
+CreateCompatibleDC
+CreateCompatibleBitmap
+SelectObject
+DrawIconEx
+DeleteDC
+ReleaseDC
+GetDIBits
+BITMAP
+WINDOW_EX_STYLE
+WINDOW_STYLE

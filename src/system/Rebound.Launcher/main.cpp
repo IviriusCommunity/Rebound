@@ -39,6 +39,21 @@ int Scale(HWND hwnd, int value) {
     return MulDiv(value, dpi, 96);
 }
 
+bool RelaunchAsAdminWithArgs(const std::wstring& args) {
+    wchar_t exePath[MAX_PATH];
+    if (!GetModuleFileNameW(NULL, exePath, MAX_PATH)) return false;
+
+    SHELLEXECUTEINFOW sei{};
+    sei.cbSize = sizeof(sei);
+    sei.fMask = SEE_MASK_NOASYNC | SEE_MASK_FLAG_DDEWAIT;
+    sei.lpVerb = L"runas"; // run as administrator
+    sei.lpFile = exePath;
+    sei.lpParameters = args.c_str();
+    sei.nShow = SW_SHOWNORMAL;
+
+    return ShellExecuteExW(&sei) == TRUE;
+}
+
 LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 
 // Utility: split a wide command line into argv using CommandLineToArgvW
@@ -176,11 +191,11 @@ struct LaunchEntry {
 std::vector<LaunchEntry> KnownLaunchEntries = {
     // Example entry -- REPLACE with real values
     {
-        L"someapp.exe",
+        /*L"someapp.exe",
         {
             { L"--open-foo", L"58027.265370AB8DB33_fjemmk5ta3a5g!App" }, // example AUMID
             { L"--open-bar", L"58027.265370AB8DB33_fjemmk5ta3a5g!App" }
-        },
+        },*/
         std::nullopt
     },
 
@@ -188,7 +203,7 @@ std::vector<LaunchEntry> KnownLaunchEntries = {
     {
         L"charmap.exe",
         {
-            { L"--some-known-arg", L"Microsoft.Windows.CharacterMap_8wekyb3d8bbwe!App" }
+            { L"", L"58027.265370AB8DB33_fjemmk5ta3a5g!App" }
         },
         std::nullopt
     }
@@ -204,6 +219,90 @@ std::optional<LaunchEntry> FindLaunchEntry(const std::wstring& exeName) {
         if (a == b) return e;
     }
     return std::nullopt;
+}
+
+bool PauseIFEOEntry(const std::wstring& executableName)
+{
+    std::wstring basePath = L"SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion\\Image File Execution Options";
+    std::wstring originalKey = basePath + L"\\" + executableName;
+    std::wstring newKey = basePath + L"\\INVALID" + executableName;
+
+    HKEY hOriginal = nullptr;
+    if (RegOpenKeyExW(HKEY_LOCAL_MACHINE, originalKey.c_str(), 0, KEY_READ | KEY_WRITE, &hOriginal) == ERROR_SUCCESS)
+    {
+        HKEY hNew = nullptr;
+        if (RegCreateKeyExW(HKEY_LOCAL_MACHINE, newKey.c_str(), 0, nullptr, 0, KEY_WRITE, nullptr, &hNew, nullptr) == ERROR_SUCCESS)
+        {
+            DWORD index = 0;
+            WCHAR valueName[256];
+            BYTE valueData[1024];
+            DWORD valueNameSize, valueDataSize, type;
+
+            while (true)
+            {
+                valueNameSize = sizeof(valueName) / sizeof(WCHAR);
+                valueDataSize = sizeof(valueData);
+
+                LONG result = RegEnumValueW(hOriginal, index, valueName, &valueNameSize, nullptr, &type, valueData, &valueDataSize);
+                if (result == ERROR_NO_MORE_ITEMS) break;
+                if (result != ERROR_SUCCESS) { ++index; continue; }
+
+                RegSetValueExW(hNew, valueName, 0, type, valueData, valueDataSize);
+                ++index;
+            }
+            RegCloseKey(hNew);
+        }
+
+        // Delete the original key
+        RegCloseKey(hOriginal);
+        RegDeleteTreeW(HKEY_LOCAL_MACHINE, originalKey.c_str());
+
+        return true;
+    }
+
+    return false;
+}
+
+bool ResumeIFEOEntry(const std::wstring& executableName)
+{
+    std::wstring basePath = L"SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion\\Image File Execution Options";
+    std::wstring originalKey = basePath + L"\\" + executableName;
+    std::wstring invalidKey = basePath + L"\\INVALID" + executableName;
+
+    HKEY hInvalid = nullptr;
+    if (RegOpenKeyExW(HKEY_LOCAL_MACHINE, invalidKey.c_str(), 0, KEY_READ | KEY_WRITE, &hInvalid) == ERROR_SUCCESS)
+    {
+        HKEY hOriginal = nullptr;
+        if (RegCreateKeyExW(HKEY_LOCAL_MACHINE, originalKey.c_str(), 0, nullptr, 0, KEY_WRITE, nullptr, &hOriginal, nullptr) == ERROR_SUCCESS)
+        {
+            DWORD index = 0;
+            WCHAR valueName[256];
+            BYTE valueData[1024];
+            DWORD valueNameSize, valueDataSize, type;
+
+            while (true)
+            {
+                valueNameSize = sizeof(valueName) / sizeof(WCHAR);
+                valueDataSize = sizeof(valueData);
+
+                LONG result = RegEnumValueW(hInvalid, index, valueName, &valueNameSize, nullptr, &type, valueData, &valueDataSize);
+                if (result == ERROR_NO_MORE_ITEMS) break;
+                if (result != ERROR_SUCCESS) { ++index; continue; }
+
+                RegSetValueExW(hOriginal, valueName, 0, type, valueData, valueDataSize);
+                ++index;
+            }
+            RegCloseKey(hOriginal);
+        }
+
+        // Delete the INVALID key
+        RegCloseKey(hInvalid);
+        RegDeleteTreeW(HKEY_LOCAL_MACHINE, invalidKey.c_str());
+
+        return true;
+    }
+
+    return false;
 }
 
 // Process incoming request: return true on success/handled, false on fatal error
@@ -233,16 +332,13 @@ bool ProcessRequest(const std::wstring& exePath, const std::wstring& argString) 
         bool pipeAvailable = SendPipeMessage(pauseMsg, &reply, 1000);
 
         if (!pipeAvailable) {
-            // Service host not found: inform the user and cancel.
-            MessageBoxW(NULL, L"Rebound Service Host not found. Operation cancelled.", L"Rebound Launcher", MB_ICONERROR);
-
-            // Placeholder package family name line for you to replace later:
-            // (user asked to include this line after cancelling)
-            // Replace PLACEHOLDER_PFN with the real package family name / AUMID for Rebound Service Host.
-            const wchar_t* placeholder = PLACEHOLDER_PFN;
-            (void)placeholder; // keep the variable present so you can easily find & replace it
-
-            return false;
+            // Relaunch self as admin with --pauseIFEO "<exePath>"
+            std::wstring adminArgs = L"--pauseIFEO \"" + exePath + L"\"";
+            bool relaunched = RelaunchAsAdminWithArgs(adminArgs);
+            if (!relaunched) {
+                MessageBoxW(NULL, L"Failed to elevate for IFEO handling.", L"Rebound Launcher", MB_ICONERROR);
+            }
+            return false; // original instance exits
         }
 
         // If available, proceed to launch the exe and later resume IFEO.
@@ -377,21 +473,69 @@ int WINAPI WinMain(HINSTANCE hInst, HINSTANCE, LPSTR, int) {
     auto args = GetCommandLineArgsW();
     // args[0] is the launcher exe itself. If greater than 1 => we have a target exe to handle.
     if (args.size() >= 2) {
-        // The contract you promised: launched as "<executable_path> <arguments...>"
-        // So args[1] is the target executable path, and rest are the arguments to it.
-        std::wstring targetExe = args[1];
-        std::wstring argString;
-        if (args.size() > 2) {
-            // Join the remaining args with spaces (preserve quoting by using original args)
-            for (size_t i = 2; i < args.size(); ++i) {
-                if (i > 2) argString += L" ";
-                argString += args[i];
+        if (args[1] == L"--launchPackage") {
+            if (args.size() < 3) {
+                MessageBoxW(NULL, L"No package family name specified.", L"Launch failed", MB_ICONERROR);
+                return 1;
             }
-        }
 
-        bool handled = ProcessRequest(targetExe, argString);
-        // We exit after handling as this run was specifically invoked by IFEO.
-        return handled ? 0 : 1;
+            std::wstring packageFamilyName = args[2]; // Use the next argument
+            bool ok = LaunchUWPByAumid(packageFamilyName, L"");
+            if (!ok) {
+                std::wstring msg = L"Failed to launch UWP app for package: " + packageFamilyName;
+                MessageBoxW(NULL, msg.c_str(), L"Launch failed", MB_ICONERROR);
+                return 1;
+            }
+            return 0;
+        }
+        if (args.size() >= 2 && args[1] == L"--pauseIFEO") {
+            if (args.size() < 3) {
+                MessageBoxW(NULL, L"No target executable specified.", L"Launch failed", MB_ICONERROR);
+                return 1;
+            }
+
+            std::wstring targetExe = args[2];
+            std::wstring exeName = FilenameFromPath(targetExe);
+
+            // Pause IFEO
+            PauseIFEOEntry(exeName);
+
+            // Launch the target exe with no additional args
+            PROCESS_INFORMATION pi{};
+            bool launched = LaunchProcess(targetExe, L"", pi);
+            if (!launched) {
+                std::wstring msg = L"Failed to launch target executable: " + targetExe;
+                MessageBoxW(NULL, msg.c_str(), L"Launch failed", MB_ICONERROR);
+                ResumeIFEOEntry(exeName); // ensure cleanup
+                return 1;
+            }
+
+            Sleep(200); // optional wait
+
+            // Resume IFEO
+            ResumeIFEOEntry(exeName);
+
+            CloseHandle(pi.hProcess);
+            CloseHandle(pi.hThread);
+            return 0;
+        }
+        else {
+            // The contract you promised: launched as "<executable_path> <arguments...>"
+            // So args[1] is the target executable path, and rest are the arguments to it.
+            std::wstring targetExe = args[1];
+            std::wstring argString;
+            if (args.size() > 2) {
+                // Join the remaining args with spaces (preserve quoting by using original args)
+                for (size_t i = 2; i < args.size(); ++i) {
+                    if (i > 2) argString += L" ";
+                    argString += args[i];
+                }
+            }
+
+            bool handled = ProcessRequest(targetExe, argString);
+            // We exit after handling as this run was specifically invoked by IFEO.
+            return handled ? 0 : 1;
+        }
     }
 
     // Otherwise run UI (normal launcher mode)

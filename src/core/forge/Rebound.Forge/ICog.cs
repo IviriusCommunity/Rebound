@@ -5,14 +5,14 @@ using System.Threading.Tasks;
 
 namespace Rebound.Forge;
 
-internal enum ModIntegrity
+public enum ModIntegrity
 {
     Installed,
     Corrupt,
     NotInstalled
 }
 
-internal enum InstallationTemplate
+public enum InstallationTemplate
 {
     Basic,
     Recommended,
@@ -20,7 +20,7 @@ internal enum InstallationTemplate
     Extras
 }
 
-internal interface ICog
+public interface ICog
 {
     Task ApplyAsync();
 
