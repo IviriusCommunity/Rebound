@@ -26,6 +26,7 @@
 		<OptimizationPreference>Speed</OptimizationPreference>
 		<IlcOptimizationPreference>Speed</IlcOptimizationPreference>
 
+		<CsWin32RunAsBuildTask>true</CsWin32RunAsBuildTask>
 		<WindowsAppSDKSelfContained>true</WindowsAppSDKSelfContained>
 
 		<EnableSourceLink>false</EnableSourceLink>
@@ -118,8 +119,20 @@
 		<Content Include="Fonts\FluentIcons.ttf">
 			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 		</Content>
+		<Content Include="Modding\Launchers\Rebound.Launcher.exe">
+		  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</Content>
 		<Content Include="Modding\Launchers\rosk.exe">
 			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</Content>
+		<Content Include="Modding\Packages\Rebound.About.msixbundle">
+		  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</Content>
+		<Content Include="Modding\Packages\Rebound.ServiceHost.msixbundle">
+		  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</Content>
+		<Content Include="Modding\Packages\Rebound.Shell.msixbundle">
+		  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
 		</Content>
 		<Content Update="Assets\**\*">
 			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
@@ -140,7 +153,11 @@
 		<CustomAdditionalCompileInputs Remove="Views\HomePage.xaml" />
 		<Resource Remove="Views\HomePage.xaml" />
 		<None Remove="Assets\AppIcons\ReboundIcon.ico" />
+		<None Remove="Modding\Launchers\Rebound.Launcher.exe" />
 		<None Remove="Modding\Launchers\rosk.exe" />
+		<None Remove="Modding\Packages\Rebound.About.msixbundle" />
+		<None Remove="Modding\Packages\Rebound.ServiceHost.msixbundle" />
+		<None Remove="Modding\Packages\Rebound.Shell.msixbundle" />
 	</ItemGroup>
 
 	<!-- Additional Files -->
@@ -151,8 +168,8 @@
 	<!-- Project References -->
 	<ItemGroup>
 		<ProjectReference Include="..\..\core\forge\Rebound.Forge\Rebound.Forge.csproj" />
-		<ProjectReference Include="..\..\core\libs\Rebound.Core.SourceGeneratorAttributes\Rebound.Core.SourceGeneratorAttributes.csproj" />
-		<ProjectReference Include="..\..\core\libs\Rebound.Core.SourceGenerator\Rebound.Core.SourceGenerator.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
+		<ProjectReference Include="..\..\core\generators\Rebound.Core.SourceGeneratorAttributes\Rebound.Core.SourceGeneratorAttributes.csproj" />
+		<ProjectReference Include="..\..\core\generators\Rebound.Core.SourceGenerator\Rebound.Core.SourceGenerator.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
 		<ProjectReference Include="..\..\core\Rebound.Core.IPC\Rebound.Core.IPC.csproj" />
 		<ProjectReference Include="..\..\core\Rebound.Core.Native\Rebound.Core.Native.csproj" />
 		<ProjectReference Include="..\..\core\Rebound.Core.SystemInformation\Rebound.Core.SystemInformation.csproj" />

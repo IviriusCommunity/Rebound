@@ -195,8 +195,8 @@
     <ScrollViewer HorizontalAlignment="Stretch">
         <ContentControl
             HorizontalContentAlignment="Stretch"
-            Content="{x:Bind Mod}">
-            <!--IsEnabled="{x:Bind forge:WorkingEnvironment.IsReboundEnabled()}">-->
+            Content="{x:Bind Mod}"
+            IsEnabled="{x:Bind forge:WorkingEnvironment.IsReboundEnabled_Prop}">
             <ContentControl.ContentTemplate>
                 <DataTemplate x:DataType="forge:Mod">
                     <Grid>

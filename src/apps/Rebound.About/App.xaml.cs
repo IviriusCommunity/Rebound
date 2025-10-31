@@ -1,8 +1,9 @@
 ﻿// Copyright (C) Ivirius(TM) Community 2020 - 2025. All Rights Reserved.
 // Licensed under the MIT License.
 
-using Rebound.Core.Helpers;
-using Rebound.Core.Helpers.Services;
+using Rebound.Core;
+using Rebound.Core.IPC;
+using Rebound.Core.UI;
 using Rebound.Forge;
 using Rebound.Generators;
 using System;
@@ -29,7 +30,7 @@ public partial class App : Application
         {
             if (e.IsFirstLaunch)
             {
-                Program.QueueAction(async () =>
+                UIThreadQueue.QueueAction(async () =>
                 {
                     // Spawn or activate the main window immediately
                     if (MainWindow != null)
@@ -53,7 +54,7 @@ public partial class App : Application
                     }
                     catch
                     {
-                        Program.QueueAction(async () =>
+                        UIThreadQueue.QueueAction(async () =>
                         {
                             await ReboundDialog.ShowAsync(
                                 "Rebound Service Host not found.",
@@ -91,7 +92,7 @@ public partial class App : Application
                 }
                 catch
                 {
-                    Program.QueueAction(async () =>
+                    UIThreadQueue.QueueAction(async () =>
                     {
                         await ReboundDialog.ShowAsync(
                             "Legacy Launch Failed",

@@ -2,10 +2,6 @@
 // Licensed under the MIT License.
 
 using Rebound.Core;
-using System;
-using System.IO;
-using System.Security.Principal;
-using System.Threading.Tasks;
 using Windows.Win32;
 using Windows.Win32.Foundation;
 using Windows.Win32.System.Com;
@@ -15,16 +11,16 @@ namespace Rebound.Forge;
 
 public static class WorkingEnvironment
 {
+    #region Version
+
     public static void UpdateVersion()
     {
         try
         {
-            var programFilesPath = Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles);
-            var directoryPath = Path.Combine(programFilesPath, "Rebound");
-            var versionFile = Path.Combine(directoryPath, "version.txt");
+            var versionFile = Path.Combine(Variables.ReboundDataFolder, "version.txt");
 
-            File.WriteAllText(versionFile, $"{Core.Variables.ReboundVersion}");
-            ReboundLogger.Log($"[WorkingEnvironment] Updated version.txt to {Core.Variables.ReboundVersion}");
+            File.WriteAllText(versionFile, $"{Variables.ReboundVersion}");
+            ReboundLogger.Log($"[WorkingEnvironment] Updated version.txt to {Variables.ReboundVersion}");
         }
         catch (Exception ex)
         {
@@ -32,44 +28,31 @@ public static class WorkingEnvironment
         }
     }
 
-    // Folder
+    #endregion
+
+    #region Folders
+
     public static void EnsureFolderIntegrity()
     {
         try
         {
-            var programFilesPath = Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles);
-            var directoryPath = Path.Combine(programFilesPath, "Rebound");
+            List<string> requiredFolders =
+            [
+                Variables.ReboundDataFolder,
+                Variables.ReboundProgramDataFolder,
+                Variables.ReboundProgramDataModsFolder,
+                Variables.ReboundStartMenuFolder
+            ];
 
-            var startMenuFolder = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.CommonStartMenu), "Programs", "Rebound");
-
-            var programDataPath = Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData); // = ProgramData
-            var modsFolder = Path.Combine(programDataPath, "Rebound", "Mods");
-
-            // Ensure Program Files\Rebound
-            if (!Directory.Exists(directoryPath))
+            foreach (var folder in requiredFolders)
             {
-                Directory.CreateDirectory(directoryPath);
-                ReboundLogger.Log($"[WorkingEnvironment] Created directory: {directoryPath}");
+                if (!Directory.Exists(folder))
+                {
+                    Directory.CreateDirectory(folder);
+                    ReboundLogger.Log($"[WorkingEnvironment] Created directory: {folder}");
+                }
+                File.SetAttributes(folder, FileAttributes.Directory);
             }
-
-            // Ensure Start Menu\Programs\Rebound
-            if (!Directory.Exists(startMenuFolder))
-            {
-                Directory.CreateDirectory(startMenuFolder);
-                ReboundLogger.Log($"[WorkingEnvironment] Created start menu folder: {startMenuFolder}");
-            }
-
-            // Ensure ProgramData\Rebound\Mods
-            if (!Directory.Exists(modsFolder))
-            {
-                Directory.CreateDirectory(modsFolder);
-                ReboundLogger.Log($"[WorkingEnvironment] Created mods folder: {modsFolder}");
-            }
-
-            File.SetAttributes(directoryPath, FileAttributes.Directory);
-            File.SetAttributes(startMenuFolder, FileAttributes.Directory);
-            File.SetAttributes(Path.Combine(programDataPath, "Rebound"), FileAttributes.Directory);
-            File.SetAttributes(modsFolder, FileAttributes.Directory);
 
             ReboundLogger.Log("[WorkingEnvironment] Folder integrity ensured.");
         }
@@ -83,16 +66,18 @@ public static class WorkingEnvironment
     {
         try
         {
-            var startMenuFolder = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.CommonStartMenu), "Programs", "Rebound");
+            List<string> requiredFolders =
+            [
+                Variables.ReboundStartMenuFolder
+            ];
 
-            if (Directory.Exists(startMenuFolder))
+            foreach (var folder in requiredFolders)
             {
-                Directory.Delete(startMenuFolder, true);
-                ReboundLogger.Log($"[WorkingEnvironment] Removed start menu folder: {startMenuFolder}");
-            }
-            else
-            {
-                ReboundLogger.Log($"[WorkingEnvironment] Start menu folder does not exist, nothing to remove: {startMenuFolder}");
+                if (Directory.Exists(folder))
+                {
+                    Directory.CreateDirectory(folder);
+                    ReboundLogger.Log($"[WorkingEnvironment] Removed directory: {folder}");
+                }
             }
         }
         catch (Exception ex)
@@ -105,17 +90,15 @@ public static class WorkingEnvironment
     {
         try
         {
-            var programFilesPath = Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles);
-            var directoryPath = Path.Combine(programFilesPath, "Rebound");
-            var versionFile = Path.Combine(directoryPath, "version.txt");
+            List<string> requiredFolders =
+            [
+                Variables.ReboundDataFolder,
+                Variables.ReboundProgramDataFolder,
+                Variables.ReboundProgramDataModsFolder,
+                Variables.ReboundStartMenuFolder
+            ];
 
-            var programDataPath = Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData);
-            var modsFolder = Path.Combine(programDataPath, "Rebound", "Mods");
-
-            bool exists = Directory.Exists(directoryPath) && File.Exists(versionFile) && Directory.Exists(modsFolder);
-
-            ReboundLogger.Log($"[WorkingEnvironment] Folder exists check: {directoryPath}, Mods = {modsFolder} → Exists = {exists}");
-            return exists;
+            return requiredFolders.All(Directory.Exists);
         }
         catch (Exception ex)
         {
@@ -124,7 +107,10 @@ public static class WorkingEnvironment
         }
     }
 
-    // Tasks Folder
+    #endregion
+
+    #region Task Scheduler
+
     public static unsafe void EnsureTasksFolderIntegrity()
     {
         try
@@ -309,7 +295,10 @@ public static class WorkingEnvironment
         }
     }
 
-    // Mandatory mods
+    #endregion
+
+    #region Mandatory Mods
+
     public static async void EnsureMandatoryModsIntegrity()
     {
         try
@@ -364,6 +353,8 @@ public static class WorkingEnvironment
         }
     }
 
+    #endregion
+
     // General methods
     public static void EnableRebound()
     {
@@ -398,6 +389,8 @@ public static class WorkingEnvironment
         }
         ReboundLogger.Log("[WorkingEnvironment] Rebound disabled.");
     }
+
+    public static bool IsReboundEnabled_Prop => IsReboundEnabled().Result;
 
     public static async Task<bool> IsReboundEnabled()
     {

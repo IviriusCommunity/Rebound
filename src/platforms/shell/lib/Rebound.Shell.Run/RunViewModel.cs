@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using CommunityToolkit.Mvvm.ComponentModel;
+using Rebound.Core;
 using Rebound.Core.Helpers;
 using System.Collections.ObjectModel;
 
@@ -20,10 +21,10 @@ namespace Rebound.Shell.Run
 
         public RunViewModel()
         {
-            RunAsAdmin = SettingsHelper.GetValue("RunAsAdmin", "rshell.run", false);
+            RunAsAdmin = SettingsManager.GetValue("RunAsAdmin", "rshell.run", false);
         }
 
-        partial void OnRunAsAdminChanged(bool value) => SettingsHelper.SetValue("RunAsAdmin", "rshell.run", value);
+        partial void OnRunAsAdminChanged(bool value) => SettingsManager.SetValue("RunAsAdmin", "rshell.run", value);
 
         public ObservableCollection<string> RunHistory { get; set; } = new();
     }

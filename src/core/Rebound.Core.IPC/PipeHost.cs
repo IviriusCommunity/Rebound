@@ -197,7 +197,9 @@ public class PipeHost : IPipeHost, IDisposable
 
         if (TryGetClientProcess(server, out var proc))
         {
-#if !DEBUG
+            // Developer build, security hasn't been built yet
+
+/*#if !DEBUG
             switch (_accessLevel)
             {
                 case AccessLevel.Everyone:
@@ -235,7 +237,8 @@ public class PipeHost : IPipeHost, IDisposable
                         break;
                     }
             }
-#endif
+#endif*/
+
         }
         else
         {

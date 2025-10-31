@@ -6,8 +6,6 @@ using Microsoft.UI.Input;
 using Windows.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Rebound.Core.Helpers;
-using Rebound.Core.Helpers.Windowing;
-using Rebound.Core.Helpers;
 using Rebound.Shell.ExperienceHost;
 using System;
 using System.Collections.Generic;
@@ -23,6 +21,8 @@ using Windows.UI.Core;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Input;
 using WinRT.Interop;
+using Rebound.Core.UI;
+using Rebound.Core;
 
 namespace Rebound.Shell.Run;
 
@@ -32,16 +32,13 @@ public sealed partial class RunWindow : Page
     {
         try
         {
-            var localAppDataPath = Path.Combine(
-                Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
-                "Rebound");
-            var filePath = Path.Combine(localAppDataPath, "RunHistory", $"history.xml");
+            var filePath = Path.Combine(Variables.ReboundDataFolder, "RunHistory", $"history.xml");
 
-            if (!Directory.Exists(localAppDataPath))
-                Directory.CreateDirectory(localAppDataPath);
+            if (!Directory.Exists(Variables.ReboundDataFolder))
+                Directory.CreateDirectory(Variables.ReboundDataFolder);
 
-            if (!Directory.Exists(Path.Combine(localAppDataPath, "RunHistory")))
-                Directory.CreateDirectory(Path.Combine(localAppDataPath, "RunHistory"));
+            if (!Directory.Exists(Path.Combine(Variables.ReboundDataFolder, "RunHistory")))
+                Directory.CreateDirectory(Path.Combine(Variables.ReboundDataFolder, "RunHistory"));
 
             if (!File.Exists(filePath))
                 return defaultValue ?? new List<string>();
@@ -73,16 +70,13 @@ public sealed partial class RunWindow : Page
     {
         try
         {
-            var localAppDataPath = Path.Combine(
-                Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
-                "Rebound");
-            var filePath = Path.Combine(localAppDataPath, "RunHistory", $"history.xml");
+            var filePath = Path.Combine(Variables.ReboundDataFolder, "RunHistory", $"history.xml");
 
-            if (!Directory.Exists(localAppDataPath))
-                Directory.CreateDirectory(localAppDataPath);
+            if (!Directory.Exists(Variables.ReboundDataFolder))
+                Directory.CreateDirectory(Variables.ReboundDataFolder);
 
-            if (!Directory.Exists(Path.Combine(localAppDataPath, "RunHistory")))
-                Directory.CreateDirectory(Path.Combine(localAppDataPath, "RunHistory"));
+            if (!Directory.Exists(Path.Combine(Variables.ReboundDataFolder, "RunHistory")))
+                Directory.CreateDirectory(Path.Combine(Variables.ReboundDataFolder, "RunHistory"));
 
             var doc = new XmlDocument();
 
@@ -148,15 +142,10 @@ public sealed partial class RunWindow : Page
 
     private async void InputBox_Loaded(object sender, RoutedEventArgs e)
     {
-        RunInit();
-    }
-
-    private async void RunInit()
-    {
-        //await Task.Delay(1);
-        //DispatcherQueue.GetForCurrentThread().TryEnqueue(() => InputBox.Focus(FocusState.Programmatic));
-        //await Task.Delay(25);
-        //DispatcherQueue.GetForCurrentThread().TryEnqueue(() => InputBox.IsSuggestionListOpen = false);
+        await Task.Delay(1);
+        UIThreadQueue.QueueAction(async () => InputBox.Focus(FocusState.Programmatic));
+        await Task.Delay(25);
+        UIThreadQueue.QueueAction(async () => InputBox.IsSuggestionListOpen = false);
     }
 
     public void CheckRunButtonEnabledState()
@@ -172,10 +161,7 @@ public sealed partial class RunWindow : Page
     [RelayCommand]
     public void Cancel()
     {
-        Program.QueueAction(async () =>
-        {
-            App.CloseRunWindow();
-        });
+        App.CloseRunWindow();
     }
 
     [RelayCommand]

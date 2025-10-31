@@ -6,7 +6,7 @@
     xmlns:animations="using:CommunityToolkit.WinUI.Animations"
     xmlns:controls="using:CommunityToolkit.WinUI.Controls"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-    xmlns:environment="using:Rebound.Core.Helpers.Environment"
+    xmlns:core="using:Rebound.Core"
     xmlns:local="using:Rebound.About"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:media="using:CommunityToolkit.WinUI.Media"
@@ -284,7 +284,7 @@
                                         FontWeight="SemiBold"
                                         Text="Rebound"
                                         TextWrapping="WrapWholeWords" />
-                                    <TextBlock Text="{x:Bind environment:ReboundVersion.REBOUND_VERSION}" />
+                                    <TextBlock Text="{x:Bind core:Variables.ReboundVersion}" />
                                     <TextBlock x:Uid="ReboundInfo" TextWrapping="WrapWholeWords" />
                                 </StackPanel>
                                 <Button

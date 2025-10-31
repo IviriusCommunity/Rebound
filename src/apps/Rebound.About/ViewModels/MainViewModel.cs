@@ -2,8 +2,10 @@
 // Licensed under the MIT License.
 
 using CommunityToolkit.Mvvm.ComponentModel;
-using Rebound.Core.Helpers;
-using Rebound.Core.Helpers.Environment;
+using Rebound.Core;
+using Rebound.Core.SystemInformation.Hardware;
+using Rebound.Core.SystemInformation.Software;
+using Rebound.Core.UI;
 using System;
 
 namespace Rebound.About.ViewModels;
@@ -15,9 +17,9 @@ internal partial class MainViewModel : ObservableObject
     public static string WindowsVersionName
     {
         get => 
-            SystemInformation.GetOSName().Contains("10", StringComparison.InvariantCultureIgnoreCase) ? 
-            "Windows 10" : 
-            SystemInformation.GetOSName().Contains("Server", StringComparison.InvariantCultureIgnoreCase) ? 
+            WindowsInformation.GetOSName().Contains("10", StringComparison.InvariantCultureIgnoreCase) ? 
+            "Windows 10" :
+            WindowsInformation.GetOSName().Contains("Server", StringComparison.InvariantCultureIgnoreCase) ? 
             "Windows Server" : 
             "Windows 11";
     }
@@ -29,9 +31,9 @@ internal partial class MainViewModel : ObservableObject
             return string.Format(
                 null,
                 Windows.ApplicationModel.Resources.ResourceLoader.GetForCurrentView().GetString("VersionOSBuild"),
-                SystemInformation.GetDisplayVersion(),
-                SystemInformation.GetCurrentBuildNumber(),
-                SystemInformation.GetUBR());
+                WindowsInformation.GetDisplayVersion(),
+                WindowsInformation.GetCurrentBuildNumber(),
+                WindowsInformation.GetUBR());
         }
     }
 
@@ -39,7 +41,7 @@ internal partial class MainViewModel : ObservableObject
     {
         get
         {
-            var fullName = SystemInformation.GetDisplayName();
+            var fullName = UserInformation.GetDisplayName();
             var resourceLoader = Windows.ApplicationModel.Resources.ResourceLoader.GetForCurrentView();
             string template = resourceLoader.GetString("HelloUser");
 
@@ -53,7 +55,7 @@ internal partial class MainViewModel : ObservableObject
         get
         {
             var resourceLoader = Windows.ApplicationModel.Resources.ResourceLoader.GetForCurrentView();
-            return resourceLoader.GetString(SystemInformation.GetWindowsActivationType() switch
+            return resourceLoader.GetString(WindowsInformation.GetWindowsActivationType() switch
             {
                 WindowsActivationType.Unlicensed => "ActivationStatusUnlicensed",
                 WindowsActivationType.Activated => "ActivationStatusActivated",
@@ -66,13 +68,13 @@ internal partial class MainViewModel : ObservableObject
         }
     }
 
-    public static string WindowsVersionTitle => SystemInformation.GetOSName();
-    public static string LicenseOwners => SystemInformation.GetLicenseOwners();
-    public static string LegalInfo => string.Format(null, Windows.ApplicationModel.Resources.ResourceLoader.GetForCurrentView().GetString("LegalInfo"), SystemInformation.GetOSName());
-    public static string CPUName => SystemInformation.GetCPUName();
-    public static string GPUName => SystemInformation.GetGPUName();
-    public static string RAM => SystemInformation.GetTotalRam();
-    public static string UsableRAM => SystemInformation.GetUsableRAM();
+    public static string WindowsVersionTitle => WindowsInformation.GetOSName();
+    public static string LicenseOwners => WindowsInformation.GetLicenseOwners();
+    public static string LegalInfo => string.Format(null, Windows.ApplicationModel.Resources.ResourceLoader.GetForCurrentView().GetString("LegalInfo"), WindowsInformation.GetOSName());
+    public static string CPUName => CPU.GetCPUName();
+    public static string GPUName => GPU.GetGPUName();
+    public static string RAM => Core.SystemInformation.Hardware.RAM.GetTotalRam();
+    public static string UsableRAM => Core.SystemInformation.Hardware.RAM.GetUsableRAM();
 
     // App settings
 
@@ -96,14 +98,14 @@ internal partial class MainViewModel : ObservableObject
 
     private void UpdateSettings()
     {
-        Program.QueueAction(async () =>
+        UIThreadQueue.QueueAction(async () =>
         {
-            IsSidebarOn = SettingsHelper.GetValue("IsSidebarOn", "winver", true);
-            IsReboundOn = SettingsHelper.GetValue("IsReboundOn", "winver", true);
-            ShowBlurAndGlow = SettingsHelper.GetValue("ShowBlurAndGlow", "rebound", true);
-            ShowHelloUser = SettingsHelper.GetValue("ShowHelloUser", "winver", true);
-            ShowTabs = SettingsHelper.GetValue("ShowTabs", "winver", true);
-            ShowActivationInfo = SettingsHelper.GetValue("ShowActivationInfo", "winver", true);
+            IsSidebarOn = SettingsManager.GetValue("IsSidebarOn", "winver", true);
+            IsReboundOn = SettingsManager.GetValue("IsReboundOn", "winver", true);
+            ShowBlurAndGlow = SettingsManager.GetValue("ShowBlurAndGlow", "rebound", true);
+            ShowHelloUser = SettingsManager.GetValue("ShowHelloUser", "winver", true);
+            ShowTabs = SettingsManager.GetValue("ShowTabs", "winver", true);
+            ShowActivationInfo = SettingsManager.GetValue("ShowActivationInfo", "winver", true);
         });
     }
 }

@@ -1,6 +1,7 @@
 ﻿// Copyright (C) Ivirius(TM) Community 2020 - 2025. All Rights Reserved.
 // Licensed under the MIT License.
 
+using Rebound.Core;
 using Rebound.Forge.Cogs;
 using System;
 using System.Collections.Generic;
@@ -99,24 +100,38 @@ public static class Catalog
             installationSteps: "•   Register a startup task\n•   Hijack selected applets\n\nYou can choose which components are enabled from the Options menu at the top of the page.\n\nNote: Rebound Shell alone doesn't have a predefined UI. To check if it's running, try opening one of the applets it replaces.",
             instructions: new ObservableCollection<ICog>
             {
-                new StartupTaskCog()
+                new PackageCog()
                 {
-                    TargetPath = $"{Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles)}\\Rebound\\rshell\\Rebound Shell.exe",
+                    PackageURI = $"{AppContext.BaseDirectory}\\Modding\\Packages\\Rebound.Shell.msixbundle",
+                    PackageFamilyName = "Rebound.Shell_rcz2tbwv5qzb8"
+                },
+                new StartupPackageCog()
+                {
+                    TargetPackageFamilyName = "Rebound.Shell_rcz2tbwv5qzb8",
                     Description = "Rebound Shell task for overlapping the Windows shell.",
                     Name = "Shell",
                     RequireAdmin = false
                 },
-                new ShortcutCog()
-                {
-                    ShortcutName = "Rebound Shell",
-                    ExePath = $"{Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles)}\\Rebound\\rshell\\Rebound Shell.exe"
-                },
             },
             processName: "Rebound Shell",
-            category: ModCategory.Customization
+            category: ModCategory.Customization,
+            settings: new ObservableCollection<IModItem>
+            {
+                new ModLabel()
+                {
+                    Text = "Content"
+                },
+                new ModBoolSetting(true)
+                {
+                    Name = "Run",
+                    IconGlyph = "\uE946",
+                    Description = "Enable Rebound Run.",
+                    Identifier = "InstallRun",
+                    AppName = "rshell"
+                },
+            }
         )
         {
-            EntryExecutable = $"{Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles)}\\Rebound\\rshell\\Rebound Shell.exe",
             PreferredInstallationTemplate = InstallationTemplate.Extras
         },
         
@@ -180,16 +195,16 @@ public static class Catalog
             installationSteps: "•   Redirect app launch\n•   Create a start menu shortcut",
             instructions: new ObservableCollection<ICog>
             {
+                new PackageCog()
+                {
+                    PackageURI = $"{AppContext.BaseDirectory}\\Modding\\Packages\\Rebound.About.msixbundle",
+                    PackageFamilyName = "Rebound.About_rcz2tbwv5qzb8"
+                },
                 new IFEOCog()
                 {
                     OriginalExecutableName = "winver.exe",
-                    LauncherPath = $"{Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles)}\\Rebound\\rwinver\\Rebound About.exe"
-                },
-                new ShortcutCog()
-                {
-                    ShortcutName = "About Windows",
-                    ExePath = $"{Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles)}\\Rebound\\rwinver\\Rebound About.exe"
-                },
+                    LauncherPath = Variables.ReboundLauncherPath
+                }
             },
             processName: "Rebound About",
             category: ModCategory.Customization,
@@ -248,7 +263,6 @@ public static class Catalog
             }
         )
         {
-            EntryExecutable = $"{Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles)}\\Rebound\\rwinver\\Rebound About.exe",
             PreferredInstallationTemplate = InstallationTemplate.Basic
         }
     ];
@@ -256,27 +270,51 @@ public static class Catalog
     public static ObservableCollection<Mod> MandatoryMods { get; } =
     [
         // Service Host
-        /*new Mod(
+        new Mod(
             name: "Service Host",
             description: "Mandatory background service required for Rebound apps to run properly.",
             icon: "ms-appx:///Assets/ReboundApps/ServiceHost.ico",
             installationSteps: "Register a startup task as admin",
             instructions: new ObservableCollection<ICog>
             {
-                new StartupTaskCog()
+                new PackageCog()
                 {
-                    TargetPath = $"{Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles)}\\Rebound\\rsvchost\\Rebound Service Host.exe",
+                    PackageURI = $"{AppContext.BaseDirectory}\\Modding\\Packages\\Rebound.ServiceHost.msixbundle",
+                    PackageFamilyName = "Rebound.ServiceHost_rcz2tbwv5qzb8"
+                },
+                new StartupPackageCog()
+                {
+                    TargetPackageFamilyName = "Rebound.ServiceHost_rcz2tbwv5qzb8",
                     Description = "Rebound Service Host task for managing Rebound actions as admin.",
                     Name = "Service Host",
                     RequireAdmin = true
-                }
+                },
             },
-            processName: "Rebound Service Host"
+            processName: "Rebound Service Host",
+            category: ModCategory.General
         )
         {
-            EntryExecutable = $"{Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles)}\\Rebound\\rsvchost\\Rebound Service Host.exe",
             PreferredInstallationTemplate = InstallationTemplate.Basic
-        }*/
+        },
+        new Mod(
+            name: "Launcher",
+            description: "Mandatory executable for Rebound apps to run properly.",
+            icon: "ms-appx:///Assets/ReboundApps/Launcher.ico",
+            installationSteps: "Register a startup task as admin",
+            instructions: new ObservableCollection<ICog>
+            {
+                new LauncherCog
+                {
+                    Path = $"{AppContext.BaseDirectory}\\Modding\\Launchers\\Rebound.Launcher.exe",
+                    TargetPath = Variables.ReboundLauncherPath
+                }
+            },
+            processName: "Rebound Service Host",
+            category: ModCategory.General
+        )
+        {
+            PreferredInstallationTemplate = InstallationTemplate.Basic
+        }
     ];
 
     public static ObservableCollection<Mod> SideloadedMods => new(ModParser.ParseMods());

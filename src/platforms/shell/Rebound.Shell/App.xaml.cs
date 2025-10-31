@@ -2,6 +2,8 @@
 // Licensed under the MIT License.
 
 using Rebound.Core.Helpers;
+using Rebound.Core.IPC;
+using Rebound.Core.UI;
 using Rebound.Generators;
 using Rebound.Shell.Run;
 using System;
@@ -21,7 +23,7 @@ namespace Rebound.Shell.ExperienceHost;
 [ReboundApp("Rebound.ShellExperienceHost", "")]
 public partial class App : Application
 {
-    private async void OnSingleInstanceLaunched(object? sender, Core.Helpers.Services.SingleInstanceLaunchEventArgs e)
+    private async void OnSingleInstanceLaunched(object? sender, SingleInstanceLaunchEventArgs e)
     {
         if (e.IsFirstLaunch)
         {
@@ -49,7 +51,7 @@ public partial class App : Application
             var windowTitle = parts.Length > 1 ? parts[1].Trim() : "Run";
             if (RunWindow is null)
             {
-                Program.QueueAction(() =>
+                UIThreadQueue.QueueAction(() =>
                 {
                     ShowRunWindow(windowTitle);
                     return Task.CompletedTask;
@@ -72,7 +74,7 @@ public partial class App : Application
             RunWindow.IsPersistenceEnabled = false;
             RunWindow.MoveAndResize(
                 25,
-                (int)(Display.GetAvailableRectForWindow(RunWindow.Handle).bottom / Display.GetScale(RunWindow.AppWindow)) - 265,
+                (int)(Display.GetAvailableRectForWindow(RunWindow.Handle).bottom / Display.GetScale(RunWindow.Handle)) - 265,
                 450,
                 240);
             RunWindow.Title = title;
@@ -100,7 +102,11 @@ public partial class App : Application
 
     public static void CloseRunWindow()
     {
-        RunWindow?.Close();
+        UIThreadQueue.QueueAction(() =>
+        {
+            RunWindow?.Close();
+            return Task.CompletedTask;
+        });
     }
 
     public static IslandsWindow? RunWindow { get; set; }

@@ -6,7 +6,8 @@ using CommunityToolkit.Mvvm.Input;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.Win32;
 using Rebound.About.ViewModels;
-using Rebound.Core.Helpers.Environment;
+using Rebound.Core;
+using Rebound.Core.SystemInformation.Software;
 using System;
 using System.Diagnostics;
 using System.Runtime.CompilerServices;
@@ -297,7 +298,7 @@ public sealed partial class MainPage : Page
     {
         get
         {
-            return SystemInformation.GetWindowsActivationType() switch
+            return WindowsInformation.GetWindowsActivationType() switch
             {
                 WindowsActivationType.Unlicensed => InfoBarSeverity.Error,
                 WindowsActivationType.Activated => InfoBarSeverity.Success,
@@ -315,7 +316,7 @@ public sealed partial class MainPage : Page
 
     private static async Task<BitmapImage?> GetUserPictureAsync()
     {
-        var picturePath = SystemInformation.GetUserPicturePath();
+        var picturePath = UserInformation.GetUserPicturePath();
         if (!string.IsNullOrEmpty(picturePath)) return new BitmapImage(new Uri(picturePath));
         else return null;
     }
@@ -507,7 +508,7 @@ public sealed partial class MainPage : Page
     private void CopyLicenseOwners() => CopyToClipboard(MainViewModel.LicenseOwners);
 
     [RelayCommand]
-    private static void CopyReboundVersion() => CopyToClipboard(ReboundVersion.REBOUND_VERSION);
+    private static void CopyReboundVersion() => CopyToClipboard(Variables.ReboundVersion);
 
     [RelayCommand]
     private void CloseWindow() => App.MainWindow?.Close();

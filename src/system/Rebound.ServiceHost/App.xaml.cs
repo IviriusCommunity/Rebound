@@ -2,7 +2,8 @@
 // Licensed under the MIT License.
 
 using Rebound.Core.Helpers;
-using Rebound.Core.Helpers.Services;
+using Rebound.Core.IPC;
+using Rebound.Core.UI;
 using Rebound.Forge;
 using Rebound.Forge.Engines;
 using Rebound.Generators;
@@ -21,7 +22,7 @@ public partial class App : Application
 {
     private static PipeHost? PipeServer;
 
-    private void OnSingleInstanceLaunched(object sender, SingleInstanceLaunchEventArgs e) => Program.QueueAction(async () =>
+    private void OnSingleInstanceLaunched(object sender, SingleInstanceLaunchEventArgs e) => UIThreadQueue.QueueAction(async () =>
     {
         if (e.IsFirstLaunch)
         {

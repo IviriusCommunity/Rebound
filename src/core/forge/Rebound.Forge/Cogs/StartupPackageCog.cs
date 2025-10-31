@@ -36,8 +36,8 @@ public class StartupPackageCog : ICog
             using var pszRebound = PInvoke.SysAllocString("Rebound");
             using var pszDescription = PInvoke.SysAllocString(Description);
             using var pszName = PInvoke.SysAllocString(Name);
-            using var pszCommand = PInvoke.SysAllocString("explorer.exe");
-            using var pszArguments = PInvoke.SysAllocString($"shell:AppsFolder\\{TargetPackageFamilyName}!App");
+            using var pszCommand = PInvoke.SysAllocString(Variables.ReboundLauncherPath);
+            using var pszArguments = PInvoke.SysAllocString($"--launchPackage {TargetPackageFamilyName}!App");
 
             ReboundLogger.Log("[StartupPackageCog] Apply started.");
 
