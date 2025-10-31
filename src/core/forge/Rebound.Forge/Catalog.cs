@@ -173,6 +173,11 @@ public static class Catalog
                 {
                     StoreProductId = "9WZDNCRDXF41",
                     PackageFamilyName = "58027.265370AB8DB33_fjemmk5ta3a5g"
+                },
+                new IFEOCog()
+                {
+                    OriginalExecutableName = "charmap.exe",
+                    LauncherPath = Variables.ReboundLauncherPath
                 }
             ],
             processName: "Character Map UWP",
