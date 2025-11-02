@@ -27,10 +27,6 @@ PostMessage
 CreateIcon
 CoCreateInstance
 IApplicationActivationManager
-IShellLink
 IShellLinkW
 IPersistFile
 CoCreateInstance
-CLSID_ShellLink
-IID_IShellLinkW
-IID_IPersistFile
