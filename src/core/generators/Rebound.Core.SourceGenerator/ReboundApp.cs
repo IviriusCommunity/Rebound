@@ -4,39 +4,66 @@
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
-using System;
-using System.Collections.Generic;
 using System.Linq;
 using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 
 namespace Rebound.Generators;
 
+// Change 1: Implement IIncrementalGenerator
 [Generator]
-public class ReboundAppSourceGenerator : ISourceGenerator
+public class ReboundAppSourceGenerator : IIncrementalGenerator
 {
-    public void Initialize(GeneratorInitializationContext context)
+    public void Initialize(IncrementalGeneratorInitializationContext context)
     {
-        context.RegisterForSyntaxNotifications(() => new SyntaxReceiver());
-    }
+        // 1. Define a provider for all ClassDeclarationSyntax nodes
+        var classDeclarations = context.SyntaxProvider
+            .CreateSyntaxProvider(
+                predicate: static (s, _) => s is ClassDeclarationSyntax,
+                transform: static (ctx, _) =>
+                {
+                    // Ensure we get the symbol from the syntax context
+                    if (ctx.SemanticModel.GetDeclaredSymbol((ClassDeclarationSyntax)ctx.Node) is INamedTypeSymbol symbol)
+                    {
+                        return symbol;
+                    }
+                    return null;
+                }
+            )
+            // Filter: Only keep symbols that are classes and have the ReboundAppAttribute
+            // FIX: 's' is now directly an INamedTypeSymbol (or null) because of the transform above.
+            .Where(static s => s is not null && s.GetAttributes()
+                .Any(attr => attr.AttributeClass?.Name == "ReboundAppAttribute" || attr.AttributeClass?.Name == "ReboundApp"));
 
-    public void Execute(GeneratorExecutionContext context)
-    {
-        if (context.SyntaxContextReceiver is not SyntaxReceiver receiver) return;
+        // 2. Combine all found symbols into a single, post-filter item (if any exist)
+        // FIX: The type is directly INamedTypeSymbol?
+        var classToGenerate = classDeclarations.Collect()
+            .Select(static (items, _) => items.FirstOrDefault());
 
-        var classSymbol = receiver.CandidateClasses[0];
+
+        // 3. Register a source output
+        // FIX: Remove 'static' from the lambda here OR make all called methods static.
+        // We will make the called methods static.
+        context.RegisterSourceOutput(classToGenerate, (ctx, classSymbol) =>
         {
+            if (classSymbol is null) return;
+
             try
             {
+                // FIX: 'classSymbol' is now INamedTypeSymbol? and can directly use GetAttributes()
                 var attribute = classSymbol.GetAttributes()
-                    .FirstOrDefault(attr => attr.AttributeClass?.Name == "ReboundAppAttribute");
+                    .FirstOrDefault(attr => attr.AttributeClass?.Name == "ReboundAppAttribute" || attr.AttributeClass?.Name == "ReboundApp");
 
-                var singleInstanceTaskName = attribute?.ConstructorArguments[0].Value?.ToString() ?? "";
+                // FIX: Added safer check for ConstructorArguments
+                var singleInstanceTaskName = attribute?.ConstructorArguments.FirstOrDefault().Value?.ToString() ?? "";
 
+                // FIX: 'classSymbol' is INamedTypeSymbol? and can directly use ContainingNamespace
                 var namespaceName = classSymbol.ContainingNamespace.ToDisplayString();
 
+                // GenerateAppClass and GenerateProgramClass MUST now be static.
                 var appClass = GenerateAppClass(classSymbol, singleInstanceTaskName);
                 var programClass = GenerateProgramClass();
 
+                // ... (rest of the generation logic remains the same)
                 var namespaceDecl = NamespaceDeclaration(IdentifierName(namespaceName))
                     .AddMembers(appClass, programClass);
 
@@ -55,11 +82,11 @@ public class ReboundAppSourceGenerator : ISourceGenerator
                     .AddMembers(namespaceDecl)
                     .NormalizeWhitespace();
 
-                context.AddSource("App_Generated.g.cs", compilationUnit.ToFullString());
+                ctx.AddSource("App_Generated.g.cs", compilationUnit.ToFullString());
             }
-            catch (Exception ex)
+            catch (System.Exception ex)
             {
-                context.ReportDiagnostic(Diagnostic.Create(
+                ctx.ReportDiagnostic(Diagnostic.Create(
                     new DiagnosticDescriptor(
                         "REBOUND001",
                         "Error in ReboundAppSourceGenerator",
@@ -69,28 +96,39 @@ public class ReboundAppSourceGenerator : ISourceGenerator
                         true),
                     Location.None));
             }
-        }
+        });
     }
 
-    private ClassDeclarationSyntax GenerateAppClass(INamedTypeSymbol classSymbol, string singleInstanceTaskName)
+    // FIX: Must be 'static' to be called from the non-static RegisterSourceOutput lambda
+    private static ClassDeclarationSyntax GenerateAppClass(INamedTypeSymbol classSymbol, string singleInstanceTaskName)
     {
+        // ... (implementation remains the same)
         var className = classSymbol.Name;
 
-        // Constructor wires up the _singleInstanceAppService to the existing OnSingleInstanceLaunched method
         var constructor = ConstructorDeclaration(className)
             .AddModifiers(Token(SyntaxKind.PublicKeyword))
             .WithBody(Block(
-                ParseStatement($@"_singleInstanceAppService = new global::Rebound.Core.UI.SingleInstanceAppService(""{singleInstanceTaskName}"");"),
+                ExpressionStatement(
+                    AssignmentExpression(
+                        SyntaxKind.SimpleAssignmentExpression,
+                        IdentifierName("_singleInstanceAppService"),
+                        ObjectCreationExpression(
+                            IdentifierName("global::Rebound.Core.UI.SingleInstanceAppService"))
+                        .WithArgumentList(
+                            ArgumentList(
+                                SingletonSeparatedList(
+                                    Argument(
+                                        LiteralExpression(
+                                            SyntaxKind.StringLiteralExpression,
+                                            Literal(singleInstanceTaskName)))))))),
                 ParseStatement(@"_singleInstanceAppService.Launched += OnSingleInstanceLaunched;")
             ));
 
-        // Field for single instance service
         var singleInstanceField = FieldDeclaration(
             VariableDeclaration(IdentifierName("SingleInstanceAppService"))
                 .AddVariables(VariableDeclarator("_singleInstanceAppService")))
             .AddModifiers(Token(SyntaxKind.PublicKeyword));
 
-        // Compose the App class (partial)
         var classDecl = ClassDeclaration(className)
             .AddModifiers(Token(SyntaxKind.PartialKeyword))
             .AddMembers(singleInstanceField, constructor);
@@ -98,9 +136,10 @@ public class ReboundAppSourceGenerator : ISourceGenerator
         return classDecl;
     }
 
-    private ClassDeclarationSyntax GenerateProgramClass()
+    // FIX: Must be 'static' to be called from the non-static RegisterSourceOutput lambda
+    private static ClassDeclarationSyntax GenerateProgramClass()
     {
-        // Program class with _actions queue and QueueAction helper
+        // ... (implementation remains the same)
         return ParseMemberDeclaration(@"
 internal static partial class Program
 {
@@ -112,18 +151,16 @@ internal static partial class Program
 
         var app = new App();
 
-        // Launch single-instance logic (blocking) on a background thread
         Task.Run(() => app._singleInstanceAppService.Launch(string.Join("" "", args)));
 
         MSG msg;
         while (true)
         {
-            // Process all Windows messages in the queue without blocking
             while (TerraFX.Interop.Windows.Windows.PeekMessageW(&msg, HWND.NULL, 0, 0, PM.PM_REMOVE))
             {
-                foreach (var window in _windowList._openWindows.ToArray())
+                foreach (var window in WindowList.OpenWindows.ToArray())
                 {
-                    if (!window._closed)
+                    if (!window.Closed)
                     {
                         if (!window.PreTranslateMessage(&msg))
                         {
@@ -134,43 +171,19 @@ internal static partial class Program
                 }
             }
 
-            // Process queued actions if any
-            var actionsToRun2 = new List<Func<Task>>();
+            var actionsToRun2 = new System.Collections.Generic.List<System.Func<System.Threading.Tasks.Task>>();
             while (Rebound.Core.UI.UIThreadQueue._actions.TryDequeue(out var action2))
                 actionsToRun2.Add(action2);
 
-            foreach (var action2 in actionsToRun2.ToArray()) // snapshot to avoid collection modified issues
+            foreach (var action2 in actionsToRun2.ToArray())
             {
                 try { _ = action2(); }
                 catch { /* log */ }
             }
+            
+            System.Threading.Thread.Sleep(1);
         }
     }
-}")?.NormalizeWhitespace() as ClassDeclarationSyntax ?? throw new Exception("Failed to generate Program class");
+}").NormalizeWhitespace() as ClassDeclarationSyntax ?? throw new System.Exception("Failed to generate Program class");
     }
-}
-
-// SyntaxReceiver
-internal class SyntaxReceiver : ISyntaxContextReceiver
-{
-    public List<INamedTypeSymbol> CandidateClasses { get; } = new();
-
-    public void OnVisitSyntaxNode(GeneratorSyntaxContext context)
-    {
-        if (context.Node is ClassDeclarationSyntax classDecl)
-        {
-            var symbol = context.SemanticModel.GetDeclaredSymbol(classDecl);
-            if (symbol?.GetAttributes().Any(attr => attr.AttributeClass?.Name == "ReboundAppAttribute") == true)
-            {
-                CandidateClasses.Add(symbol);
-            }
-        }
-    }
-}
-
-public class LegacyLaunchItem(string name, string launchArg, string iconPath)
-{
-    public string Name { get; } = name;
-    public string LaunchArg { get; } = launchArg;
-    public string IconPath { get; } = iconPath;
 }

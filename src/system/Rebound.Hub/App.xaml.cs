@@ -33,7 +33,7 @@ public partial class App : Application
         MainWindow = new()
         {
             IsPersistenceEnabled = true,
-            PersistanceFileName = "reboundhub",
+            PersistenceFileName = "reboundhub",
             PersistenceKey = "Rebound.Hub.MainWindow"
         };
         

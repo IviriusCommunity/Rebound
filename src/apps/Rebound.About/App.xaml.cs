@@ -121,7 +121,7 @@ public partial class App : Application
         {
             IsPersistenceEnabled = true,
             PersistenceKey = "Rebound.About.MainWindow",
-            PersistanceFileName = "winver",
+            PersistenceFileName = "winver",
             Width = 520,
             Height = 740,
             X = 50,

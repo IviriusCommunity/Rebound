@@ -7,29 +7,22 @@ using Microsoft.UI;
 using Microsoft.UI.Windowing;
 using Microsoft.UI.Xaml.Controls;
 using Rebound.Core.Helpers;
-using System;
-using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
-using System.Threading;
-using System.Threading.Tasks;
 using TerraFX.Interop.Windows;
 using TerraFX.Interop.WinRT;
-using Windows.Graphics;
 using Windows.Graphics.Imaging;
 using Windows.Storage.Streams;
 using Windows.System;
-using Windows.UI;
 using Windows.UI.Core;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Hosting;
 using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Media.Imaging;
-using Windows.Win32;
 using WinRT;
-using static System.Net.Mime.MediaTypeNames;
 using static TerraFX.Interop.Windows.SWP;
 using static TerraFX.Interop.Windows.Windows;
 using static TerraFX.Interop.Windows.WM;
@@ -40,14 +33,7 @@ using LPARAM = TerraFX.Interop.Windows.LPARAM;
 using LRESULT = TerraFX.Interop.Windows.LRESULT;
 using WPARAM = TerraFX.Interop.Windows.WPARAM;
 
-#pragma warning disable CA1515 // Consider making public types internal
-#pragma warning disable CA1416 // Validate platform compatibility
-
 namespace Rebound.Core.UI;
-
-// ============================================================================
-// ENUMS
-// ============================================================================
 
 public enum DialogIcon
 {
@@ -58,55 +44,53 @@ public enum DialogIcon
     Shield
 }
 
-// ============================================================================
-// EVENT ARGS
-// ============================================================================
-
 public class IslandsWindowClosingEventArgs : EventArgs
 {
     public bool Handled { get; set; }
 }
 
-public class XamlInitializedEventArgs : EventArgs
+public class XamlInitializedEventArgs : EventArgs { }
+
+public class AppWindowInitializedEventArgs : EventArgs { }
+
+public static class WindowList
 {
-}
+    public static readonly List<IslandsWindow> OpenWindows = [];
+    public static bool KeepAlive { get; set; }
 
-public class AppWindowInitializedEventArgs : EventArgs
-{
-}
-
-// ============================================================================
-// WINDOW LIST MANAGER
-// ============================================================================
-
-public static class _windowList
-{
-    public static readonly List<IslandsWindow> _openWindows = [];
-    public static bool KeepAlive = false;
-
-    public static void RegisterWindow(IslandsWindow window)
+    /// <summary>
+    /// Register the window to the global open windows list. Used for tracking how many windows are open
+    /// in an app for automatic closing. To override automatic app closing, set <see cref="KeepAlive"/> to true.
+    /// </summary>
+    /// <param name="window">The window to add to the collection.</param>
+    internal static void RegisterWindow(IslandsWindow window)
     {
-        _openWindows.Add(window);
-        window.Closed += (s, e) =>
+        OpenWindows.Add(window);
+        window.OnClosed += (s, e) =>
         {
-            _openWindows.Remove(window);
-            if (_openWindows.Count == 0 && !KeepAlive)
+            OpenWindows.Remove(window);
+            if (OpenWindows.Count == 0 && !KeepAlive)
             {
-                Windows.UI.Xaml.Application.Current.Exit();
+                Application.Current.Exit();
                 Process.GetCurrentProcess().Kill();
             }
         };
     }
 }
 
-// ============================================================================
-// REBOUND DIALOG
-// ============================================================================
-
-public sealed class ReboundDialog : IslandsWindow
+public sealed partial class ReboundDialog : IslandsWindow
 {
-    private TaskCompletionSource<bool> _tcs = new();
+    private readonly TaskCompletionSource<bool> _tcs = new();
 
+    /// <summary>
+    /// Shows a simple dialog window in WinUI 2 XAML islands, based on the Win32 message box. For quick usage
+    /// of a disposable dialog used for notifying the user of various things, use this method instead of
+    /// creating an instance of the <see cref="ReboundDialog"/> class.
+    /// </summary>
+    /// <param name="title">The title of the window. Appears in the title bar, taskbar, and header.</param>
+    /// <param name="message">Message content for the dialog.</param>
+    /// <param name="icon">The icon used by the dialog. Queried from the system.</param>
+    /// <returns>A task corresponding to the object.</returns>
     public static async Task ShowAsync(string title, string message, DialogIcon icon = DialogIcon.Info)
     {
         using var dlg = new ReboundDialog(title, message, icon);
@@ -114,6 +98,14 @@ public sealed class ReboundDialog : IslandsWindow
         await dlg._tcs.Task.ConfigureAwait(false);
     }
 
+    /// <summary>
+    /// Initializes an instance of the <see cref="ReboundDialog"/> class: a simple dialog window in WinUI 2 XAML islands,
+    /// based on the Win32 message box. For a quick usage of a disposable dialog used for notifying the user of various things,
+    /// use the <see cref="ShowAsync"/> method instead of creating an instance of this class.
+    /// </summary>
+    /// <param name="title">The title of the window. Appears in the title bar, taskbar, and header.</param>
+    /// <param name="message">Message content for the dialog.</param>
+    /// <param name="icon">The icon used by the dialog. Queried from the system.</param>
     public ReboundDialog(string title, string message, DialogIcon icon)
     {
         Title = title;
@@ -122,6 +114,8 @@ public sealed class ReboundDialog : IslandsWindow
         XamlInitialized += (_, _) =>
         {
             var page = new Page();
+
+            // Mica (mandatory as always)
             BackdropMaterial.SetApplyToRootOrPageBackground(page, true);
 
             var rootGrid = new Grid
@@ -198,7 +192,7 @@ public sealed class ReboundDialog : IslandsWindow
             // Footer bar
             var footerBar = new Border
             {
-                Background = (Brush)Windows.UI.Xaml.Application.Current.Resources["SystemControlBackgroundAltMediumLowBrush"],
+                Background = (Brush)Application.Current.Resources["SystemControlBackgroundAltMediumLowBrush"],
                 Padding = new Thickness(24),
                 Margin = new(-20, 0, -20, 0)
             };
@@ -208,7 +202,7 @@ public sealed class ReboundDialog : IslandsWindow
             var okButton = new Button
             {
                 Content = "OK",
-                Style = (Style)Windows.UI.Xaml.Application.Current.Resources["AccentButtonStyle"],
+                Style = (Style)Application.Current.Resources["AccentButtonStyle"],
                 HorizontalAlignment = HorizontalAlignment.Right,
                 Width = 100
             };
@@ -246,7 +240,7 @@ public sealed class ReboundDialog : IslandsWindow
 
     private static unsafe BitmapImage? LoadSystemIcon(DialogIcon icon)
     {
-        string dll = System.Environment.SystemDirectory + "\\imageres.dll";
+        string dll = Environment.SystemDirectory + "\\imageres.dll";
         int iconIndex = icon switch
         {
             DialogIcon.Warning => 79,
@@ -256,29 +250,29 @@ public sealed class ReboundDialog : IslandsWindow
             _ => 277
         };
 
-        Windows.Win32.UI.WindowsAndMessaging.HICON largeIcon = default;
+        HICON largeIcon = default;
         fixed (char* dllPtr = dll)
         {
-            PInvoke.ExtractIconEx(new(dllPtr), iconIndex, &largeIcon, null, 1);
+            ExtractIconEx(dllPtr, iconIndex, &largeIcon, null, 1);
         }
 
-        Windows.Win32.UI.WindowsAndMessaging.ICONINFO iconInfo;
-        if (!PInvoke.GetIconInfo(largeIcon, &iconInfo))
+        ICONINFO iconInfo;
+        if (!GetIconInfo(largeIcon, &iconInfo))
             return null;
 
         Windows.Win32.Graphics.Gdi.BITMAP bmp;
-        if (PInvoke.GetObject(iconInfo.hbmColor, sizeof(Windows.Win32.Graphics.Gdi.BITMAP), &bmp) == 0)
+        if (GetObject(iconInfo.hbmColor, sizeof(Windows.Win32.Graphics.Gdi.BITMAP), &bmp) == 0)
             return null;
 
         int width = bmp.bmWidth;
         int height = Math.Abs(bmp.bmHeight);
 
-        var hdcScreen = PInvoke.GetDC(new());
-        var hdcMem = PInvoke.CreateCompatibleDC(hdcScreen);
-        var hBitmap = PInvoke.CreateCompatibleBitmap(hdcScreen, width, height);
-        var old = PInvoke.SelectObject(hdcMem, hBitmap);
+        var hdcScreen = GetDC(new());
+        var hdcMem = CreateCompatibleDC(hdcScreen);
+        var hBitmap = CreateCompatibleBitmap(hdcScreen, width, height);
+        var old = SelectObject(hdcMem, hBitmap);
 
-        PInvoke.DrawIconEx(hdcMem, 0, 0, largeIcon, width, height, 0, new(), Windows.Win32.UI.WindowsAndMessaging.DI_FLAGS.DI_NORMAL);
+        DrawIconEx(hdcMem, 0, 0, largeIcon, width, height, 0, new(), (uint)Windows.Win32.UI.WindowsAndMessaging.DI_FLAGS.DI_NORMAL);
 
         int bytesPerPixel = 4;
         int stride = width * bytesPerPixel;
@@ -287,11 +281,11 @@ public sealed class ReboundDialog : IslandsWindow
 
         fixed (byte* pPixels = pixelData)
         {
-            Windows.Win32.Graphics.Gdi.BITMAPINFO bmi = new()
+            BITMAPINFO bmi = new()
             {
                 bmiHeader =
                 {
-                    biSize = (uint)sizeof(Windows.Win32.Graphics.Gdi.BITMAPINFOHEADER),
+                    biSize = (uint)sizeof(BITMAPINFOHEADER),
                     biWidth = width,
                     biHeight = -height,
                     biPlanes = 1,
@@ -300,16 +294,16 @@ public sealed class ReboundDialog : IslandsWindow
                 }
             };
 
-            _ = PInvoke.GetDIBits(hdcMem, hBitmap, 0, (uint)height, pPixels, &bmi, Windows.Win32.Graphics.Gdi.DIB_USAGE.DIB_RGB_COLORS);
+            _ = GetDIBits(hdcMem, hBitmap, 0, (uint)height, pPixels, &bmi, (uint)Windows.Win32.Graphics.Gdi.DIB_USAGE.DIB_RGB_COLORS);
         }
 
-        PInvoke.SelectObject(hdcMem, old);
-        PInvoke.DeleteDC(hdcMem);
-        _ = PInvoke.ReleaseDC(new(), hdcScreen);
-        PInvoke.DeleteObject(hBitmap);
-        PInvoke.DeleteObject(iconInfo.hbmColor);
-        PInvoke.DeleteObject(iconInfo.hbmMask);
-        PInvoke.DestroyIcon(largeIcon);
+        SelectObject(hdcMem, old);
+        DeleteDC(hdcMem);
+        _ = ReleaseDC(new(), hdcScreen);
+        DeleteObject(hBitmap);
+        DeleteObject(iconInfo.hbmColor);
+        DeleteObject(iconInfo.hbmMask);
+        DestroyIcon(largeIcon);
 
         using var stream = new InMemoryRandomAccessStream();
         var encoder = BitmapEncoder.CreateAsync(BitmapEncoder.PngEncoderId, stream).AsTask().Result;
@@ -333,107 +327,105 @@ public sealed class ReboundDialog : IslandsWindow
     }
 }
 
-// ============================================================================
-// ISLANDS WINDOW
-// ============================================================================
-
 public partial class IslandsWindow : ObservableObject, IDisposable
 {
-    // ------------------------------------------------------------------------
-    // STATIC FIELDS
-    // ------------------------------------------------------------------------
-
+    // Constants and static fields
     private const string WindowClassName = "XamlIslandsClass";
     private static readonly ushort _classAtom;
-    private static WindowsXamlManager? _xamlManager;
+    private static readonly WindowsXamlManager? _xamlManager;
 
-    // ------------------------------------------------------------------------
-    // INSTANCE FIELDS - State
-    // ------------------------------------------------------------------------
-
-    public bool _closed { get; private set; }
+    // Internal stuff
     private bool _disposed;
     private volatile bool _xamlInitialized;
     private bool _internalResize;
     private bool _isInitializing;
 
-    // ------------------------------------------------------------------------
-    // INSTANCE FIELDS - Handles
-    // ------------------------------------------------------------------------
-
+    // Native handles
     private GCHandle _thisHandle;
     private HWND _xamlHwnd;
     private HWND _coreHwnd;
 
-    // ------------------------------------------------------------------------
-    // INSTANCE FIELDS - WinRT Objects
-    // ------------------------------------------------------------------------
-
+    // UWP
     private DesktopWindowXamlSource? _desktopWindowXamlSource;
     private CoreWindow? _coreWindow;
 
-    // ------------------------------------------------------------------------
-    // INSTANCE FIELDS - COM Pointers
-    // ------------------------------------------------------------------------
+    // WinRT
+    private ComPtr<IDesktopWindowXamlSourceNative2> _nativeSource;
+    private ComPtr<ICoreWindowInterop> _coreWindowInterop;
 
-    private TerraFX.Interop.Windows.ComPtr<IDesktopWindowXamlSourceNative2> _nativeSource;
-    private TerraFX.Interop.Windows.ComPtr<ICoreWindowInterop> _coreWindowInterop;
+    /// <summary>
+    /// Indicates if the window has been closed. Use this property to check if the window is still open in case
+    /// you need to do operations in contexts when you are not sure if the window is still alive.
+    /// </summary>
+    public bool Closed { get; private set; }
 
-    // ------------------------------------------------------------------------
-    // PUBLIC PROPERTIES - Window Handles
-    // ------------------------------------------------------------------------
-
+    /// <summary>
+    /// The Win32 handle for the current window. Once the window has been created, this property can no longer
+    /// be changed.
+    /// </summary>
     public HWND Handle { get; private set; }
+
+    /// <summary>
+    /// AppWindow object for the current window. To append AppWindow tasks, subscribe to the 
+    /// <see cref="AppWindowInitialized"/> event to ensure the AppWindow is ready for the
+    /// requested operations.
+    /// </summary>
     public AppWindow? AppWindow { get; private set; }
 
-    // ------------------------------------------------------------------------
-    // PUBLIC PROPERTIES - Observable (Window Capabilities)
-    // ------------------------------------------------------------------------
-
+    [ObservableProperty] public partial UIElement? Content { get; set; }
     [ObservableProperty] public partial bool IsMaximizable { get; set; } = true;
     [ObservableProperty] public partial bool IsMinimizable { get; set; } = true;
     [ObservableProperty] public partial bool IsResizable { get; set; } = true;
-
-    // ------------------------------------------------------------------------
-    // PUBLIC PROPERTIES - Observable (Size Constraints)
-    // ------------------------------------------------------------------------
-
     [ObservableProperty] public partial int MinWidth { get; set; } = 0;
     [ObservableProperty] public partial int MinHeight { get; set; } = 0;
     [ObservableProperty] public partial int MaxWidth { get; set; } = int.MaxValue;
     [ObservableProperty] public partial int MaxHeight { get; set; } = int.MaxValue;
-
-    // ------------------------------------------------------------------------
-    // PUBLIC PROPERTIES - Observable (Window State)
-    // ------------------------------------------------------------------------
-
     [ObservableProperty] public partial string Title { get; set; } = "UWP XAML Islands Window";
-    [ObservableProperty] public partial UIElement? Content { get; set; }
     [ObservableProperty] public partial int Width { get; set; } = int.MinValue;
     [ObservableProperty] public partial int Height { get; set; } = int.MinValue;
     [ObservableProperty] public partial int X { get; set; } = int.MinValue;
     [ObservableProperty] public partial int Y { get; set; } = int.MinValue;
-
-    // ------------------------------------------------------------------------
-    // PUBLIC PROPERTIES - Observable (Persistence)
-    // ------------------------------------------------------------------------
-
     [ObservableProperty] public partial bool IsPersistenceEnabled { get; set; } = false;
     [ObservableProperty] public partial string PersistenceKey { get; set; } = nameof(IslandsWindow);
-    [ObservableProperty] public partial string PersistanceFileName { get; set; } = "rebound";
+    [ObservableProperty] public partial string PersistenceFileName { get; set; } = "rebound";
 
-    // ------------------------------------------------------------------------
-    // EVENTS
-    // ------------------------------------------------------------------------
-
+    /// <summary>
+    /// Triggered once when the XAML environment has been initialized for the current window.
+    /// Subscribe to this event in order to set the <see cref="Content"/> of the current window to
+    /// avoid race conditions.
+    /// </summary>
     public event EventHandler<XamlInitializedEventArgs>? XamlInitialized;
-    public event EventHandler<AppWindowInitializedEventArgs>? AppWindowInitialized;
-    public event EventHandler<IslandsWindowClosingEventArgs>? Closing;
-    public event EventHandler? Closed;
 
-    // ------------------------------------------------------------------------
-    // STATIC CONSTRUCTOR
-    // ------------------------------------------------------------------------
+    /// <summary>
+    /// Triggered once when the <see cref="AppWindow"/> has been initialized for the current
+    /// window. Subscribe to this event in order to perform AppWindow operations to prevent
+    /// race conditions.
+    /// </summary>
+    public event EventHandler<AppWindowInitializedEventArgs>? AppWindowInitialized;
+
+    /// <summary>
+    /// Triggered whenever the window is about to be closed. If you want to display a confirmation
+    /// dialog, for example, use this event instead of <see cref="OnClosed"/> and set 
+    /// <see cref="IslandsWindowClosingEventArgs.Handled"/> to <see langword="true"/>.
+    /// </summary>
+    public event EventHandler<IslandsWindowClosingEventArgs>? OnClosing;
+
+    /// <summary>
+    /// Triggered whenever the window is fully closed. Use this event for cleanup and other
+    /// post-closing operations.
+    /// </summary>
+    public event EventHandler? OnClosed;
+
+    /// <summary>
+    /// An object that defines a UWP XAML Islands window with the <see cref="AppWindow"/> property
+    /// for convenience. To show the window, call the <see cref="Create"/> method.
+    /// </summary>
+    public IslandsWindow() { }
+
+    ~IslandsWindow()
+    {
+        Dispose();
+    }
 
 #pragma warning disable CA1810 // Initialize reference type static fields inline
     static IslandsWindow()
@@ -463,10 +455,6 @@ public partial class IslandsWindow : ObservableObject, IDisposable
         _xamlManager = WindowsXamlManager.InitializeForCurrentThread();
     }
 
-    // ------------------------------------------------------------------------
-    // STATIC METHODS
-    // ------------------------------------------------------------------------
-
     [UnmanagedCallersOnly]
     private static unsafe LRESULT WndProcStatic(HWND hwnd, uint msg, WPARAM wParam, LPARAM lParam)
     {
@@ -486,33 +474,30 @@ public partial class IslandsWindow : ObservableObject, IDisposable
             LoadLibraryW(libName);
     }
 
-    // ------------------------------------------------------------------------
-    // CONSTRUCTOR
-    // ------------------------------------------------------------------------
-
-    public IslandsWindow() { }
-
-    // ------------------------------------------------------------------------
-    // PUBLIC METHODS - Window Lifecycle
-    // ------------------------------------------------------------------------
-
+    /// <summary>
+    /// Creates and shows the current window. When calling this, the <see cref="XamlInitialized"/> 
+    /// and <see cref="AppWindowInitialized"/> events will be triggered.
+    /// </summary>
+    /// <exception cref="InvalidOperationException"></exception>
     public unsafe void Create()
     {
         ThrowIfDisposed();
 
         _isInitializing = true;
         _thisHandle = GCHandle.Alloc(this, GCHandleType.Normal);
-        IntPtr gcPtr = GCHandle.ToIntPtr(_thisHandle);
+        var gcPtr = GCHandle.ToIntPtr(_thisHandle);
 
         fixed (char* className = WindowClassName)
         fixed (char* windowName = Title)
         {
-            // Create window *hidden* (no WS_VISIBLE)
+            // Create window
+            // For the best UX, the window is created hidden, sized, initialized,
+            // and only then shown and activated
             Handle = CreateWindowExW(
                 WS_EX_APPWINDOW | WS_EX_NOREDIRECTIONBITMAP,
                 className,
                 windowName,
-                WS_OVERLAPPEDWINDOW,  // <-- no WS_VISIBLE here!
+                WS_OVERLAPPEDWINDOW,
                 CW_USEDEFAULT, CW_USEDEFAULT,
                 CW_USEDEFAULT, CW_USEDEFAULT,
                 HWND.NULL,
@@ -520,14 +505,20 @@ public partial class IslandsWindow : ObservableObject, IDisposable
                 GetModuleHandleW(null),
                 null);
 
+            // Something went seriously wrong
             if (Handle == HWND.NULL)
-                throw new Exception("Failed to create window");
+                throw new InvalidOperationException("Failed to create window");
 
+            // Save the current object to the window's
+            // user data for retrieval in the static WndProc
             SetWindowLongPtrW(Handle, GWLP.GWLP_USERDATA, gcPtr);
 
-            // Do your sizing logic here BEFORE showing the window
+            // Sizing logic
             var (x, y, width, height) = GetDefaultUwpLikeSize();
 
+            // If the raw values are still set to MinValue, it means
+            // the window isn't created with explicit default size
+            // and position values, so the window defaults can be applied
             if (Width == int.MinValue) Width = width;
             if (Height == int.MinValue) Height = height;
             if (X == int.MinValue) X = x;
@@ -536,22 +527,23 @@ public partial class IslandsWindow : ObservableObject, IDisposable
             SetWindowPos(Handle, HWND.HWND_TOP, X, Y, Width, Height,
                 SWP_NOZORDER | SWP_NOACTIVATE);
 
+            // AppWindow
             AppWindow = AppWindow.GetFromWindowId(Win32Interop.GetWindowIdFromWindow(Handle));
             AppWindow.Closing += OnAppWindowClosing;
-
             AppWindowInitialized?.Invoke(this, new AppWindowInitializedEventArgs());
 
+            // XAML
             InitializeXaml();
-
-            // Apply Mica + Dark Mode settings here AFTER XAML init (your code)
-
             _isInitializing = false;
 
+            // Window persistence
             ApplyInitialPlacement();
 
-            _windowList.RegisterWindow(this);
+            // Register the window in the global list
+            WindowList.RegisterWindow(this);
 
-            // Now show the window and activate it, triggering animation
+            // Show the window and activate it now that all the properties
+            // have been set
             ShowWindow(Handle, SW.SW_SHOW);
             AllowSetForegroundWindow(ASFW_ANY);
             BringWindowToTop(Handle);
@@ -565,31 +557,40 @@ public partial class IslandsWindow : ObservableObject, IDisposable
     {
         ThrowIfDisposed();
 
+        // If XAML is already initialized, it shouldn't
+        // be initialized again
         if (_xamlInitialized) return;
 
+        // Create the UWP DesktopWindowXamlSource
         _desktopWindowXamlSource = new DesktopWindowXamlSource();
 
+        // Get the raw native interop object for the XAML source
         var raw = ((IUnknown*)((IWinRTObject)_desktopWindowXamlSource).NativeObject.ThisPtr);
         ThrowIfFailed(raw->QueryInterface(__uuidof<IDesktopWindowXamlSourceNative2>(), (void**)_nativeSource.GetAddressOf()));
 
+        // Attach to the current window and get the XAML HWND
         ThrowIfFailed(_nativeSource.Get()->AttachToWindow(Handle));
         ThrowIfFailed(_nativeSource.Get()->get_WindowHandle((HWND*)Unsafe.AsPointer(ref _xamlHwnd)));
 
+        // Set the initial size of the XAML island to fill the window
         RECT clientRect;
         GetClientRect(Handle, &clientRect);
         var clientWidth = clientRect.right - clientRect.left;
         var clientHeight = clientRect.bottom - clientRect.top;
         SetWindowPos(_xamlHwnd, HWND.NULL, 0, 0, clientWidth, clientHeight, SWP_SHOWWINDOW | SWP_NOACTIVATE | SWP_NOZORDER);
 
+        // Obtain the CoreWindow for the XAML island
         _coreWindow = CoreWindow.GetForCurrentThread();
         var coreRaw = ((IUnknown*)((IWinRTObject)_coreWindow).NativeObject.ThisPtr);
         ThrowIfFailed(coreRaw->QueryInterface(__uuidof<ICoreWindowInterop>(), (void**)_coreWindowInterop.GetAddressOf()));
         ThrowIfFailed(_coreWindowInterop.Get()->get_WindowHandle((HWND*)Unsafe.AsPointer(ref _coreHwnd)));
 
+        // Trigger the XamlInitialized event and set the synchronization context
         _xamlInitialized = true;
         XamlInitialized?.Invoke(this, new XamlInitializedEventArgs());
         SynchronizationContext.SetSynchronizationContext(new DispatcherQueueSynchronizationContext(DispatcherQueue.GetForCurrentThread()));
 
+        // Theme stuff for dark mode support on the window itself
         using var themeListener = new ThemeListener();
         themeListener.ThemeChanged += (args) =>
         {
@@ -602,6 +603,7 @@ public partial class IslandsWindow : ObservableObject, IDisposable
             }
         };
 
+        // Mica (mandatory)
         unsafe
         {
             var backdrop = (int)DWM_SYSTEMBACKDROP_TYPE.DWMSBT_MAINWINDOW;
@@ -611,24 +613,32 @@ public partial class IslandsWindow : ObservableObject, IDisposable
         }
     }
 
+    /// <summary>
+    /// Closes the current window. If you want to intercept the closing process,
+    /// subscribe to the <see cref="OnClosing"/> event.
+    /// </summary>
     public void Close()
     {
-        if (_closed) return;
+        if (Closed) return;
 
+        // Trigger the closing event and handle cancellation
         var args = new IslandsWindowClosingEventArgs();
-        Closing?.Invoke(this, args);
+        OnClosing?.Invoke(this, args);
         if (args.Handled) return;
 
+        // Persistence
         SaveWindowState();
-        _closed = true;
+        Closed = true;
 
+        // Unsubscribe from leftover events
         if (AppWindow != null)
         {
             AppWindow.Closing -= OnAppWindowClosing;
         }
 
+        // Dispose and trigger the final close event
         Dispose();
-        Closed?.Invoke(this, EventArgs.Empty);
+        OnClosed?.Invoke(this, EventArgs.Empty);
     }
 
     public void Dispose()
@@ -655,11 +665,8 @@ public partial class IslandsWindow : ObservableObject, IDisposable
         _desktopWindowXamlSource?.Dispose();
         _coreWindow = null;
 
-        if (AppWindow != null)
-        {
-            AppWindow.Destroy();
-            AppWindow = null;
-        }
+        AppWindow?.Destroy();
+        AppWindow = null;
 
         if (Handle != HWND.NULL)
         {
@@ -670,15 +677,9 @@ public partial class IslandsWindow : ObservableObject, IDisposable
         GC.SuppressFinalize(this);
     }
 
-    ~IslandsWindow()
-    {
-        Dispose();
-    }
-
-    // ------------------------------------------------------------------------
-    // PUBLIC METHODS - Window Operations
-    // ------------------------------------------------------------------------
-
+    /// <summary>
+    /// Activates the current window.
+    /// </summary>
     public void Activate()
     {
         if (AppWindow != null)
@@ -695,35 +696,50 @@ public partial class IslandsWindow : ObservableObject, IDisposable
         }
     }
 
+    /// <summary>
+    /// Minimizes the current window.
+    /// </summary>
     public void Minimize()
     {
         if (AppWindow != null && AppWindow.Presenter.Kind is AppWindowPresenterKind.Overlapped)
             (AppWindow.Presenter.As<OverlappedPresenter>()).Minimize();
     }
 
+    /// <summary>
+    /// Maximizes the current window.
+    /// </summary>
     public void Maximize()
     {
         if (AppWindow != null && AppWindow.Presenter.Kind is AppWindowPresenterKind.Overlapped)
             (AppWindow.Presenter.As<OverlappedPresenter>()).Maximize();
     }
 
+    /// <summary>
+    /// Restores the current window.
+    /// </summary>
     public void Restore()
     {
         if (AppWindow != null && AppWindow.Presenter.Kind is AppWindowPresenterKind.Overlapped)
             (AppWindow.Presenter.As<OverlappedPresenter>()).Restore();
     }
 
+    /// <summary>
+    /// Brings the current window to the front.
+    /// </summary>
     public void BringToFront()
     {
-        TerraFX.Interop.Windows.Windows.ShowWindow(Handle, SW.SW_SHOW);
-        TerraFX.Interop.Windows.Windows.SetForegroundWindow(Handle);
-        TerraFX.Interop.Windows.Windows.SetActiveWindow(Handle);
+        ShowWindow(Handle, SW.SW_SHOW);
+        SetForegroundWindow(Handle);
+        SetActiveWindow(Handle);
     }
 
-    // ------------------------------------------------------------------------
-    // PUBLIC METHODS - Window Positioning
-    // ------------------------------------------------------------------------
-
+    /// <summary>
+    /// Moves and resizes the window.
+    /// </summary>
+    /// <param name="x">Horizontal position</param>
+    /// <param name="y">Vertical position</param>
+    /// <param name="width">Width</param>
+    /// <param name="height">Height</param>
     public void MoveAndResize(int x, int y, int width, int height)
     {
         X = x;
@@ -732,18 +748,31 @@ public partial class IslandsWindow : ObservableObject, IDisposable
         Height = height;
     }
 
+    /// <summary>
+    /// Moves the window.
+    /// </summary>
+    /// <param name="x">Horizontal position</param>
+    /// <param name="y">Vertical position</param>
     public void Move(int x, int y)
     {
         X = x;
         Y = y;
     }
 
+    /// <summary>
+    /// Resizes the window.
+    /// </summary>
+    /// <param name="width">Width</param>
+    /// <param name="height">Height</param>
     public void Resize(int width, int height)
     {
         Width = width;
         Height = height;
     }
 
+    /// <summary>
+    /// Centers the window to the working area of the current display.
+    /// </summary>
     public void CenterWindow()
     {
         if (AppWindow == null) return;
@@ -762,10 +791,10 @@ public partial class IslandsWindow : ObservableObject, IDisposable
         Y = (int)(centerY / scale);
     }
 
-    // ------------------------------------------------------------------------
-    // PUBLIC METHODS - Window Styling
-    // ------------------------------------------------------------------------
-
+    /// <summary>
+    /// Set extended window style bits.
+    /// </summary>
+    /// <param name="style">Extended window style flags</param>
     public void SetExtendedWindowStyle(Windows.Win32.UI.WindowsAndMessaging.WINDOW_EX_STYLE style)
     {
         var exStyle = (Windows.Win32.UI.WindowsAndMessaging.WINDOW_EX_STYLE)GetWindowLongPtrW(Handle, GWL.GWL_EXSTYLE);
@@ -779,6 +808,10 @@ public partial class IslandsWindow : ObservableObject, IDisposable
         );
     }
 
+    /// <summary>
+    /// Set window style bits.
+    /// </summary>
+    /// <param name="style">Window style flags</param>
     public void SetWindowStyle(Windows.Win32.UI.WindowsAndMessaging.WINDOW_STYLE style)
     {
         var ws = (Windows.Win32.UI.WindowsAndMessaging.WINDOW_STYLE)GetWindowLongPtrW(Handle, GWL.GWL_STYLE);
@@ -792,21 +825,26 @@ public partial class IslandsWindow : ObservableObject, IDisposable
         );
     }
 
+    /// <summary>
+    /// Set the window opacity (0-255).
+    /// </summary>
+    /// <param name="opacity">Value between 0 and 255 that indicates the window opacity. 0 is invisible and 255 is fully opaque.</param>
     public void SetWindowOpacity(byte opacity)
     {
         SetExtendedWindowStyle(Windows.Win32.UI.WindowsAndMessaging.WINDOW_EX_STYLE.WS_EX_LAYERED);
         SetLayeredWindowAttributes(Handle, 0, opacity, LWA.LWA_ALPHA);
     }
-
-    // ------------------------------------------------------------------------
-    // PUBLIC METHODS - Message Handling
-    // ------------------------------------------------------------------------
-
+    
+    /// <summary>
+    /// Native message pump for the current window object.
+    /// </summary>
+    /// <param name="msg">Win32 message</param>
+    /// <returns></returns>
     public unsafe bool PreTranslateMessage(MSG* msg)
     {
         if (!_xamlInitialized) return false;
         BOOL outResult = false;
-        if (!_closed && _nativeSource.Get() != null)
+        if (!Closed && _nativeSource.Get() != null)
             ThrowIfFailed(_nativeSource.Get()->PreTranslateMessage(msg, &outResult));
         return outResult;
     }
@@ -869,10 +907,6 @@ public partial class IslandsWindow : ObservableObject, IDisposable
         }
     }
 
-    // ------------------------------------------------------------------------
-    // PRIVATE METHODS - Window Placement
-    // ------------------------------------------------------------------------
-
     private unsafe (int X, int Y, int Width, int Height) GetDefaultUwpLikeSize()
     {
         if (Handle == HWND.NULL)
@@ -927,12 +961,12 @@ public partial class IslandsWindow : ObservableObject, IDisposable
         if (IsPersistenceEnabled)
         {
             // Try to load persisted placement
-            var flags = SettingsManager.GetValue($"{PersistenceKey}_Flags", PersistanceFileName, 0u);
-            var showCmd = SettingsManager.GetValue($"{PersistenceKey}_ShowCmd", PersistanceFileName, 0u);
-            var left = SettingsManager.GetValue($"{PersistenceKey}_Left", PersistanceFileName, -1);
-            var top = SettingsManager.GetValue($"{PersistenceKey}_Top", PersistanceFileName, -1);
-            var right = SettingsManager.GetValue($"{PersistenceKey}_Right", PersistanceFileName, -1);
-            var bottom = SettingsManager.GetValue($"{PersistenceKey}_Bottom", PersistanceFileName, -1);
+            var flags = SettingsManager.GetValue($"{PersistenceKey}_Flags", PersistenceFileName, 0u);
+            var showCmd = SettingsManager.GetValue($"{PersistenceKey}_ShowCmd", PersistenceFileName, 0u);
+            var left = SettingsManager.GetValue($"{PersistenceKey}_Left", PersistenceFileName, -1);
+            var top = SettingsManager.GetValue($"{PersistenceKey}_Top", PersistenceFileName, -1);
+            var right = SettingsManager.GetValue($"{PersistenceKey}_Right", PersistenceFileName, -1);
+            var bottom = SettingsManager.GetValue($"{PersistenceKey}_Bottom", PersistenceFileName, -1);
 
             // If we have valid persisted data, use it
             if (left >= 0 && top >= 0 && right > left && bottom > top)
@@ -991,10 +1025,6 @@ public partial class IslandsWindow : ObservableObject, IDisposable
         ShowWindow(Handle, SW.SW_SHOWNORMAL);
     }
 
-    // ------------------------------------------------------------------------
-    // PRIVATE METHODS - Persistence
-    // ------------------------------------------------------------------------
-
     private unsafe void SaveWindowState()
     {
         if (!IsPersistenceEnabled || Handle == HWND.NULL) return;
@@ -1009,22 +1039,18 @@ public partial class IslandsWindow : ObservableObject, IDisposable
 
         // Save the complete WINDOWPLACEMENT structure
         // rcNormalPosition always contains the restored window position, even when maximized
-        SettingsManager.SetValue($"{PersistenceKey}_Flags", PersistanceFileName, placement.flags);
-        SettingsManager.SetValue($"{PersistenceKey}_ShowCmd", PersistanceFileName, placement.showCmd);
-        SettingsManager.SetValue($"{PersistenceKey}_Left", PersistanceFileName, placement.rcNormalPosition.left);
-        SettingsManager.SetValue($"{PersistenceKey}_Top", PersistanceFileName, placement.rcNormalPosition.top);
-        SettingsManager.SetValue($"{PersistenceKey}_Right", PersistanceFileName, placement.rcNormalPosition.right);
-        SettingsManager.SetValue($"{PersistenceKey}_Bottom", PersistanceFileName, placement.rcNormalPosition.bottom);
+        SettingsManager.SetValue($"{PersistenceKey}_Flags", PersistenceFileName, placement.flags);
+        SettingsManager.SetValue($"{PersistenceKey}_ShowCmd", PersistenceFileName, placement.showCmd);
+        SettingsManager.SetValue($"{PersistenceKey}_Left", PersistenceFileName, placement.rcNormalPosition.left);
+        SettingsManager.SetValue($"{PersistenceKey}_Top", PersistenceFileName, placement.rcNormalPosition.top);
+        SettingsManager.SetValue($"{PersistenceKey}_Right", PersistenceFileName, placement.rcNormalPosition.right);
+        SettingsManager.SetValue($"{PersistenceKey}_Bottom", PersistenceFileName, placement.rcNormalPosition.bottom);
     }
-
-    // ------------------------------------------------------------------------
-    // PRIVATE METHODS - Event Handlers
-    // ------------------------------------------------------------------------
 
     private void OnAppWindowClosing(AppWindow sender, AppWindowClosingEventArgs args)
     {
         var closingArgs = new IslandsWindowClosingEventArgs();
-        Closing?.Invoke(this, closingArgs);
+        OnClosing?.Invoke(this, closingArgs);
 
         if (closingArgs.Handled)
         {
@@ -1034,14 +1060,10 @@ public partial class IslandsWindow : ObservableObject, IDisposable
 
         SaveWindowState();
 
-        _closed = true;
+        Closed = true;
         Dispose();
-        Closed?.Invoke(this, EventArgs.Empty);
+        OnClosed?.Invoke(this, EventArgs.Empty);
     }
-
-    // ------------------------------------------------------------------------
-    // PRIVATE METHODS - Message Handling
-    // ------------------------------------------------------------------------
 
     internal void OnResize(int physicalWidth, int physicalHeight)
     {
@@ -1202,17 +1224,13 @@ public partial class IslandsWindow : ObservableObject, IDisposable
             SetFocus(_xamlHwnd);
     }
 
-    // ------------------------------------------------------------------------
-    // OBSERVABLE PROPERTY CHANGED HANDLERS
-    // ------------------------------------------------------------------------
-
     partial void OnTitleChanged(string oldValue, string newValue)
     {
         if (AppWindow != null)
             AppWindow.Title = newValue;
     }
 
-    partial void OnContentChanged(UIElement value)
+    partial void OnContentChanged(UIElement? value)
     {
         if (_xamlInitialized && _desktopWindowXamlSource != null && value != null)
         {
@@ -1313,10 +1331,6 @@ public partial class IslandsWindow : ObservableObject, IDisposable
         if (AppWindow != null && AppWindow.Presenter.Kind is AppWindowPresenterKind.Overlapped)
             (AppWindow.Presenter.As<OverlappedPresenter>()).IsMinimizable = value;
     }
-
-    // ------------------------------------------------------------------------
-    // UTILITY METHODS
-    // ------------------------------------------------------------------------
 
     private void ThrowIfDisposed()
     {
