@@ -507,11 +507,12 @@ public partial class IslandsWindow : ObservableObject, IDisposable
         fixed (char* className = WindowClassName)
         fixed (char* windowName = Title)
         {
+            // Create window *hidden* (no WS_VISIBLE)
             Handle = CreateWindowExW(
-                WS_EX_NOREDIRECTIONBITMAP | WS_EX_APPWINDOW,
+                WS_EX_APPWINDOW | WS_EX_NOREDIRECTIONBITMAP,
                 className,
                 windowName,
-                0,
+                WS_OVERLAPPEDWINDOW,  // <-- no WS_VISIBLE here!
                 CW_USEDEFAULT, CW_USEDEFAULT,
                 CW_USEDEFAULT, CW_USEDEFAULT,
                 HWND.NULL,
@@ -519,6 +520,12 @@ public partial class IslandsWindow : ObservableObject, IDisposable
                 GetModuleHandleW(null),
                 null);
 
+            if (Handle == HWND.NULL)
+                throw new Exception("Failed to create window");
+
+            SetWindowLongPtrW(Handle, GWLP.GWLP_USERDATA, gcPtr);
+
+            // Do your sizing logic here BEFORE showing the window
             var (x, y, width, height) = GetDefaultUwpLikeSize();
 
             if (Width == int.MinValue) Width = width;
@@ -526,7 +533,8 @@ public partial class IslandsWindow : ObservableObject, IDisposable
             if (X == int.MinValue) X = x;
             if (Y == int.MinValue) Y = y;
 
-            SetWindowLongPtrW(Handle, GWLP.GWLP_USERDATA, gcPtr);
+            SetWindowPos(Handle, HWND.HWND_TOP, X, Y, Width, Height,
+                SWP_NOZORDER | SWP_NOACTIVATE);
 
             AppWindow = AppWindow.GetFromWindowId(Win32Interop.GetWindowIdFromWindow(Handle));
             AppWindow.Closing += OnAppWindowClosing;
@@ -535,22 +543,21 @@ public partial class IslandsWindow : ObservableObject, IDisposable
 
             InitializeXaml();
 
-            SetWindowLongPtrW(Handle, GWL.GWL_STYLE, WS_OVERLAPPEDWINDOW | WS_VISIBLE);
-            SetWindowPos(Handle, HWND.HWND_TOP, 0, 0, 0, 0,
-                SWP_NOMOVE | SWP_NOSIZE | SWP_NOZORDER | SWP_FRAMECHANGED);
+            // Apply Mica + Dark Mode settings here AFTER XAML init (your code)
 
             _isInitializing = false;
 
-            // Apply persisted placement or default size
             ApplyInitialPlacement();
 
+            _windowList.RegisterWindow(this);
+
+            // Now show the window and activate it, triggering animation
+            ShowWindow(Handle, SW.SW_SHOW);
+            AllowSetForegroundWindow(ASFW_ANY);
             BringWindowToTop(Handle);
             SetForegroundWindow(Handle);
             SetActiveWindow(Handle);
             SetFocus(Handle);
-            ShowWindow(Handle, SW.SW_SHOW);
-
-            _windowList.RegisterWindow(this);
         }
     }
 
@@ -802,6 +809,64 @@ public partial class IslandsWindow : ObservableObject, IDisposable
         if (!_closed && _nativeSource.Get() != null)
             ThrowIfFailed(_nativeSource.Get()->PreTranslateMessage(msg, &outResult));
         return outResult;
+    }
+
+    private unsafe void ForceActivateWindow()
+    {
+        if (Handle == HWND.NULL) return;
+
+        // Make sure window is visible and up-to-date
+        ShowWindow(Handle, SW.SW_SHOW);
+        BringWindowToTop(Handle);
+
+        // Get the current foreground window and thread ids
+        HWND fgWnd = GetForegroundWindow();
+        uint fgThread = GetWindowThreadProcessId(fgWnd, null);
+        uint curThread = GetCurrentThreadId();
+
+        // If there is no foreground window or it's the same thread, just try normally
+        if (fgWnd == HWND.NULL || fgThread == curThread)
+        {
+            // Try the usual sequence first
+            AllowSetForegroundWindow(ASFW_ANY);
+            SetForegroundWindow(Handle);
+            SetActiveWindow(Handle);
+            SetFocus(Handle);
+            return;
+        }
+
+        // Attach input queues so we can temporarily act as the foreground thread
+        BOOL attached = AttachThreadInput(curThread, fgThread, true);
+
+        if (attached != 0)
+        {
+            try
+            {
+                // Now perform the activation calls while input queues are attached
+                AllowSetForegroundWindow(ASFW_ANY);
+                SetForegroundWindow(Handle);
+                SetActiveWindow(Handle);
+                SetFocus(Handle);
+
+                // Ensure window is shown and topmost in z-order for a moment
+                BringWindowToTop(Handle);
+                SetWindowPos(Handle, HWND.HWND_TOP, 0, 0, 0, 0,
+                    SWP.SWP_NOMOVE | SWP.SWP_NOSIZE | SWP.SWP_NOACTIVATE);
+            }
+            finally
+            {
+                // Detach the input queues
+                AttachThreadInput(curThread, fgThread, false);
+            }
+        }
+        else
+        {
+            // fallback: try the normal calls (some systems may still honor these)
+            AllowSetForegroundWindow(ASFW_ANY);
+            SetForegroundWindow(Handle);
+            SetActiveWindow(Handle);
+            SetFocus(Handle);
+        }
     }
 
     // ------------------------------------------------------------------------
