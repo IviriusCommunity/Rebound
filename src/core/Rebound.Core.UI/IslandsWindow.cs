@@ -356,7 +356,6 @@ public partial class IslandsWindow : ObservableObject, IDisposable
     private volatile bool _xamlInitialized;
     private bool _internalResize;
     private bool _isInitializing;
-    private bool _boundsApplied;
 
     // ------------------------------------------------------------------------
     // INSTANCE FIELDS - Handles
@@ -379,13 +378,6 @@ public partial class IslandsWindow : ObservableObject, IDisposable
 
     private TerraFX.Interop.Windows.ComPtr<IDesktopWindowXamlSourceNative2> _nativeSource;
     private TerraFX.Interop.Windows.ComPtr<ICoreWindowInterop> _coreWindowInterop;
-
-    // ------------------------------------------------------------------------
-    // INSTANCE FIELDS - Window Bounds
-    // ------------------------------------------------------------------------
-
-    private WindowBounds _pendingBounds = new();
-    private WindowBounds _lastNormalBounds = new(); // In-memory cache for normal state bounds
 
     // ------------------------------------------------------------------------
     // PUBLIC PROPERTIES - Window Handles
@@ -417,10 +409,10 @@ public partial class IslandsWindow : ObservableObject, IDisposable
 
     [ObservableProperty] public partial string Title { get; set; } = "UWP XAML Islands Window";
     [ObservableProperty] public partial UIElement? Content { get; set; }
-    [ObservableProperty] public partial int Width { get; set; } = 800;
-    [ObservableProperty] public partial int Height { get; set; } = 600;
-    [ObservableProperty] public partial int X { get; set; } = -1;
-    [ObservableProperty] public partial int Y { get; set; } = -1;
+    [ObservableProperty] public partial int Width { get; set; } = int.MinValue;
+    [ObservableProperty] public partial int Height { get; set; } = int.MinValue;
+    [ObservableProperty] public partial int X { get; set; } = int.MinValue;
+    [ObservableProperty] public partial int Y { get; set; } = int.MinValue;
 
     // ------------------------------------------------------------------------
     // PUBLIC PROPERTIES - Observable (Persistence)
@@ -438,26 +430,6 @@ public partial class IslandsWindow : ObservableObject, IDisposable
     public event EventHandler<AppWindowInitializedEventArgs>? AppWindowInitialized;
     public event EventHandler<IslandsWindowClosingEventArgs>? Closing;
     public event EventHandler? Closed;
-
-    // ------------------------------------------------------------------------
-    // NESTED CLASSES
-    // ------------------------------------------------------------------------
-
-    private class WindowBounds
-    {
-        public int X { get; set; } = -1;
-        public int Y { get; set; } = -1;
-        public int Width { get; set; } = 800;
-        public int Height { get; set; } = 600;
-    }
-
-    private enum WindowDisplayState
-    {
-        Normal = 0,
-        Maximized = 1,
-        Minimized = 2,
-        Fullscreen = 3
-    }
 
     // ------------------------------------------------------------------------
     // STATIC CONSTRUCTOR
@@ -532,41 +504,6 @@ public partial class IslandsWindow : ObservableObject, IDisposable
         _thisHandle = GCHandle.Alloc(this, GCHandleType.Normal);
         IntPtr gcPtr = GCHandle.ToIntPtr(_thisHandle);
 
-        // Load persistence BEFORE storing pending bounds
-        WindowDisplayState targetDisplayState = WindowDisplayState.Normal;
-
-        if (IsPersistenceEnabled)
-        {
-            var persistedBounds = LoadPersistedBounds();
-            targetDisplayState = (WindowDisplayState)SettingsManager.GetValue($"{PersistenceKey}_DisplayState", PersistanceFileName, 0);
-
-            // Only apply persisted bounds if they exist (not first-time launch)
-            if (persistedBounds.Width > 0 && persistedBounds.Height > 0)
-            {
-                Width = persistedBounds.Width;
-                Height = persistedBounds.Height;
-                X = persistedBounds.X;
-                Y = persistedBounds.Y;
-            }
-            else
-            {
-                // First-time launch: use Windows default position (top-left)
-                X = 0;
-                Y = 0;
-            }
-        }
-
-        // Initialize last normal bounds with current values
-        _lastNormalBounds.X = X;
-        _lastNormalBounds.Y = Y;
-        _lastNormalBounds.Width = Width;
-        _lastNormalBounds.Height = Height;
-
-        _pendingBounds.X = X;
-        _pendingBounds.Y = Y;
-        _pendingBounds.Width = Width;
-        _pendingBounds.Height = Height;
-
         fixed (char* className = WindowClassName)
         fixed (char* windowName = Title)
         {
@@ -582,11 +519,17 @@ public partial class IslandsWindow : ObservableObject, IDisposable
                 GetModuleHandleW(null),
                 null);
 
+            var (x, y, width, height) = GetDefaultUwpLikeSize();
+
+            if (Width == int.MinValue) Width = width;
+            if (Height == int.MinValue) Height = height;
+            if (X == int.MinValue) X = x;
+            if (Y == int.MinValue) Y = y;
+
             SetWindowLongPtrW(Handle, GWLP.GWLP_USERDATA, gcPtr);
 
             AppWindow = AppWindow.GetFromWindowId(Win32Interop.GetWindowIdFromWindow(Handle));
             AppWindow.Closing += OnAppWindowClosing;
-            AppWindow.Changed += OnAppWindowChanged;
 
             AppWindowInitialized?.Invoke(this, new AppWindowInitializedEventArgs());
 
@@ -598,22 +541,14 @@ public partial class IslandsWindow : ObservableObject, IDisposable
 
             _isInitializing = false;
 
-            ApplyPendingBounds();
-
-            // Apply display state after bounds
-            if (targetDisplayState == WindowDisplayState.Maximized)
-            {
-                ShowWindow(Handle, SW.SW_SHOWMAXIMIZED);
-            }
-            else
-            {
-                ShowWindow(Handle, SW.SW_SHOWNORMAL);
-            }
+            // Apply persisted placement or default size
+            ApplyInitialPlacement();
 
             BringWindowToTop(Handle);
             SetForegroundWindow(Handle);
             SetActiveWindow(Handle);
             SetFocus(Handle);
+            ShowWindow(Handle, SW.SW_SHOW);
 
             _windowList.RegisterWindow(this);
         }
@@ -697,7 +632,6 @@ public partial class IslandsWindow : ObservableObject, IDisposable
         if (AppWindow != null)
         {
             AppWindow.Closing -= OnAppWindowClosing;
-            AppWindow.Changed -= OnAppWindowChanged;
         }
 
         if (_thisHandle.IsAllocated)
@@ -821,45 +755,6 @@ public partial class IslandsWindow : ObservableObject, IDisposable
         Y = (int)(centerY / scale);
     }
 
-    public unsafe void ApplyPendingBounds()
-    {
-        if (AppWindow == null) return;
-
-        _boundsApplied = true;
-
-        var scale = Display.GetScale(Handle);
-
-        _internalResize = true;
-        try
-        {
-            // Convert logical to physical
-            int physicalWidth = (int)(_pendingBounds.Width * scale);
-            int physicalHeight = (int)(_pendingBounds.Height * scale);
-
-            // Resize first
-            AppWindow.Resize(new Windows.Graphics.SizeInt32(physicalWidth, physicalHeight));
-
-            // Then position (or center if default)
-            if (_pendingBounds.X >= 0 && _pendingBounds.Y >= 0)
-            {
-                int physicalX = (int)(_pendingBounds.X * scale);
-                int physicalY = (int)(_pendingBounds.Y * scale);
-                AppWindow.Move(new Windows.Graphics.PointInt32(physicalX, physicalY));
-
-                X = _pendingBounds.X;
-                Y = _pendingBounds.Y;
-            }
-            else
-            {
-                CenterWindow();
-            }
-        }
-        finally
-        {
-            _internalResize = false;
-        }
-    }
-
     // ------------------------------------------------------------------------
     // PUBLIC METHODS - Window Styling
     // ------------------------------------------------------------------------
@@ -910,89 +805,151 @@ public partial class IslandsWindow : ObservableObject, IDisposable
     }
 
     // ------------------------------------------------------------------------
-    // PUBLIC METHODS - Persistence
+    // PRIVATE METHODS - Window Placement
     // ------------------------------------------------------------------------
 
-    public void LoadWindowState()
+    private unsafe (int X, int Y, int Width, int Height) GetDefaultUwpLikeSize()
     {
-        if (!IsPersistenceEnabled) return;
+        if (Handle == HWND.NULL)
+            return (0, 0, 800, 600); // fallback in case Handle isn't valid yet
 
-        int persistedX = SettingsManager.GetValue($"{PersistenceKey}_X", PersistanceFileName, X);
-        int persistedY = SettingsManager.GetValue($"{PersistenceKey}_Y", PersistanceFileName, Y);
-        int persistedWidth = SettingsManager.GetValue($"{PersistenceKey}_Width", PersistanceFileName, Width == 0 ? 800 : Width);
-        int persistedHeight = SettingsManager.GetValue($"{PersistenceKey}_Height", PersistanceFileName, Height == 0 ? 600 : Height);
+        // Logical default (from UWP defaults at 150% scale)
+        const double baseWidth = 1215.0;
+        const double baseHeight = 940.0;
 
-        if (persistedWidth > 0 && persistedHeight > 0)
+        // Get working area (not full monitor bounds)
+        var monitor = MonitorFromWindow(Handle, 2); // MONITOR_DEFAULTTONEAREST
+        MONITORINFO info = new() { cbSize = (uint)Marshal.SizeOf<MONITORINFO>() };
+        GetMonitorInfoW(monitor, &info);
+
+        int workWidth = info.rcWork.right - info.rcWork.left;
+        int workHeight = info.rcWork.bottom - info.rcWork.top;
+
+        // Convert logical to physical
+        double desiredWidth = baseWidth;
+        double desiredHeight = baseHeight;
+
+        // Shrink if needed to fit in work area (keep aspect)
+        double widthRatio = desiredWidth / workWidth;
+        double heightRatio = desiredHeight / workHeight;
+        double scaleDown = Math.Max(widthRatio, heightRatio);
+
+        if (scaleDown > 1.0)
         {
-            X = persistedX;
-            Y = persistedY;
-            Width = persistedWidth;
-            Height = persistedHeight;
+            desiredWidth /= scaleDown;
+            desiredHeight /= scaleDown;
         }
+
+        int finalWidth = (int)Math.Round(desiredWidth);
+        int finalHeight = (int)Math.Round(desiredHeight);
+
+        // Center in work area
+        int x = info.rcWork.left + 50;
+        int y = info.rcWork.top + 50;
+
+        return (x, y, finalWidth, finalHeight);
+    }
+
+    private unsafe void ApplyInitialPlacement()
+    {
+        if (Handle == HWND.NULL) return;
+
+        WINDOWPLACEMENT placement = new()
+        {
+            length = (uint)sizeof(WINDOWPLACEMENT)
+        };
+
+        if (IsPersistenceEnabled)
+        {
+            // Try to load persisted placement
+            var flags = SettingsManager.GetValue($"{PersistenceKey}_Flags", PersistanceFileName, 0u);
+            var showCmd = SettingsManager.GetValue($"{PersistenceKey}_ShowCmd", PersistanceFileName, 0u);
+            var left = SettingsManager.GetValue($"{PersistenceKey}_Left", PersistanceFileName, -1);
+            var top = SettingsManager.GetValue($"{PersistenceKey}_Top", PersistanceFileName, -1);
+            var right = SettingsManager.GetValue($"{PersistenceKey}_Right", PersistanceFileName, -1);
+            var bottom = SettingsManager.GetValue($"{PersistenceKey}_Bottom", PersistanceFileName, -1);
+
+            // If we have valid persisted data, use it
+            if (left >= 0 && top >= 0 && right > left && bottom > top)
+            {
+                placement.flags = flags;
+                placement.showCmd = showCmd;
+                placement.rcNormalPosition = new RECT
+                {
+                    left = left,
+                    top = top,
+                    right = right,
+                    bottom = bottom
+                };
+
+                // Apply window placement (this will restore maximized state too)
+                SetWindowPlacement(Handle, &placement);
+
+                // If window was maximized, we stop here — Windows will handle sizing/pos
+                if (showCmd == (uint)SW.SW_MAXIMIZE)
+                {
+                    ShowWindow(Handle, SW.SW_MAXIMIZE);
+                    return;
+                }
+
+                // Otherwise update logical props
+                var scale = Display.GetScale(Handle);
+                Width = (int)((right - left) / scale);
+                Height = (int)((bottom - top) / scale);
+                X = (int)(left / scale);
+                Y = (int)(top / scale);
+                return;
+            }
+        }
+
+        // No persisted data or first launch - use default size
+        var currentScale = Display.GetScale(Handle);
+        int physicalWidth = (int)(Width * currentScale);
+        int physicalHeight = (int)(Height * currentScale);
+
+        if (X >= 0 && Y >= 0)
+        {
+            // User specified position
+            int physicalX = (int)(X * currentScale);
+            int physicalY = (int)(Y * currentScale);
+            SetWindowPos(Handle, HWND.NULL, physicalX, physicalY, physicalWidth, physicalHeight,
+                SWP_NOZORDER | SWP_NOACTIVATE);
+        }
+        else
+        {
+            // Center window
+            SetWindowPos(Handle, HWND.NULL, 0, 0, physicalWidth, physicalHeight,
+                SWP_NOZORDER | SWP_NOACTIVATE | SWP_NOMOVE);
+            CenterWindow();
+        }
+
+        ShowWindow(Handle, SW.SW_SHOWNORMAL);
     }
 
     // ------------------------------------------------------------------------
     // PRIVATE METHODS - Persistence
     // ------------------------------------------------------------------------
 
-    private WindowBounds LoadPersistedBounds()
+    private unsafe void SaveWindowState()
     {
-        return new WindowBounds
+        if (!IsPersistenceEnabled || Handle == HWND.NULL) return;
+
+        WINDOWPLACEMENT placement = new()
         {
-            X = SettingsManager.GetValue($"{PersistenceKey}_X", PersistanceFileName, -1),
-            Y = SettingsManager.GetValue($"{PersistenceKey}_Y", PersistanceFileName, -1),
-            Width = SettingsManager.GetValue($"{PersistenceKey}_Width", PersistanceFileName, -1),
-            Height = SettingsManager.GetValue($"{PersistenceKey}_Height", PersistanceFileName, -1)
+            length = (uint)sizeof(WINDOWPLACEMENT)
         };
-    }
 
-    private WindowDisplayState GetCurrentDisplayState()
-    {
-        if (AppWindow?.Presenter is not OverlappedPresenter presenter)
-            return WindowDisplayState.Normal;
-
-        return presenter.State switch
-        {
-            OverlappedPresenterState.Maximized => WindowDisplayState.Maximized,
-            OverlappedPresenterState.Minimized => WindowDisplayState.Minimized,
-            _ => WindowDisplayState.Normal
-        };
-    }
-
-    private unsafe void UpdateLastNormalBoundsFromHWND()
-    {
-        if (Handle == HWND.NULL || GetCurrentDisplayState() != WindowDisplayState.Normal)
+        if (GetWindowPlacement(Handle, &placement) == 0)
             return;
 
-        RECT rect;
-        GetWindowRect(Handle, &rect);
-
-        var scale = Display.GetScale(Handle);
-
-        // Convert physical pixels to logical (DPI-independent)
-        _lastNormalBounds.X = (int)((rect.left) / scale);
-        _lastNormalBounds.Y = (int)((rect.top) / scale);
-        _lastNormalBounds.Width = (int)((rect.right - rect.left) / scale);
-        _lastNormalBounds.Height = (int)((rect.bottom - rect.top) / scale);
-    }
-
-    private void SaveWindowState()
-    {
-        if (!IsPersistenceEnabled || AppWindow == null) return;
-
-        var currentState = GetCurrentDisplayState();
-
-        // Always save display state
-        SettingsManager.SetValue($"{PersistenceKey}_DisplayState", PersistanceFileName, (int)currentState);
-
-        // Update last normal bounds one final time before saving (if in normal state)
-        UpdateLastNormalBoundsFromHWND();
-
-        // Save the cached normal bounds (in logical/DPI-independent pixels)
-        SettingsManager.SetValue($"{PersistenceKey}_X", PersistanceFileName, _lastNormalBounds.X);
-        SettingsManager.SetValue($"{PersistenceKey}_Y", PersistanceFileName, _lastNormalBounds.Y);
-        SettingsManager.SetValue($"{PersistenceKey}_Width", PersistanceFileName, _lastNormalBounds.Width);
-        SettingsManager.SetValue($"{PersistenceKey}_Height", PersistanceFileName, _lastNormalBounds.Height);
+        // Save the complete WINDOWPLACEMENT structure
+        // rcNormalPosition always contains the restored window position, even when maximized
+        SettingsManager.SetValue($"{PersistenceKey}_Flags", PersistanceFileName, placement.flags);
+        SettingsManager.SetValue($"{PersistenceKey}_ShowCmd", PersistanceFileName, placement.showCmd);
+        SettingsManager.SetValue($"{PersistenceKey}_Left", PersistanceFileName, placement.rcNormalPosition.left);
+        SettingsManager.SetValue($"{PersistenceKey}_Top", PersistanceFileName, placement.rcNormalPosition.top);
+        SettingsManager.SetValue($"{PersistenceKey}_Right", PersistanceFileName, placement.rcNormalPosition.right);
+        SettingsManager.SetValue($"{PersistenceKey}_Bottom", PersistanceFileName, placement.rcNormalPosition.bottom);
     }
 
     // ------------------------------------------------------------------------
@@ -1015,22 +972,6 @@ public partial class IslandsWindow : ObservableObject, IDisposable
         _closed = true;
         Dispose();
         Closed?.Invoke(this, EventArgs.Empty);
-    }
-
-    private void OnAppWindowChanged(AppWindow sender, AppWindowChangedEventArgs args)
-    {
-        // When presenter changes (e.g., window is restored from maximized)
-        if (args.DidPresenterChange && AppWindow?.Presenter is OverlappedPresenter presenter)
-        {
-            // When window is in Normal state, update the cached normal bounds
-            if (presenter.State == OverlappedPresenterState.Restored && !_isInitializing && !_internalResize)
-            {
-                _lastNormalBounds.X = X;
-                _lastNormalBounds.Y = Y;
-                _lastNormalBounds.Width = Width;
-                _lastNormalBounds.Height = Height;
-            }
-        }
     }
 
     // ------------------------------------------------------------------------
@@ -1061,13 +1002,6 @@ public partial class IslandsWindow : ObservableObject, IDisposable
             {
                 Width = logicalWidth;
                 Height = logicalHeight;
-
-                // Update last normal bounds if window is in normal state
-                if (GetCurrentDisplayState() == WindowDisplayState.Normal)
-                {
-                    _lastNormalBounds.Width = logicalWidth;
-                    _lastNormalBounds.Height = logicalHeight;
-                }
             }
             finally
             {
@@ -1088,13 +1022,6 @@ public partial class IslandsWindow : ObservableObject, IDisposable
         {
             X = (int)(position.X / scale);
             Y = (int)(position.Y / scale);
-
-            // Update last normal bounds if window is in normal state
-            if (GetCurrentDisplayState() == WindowDisplayState.Normal)
-            {
-                _lastNormalBounds.X = X;
-                _lastNormalBounds.Y = Y;
-            }
         }
         finally
         {
