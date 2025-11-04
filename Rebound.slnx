@@ -47,6 +47,9 @@
     <Project Path="src/core/Rebound.Core.Native/Rebound.Core.Native.csproj" Id="5ce77945-6deb-4d89-8bf7-5055c36c6953">
       <Platform Project="x64" />
     </Project>
+    <Project Path="src/core/Rebound.Core.Storage/Rebound.Core.Storage.csproj" Id="80aa75ea-1f3e-4f5b-b757-e5dc49b57dc0">
+      <Platform Project="x64" />
+    </Project>
     <Project Path="src/core/Rebound.Core.SystemInformation/Rebound.Core.SystemInformation.csproj" Id="0779e817-1c61-45cd-80c3-21224dfac145">
       <Platform Project="x64" />
     </Project>
