@@ -11,18 +11,27 @@ using Windows.Win32.System.Registry;
 
 namespace Rebound.Forge.Cogs;
 
+/// <summary>
+/// Registers an Image File Execution Options entry to redirect one app
+/// to another
+/// </summary>
 public class IFEOCog : ICog
 {
     private const string BaseRegistryPath = @"SOFTWARE\Microsoft\Windows NT\CurrentVersion\Image File Execution Options";
 
+    /// <summary>
+    /// The name, with extension, of the executable to be redirected
+    /// </summary>
     public required string OriginalExecutableName { get; set; }
 
+    /// <summary>
+    /// The full path of the executable to redirect to
+    /// </summary>
     public required string LauncherPath { get; set; }
 
-    public IFEOCog()
-    {
+    public bool Ignorable { get; }
 
-    }
+    public IFEOCog() { }
 
     public unsafe async Task ApplyAsync()
     {

@@ -23,6 +23,8 @@ public class StartupPackageCog : ICog
     public required string Description { get; set; }
     public required bool RequireAdmin { get; set; }
 
+    public bool Ignorable { get; }
+
     public StartupPackageCog() { }
 
     public async unsafe Task ApplyAsync()

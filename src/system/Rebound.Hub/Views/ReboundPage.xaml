@@ -7,10 +7,10 @@
     xmlns:cards="using:Rebound.Hub.Cards"
     xmlns:controls="using:CommunityToolkit.WinUI.Controls"
     xmlns:converters="using:CommunityToolkit.WinUI.Converters"
+    xmlns:core="using:Rebound.Core"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:forge="using:Rebound.Forge"
     xmlns:gallery="using:WinUIGallery.Controls"
-    xmlns:core="using:Rebound.Core"
     xmlns:interactivity="using:Microsoft.Xaml.Interactivity"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:media="using:CommunityToolkit.WinUI.Media"
@@ -334,9 +334,9 @@
                     </Grid.ColumnDefinitions>
                     <ToggleButton
                         Padding="12,8"
+                        Command="{x:Bind ReboundViewModel.ToggleReboundCommand}"
                         Content="{x:Bind ReboundViewModel.IsReboundEnabled, Mode=OneWay, Converter={StaticResource BoolToReboundEnabledConverter}}"
                         IsChecked="{x:Bind ReboundViewModel.IsReboundEnabled, Mode=OneWay}"
-                        Command="{x:Bind ReboundViewModel.ToggleReboundCommand}"
                         IsThreeState="False" />
                     <Button
                         Grid.Column="1"
@@ -360,57 +360,6 @@
                         </StackPanel>
                         <Button.Flyout>
                             <MenuFlyout>
-                                <MenuFlyoutSubItem Text="Control Panel">
-                                    <MenuFlyoutSubItem.Icon>
-                                        <muxc:ImageIcon Source="/Assets/ReboundApps/ControlPanel.ico" />
-                                    </MenuFlyoutSubItem.Icon>
-                                    <MenuFlyoutSubItem.Items>
-                                        <ToggleMenuFlyoutItem IsChecked="{x:Bind ReboundViewModel.InstallWindowsTools, Mode=TwoWay}" Text="Windows Tools">
-                                            <ToggleMenuFlyoutItem.Icon>
-                                                <muxc:ImageIcon Source="/Assets/Glyphs/WindowsTools.ico" />
-                                            </ToggleMenuFlyoutItem.Icon>
-                                        </ToggleMenuFlyoutItem>
-                                        <ToggleMenuFlyoutItem IsChecked="{x:Bind ReboundViewModel.InstallAppwiz, Mode=TwoWay}" Text="appwiz.cpl">
-                                            <ToggleMenuFlyoutItem.Icon>
-                                                <muxc:ImageIcon Source="/Assets/Glyphs/Programs.ico" />
-                                            </ToggleMenuFlyoutItem.Icon>
-                                        </ToggleMenuFlyoutItem>
-                                    </MenuFlyoutSubItem.Items>
-                                </MenuFlyoutSubItem>
-                                <MenuFlyoutSubItem Text="Rebound Shell">
-                                    <MenuFlyoutSubItem.Icon>
-                                        <muxc:ImageIcon Source="/Assets/ReboundApps/Shell.ico" />
-                                    </MenuFlyoutSubItem.Icon>
-                                    <MenuFlyoutSubItem.Items>
-                                        <ToggleMenuFlyoutItem IsChecked="{x:Bind ReboundViewModel.InstallRun, Mode=TwoWay}" Text="Run">
-                                            <ToggleMenuFlyoutItem.Icon>
-                                                <muxc:ImageIcon Source="/Assets/Glyphs/RunBox.ico" />
-                                            </ToggleMenuFlyoutItem.Icon>
-                                        </ToggleMenuFlyoutItem>
-                                        <ToggleMenuFlyoutItem IsChecked="{x:Bind ReboundViewModel.InstallShutdownDialog, Mode=TwoWay}" Text="Shutdown dialog">
-                                            <ToggleMenuFlyoutItem.Icon>
-                                                <muxc:ImageIcon Source="/Assets/Glyphs/Shutdown.ico" />
-                                            </ToggleMenuFlyoutItem.Icon>
-                                        </ToggleMenuFlyoutItem>
-                                        <ToggleMenuFlyoutItem IsChecked="{x:Bind ReboundViewModel.InstallThisAppCantRunOnYourPC, Mode=TwoWay}" Text="&quot;This app can't run on your PC&quot; dialog">
-                                            <ToggleMenuFlyoutItem.Icon>
-                                                <muxc:ImageIcon Source="/Assets/Glyphs/Error.ico" />
-                                            </ToggleMenuFlyoutItem.Icon>
-                                        </ToggleMenuFlyoutItem>
-                                    </MenuFlyoutSubItem.Items>
-                                </MenuFlyoutSubItem>
-                                <MenuFlyoutSeparator />
-                                <ToggleMenuFlyoutItem IsChecked="{x:Bind ReboundViewModel.InstallShortcuts, Mode=TwoWay}" Text="Create new shortcuts for Rebound apps">
-                                    <ToggleMenuFlyoutItem.Icon>
-                                        <muxc:ImageIcon Source="/Assets/Glyphs/Shortcut.ico" />
-                                    </ToggleMenuFlyoutItem.Icon>
-                                </ToggleMenuFlyoutItem>
-                                <ToggleMenuFlyoutItem IsChecked="{x:Bind ReboundViewModel.EnableAutomaticRepair, Mode=TwoWay}" Text="Enable automatic repair">
-                                    <ToggleMenuFlyoutItem.Icon>
-                                        <FontIcon Glyph="&#xE90F;" />
-                                    </ToggleMenuFlyoutItem.Icon>
-                                </ToggleMenuFlyoutItem>
-                                <MenuFlyoutSeparator />
                                 <MenuFlyoutItem Command="{x:Bind ReboundViewModel.ViewLogFileCommand}" Text="View log file">
                                     <MenuFlyoutItem.Icon>
                                         <FontIcon Glyph="&#xE8A7;" />
@@ -572,6 +521,13 @@
                                                 </Button.Flyout>
                                             </Button>
                                         </Grid>
+
+                                        <muxc:ProgressRing
+                                            Grid.Row="2"
+                                            Grid.Column="4"
+                                            Width="32"
+                                            Height="32"
+                                            IsActive="{x:Bind IsLoading, Mode=OneWay}" />
                                     </Grid>
                                 </DataTemplate>
                             </ItemsControl.ItemTemplate>
@@ -705,6 +661,7 @@
                                                 <ColumnDefinition Width="Auto" />
                                                 <ColumnDefinition Width="Auto" />
                                                 <ColumnDefinition Width="*" />
+                                                <ColumnDefinition Width="Auto" />
                                                 <ColumnDefinition Width="*" />
                                             </Grid.ColumnDefinitions>
 
@@ -791,8 +748,14 @@
                                                     Glyph="&#xF736;" />
                                             </Grid>
 
+                                            <muxc:ProgressRing
+                                                Grid.Column="3"
+                                                Width="32"
+                                                Height="32"
+                                                IsActive="{x:Bind IsLoading, Mode=OneWay}" />
+
                                             <!--  Open/Install/Repair buttons  -->
-                                            <Grid Grid.Column="3" Visibility="{x:Bind IsIntact, Mode=OneWay}">
+                                            <Grid Grid.Column="4" Visibility="{x:Bind IsIntact, Mode=OneWay}">
                                                 <!--  Open button (visible if installed)  -->
                                                 <Button
                                                     HorizontalAlignment="Stretch"
@@ -811,7 +774,7 @@
 
                                             <!--  Repair button (visible if mod is corrupted)  -->
                                             <Button
-                                                Grid.Column="3"
+                                                Grid.Column="4"
                                                 HorizontalAlignment="Stretch"
                                                 Command="{x:Bind RepairCommand}"
                                                 Content="Repair"

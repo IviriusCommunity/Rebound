@@ -14,6 +14,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Windows.System;
 using Rebound.Core;
+using Rebound.Core.UI;
 
 namespace Rebound.Hub.ViewModels;
 
@@ -59,16 +60,9 @@ internal partial class ReboundViewModel : ObservableObject
     ];
 
     [ObservableProperty] public partial bool IsReboundEnabled { get; set; }
-    [ObservableProperty] public partial bool InstallRun { get; set; }
-    [ObservableProperty] public partial bool InstallShutdownDialog { get; set; }
-    [ObservableProperty] public partial bool InstallShortcuts { get; set; }
-    [ObservableProperty] public partial bool InstallThisAppCantRunOnYourPC { get; set; }
-    [ObservableProperty] public partial bool InstallAppwiz { get; set; }
-    [ObservableProperty] public partial bool InstallWindowsTools { get; set; }
     [ObservableProperty] public partial bool IsUpdateAvailable { get; set; }
     [ObservableProperty] public partial string VersionText { get; set; } = "";
     [ObservableProperty] public partial string CurrentVersion { get; set; } = "";
-    [ObservableProperty] public partial bool EnableAutomaticRepair { get; set; }
     [ObservableProperty] public partial bool HasSideloadedMods { get; set; }
 
     public ReboundViewModel()
@@ -80,24 +74,20 @@ internal partial class ReboundViewModel : ObservableObject
 
     private async void LoadSettings()
     {
-        IsReboundEnabled = await WorkingEnvironment.IsReboundEnabled();
-        InstallRun = SettingsManager.GetValue("InstallRun", "rebound", true);
-        InstallShutdownDialog = SettingsManager.GetValue("InstallShutdownDialog", "rebound", true);
-        InstallShortcuts = SettingsManager.GetValue("InstallShortcuts", "rebound", true);
-        InstallThisAppCantRunOnYourPC = SettingsManager.GetValue("InstallThisAppCantRunOnYourPC", "rebound", true);
-        InstallAppwiz = SettingsManager.GetValue("InstallAppwiz", "rebound", true);
-        InstallWindowsTools = SettingsManager.GetValue("InstallWindowsTools", "rebound", true);
-        EnableAutomaticRepair = SettingsManager.GetValue("EnableAutomaticRepair", "rebound", false);
-        HasSideloadedMods = Catalog.SideloadedMods.Count > 0;
+        UIThreadQueue.QueueAction(async () =>
+        {
+            bool enabled = true;
+            foreach (var mod in Catalog.MandatoryMods)
+            {
+                if (await mod.GetIntegrityAsync() != ModIntegrity.Installed)
+                {
+                    enabled = false;
+                }
+            }
+            IsReboundEnabled = enabled;
+            HasSideloadedMods = Catalog.SideloadedMods.Count > 0;
+        });
     }
-
-    partial void OnInstallRunChanged(bool oldValue, bool newValue) => SettingsManager.SetValue("InstallRun", "rebound", newValue);
-    partial void OnInstallShutdownDialogChanged(bool oldValue, bool newValue) => SettingsManager.SetValue("InstallShutdownDialog", "rebound", newValue);
-    partial void OnInstallShortcutsChanged(bool oldValue, bool newValue) => SettingsManager.SetValue("InstallShortcuts", "rebound", newValue);
-    partial void OnInstallThisAppCantRunOnYourPCChanged(bool oldValue, bool newValue) => SettingsManager.SetValue("InstallThisAppCantRunOnYourPC", "rebound", newValue);
-    partial void OnInstallAppwizChanged(bool oldValue, bool newValue) => SettingsManager.SetValue("InstallAppwiz", "rebound", newValue);
-    partial void OnInstallWindowsToolsChanged(bool oldValue, bool newValue) => SettingsManager.SetValue("InstallWindowsTools", "rebound", newValue);
-    partial void OnEnableAutomaticRepairChanged(bool oldValue, bool newValue) => SettingsManager.SetValue("EnableAutomaticRepair", "rebound", newValue);
 
     private async Task InitializeAsync()
     {
@@ -107,13 +97,13 @@ internal partial class ReboundViewModel : ObservableObject
             {
                 if (!mod.IsIntact) await mod.RepairAsync();
             }
-            if (EnableAutomaticRepair)
+            /*if (EnableAutomaticRepair)
             {
                 foreach (var mod in Catalog.Mods)
                 {
                     if (!mod.IsIntact) await mod.RepairAsync();
                 }
-            }
+            }*/
         }
     }
 
@@ -180,8 +170,24 @@ internal partial class ReboundViewModel : ObservableObject
     }
 
     [RelayCommand]
-    public void EnableRebound() => WorkingEnvironment.EnableRebound();
+    public async Task EnableRebound()
+    {
+        foreach (var mod in Catalog.MandatoryMods)
+        {
+            await mod.InstallAsync();
+        }
+    }
 
     [RelayCommand]
-    public async Task DisableReboundAsync() => await WorkingEnvironment.DisableRebound();
+    public async Task DisableReboundAsync()
+    {
+        foreach (var mod in Catalog.Mods)
+        {
+            await mod.UninstallAsync();
+        }
+        foreach (var mod in Catalog.MandatoryMods)
+        {
+            await mod.UninstallAsync();
+        }
+    }
 }

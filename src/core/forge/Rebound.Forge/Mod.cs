@@ -1,9 +1,7 @@
-﻿// Copyright (C) Ivirius(TM) Community 2020 - 2025. All Rights Reserved.
-// Licensed under the MIT License.
-
-using CommunityToolkit.Mvvm.ComponentModel;
+﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Rebound.Core;
+using System;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.Linq;
@@ -26,6 +24,10 @@ public partial class Mod : ObservableObject
     [ObservableProperty] public partial bool IsInstalled { get; set; } = false;
     [ObservableProperty] public partial bool IsIntact { get; set; } = true;
 
+    [ObservableProperty] public partial bool IsLoading { get; set; }
+    [ObservableProperty] public partial int Progress { get; set; }
+    [ObservableProperty] public partial int TaskCount { get; set; }
+
     public string Name { get; }
     public string Description { get; }
     public string EntryExecutable { get; set; } = string.Empty;
@@ -33,16 +35,18 @@ public partial class Mod : ObservableObject
     public string InstallationSteps { get; }
     public ModCategory Category { get; }
     public InstallationTemplate PreferredInstallationTemplate { get; set; } = InstallationTemplate.Extras;
-    public ObservableCollection<ICog> Instructions { get; }
+    public ObservableCollection<ICog> Cogs { get; }
     public ObservableCollection<IModItem>? Settings { get; set; } = new();
     public string ProcessName { get; }
+
+    private readonly object integrityLock = new();
 
     public Mod(
         string name,
         string description,
         string icon,
         string installationSteps,
-        ObservableCollection<ICog> instructions,
+        ObservableCollection<ICog> cogs,
         string processName,
         ModCategory category,
         ObservableCollection<IModItem>? settings = null)
@@ -51,7 +55,7 @@ public partial class Mod : ObservableObject
         Description = description;
         Icon = icon;
         InstallationSteps = installationSteps;
-        Instructions = instructions;
+        Cogs = cogs;
         ProcessName = processName;
         Settings = settings;
         Category = category;
@@ -62,39 +66,20 @@ public partial class Mod : ObservableObject
     {
         try
         {
+            IsLoading = true;
             ReboundLogger.Log($"[Mod] Installing {Name}...");
 
-            // Kill any running processes first
-            var runningProcesses = Process.GetProcessesByName(ProcessName).ToList();
-            var pathsToRestart = runningProcesses
-                .Select(p =>
-                {
-                    try { return p.MainModule?.FileName; }
-                    catch { return null; }
-                })
-                .Where(p => !string.IsNullOrEmpty(p))
-                .Distinct()
-                .ToList();
+            TaskCount = Cogs.Count(c => !c.Ignorable);
+            Progress = 0;
 
-            foreach (var process in runningProcesses)
+            // Apply all non-ignorable cogs
+            foreach (var cog in Cogs.Where(c => !c.Ignorable))
             {
-                try { process.Kill(); } catch { }
+                await cog.ApplyAsync();
+                Progress++;
             }
 
-            await Task.Delay(200);
-
-            // Apply all instructions
-            foreach (var instruction in Instructions)
-                await instruction.ApplyAsync();
-
-            // Update status
             await UpdateIntegrityAsync();
-
-            // Restart processes if needed
-            foreach (var path in pathsToRestart)
-            {
-                try { Process.Start(path); } catch { }
-            }
 
             ReboundLogger.Log($"[Mod] Installation finished for {Name}");
         }
@@ -102,18 +87,11 @@ public partial class Mod : ObservableObject
         {
             ReboundLogger.Log($"[Mod] InstallAsync failed for {Name}", ex);
         }
-    }
-
-    [RelayCommand]
-    public void Open()
-    {
-        try
+        finally
         {
-            Process.Start(EntryExecutable);
-        }
-        catch (Exception ex)
-        {
-            ReboundLogger.Log($"[Mod] Open failed for {Name}", ex);
+            IsLoading = false;
+            Progress = 0;
+            TaskCount = 0;
         }
     }
 
@@ -122,17 +100,18 @@ public partial class Mod : ObservableObject
     {
         try
         {
+            IsLoading = true;
             ReboundLogger.Log($"[Mod] Uninstalling {Name}...");
 
-            foreach (var p in Process.GetProcessesByName(ProcessName))
+            TaskCount = Cogs.Count(c => !c.Ignorable);
+            Progress = 0;
+
+            // Remove all non-ignorable cogs
+            foreach (var cog in Cogs.Where(c => !c.Ignorable))
             {
-                try { p.Kill(); } catch { }
+                await cog.RemoveAsync();
+                Progress++;
             }
-
-            await Task.Delay(200);
-
-            foreach (var instruction in Instructions)
-                await instruction.RemoveAsync();
 
             await UpdateIntegrityAsync();
 
@@ -142,48 +121,64 @@ public partial class Mod : ObservableObject
         {
             ReboundLogger.Log($"[Mod] UninstallAsync failed for {Name}", ex);
         }
+        finally
+        {
+            IsLoading = false;
+            Progress = 0;
+            TaskCount = 0;
+        }
+    }
+
+    [RelayCommand]
+    public async Task OpenAsync()
+    {
+        
     }
 
     [RelayCommand]
     public async Task RepairAsync() => await InstallAsync();
 
     [RelayCommand]
-    public async Task ToggleAsync()
-    {
-        if (IsInstalled)
-            await UninstallAsync();
-        else
-            await InstallAsync();
-    }
-
     private async Task UpdateIntegrityAsync()
     {
         int intactItems = 0;
-        if (Instructions != null)
+        int totalItems = 0;
+
+        lock (integrityLock)
         {
-            // Wait for all IsAppliedAsync calls to complete
-            var results = await Task.WhenAll(Instructions.Select(i => i.IsAppliedAsync()));
-            intactItems = results.Count(applied => applied);
+            if (Cogs != null)
+            {
+                var nonIgnorableCogs = Cogs.Where(c => !c.Ignorable).ToList();
+                totalItems = nonIgnorableCogs.Count;
+
+                // We must await outside the lock, so capture the list first
+                var tasks = nonIgnorableCogs.Select(c => c.IsAppliedAsync());
+                // Move out of lock before awaiting
+                Task.Run(async () =>
+                {
+                    var results = await Task.WhenAll(tasks);
+                    intactItems = results.Count(applied => applied);
+
+                    // Update observable properties thread-safely on UI thread
+                    IsInstalled = intactItems != 0;
+                    IsIntact = intactItems == 0 || intactItems == totalItems;
+
+                    ReboundLogger.Log($"[Mod] Updated integrity for {Name}: Installed={IsInstalled}, Intact={IsIntact}, intactItems={intactItems}, totalItems={totalItems}");
+                }).Wait();
+            }
         }
-
-        int totalItems = Instructions?.Count ?? 0;
-
-        IsInstalled = intactItems != 0;
-        IsIntact = intactItems == 0 || intactItems == totalItems;
-
-        ReboundLogger.Log($"[Mod] Updated integrity for {Name}: Installed={IsInstalled}, Intact={IsIntact}, intactItems={intactItems}, totalItems={totalItems}");
     }
 
     public async Task<ModIntegrity> GetIntegrityAsync()
     {
-        int intactItems = 0;
-        if (Instructions != null)
-        {
-            var results = await Task.WhenAll(Instructions.Select(i => i.IsAppliedAsync()));
-            intactItems = results.Count(applied => applied);
-        }
+        if (Cogs == null)
+            return ModIntegrity.NotInstalled;
 
-        int totalItems = Instructions?.Count ?? 0;
+        var nonIgnorableCogs = Cogs.Where(c => !c.Ignorable).ToList();
+        int totalItems = nonIgnorableCogs.Count;
+
+        var results = await Task.WhenAll(nonIgnorableCogs.Select(c => c.IsAppliedAsync()));
+        int intactItems = results.Count(applied => applied);
 
         return intactItems == totalItems
             ? ModIntegrity.Installed

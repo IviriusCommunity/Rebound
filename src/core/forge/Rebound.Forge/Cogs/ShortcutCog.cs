@@ -15,11 +15,23 @@ namespace Rebound.Forge.Cogs;
 
 public class ShortcutCog : ICog
 {
+    /// <summary>
+    /// Path of the target executable to be launched
+    /// </summary>
     public required string ExePath { get; set; }
 
+    /// <summary>
+    /// The display name of the shortcut
+    /// </summary>
     public required string ShortcutName { get; set; }
 
+    /// <summary>
+    /// Location of the icon to be used. Leave empty to use the target executable's
+    /// original icon.
+    /// </summary>
     public string? IconLocation { get; set; }
+
+    public bool Ignorable { get; }
 
     private static string GetShortcutPath(string shortcutName) =>
         Path.Combine(
@@ -45,7 +57,6 @@ public class ShortcutCog : ICog
             }
 
             // Ensure the Rebound start menu folder exists
-            WorkingEnvironment.EnsureFolderIntegrity();
             ReboundLogger.Log("[ShortcutCog] Ensured folder integrity.");
 
             // Create IShellLink instance

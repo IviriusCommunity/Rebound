@@ -44,7 +44,7 @@ public static class Variables
     /// are applied for all users. The folder is created by combining the Common Program Files directory with the "Rebound" subfolder. 
     /// Ensure that the application has appropriate permissions to read from and write to this location.</remarks>
     public static readonly string ReboundProgramDataFolder =
-        Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.CommonProgramFiles),
+        Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData),
                      "Rebound");
 
     /// <summary>

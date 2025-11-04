@@ -92,7 +92,7 @@ public static class ModParser
                             ShortcutName = instr.Element("ShortcutName")?.Value ?? "",
                             ExePath = Expand(instr.Element("ExePath")?.Value ?? "", path)
                         },
-                        "LauncherCog" => new LauncherCog
+                        "LauncherCog" => new FileCopyCog
                         {
                             Path = Expand(instr.Element("Path")?.Value ?? "", path),
                             TargetPath = Expand(instr.Element("TargetPath")?.Value ?? "", path)

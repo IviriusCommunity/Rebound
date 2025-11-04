@@ -6,6 +6,7 @@
 		<ImplicitUsings>enable</ImplicitUsings>
 		<Nullable>enable</Nullable>
 		<UseUwp>true</UseUwp>
+		<GenerateDocumentationFile>true</GenerateDocumentationFile>
 	</PropertyGroup>
 
 	<ItemGroup>
@@ -23,6 +24,7 @@
 
 	<ItemGroup>
 	  <ProjectReference Include="..\..\Rebound.Core.Native\Rebound.Core.Native.csproj" />
+	  <ProjectReference Include="..\..\Rebound.Core.Storage\Rebound.Core.Storage.csproj" />
 	  <ProjectReference Include="..\..\Rebound.Core\Rebound.Core.csproj" />
 	</ItemGroup>
 

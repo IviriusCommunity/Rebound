@@ -2,22 +2,31 @@
 // Licensed under the MIT License.
 
 using Rebound.Core;
+using Rebound.Core.Storage;
 using System;
 using System.IO;
 using System.Threading.Tasks;
 
 namespace Rebound.Forge.Cogs;
 
-public class LauncherCog : ICog
+/// <summary>
+/// Copies a file from one place to another, accounting for missing folders in the path
+/// </summary>
+public class FileCopyCog : ICog
 {
+    /// <summary>
+    /// The path to the original file
+    /// </summary>
     public required string Path { get; set; }
 
+    /// <summary>
+    /// The target path to copy the file to
+    /// </summary>
     public required string TargetPath { get; set; }
 
-    public LauncherCog()
-    {
+    public bool Ignorable { get; }
 
-    }
+    public FileCopyCog() { }
 
     public async Task ApplyAsync()
     {
@@ -25,11 +34,8 @@ public class LauncherCog : ICog
         {
             ReboundLogger.Log("[LauncherCog] Apply started.");
 
-            WorkingEnvironment.EnsureFolderIntegrity();
-            ReboundLogger.Log($"[LauncherCog] Ensured folder integrity.");
+            FileEx.Copy(Path, TargetPath);
 
-            // Copy the launcher file
-            File.Copy(Path, TargetPath, true);
             ReboundLogger.Log($"[LauncherCog] Copied file from {Path} to {TargetPath}.");
         }
         catch (Exception ex)

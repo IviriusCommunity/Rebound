@@ -18,6 +18,8 @@ public class StartupTaskCog : ICog
     public required string Description { get; set; }
     public required bool RequireAdmin { get; set; }
 
+    public bool Ignorable { get; }
+
     public StartupTaskCog() { }
 
     public async unsafe Task ApplyAsync()

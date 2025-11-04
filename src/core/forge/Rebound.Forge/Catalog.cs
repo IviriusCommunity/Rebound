@@ -98,7 +98,7 @@ public static class Catalog
             description: "Replacement for the shell and its components such as the run box, shutdown dialog, desktop, etc.",
             icon: "ms-appx:///Assets/ReboundApps/Shell.ico",
             installationSteps: "•   Register a startup task\n•   Hijack selected applets\n\nYou can choose which components are enabled from the Options menu at the top of the page.\n\nNote: Rebound Shell alone doesn't have a predefined UI. To check if it's running, try opening one of the applets it replaces.",
-            instructions: new ObservableCollection<ICog>
+            cogs: new ObservableCollection<ICog>
             {
                 new PackageCog()
                 {
@@ -167,7 +167,7 @@ public static class Catalog
             description: "Utility for searching through characters in any installed font. (3rd party)",
             icon: "ms-appx:///Assets/AppIcons/PartnerApps/Character Map UWP.png",
             installationSteps: "Install Character Map UWP from the Microsoft Store",
-            instructions:
+            cogs:
             [
                 new StorePackageCog()
                 {
@@ -198,7 +198,7 @@ public static class Catalog
             description: "Replacement for the winver applet. Details about the currently installed Rebound version can be found here.",
             icon: "ms-appx:///Assets/ReboundApps/AboutWindows.ico",
             installationSteps: "•   Redirect app launch\n•   Create a start menu shortcut",
-            instructions: new ObservableCollection<ICog>
+            cogs: new ObservableCollection<ICog>
             {
                 new PackageCog()
                 {
@@ -274,13 +274,51 @@ public static class Catalog
 
     public static ObservableCollection<Mod> MandatoryMods { get; } =
     [
+        new Mod(
+            name: "Environment",
+            description: "Mandatory mod required for Rebound to run properly.",
+            icon: "ms-appx:///Assets/ReboundApps/Environment.ico",
+            installationSteps: "Coming soon",
+            cogs: new ObservableCollection<ICog>
+            {
+                new FolderCog()
+                {
+                    Path = Variables.ReboundDataFolder,
+                    AllowPersistence = true
+                },
+                new FolderCog()
+                {
+                    Path = Variables.ReboundProgramDataFolder,
+                    AllowPersistence = true
+                },
+                new FolderCog()
+                {
+                    Path = Variables.ReboundProgramDataModsFolder,
+                    AllowPersistence = true
+                },
+                new FolderCog()
+                {
+                    Path = Variables.ReboundStartMenuFolder,
+                    AllowPersistence = false
+                },
+                new TaskFolderCog()
+                {
+                    Name = "Rebound"
+                }
+            },
+            processName: "None",
+            category: ModCategory.General
+        )
+        {
+            PreferredInstallationTemplate = InstallationTemplate.Basic
+        },
         // Service Host
         new Mod(
             name: "Service Host",
             description: "Mandatory background service required for Rebound apps to run properly.",
             icon: "ms-appx:///Assets/ReboundApps/ServiceHost.ico",
             installationSteps: "Register a startup task as admin",
-            instructions: new ObservableCollection<ICog>
+            cogs: new ObservableCollection<ICog>
             {
                 new PackageCog()
                 {
@@ -306,9 +344,9 @@ public static class Catalog
             description: "Mandatory executable for Rebound apps to run properly.",
             icon: "ms-appx:///Assets/ReboundApps/Launcher.ico",
             installationSteps: "Register a startup task as admin",
-            instructions: new ObservableCollection<ICog>
+            cogs: new ObservableCollection<ICog>
             {
-                new LauncherCog
+                new FileCopyCog
                 {
                     Path = $"{AppContext.BaseDirectory}\\Modding\\Launchers\\Rebound.Launcher.exe",
                     TargetPath = Variables.ReboundLauncherPath
