@@ -93,12 +93,13 @@ public static class Catalog
         },*/
         
         // Rebound Shell
-        new Mod(
-            name: "Rebound Shell",
-            description: "Replacement for the shell and its components such as the run box, shutdown dialog, desktop, etc.",
-            icon: "ms-appx:///Assets/ReboundApps/Shell.ico",
-            installationSteps: "•   Register a startup task\n•   Hijack selected applets\n\nYou can choose which components are enabled from the Options menu at the top of the page.\n\nNote: Rebound Shell alone doesn't have a predefined UI. To check if it's running, try opening one of the applets it replaces.",
-            cogs: new ObservableCollection<ICog>
+        new Mod()
+        { 
+            Name = "Rebound Shell",
+            Description = "Replacement for the shell and its components such as the run box, shutdown dialog, desktop, etc.",
+            Icon = "ms-appx:///Assets/ReboundApps/Shell.ico",
+            InstallationSteps = "•   Register a startup task\n•   Hijack selected applets\n\nYou can choose which components are enabled from the Options menu at the top of the page.\n\nNote: Rebound Shell alone doesn't have a predefined UI. To check if it's running, try opening one of the applets it replaces.",
+            Cogs = new ObservableCollection<ICog>
             {
                 new PackageCog()
                 {
@@ -113,9 +114,8 @@ public static class Catalog
                     RequireAdmin = false
                 },
             },
-            processName: "Rebound Shell",
-            category: ModCategory.Customization,
-            settings: new ObservableCollection<IModItem>
+            Category = ModCategory.Customization,
+            Settings = new ObservableCollection<IModItem>
             {
                 new ModLabel()
                 {
@@ -129,9 +129,7 @@ public static class Catalog
                     Identifier = "InstallRun",
                     AppName = "rshell"
                 },
-            }
-        )
-        {
+            },
             PreferredInstallationTemplate = InstallationTemplate.Extras
         },
         
@@ -162,12 +160,13 @@ public static class Catalog
         },*/
         
         // Character Map
-        new Mod(
-            name: "Character Map",
-            description: "Utility for searching through characters in any installed font. (3rd party)",
-            icon: "ms-appx:///Assets/AppIcons/PartnerApps/Character Map UWP.png",
-            installationSteps: "Install Character Map UWP from the Microsoft Store",
-            cogs:
+        new Mod()
+        {
+            Name = "Character Map",
+            Description = "Utility for searching through characters in any installed font. (3rd party)",
+            Icon = "ms-appx:///Assets/AppIcons/PartnerApps/Character Map UWP.png",
+            InstallationSteps = "Install Character Map UWP from the Microsoft Store",
+            Cogs =
             [
                 new StorePackageCog()
                 {
@@ -180,9 +179,8 @@ public static class Catalog
                     LauncherPath = Variables.ReboundLauncherPath
                 }
             ],
-            processName: "Character Map UWP",
-            category: ModCategory.Productivity,
-            settings:
+            Category = ModCategory.Productivity,
+            Settings =
             [
                 new ModInfoBar()
                 {
@@ -190,15 +188,16 @@ public static class Catalog
                     Title = "Settings for this app can be found inside the app itself."
                 }
             ]
-        ),
+        },
 
         // Rebound About Windows
-        new Mod(
-            name: "About Windows",
-            description: "Replacement for the winver applet. Details about the currently installed Rebound version can be found here.",
-            icon: "ms-appx:///Assets/ReboundApps/AboutWindows.ico",
-            installationSteps: "•   Redirect app launch\n•   Create a start menu shortcut",
-            cogs: new ObservableCollection<ICog>
+        new Mod()
+        {
+            Name = "About Windows",
+            Description = "Replacement for the winver applet. Details about the currently installed Rebound version can be found here.",
+            Icon = "ms-appx:///Assets/ReboundApps/AboutWindows.ico",
+            InstallationSteps = "•   Redirect app launch\n•   Create a start menu shortcut",
+            Cogs = new ObservableCollection<ICog>
             {
                 new PackageCog()
                 {
@@ -211,10 +210,9 @@ public static class Catalog
                     LauncherPath = Variables.ReboundLauncherPath
                 }
             },
-            processName: "Rebound About",
-            category: ModCategory.Customization,
-            settings: new ObservableCollection<IModItem>
-            {
+            Category = ModCategory.Customization,
+            Settings =
+            [
                 new ModLabel()
                 {
                     Text = "Layout"
@@ -265,22 +263,21 @@ public static class Catalog
                     Identifier = "ShowTabs",
                     AppName = "winver"
                 },
-            }
-        )
-        {
+            ],
             PreferredInstallationTemplate = InstallationTemplate.Basic
         }
     ];
 
     public static ObservableCollection<Mod> MandatoryMods { get; } =
     [
-        new Mod(
-            name: "Environment",
-            description: "Mandatory mod required for Rebound to run properly.",
-            icon: "ms-appx:///Assets/ReboundApps/Environment.ico",
-            installationSteps: "Coming soon",
-            cogs: new ObservableCollection<ICog>
-            {
+        new Mod()
+        {
+            Name = "Environment",
+            Description = "Mandatory mod required for Rebound to run properly.",
+            Icon = "ms-appx:///Assets/ReboundApps/Environment.ico",
+            InstallationSteps = "Coming soon",
+            Cogs =
+            [
                 new FolderCog()
                 {
                     Path = Variables.ReboundDataFolder,
@@ -305,21 +302,19 @@ public static class Catalog
                 {
                     Name = "Rebound"
                 }
-            },
-            processName: "None",
-            category: ModCategory.General
-        )
-        {
+            ],
+            Category = ModCategory.General,
             PreferredInstallationTemplate = InstallationTemplate.Basic
         },
         // Service Host
-        new Mod(
-            name: "Service Host",
-            description: "Mandatory background service required for Rebound apps to run properly.",
-            icon: "ms-appx:///Assets/ReboundApps/ServiceHost.ico",
-            installationSteps: "Register a startup task as admin",
-            cogs: new ObservableCollection<ICog>
-            {
+        new Mod()
+        {
+            Name = "Service Host",
+            Description = "Mandatory background service required for Rebound apps to run properly.",
+            Icon = "ms-appx:///Assets/ReboundApps/ServiceHost.ico",
+            InstallationSteps = "Register a startup task as admin",
+            Cogs =
+            [
                 new PackageCog()
                 {
                     PackageURI = $"{AppContext.BaseDirectory}\\Modding\\Packages\\Rebound.ServiceHost.msixbundle",
@@ -332,32 +327,27 @@ public static class Catalog
                     Name = "Service Host",
                     RequireAdmin = true
                 },
-            },
-            processName: "Rebound Service Host",
-            category: ModCategory.General
-        )
-        {
+            ],
+            Category = ModCategory.General,
             PreferredInstallationTemplate = InstallationTemplate.Basic
         },
-        new Mod(
-            name: "Launcher",
-            description: "Mandatory executable for Rebound apps to run properly.",
-            icon: "ms-appx:///Assets/ReboundApps/Launcher.ico",
-            installationSteps: "Register a startup task as admin",
-            cogs: new ObservableCollection<ICog>
-            {
+        new Mod()
+        {            
+            Name = "Launcher",
+            Description = "Mandatory executable for Rebound apps to run properly.",
+            Icon = "ms-appx:///Assets/ReboundApps/Launcher.ico",
+            InstallationSteps = "Register a startup task as admin",
+            Cogs =
+            [
                 new FileCopyCog
                 {
                     Path = $"{AppContext.BaseDirectory}\\Modding\\Launchers\\Rebound.Launcher.exe",
                     TargetPath = Variables.ReboundLauncherPath
                 }
-            },
-            processName: "Rebound Service Host",
-            category: ModCategory.General
-        )
-        {
+            ],
+            Category = ModCategory.General,
             PreferredInstallationTemplate = InstallationTemplate.Basic
-        }
+        },
     ];
 
     public static ObservableCollection<Mod> SideloadedMods => new(ModParser.ParseMods());

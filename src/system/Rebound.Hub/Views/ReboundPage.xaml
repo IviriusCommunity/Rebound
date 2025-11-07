@@ -17,6 +17,7 @@
     xmlns:muxc="using:Microsoft.UI.Xaml.Controls"
     xmlns:ui="using:CommunityToolkit.WinUI"
     x:Name="ReboundView"
+    Loaded="ReboundView_Loaded"
     mc:Ignorable="d">
     <Page.Resources>
         <ResourceDictionary>

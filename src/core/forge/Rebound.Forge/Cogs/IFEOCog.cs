@@ -6,8 +6,9 @@ using Rebound.Core.Helpers;
 using System;
 using System.Text;
 using System.Threading.Tasks;
-using Windows.Win32;
+using TerraFX.Interop.Windows;
 using Windows.Win32.System.Registry;
+using HKEY = TerraFX.Interop.Windows.HKEY;
 
 namespace Rebound.Forge.Cogs;
 
@@ -39,19 +40,19 @@ public class IFEOCog : ICog
         {
             ReboundLogger.Log("[IFEOCog] Apply started.");
 
-            var HKEY_LOCAL_MACHINE = new HKEY(unchecked((int)0x80000002));
             HKEY phkResult;
 
             string subKey = $@"{BaseRegistryPath}\{OriginalExecutableName}";
-            var result = PInvoke.RegCreateKeyEx(
-                HKEY_LOCAL_MACHINE,
-                subKey.ToPCWSTR(),
+            var result = TerraFX.Interop.Windows.Windows.RegCreateKeyExW(
+                HKEY.HKEY_LOCAL_MACHINE,
+                subKey.ToPointer(),
                 0,
                 null,
-                REG_OPEN_CREATE_OPTIONS.REG_OPTION_NON_VOLATILE,
-                REG_SAM_FLAGS.KEY_WRITE | REG_SAM_FLAGS.KEY_WOW64_64KEY,
+                (uint)REG_OPEN_CREATE_OPTIONS.REG_OPTION_NON_VOLATILE,
+                (uint)(REG_SAM_FLAGS.KEY_WRITE | REG_SAM_FLAGS.KEY_WOW64_64KEY),
                 null,
-                &phkResult);
+                &phkResult,
+                null);
 
             if (result == 0) // ERROR_SUCCESS
             {
@@ -59,11 +60,11 @@ public class IFEOCog : ICog
                 ReboundLogger.Log($"[IFEOCog] Writing {bytes.Length} bytes to registry.");
                 fixed (byte* pBytes = bytes)
                 {
-                    PInvoke.RegSetValueEx(
+                    TerraFX.Interop.Windows.Windows.RegSetValueExW(
                         phkResult,
-                        "Debugger".ToPCWSTR(),
+                        "Debugger".ToPointer(),
                         0,
-                        REG_VALUE_TYPE.REG_SZ,
+                        (uint)REG_VALUE_TYPE.REG_SZ,
                         pBytes,
                         (uint)bytes.Length);
                 }
@@ -87,10 +88,9 @@ public class IFEOCog : ICog
         {
             ReboundLogger.Log("[IFEOCog] Remove started.");
 
-            var HKEY_LOCAL_MACHINE = new HKEY(unchecked((int)0x80000002));
             string subKey = $@"{BaseRegistryPath}\{OriginalExecutableName}";
 
-            var result = PInvoke.RegDeleteKey(HKEY_LOCAL_MACHINE, subKey.ToPCWSTR());
+            var result = TerraFX.Interop.Windows.Windows.RegDeleteKeyW(HKEY.HKEY_LOCAL_MACHINE, subKey.ToPointer());
             if (result == 0)
             {
                 ReboundLogger.Log($"[IFEOCog] Deleted registry key {subKey}");
@@ -110,15 +110,14 @@ public class IFEOCog : ICog
     {
         try
         {
-            var HKEY_LOCAL_MACHINE = new HKEY(unchecked((int)0x80000002));
             string subKey = $@"{BaseRegistryPath}\{OriginalExecutableName}";
 
             HKEY hKey;
-            var result = PInvoke.RegOpenKeyEx(
-                HKEY_LOCAL_MACHINE,
-                subKey.ToPCWSTR(),
+            var result = TerraFX.Interop.Windows.Windows.RegOpenKeyExW(
+                HKEY.HKEY_LOCAL_MACHINE,
+                subKey.ToPointer(),
                 0,
-                REG_SAM_FLAGS.KEY_READ | REG_SAM_FLAGS.KEY_WOW64_64KEY,
+                (uint)(REG_SAM_FLAGS.KEY_READ | REG_SAM_FLAGS.KEY_WOW64_64KEY),
                 &hKey);
 
             if (result != 0)
@@ -131,16 +130,16 @@ public class IFEOCog : ICog
             uint size = (uint)buffer.Length;
             fixed (byte* pBuffer = buffer)
             {
-                REG_VALUE_TYPE type;
-                var queryResult = PInvoke.RegQueryValueEx(
+                uint type;
+                var queryResult = TerraFX.Interop.Windows.Windows.RegQueryValueExW(
                     hKey,
-                    "Debugger".ToPCWSTR(),
+                    "Debugger".ToPointer(),
                     null,
                     &type,
                     pBuffer,
                     &size);
 
-                PInvoke.RegCloseKey(hKey);
+                _ = TerraFX.Interop.Windows.Windows.RegCloseKey(hKey);
 
                 if (queryResult != 0)
                 {

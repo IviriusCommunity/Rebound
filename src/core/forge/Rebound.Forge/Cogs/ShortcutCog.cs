@@ -103,7 +103,7 @@ public class ShortcutCog : ICog
             // Save the shortcut
             if (hr.Succeeded && pPersistFile.Get() is not null)
             {
-                hr = pPersistFile.Get()->Save(shortcutPath.ToPCWSTR(), true);
+                hr = pPersistFile.Get()->Save(shortcutPath, true);
                 ReboundLogger.Log($"[ShortcutCog] Saved shortcut to {shortcutPath} with HRESULT: 0x{hr.Value:X}");
             }
             else

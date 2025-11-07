@@ -124,17 +124,14 @@ public static class ModParser
             }
 
             // Construct Mod object with instructions inline
-            Mod mod = new Mod(
-                modElement.Element("Name")?.Value ?? "Unnamed Mod",
-                modElement.Element("Description")?.Value ?? "",
-                Path.Combine(path, "icon.png"),
-                modElement.Element("InstallationSteps")?.Value ?? "",
-                instructions, // inline instructions
-                modElement.Element("ProcessName")?.Value ?? "",
-                ModCategory.Sideloaded
-            )
-            {
-                EntryExecutable = modElement.Element("EntryExecutable")?.Value ?? ""
+            Mod mod = new Mod()
+            {              
+                Name = modElement.Element("Name")?.Value ?? "Unnamed Mod",
+                Description = modElement.Element("Description")?.Value ?? "",
+                Icon = Path.Combine(path, "icon.png"),
+                InstallationSteps = modElement.Element("InstallationSteps")?.Value ?? "",
+                Cogs = instructions, // inline instructions
+                Category = ModCategory.Sideloaded
             };
 
             // Parse enum

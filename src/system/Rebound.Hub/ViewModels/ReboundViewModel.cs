@@ -158,13 +158,19 @@ internal partial class ReboundViewModel : ObservableObject
         if (IsReboundEnabled)
         {
             await DisableReboundAsync();
-            IsReboundEnabled = false;
+            UIThreadQueue.QueueAction(async () =>
+            {
+                IsReboundEnabled = false;
+            });
             return;
         }
         else
         {
             EnableRebound();
-            IsReboundEnabled = true;
+            UIThreadQueue.QueueAction(async () =>
+            {
+                IsReboundEnabled = true;
+            });
             return;
         }
     }

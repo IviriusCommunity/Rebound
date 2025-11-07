@@ -3,6 +3,7 @@
 
 using Rebound.Core;
 using Rebound.Core.Helpers;
+using Rebound.Forge;
 using Rebound.Hub.ViewModels;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
@@ -17,12 +18,13 @@ internal partial class ReboundPage : Page
     {
         DataContext = ReboundViewModel;
         InitializeComponent();
+    }
 
-        // Branding settings
-        if (!SettingsManager.GetValue("ShowBranding", "rebound", true))
+    private async void ReboundView_Loaded(object sender, RoutedEventArgs e)
+    {
+        foreach (var mod in Catalog.Mods)
         {
-            BKGImage.Visibility = CardsScrollViewer.Visibility = TitleGrid.Visibility = Visibility.Collapsed;
-            Row1.Height = Row2.Height = new(0);
+            await mod.UpdateIntegrityAsync().ConfigureAwait(true);
         }
     }
 }
