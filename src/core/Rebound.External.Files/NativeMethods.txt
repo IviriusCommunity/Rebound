@@ -266,3 +266,7 @@ WINTRUST_DATA
 HCERTSTORE
 CERT_QUERY_ENCODING_TYPE
 CertGetNameString
+
+GdiplusStartupInput
+GdiplusStartupOutput
+GdiplusStartup
