@@ -76,24 +76,27 @@ internal partial class ReboundViewModel : ObservableObject
 
     private async void LoadSettings()
     {
-        bool enabled = true;
-        foreach (var mod in Catalog.MandatoryMods)
+        await Task.Run(async () =>
         {
-            var props = await mod.UpdateIntegrityAsync().ConfigureAwait(false);
-            if (!props.Installed || !props.Intact)
+            bool enabled = true;
+            foreach (var mod in Catalog.MandatoryMods)
             {
-                ReboundLogger.Log($"[ReboundViewModel] Enabled changed for mod {mod.Name}: False");
-                enabled = false;
+                var props = await mod.UpdateIntegrityAsync().ConfigureAwait(false);
+                if (!props.Installed || !props.Intact)
+                {
+                    ReboundLogger.Log($"[ReboundViewModel] Enabled changed for mod {mod.Name}: False");
+                    enabled = false;
+                }
+                ReboundLogger.Log($"[ReboundViewModel] Integrity check for {mod.Name}: IsInstalled={props.Installed}, IsIntact={props.Intact}");
             }
-            ReboundLogger.Log($"[ReboundViewModel] Integrity check for {mod.Name}: IsInstalled={props.Installed}, IsIntact={props.Intact}");
-        }
-        ReboundLogger.Log($"[ReboundViewModel] Enabled (original thread): {enabled}");
-        UIThreadQueue.QueueAction(async () =>
-        {
-            ReboundLogger.Log($"[ReboundViewModel] Enabled: {enabled}");
-            IsReboundEnabled = enabled;
-            HasSideloadedMods = Catalog.SideloadedMods.Count > 0;
-        });
+            ReboundLogger.Log($"[ReboundViewModel] Enabled (original thread): {enabled}");
+            UIThreadQueue.QueueAction(async () =>
+            {
+                ReboundLogger.Log($"[ReboundViewModel] Enabled: {enabled}");
+                IsReboundEnabled = enabled;
+                HasSideloadedMods = Catalog.SideloadedMods.Count > 0;
+            });
+        }).ConfigureAwait(false);
     }
 
     private async Task InitializeAsync()

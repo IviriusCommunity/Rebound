@@ -165,28 +165,14 @@
                         </Grid.ColumnDefinitions>
                         <FontIcon
                             HorizontalAlignment="Left"
-                            FontFamily="Segoe UI Emoji"
                             FontSize="16"
-                            Glyph="🙁" />
+                            Glyph="&#xE946;" />
                         <StackPanel Margin="32,0,0,0" Spacing="0">
                             <TextBlock Text="Rebound is not enabled." />
-                            <StackPanel Orientation="Horizontal" Spacing="4">
-                                <Border
-                                    Width="12"
-                                    Height="12"
-                                    Background="{ThemeResource AccentFillColorDefaultBrush}"
-                                    CornerRadius="32">
-                                    <Border
-                                        Width="4"
-                                        Height="4"
-                                        Background="{ThemeResource TextOnAccentFillColorPrimaryBrush}"
-                                        CornerRadius="32" />
-                                </Border>
-                                <TextBlock
-                                    FontSize="10"
-                                    FontWeight="SemiBold"
-                                    Text="Press here to enable Rebound!" />
-                            </StackPanel>
+                            <TextBlock
+                                FontSize="10"
+                                FontWeight="SemiBold"
+                                Text="Press here to enable Rebound!" />
                         </StackPanel>
                     </Grid>
                 </converters:BoolToObjectConverter.FalseValue>
@@ -409,6 +395,7 @@
 
                                         <Grid.RowDefinitions>
                                             <RowDefinition Height="Auto" />
+                                            <RowDefinition Height="Auto" />
                                             <RowDefinition Height="*" />
                                             <RowDefinition Height="Auto" />
                                         </Grid.RowDefinitions>
@@ -493,9 +480,17 @@
                                             Text="{x:Bind Description, Mode=OneWay}"
                                             TextWrapping="WrapWholeWords" />
 
+                                        <muxc:ProgressBar
+                                            Grid.Row="2"
+                                            Margin="0,8"
+                                            VerticalAlignment="Bottom"
+                                            Background="Transparent"
+                                            Maximum="{x:Bind TaskCount, Mode=OneWay}"
+                                            Value="{x:Bind Progress, Mode=OneWay}" />
+
                                         <!--  Buttons area  -->
                                         <Grid
-                                            Grid.Row="2"
+                                            Grid.Row="3"
                                             Grid.ColumnSpan="5"
                                             ColumnSpacing="8">
                                             <Grid.ColumnDefinitions>
@@ -569,6 +564,7 @@
 
                                         <Grid.RowDefinitions>
                                             <RowDefinition Height="Auto" />
+                                            <RowDefinition Height="Auto" />
                                             <RowDefinition Height="*" />
                                             <RowDefinition Height="Auto" />
                                         </Grid.RowDefinitions>
@@ -653,9 +649,17 @@
                                             Text="{x:Bind Description, Mode=OneWay}"
                                             TextWrapping="WrapWholeWords" />
 
+                                        <muxc:ProgressBar
+                                            Grid.Row="2"
+                                            Margin="0,8"
+                                            VerticalAlignment="Bottom"
+                                            Background="Transparent"
+                                            Maximum="{x:Bind TaskCount, Mode=OneWay}"
+                                            Value="{x:Bind Progress, Mode=OneWay}" />
+
                                         <!--  Buttons area  -->
                                         <Grid
-                                            Grid.Row="2"
+                                            Grid.Row="3"
                                             Grid.ColumnSpan="5"
                                             ColumnSpacing="8">
                                             <Grid.ColumnDefinitions>
@@ -824,6 +828,7 @@
 
                                         <Grid.RowDefinitions>
                                             <RowDefinition Height="Auto" />
+                                            <RowDefinition Height="Auto" />
                                             <RowDefinition Height="*" />
                                             <RowDefinition Height="Auto" />
                                         </Grid.RowDefinitions>
@@ -908,9 +913,17 @@
                                             Text="{x:Bind Description, Mode=OneWay}"
                                             TextWrapping="WrapWholeWords" />
 
+                                        <muxc:ProgressBar
+                                            Grid.Row="2"
+                                            Margin="0,8"
+                                            VerticalAlignment="Bottom"
+                                            Background="Transparent"
+                                            Maximum="{x:Bind TaskCount, Mode=OneWay}"
+                                            Value="{x:Bind Progress, Mode=OneWay}" />
+
                                         <!--  Buttons area  -->
                                         <Grid
-                                            Grid.Row="2"
+                                            Grid.Row="3"
                                             Grid.ColumnSpan="5"
                                             ColumnSpacing="8">
                                             <Grid.ColumnDefinitions>
