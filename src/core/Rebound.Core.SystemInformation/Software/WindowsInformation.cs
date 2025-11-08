@@ -6,6 +6,8 @@ using TerraFX.Interop.Windows;
 using static TerraFX.Interop.Windows.Windows;
 using HRESULT = TerraFX.Interop.Windows.HRESULT;
 
+#pragma warning disable CA1416 // Validate platform compatibility
+
 namespace Rebound.Core.SystemInformation.Software;
 
 public enum WindowsActivationType
@@ -48,6 +50,32 @@ public static class WindowsInformation
 
     // EOAC flags (objidlbase.h)
     const uint EOAC_NONE = 0x0;
+
+    public static unsafe DateTime GetInstalledOnDate()
+    {
+        const string keyPath = @"SOFTWARE\Microsoft\Windows NT\CurrentVersion";
+        const string valueName = "InstallDate";
+
+        using var key = Registry.LocalMachine.OpenSubKey(keyPath);
+        if (key != null)
+        {
+            var installDateObj = key.GetValue(valueName);
+            if (installDateObj is int installDateInt)
+            {
+                // Convert Unix timestamp to DateTime
+                DateTime installDate = DateTimeOffset.FromUnixTimeSeconds(installDateInt).DateTime;
+                return installDate;
+            }
+            else
+            {
+                return DateTime.MinValue;
+            }
+        }
+        else
+        {
+            return DateTime.MinValue;
+        }
+    }
 
     public static unsafe WindowsActivationType GetWindowsActivationType()
     {

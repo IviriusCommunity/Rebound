@@ -41,6 +41,9 @@
     </Project>
   </Folder>
   <Folder Name="/src/core/" Id="fb5d6fae-fad5-4679-aec2-b8fb3878993e">
+    <Project Path="src/core/Rebound.Core.Defrag/Rebound.Core.Defrag.csproj" Id="e4dcb082-6a6d-43b2-9103-4654977ac1bd">
+      <Platform Project="x64" />
+    </Project>
     <Project Path="src/core/Rebound.Core.IPC/Rebound.Core.IPC.csproj" Id="0a697d0f-62d0-483e-93f1-a0db734f2a78">
       <Platform Project="x64" />
     </Project>
