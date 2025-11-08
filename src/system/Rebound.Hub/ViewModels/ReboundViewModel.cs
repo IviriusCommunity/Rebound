@@ -3,18 +3,20 @@
 
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using Rebound.Hub.Cards;
+using Rebound.Core;
 using Rebound.Core.Helpers;
+using Rebound.Core.UI;
 using Rebound.Forge;
+using Rebound.Hub.Cards;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using TerraFX.Interop.Windows;
+using Windows.ApplicationModel;
 using Windows.System;
-using Rebound.Core;
-using Rebound.Core.UI;
 
 namespace Rebound.Hub.ViewModels;
 
@@ -74,16 +76,21 @@ internal partial class ReboundViewModel : ObservableObject
 
     private async void LoadSettings()
     {
+        bool enabled = true;
+        foreach (var mod in Catalog.MandatoryMods)
+        {
+            await mod.UpdateIntegrityAsync().ConfigureAwait(false);
+            if (!mod.IsInstalled || !mod.IsIntact)
+            {
+                ReboundLogger.Log($"[ReboundViewModel] Enabled changed for mod {mod.Name}: False");
+                enabled = false;
+            }
+            ReboundLogger.Log($"[ReboundViewModel] Integrity check for {mod.Name}: IsInstalled={mod.IsInstalled}, IsIntact={mod.IsIntact}");
+        }
+        ReboundLogger.Log($"[ReboundViewModel] Enabled (original thread): {enabled}");
         UIThreadQueue.QueueAction(async () =>
         {
-            bool enabled = true;
-            foreach (var mod in Catalog.MandatoryMods)
-            {
-                if (await mod.GetIntegrityAsync() != ModIntegrity.Installed)
-                {
-                    enabled = false;
-                }
-            }
+            ReboundLogger.Log($"[ReboundViewModel] Enabled: {enabled}");
             IsReboundEnabled = enabled;
             HasSideloadedMods = Catalog.SideloadedMods.Count > 0;
         });
@@ -95,7 +102,7 @@ internal partial class ReboundViewModel : ObservableObject
         {
             foreach (var mod in Catalog.MandatoryMods)
             {
-                if (!mod.IsIntact) await mod.RepairAsync();
+                if (!mod.IsIntact) await mod.RepairAsync().ConfigureAwait(false);
             }
             /*if (EnableAutomaticRepair)
             {
@@ -111,13 +118,10 @@ internal partial class ReboundViewModel : ObservableObject
     {
         try
         {
-            var programFilesPath = Environment.GetFolderPath(Environment.SpecialFolder.CommonProgramFiles);
-            var directoryPath = Path.Combine(programFilesPath, "Rebound");
-
-            var content = File.ReadAllText(Path.Combine(directoryPath, "version.txt"));
-            CurrentVersion = content;
-            VersionText = $"Current version: {content}  -  New version: {Variables.ReboundVersion}";
-            IsUpdateAvailable = Variables.ReboundVersion != content;
+            var version = $"{Package.Current.GetAppInstallerInfo().Version.Major}.{Package.Current.GetAppInstallerInfo().Version.Minor}.{Package.Current.GetAppInstallerInfo().Version.Revision}.{Package.Current.GetAppInstallerInfo().Version.Build}";
+            CurrentVersion = version;
+            VersionText = $"Current version: {version}  -  New version: {Variables.ReboundVersion}";
+            IsUpdateAvailable = Variables.ReboundVersion != version;
         }
         catch (Exception ex)
         {
@@ -134,9 +138,8 @@ internal partial class ReboundViewModel : ObservableObject
         tasks.AddRange(Catalog.Mods.Where(m => m.IsInstalled).Select(m => m.InstallAsync()));
         tasks.AddRange(Catalog.MandatoryMods.Select(m => m.InstallAsync()));
 
-        await Task.WhenAll(tasks).ConfigureAwait(true);
+        await Task.WhenAll(tasks).ConfigureAwait(false);
 
-        WorkingEnvironment.UpdateVersion();
         CheckForUpdates();
     }
 

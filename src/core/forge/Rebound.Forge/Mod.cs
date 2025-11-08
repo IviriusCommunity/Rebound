@@ -121,53 +121,7 @@ public partial class Mod : ObservableObject
     [RelayCommand]
     public async Task InstallAsync()
     {
-        try
-        {
-            // Progress trackers
-            int taskCount = Cogs.Count(c => !c.Ignorable);
-            int progress = 0;
-
-            // Initialize
-            ReboundLogger.Log($"[Mod] Installing {Name}...");
-            UIThreadQueue.QueueAction(async () =>
-            {
-                IsLoading = true;
-            });
-
-            // Go through each cog and install it
-            foreach (var cog in Cogs.Where(c => !c.Ignorable))
-            {
-                await Task.Run(cog.ApplyAsync).ConfigureAwait(true);
-                progress++;
-            }
-
-            // Update properties on caller thread after background work
-            UIThreadQueue.QueueAction(async () =>
-            {
-                TaskCount = taskCount;
-                Progress = progress;
-            });
-
-            // Update mod integrity
-            await UpdateIntegrityAsync().ConfigureAwait(true);
-
-            // Log
-            ReboundLogger.Log($"[Mod] Installation finished for {Name}");
-        }
-        catch (Exception ex)
-        {
-            ReboundLogger.Log($"[Mod] InstallAsync failed for {Name}", ex);
-        }
-        finally
-        {
-            // Finish progress tracking
-            UIThreadQueue.QueueAction(async () =>
-            {
-                IsLoading = false;
-                Progress = 0;
-                TaskCount = 0;
-            });
-        }
+        await RunTask(true).ConfigureAwait(false);
     }
 
     /// <summary>
@@ -177,6 +131,11 @@ public partial class Mod : ObservableObject
     [RelayCommand]
     public async Task UninstallAsync()
     {
+        await RunTask(false).ConfigureAwait(false);
+    }
+
+    private async Task RunTask(bool install)
+    {
         try
         {
             // Progress trackers
@@ -184,18 +143,24 @@ public partial class Mod : ObservableObject
             int progress = 0;
 
             // Initialize
-            ReboundLogger.Log($"[Mod] Installing {Name}...");
+            ReboundLogger.Log($"[Mod] {(install ? "Installing" : "Uninstalling")} {Name}...");
             UIThreadQueue.QueueAction(async () =>
             {
                 IsLoading = true;
             });
 
-            // Go through each cog and uninstall it
-            foreach (var cog in Cogs.Where(c => !c.Ignorable))
+            // Go through each cog and (un)install it
+            var nonIgnorableCogs = Cogs.Where(c => !c.Ignorable).ToList();
+            TaskCount = nonIgnorableCogs.Count;
+
+            var tasks = nonIgnorableCogs.Select(async cog =>
             {
-                await Task.Run(cog.RemoveAsync).ConfigureAwait(true);
+                if (install) await cog.ApplyAsync().ConfigureAwait(false);
+                else await cog.RemoveAsync().ConfigureAwait(false);
                 progress++;
-            }
+            });
+
+            await Task.WhenAll(tasks).ConfigureAwait(false);
 
             // Update properties on caller thread after background work
             UIThreadQueue.QueueAction(async () =>
@@ -205,14 +170,14 @@ public partial class Mod : ObservableObject
             });
 
             // Update mod integrity
-            await UpdateIntegrityAsync().ConfigureAwait(true);
+            await UpdateIntegrityAsync().ConfigureAwait(false);
 
             // Log
-            ReboundLogger.Log($"[Mod] Installation finished for {Name}");
+            ReboundLogger.Log($"[Mod] {(install ? "Installation" : "Uninstallation")} finished for {Name}");
         }
         catch (Exception ex)
         {
-            ReboundLogger.Log($"[Mod] InstallAsync failed for {Name}", ex);
+            ReboundLogger.Log($"[Mod] {(install ? "InstallAsync" : "UninstallAsync")} failed for {Name}", ex);
         }
         finally
         {
@@ -259,8 +224,13 @@ public partial class Mod : ObservableObject
         }
 
         // Get the results
-        var results = await Task.WhenAll(Cogs.Where(c => !c.Ignorable).Select(c => c.IsAppliedAsync())).ConfigureAwait(true);
+        var results = await Task.WhenAll(Cogs.Where(c => !c.Ignorable).Select(c => c.IsAppliedAsync())).ConfigureAwait(false);
         intactLocal = results.Count(applied => applied);
+
+        // Threading issues
+        // (For some reason this breaks the UI thread modification from below, will need fixing)
+        IsInstalled = intactLocal != 0;
+        IsIntact = intactLocal == 0 || intactLocal == totalLocal;
 
         // Update properties on the UI thread
         UIThreadQueue.QueueAction(async () =>
@@ -270,7 +240,7 @@ public partial class Mod : ObservableObject
         });
 
         // Log mod integrity
-        ReboundLogger.Log($"[Mod] Updated integrity for {Name}: Installed={IsInstalled}, Intact={IsIntact}, intactItems={intactLocal}, totalItems={intactLocal}");
+        ReboundLogger.Log($"[Mod] Updated integrity for {Name}: Installed={(intactLocal != 0)}, Intact={(intactLocal == 0 || intactLocal == totalLocal)}, intactItems={intactLocal}, totalItems={totalLocal}");
     }
 
     /// <summary>
@@ -285,7 +255,7 @@ public partial class Mod : ObservableObject
         var nonIgnorableCogs = Cogs.Where(c => !c.Ignorable).ToList();
         int totalItems = nonIgnorableCogs.Count;
 
-        var results = await Task.WhenAll(nonIgnorableCogs.Select(c => c.IsAppliedAsync())).ConfigureAwait(true);
+        var results = await Task.WhenAll(nonIgnorableCogs.Select(c => c.IsAppliedAsync())).ConfigureAwait(false);
         int intactItems = results.Count(applied => applied);
 
         return intactItems == totalItems
