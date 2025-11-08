@@ -27,7 +27,7 @@ public partial class App : Application
     {
         if (e.IsFirstLaunch)
         {
-            _windowList.KeepAlive = true;
+            WindowList.KeepAlive = true;
             // Run pipe server in a dedicated background thread
             Thread pipeThread = new(async () =>
             {
@@ -85,7 +85,7 @@ public partial class App : Application
             RunWindow.IsMaximizable = false;
             RunWindow.IsMinimizable = false;
             RunWindow.IsResizable = false;
-            RunWindow.Closing += (sender, args) =>
+            RunWindow.OnClosing += (sender, args) =>
             {
                 RunWindow = null;
             };
