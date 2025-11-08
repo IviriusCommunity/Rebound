@@ -5,8 +5,8 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:animations="using:CommunityToolkit.WinUI.Animations"
     xmlns:controls="using:CommunityToolkit.WinUI.Controls"
-    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:core="using:Rebound.Core"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:local="using:Rebound.About"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:media="using:CommunityToolkit.WinUI.Media"
@@ -243,9 +243,58 @@
                                         FontWeight="SemiBold"
                                         Text="Microsoft Windows"
                                         TextWrapping="WrapWholeWords" />
-                                    <TextBlock Text="{x:Bind viewModels:MainViewModel.DetailedWindowsVersion}" TextWrapping="WrapWholeWords" />
-                                    <TextBlock x:Uid="CopyrightLabel" />
-                                    <TextBlock Text="{x:Bind viewModels:MainViewModel.LegalInfo}" TextWrapping="WrapWholeWords" />
+                                    <Grid ColumnSpacing="16" RowSpacing="4">
+
+                                        <Grid.RowDefinitions>
+                                            <RowDefinition Height="Auto" />
+                                            <RowDefinition Height="Auto" />
+                                            <RowDefinition Height="Auto" />
+                                            <RowDefinition Height="Auto" />
+                                        </Grid.RowDefinitions>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="Auto" />
+                                            <ColumnDefinition Width="Auto" />
+                                        </Grid.ColumnDefinitions>
+
+                                        <TextBlock Text="Version" TextWrapping="WrapWholeWords" />
+                                        <TextBlock
+                                            Grid.Row="1"
+                                            Text="Edition"
+                                            TextWrapping="WrapWholeWords" />
+                                        <TextBlock
+                                            Grid.Row="2"
+                                            Text="Installed on"
+                                            TextWrapping="WrapWholeWords" />
+                                        <TextBlock
+                                            Grid.Row="3"
+                                            Text="Computer name"
+                                            TextWrapping="WrapWholeWords" />
+
+                                        <TextBlock
+                                            Grid.Column="1"
+                                            Opacity="0.5"
+                                            Text="{x:Bind viewModels:MainViewModel.DetailedWindowsVersion}"
+                                            TextWrapping="WrapWholeWords" />
+                                        <TextBlock
+                                            Grid.Row="1"
+                                            Grid.Column="1"
+                                            Opacity="0.5"
+                                            Text="{x:Bind viewModels:MainViewModel.WindowsEdition}"
+                                            TextWrapping="WrapWholeWords" />
+                                        <TextBlock
+                                            Grid.Row="2"
+                                            Grid.Column="1"
+                                            Opacity="0.5"
+                                            Text="{x:Bind viewModels:MainViewModel.InstalledOn}"
+                                            TextWrapping="WrapWholeWords" />
+                                        <TextBlock
+                                            Grid.Row="3"
+                                            Grid.Column="1"
+                                            Opacity="0.5"
+                                            Text="{x:Bind viewModels:MainViewModel.ComputerName}"
+                                            TextWrapping="WrapWholeWords" />
+
+                                    </Grid>
                                 </StackPanel>
                                 <Button
                                     Grid.Column="2"
@@ -462,6 +511,8 @@
                                         FontWeight="SemiBold"
                                         Text="License information"
                                         TextWrapping="WrapWholeWords" />
+                                    <TextBlock x:Uid="CopyrightLabel" />
+                                    <TextBlock Text="{x:Bind viewModels:MainViewModel.LegalInfo}" TextWrapping="WrapWholeWords" />
                                     <TextBlock TextWrapping="WrapWholeWords">
                                         <Run x:Uid="LicensedUnderLabel" />
                                         <Hyperlink NavigateUri="https://support.microsoft.com/en-us/windows/microsoft-software-license-terms-e26eedad-97a2-5250-2670-aad156b654bd">
@@ -485,47 +536,80 @@
                             </Grid>
                         </Border>
 
-                        <!--  Rebound legal info  -->
+                        <!--  Activation info  -->
                         <Border
-                            Grid.Row="1"
+                            Grid.Row="2"
                             BorderBrush="{ThemeResource DividerStrokeColorDefaultBrush}"
-                            BorderThickness="0,1">
+                            BorderThickness="0,1,0,0"
+                            Visibility="{x:Bind ViewModel.ShowActivationInfo, Mode=OneWay}">
                             <Grid Padding="16">
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="Auto" />
                                     <ColumnDefinition Width="16" />
                                     <ColumnDefinition Width="*" />
                                 </Grid.ColumnDefinitions>
-                                <FontIcon
-                                    VerticalAlignment="Top"
-                                    FontSize="16"
-                                    Foreground="{ThemeResource AccentTextFillColorPrimaryBrush}"
-                                    Glyph="&#xF167;" />
+                                <controls:SwitchPresenter TargetType="muxc:InfoBarSeverity" Value="{x:Bind WindowsActivationSeverity, Mode=OneWay}">
+                                    <controls:Case Value="Error">
+                                        <FontIcon
+                                            VerticalAlignment="Top"
+                                            FontSize="16"
+                                            Foreground="{ThemeResource AccentTextFillColorPrimaryBrush}"
+                                            Glyph="&#xEB90;" />
+                                    </controls:Case>
+                                    <controls:Case Value="Success">
+                                        <FontIcon
+                                            VerticalAlignment="Top"
+                                            FontSize="16"
+                                            Foreground="{ThemeResource SystemFillColorSuccessBrush}"
+                                            Glyph="&#xEC61;" />
+                                    </controls:Case>
+                                    <controls:Case Value="Warning">
+                                        <FontIcon
+                                            VerticalAlignment="Top"
+                                            FontSize="16"
+                                            Foreground="{ThemeResource SystemFillColorCautionBrush}"
+                                            Glyph="&#xF736;" />
+                                    </controls:Case>
+                                    <controls:Case Value="Informational">
+                                        <FontIcon
+                                            VerticalAlignment="Top"
+                                            FontSize="16"
+                                            Foreground="{ThemeResource SystemFillColorCriticalBrush}"
+                                            Glyph="&#xF167;" />
+                                    </controls:Case>
+                                </controls:SwitchPresenter>
+
                                 <StackPanel Grid.Column="2" Spacing="10">
                                     <TextBlock
                                         Margin="0,-3,0,8"
                                         FontWeight="SemiBold"
-                                        Text="Rebound legal information"
+                                        Text="Activation state"
                                         TextWrapping="WrapWholeWords" />
-                                    <TextBlock Text="All Rebound apps are the intellectual property of the Ivirius Community. Third-party apps remain the property of their respective owners and may be subject to separate licenses. If you redistribute or fork this software, you must comply with those third-party license terms and obtain any necessary permissions from their creators." TextWrapping="WrapWholeWords" />
-                                    <TextBlock
-                                        FontWeight="SemiBold"
-                                        Text="Rebound is not a Microsoft product and we are not affiliated with Microsoft."
-                                        TextWrapping="WrapWholeWords" />
+                                    <TextBlock Text="{x:Bind viewModels:MainViewModel.WindowsActivationInfo, Mode=OneWay}" TextWrapping="WrapWholeWords" />
+                                    <Button
+                                        Margin="-8,0"
+                                        Padding="8"
+                                        Background="Transparent"
+                                        BorderBrush="Transparent"
+                                        Command="{x:Bind OpenActivationSettingsCommand}">
+                                        <StackPanel Orientation="Horizontal" Spacing="8">
+                                            <FontIcon FontSize="16" Glyph="&#xE8D7;" />
+                                            <TextBlock VerticalAlignment="Center" Text="Open Windows Activation Settings" />
+                                        </StackPanel>
+                                    </Button>
                                 </StackPanel>
+                                <Button
+                                    Grid.Column="2"
+                                    Margin="-8"
+                                    Padding="8"
+                                    HorizontalAlignment="Right"
+                                    VerticalAlignment="Top"
+                                    Background="Transparent"
+                                    BorderBrush="Transparent"
+                                    Command="{x:Bind CopyLicenseOwnersCommand}">
+                                    <FontIcon FontSize="16" Glyph="&#xE8C8;" />
+                                </Button>
                             </Grid>
-                        </Border>
-
-                        <!--  Activation info  -->
-                        <Border Grid.Row="2" Visibility="{x:Bind ViewModel.ShowActivationInfo, Mode=OneWay}">
-                            <muxc:InfoBar
-                                Title="Activation state"
-                                BorderThickness="0"
-                                CornerRadius="0"
-                                IsClosable="False"
-                                IsOpen="True"
-                                Message="{x:Bind viewModels:MainViewModel.WindowsActivationInfo, Mode=OneWay}"
-                                Severity="{x:Bind WindowsActivationSeverity, Mode=OneWay}" />
                         </Border>
 
                     </Grid>

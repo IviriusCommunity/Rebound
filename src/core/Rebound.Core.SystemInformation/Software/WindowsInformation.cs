@@ -51,6 +51,11 @@ public static class WindowsInformation
     // EOAC flags (objidlbase.h)
     const uint EOAC_NONE = 0x0;
 
+    public static string GetComputerName()
+    {
+        return Environment.MachineName;
+    }
+
     public static unsafe DateTime GetInstalledOnDate()
     {
         const string keyPath = @"SOFTWARE\Microsoft\Windows NT\CurrentVersion";

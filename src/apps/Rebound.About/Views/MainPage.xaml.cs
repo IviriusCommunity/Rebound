@@ -54,6 +54,12 @@ public sealed partial class MainPage : Page
         Load();
     }
 
+    [RelayCommand]
+    public async Task OpenActivationSettingsAsync()
+    {
+        await Launcher.LaunchUriAsync(new("ms-settings:activation"));
+    }
+
     public async void Load()
     {
         DispatcherQueue.GetForCurrentThread().TryEnqueue(async () =>

@@ -89,6 +89,8 @@ public partial class App : Application
                         FileName = "winver.exe",
                         UseShellExecute = true,
                     });
+
+                    await (ReboundPipeClient?.SendAsync("IFEOEngine::Resume#winver.exe"))!.ConfigureAwait(false);
                 }
                 catch
                 {
@@ -134,8 +136,8 @@ public partial class App : Application
             MainWindow.Title = "About Windows";
             
             // Window metrics
-            MainWindow.MinWidth = 520;
-            MainWindow.MinHeight = 440;
+            MainWindow.MinWidth = 440;
+            MainWindow.MinHeight = 360;
             MainWindow.MaxWidth = 920;
             MainWindow.MaxHeight = 1000;
 

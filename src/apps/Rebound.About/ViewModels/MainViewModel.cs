@@ -28,12 +28,31 @@ internal partial class MainViewModel : ObservableObject
     {
         get
         {
-            return string.Format(
-                null,
-                Windows.ApplicationModel.Resources.ResourceLoader.GetForCurrentView().GetString("VersionOSBuild"),
-                WindowsInformation.GetDisplayVersion(),
-                WindowsInformation.GetCurrentBuildNumber(),
-                WindowsInformation.GetUBR());
+            return $"{WindowsInformation.GetDisplayVersion()} ({WindowsInformation.GetCurrentBuildNumber()}.{WindowsInformation.GetUBR()})";
+        }
+    }
+
+    public static string WindowsEdition
+    {
+        get
+        {
+            return WindowsInformation.GetOSName();
+        }
+    }
+
+    public static DateTime InstalledOn
+    {
+        get
+        {
+            return WindowsInformation.GetInstalledOnDate();
+        }
+    }
+
+    public static string ComputerName
+    {
+        get
+        {
+            return WindowsInformation.GetComputerName();
         }
     }
 
