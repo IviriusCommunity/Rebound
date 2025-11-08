@@ -210,7 +210,7 @@ public partial class Mod : ObservableObject
     /// </summary>
     /// <returns>A task corresponding to the action.</returns>
     [RelayCommand]
-    public async Task UpdateIntegrityAsync()
+    public async Task<(bool Installed, bool Intact)> UpdateIntegrityAsync()
     {
         // Progress trackers
         int intactLocal = 0;
@@ -227,11 +227,6 @@ public partial class Mod : ObservableObject
         var results = await Task.WhenAll(Cogs.Where(c => !c.Ignorable).Select(c => c.IsAppliedAsync())).ConfigureAwait(false);
         intactLocal = results.Count(applied => applied);
 
-        // Threading issues
-        // (For some reason this breaks the UI thread modification from below, will need fixing)
-        IsInstalled = intactLocal != 0;
-        IsIntact = intactLocal == 0 || intactLocal == totalLocal;
-
         // Update properties on the UI thread
         UIThreadQueue.QueueAction(async () =>
         {
@@ -241,6 +236,8 @@ public partial class Mod : ObservableObject
 
         // Log mod integrity
         ReboundLogger.Log($"[Mod] Updated integrity for {Name}: Installed={(intactLocal != 0)}, Intact={(intactLocal == 0 || intactLocal == totalLocal)}, intactItems={intactLocal}, totalItems={totalLocal}");
+
+        return (intactLocal != 0, intactLocal == 0 || intactLocal == totalLocal);
     }
 
     /// <summary>

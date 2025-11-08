@@ -79,13 +79,13 @@ internal partial class ReboundViewModel : ObservableObject
         bool enabled = true;
         foreach (var mod in Catalog.MandatoryMods)
         {
-            await mod.UpdateIntegrityAsync().ConfigureAwait(false);
-            if (!mod.IsInstalled || !mod.IsIntact)
+            var props = await mod.UpdateIntegrityAsync().ConfigureAwait(false);
+            if (!props.Installed || !props.Intact)
             {
                 ReboundLogger.Log($"[ReboundViewModel] Enabled changed for mod {mod.Name}: False");
                 enabled = false;
             }
-            ReboundLogger.Log($"[ReboundViewModel] Integrity check for {mod.Name}: IsInstalled={mod.IsInstalled}, IsIntact={mod.IsIntact}");
+            ReboundLogger.Log($"[ReboundViewModel] Integrity check for {mod.Name}: IsInstalled={props.Installed}, IsIntact={props.Intact}");
         }
         ReboundLogger.Log($"[ReboundViewModel] Enabled (original thread): {enabled}");
         UIThreadQueue.QueueAction(async () =>
