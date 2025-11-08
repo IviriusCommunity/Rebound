@@ -62,5 +62,5 @@ public static class Variables
     /// <summary>
     /// Represents the current version identifier for Rebound as a whole.
     /// </summary>
-    public const string ReboundVersion = "v0.0.10.1 Developer Preview";
+    public const string ReboundVersion = "v0.0.10.2 Developer Preview";
 }
