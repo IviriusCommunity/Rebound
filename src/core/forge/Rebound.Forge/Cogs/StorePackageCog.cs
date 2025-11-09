@@ -45,6 +45,7 @@ namespace Rebound.Forge.Cogs
 
                 var storeContext = StoreContext.GetDefault();
                 InitializeWithWindow.Initialize(storeContext, Process.GetCurrentProcess().MainWindowHandle);
+                await storeContext.RequestPurchaseAsync(StoreProductId);
                 var result = await storeContext.DownloadAndInstallStorePackagesAsync(new List<string> { StoreProductId });
 
                 ReboundLogger.Log($"[StorePackageCog] Store install completed with status: {result.OverallState}");
