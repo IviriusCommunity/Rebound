@@ -101,6 +101,10 @@ public static class Catalog
             InstallationSteps = "•   Register a startup task\n•   Hijack selected applets\n\nYou can choose which components are enabled from the Options menu at the top of the page.\n\nNote: Rebound Shell alone doesn't have a predefined UI. To check if it's running, try opening one of the applets it replaces.",
             Cogs = new ObservableCollection<ICog>
             {
+                new ProcessKillCog()
+                {
+                    ProcessName = "Rebound Shell"
+                },
                 new PackageCog()
                 {
                     PackageURI = $"{AppContext.BaseDirectory}\\Modding\\Packages\\Rebound.Shell.msixbundle",
@@ -113,6 +117,10 @@ public static class Catalog
                     Name = "Shell",
                     RequireAdmin = false
                 },
+                new PackageLaunchCog()
+                {
+                    PackageFamilyName = "Rebound.Shell_rcz2tbwv5qzb8"
+                }
             },
             Category = ModCategory.Customization,
             Settings = new ObservableCollection<IModItem>
@@ -315,6 +323,10 @@ public static class Catalog
             InstallationSteps = "Register a startup task as admin",
             Cogs =
             [
+                new ProcessKillCog()
+                {
+                    ProcessName = "Rebound Service Host"
+                },
                 new PackageCog()
                 {
                     PackageURI = $"{AppContext.BaseDirectory}\\Modding\\Packages\\Rebound.ServiceHost.msixbundle",
@@ -327,6 +339,10 @@ public static class Catalog
                     Name = "Service Host",
                     RequireAdmin = true
                 },
+                new PackageLaunchCog()
+                {
+                    PackageFamilyName = "Rebound.ServiceHost_rcz2tbwv5qzb8"
+                }
             ],
             Category = ModCategory.General,
             PreferredInstallationTemplate = InstallationTemplate.Basic
