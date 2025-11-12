@@ -3,39 +3,39 @@
 
 using Rebound.Core;
 using Rebound.Core.Storage;
-using System;
-using System.IO;
-using System.Threading.Tasks;
 
 namespace Rebound.Forge.Cogs;
 
 /// <summary>
-/// Copies a file from one place to another, accounting for missing folders in the path
+/// Copies a file from one place to another, accounting for missing folders in the path.
 /// </summary>
 public class FileCopyCog : ICog
 {
     /// <summary>
-    /// The path to the original file
+    /// The path to the original file.
     /// </summary>
     public required string Path { get; set; }
 
     /// <summary>
-    /// The target path to copy the file to
+    /// The target path to copy the file to.
     /// </summary>
     public required string TargetPath { get; set; }
 
+    /// <inheritdoc/>
     public bool Ignorable { get; }
 
+    /// <summary>
+    /// Creates a new instance of the <see cref="FileCopyCog"/> class.
+    /// </summary>
     public FileCopyCog() { }
 
+    /// <inheritdoc/>
     public async Task ApplyAsync()
     {
         try
         {
             ReboundLogger.Log("[LauncherCog] Apply started.");
-
             FileEx.Copy(Path, TargetPath);
-
             ReboundLogger.Log($"[LauncherCog] Copied file from {Path} to {TargetPath}.");
         }
         catch (Exception ex)
@@ -44,6 +44,7 @@ public class FileCopyCog : ICog
         }
     }
 
+    /// <inheritdoc/>
     public async Task RemoveAsync()
     {
         try
@@ -66,6 +67,7 @@ public class FileCopyCog : ICog
         }
     }
 
+    /// <inheritdoc/>
     public async Task<bool> IsAppliedAsync()
     {
         try

@@ -3,10 +3,7 @@
 
 using Rebound.Core;
 using Rebound.Core.Helpers;
-using System;
 using System.Text;
-using System.Threading.Tasks;
-using TerraFX.Interop.Windows;
 using Windows.Win32.System.Registry;
 using HKEY = TerraFX.Interop.Windows.HKEY;
 
@@ -14,7 +11,7 @@ namespace Rebound.Forge.Cogs;
 
 /// <summary>
 /// Registers an Image File Execution Options entry to redirect one app
-/// to another
+/// to another.
 /// </summary>
 public class IFEOCog : ICog
 {
@@ -30,10 +27,15 @@ public class IFEOCog : ICog
     /// </summary>
     public required string LauncherPath { get; set; }
 
+    /// <inheritdoc/>
     public bool Ignorable { get; }
 
+    /// <summary>
+    /// Creates a new instance of the <see cref="IFEOCog"/> class.
+    /// </summary>
     public IFEOCog() { }
 
+    /// <inheritdoc/>
     public unsafe async Task ApplyAsync()
     {
         try
@@ -60,7 +62,7 @@ public class IFEOCog : ICog
                 ReboundLogger.Log($"[IFEOCog] Writing {bytes.Length} bytes to registry.");
                 fixed (byte* pBytes = bytes)
                 {
-                    TerraFX.Interop.Windows.Windows.RegSetValueExW(
+                    _ = TerraFX.Interop.Windows.Windows.RegSetValueExW(
                         phkResult,
                         "Debugger".ToPointer(),
                         0,
@@ -82,6 +84,7 @@ public class IFEOCog : ICog
         }
     }
 
+    /// <inheritdoc/>
     public unsafe async Task RemoveAsync()
     {
         try
@@ -106,6 +109,7 @@ public class IFEOCog : ICog
         }
     }
 
+    /// <inheritdoc/>
     public unsafe async Task<bool> IsAppliedAsync()
     {
         try

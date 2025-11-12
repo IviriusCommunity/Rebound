@@ -27,6 +27,7 @@ namespace Rebound.Forge.Cogs
         /// </summary>
         public required string PackageFamilyName { get; set; }
 
+        /// <inheritdoc/>
         public bool Ignorable { get; }
 
         public async Task ApplyAsync()
