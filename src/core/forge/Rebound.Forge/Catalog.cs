@@ -101,9 +101,10 @@ public static class Catalog
         new Mod()
         { 
             Name = "Rebound Shell",
-            Description = "Replacement for the shell and its components such as the run box, shutdown dialog, desktop, etc.",
+            Description = "Replacement for the shell and its components such as the run box, shutdown dialog, desktop, etc.\nRight now, only the run box is working.",
             Icon = "ms-appx:///Assets/ReboundApps/Shell.ico",
-            InstallationSteps = "•   Register a startup task\n•   Hijack selected applets\n\nYou can choose which components are enabled from the Options menu at the top of the page.\n\nNote: Rebound Shell alone doesn't have a predefined UI. To check if it's running, try opening one of the applets it replaces.",
+            Category = ModCategory.Customization,
+            PreferredInstallationTemplate = InstallationTemplate.Extras,
             Cogs =
             [
                 new ProcessKillCog()
@@ -127,7 +128,6 @@ public static class Catalog
                     PackageFamilyName = "Rebound.Shell_rcz2tbwv5qzb8"
                 }
             ],
-            Category = ModCategory.Customization,
             Settings =
             [
                 new ModLabel()
@@ -137,7 +137,7 @@ public static class Catalog
                 new ModBoolSetting(true)
                 {
                     Name = "Run",
-                    IconGlyph = "\uE946",
+                    IconGlyph = "\uF0D2",
                     Description = "Enable Rebound Run.",
                     Identifier = "InstallRun",
                     AppName = "rshell"
@@ -150,7 +150,6 @@ public static class Catalog
                     PackageFamilyName = "Rebound.Shell_rcz2tbwv5qzb8"
                 }
             ],
-            PreferredInstallationTemplate = InstallationTemplate.Extras
         },
         
         /*// Rebound User Account Control Settings
@@ -185,7 +184,8 @@ public static class Catalog
             Name = "Character Map",
             Description = "Utility for searching through characters in any installed font. (3rd party)",
             Icon = "ms-appx:///Assets/AppIcons/PartnerApps/Character Map UWP.png",
-            InstallationSteps = "Install Character Map UWP from the Microsoft Store",
+            Category = ModCategory.Productivity,
+            PreferredInstallationTemplate = InstallationTemplate.Extras,
             Cogs =
             [
                 new StorePackageCog()
@@ -199,7 +199,6 @@ public static class Catalog
                     LauncherPath = Variables.ReboundLauncherPath
                 }
             ],
-            Category = ModCategory.Productivity,
             Settings =
             [
                 new ModInfoBar()
@@ -223,9 +222,10 @@ public static class Catalog
             Name = "About Windows",
             Description = "Replacement for the winver applet. Details about the currently installed Rebound version can be found here.",
             Icon = "ms-appx:///Assets/ReboundApps/AboutWindows.ico",
-            InstallationSteps = "•   Redirect app launch\n•   Create a start menu shortcut",
-            Cogs = new ObservableCollection<ICog>
-            {
+            Category = ModCategory.Customization,
+            PreferredInstallationTemplate = InstallationTemplate.Basic,
+            Cogs = 
+            [
                 new PackageCog()
                 {
                     PackageURI = Path.Combine(AppContext.BaseDirectory, "Modding", "Packages", "Rebound.About.msixbundle"),
@@ -236,8 +236,7 @@ public static class Catalog
                     OriginalExecutableName = "winver.exe",
                     LauncherPath = Variables.ReboundLauncherPath
                 }
-            },
-            Category = ModCategory.Customization,
+            ],
             Settings =
             [
                 new ModLabel()
@@ -291,7 +290,6 @@ public static class Catalog
                     AppName = "winver"
                 },
             ],
-            PreferredInstallationTemplate = InstallationTemplate.Basic,
             Launchers =
             [
                 new PackageLauncher()
@@ -313,7 +311,8 @@ public static class Catalog
             Name = "Environment",
             Description = "Mandatory mod required for Rebound to run properly.",
             Icon = "ms-appx:///Assets/ReboundApps/Environment.ico",
-            InstallationSteps = "Coming soon",
+            Category = ModCategory.General,
+            PreferredInstallationTemplate = InstallationTemplate.Basic,
             Cogs =
             [
                 new FolderCog()
@@ -341,8 +340,6 @@ public static class Catalog
                     Name = "Rebound"
                 }
             ],
-            Category = ModCategory.General,
-            PreferredInstallationTemplate = InstallationTemplate.Basic
         },
         // Service Host
         new Mod()
@@ -350,7 +347,8 @@ public static class Catalog
             Name = "Service Host",
             Description = "Mandatory background service required for Rebound apps to run properly.",
             Icon = "ms-appx:///Assets/ReboundApps/ServiceHost.ico",
-            InstallationSteps = "Register a startup task as admin",
+            Category = ModCategory.General,
+            PreferredInstallationTemplate = InstallationTemplate.Basic,
             Cogs =
             [
                 new ProcessKillCog()
@@ -374,15 +372,14 @@ public static class Catalog
                     PackageFamilyName = "Rebound.ServiceHost_rcz2tbwv5qzb8"
                 }
             ],
-            Category = ModCategory.General,
-            PreferredInstallationTemplate = InstallationTemplate.Basic
         },
         new Mod()
         {            
             Name = "Launcher",
             Description = "Mandatory executable for Rebound apps to run properly.",
             Icon = "ms-appx:///Assets/ReboundApps/Launcher.ico",
-            InstallationSteps = "Register a startup task as admin",
+            Category = ModCategory.General,
+            PreferredInstallationTemplate = InstallationTemplate.Basic,
             Cogs =
             [
                 new FileCopyCog
@@ -391,8 +388,6 @@ public static class Catalog
                     TargetPath = Variables.ReboundLauncherPath
                 }
             ],
-            Category = ModCategory.General,
-            PreferredInstallationTemplate = InstallationTemplate.Basic
         },
     ];
 

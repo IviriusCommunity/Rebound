@@ -81,6 +81,7 @@ public partial class Mod : ObservableObject
     /// will be deprecated soon in favor of dynamically generated installation
     /// steps from the <see cref="Cogs"/>.
     /// </summary>
+    [Obsolete("This property is obsolete. Installation steps are now automatically generated from cogs.", true)]
     public string? InstallationSteps { get; set; }
 
     /// <summary>
