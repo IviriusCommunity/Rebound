@@ -1,7 +1,9 @@
 ﻿// Copyright (C) Ivirius(TM) Community 2020 - 2025. All Rights Reserved.
 // Licensed under the MIT License.
 
+using Rebound.Core;
 using System.Diagnostics;
+using TerraFX.Interop.Windows;
 
 namespace Rebound.Forge.Cogs;
 
@@ -12,7 +14,7 @@ namespace Rebound.Forge.Cogs;
 /// <para>
 /// When this cog is <see cref="ApplyAsync"/> or <see cref="RemoveAsync"/> is called,
 /// it attempts to locate and terminate all instances of the process specified by
-/// <see cref="ExecutableName"/>.
+/// <see cref="ProcessName"/>.
 /// </para>
 /// <para>
 /// The <see cref="IsAppliedAsync"/> method always returns <see langword="true"/>.
@@ -23,11 +25,13 @@ namespace Rebound.Forge.Cogs;
 /// </remarks>
 public class ProcessKillCog : ICog
 {
+    /// <summary>
+    /// The display process name. Example: Rebound Shell
+    /// </summary>
     public required string ProcessName { get; set; }
 
+    /// <inheritdoc/>
     public bool Ignorable { get; } = true;
-
-    public ProcessKillCog() { }
 
     private async Task KillProcess()
     {
@@ -36,21 +40,25 @@ public class ProcessKillCog : ICog
         {
             if (process.ProcessName == ProcessName)
             {
+                ReboundLogger.Log($"[ProcessKillCog] Killing process {process.ProcessName}");
                 process.Kill();
             }
         }
     }
 
+    /// <inheritdoc/>
     public async Task ApplyAsync()
     {
-        await KillProcess();
+        await KillProcess().ConfigureAwait(false);
     }
 
+    /// <inheritdoc/>
     public async Task RemoveAsync()
     {
-        await KillProcess();
+        await KillProcess().ConfigureAwait(false);
     }
 
+    /// <inheritdoc/>
     public async Task<bool> IsAppliedAsync()
     {
         return true;

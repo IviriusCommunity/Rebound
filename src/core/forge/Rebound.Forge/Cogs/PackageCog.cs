@@ -2,11 +2,8 @@
 // Licensed under the MIT License.
 
 using Rebound.Core;
-using Rebound.Core.Helpers;
-using System;
-using System.Linq;
+using Rebound.Core.UI;
 using System.Security.Principal;
-using System.Threading.Tasks;
 using Windows.Management.Deployment;
 
 namespace Rebound.Forge.Cogs
@@ -20,7 +17,9 @@ namespace Rebound.Forge.Cogs
         /// URI to the MSIX or APPX package (supports http, https, and file schemes).
         /// Example: https://example.com/MyApp.msix
         /// </summary>
+#pragma warning disable CA1056 // URI-like properties should not be strings
         public required string PackageURI { get; set; }
+#pragma warning restore CA1056 // URI-like properties should not be strings
 
         /// <summary>
         /// The package family name (as seen in PackageManager or PowerShell Get-AppxPackage).
@@ -30,6 +29,7 @@ namespace Rebound.Forge.Cogs
         /// <inheritdoc/>
         public bool Ignorable { get; }
 
+        /// <inheritdoc/>
         public async Task ApplyAsync()
         {
             try
@@ -52,6 +52,7 @@ namespace Rebound.Forge.Cogs
             }
         }
 
+        /// <inheritdoc/>
         public async Task RemoveAsync()
         {
             try
@@ -59,7 +60,13 @@ namespace Rebound.Forge.Cogs
                 ReboundLogger.Log($"[PackageCog] Removing package: {PackageFamilyName}");
 
                 var packageManager = new PackageManager();
-                await packageManager.RemovePackageAsync(PackageFamilyName);
+                var packages = packageManager.FindPackagesForUser(string.Empty)
+                                             .Where(p => p.Id.FamilyName == PackageFamilyName);
+
+                foreach (var package in packages)
+                {
+                    await packageManager.RemovePackageAsync(package.Id.FullName);
+                }
 
                 ReboundLogger.Log($"[PackageCog] Successfully removed package: {PackageFamilyName}");
             }
@@ -69,6 +76,7 @@ namespace Rebound.Forge.Cogs
             }
         }
 
+        /// <inheritdoc/>
         public async Task<bool> IsAppliedAsync()
         {
             try

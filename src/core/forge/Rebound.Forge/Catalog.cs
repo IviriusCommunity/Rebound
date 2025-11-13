@@ -3,6 +3,7 @@
 
 using Rebound.Core;
 using Rebound.Forge.Cogs;
+using Rebound.Forge.Launchers;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -123,8 +124,8 @@ public static class Catalog
                 }
             },
             Category = ModCategory.Customization,
-            Settings = new ObservableCollection<IModItem>
-            {
+            Settings =
+            [
                 new ModLabel()
                 {
                     Text = "Content"
@@ -137,7 +138,14 @@ public static class Catalog
                     Identifier = "InstallRun",
                     AppName = "rshell"
                 },
-            },
+            ],
+            Launchers =
+            [
+                new PackageLauncher()
+                {
+                    PackageFamilyName = "Rebound.Shell_rcz2tbwv5qzb8"
+                }
+            ],
             PreferredInstallationTemplate = InstallationTemplate.Extras
         },
         

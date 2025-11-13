@@ -105,6 +105,11 @@ public partial class Mod : ObservableObject
     /// The settings that are displayed in the mod's page in Rebound Hub.
     /// </summary>
     public ObservableCollection<IModItem>? Settings { get; set; } = [];
+
+    /// <summary>
+    /// Launcher tasks to do upon calling <see cref="OpenAsync"/>.
+    /// </summary>
+    public ObservableCollection<ILauncher> Launchers { get; set; } = [];
 #pragma warning restore CA2227 // Collection properties should be read only
 
     private readonly Lock integrityLock = new();
@@ -152,31 +157,29 @@ public partial class Mod : ObservableObject
                 });
 
                 // Go through each cog and (un)install it
-                var nonIgnorableCogs = Cogs.Where(c => !c.Ignorable).ToList();
-                UIThreadQueue.QueueAction(async () =>
-                {
-                    TaskCount = nonIgnorableCogs.Count;
-                });
-
-                var tasks = nonIgnorableCogs.Select(async cog =>
-                {
-                    if (install) await cog.ApplyAsync().ConfigureAwait(false);
-                    else await cog.RemoveAsync().ConfigureAwait(false);
-                    progress++;
-                    UIThreadQueue.QueueAction(async () =>
-                    {
-                        Progress = progress;
-                    });
-                });
-
-                await Task.WhenAll(tasks).ConfigureAwait(false);
-
-                // Update properties on caller thread after background work
                 UIThreadQueue.QueueAction(async () =>
                 {
                     TaskCount = taskCount;
-                    Progress = progress;
                 });
+
+                foreach (var cog in Cogs)
+                {
+                    if (install)
+                        await cog.ApplyAsync().ConfigureAwait(false);
+                    else
+                        await cog.RemoveAsync().ConfigureAwait(false);
+
+                    await Task.Delay(50).ConfigureAwait(false);
+
+                    if (!cog.Ignorable)
+                    {
+                        progress++;
+                        UIThreadQueue.QueueAction(async () =>
+                        {
+                            Progress = progress;
+                        });
+                    }
+                }
 
                 // Update mod integrity
                 await UpdateIntegrityAsync().ConfigureAwait(false);
@@ -201,11 +204,17 @@ public partial class Mod : ObservableObject
         }
     }
 
-    // Coming soon
+    /// <summary>
+    /// Launches every object inside <see cref="Launchers"/>.
+    /// </summary>
+    /// <returns>A task corresponding to the action.</returns>
     [RelayCommand]
     public async Task OpenAsync()
     {
-        // Implementation left empty in original code
+        foreach (var launcher in Launchers)
+        {
+            await launcher.LaunchAsync().ConfigureAwait(false);
+        }
     }
 
     /// <summary>

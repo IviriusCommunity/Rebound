@@ -1,9 +1,6 @@
 ﻿// Copyright (C) Ivirius(TM) Community 2020 - 2025. All Rights Reserved.
 // Licensed under the MIT License.
 
-using System;
-using System.IO;
-using System.Threading.Tasks;
 using Rebound.Core;
 using Rebound.Core.Helpers;
 using Windows.Win32;
@@ -13,15 +10,18 @@ using Windows.Win32.UI.Shell;
 
 namespace Rebound.Forge.Cogs;
 
+/// <summary>
+/// Creates a shortcut to an executable inside the start menu in the Rebound folder.
+/// </summary>
 public class ShortcutCog : ICog
 {
     /// <summary>
-    /// Path of the target executable to be launched
+    /// Path of the target executable to be launched.
     /// </summary>
     public required string ExePath { get; set; }
 
     /// <summary>
-    /// The display name of the shortcut
+    /// The display name of the shortcut.
     /// </summary>
     public required string ShortcutName { get; set; }
 
@@ -31,13 +31,13 @@ public class ShortcutCog : ICog
     /// </summary>
     public string? IconLocation { get; set; }
 
+    /// <inheritdoc/>
     public bool Ignorable { get; }
 
     private static string GetShortcutPath(string shortcutName) =>
-        Path.Combine(
-            Environment.GetFolderPath(Environment.SpecialFolder.CommonStartMenu),
-            "Programs", "Rebound", $"{shortcutName}.lnk");
+        Path.Combine(Variables.ReboundStartMenuFolder, $"{shortcutName}.lnk");
 
+    /// <inheritdoc/>
     public unsafe async Task ApplyAsync()
     {
         try
@@ -120,6 +120,7 @@ public class ShortcutCog : ICog
         ReboundLogger.Log($"[ShortcutCog] Apply finished for: {ShortcutName}");
     }
 
+    /// <inheritdoc/>
     public async Task RemoveAsync()
     {
         try
@@ -150,6 +151,7 @@ public class ShortcutCog : ICog
         }
     }
 
+    /// <inheritdoc/>
     public async Task<bool> IsAppliedAsync()
     {
         try

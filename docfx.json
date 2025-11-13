@@ -1,0 +1,55 @@
+{
+  "$schema": "https://raw.githubusercontent.com/dotnet/docfx/main/schemas/docfx.schema.json",
+  "metadata": [
+    {
+      "src": [
+        {
+          "src": "src",
+          "files": [
+            "**/*.csproj"
+          ],
+          "exclude": [
+            "apps/Rebound.UserAccountControlSettings/Rebound.UserAccountControlSettings.csproj",
+            "apps/Rebound.Keyboard/Rebound.Keyboard.csproj",
+            "apps/Rebound.Dialer/Rebound.Dialer.csproj",
+            "apps/Rebound.Defrag/Rebound.Defrag.csproj",
+            "apps/Rebound.ControlPanel/Rebound.ControlPanel.csproj",
+            "apps/Rebound.Cleanup/Rebound.Cleanup.csproj",
+            "platforms/management/Rebound.ManagementConsole/Rebound.ManagementConsole.csproj"
+          ]
+        }
+      ],
+      "dest": "api"
+    }
+  ],
+  "build": {
+    "content": [
+      {
+        "files": [
+          "**/*.{md,yml}"
+        ],
+        "exclude": [
+          "_site/**"
+        ]
+      }
+    ],
+    "resource": [
+      {
+        "files": [
+          "images/**"
+        ]
+      }
+    ],
+    "output": "_site",
+    "template": [
+      "default",
+      "modern"
+    ],
+    "globalMetadata": {
+      "_appName": "Ivirius Community - Docs",
+      "_appTitle": "Ivirius Community - Docs",
+      "_enableSearch": true,
+      "pdf": false
+    }
+  }
+}

@@ -7,9 +7,16 @@ using System.Threading.Tasks;
 
 namespace Rebound.Forge.Engines;
 
+/// <summary>
+/// Helper methods for managing IFEO entries.
+/// </summary>
 public static class IFEOEngine
 {
-    // Method to pause IFEO entry by copying and deleting the registry key
+    /// <summary>
+    /// Retrieves the IFEO entry for an executable and invalidates it.
+    /// </summary>
+    /// <param name="executableName"></param>
+    /// <returns></returns>
     public static async Task PauseIFEOEntryAsync(string executableName)
     {
         try

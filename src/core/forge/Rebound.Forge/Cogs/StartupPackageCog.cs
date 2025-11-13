@@ -2,8 +2,6 @@
 // Licensed under the MIT License.
 
 using Rebound.Core;
-using System;
-using System.Threading.Tasks;
 using Windows.Win32;
 using Windows.Win32.Foundation;
 using Windows.Win32.System.Com;
@@ -11,22 +9,37 @@ using Windows.Win32.System.TaskScheduler;
 
 namespace Rebound.Forge.Cogs;
 
+/// <summary>
+/// Creates a startup task inside the Rebound folder in Task Scheduler to launch
+/// a package.
+/// </summary>
 public class StartupPackageCog : ICog
 {
     /// <summary>
     /// Package Family Name of the UWP / MSIX app.
-    /// Example: Microsoft.MSPaint_8wekyb3d8bbwe
+    /// Example: Rebound.Shell_rcz2tbwv5qzb8
     /// </summary>
     public required string TargetPackageFamilyName { get; set; }
 
+    /// <summary>
+    /// The name of the task.
+    /// </summary>
     public required string Name { get; set; }
+
+    /// <summary>
+    /// The task's description.
+    /// </summary>
     public required string Description { get; set; }
+
+    /// <summary>
+    /// Whether this task should run elevated or not.
+    /// </summary>
     public required bool RequireAdmin { get; set; }
 
+    /// <inheritdoc/>
     public bool Ignorable { get; }
 
-    public StartupPackageCog() { }
-
+    /// <inheritdoc/>
     public async unsafe Task ApplyAsync()
     {
         try
@@ -133,6 +146,7 @@ public class StartupPackageCog : ICog
         }
     }
 
+    /// <inheritdoc/>
     public async unsafe Task RemoveAsync()
     {
         try
@@ -188,6 +202,7 @@ public class StartupPackageCog : ICog
         }
     }
 
+    /// <inheritdoc/>
     public async unsafe Task<bool> IsAppliedAsync()
     {
         try

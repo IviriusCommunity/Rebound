@@ -2,18 +2,10 @@
 // Licensed under the MIT License.
 
 using Rebound.Core;
-using Rebound.Core.Helpers;
-using System;
-using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
 using System.Security.Principal;
-using System.Threading.Tasks;
-using TerraFX.Interop.Windows;
 using Windows.Management.Deployment;
 using Windows.Services.Store;
-using Windows.UI.Core;
-using WinRT;
 using WinRT.Interop;
 
 namespace Rebound.Forge.Cogs
@@ -35,8 +27,10 @@ namespace Rebound.Forge.Cogs
         /// </summary>
         public required string PackageFamilyName { get; set; }
 
+        /// <inheritdoc/>
         public bool Ignorable { get; }
-
+        
+        /// <inheritdoc/>
         public async Task ApplyAsync()
         {
             try
@@ -56,6 +50,7 @@ namespace Rebound.Forge.Cogs
             }
         }
 
+        /// <inheritdoc/>
         public async Task RemoveAsync()
         {
             try
@@ -74,6 +69,7 @@ namespace Rebound.Forge.Cogs
             }
         }
 
+        /// <inheritdoc/>
         public async Task<bool> IsAppliedAsync()
         {
             try

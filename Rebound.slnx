@@ -4,6 +4,11 @@
     <Platform Name="x64" />
     <Platform Name="x86" />
   </Configurations>
+  <Folder Name="/docs/">
+    <File Path="docs/getting-started.md" />
+    <File Path="docs/introduction.md" />
+    <File Path="docs/toc.yml" />
+  </Folder>
   <Folder Name="/eng/" />
   <Folder Name="/eng/distribution/" />
   <Folder Name="/eng/distribution/standalone/">
@@ -115,5 +120,10 @@
       <Platform Project="x64" />
       <Deploy />
     </Project>
+  </Folder>
+  <Folder Name="/var/">
+    <File Path="docfx.json" />
+    <File Path="LICENSE.md" />
+    <File Path="toc.yml" />
   </Folder>
 </Solution>

@@ -2,9 +2,6 @@
 // Licensed under the MIT License.
 
 using Rebound.Core;
-using System;
-using System.Collections.Generic;
-using System.Text;
 using Windows.Win32;
 using Windows.Win32.Foundation;
 using Windows.Win32.System.Com;
@@ -22,13 +19,10 @@ namespace Rebound.Forge.Cogs
         /// </summary>
         public required string Name { get; set; }
 
+        /// <inheritdoc/>
         public bool Ignorable { get; }
 
-        public TaskFolderCog() { }
-
-        /// <summary>
-        /// Applies the task folder, creating it if it doesn't exist.
-        /// </summary>
+        /// <inheritdoc/>
         public async unsafe Task ApplyAsync()
         {
             try
@@ -88,9 +82,7 @@ namespace Rebound.Forge.Cogs
             }
         }
 
-        /// <summary>
-        /// Removes the task folder if it exists.
-        /// </summary>
+        /// <inheritdoc/>
         public async unsafe Task RemoveAsync()
         {
             try
@@ -149,10 +141,7 @@ namespace Rebound.Forge.Cogs
             }
         }
 
-        /// <summary>
-        /// Checks if the task folder is currently applied.
-        /// </summary>
-        /// <returns>True if the task folder exists; otherwise, false.</returns>
+        /// <inheritdoc/>
         public async unsafe Task<bool> IsAppliedAsync()
         {
             try
