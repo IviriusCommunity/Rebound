@@ -3,18 +3,50 @@
 
 namespace Rebound.Forge;
 
+/// <summary>
+/// The state in which a Rebound mod is found.
+/// </summary>
 public enum ModIntegrity
 {
+    /// <summary>
+    /// Every cog of the mod is installed and configured properly.
+    /// </summary>
     Installed,
+
+    /// <summary>
+    /// One or more cogs of the mod are missing, while the rest are installed.
+    /// </summary>
     Corrupt,
+
+    /// <summary>
+    /// None of the mod's cogs are installed.
+    /// </summary>
     NotInstalled
 }
 
+/// <summary>
+/// Installation presets for quick configuration.
+/// </summary>
 public enum InstallationTemplate
 {
+    /// <summary>
+    /// Mods that represent the core Rebound experience.
+    /// </summary>
     Basic,
+    
+    /// <summary>
+    /// Recommended configuration of Rebound mods.
+    /// </summary>
     Recommended,
+
+    /// <summary>
+    /// The complete set of Rebound mods.
+    /// </summary>
     Complete,
+
+    /// <summary>
+    /// Includes additional mods that are not essential.
+    /// </summary>
     Extras
 }
 
@@ -52,4 +84,10 @@ public interface ICog
     /// For example, mods that serve solely as static actions.
     /// </remarks>
     bool Ignorable { get; }
+
+    /// <summary>
+    /// The description of what this cog does. Used for automating the tasks list description instead of
+    /// writing what a mod does manually.
+    /// </summary>
+    string TaskDescription { get; }
 }

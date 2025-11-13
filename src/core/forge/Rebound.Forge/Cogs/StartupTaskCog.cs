@@ -39,6 +39,9 @@ public class StartupTaskCog : ICog
     public bool Ignorable { get; }
 
     /// <inheritdoc/>
+    public string TaskDescription { get => $"Register a startup task for the executable {TargetPath} as {(RequireAdmin ? "administrator" : "user")}"; }
+
+    /// <inheritdoc/>
     public async unsafe Task ApplyAsync()
     {
         try

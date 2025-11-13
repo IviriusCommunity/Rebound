@@ -10,6 +10,7 @@
     xmlns:core="using:Rebound.Core"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:forge="using:Rebound.Forge"
+    xmlns:local="using:Rebound.Hub.Views"
     xmlns:gallery="using:WinUIGallery.Controls"
     xmlns:interactivity="using:Microsoft.Xaml.Interactivity"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
@@ -35,6 +36,7 @@
                     <ImageSource x:Key="HeroImage">/Assets/Backgrounds/WallpaperDark.png</ImageSource>
                 </ResourceDictionary>
             </ResourceDictionary.ThemeDictionaries>
+            <local:ModToTasksListConverter x:Key="ModToTasksListConverter"/>
             <Style x:Key="RepairButtonStyle" TargetType="Button">
                 <Setter Property="Foreground" Value="{ThemeResource AccentButtonForeground}" />
                 <Setter Property="Background" Value="{ThemeResource RepairButtonBackgroundBrush}" />
@@ -509,10 +511,7 @@
                                                 <FontIcon FontSize="16" Glyph="&#xE946;" />
                                                 <Button.Flyout>
                                                     <Flyout>
-                                                        <StackPanel MaxWidth="240" Spacing="8">
-                                                            <TextBlock FontWeight="SemiBold" Text="This will do the following:" />
-                                                            <TextBlock Text="{x:Bind InstallationSteps, Mode=OneWay}" TextWrapping="WrapWholeWords" />
-                                                        </StackPanel>
+                                                        <ContentPresenter Content="{x:Bind Converter={StaticResource ModToTasksListConverter}}"/>
                                                     </Flyout>
                                                 </Button.Flyout>
                                             </Button>
@@ -679,10 +678,7 @@
                                                 <FontIcon FontSize="16" Glyph="&#xE946;" />
                                                 <Button.Flyout>
                                                     <Flyout>
-                                                        <StackPanel MaxWidth="240" Spacing="8">
-                                                            <TextBlock FontWeight="SemiBold" Text="This will do the following:" />
-                                                            <TextBlock Text="{x:Bind InstallationSteps, Mode=OneWay}" TextWrapping="WrapWholeWords" />
-                                                        </StackPanel>
+                                                        <ContentPresenter Content="{x:Bind Converter={StaticResource ModToTasksListConverter}}"/>
                                                     </Flyout>
                                                 </Button.Flyout>
                                             </Button>
@@ -943,10 +939,7 @@
                                                 <FontIcon FontSize="16" Glyph="&#xE946;" />
                                                 <Button.Flyout>
                                                     <Flyout>
-                                                        <StackPanel MaxWidth="240" Spacing="8">
-                                                            <TextBlock FontWeight="SemiBold" Text="This will do the following:" />
-                                                            <TextBlock Text="{x:Bind InstallationSteps, Mode=OneWay}" TextWrapping="WrapWholeWords" />
-                                                        </StackPanel>
+                                                        <ContentPresenter Content="{x:Bind Converter={StaticResource ModToTasksListConverter}}"/>
                                                     </Flyout>
                                                 </Button.Flyout>
                                             </Button>

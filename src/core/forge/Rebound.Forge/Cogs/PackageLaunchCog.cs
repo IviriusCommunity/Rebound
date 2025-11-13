@@ -5,6 +5,7 @@ using Rebound.Core;
 using Rebound.Core.Helpers;
 using Rebound.Core.UI;
 using TerraFX.Interop.Windows;
+using Windows.Management.Deployment;
 
 namespace Rebound.Forge.Cogs;
 
@@ -14,8 +15,6 @@ namespace Rebound.Forge.Cogs;
 /// <remarks><see cref="IsAppliedAsync"/> will always return <see langword="true"/></remarks>
 public class PackageLaunchCog : ICog
 {
-    private static readonly Guid CLSID_ApplicationActivationManager = new("45BA127D-10A8-46EA-8AB7-56EA9078943C");
-
     /// <summary>
     /// The family name of the package you want to launch. Example: Rebound.Shell_rcz2tbwv5qzb8
     /// </summary>
@@ -24,50 +23,32 @@ public class PackageLaunchCog : ICog
     /// <inheritdoc/>
     public bool Ignorable { get; } = true;
 
-    /// <summary>
-    /// Creates a new instance of the <see cref="PackageLaunchCog"/> class.
-    /// </summary>
-    public PackageLaunchCog() { }
+    /// <inheritdoc/>
+    public string TaskDescription { get => $"Launch the package {PackageFamilyName}"; }
 
     /// <inheritdoc/>
-    public unsafe async Task ApplyAsync()
+    public async Task ApplyAsync()
     {
         ReboundLogger.Log($"[PackageLaunchCog] Launching package {PackageFamilyName}");
 
-        ComPtr<IApplicationActivationManager> activationManager = default;
+        var packageManager = new PackageManager();
+        var package = packageManager.FindPackagesForUser("", PackageFamilyName).FirstOrDefault();
 
-        HRESULT hr;
-        fixed (Guid* clsid = &CLSID_ApplicationActivationManager)
-        fixed (Guid* iid = &IID.IID_IApplicationActivationManager)
+        if (package == null)
         {
-            hr = TerraFX.Interop.Windows.Windows.CoCreateInstance(
-                rclsid: clsid,
-                pUnkOuter: null,
-                dwClsContext: (uint)Windows.Win32.System.Com.CLSCTX.CLSCTX_LOCAL_SERVER,
-                riid: iid,
-                ppv: (void**)activationManager.GetAddressOf());
-        }
-
-        if (hr < 0)
-        {
-            ReboundLogger.Log($"[PackageLaunchCog] Failed to create ApplicationActivationManager instance. HRESULT: {hr:X8}");
+            ReboundLogger.Log($"[PackageLaunchCog] Package not found");
             return;
         }
 
-        UIThreadQueue.QueueAction(async () =>
+        var apps = await package.GetAppListEntriesAsync();
+        if (apps.Count == 0)
         {
-            hr = activationManager.Get()->ActivateApplication(
-                    (PackageFamilyName + "!App").ToPointer(),
-                    null,
-                    ACTIVATEOPTIONS.AO_NONE,
-                    null);
-        });
-
-        if (hr < 0)
-        {
-            ReboundLogger.Log($"[PackageLaunchCog] Failed to activate application. HRESULT: {hr:X8}");
+            ReboundLogger.Log($"[PackageLaunchCog] No apps found in package");
             return;
         }
+
+        // Launch the first app (or iterate to find the right one)
+        await apps[0].LaunchAsync();
     }
 
     /// <inheritdoc/>

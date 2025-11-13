@@ -30,6 +30,9 @@ namespace Rebound.Forge.Cogs
         public bool Ignorable { get; }
 
         /// <inheritdoc/>
+        public string TaskDescription { get => $"Install the package {PackageURI}"; }
+
+        /// <inheritdoc/>
         public async Task ApplyAsync()
         {
             try

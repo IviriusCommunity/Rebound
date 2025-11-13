@@ -40,6 +40,9 @@ public class StartupPackageCog : ICog
     public bool Ignorable { get; }
 
     /// <inheritdoc/>
+    public string TaskDescription { get => $"Register a startup task for the package {TargetPackageFamilyName} as {(RequireAdmin ? "administrator" : "user")}"; }
+
+    /// <inheritdoc/>
     public async unsafe Task ApplyAsync()
     {
         try

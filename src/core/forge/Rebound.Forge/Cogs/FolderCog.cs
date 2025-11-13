@@ -27,6 +27,9 @@ public partial class FolderCog : ICog
     /// <inheritdoc/>
     public bool Ignorable { get; }
 
+    /// <inheritdoc/>
+    public string TaskDescription { get => $"Create folder {Path}"; }
+
     /// <summary>
     /// Creates a new instance of the <see cref="FolderCog"/> class.
     /// </summary>

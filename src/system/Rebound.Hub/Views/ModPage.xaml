@@ -30,6 +30,7 @@
                     <ImageSource x:Key="HeroImage">/Assets/Backgrounds/WallpaperDark.png</ImageSource>
                 </ResourceDictionary>
             </ResourceDictionary.ThemeDictionaries>
+            <local:ModToTasksListConverter_Page x:Key="ModToTasksListConverter" />
             <Style x:Key="RepairButtonStyle" TargetType="Button">
                 <Setter Property="Foreground" Value="{ThemeResource AccentButtonForeground}" />
                 <Setter Property="Background" Value="{ThemeResource RepairButtonBackgroundBrush}" />
@@ -194,9 +195,7 @@
         </ResourceDictionary>
     </Page.Resources>
     <ScrollViewer HorizontalAlignment="Stretch">
-        <ContentControl
-            HorizontalContentAlignment="Stretch"
-            Content="{x:Bind Mod}">
+        <ContentControl HorizontalContentAlignment="Stretch" Content="{x:Bind Mod}">
             <ContentControl.ContentTemplate>
                 <DataTemplate x:DataType="forge:Mod">
                     <Grid>
@@ -366,9 +365,13 @@
                                     Title="This mod does the following:"
                                     HorizontalAlignment="Stretch"
                                     IsClosable="False"
-                                    IsOpen="True"
-                                    Message="{x:Bind InstallationSteps, Mode=OneWay}" />
-                                <ItemsControl ItemTemplateSelector="{StaticResource ModSettingSelector}" ItemsSource="{x:Bind Settings, Mode=OneWay}">
+                                    IsOpen="True">
+                                    <ContentPresenter Content="{x:Bind Converter={StaticResource ModToTasksListConverter}}" />
+                                </muxc:InfoBar>
+                                <ItemsControl
+                                    Margin="0,16,0,0"
+                                    ItemTemplateSelector="{StaticResource ModSettingSelector}"
+                                    ItemsSource="{x:Bind Settings, Mode=OneWay}">
                                     <ItemsControl.ItemsPanel>
                                         <ItemsPanelTemplate>
                                             <StackPanel Orientation="Vertical" Spacing="4" />

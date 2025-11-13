@@ -181,7 +181,7 @@ internal static partial class Program
                 catch { /* log */ }
             }
             
-            System.Threading.Thread.Sleep(1);
+            //System.Threading.Thread.Sleep(1);
         }
     }
 }").NormalizeWhitespace() as ClassDeclarationSyntax ?? throw new System.Exception("Failed to generate Program class");

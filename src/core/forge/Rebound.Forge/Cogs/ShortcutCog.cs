@@ -34,6 +34,9 @@ public class ShortcutCog : ICog
     /// <inheritdoc/>
     public bool Ignorable { get; }
 
+    /// <inheritdoc/>
+    public string TaskDescription { get => $"Create a shortcut to {ExePath} at {GetShortcutPath(ShortcutName)}"; }
+
     private static string GetShortcutPath(string shortcutName) =>
         Path.Combine(Variables.ReboundStartMenuFolder, $"{shortcutName}.lnk");
 

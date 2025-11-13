@@ -4,14 +4,18 @@
 using Rebound.Core;
 using Rebound.Forge.Cogs;
 using Rebound.Forge.Launchers;
-using System;
-using System.Collections.Generic;
 using System.Collections.ObjectModel;
 
 namespace Rebound.Forge;
 
+/// <summary>
+/// Class containing lists of every built in Rebound mod.
+/// </summary>
 public static class Catalog
 {
+    /// <summary>
+    /// Optional mods that the user can install individually.
+    /// </summary>
     public static ObservableCollection<Mod> Mods { get; } =
     [
         /*// Control Panel
@@ -100,15 +104,15 @@ public static class Catalog
             Description = "Replacement for the shell and its components such as the run box, shutdown dialog, desktop, etc.",
             Icon = "ms-appx:///Assets/ReboundApps/Shell.ico",
             InstallationSteps = "•   Register a startup task\n•   Hijack selected applets\n\nYou can choose which components are enabled from the Options menu at the top of the page.\n\nNote: Rebound Shell alone doesn't have a predefined UI. To check if it's running, try opening one of the applets it replaces.",
-            Cogs = new ObservableCollection<ICog>
-            {
+            Cogs =
+            [
                 new ProcessKillCog()
                 {
                     ProcessName = "Rebound Shell"
                 },
                 new PackageCog()
                 {
-                    PackageURI = $"{AppContext.BaseDirectory}\\Modding\\Packages\\Rebound.Shell.msixbundle",
+                    PackageURI = Path.Combine(AppContext.BaseDirectory, "Modding", "Packages", "Rebound.Shell.msixbundle"),
                     PackageFamilyName = "Rebound.Shell_rcz2tbwv5qzb8"
                 },
                 new StartupPackageCog()
@@ -122,7 +126,7 @@ public static class Catalog
                 {
                     PackageFamilyName = "Rebound.Shell_rcz2tbwv5qzb8"
                 }
-            },
+            ],
             Category = ModCategory.Customization,
             Settings =
             [
@@ -203,7 +207,14 @@ public static class Catalog
                     IsClosable = false,
                     Title = "Settings for this app can be found inside the app itself."
                 }
-            ]
+            ],
+            Launchers =
+            [
+                new PackageLauncher()
+                {
+                    PackageFamilyName = "58027.265370AB8DB33_fjemmk5ta3a5g"
+                }
+            ],
         },
 
         // Rebound About Windows
@@ -217,7 +228,7 @@ public static class Catalog
             {
                 new PackageCog()
                 {
-                    PackageURI = $"{AppContext.BaseDirectory}\\Modding\\Packages\\Rebound.About.msixbundle",
+                    PackageURI = Path.Combine(AppContext.BaseDirectory, "Modding", "Packages", "Rebound.About.msixbundle"),
                     PackageFamilyName = "Rebound.About_rcz2tbwv5qzb8"
                 },
                 new IFEOCog()
@@ -280,10 +291,21 @@ public static class Catalog
                     AppName = "winver"
                 },
             ],
-            PreferredInstallationTemplate = InstallationTemplate.Basic
+            PreferredInstallationTemplate = InstallationTemplate.Basic,
+            Launchers =
+            [
+                new PackageLauncher()
+                {
+                    PackageFamilyName = "Rebound.About_rcz2tbwv5qzb8"
+                }
+            ],
         }
     ];
 
+    /// <summary>
+    /// Mandatory mods that are required for Rebound to work properly. These are installed once with
+    /// Rebound and cannot be uninstalled separately.
+    /// </summary>
     public static ObservableCollection<Mod> MandatoryMods { get; } =
     [
         new Mod()
@@ -337,7 +359,7 @@ public static class Catalog
                 },
                 new PackageCog()
                 {
-                    PackageURI = $"{AppContext.BaseDirectory}\\Modding\\Packages\\Rebound.ServiceHost.msixbundle",
+                    PackageURI = Path.Combine(AppContext.BaseDirectory, "Modding", "Packages", "Rebound.ServiceHost.msixbundle"),
                     PackageFamilyName = "Rebound.ServiceHost_rcz2tbwv5qzb8"
                 },
                 new StartupPackageCog()
@@ -365,7 +387,7 @@ public static class Catalog
             [
                 new FileCopyCog
                 {
-                    Path = $"{AppContext.BaseDirectory}\\Modding\\Launchers\\Rebound.Launcher.exe",
+                    Path = Path.Combine(AppContext.BaseDirectory, "Modding", "Launchers", "Rebound.Launcher.exe"),
                     TargetPath = Variables.ReboundLauncherPath
                 }
             ],
@@ -374,29 +396,8 @@ public static class Catalog
         },
     ];
 
+    /// <summary>
+    /// Custom mods that are loaded from a folder at runtime.
+    /// </summary>
     public static ObservableCollection<Mod> SideloadedMods => new(ModParser.ParseMods());
-
-    public static Mod GetMod(string name)
-    {
-        foreach (var instruction in Mods)
-        {
-            if (instruction.Name.Equals(name, StringComparison.OrdinalIgnoreCase))
-            {
-                return instruction;
-            }
-        }
-        throw new KeyNotFoundException($"App instructions with name '{name}' not found.");
-    }
-
-    public static Mod GetMandatoryMod(string name)
-    {
-        foreach (var instruction in MandatoryMods)
-        {
-            if (instruction.Name.Equals(name, StringComparison.OrdinalIgnoreCase))
-            {
-                return instruction;
-            }
-        }
-        throw new KeyNotFoundException($"Mandatory instructions with name '{name}' not found.");
-    }
 }

@@ -29,7 +29,10 @@ namespace Rebound.Forge.Cogs
 
         /// <inheritdoc/>
         public bool Ignorable { get; }
-        
+
+        /// <inheritdoc/>
+        public string TaskDescription { get => $"Installs the app {StoreProductId} from the Microsoft Store"; }
+
         /// <inheritdoc/>
         public async Task ApplyAsync()
         {

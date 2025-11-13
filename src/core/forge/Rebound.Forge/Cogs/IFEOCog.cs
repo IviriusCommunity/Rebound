@@ -30,10 +30,8 @@ public class IFEOCog : ICog
     /// <inheritdoc/>
     public bool Ignorable { get; }
 
-    /// <summary>
-    /// Creates a new instance of the <see cref="IFEOCog"/> class.
-    /// </summary>
-    public IFEOCog() { }
+    /// <inheritdoc/>
+    public string TaskDescription { get => $"Register an IFEO entry for {OriginalExecutableName}"; }
 
     /// <inheritdoc/>
     public unsafe async Task ApplyAsync()

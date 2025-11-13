@@ -33,6 +33,9 @@ public class ProcessKillCog : ICog
     /// <inheritdoc/>
     public bool Ignorable { get; } = true;
 
+    /// <inheritdoc/>
+    public string TaskDescription { get => $"Kill the process named {ProcessName}"; }
+
     private async Task KillProcess()
     {
         var processes = Process.GetProcesses().ToList();

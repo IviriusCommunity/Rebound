@@ -23,6 +23,9 @@ namespace Rebound.Forge.Cogs
         public bool Ignorable { get; }
 
         /// <inheritdoc/>
+        public string TaskDescription { get => $"Create a Task Scheduler folder at \\{Name}"; }
+
+        /// <inheritdoc/>
         public async unsafe Task ApplyAsync()
         {
             try

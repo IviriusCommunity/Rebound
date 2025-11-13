@@ -24,10 +24,8 @@ public class FileCopyCog : ICog
     /// <inheritdoc/>
     public bool Ignorable { get; }
 
-    /// <summary>
-    /// Creates a new instance of the <see cref="FileCopyCog"/> class.
-    /// </summary>
-    public FileCopyCog() { }
+    /// <inheritdoc/>
+    public string TaskDescription { get => $"Copy {Path} to {TargetPath}"; }
 
     /// <inheritdoc/>
     public async Task ApplyAsync()

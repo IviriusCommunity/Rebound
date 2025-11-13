@@ -4,23 +4,44 @@
 using Microsoft.UI.Xaml.Controls;
 using Rebound.Forge;
 using System;
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using System.IO;
-using System.Linq;
-using System.Runtime.InteropServices.WindowsRuntime;
-using System.Threading.Tasks;
-using Windows.Foundation;
-using Windows.Foundation.Collections;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
-using Windows.UI.Xaml.Controls.Primitives;
 using Windows.UI.Xaml.Data;
-using Windows.UI.Xaml.Input;
-using Windows.UI.Xaml.Media;
-using Windows.UI.Xaml.Navigation;
+using Windows.UI.Xaml.Documents;
 
 namespace Rebound.Hub.Views;
+
+internal class ModToTasksListConverter_Page : IValueConverter
+{
+    public object Convert(object value, Type targetType, object parameter, string language)
+    {
+        if (value is Mod mod)
+        {
+            TextBlock tb = new()
+            {
+                TextWrapping = TextWrapping.WrapWholeWords,
+                Margin = new Thickness(0, 0, 24, 24)
+            };
+
+            bool firstLine = false;
+
+            foreach (var cog in mod.Cogs)
+            {
+                tb.Inlines.Add(new Run()
+                {
+                    Text = $"{(firstLine ? "\n" : "")}•   {cog.TaskDescription}",
+                });
+                firstLine = true;
+            }
+
+            return tb;
+        }
+        else return null;
+    }
+
+    public object ConvertBack(object value, Type targetType, object parameter, string language)
+        => throw new NotImplementedException();
+}
 
 internal class GlyphToIconSourceConverter : IValueConverter
 {

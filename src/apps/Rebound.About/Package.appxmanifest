@@ -42,8 +42,8 @@
 			  Description="Rebound About"
 			  BackgroundColor="transparent"
 			  Square150x150Logo="Assets\Package\Square150x150Logo.png"
-			  Square44x44Logo="Assets\Package\Square44x44Logo.png"
-			  AppListEntry="none">
+			  Square44x44Logo="Assets\Package\Square44x44Logo.png">
+				<!--AppListEntry="none">-->
 				<uap:DefaultTile Wide310x150Logo="Assets\Package\Wide310x150Logo.png"
 								 Square71x71Logo="Assets\Package\SmallTile.png"
 								 Square310x310Logo="Assets\Package\LargeTile.png"/>
