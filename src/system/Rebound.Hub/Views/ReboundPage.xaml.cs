@@ -52,19 +52,13 @@ internal class ModToTasksListConverter : IValueConverter
 
 internal partial class ReboundPage : Page
 {
-    public ReboundViewModel ReboundViewModel { get; set; } = new();
-
     public ReboundPage()
     {
-        DataContext = ReboundViewModel;
         InitializeComponent();
     }
 
     private async void ReboundView_Loaded(object sender, RoutedEventArgs e)
     {
-        foreach (var mod in Catalog.Mods)
-        {
-            await mod.UpdateIntegrityAsync().ConfigureAwait(true);
-        }
+        //App.ReboundService.CheckForUpdates();
     }
 }

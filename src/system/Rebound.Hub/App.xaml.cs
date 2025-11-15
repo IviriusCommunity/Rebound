@@ -5,11 +5,15 @@ using Microsoft.UI.Windowing;
 using Rebound.Core.Helpers;
 using Rebound.Core.UI;
 using Rebound.Generators;
+using Rebound.Hub.ViewModels;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Threading.Tasks;
+using Windows.UI;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
+using WinRT;
 using Colors = Windows.UI.Colors;
 
 namespace Rebound.Hub;
@@ -17,6 +21,8 @@ namespace Rebound.Hub;
 [ReboundApp("Rebound.Hub", "")]
 public partial class App : Application
 {
+    public static ReboundService ReboundService { get; } = new();
+
     private void OnSingleInstanceLaunched(object sender, SingleInstanceLaunchEventArgs e)
     {
         UIThreadQueue.QueueAction(async () =>
@@ -24,11 +30,11 @@ public partial class App : Application
             if (MainWindow != null)
                 MainWindow.Activate();
             else
-                CreateMainWindow();
+                await CreateMainWindow();
         });
     }
 
-    public static unsafe void CreateMainWindow()
+    public static async Task CreateMainWindow()
     {
         MainWindow = new()
         {
@@ -43,6 +49,8 @@ public partial class App : Application
             MainWindow.AppWindow?.TitleBar.ExtendsContentIntoTitleBar = true;
             MainWindow.AppWindow?.TitleBar.PreferredHeightOption = TitleBarHeightOption.Tall;
             MainWindow.AppWindow?.TitleBar.ButtonBackgroundColor = Colors.Transparent;
+            MainWindow.AppWindow?.TitleBar.ButtonHoverBackgroundColor = Color.FromArgb(40, 120, 120, 120);
+            MainWindow.AppWindow?.TitleBar.ButtonPressedBackgroundColor = Color.FromArgb(24, 120, 120, 120);
             MainWindow.AppWindow?.TitleBar.ButtonInactiveBackgroundColor = Colors.Transparent;
             MainWindow.AppWindow?.SetTaskbarIcon($"{AppContext.BaseDirectory}\\Assets\\AppIcons\\ReboundHub.ico");
         };
@@ -53,6 +61,9 @@ public partial class App : Application
             MainWindow.Content = frame;
         };
         MainWindow.Create();
+
+        await App.ReboundService.LoadModsStatesAsync().ConfigureAwait(false);
+        await App.ReboundService.InitializeAsync().ConfigureAwait(false);
     }
 
     public static IslandsWindow? MainWindow { get; set; }

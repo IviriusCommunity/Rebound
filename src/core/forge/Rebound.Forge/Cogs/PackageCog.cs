@@ -3,8 +3,12 @@
 
 using Rebound.Core;
 using Rebound.Core.UI;
+using System.Diagnostics;
 using System.Security.Principal;
+using Windows.ApplicationModel;
 using Windows.Management.Deployment;
+using Windows.Services.Store;
+using WinRT.Interop;
 
 namespace Rebound.Forge.Cogs
 {
@@ -32,20 +36,28 @@ namespace Rebound.Forge.Cogs
         /// <inheritdoc/>
         public string TaskDescription { get => $"Install the package {PackageURI}"; }
 
+        private bool? _expectInstalled;
+
         /// <inheritdoc/>
         public async Task ApplyAsync()
         {
             try
             {
+                _expectInstalled = true;
+
                 ReboundLogger.Log($"[PackageCog] Starting installation from {PackageURI}.");
 
                 var packageManager = new PackageManager();
+                //InitializeWithWindow.Initialize(packageManager, Process.GetCurrentProcess().MainWindowHandle);
                 var deployment = packageManager.AddPackageByUriAsync(new Uri(PackageURI), new() { AllowUnsigned = true });
 
                 deployment.Progress += (sender, progress) =>
                     ReboundLogger.Log($"[PackageCog] Deployment progress: {progress.percentage}%");
 
-                await deployment;
+                UIThreadQueue.QueueAction(async () =>
+                {
+                    await deployment;
+                });
 
                 ReboundLogger.Log($"[PackageCog] Successfully installed package: {PackageFamilyName}");
             }
@@ -60,15 +72,23 @@ namespace Rebound.Forge.Cogs
         {
             try
             {
+                _expectInstalled = false;
+
                 ReboundLogger.Log($"[PackageCog] Removing package: {PackageFamilyName}");
 
                 var packageManager = new PackageManager();
+                //InitializeWithWindow.Initialize(packageManager, Process.GetCurrentProcess().MainWindowHandle);
                 var packages = packageManager.FindPackagesForUser(string.Empty)
                                              .Where(p => p.Id.FamilyName == PackageFamilyName);
 
                 foreach (var package in packages)
                 {
-                    await packageManager.RemovePackageAsync(package.Id.FullName);
+                    UIThreadQueue.QueueAction(async () =>
+                    {
+                        await packageManager.RemovePackageAsync(package.Id.FullName);
+                    });
+
+                    //await packageManager.RemovePackageAsync(package.Id.FullName);
                 }
 
                 ReboundLogger.Log($"[PackageCog] Successfully removed package: {PackageFamilyName}");
@@ -85,19 +105,84 @@ namespace Rebound.Forge.Cogs
             try
             {
                 var packageManager = new PackageManager();
-                var currentSid = WindowsIdentity.GetCurrent().User?.Value;
-                if (currentSid == null)
+                var sid = WindowsIdentity.GetCurrent().User?.Value;
+                if (sid == null)
                 {
                     ReboundLogger.Log("[PackageCog] Could not get current user SID.");
                     return false;
                 }
 
-                // Filter installed packages by PackageFamilyName instead of FullName
-                var packages = packageManager.FindPackagesForUser(currentSid, PackageFamilyName);
-                bool installed = packages.Any(); // Any version installed is fine
+                // If _expectInstalled is null, just wait 1500ms and check once
+                if (_expectInstalled == null)
+                {
+                    await Task.Delay(1500).ConfigureAwait(false);
 
-                ReboundLogger.Log($"[PackageCog] IsApplied check: {(installed ? "Installed" : "Not installed")}");
-                return installed;
+                    IEnumerable<Package> packages = [];
+                    var signal = new TaskCompletionSource<bool>();
+
+                    UIThreadQueue.QueueAction(() =>
+                    {
+                        try
+                        {
+                            packages = packageManager.FindPackagesForUser(sid, PackageFamilyName);
+                            signal.SetResult(true);
+                        }
+                        catch (Exception ex)
+                        {
+                            signal.SetException(ex);
+                        }
+                        return Task.CompletedTask;
+                    });
+
+                    await signal.Task.ConfigureAwait(false);
+                    bool installed = packages.Any();
+
+                    ReboundLogger.Log($"[PackageCog] IsApplied check (no expectation): {(installed ? "Installed" : "Not installed")}");
+                    return installed;
+                }
+
+                // Original logic with expectation checking
+                const int maxTimeMs = 10_000;
+                const int intervalMs = 250;
+                int waited = 0;
+
+                while (waited < maxTimeMs)
+                {
+                    IEnumerable<Package> packages = [];
+                    var signal = new TaskCompletionSource<bool>();
+
+                    UIThreadQueue.QueueAction(() =>
+                    {
+                        try
+                        {
+                            packages = packageManager.FindPackagesForUser(sid, PackageFamilyName);
+                            signal.SetResult(true);
+                        }
+                        catch (Exception ex)
+                        {
+                            signal.SetException(ex);
+                        }
+                        return Task.CompletedTask;
+                    });
+
+                    await signal.Task.ConfigureAwait(false);
+                    bool installed = packages.Any();
+
+                    // Check against expected state
+                    if (installed == _expectInstalled)
+                    {
+                        ReboundLogger.Log(
+                            $"[PackageCog] IsApplied check: {(installed ? "Installed" : "Not installed")} (matches expectation)"
+                        );
+                        return _expectInstalled.Value;
+                    }
+
+                    await Task.Delay(intervalMs).ConfigureAwait(false);
+                    waited += intervalMs;
+                }
+
+                ReboundLogger.Log("[PackageCog] IsApplied check: timeout waiting for expected state");
+                return false;
             }
             catch (Exception ex)
             {
