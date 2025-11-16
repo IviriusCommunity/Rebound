@@ -178,7 +178,7 @@ internal static partial class Program
             foreach (var action2 in actionsToRun2.ToArray())
             {
                 try { _ = action2(); }
-                catch { /* log */ }
+                catch (Exception ex) { Rebound.Core.ReboundLogger.Log(""[UIThreadQueue] UI thread crash."", ex); }
             }
             
             //System.Threading.Thread.Sleep(1);

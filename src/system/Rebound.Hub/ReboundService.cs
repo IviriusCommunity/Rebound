@@ -18,6 +18,7 @@ using System.Threading.Tasks;
 using TerraFX.Interop.Windows;
 using Windows.ApplicationModel;
 using Windows.System;
+using static TerraFX.Interop.Gdiplus.GdiplusStartupInputEx;
 
 namespace Rebound.Hub.ViewModels;
 
@@ -70,101 +71,60 @@ public partial class ReboundService : ObservableObject
     [ObservableProperty] public partial bool HasSideloadedMods { get; set; }
 
     private readonly SemaphoreSlim _initializationLock = new(1, 1);
-    private bool _isInitialized = false;
+    private bool _isInitialized;
 
     public async Task LoadModsStatesAsync()
     {
-        // Prevent concurrent initialization
         await _initializationLock.WaitAsync().ConfigureAwait(false);
-
         try
         {
             ReboundLogger.Log("[ReboundService] Starting LoadModsStatesAsync");
 
-            // Validate catalog exists
+            await UIThreadQueue.QueueActionAsync(async () => IsLoading = true);
+
             if (Catalog.MandatoryMods == null || Catalog.Mods == null)
             {
-                ReboundLogger.Log("[ReboundService] ERROR: Catalog not initialized properly");
-                UIThreadQueue.QueueAction(() =>
+                ReboundLogger.Log("[ReboundService] ERROR: Catalog not initialized");
+                await UIThreadQueue.QueueActionAsync(async () =>
                 {
                     IsLoading = false;
                     IsReboundEnabled = false;
-                    return Task.CompletedTask;
                 });
                 return;
             }
 
-            // Run integrity checks for mandatory mods in parallel
-            var mandatoryTasks = Catalog.MandatoryMods
-                .Select(async mod =>
-                {
-                    try
-                    {
-                        var result = await mod.UpdateIntegrityAsync().ConfigureAwait(false);
-                        ReboundLogger.Log($"[ReboundService] Integrity check for {mod.Name}: IsInstalled={result.Installed}, IsIntact={result.Intact}");
-                        return (mod, result, success: true);
-                    }
-                    catch (Exception ex)
-                    {
-                        ReboundLogger.Log($"[ReboundService] Integrity check failed for {mod.Name}", ex);
-                        return (mod, (Installed: false, Intact: false), success: false);
-                    }
-                })
-                .ToList();
+            // Run all UpdateIntegrityAsync on UI thread and await them
+            var mandatoryResults = await Task.WhenAll(
+                Catalog.MandatoryMods.Select(mod =>
+                    UIThreadQueue.QueueActionAsync(() => mod.UpdateIntegrityAsync())
+                )
+            );
 
-            var mandatoryResults = await Task.WhenAll(mandatoryTasks).ConfigureAwait(false);
+            bool enabled = mandatoryResults.All(r => r.Installed && r.Intact);
 
-            // Determine enabled state based on all results
-            bool enabled = mandatoryResults.All(x => x.success && x.Item2.Installed && x.Item2.Intact);
+            await Task.WhenAll(
+                Catalog.Mods.Select(mod =>
+                    UIThreadQueue.QueueActionAsync(() => mod.UpdateIntegrityAsync())
+                )
+            );
 
-            if (!enabled)
-            {
-                foreach (var (mod, r, success) in mandatoryResults.Where(x => !x.success || !x.Item2.Installed || !x.Item2.Intact))
-                {
-                    ReboundLogger.Log($"[ReboundService] Rebound disabled due to mod {mod.Name}: Installed={r.Installed}, Intact={r.Intact}, Success={success}");
-                }
-            }
-
-            ReboundLogger.Log($"[ReboundService] Rebound enabled state: {enabled}");
-
-            // Update UI state in a single batch
-            UIThreadQueue.QueueAction(() =>
+            await UIThreadQueue.QueueActionAsync(async () =>
             {
                 IsReboundEnabled = enabled;
                 HasSideloadedMods = Catalog.SideloadedMods?.Count > 0;
                 IsLoading = false;
-                return Task.CompletedTask;
             });
 
-            // Now run integrity checks for all other mods in parallel
-            var allModTasks = Catalog.Mods
-                .Select(async mod =>
-                {
-                    try
-                    {
-                        await mod.UpdateIntegrityAsync().ConfigureAwait(false);
-                    }
-                    catch (Exception ex)
-                    {
-                        ReboundLogger.Log($"[ReboundService] Integrity check failed for mod {mod.Name}", ex);
-                    }
-                })
-                .ToList();
-
-            await Task.WhenAll(allModTasks).ConfigureAwait(false);
-
             _isInitialized = true;
-            ReboundLogger.Log("[ReboundService] LoadModsStatesAsync completed");
+            ReboundLogger.Log("[ReboundService] Completed");
         }
         catch (Exception ex)
         {
-            ReboundLogger.Log("[ReboundService] LoadModsStatesAsync failed", ex);
-
-            UIThreadQueue.QueueAction(() =>
+            ReboundLogger.Log("[ReboundService] Failed", ex);
+            await UIThreadQueue.QueueActionAsync(async () =>
             {
                 IsLoading = false;
                 IsReboundEnabled = false;
-                return Task.CompletedTask;
             });
         }
         finally
@@ -211,21 +171,72 @@ public partial class ReboundService : ObservableObject
         }
     }
 
-    public void CheckForUpdates()
+    public async Task CheckForUpdatesAsync()
     {
+        ReboundLogger.Log("[ReboundService] Starting update check...");
+
         try
         {
-            var version = $"{Package.Current.GetAppInstallerInfo().Version.Major}.{Package.Current.GetAppInstallerInfo().Version.Minor}.{Package.Current.GetAppInstallerInfo().Version.Revision}.{Package.Current.GetAppInstallerInfo().Version.Build}";
-            CurrentVersion = version;
-            VersionText = $"Current version: {version}  -  New version: {Variables.ReboundVersion}";
-            IsUpdateAvailable = Variables.ReboundVersion != version;
+            ReboundLogger.Log($"[ReboundService] Checking version file at: {Variables.ReboundCurrentVersionPath}");
 
-            ReboundLogger.Log($"[ReboundService] Version check: Current={version}, Available={Variables.ReboundVersion}, UpdateAvailable={IsUpdateAvailable}");
+            if (File.Exists(Variables.ReboundCurrentVersionPath))
+            {
+                ReboundLogger.Log("[ReboundService] Version file found, reading current version...");
+
+                var version = await File.ReadAllTextAsync(Variables.ReboundCurrentVersionPath);
+
+                ReboundLogger.Log($"[ReboundService] Current installed version: {version}");
+                ReboundLogger.Log($"[ReboundService] Available version: {Variables.ReboundVersion}");
+
+                var updateAvailable = Variables.ReboundVersion != version;
+                var versionText = $"Current version: {version}  -  New version: {Variables.ReboundVersion}";
+
+                // Update properties on UI thread
+                await UIThreadQueue.QueueActionAsync(async () =>
+                {
+                    CurrentVersion = version;
+                    IsUpdateAvailable = updateAvailable;
+                    VersionText = versionText;
+                });
+
+                if (updateAvailable)
+                {
+                    ReboundLogger.Log($"[ReboundService] Update available: {version} -> {Variables.ReboundVersion}");
+                }
+                else
+                {
+                    ReboundLogger.Log("[ReboundService] Already on latest version, no update needed.");
+                }
+            }
+            else
+            {
+                ReboundLogger.Log("[ReboundService] Version file not found, creating new version file...");
+
+                await File.WriteAllTextAsync(Variables.ReboundCurrentVersionPath, Variables.ReboundVersion);
+
+                await UIThreadQueue.QueueActionAsync(async () =>
+                {
+                    CurrentVersion = Variables.ReboundVersion;
+                    IsUpdateAvailable = false;
+                });
+
+                ReboundLogger.Log($"[ReboundService] Version file created with version: {Variables.ReboundVersion}");
+                ReboundLogger.Log("[ReboundService] Treating as fresh install, no update available.");
+            }
+
+            ReboundLogger.Log("[ReboundService] Update check completed successfully.");
         }
         catch (Exception ex)
         {
-            ReboundLogger.Log("[ReboundService] Failed to check for updates.", ex);
-            IsUpdateAvailable = false;
+            ReboundLogger.Log("[ReboundService] Update check failed with exception.", ex);
+
+            await UIThreadQueue.QueueActionAsync(async () =>
+            {
+                IsUpdateAvailable = false;
+                VersionText = "Unable to check for updates";
+            });
+
+            ReboundLogger.Log("[ReboundService] Set IsUpdateAvailable to false due to error.");
         }
     }
 
@@ -234,6 +245,8 @@ public partial class ReboundService : ObservableObject
     {
         try
         {
+            await UIThreadQueue.QueueActionAsync(async () => IsLoading = true);
+
             ReboundLogger.Log("[ReboundService] Starting UpdateOrRepairAllAsync");
 
             var tasks = new List<Task>();
@@ -275,7 +288,14 @@ public partial class ReboundService : ObservableObject
 
             await Task.WhenAll(tasks).ConfigureAwait(false);
 
-            CheckForUpdates();
+            await File.WriteAllTextAsync(Variables.ReboundCurrentVersionPath, Variables.ReboundVersion);
+            await CheckForUpdatesAsync();
+
+            await UIThreadQueue.QueueActionAsync(async () =>
+            {
+                IsReboundEnabled = true;
+                IsLoading = false;
+            });
 
             ReboundLogger.Log("[ReboundService] UpdateOrRepairAllAsync completed");
         }
@@ -320,30 +340,24 @@ public partial class ReboundService : ObservableObject
     {
         try
         {
-            UIThreadQueue.QueueAction(() =>
-            {
-                IsLoading = true;
-                return Task.CompletedTask;
-            });
+            await UIThreadQueue.QueueActionAsync(async () => IsLoading = true);
 
             if (IsReboundEnabled)
             {
                 await DisableReboundAsync().ConfigureAwait(false);
-                UIThreadQueue.QueueAction(() =>
+                await UIThreadQueue.QueueActionAsync(async () =>
                 {
                     IsReboundEnabled = false;
                     IsLoading = false;
-                    return Task.CompletedTask;
                 });
             }
             else
             {
                 await EnableRebound().ConfigureAwait(false);
-                UIThreadQueue.QueueAction(() =>
+                await UIThreadQueue.QueueActionAsync(async () =>
                 {
                     IsReboundEnabled = true;
                     IsLoading = false;
-                    return Task.CompletedTask;
                 });
             }
         }
@@ -351,11 +365,7 @@ public partial class ReboundService : ObservableObject
         {
             ReboundLogger.Log("[ReboundService] ToggleReboundAsync failed", ex);
 
-            UIThreadQueue.QueueAction(() =>
-            {
-                IsLoading = false;
-                return Task.CompletedTask;
-            });
+            await UIThreadQueue.QueueActionAsync(async () => IsLoading = false);
         }
     }
 
@@ -387,6 +397,8 @@ public partial class ReboundService : ObservableObject
                 .ToList();
 
             await Task.WhenAll(tasks).ConfigureAwait(false);
+
+            await LoadModsStatesAsync().ConfigureAwait(false);
 
             ReboundLogger.Log("[ReboundService] Rebound enabled");
         }
@@ -440,6 +452,8 @@ public partial class ReboundService : ObservableObject
             }
 
             await Task.WhenAll(tasks).ConfigureAwait(false);
+
+            await LoadModsStatesAsync().ConfigureAwait(false);
 
             ReboundLogger.Log("[ReboundService] Rebound disabled");
         }

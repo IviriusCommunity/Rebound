@@ -634,7 +634,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam) {
     case WM_COMMAND:
         switch (LOWORD(wParam)) {
         case IDC_BTN_OPEN:
-            MessageBoxW(hWnd, L"Open Rebound Hub clicked!", L"Action", MB_OK);
+            LaunchUWPByAumid(L"Rebound.Hub_rcz2tbwv5qzb8!App", L"");
             break;
         case IDC_BTN_CLOSE:
             PostQuitMessage(0);

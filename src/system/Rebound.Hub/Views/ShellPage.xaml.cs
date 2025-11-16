@@ -46,6 +46,7 @@ internal sealed partial class ShellPage : Page
             {
                 Content = categoryGroup.Key.ToString(),
                 Tag = categoryGroup.Key.ToString(),
+                SelectsOnInvoked = false,
                 Icon = new FontIcon
                 {
                     Glyph = categoryGroup.Key switch

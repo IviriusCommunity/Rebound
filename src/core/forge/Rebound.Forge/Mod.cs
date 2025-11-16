@@ -159,12 +159,11 @@ public partial class Mod : ObservableObject
 
             // Initialize
             ReboundLogger.Log($"[Mod] {(install ? "Installing" : "Uninstalling")} {Name}...");
-            UIThreadQueue.QueueAction(() =>
+            await UIThreadQueue.QueueActionAsync(async () =>
             {
                 IsLoading = true;
                 TaskCount = taskCount;
                 Progress = 0;
-                return Task.CompletedTask;
             });
 
             // Go through each cog and (un)install it
@@ -180,10 +179,10 @@ public partial class Mod : ObservableObject
                     if (!cog.Ignorable)
                     {
                         progress++;
-                        UIThreadQueue.QueueAction(() =>
+                        int currentProgress = progress; // Capture for closure
+                        await UIThreadQueue.QueueActionAsync(async () =>
                         {
-                            Progress = progress;
-                            return Task.CompletedTask;
+                            Progress = currentProgress;
                         });
                     }
                 }
@@ -207,12 +206,11 @@ public partial class Mod : ObservableObject
         finally
         {
             // Finish progress tracking
-            UIThreadQueue.QueueAction(() =>
+            await UIThreadQueue.QueueActionAsync(async () =>
             {
                 IsLoading = false;
                 Progress = 0;
                 TaskCount = 0;
-                return Task.CompletedTask;
             });
 
             _operationLock.Release();
@@ -262,11 +260,10 @@ public partial class Mod : ObservableObject
         // Validate collections
         if (Cogs == null || Cogs.Count == 0)
         {
-            UIThreadQueue.QueueAction(() =>
+            await UIThreadQueue.QueueActionAsync(async () =>
             {
                 IsInstalled = false;
                 IsIntact = true;
-                return Task.CompletedTask;
             });
 
             return (false, true);
@@ -275,10 +272,9 @@ public partial class Mod : ObservableObject
         try
         {
             // Set loading state
-            UIThreadQueue.QueueAction(() =>
+            await UIThreadQueue.QueueActionAsync(async () =>
             {
                 IsLoading = true;
-                return Task.CompletedTask;
             });
 
             // Get non-ignorable cogs
@@ -287,12 +283,11 @@ public partial class Mod : ObservableObject
 
             if (totalLocal == 0)
             {
-                UIThreadQueue.QueueAction(() =>
+                await UIThreadQueue.QueueActionAsync(async () =>
                 {
                     IsInstalled = false;
                     IsIntact = true;
                     IsLoading = false;
-                    return Task.CompletedTask;
                 });
 
                 return (false, true);
@@ -306,12 +301,11 @@ public partial class Mod : ObservableObject
             bool intact = intactLocal == 0 || intactLocal == totalLocal;
 
             // Update properties on the UI thread in a single batch
-            UIThreadQueue.QueueAction(() =>
+            await UIThreadQueue.QueueActionAsync(async () =>
             {
                 IsInstalled = installed;
                 IsIntact = intact;
                 IsLoading = false;
-                return Task.CompletedTask;
             });
 
             // Log mod integrity
@@ -323,46 +317,12 @@ public partial class Mod : ObservableObject
         {
             ReboundLogger.Log($"[Mod] UpdateIntegrityAsync failed for {Name}", ex);
 
-            UIThreadQueue.QueueAction(() =>
+            await UIThreadQueue.QueueActionAsync(async () =>
             {
                 IsLoading = false;
-                return Task.CompletedTask;
             });
 
             return (false, false);
-        }
-    }
-
-    /// <summary>
-    /// Checks the integrity of the current mod.
-    /// </summary>
-    /// <returns>A value describing the integrity state of the mod.</returns>
-    public async Task<ModIntegrity> GetIntegrityAsync()
-    {
-        if (Cogs == null || Cogs.Count == 0)
-            return ModIntegrity.NotInstalled;
-
-        try
-        {
-            var nonIgnorableCogs = Cogs.Where(c => !c.Ignorable).ToList();
-            int totalItems = nonIgnorableCogs.Count;
-
-            if (totalItems == 0)
-                return ModIntegrity.NotInstalled;
-
-            var results = await Task.WhenAll(nonIgnorableCogs.Select(c => c.IsAppliedAsync())).ConfigureAwait(false);
-            int intactItems = results.Count(applied => applied);
-
-            return intactItems == totalItems
-                ? ModIntegrity.Installed
-                : intactItems == 0
-                    ? ModIntegrity.NotInstalled
-                    : ModIntegrity.Corrupt;
-        }
-        catch (Exception ex)
-        {
-            ReboundLogger.Log($"[Mod] GetIntegrityAsync failed for {Name}", ex);
-            return ModIntegrity.NotInstalled;
         }
     }
 }

@@ -454,6 +454,11 @@ BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID) {
     }
     else if (fdwReason == DLL_PROCESS_DETACH) {
         g_running = false;
+        HWND dialogHwnd = FindWindowW(NULL, L"Rebound Shell Not Running");
+        if (dialogHwnd != NULL)
+        {
+            SendMessage(dialogHwnd, WM_CLOSE, 0, 0);
+        }
         if (g_workerEvent) {
             SetEvent(g_workerEvent); // wake worker so it can exit
         }

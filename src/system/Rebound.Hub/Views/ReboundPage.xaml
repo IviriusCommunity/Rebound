@@ -328,7 +328,7 @@
                             <TextBlock Text="Repair" />
                         </StackPanel>
                     </Button>
-                    <Button
+                    <muxc:DropDownButton
                         Grid.Column="2"
                         Background="Transparent"
                         BorderBrush="Transparent"
@@ -337,7 +337,7 @@
                             <FontIcon FontSize="16" Glyph="&#xE713;" />
                             <TextBlock Text="Options" />
                         </StackPanel>
-                        <Button.Flyout>
+                        <muxc:DropDownButton.Flyout>
                             <MenuFlyout>
                                 <MenuFlyoutItem Command="{x:Bind app:App.ReboundService.ViewLogFileCommand}" Text="View log file">
                                     <MenuFlyoutItem.Icon>
@@ -350,8 +350,8 @@
                                     </MenuFlyoutItem.Icon>
                                 </MenuFlyoutItem>
                             </MenuFlyout>
-                        </Button.Flyout>
-                    </Button>
+                        </muxc:DropDownButton.Flyout>
+                    </muxc:DropDownButton>
                 </Grid>
 
                 <!--  Mandatory mods  -->

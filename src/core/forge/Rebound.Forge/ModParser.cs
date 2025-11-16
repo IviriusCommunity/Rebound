@@ -11,26 +11,32 @@ using System.Xml.Linq;
 
 namespace Rebound.Forge;
 
+/// <summary>
+/// Helpers to parse sideloaded Rebound mods.
+/// </summary>
 public static class ModParser
 {
+    /// <summary>
+    /// Parses all mods inside the Rebound sideloaded mods folder.
+    /// </summary>
+    /// <returns>A list of sideloaded mods.</returns>
+#pragma warning disable CA1002 // Do not expose generic lists
     public static List<Mod> ParseMods()
+#pragma warning restore CA1002 // Do not expose generic lists
     {
         var mods = new List<Mod>();
 
         try
         {
-            var programDataPath = Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData);
-            var modsRoot = Path.Combine(programDataPath, "Rebound", "Mods");
-
-            if (!Directory.Exists(modsRoot))
+            if (!Directory.Exists(Variables.ReboundProgramDataModsFolder))
             {
-                ReboundLogger.Log($"[ModLoader] Mods folder does not exist: {modsRoot}");
+                ReboundLogger.Log($"[ModLoader] Mods folder does not exist: {Variables.ReboundProgramDataModsFolder}");
                 return mods; // return empty list
             }
 
-            ReboundLogger.Log($"[ModLoader] Parsing mods in folder: {modsRoot}");
+            ReboundLogger.Log($"[ModLoader] Parsing mods in folder: {Variables.ReboundProgramDataModsFolder}");
 
-            foreach (var modFolder in Directory.GetDirectories(modsRoot))
+            foreach (var modFolder in Directory.GetDirectories(Variables.ReboundProgramDataModsFolder))
             {
                 try
                 {
@@ -55,6 +61,11 @@ public static class ModParser
         return mods;
     }
 
+    /// <summary>
+    /// Parses a Rebound mod from the given folder.
+    /// </summary>
+    /// <param name="path">Path to the folder containing Rebound mod files.</param>
+    /// <returns>The parsed Rebound mod.</returns>
     public static Mod Parse(string path)
     {
         try
@@ -74,53 +85,97 @@ public static class ModParser
             ReboundLogger.Log($"[ModParser] Root <Mod> element found");
 
             // Initialize instructions inline
-            var instructionsElement = modElement.Element("Instructions");
+            var cogsElement = modElement.Element("Cogs");
             var instructions = new ObservableCollection<ICog>();
-            if (instructionsElement != null)
+            if (cogsElement != null)
             {
-                foreach (var instr in instructionsElement.Elements())
+                foreach (var cogElem in cogsElement.Elements())
                 {
-                    ICog? cog = instr.Name.LocalName switch
+                    ICog? cog = cogElem.Name.LocalName switch
                     {
+                        // DLLInjectionCog is prohibited here
+
+                        "FileCopyCog" => new FileCopyCog
+                        {
+                            Path = GetString(cogElem, "Path", path),
+                            TargetPath = GetString(cogElem, "TargetPath", path)
+                        },
+
+                        "FolderCog" => new FolderCog
+                        {
+                            Path = GetString(cogElem, "Path", path),
+                            AllowPersistence = GetBool(cogElem, "AllowPersistence")
+                        },
+
                         "IFEOCog" => new IFEOCog
                         {
-                            OriginalExecutableName = instr.Element("OriginalExecutableName")?.Value ?? "",
-                            LauncherPath = Expand(instr.Element("LauncherPath")?.Value ?? "", path)
+                            OriginalExecutableName = GetString(cogElem, "OriginalExecutableName", path),
+                            LauncherPath = GetString(cogElem, "LauncherPath", path)
                         },
+
+                        "PackageCog" => new PackageCog
+                        {
+                            PackageURI = GetString(cogElem, "PackageURI", path),
+                            PackageFamilyName = GetString(cogElem, "PackageFamilyName", path)
+                        },
+
+                        "PackageLaunchCog" => new PackageLaunchCog
+                        {
+                            PackageFamilyName = GetString(cogElem, "PackageFamilyName", path),
+                        },
+
+                        "ProcessKillCog" => new ProcessKillCog
+                        {
+                            ProcessName = GetString(cogElem, "ProcessName", path),
+                        },
+
                         "ShortcutCog" => new ShortcutCog
                         {
-                            ShortcutName = instr.Element("ShortcutName")?.Value ?? "",
-                            ExePath = Expand(instr.Element("ExePath")?.Value ?? "", path)
+                            ShortcutName = GetString(cogElem, "ShortcutName", path),
+                            ExePath = GetString(cogElem, "ExePath", path)
                         },
-                        "LauncherCog" => new FileCopyCog
+
+                        "StartupPackageCog" => new StartupPackageCog
                         {
-                            Path = Expand(instr.Element("Path")?.Value ?? "", path),
-                            TargetPath = Expand(instr.Element("TargetPath")?.Value ?? "", path)
+                            TargetPackageFamilyName = GetString(cogElem, "TargetPackageFamilyName", path),
+                            Description = GetString(cogElem, "Description", path),
+                            Name = GetString(cogElem, "Name", path),
+                            RequireAdmin = GetBool(cogElem, "RequireAdmin")
                         },
+
                         "StartupTaskCog" => new StartupTaskCog
                         {
-                            TargetPath = Expand(instr.Element("TargetPath")?.Value ?? "", path),
-                            Description = instr.Element("Description")?.Value ?? "",
-                            Name = instr.Element("Name")?.Value ?? "",
-                            RequireAdmin = bool.TryParse(instr.Element("RequireAdmin")?.Value, out var ra) && ra
+                            TargetPath = GetString(cogElem, "TargetPath", path),
+                            Description = GetString(cogElem, "Description", path),
+                            Name = GetString(cogElem, "Name", path),
+                            RequireAdmin = GetBool(cogElem, "RequireAdmin")
                         },
+
+                        "StorePackageCog" => new StorePackageCog
+                        {
+                            PackageFamilyName = GetString(cogElem, "PackageFamilyName", path),
+                            StoreProductId = GetString(cogElem, "StoreProductId", path)
+                        },
+
+                        // TaskFolderCog is prohibited here.
+
                         _ => null
                     };
 
                     if (cog != null)
                     {
                         instructions.Add(cog);
-                        ReboundLogger.Log($"[ModParser] Added instruction: {instr.Name.LocalName}");
+                        ReboundLogger.Log($"[ModParser] Added instruction: {cogElem.Name.LocalName}");
                     }
                     else
                     {
-                        ReboundLogger.Log($"[ModParser] Unknown instruction type: {instr.Name.LocalName}");
+                        ReboundLogger.Log($"[ModParser] Unknown instruction type: {cogElem.Name.LocalName}");
                     }
                 }
             }
             else
             {
-                ReboundLogger.Log("[ModParser] No <Instructions> element found");
+                ReboundLogger.Log("[ModParser] No <Cogs> element found");
             }
 
             // Construct Mod object with instructions inline
@@ -130,18 +185,9 @@ public static class ModParser
                 Description = modElement.Element("Description")?.Value ?? "",
                 Icon = Path.Combine(path, "icon.png"),
                 Cogs = instructions, // inline instructions
-                Category = ModCategory.Sideloaded
+                Category = ModCategory.Sideloaded,
+                PreferredInstallationTemplate = InstallationTemplate.Extras
             };
-
-            // Parse enum
-            var templateValue = modElement.Element("PreferredInstallationTemplate")?.Value;
-            if (!Enum.TryParse<InstallationTemplate>(templateValue, ignoreCase: true, out var template))
-            {
-                template = InstallationTemplate.Extras; // fallback default
-                ReboundLogger.Log($"[ModParser] Failed to parse PreferredInstallationTemplate '{templateValue}', defaulting to Extras");
-            }
-            mod.PreferredInstallationTemplate = template;
-            ReboundLogger.Log($"[ModParser] PreferredInstallationTemplate={mod.PreferredInstallationTemplate}");
 
             ReboundLogger.Log($"[ModParser] Finished parsing mod: {mod.Name}");
             return mod;
@@ -153,16 +199,28 @@ public static class ModParser
         }
     }
 
+    private static string GetString(XElement parent, string name, string path)
+    => Expand(parent.Element(name)?.Value ?? "", path);
+
+    private static bool GetBool(XElement parent, string name)
+        => bool.TryParse(parent.Element(name)?.Value, out var val) && val;
+
+    /// <summary>
+    /// Expands sideloaded Rebound mod environment variables for XML declaration files.
+    /// </summary>
+    /// <param name="input">The input string.</param>
+    /// <param name="currentPath">The path of the current working directory, preferably a sideloaded Rebound mod folder.</param>
+    /// <returns></returns>
     public static string Expand(string input, string currentPath)
     {
         if (string.IsNullOrEmpty(input))
             return input;
 
         return input
-            .Replace("$(ProgramFiles)", Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles))
-            .Replace("$(LocalAppData)", Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData))
-            .Replace("$(System32)", Environment.GetFolderPath(Environment.SpecialFolder.SystemX86))
-            .Replace("$(UserProfile)", Environment.GetFolderPath(Environment.SpecialFolder.UserProfile))
-            .Replace("$(Dependencies)", Path.Combine(currentPath, "dependencies"));
+            .Replace("$(ProgramFiles)", Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles), StringComparison.InvariantCulture)
+            .Replace("$(System32)", Environment.GetFolderPath(Environment.SpecialFolder.SystemX86), StringComparison.InvariantCulture)
+            .Replace("$(UserProfile)", Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), StringComparison.InvariantCulture)
+            .Replace("$(Dependencies)", Path.Combine(currentPath, "dependencies"), StringComparison.InvariantCulture)
+            .Replace("$(ReboundDataFolder)", Variables.ReboundDataFolder, StringComparison.InvariantCulture);
     }
 }

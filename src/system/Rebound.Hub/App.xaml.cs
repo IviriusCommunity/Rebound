@@ -59,11 +59,14 @@ public partial class App : Application
             var frame = new Frame();
             frame.Navigate(typeof(Views.ShellPage));
             MainWindow.Content = frame;
+            frame.Loaded += async (sender, e) =>
+            {
+                await ReboundService.LoadModsStatesAsync().ConfigureAwait(false);
+                await ReboundService.InitializeAsync().ConfigureAwait(false);
+                await ReboundService.CheckForUpdatesAsync().ConfigureAwait(false);
+            };
         };
         MainWindow.Create();
-
-        await App.ReboundService.LoadModsStatesAsync().ConfigureAwait(false);
-        await App.ReboundService.InitializeAsync().ConfigureAwait(false);
     }
 
     public static IslandsWindow? MainWindow { get; set; }

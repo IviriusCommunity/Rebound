@@ -121,7 +121,6 @@
 
 	<!-- Project content -->
 	<ItemGroup>
-		<None Remove="Hooks\Rebound.Forge.Hooks.Run.dll" />
 		<None Remove="Views\MainPage.xaml" />
 
 		<Content Include="Strings\**\*.resw">
@@ -159,9 +158,6 @@
 	</ItemGroup>
 
 	<ItemGroup>
-		<Content Include="Hooks\Rebound.Forge.Hooks.Run.dll">
-			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
-		</Content>
 		<Content Include="NativeMethods.json" />
 	</ItemGroup>
 	<ItemGroup>

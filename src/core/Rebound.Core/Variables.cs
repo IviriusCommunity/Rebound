@@ -54,10 +54,22 @@ public static class Variables
         Path.Combine(ReboundProgramDataFolder, "Mods");
 
     /// <summary>
+    /// Represents the full path to the DLLs folder within the application's program data directory.
+    /// </summary>
+    public static readonly string ReboundProgramDataDLLsFolder =
+        Path.Combine(ReboundProgramDataFolder, "DLLs");
+
+    /// <summary>
     /// Represents the full file system path to the Rebound Launcher executable.
     /// </summary>
     public static readonly string ReboundLauncherPath =
         Path.Combine(ReboundProgramDataFolder, "Rebound.Launcher.exe");
+
+    /// <summary>
+    /// File containing information about the currently installed version of Rebound.
+    /// </summary>
+    public static readonly string ReboundCurrentVersionPath =
+        Path.Combine(ReboundDataFolder, "version.txt");
 
     /// <summary>
     /// Represents the current version identifier for Rebound as a whole.
