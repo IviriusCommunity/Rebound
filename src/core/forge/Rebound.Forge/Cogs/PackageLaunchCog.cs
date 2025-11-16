@@ -29,6 +29,8 @@ public class PackageLaunchCog : ICog
     /// <inheritdoc/>
     public async Task ApplyAsync()
     {
+        await Task.Delay(1500);
+
         ReboundLogger.Log($"[PackageLaunchCog] Launching package {PackageFamilyName}");
 
         var packageManager = new PackageManager();

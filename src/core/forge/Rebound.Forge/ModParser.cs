@@ -28,15 +28,15 @@ public static class ModParser
 
         try
         {
-            if (!Directory.Exists(Variables.ReboundProgramDataModsFolder))
+            if (!Directory.Exists(Variables.ReboundProgramFilesModsFolder))
             {
-                ReboundLogger.Log($"[ModLoader] Mods folder does not exist: {Variables.ReboundProgramDataModsFolder}");
+                ReboundLogger.Log($"[ModLoader] Mods folder does not exist: {Variables.ReboundProgramFilesModsFolder}");
                 return mods; // return empty list
             }
 
-            ReboundLogger.Log($"[ModLoader] Parsing mods in folder: {Variables.ReboundProgramDataModsFolder}");
+            ReboundLogger.Log($"[ModLoader] Parsing mods in folder: {Variables.ReboundProgramFilesModsFolder}");
 
-            foreach (var modFolder in Directory.GetDirectories(Variables.ReboundProgramDataModsFolder))
+            foreach (var modFolder in Directory.GetDirectories(Variables.ReboundProgramFilesModsFolder))
             {
                 try
                 {

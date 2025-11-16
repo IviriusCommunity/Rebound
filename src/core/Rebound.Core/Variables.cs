@@ -43,27 +43,27 @@ public static class Variables
     /// <remarks>This path is intended for storing data that is accessible to all users of the system and modding components that
     /// are applied for all users. The folder is created by combining the Common Program Files directory with the "Rebound" subfolder. 
     /// Ensure that the application has appropriate permissions to read from and write to this location.</remarks>
-    public static readonly string ReboundProgramDataFolder =
-        Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData),
+    public static readonly string ReboundProgramFilesFolder =
+        Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles),
                      "Rebound");
 
     /// <summary>
     /// Represents the full path to the Mods folder within the application's program data directory.
     /// </summary>
-    public static readonly string ReboundProgramDataModsFolder =
-        Path.Combine(ReboundProgramDataFolder, "Mods");
+    public static readonly string ReboundProgramFilesModsFolder =
+        Path.Combine(ReboundProgramFilesFolder, "Mods");
 
     /// <summary>
     /// Represents the full path to the DLLs folder within the application's program data directory.
     /// </summary>
-    public static readonly string ReboundProgramDataDLLsFolder =
-        Path.Combine(ReboundProgramDataFolder, "DLLs");
+    public static readonly string ReboundProgramFilesDLLsFolder =
+        Path.Combine(ReboundProgramFilesFolder, "DLLs");
 
     /// <summary>
     /// Represents the full file system path to the Rebound Launcher executable.
     /// </summary>
     public static readonly string ReboundLauncherPath =
-        Path.Combine(ReboundProgramDataFolder, "Rebound.Launcher.exe");
+        Path.Combine(ReboundProgramFilesFolder, "Rebound.Launcher.exe");
 
     /// <summary>
     /// File containing information about the currently installed version of Rebound.
@@ -74,5 +74,5 @@ public static class Variables
     /// <summary>
     /// Represents the current version identifier for Rebound as a whole.
     /// </summary>
-    public const string ReboundVersion = "v0.0.10.2 Developer Preview";
+    public const string ReboundVersion = "v0.0.10.3 Developer Preview";
 }

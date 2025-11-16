@@ -260,6 +260,7 @@ public partial class ReboundService : ObservableObject
                     {
                         try
                         {
+                            await m.UninstallAsync().ConfigureAwait(false);
                             await m.InstallAsync().ConfigureAwait(false);
                         }
                         catch (Exception ex)

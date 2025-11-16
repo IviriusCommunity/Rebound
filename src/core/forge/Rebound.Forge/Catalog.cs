@@ -334,12 +334,12 @@ public partial class Catalog : ObservableObject
                     },
                     new FolderCog()
                     {
-                        Path = Variables.ReboundProgramDataFolder,
+                        Path = Variables.ReboundProgramFilesFolder,
                         AllowPersistence = true
                     },
                     new FolderCog()
                     {
-                        Path = Variables.ReboundProgramDataModsFolder,
+                        Path = Variables.ReboundProgramFilesModsFolder,
                         AllowPersistence = true
                     },
                     new FolderCog()
@@ -401,24 +401,6 @@ public partial class Catalog : ObservableObject
                     {
                         Path = Path.Combine(AppContext.BaseDirectory, "Modding", "Launchers", "Rebound.Launcher.exe"),
                         TargetPath = Variables.ReboundLauncherPath
-                    }
-                ],
-            },
-            
-            // Launcher
-            new()
-            {
-                Name = "Injection DLLs",
-                Description = "Contains DLLs that Rebound injects into target processes.",
-                Icon = "ms-appx:///Assets/ReboundApps/InjectionDLLs.ico",
-                Category = ModCategory.General,
-                PreferredInstallationTemplate = InstallationTemplate.Basic,
-                Cogs =
-                [
-                    new DLLInjectionCog
-                    {
-                        TargetProcesses = [ "explorer.exe", "taskmgr.exe", "procexp.exe" ],
-                        DLLPath = Path.Combine(AppContext.BaseDirectory, "Modding", "Hooks", "Rebound.Forge.Hooks.Run.dll")
                     }
                 ],
             },

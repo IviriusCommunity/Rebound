@@ -119,9 +119,6 @@
 		<Content Include="Fonts\FluentIcons.ttf">
 			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 		</Content>
-		<Content Include="Modding\Hooks\Rebound.Forge.Hooks.Run.dll">
-		  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-		</Content>
 		<Content Include="Modding\Launchers\Rebound.Launcher.exe">
 		  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
 		</Content>

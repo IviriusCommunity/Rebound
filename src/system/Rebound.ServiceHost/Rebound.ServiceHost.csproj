@@ -158,6 +158,9 @@
 	</ItemGroup>
 
 	<ItemGroup>
+		<Content Include="Hooks\Rebound.Forge.Hooks.Run.dll">
+		  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</Content>
 		<Content Include="NativeMethods.json" />
 	</ItemGroup>
 	<ItemGroup>

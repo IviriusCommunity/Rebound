@@ -32,54 +32,31 @@ public partial class App : Application
             // Hook thread
             var hookThread = new Thread(() =>
             {
-                string dllsFolder = Variables.ReboundProgramDataDLLsFolder;
+                string reboundRunDll = $"{AppContext.BaseDirectory}\\Hooks\\Rebound.Forge.Hooks.Run.dll";
 
                 // Since some processes like task manager are heavily locked down to prevent malicious injection,
                 // it's required to enable SeDebugPrivilege to allow injection inside those processes.
                 _ = DLLInjectionAPI.TryEnableSeDebugPrivilege(out _);
 
-                // Get all DLL files in the folder
-                if (Directory.Exists(dllsFolder))
+                // Start the DLL injector in a separate thread
+                var monitorThread = new Thread(() =>
                 {
-                    var dllFiles = Directory.GetFiles(dllsFolder, "*.dll");
+                    var injector = new DLLInjector(reboundRunDll);
 
-                    foreach (var dllPath in dllFiles)
-                    {
-                        try
-                        {
-                            var dllName = Path.GetFileNameWithoutExtension(dllPath);
-                            var targetProcesses = DLLInjectionCog.GetTargetProcessesFromMeta(dllName);
+                    injector.TargetProcesses.AddRange(
+                    [
+                        "explorer.exe",
+                        "taskmgr.exe",
+                        "procexp.exe"
+                    ]);
 
-                            if (targetProcesses.Count == 0)
-                            {
-                                ReboundLogger.Log($"[HookThread] No target processes found for {dllName}, skipping.");
-                                continue;
-                            }
-
-                            // Start the DLL injector in a separate thread for each DLL
-                            var monitorThread = new Thread(() =>
-                            {
-                                var injector = new DLLInjector(dllPath);
-                                injector.TargetProcesses.AddRange(targetProcesses);
-                                injector.StartInjection();
-                                ReboundLogger.Log($"[HookThread] Started injection for {dllName} into {targetProcesses.Count} processes.");
-                            })
-                            {
-                                IsBackground = true,
-                                Name = $"Process Monitor - {dllName}"
-                            };
-                            monitorThread.Start();
-                        }
-                        catch (Exception ex)
-                        {
-                            ReboundLogger.Log($"[HookThread] Failed to start injector for {Path.GetFileName(dllPath)}", ex);
-                        }
-                    }
-                }
-                else
+                    injector.StartInjection();
+                })
                 {
-                    ReboundLogger.Log($"[HookThread] DLLs folder not found: {dllsFolder}");
-                }
+                    IsBackground = true,
+                    Name = "Process Monitor"
+                };
+                monitorThread.Start();
 
                 // Keep message loop running for hooks
                 NativeMessageLoop();

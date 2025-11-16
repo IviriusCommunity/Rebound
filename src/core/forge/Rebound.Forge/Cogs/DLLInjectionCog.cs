@@ -35,8 +35,8 @@ public class DLLInjectionCog : ICog
     {
         try
         {
-            var targetPath = Path.Combine(Variables.ReboundProgramDataDLLsFolder, Path.GetFileName(DLLPath));
-            var metaPath = Path.Combine(Variables.ReboundProgramDataDLLsFolder, Path.GetFileNameWithoutExtension(DLLPath) + ".dllmeta");
+            var targetPath = Path.Combine(Variables.ReboundProgramFilesDLLsFolder, Path.GetFileName(DLLPath));
+            var metaPath = Path.Combine(Variables.ReboundProgramFilesDLLsFolder, Path.GetFileNameWithoutExtension(DLLPath) + ".dllmeta");
             ReboundLogger.Log("[DLLInjectionCog] Apply started.");
             FileEx.Copy(DLLPath, targetPath);
             ReboundLogger.Log($"[DLLInjectionCog] Copied file from {DLLPath} to {targetPath}.");
@@ -57,8 +57,8 @@ public class DLLInjectionCog : ICog
     {
         try
         {
-            var targetPath = Path.Combine(Variables.ReboundProgramDataDLLsFolder, Path.GetFileName(DLLPath));
-            var metaPath = Path.Combine(Variables.ReboundProgramDataDLLsFolder, Path.GetFileNameWithoutExtension(DLLPath) + ".dllmeta");
+            var targetPath = Path.Combine(Variables.ReboundProgramFilesDLLsFolder, Path.GetFileName(DLLPath));
+            var metaPath = Path.Combine(Variables.ReboundProgramFilesDLLsFolder, Path.GetFileNameWithoutExtension(DLLPath) + ".dllmeta");
             ReboundLogger.Log("[DLLInjectionCog] Remove started.");
 
             // Delete DLL with retry logic
@@ -123,7 +123,7 @@ public class DLLInjectionCog : ICog
     {
         try
         {
-            var targetPath = Path.Combine(Variables.ReboundProgramDataDLLsFolder, Path.GetFileName(DLLPath));
+            var targetPath = Path.Combine(Variables.ReboundProgramFilesDLLsFolder, Path.GetFileName(DLLPath));
             bool exists = File.Exists(targetPath);
             ReboundLogger.Log($"[DLLInjectionCog] IsApplied check: {targetPath} exists? {exists}");
             return exists;
@@ -146,7 +146,7 @@ public class DLLInjectionCog : ICog
     {
         try
         {
-            var metaPath = Path.Combine(Variables.ReboundProgramDataDLLsFolder, dllDisplayName + ".dllmeta");
+            var metaPath = Path.Combine(Variables.ReboundProgramFilesDLLsFolder, dllDisplayName + ".dllmeta");
 
             if (!File.Exists(metaPath))
             {
