@@ -1,7 +1,7 @@
 ﻿// Copyright (C) Ivirius(TM) Community 2020 - 2025. All Rights Reserved.
 // Licensed under the MIT License.
 
-using Rebound.Core.Helpers;
+using Rebound.Core;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
@@ -13,7 +13,7 @@ using TerraFX.Interop.Windows;
 
 #pragma warning disable CA1031 // Do not catch general exception types
 
-namespace Rebound.Forge;
+namespace Rebound.Core.DLLInjection;
 
 public class DLLInjector
 {

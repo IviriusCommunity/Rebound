@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using Rebound.Core;
+using Rebound.Core.DLLInjection;
 using Rebound.Core.Helpers;
 using Rebound.Core.IPC;
 using Rebound.Core.UI;

@@ -2,6 +2,7 @@
     x:Class="Rebound.Hub.Views.HomePage"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:animations="using:CommunityToolkit.WinUI.Animations"
     xmlns:behaviors="using:CommunityToolkit.WinUI.Behaviors"
     xmlns:cards="using:Rebound.Hub.Cards"
     xmlns:controls="using:CommunityToolkit.WinUI.Controls"
@@ -158,21 +159,34 @@
                             Width="320"
                             Padding="0"
                             HorizontalContentAlignment="Stretch"
-                            BorderThickness="0">
+                            BorderThickness="0"
+                            CornerRadius="8">
+
                             <ui:Effects.Shadow>
                                 <media:AttachedCardShadow
                                     BlurRadius="48"
+                                    CornerRadius="8"
                                     Opacity="0.2"
                                     Offset="0, 16"
                                     Color="{x:Bind AccentColor}" />
                             </ui:Effects.Shadow>
+                            <interactivity:Interaction.Behaviors>
+                                <interactivity:EventTriggerBehavior EventName="Tapped">
+                                    <behaviors:NavigateToUriAction NavigateUri="{x:Bind Link}" />
+                                </interactivity:EventTriggerBehavior>
+                            </interactivity:Interaction.Behaviors>
                             <Grid>
-                                <Border CornerRadius="4" Opacity="0.25">
+                                <Border CornerRadius="8" Opacity="0.3">
                                     <Border.Background>
                                         <SolidColorBrush Color="{x:Bind AccentColor}" />
                                     </Border.Background>
                                 </Border>
-                                <Border CornerRadius="4">
+                                <Border CornerRadius="8">
+                                    <Border.Background>
+                                        <media:BackdropSaturationBrush Saturation="1.5" />
+                                    </Border.Background>
+                                </Border>
+                                <Border CornerRadius="8">
                                     <Border.Background>
                                         <media:AcrylicBrush
                                             BlurAmount="8"
@@ -310,11 +324,6 @@
                                     </Grid>
                                 </Grid>
                             </Grid>
-                            <interactivity:Interaction.Behaviors>
-                                <interactivity:EventTriggerBehavior EventName="Tapped">
-                                    <behaviors:NavigateToUriAction NavigateUri="{x:Bind Link}" />
-                                </interactivity:EventTriggerBehavior>
-                            </interactivity:Interaction.Behaviors>
                         </Button>
                     </DataTemplate>
                 </ItemsControl.ItemTemplate>

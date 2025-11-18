@@ -8,12 +8,13 @@ using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Data;
 using Windows.UI.Xaml.Documents;
+using Windows.UI.Xaml.Navigation;
 
 namespace Rebound.Hub.Views;
 
-internal class ModToTasksListConverter_Page : IValueConverter
+internal partial class ModToTasksListConverter_Page : IValueConverter
 {
-    public object Convert(object value, Type targetType, object parameter, string language)
+    public object? Convert(object value, Type targetType, object parameter, string language)
     {
         if (value is Mod mod)
         {
@@ -43,9 +44,9 @@ internal class ModToTasksListConverter_Page : IValueConverter
         => throw new NotImplementedException();
 }
 
-internal class GlyphToIconSourceConverter : IValueConverter
+internal partial class GlyphToIconSourceConverter : IValueConverter
 {
-    public object Convert(object value, Type targetType, object parameter, string language)
+    public object? Convert(object value, Type targetType, object parameter, string language)
     {
         if (value is string s)
         {
@@ -64,7 +65,7 @@ internal class GlyphToIconSourceConverter : IValueConverter
         => throw new NotImplementedException();
 }
 
-internal class ModSeverityToInfoBarSeverityConverter : IValueConverter
+internal partial class ModSeverityToInfoBarSeverityConverter : IValueConverter
 {
     public object Convert(object value, Type targetType, object parameter, string language)
     {
@@ -83,13 +84,13 @@ internal class ModSeverityToInfoBarSeverityConverter : IValueConverter
 
 internal partial class ModSettingTemplateSelector : DataTemplateSelector
 {
-    public DataTemplate BoolSettingTemplate { get; set; }
-    public DataTemplate StringSettingTemplate { get; set; }
-    public DataTemplate EnumSettingTemplate { get; set; }
-    public DataTemplate InfoBarTemplate { get; set; }
-    public DataTemplate LabelTemplate { get; set; }
+    public DataTemplate? BoolSettingTemplate { get; set; }
+    public DataTemplate? StringSettingTemplate { get; set; }
+    public DataTemplate? EnumSettingTemplate { get; set; }
+    public DataTemplate? InfoBarTemplate { get; set; }
+    public DataTemplate? LabelTemplate { get; set; }
 
-    protected override DataTemplate SelectTemplateCore(object item, DependencyObject container)
+    protected override DataTemplate? SelectTemplateCore(object item, DependencyObject container)
     {
         return item switch
         {
@@ -103,18 +104,24 @@ internal partial class ModSettingTemplateSelector : DataTemplateSelector
     }
 }
 
-public sealed partial class ModPage : Page
+internal sealed partial class ModPage : Page
 {
-    Mod Mod { get; set; } = null!;
+    private Mod? Mod { get; set; }
 
-    internal ModPage(Mod mod)
+    public ModPage()
     {
-        Mod = mod;
-        this.InitializeComponent();
+        InitializeComponent();
     }
 
-    private async void Page_Loaded(object sender, RoutedEventArgs e)
+    protected override async void OnNavigatedTo(NavigationEventArgs e)
     {
-        await Mod.UpdateIntegrityAsync();
+        base.OnNavigatedTo(e);
+
+        if (e?.Parameter is Mod mod)
+        {
+            Mod = mod;
+            DataContext = Mod; // If you want
+            await Mod.UpdateIntegrityAsync().ConfigureAwait(false);
+        }
     }
 }

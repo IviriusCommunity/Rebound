@@ -119,27 +119,9 @@
 		<Content Include="Fonts\FluentIcons.ttf">
 			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 		</Content>
-		<Content Include="Modding\Launchers\Rebound.Launcher.exe">
-		  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-		</Content>
-		<Content Include="Modding\Launchers\rosk.exe">
-			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
-		</Content>
-		<Content Include="Modding\Packages\Rebound.About.msixbundle">
-		  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-		</Content>
-		<Content Include="Modding\Packages\Rebound.ServiceHost.msixbundle">
-		  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-		</Content>
-		<Content Include="Modding\Packages\Rebound.Shell.msixbundle">
-		  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-		</Content>
 		<Content Update="Assets\**\*">
 			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
 		</Content>
-		<None Include="Modding\Apps\**\*">
-			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
-		</None>
 	</ItemGroup>
 
 	<!-- Excluded Items -->
@@ -153,11 +135,6 @@
 		<CustomAdditionalCompileInputs Remove="Views\HomePage.xaml" />
 		<Resource Remove="Views\HomePage.xaml" />
 		<None Remove="Assets\AppIcons\ReboundIcon.ico" />
-		<None Remove="Modding\Launchers\Rebound.Launcher.exe" />
-		<None Remove="Modding\Launchers\rosk.exe" />
-		<None Remove="Modding\Packages\Rebound.About.msixbundle" />
-		<None Remove="Modding\Packages\Rebound.ServiceHost.msixbundle" />
-		<None Remove="Modding\Packages\Rebound.Shell.msixbundle" />
 	</ItemGroup>
 
 	<!-- Additional Files -->
@@ -176,5 +153,6 @@
 		<ProjectReference Include="..\..\core\Rebound.Core.UI\Rebound.Core.UI.csproj" />
 		<ProjectReference Include="..\..\core\Rebound.Core\Rebound.Core.csproj" />
 	</ItemGroup>
+	<Import Project="..\..\core\forge\Rebound.Forge.Assets\Rebound.Forge.Assets.projitems" Label="Shared" />
 
 </Project>

@@ -3,7 +3,7 @@
 
 using Windows.Win32.Foundation;
 
-namespace Rebound.Core.Helpers;
+namespace Rebound.Core;
 
 public static class Native
 {

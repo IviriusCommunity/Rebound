@@ -4,6 +4,7 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:behaviors="using:CommunityToolkit.WinUI.Behaviors"
     xmlns:converters="using:CommunityToolkit.WinUI.Converters"
+    xmlns:core="using:Rebound.Core"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:interactivity="using:Microsoft.Xaml.Interactivity"
     xmlns:local="using:Rebound.Hub.Views"
@@ -11,6 +12,9 @@
     xmlns:muxc="using:Microsoft.UI.Xaml.Controls"
     muxc:BackdropMaterial.ApplyToRootOrPageBackground="True"
     mc:Ignorable="d">
+    <Page.Resources>
+        <PathIcon x:Key="ReboundIcon" Data="M 0 2 C 0 1 1 0 2 0 L 7 0 L 7 7 L 0 7 M 0 9 L 7 9 L 7 16 L 2 16 C 1 16 0 15 0 14 M 9 0 L 14 0 C 15 0 16 1 16 2 L 16 7 L 9 7  M 9 9 L 16 9 L 16 14 C 16 15 15 16 14 16 L 9 16 M 10 10 L 10 15 L 14 15 C 14.52 14.996 14.991 14.578 15 14 L 15 10 M 6 1 L 2 1 C 1.488 1.009 1.003 1.462 1 2 L 1 6 L 6 6 M 6 10 L 1 10 L 1 14 C 0.995 14.523 1.488 14.994 2 15 L 6 15 M 10 1 L 10 6 L 15 6 L 15 2 C 14.995 1.474 14.534 1.012 14 1" />
+    </Page.Resources>
     <Grid>
         <StackPanel
             Margin="16,16"
@@ -36,35 +40,54 @@
                     Text="BETA" />
             </Border>
         </StackPanel>
-        <Button
-            x:Name="UpdateButton"
-            Margin="160,8,120,0"
-            HorizontalAlignment="Center"
-            VerticalAlignment="Top"
-            Background="Transparent"
-            BorderBrush="Transparent"
-            Visibility="Collapsed">
-            <StackPanel Orientation="Horizontal" Spacing="8">
-                <FontIcon FontSize="16" Glyph="&#xE777;" />
-                <TextBlock Text="A new version of Rebound Hub is available for download" />
-            </StackPanel>
-        </Button>
         <muxc:NavigationView
             x:Name="NavigationViewControl"
             Margin="0,48,0,0"
             IsBackButtonVisible="Collapsed"
-            ItemInvoked="Navigate"
+            ItemInvoked="NavigationViewControl_ItemInvoked"
             OpenPaneLength="280"
-            PaneDisplayMode="Left">
+            PaneDisplayMode="Left"
+            PaneTitle="{x:Bind core:Variables.ReboundVersion, Mode=OneTime}">
+            <muxc:NavigationView.AutoSuggestBox>
+                <AutoSuggestBox
+                    x:Name="AutoSuggestBoxControl"
+                    ItemsSource="{x:Bind Suggestions}"
+                    PlaceholderText="Search"
+                    QueryIcon="Find"
+                    SuggestionChosen="AutoSuggestBox_SuggestionChosen"
+                    TextChanged="AutoSuggestBox_TextChanged">
+                    <AutoSuggestBox.ItemTemplate>
+                        <DataTemplate x:DataType="local:SearchResult">
+                            <TextBlock VerticalAlignment="Center" Text="{x:Bind Title}" />
+                        </DataTemplate>
+                    </AutoSuggestBox.ItemTemplate>
+                </AutoSuggestBox>
+            </muxc:NavigationView.AutoSuggestBox>
             <muxc:NavigationView.MenuItems>
-                <muxc:NavigationViewItem x:Name="HomeItem" Content="Home">
+                <muxc:NavigationViewItem
+                    x:Name="HomeItem"
+                    Content="Home"
+                    Tag="Home">
                     <muxc:NavigationViewItem.Icon>
                         <FontIcon Glyph="&#xE80F;" />
                     </muxc:NavigationViewItem.Icon>
                 </muxc:NavigationViewItem>
-                <muxc:NavigationViewItem x:Name="ReboundItem" Content="Rebound">
+                <muxc:NavigationViewItem
+                    x:Name="ReboundItem"
+                    Content="Rebound"
+                    Tag="Rebound">
                     <muxc:NavigationViewItem.Icon>
                         <PathIcon Data="F1 M 0 2 C 0 1 1 0 2 0 L 7 0 L 7 7 L 0 7 M 0 9 L 7 9 L 7 16 L 2 16 C 1 16 0 15 0 14 M 9 0 L 14 0 C 15 0 16 1 16 2 L 16 7 L 9 7 M 9 9 L 16 9 L 16 14 C 16 15 15 16 14 16 L 9 16 M 10 10 L 10 15 L 14 15 C 14.52 14.996 14.991 14.578 15 14 L 15 10 M 6 1 L 2 1 C 1.488 1.009 1.003 1.462 1 2 L 1 6 L 6 6 M 6 10 L 1 10 L 1 14 C 0.995 14.523 1.488 14.994 2 15 L 6 15 M 10 1 L 10 6 L 15 6 L 15 2 C 14.995 1.474 14.534 1.012 14 1" />
+                    </muxc:NavigationViewItem.Icon>
+                </muxc:NavigationViewItem>
+                <muxc:NavigationViewItem
+                    x:Name="UpdateItem"
+                    Content="Update available"
+                    SelectsOnInvoked="False"
+                    Tag="Update"
+                    Visibility="Collapsed">
+                    <muxc:NavigationViewItem.Icon>
+                        <FontIcon Glyph="&#xE72C;" />
                     </muxc:NavigationViewItem.Icon>
                 </muxc:NavigationViewItem>
                 <muxc:NavigationViewItemSeparator />

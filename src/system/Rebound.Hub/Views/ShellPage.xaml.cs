@@ -1,15 +1,23 @@
 ﻿// Copyright (C) Ivirius(TM) Community 2020 - 2025. All Rights Reserved.
 // Licensed under the MIT License.
 
+using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.WinUI.Helpers;
 using Microsoft.UI.Xaml.Controls;
 using Rebound.Core;
-using Rebound.Core.Helpers;
+using Rebound.Core.UI;
 using Rebound.Forge;
 using System;
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 using System.Net.Http;
+using System.Threading.Tasks;
+using Windows.System;
+using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
+using Windows.UI.Xaml.Markup;
+using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Media.Imaging;
 
 #pragma warning disable CA2007 // Consider calling ConfigureAwait on the awaited task
@@ -17,22 +25,30 @@ using Windows.UI.Xaml.Media.Imaging;
 
 namespace Rebound.Hub.Views;
 
+internal partial class SearchResult : ObservableObject
+{
+    [ObservableProperty] public partial string Title { get; set; }
+    [ObservableProperty] public partial Type? PageType { get; set; }
+    [ObservableProperty] public partial object? Parameter { get; set; }
+
+    public override string ToString() => Title;
+}
+
 internal sealed partial class ShellPage : Page
 {
+    private readonly List<SearchResult> SearchResults = [];
+    private readonly ObservableCollection<SearchResult> Suggestions = [];
+
+    private void NavigateTo(Type pageType, object? parameter = null)
+    {
+        MainFrame.Navigate(pageType, parameter);
+    }
+
     public ShellPage()
     {
         InitializeComponent();
         NavigationViewControl.SelectedItem = HomeItem;
-
-        // Branding settings
-        if (SettingsManager.GetValue("ShowBranding", "rebound", true))
-            MainFrame.Navigate(typeof(HomePage));
-        else
-        {
-            NavigationViewControl.Visibility = Windows.UI.Xaml.Visibility.Collapsed;
-            OverlayFrame.Visibility = Windows.UI.Xaml.Visibility.Visible;
-            OverlayFrame.Navigate(typeof(ReboundPage));
-        }
+        NavigateTo(typeof(HomePage));
 
         // Group mods by category
         var categoryGroups = Catalog.Mods
@@ -57,6 +73,7 @@ internal sealed partial class ShellPage : Page
                         ModCategory.Customization => "\uE771",
                         ModCategory.Extras => "\uE794",
                         ModCategory.Sideloaded => "\uE74C",
+                        _ => "\uE897"
                     }
                 }
             };
@@ -68,18 +85,45 @@ internal sealed partial class ShellPage : Page
                 {
                     Content = mod.Name,
                     Tag = mod.Name,
-                    Icon = new ImageIcon { Source = new BitmapImage(new Uri(mod.Icon)) }
+                    Icon = new ImageIcon { Source = new BitmapImage(new Uri(mod.Icon!)) }
                 };
+                SearchResults.Add(new SearchResult
+                {
+                    Title = mod.Name!,
+                    PageType = typeof(ModPage),
+                    Parameter = mod
+                });
                 categoryItem.MenuItems.Add(modItem);
             }
 
             NavigationViewControl.MenuItems.Add(categoryItem);
         }
 
-        CheckForUpdates();
+        SearchResults.Add(new()
+        {
+            Title = "Home",
+            PageType = typeof(HomePage)
+        });
+        SearchResults.Add(new()
+        {
+            Title = "Rebound",
+            PageType = typeof(ReboundPage)
+        });
+        SearchResults.Add(new()
+        {
+            Title = "Settings",
+            PageType = typeof(SettingsPage)
+        });
+
+        Loaded += ShellPage_Loaded;
     }
 
-    public async void CheckForUpdates()
+    private async void ShellPage_Loaded(object sender, RoutedEventArgs e)
+    {
+        await CheckForUpdates();
+    }
+
+    public async Task CheckForUpdates()
     {
         try
         {
@@ -89,8 +133,12 @@ internal sealed partial class ShellPage : Page
                 var url = "https://ivirius.com/reboundhubversion.txt";
                 var webContent = await client.GetStringAsync(new Uri(url));
 
-                if (Variables.ReboundVersion != webContent)
-                    UpdateButton.Visibility = Windows.UI.Xaml.Visibility.Visible;
+                await UIThreadQueue.QueueActionAsync(() =>
+                {
+                    if (Variables.ReboundVersion != webContent)
+                        UpdateItem.Visibility = Visibility.Visible;
+                    return Task.CompletedTask;
+                });
             }
         }
         catch (Exception ex)
@@ -99,21 +147,92 @@ internal sealed partial class ShellPage : Page
         }
     }
 
-    private void Navigate(Microsoft.UI.Xaml.Controls.NavigationView sender, Microsoft.UI.Xaml.Controls.NavigationViewItemInvokedEventArgs args)
+    private void NavigationViewControl_ItemInvoked(Microsoft.UI.Xaml.Controls.NavigationView sender, Microsoft.UI.Xaml.Controls.NavigationViewItemInvokedEventArgs args)
     {
-        if ((Microsoft.UI.Xaml.Controls.NavigationViewItem)NavigationViewControl.SelectedItem == HomeItem)
-            MainFrame.Navigate(typeof(HomePage));
-        if ((Microsoft.UI.Xaml.Controls.NavigationViewItem)NavigationViewControl.SelectedItem == ReboundItem)
-            MainFrame.Navigate(typeof(ReboundPage));
+        // Settings button
         if (args.IsSettingsInvoked)
-            MainFrame.Navigate(typeof(SettingsPage));
-        else
         {
-            var mod = Catalog.Mods.FirstOrDefault(m => m.Name == (string)((Microsoft.UI.Xaml.Controls.NavigationViewItem)NavigationViewControl.SelectedItem).Tag);
+            NavigateTo(typeof(SettingsPage));
+            return;
+        }
+
+        // Normal item
+        if (args.InvokedItemContainer is Microsoft.UI.Xaml.Controls.NavigationViewItem item &&
+            item.Tag is string tag)
+        {
+            // Home
+            if (tag == "Home")
+            {
+                NavigateTo(typeof(HomePage));
+                return;
+            }
+
+            // Rebound
+            if (tag == "Rebound")
+            {
+                NavigateTo(typeof(ReboundPage));
+                return;
+            }
+
+            // Rebound
+            if (tag == "Update")
+            {
+                Launcher.LaunchUriAsync(new("https://ivirius.com/download/rebound/")).Wait();
+                return;
+            }
+
+            // Mods
+            var mod = Catalog.Mods.FirstOrDefault(m => m.Name == tag);
             if (mod != null)
             {
-                MainFrame.Content = new ModPage(mod);
+                NavigateTo(typeof(ModPage), mod);
             }
+        }
+    }
+
+    private void AutoSuggestBox_SuggestionChosen(AutoSuggestBox sender, AutoSuggestBoxSuggestionChosenEventArgs args)
+    {
+        if (args.SelectedItem is SearchResult result && result.PageType != null)
+        {
+            NavigateTo(result.PageType, result.Parameter);
+        }
+    }
+
+    private void AutoSuggestBox_TextChanged(AutoSuggestBox sender, AutoSuggestBoxTextChangedEventArgs args)
+    {
+        if (args.Reason != AutoSuggestionBoxTextChangeReason.UserInput)
+            return;
+
+        string query = sender.Text?.Trim() ?? string.Empty;
+
+        List<SearchResult> suitableItems = [];
+
+        if (string.IsNullOrEmpty(query))
+        {
+            suitableItems = SearchResults.ToList();
+        }
+        else
+        {
+            string[] tokens = query.ToUpperInvariant().Split([' '], StringSplitOptions.RemoveEmptyEntries);
+            suitableItems = SearchResults
+                .Where(r => !string.IsNullOrEmpty(r.Title) &&
+                            tokens.All(t => r.Title.Contains(t, StringComparison.InvariantCultureIgnoreCase))).ToList();
+        }
+
+        if (suitableItems.Count == 0)
+        {
+            suitableItems.Add(new SearchResult
+            {
+                Title = "No results found",
+                PageType = null,
+                Parameter = null
+            });
+        }
+
+        Suggestions.Clear();
+        foreach (var item in suitableItems)
+        {
+            Suggestions.Add(item);
         }
     }
 }
