@@ -3,6 +3,7 @@
 	"allowMarshaling": false,
 	"public": true,
 	"comInterop": {
+		"useComSourceGenerators": true,
 		"preserveSigMethods": [
 			"*"
 		]
