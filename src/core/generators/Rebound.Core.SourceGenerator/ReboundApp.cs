@@ -146,6 +146,10 @@ internal static partial class Program
     [STAThread]
     static unsafe void Main(string[] args)
     {
+#if UNPACKAGED
+        Environment.SetEnvironmentVariable(""MICROSOFT_WINDOWSAPPRUNTIME_BASE_DIRECTORY"", AppContext.BaseDirectory);
+#endif
+
         TerraFX.Interop.WinRT.WinRT.RoInitialize(
             TerraFX.Interop.WinRT.RO_INIT_TYPE.RO_INIT_SINGLETHREADED);
 

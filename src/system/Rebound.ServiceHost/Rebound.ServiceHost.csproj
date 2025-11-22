@@ -8,10 +8,10 @@
 		<TargetPlatformMinVersion>10.0.22000.0</TargetPlatformMinVersion>
 
 		<!-- Advanced -->
+		<EnableMsixTooling>true</EnableMsixTooling>
 		<EnableComInterop>true</EnableComInterop>
 		<UseSourceGenerators>true</UseSourceGenerators>
 		<DisableRuntimeMarshalling>true</DisableRuntimeMarshalling>
-		<EnableMsixTooling>true</EnableMsixTooling>
 
 		<!-- Self-contained settings -->
 		<PublishReadyToRun>true</PublishReadyToRun>
@@ -91,10 +91,10 @@
 		<ApplicationIcon>Assets\ServiceHost.ico</ApplicationIcon>
 		<ApplicationManifest>app.manifest</ApplicationManifest>
 
-		<DefineConstants>DISABLE_XAML_GENERATED_MAIN;$(DefineConstants)</DefineConstants>
+		<DefineConstants>DISABLE_XAML_GENERATED_MAIN;UNPACKAGED;$(DefineConstants)</DefineConstants>
 
 		<!-- Deployment -->
-		<EnableMsixTooling>true</EnableMsixTooling>
+		<WindowsPackageType>None</WindowsPackageType>
 		<DefaultLanguage>en-US</DefaultLanguage>
 
 	</PropertyGroup>
@@ -103,16 +103,6 @@
 	<PropertyGroup>
 		<UseUwp>true</UseUwp>
 		<UseUwpTools>true</UseUwpTools>
-		<GenerateAppInstallerFile>True</GenerateAppInstallerFile>
-		<AppxPackageSigningEnabled>True</AppxPackageSigningEnabled>
-		<PackageCertificateKeyFile>C:\Users\zaita\source\repos\Rebound\src\Rebound.Hub_TemporaryKey.pfx</PackageCertificateKeyFile>
-		<AppxPackageSigningTimestampDigestAlgorithm>SHA256</AppxPackageSigningTimestampDigestAlgorithm>
-		<AppxAutoIncrementPackageRevision>False</AppxAutoIncrementPackageRevision>
-		<GenerateTestArtifacts>True</GenerateTestArtifacts>
-		<AppxBundle>Always</AppxBundle>
-		<AppInstallerUri>D:\</AppInstallerUri>
-		<HoursBetweenUpdateChecks>0</HoursBetweenUpdateChecks>
-		<AppxBundlePlatforms>x64</AppxBundlePlatforms>
 	</PropertyGroup>
 
 	<ItemGroup>
@@ -177,11 +167,6 @@
 	</ItemGroup>
 	<ItemGroup>
 		<PRIResource Remove="Strings\it-IT\Resources.resw" />
-	</ItemGroup>
-	<ItemGroup>
-		<AppxManifest Include="Package.appxmanifest">
-			<SubType>Designer</SubType>
-		</AppxManifest>
 	</ItemGroup>
 
 	<!-- Project References -->
