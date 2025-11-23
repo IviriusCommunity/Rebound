@@ -38,17 +38,7 @@
 
 		<Manifest Include="$(ApplicationManifest)" />
 
-		<!-- Windows SDK and WinUI -->
-		<PackageReference Include="Microsoft.UI.Xaml" Version="2.8.7" />
-		<!--<PackageReference Include="Microsoft.Windows.SDK.BuildTools.MSIX" Version="1.7.20250829.1">
-			<PrivateAssets>all</PrivateAssets>
-			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-		</PackageReference>-->
 		<PackageReference Include="Microsoft.Windows.SDK.BuildTools.MSIX" Version="1.7.20250829.1" />
-		<PackageReference Include="Microsoft.WindowsAppSDK.Base" Version="2.0.250911001-experimental" />
-		<PackageReference Include="Microsoft.WindowsAppSDK.InteractiveExperiences" Version="2.0.250912002-experimental" />
-
-		<PackageReference Include="MicaForUWP" Version="0.2.13" />
 
 		<!-- Windows Interop -->
 		<PackageReference Include="Dongle.GuidRVAGen" Version="1.0.5" />
@@ -69,16 +59,6 @@
 
 		<!-- CommunityToolkit WinUI -->
 		<PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.0" />
-		<PackageReference Include="CommunityToolkit.Uwp.Animations" Version="8.2.250402" />
-		<PackageReference Include="CommunityToolkit.Uwp.Behaviors" Version="8.2.250402" />
-		<PackageReference Include="CommunityToolkit.Uwp.Converters" Version="8.2.250402" />
-		<PackageReference Include="CommunityToolkit.Uwp.Controls.Primitives" Version="8.2.250402" />
-		<PackageReference Include="CommunityToolkit.Uwp.Controls.Segmented" Version="8.2.250402" />
-		<PackageReference Include="CommunityToolkit.Uwp.Controls.SettingsControls" Version="8.2.250402" />
-		<PackageReference Include="CommunityToolkit.Uwp.Extensions" Version="8.2.250402" />
-		<PackageReference Include="CommunityToolkit.Uwp.Helpers" Version="8.2.250402" />
-		<PackageReference Include="CommunityToolkit.Uwp.Media" Version="8.2.250402" />
-		<PackageReference Include="CommunityToolkit.Uwp.Triggers" Version="8.2.250402" />
 
 	</ItemGroup>
 
