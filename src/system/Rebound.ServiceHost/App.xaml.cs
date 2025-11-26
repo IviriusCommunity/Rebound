@@ -30,14 +30,14 @@ public partial class App : Application
     {
         if (e.IsFirstLaunch)
         {
+            // Since some processes like task manager are heavily locked down to prevent malicious injection,
+            // it's required to enable SeDebugPrivilege to allow injection inside those processes.
+            _ = DLLInjectionAPI.TryEnableSeDebugPrivilege(out _);
+
             // Hook thread
             var hookThread = new Thread(() =>
             {
                 string reboundRunDll = $"{AppContext.BaseDirectory}\\Hooks\\Rebound.Forge.Hooks.Run.dll";
-
-                // Since some processes like task manager are heavily locked down to prevent malicious injection,
-                // it's required to enable SeDebugPrivilege to allow injection inside those processes.
-                _ = DLLInjectionAPI.TryEnableSeDebugPrivilege(out _);
 
                 // Start the DLL injector in a separate thread
                 var monitorThread = new Thread(() =>

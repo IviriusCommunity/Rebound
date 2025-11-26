@@ -1,14 +1,9 @@
 ﻿// Copyright (C) Ivirius(TM) Community 2020 - 2025. All Rights Reserved.
 // Licensed under the MIT License.
 
-using Rebound.Core;
-using System;
 using System.Collections.Concurrent;
-using System.Collections.Generic;
 using System.Diagnostics;
 using System.Runtime.InteropServices;
-using System.Threading;
-using System.Threading.Tasks;
 using TerraFX.Interop.Windows;
 
 #pragma warning disable CA1031 // Do not catch general exception types
@@ -557,122 +552,240 @@ public static class DLLInjectionAPI
     /// <returns>true if the DLL was successfully injected into the target process; otherwise, false.</returns>
     public static unsafe bool Inject(uint pid, string dllPath, uint waitTimeoutMs = 10_000)
     {
-        // Obtain a handle to the target process
-        var hProcess = TerraFX.Interop.Windows.Windows.OpenProcess(
-            dwDesiredAccess: PROCESS_ALL_ACCESS,
-            bInheritHandle: false,
-            dwProcessId: pid);
+        // Variables
+        HANDLE hProcess = HANDLE.NULL;
+        void* allocMem = null;
+        HANDLE hThread = HANDLE.NULL;
+        HANDLE procNamePtr = HANDLE.NULL;
 
-        // Skip if the handle is invalid, most likely due to insufficient permissions
-        if (hProcess == IntPtr.Zero)
+        try
         {
-            return false;
-        }
-
-        // Obtain raw bytes of the DLL path and allocate memory in the target process
-        var dllPathBytes = System.Text.Encoding.Unicode.GetBytes(dllPath + "\0");
-        var allocMem = TerraFX.Interop.Windows.Windows.VirtualAllocEx(
-            hProcess,
-            lpAddress: null,
-            dwSize: (uint)dllPathBytes.Length,
-            flAllocationType: MEM_COMMIT | MEM_RESERVE,
-            flProtect: PAGE_READWRITE);
-
-        // Return false if memory allocation failed, likely due to insufficient permissions or memory issues
-        if ((nint)allocMem == IntPtr.Zero)
-        {
-            _ = TerraFX.Interop.Windows.Windows.CloseHandle(hProcess);
-            return false;
-        }
-
-        fixed (byte* pBytes = dllPathBytes)
-        {
-            // Write the DLL path into the allocated memory of the target process
-            if (!TerraFX.Interop.Windows.Windows.WriteProcessMemory(
-                hProcess,
-                lpBaseAddress: allocMem,
-                lpBuffer: pBytes,
-                nSize: (uint)dllPathBytes.Length,
-                lpNumberOfBytesWritten: null))
+            try
             {
-                // Writing memory failed, clean up and return false
-                _ = TerraFX.Interop.Windows.Windows.VirtualFreeEx(hProcess, allocMem, 0, MEM_RELEASE);
-                _ = TerraFX.Interop.Windows.Windows.CloseHandle(hProcess);
+                // Get process from PID
+                var proc = Process.GetProcessById((int)pid);
+
+                // Check if process is 32-bit or 64-bit
+                BOOL isWow64 = false;
+                TerraFX.Interop.Windows.Windows.IsWow64Process(new((void*)proc.Handle), &isWow64);
+
+                // Check DLL architecture
+                if (File.Exists(dllPath))
+                {
+                    // Create file stream to read DLL headers
+                    using var fs = new FileStream(dllPath, FileMode.Open, FileAccess.Read);
+                    using var reader = new BinaryReader(fs);
+
+                    // Read DOS header
+                    fs.Seek(0x3C, SeekOrigin.Begin);
+                    int peHeaderOffset = reader.ReadInt32();
+
+                    // Read PE signature
+                    fs.Seek(peHeaderOffset, SeekOrigin.Begin);
+                    uint peSignature = reader.ReadUInt32();
+
+                    if (peSignature == 0x00004550) // "PE\0\0"
+                    {
+                        ushort machine = reader.ReadUInt16();
+
+                        // This will be needed for ARM64 support later
+                        string architecture = machine switch
+                        {
+                            0x014c => "x86 (32-bit)",
+                            0x8664 => "x64 (64-bit)",
+                            0xAA64 => "ARM64",
+                            _ => $"Unknown (0x{machine:X4})"
+                        };
+
+                        // Check for mismatch
+                        if ((machine == 0x014c && !isWow64) || (machine == 0x8664 && isWow64))
+                        {
+                            // 32-bit, can't inject
+                            return false;
+                        }
+                    }
+                }
+            }
+            catch
+            {
+
+            }
+
+            // Step 1: Open the target process
+            hProcess = TerraFX.Interop.Windows.Windows.OpenProcess(
+                dwDesiredAccess: PROCESS_ALL_ACCESS,
+                bInheritHandle: false,
+                dwProcessId: pid);
+
+            // Check handle validity
+            if (hProcess == IntPtr.Zero)
+            {
                 return false;
             }
+
+            // Step 2: Allocate memory in target process
+            var dllPathBytes = System.Text.Encoding.Unicode.GetBytes(dllPath + "\0");
+            allocMem = TerraFX.Interop.Windows.Windows.VirtualAllocEx(
+                hProcess,
+                lpAddress: null,
+                dwSize: (uint)dllPathBytes.Length,
+                flAllocationType: MEM_COMMIT | MEM_RESERVE,
+                flProtect: PAGE_READWRITE);
+
+            if ((nint)allocMem == IntPtr.Zero)
+            {
+                int error = Marshal.GetLastWin32Error();
+                TerraFX.Interop.Windows.Windows.CloseHandle(hProcess);
+                return false;
+            }
+
+            // Step 3: Write DLL path to allocated memory
+            bool writeSuccess;
+            fixed (byte* pBytes = dllPathBytes)
+            {
+                writeSuccess = TerraFX.Interop.Windows.Windows.WriteProcessMemory(
+                    hProcess,
+                    lpBaseAddress: allocMem,
+                    lpBuffer: pBytes,
+                    nSize: (uint)dllPathBytes.Length,
+                    lpNumberOfBytesWritten: null);
+            }
+
+            if (!writeSuccess)
+            {
+                int error = Marshal.GetLastWin32Error();
+                TerraFX.Interop.Windows.Windows.VirtualFreeEx(hProcess, allocMem, 0, MEM_RELEASE);
+                TerraFX.Interop.Windows.Windows.CloseHandle(hProcess);
+                return false;
+            }
+
+            // Step 4: Get LoadLibraryW address
+            var hKernel32 = TerraFX.Interop.Windows.Windows.GetModuleHandleW("kernel32.dll".ToPCWSTR().Value);
+            if (hKernel32 == IntPtr.Zero)
+            {
+                int error = Marshal.GetLastWin32Error();
+                TerraFX.Interop.Windows.Windows.VirtualFreeEx(hProcess, allocMem, 0, MEM_RELEASE);
+                TerraFX.Interop.Windows.Windows.CloseHandle(hProcess);
+                return false;
+            }
+
+            procNamePtr = new(Marshal.StringToHGlobalAnsi("LoadLibraryW").ToPointer());
+            var loadLibraryAddr = TerraFX.Interop.Windows.Windows.GetProcAddress(
+                hKernel32,
+                (sbyte*)procNamePtr);
+
+            if (loadLibraryAddr == null)
+            {
+                int error = Marshal.GetLastWin32Error();
+                Marshal.FreeHGlobal(procNamePtr);
+                TerraFX.Interop.Windows.Windows.VirtualFreeEx(hProcess, allocMem, 0, MEM_RELEASE);
+                TerraFX.Interop.Windows.Windows.CloseHandle(hProcess);
+                return false;
+            }
+
+            Marshal.FreeHGlobal(procNamePtr);
+            procNamePtr = HANDLE.NULL;
+
+            // Step 5: Create remote thread
+            var loadLibraryFunc = (delegate* unmanaged<void*, uint>)loadLibraryAddr;
+            hThread = TerraFX.Interop.Windows.Windows.CreateRemoteThread(
+                hProcess,
+                null,
+                0,
+                loadLibraryFunc,
+                allocMem,
+                0,
+                null);
+
+            if (hThread == IntPtr.Zero)
+            {
+                int error = Marshal.GetLastWin32Error();
+                TerraFX.Interop.Windows.Windows.VirtualFreeEx(hProcess, allocMem, 0, MEM_RELEASE);
+                TerraFX.Interop.Windows.Windows.CloseHandle(hProcess);
+                return false;
+            }
+
+            // Step 6: Wait for thread completion
+            uint waitResult = TerraFX.Interop.Windows.Windows.WaitForSingleObject(hThread, waitTimeoutMs);
+
+            if (waitResult == WAIT.WAIT_TIMEOUT)
+            {
+                TerraFX.Interop.Windows.Windows.VirtualFreeEx(hProcess, allocMem, 0, MEM_RELEASE);
+                TerraFX.Interop.Windows.Windows.CloseHandle(hThread);
+                TerraFX.Interop.Windows.Windows.CloseHandle(hProcess);
+                return false;
+            }
+            else if (waitResult != WAIT.WAIT_OBJECT_0)
+            {
+                int error = Marshal.GetLastWin32Error();
+                TerraFX.Interop.Windows.Windows.VirtualFreeEx(hProcess, allocMem, 0, MEM_RELEASE);
+                TerraFX.Interop.Windows.Windows.CloseHandle(hThread);
+                TerraFX.Interop.Windows.Windows.CloseHandle(hProcess);
+                return false;
+            }
+
+            // Step 7: Check exit code with enhanced diagnostics
+            uint exitCode;
+            bool getExitSuccess = TerraFX.Interop.Windows.Windows.GetExitCodeThread(hThread, &exitCode);
+
+            if (!getExitSuccess)
+            {
+                int error = Marshal.GetLastWin32Error();
+                TerraFX.Interop.Windows.Windows.VirtualFreeEx(hProcess, allocMem, 0, MEM_RELEASE);
+                TerraFX.Interop.Windows.Windows.CloseHandle(hThread);
+                TerraFX.Interop.Windows.Windows.CloseHandle(hProcess);
+                return false;
+            }
+
+            // Error check for logging (needs implementation)
+            if (exitCode is 0)
+            {
+                // Try to get the actual error from the target process
+                // Use GetLastError via remote thread (advanced diagnostic)
+                var getLastErrorAddr = TerraFX.Interop.Windows.Windows.GetProcAddress(
+                    hKernel32,
+                    (sbyte*)Marshal.StringToHGlobalAnsi("GetLastError"));
+
+                if (getLastErrorAddr != null)
+                {
+                    var getLastErrorFunc = (delegate* unmanaged<void*, uint>)getLastErrorAddr;
+                    var errorThread = TerraFX.Interop.Windows.Windows.CreateRemoteThread(
+                        hProcess, null, 0, getLastErrorFunc, null, 0, null);
+
+                    if (errorThread != IntPtr.Zero)
+                    {
+                        _ = TerraFX.Interop.Windows.Windows.WaitForSingleObject(errorThread, 1000);
+                        uint remoteError = 0;
+                        TerraFX.Interop.Windows.Windows.GetExitCodeThread(errorThread, &remoteError);
+                        TerraFX.Interop.Windows.Windows.CloseHandle(errorThread);
+                    }
+                }
+
+                TerraFX.Interop.Windows.Windows.VirtualFreeEx(hProcess, allocMem, 0, MEM_RELEASE);
+                TerraFX.Interop.Windows.Windows.CloseHandle(hThread);
+                TerraFX.Interop.Windows.Windows.CloseHandle(hProcess);
+                return false;
+            }
+
+            // Cleanup
+            TerraFX.Interop.Windows.Windows.VirtualFreeEx(hProcess, allocMem, 0, MEM_RELEASE);
+            TerraFX.Interop.Windows.Windows.CloseHandle(hThread);
+            TerraFX.Interop.Windows.Windows.CloseHandle(hProcess);
+
+            return true;
         }
-
-        // Get the address of LoadLibraryW in kernel32.dll
-        var hKernel32 = TerraFX.Interop.Windows.Windows.GetModuleHandleW("kernel32.dll".ToPCWSTR().Value);
-        var loadLibraryAddr = TerraFX.Interop.Windows.Windows.GetProcAddress(
-            hKernel32,
-            (sbyte*)Marshal.StringToHGlobalAnsi("LoadLibraryW"));
-
-        // Return false if the program couldn't get the address of LoadLibraryW
-        if (loadLibraryAddr == null)
+        catch
         {
-            _ = TerraFX.Interop.Windows.Windows.VirtualFreeEx(hProcess, allocMem, 0, MEM_RELEASE);
-            _ = TerraFX.Interop.Windows.Windows.CloseHandle(hProcess);
+            if (procNamePtr != IntPtr.Zero)
+                Marshal.FreeHGlobal(procNamePtr);
+            if (allocMem != null && hProcess != IntPtr.Zero)
+                TerraFX.Interop.Windows.Windows.VirtualFreeEx(hProcess, allocMem, 0, MEM_RELEASE);
+            if (hThread != IntPtr.Zero)
+                TerraFX.Interop.Windows.Windows.CloseHandle(hThread);
+            if (hProcess != IntPtr.Zero)
+                TerraFX.Interop.Windows.Windows.CloseHandle(hProcess);
+
             return false;
         }
-
-        // Transform the address to a callable function pointer
-        var loadLibraryFunc = (delegate* unmanaged<void*, uint>)loadLibraryAddr;
-
-        // Create a remote thread in the target process to execute LoadLibraryW with the DLL path
-        var hThread = TerraFX.Interop.Windows.Windows.CreateRemoteThread(
-            hProcess,
-            null,
-            0,
-            loadLibraryFunc,
-            allocMem,
-            0,
-            null
-        );
-
-        if (hThread == IntPtr.Zero)
-        {
-            // Thread creation failed, clean up and return false
-            _ = TerraFX.Interop.Windows.Windows.VirtualFreeEx(hProcess, allocMem, 0, MEM_RELEASE);
-            _ = TerraFX.Interop.Windows.Windows.CloseHandle(hProcess);
-            return false;
-        }
-
-        // Wait with timeout
-        uint waitResult = TerraFX.Interop.Windows.Windows.WaitForSingleObject(hThread, waitTimeoutMs);
-
-        uint exitCode = 0;
-
-        // Check the result of the wait operation
-        if (waitResult == WAIT.WAIT_OBJECT_0)
-        {
-            _ = TerraFX.Interop.Windows.Windows.GetExitCodeThread(hThread, &exitCode);
-        }
-
-        // Handle timeout or failure
-        else if (waitResult == WAIT.WAIT_TIMEOUT)
-        {
-            // Clean up handles and memory, but the remote thread may still be running inside LoadLibraryW.
-            _ = TerraFX.Interop.Windows.Windows.VirtualFreeEx(hProcess, allocMem, 0, MEM_RELEASE);
-            _ = TerraFX.Interop.Windows.Windows.CloseHandle(hThread);
-            _ = TerraFX.Interop.Windows.Windows.CloseHandle(hProcess);
-            return false;
-        }
-
-        // Other wait failures
-        else
-        {
-            _ = TerraFX.Interop.Windows.Windows.VirtualFreeEx(hProcess, allocMem, 0, MEM_RELEASE);
-            _ = TerraFX.Interop.Windows.Windows.CloseHandle(hThread);
-            _ = TerraFX.Interop.Windows.Windows.CloseHandle(hProcess);
-            return false;
-        }
-
-        // Normal cleanup
-        _ = TerraFX.Interop.Windows.Windows.VirtualFreeEx(hProcess, allocMem, 0, MEM_RELEASE);
-        _ = TerraFX.Interop.Windows.Windows.CloseHandle(hThread);
-        _ = TerraFX.Interop.Windows.Windows.CloseHandle(hProcess);
-
-        return true;
     }
 }

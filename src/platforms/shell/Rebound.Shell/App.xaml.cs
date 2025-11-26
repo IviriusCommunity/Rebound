@@ -49,6 +49,7 @@ public partial class App : Application
         if (parts[0] == "Shell::SpawnRunWindow")
         {
             var windowTitle = parts.Length > 1 ? parts[1].Trim() : "Run";
+            if (string.IsNullOrWhiteSpace(windowTitle)) windowTitle = "Run";
             if (RunWindow is null)
             {
                 UIThreadQueue.QueueAction(() =>

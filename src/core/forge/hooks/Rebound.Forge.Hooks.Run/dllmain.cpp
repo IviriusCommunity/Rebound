@@ -424,7 +424,9 @@ BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID) {
     static HANDLE g_dllMutex = nullptr;
 
     if (fdwReason == DLL_PROCESS_ATTACH) {
-        g_dllMutex = CreateMutexW(nullptr, FALSE, L"Global\\ReboundShell_RunHook");
+        wchar_t mutexName[256];
+        swprintf_s(mutexName, L"ReboundShell_RunHook_%lu", GetCurrentProcessId());
+        g_dllMutex = CreateMutexW(nullptr, FALSE, mutexName);
         if (GetLastError() == ERROR_ALREADY_EXISTS)
         {
             // DLL already injected in this process
