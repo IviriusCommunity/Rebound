@@ -30,7 +30,7 @@ dotnet_search_reference_assemblies = true
 # Organize usings
 dotnet_separate_import_directive_groups = false
 dotnet_sort_system_directives_first = false
-file_header_template = unset
+file_header_template = Copyright (C) Ivirius(TM) Community 2020 - 2025. All Rights Reserved.\nLicensed under the MIT License.
 
 # this. and Me. preferences
 dotnet_style_qualification_for_event = false

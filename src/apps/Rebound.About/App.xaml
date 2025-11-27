@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<Application
+    x:Class="Rebound.About.App"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:controls="using:Microsoft.UI.Xaml.Controls">
+    <Application.Resources>
+        <controls:XamlControlsResources>
+            <controls:XamlControlsResources.MergedDictionaries />
+        </controls:XamlControlsResources>
+    </Application.Resources>
+</Application>

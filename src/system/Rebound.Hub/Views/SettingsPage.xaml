@@ -1,0 +1,52 @@
+<Page
+    x:Class="Rebound.Hub.Views.SettingsPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:converters="using:CommunityToolkit.WinUI.Converters"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:forge="using:Rebound.Forge"
+    xmlns:gallery="using:WinUIGallery.Controls"
+    xmlns:local="using:Rebound.Hub.Views"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:media="using:CommunityToolkit.WinUI.Media"
+    xmlns:muxc="using:Microsoft.UI.Xaml.Controls"
+    xmlns:toolkitControls="using:CommunityToolkit.WinUI.Controls"
+    xmlns:ui="using:CommunityToolkit.WinUI"
+    mc:Ignorable="d">
+    <ScrollViewer HorizontalAlignment="Stretch">
+        <Grid>
+            <Grid
+                MaxWidth="1000"
+                Margin="32"
+                ColumnSpacing="16"
+                RowSpacing="8">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                </Grid.RowDefinitions>
+                <StackPanel
+                    Grid.Row="3"
+                    Grid.ColumnSpan="3"
+                    Margin="0,8,0,0">
+                    <TextBlock
+                        Margin="0,0,0,8"
+                        Style="{StaticResource BodyStrongTextBlockStyle}"
+                        Text="General" />
+                    <toolkitControls:SettingsCard Description="Display blur and glow effects in Rebound apps." Header="Glow and blur">
+                        <toolkitControls:SettingsCard.HeaderIcon>
+                            <FontIcon Glyph="&#xEABC;" />
+                        </toolkitControls:SettingsCard.HeaderIcon>
+                        <ToggleSwitch IsOn="{x:Bind ViewModel.ShowBlurAndGlow, Mode=TwoWay}" />
+                    </toolkitControls:SettingsCard>
+                </StackPanel>
+            </Grid>
+        </Grid>
+    </ScrollViewer>
+</Page>

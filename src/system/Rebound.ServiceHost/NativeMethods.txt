@@ -1,0 +1,4 @@
+InitiateSystemShutdownEx
+GetMessage
+TranslateMessage
+DispatchMessage

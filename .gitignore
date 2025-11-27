@@ -389,3 +389,5 @@ FodyWeavers.xsd
 
 # Rebound build structure
 /src/platforms/Rebound.App/Modding/Apps/
+/_site
+/api

@@ -1,0 +1,157 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+	<!-- Application and library only - These will apply to everything that isn't a source code generator -->
+	<PropertyGroup>
+
+		<!-- Versions -->
+		<TargetFramework>net10.0-windows10.0.26100.0</TargetFramework>
+		<TargetPlatformMinVersion>10.0.22000.0</TargetPlatformMinVersion>
+
+		<!-- Advanced -->
+		<EnableComInterop>true</EnableComInterop>
+		<UseSourceGenerators>true</UseSourceGenerators>
+		<DisableRuntimeMarshalling>true</DisableRuntimeMarshalling>
+		<EnableMsixTooling>true</EnableMsixTooling>
+
+		<!-- Self-contained settings -->
+		<PublishReadyToRun>true</PublishReadyToRun>
+		<PublishAot>true</PublishAot>
+
+		<!-- Publishing Settings -->
+		<PublishProfile>win-$(Platform).pubxml</PublishProfile>
+
+		<!-- Trimmming -->
+		<SelfContained>true</SelfContained>
+		<PublishTrimmed>true</PublishTrimmed>
+		<OptimizationPreference>Speed</OptimizationPreference>
+		<IlcOptimizationPreference>Speed</IlcOptimizationPreference>
+
+		<CsWin32RunAsBuildTask>true</CsWin32RunAsBuildTask>
+		<WindowsAppSDKSelfContained>true</WindowsAppSDKSelfContained>
+
+		<EnableSourceLink>false</EnableSourceLink>
+
+	</PropertyGroup>
+
+	<!-- Package references -->
+	<ItemGroup>
+
+		<Manifest Include="$(ApplicationManifest)" />
+
+		<!-- Windows SDK and WinUI -->
+		<PackageReference Include="Microsoft.UI.Xaml" Version="2.8.7" />
+		<!--<PackageReference Include="Microsoft.Windows.SDK.BuildTools.MSIX" Version="1.7.20250829.1">
+			<PrivateAssets>all</PrivateAssets>
+			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+		</PackageReference>-->
+		<PackageReference Include="Microsoft.Windows.SDK.BuildTools.MSIX" Version="1.7.20250829.1" />
+		<PackageReference Include="Microsoft.WindowsAppSDK.Base" Version="2.0.250911001-experimental" />
+		<PackageReference Include="Microsoft.WindowsAppSDK.InteractiveExperiences" Version="2.0.250912002-experimental" />
+
+		<PackageReference Include="MicaForUWP" Version="0.2.13" />
+
+		<!-- Windows Interop -->
+		<PackageReference Include="Dongle.GuidRVAGen" Version="1.0.5" />
+		<PackageReference Include="Microsoft.Windows.CsWin32" Version="0.3.238">
+			<PrivateAssets>all</PrivateAssets>
+			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+		</PackageReference>
+		<PackageReference Include="TerraFX.Interop.Windows" Version="10.0.26100.4" />
+
+		<!-- System and Management -->
+		<PackageReference Include="System.Diagnostics.PerformanceCounter" Version="10.0.0-rc.2.25502.107" />
+		<!--<PackageReference Include="System.ServiceProcess.ServiceController" Version="10.0.0-preview.5.25277.114" />-->
+		<PackageReference Include="System.IO.Pipes.AccessControl" Version="6.0.0-preview.5.21301.5" />
+		<PackageReference Include="OwlCore.Storage" Version="0.14.0" />
+
+		<!-- Task Scheduler -->
+		<PackageReference Include="TaskScheduler" Version="2.12.2" />
+
+		<!-- CommunityToolkit WinUI -->
+		<PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.0" />
+		<PackageReference Include="CommunityToolkit.Uwp.Animations" Version="8.2.250402" />
+		<PackageReference Include="CommunityToolkit.Uwp.Behaviors" Version="8.2.250402" />
+		<PackageReference Include="CommunityToolkit.Uwp.Converters" Version="8.2.250402" />
+		<PackageReference Include="CommunityToolkit.Uwp.Controls.Primitives" Version="8.2.250402" />
+		<PackageReference Include="CommunityToolkit.Uwp.Controls.Segmented" Version="8.2.250402" />
+		<PackageReference Include="CommunityToolkit.Uwp.Controls.SettingsControls" Version="8.2.250402" />
+		<PackageReference Include="CommunityToolkit.Uwp.Extensions" Version="8.2.250402" />
+		<PackageReference Include="CommunityToolkit.Uwp.Helpers" Version="8.2.250402" />
+		<PackageReference Include="CommunityToolkit.Uwp.Media" Version="8.2.250402" />
+		<PackageReference Include="CommunityToolkit.Uwp.Triggers" Version="8.2.250402" />
+
+	</ItemGroup>
+
+	<!-- Properties -->
+	<PropertyGroup>
+
+		<!-- General -->
+		<OutputType>WinExe</OutputType>
+		<AssemblyName>Rebound User Account Control Settings</AssemblyName>
+        <RootNamespace>Rebound.UserAccountControlSettings</RootNamespace>
+	    <ApplicationIcon>Assets\Admin.ico</ApplicationIcon>
+		<ApplicationManifest>app.manifest</ApplicationManifest>
+		<DefineConstants>DISABLE_XAML_GENERATED_MAIN;$(DefineConstants)</DefineConstants>
+	</PropertyGroup>
+
+	<!-- UWP Properties -->
+	<PropertyGroup>
+		<UseUwp>true</UseUwp>
+		<UseUwpTools>true</UseUwpTools>
+	</PropertyGroup>
+
+	<!-- Packaging Properties -->
+	<PropertyGroup>
+		<AppxPackageSigningEnabled>True</AppxPackageSigningEnabled>
+		<AppxPackageSigningTimestampDigestAlgorithm>SHA256</AppxPackageSigningTimestampDigestAlgorithm>
+		<AppxAutoIncrementPackageRevision>False</AppxAutoIncrementPackageRevision>
+		<AppxBundle>Always</AppxBundle>
+		<GenerateTestArtifacts>True</GenerateTestArtifacts>
+		<GenerateAppInstallerFile>True</GenerateAppInstallerFile>
+		<AppInstallerUri>D:\</AppInstallerUri>
+		<HoursBetweenUpdateChecks>0</HoursBetweenUpdateChecks>
+		<PackageCertificateKeyFile>C:\Users\zaita\source\repos\Rebound\src\Rebound.Hub_TemporaryKey.pfx</PackageCertificateKeyFile>
+		<AppxBundlePlatforms>x64</AppxBundlePlatforms>
+		<DefaultLanguage>en-US</DefaultLanguage>
+	</PropertyGroup>
+
+	<!-- Project References -->
+	<ItemGroup>
+		<ProjectReference Include="..\..\core\forge\Rebound.Forge\Rebound.Forge.csproj" />
+		<ProjectReference Include="..\..\core\generators\Rebound.Core.SourceGeneratorAttributes\Rebound.Core.SourceGeneratorAttributes.csproj" />
+		<ProjectReference Include="..\..\core\generators\Rebound.Core.SourceGenerator\Rebound.Core.SourceGenerator.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
+		<ProjectReference Include="..\..\core\Rebound.Core.IPC\Rebound.Core.IPC.csproj" />
+		<ProjectReference Include="..\..\core\Rebound.Core.Native\Rebound.Core.Native.csproj" />
+		<ProjectReference Include="..\..\core\Rebound.Core.SystemInformation\Rebound.Core.SystemInformation.csproj" />
+		<ProjectReference Include="..\..\core\Rebound.Core.UI\Rebound.Core.UI.csproj" />
+		<ProjectReference Include="..\..\core\Rebound.Core\Rebound.Core.csproj" />
+	</ItemGroup>
+
+
+	<!-- Project content -->
+	<ItemGroup>
+        <None Remove="Views\MainPage.xaml" />
+        <AdditionalFiles Include="NativeMethods.txt">
+          <Generator>MSBuild:Compile</Generator>
+        </AdditionalFiles>
+        <Content Include="NativeMethods.json" />
+		<Manifest Include="$(ApplicationManifest)" />
+		<Page Update="Views\MainPage.xaml">
+			<Generator>MSBuild:Compile</Generator>
+		</Page>
+		<Page Update="Views\MainPage.xaml">
+			<Generator>MSBuild:Compile</Generator>
+		</Page>
+	</ItemGroup>
+
+	<!-- Project references -->
+	<ItemGroup>
+	  <Content Update="Assets\ActionCenterLegacy.ico">
+	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	  </Content>
+	  <Content Update="Assets\Admin.ico">
+	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	  </Content>
+	</ItemGroup>
+
+</Project>

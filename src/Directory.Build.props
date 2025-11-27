@@ -1,0 +1,25 @@
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+
+	<!-- General project settings - These will apply to every project regardless of its type -->
+	<PropertyGroup>
+		
+		<!-- Code Analysis and Trimming -->
+		<AnalysisMode>All</AnalysisMode>
+		
+		<!-- Language and Code Configuration -->
+		<LangVersion>preview</LangVersion>
+		<Nullable>enable</Nullable>
+		<AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+
+		<!-- Runtime Identifiers and Platform Targeting -->
+		<RuntimeIdentifier>win-x64</RuntimeIdentifier>
+		<Platforms>x64</Platforms>
+
+	</PropertyGroup>
+
+	<!-- Target Platforms -->
+	<ItemGroup>
+		<AppxTargetDeviceFamilyItem Include="Windows.Desktop" />
+	</ItemGroup>
+
+</Project>

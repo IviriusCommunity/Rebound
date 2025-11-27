@@ -1,0 +1,119 @@
+﻿// Copyright (C) Ivirius(TM) Community 2020 - 2025. All Rights Reserved.
+// Licensed under the MIT License.
+
+using Rebound.Core.Helpers;
+using Rebound.Core.IPC;
+using Rebound.Core.UI;
+using Rebound.Generators;
+using Rebound.Shell.Run;
+using System;
+using System.Diagnostics;
+using System.Threading;
+using System.Threading.Tasks;
+using TerraFX.Interop.Windows;
+using Windows.UI;
+using Windows.UI.Xaml;
+using Windows.UI.Xaml.Controls;
+
+#pragma warning disable IDE0079 // Remove unnecessary suppression
+#pragma warning disable CA1515  // Consider making public types internal
+
+namespace Rebound.Shell.ExperienceHost;
+
+[ReboundApp("Rebound.ShellExperienceHost", "")]
+public partial class App : Application
+{
+    private async void OnSingleInstanceLaunched(object? sender, SingleInstanceLaunchEventArgs e)
+    {
+        if (e.IsFirstLaunch)
+        {
+            WindowList.KeepAlive = true;
+            // Run pipe server in a dedicated background thread
+            Thread pipeThread = new(async () =>
+            {
+                using var pipeServer = new PipeHost("REBOUND_SHELL", AccessLevel.Everyone);
+                pipeServer.MessageReceived += PipeServer_MessageReceived;
+
+                await pipeServer.StartAsync();
+            })
+            { IsBackground = true, Name = "ShellPipeServerThread" };
+
+            pipeThread.Start();
+        }
+        else Process.GetCurrentProcess().Kill();
+    }
+
+    private void PipeServer_MessageReceived(PipeConnection connection, string arg)
+    {
+        var parts = arg.Split("##");
+        if (parts[0] == "Shell::SpawnRunWindow")
+        {
+            var windowTitle = parts.Length > 1 ? parts[1].Trim() : "Run";
+            if (string.IsNullOrWhiteSpace(windowTitle)) windowTitle = "Run";
+            if (RunWindow is null)
+            {
+                UIThreadQueue.QueueAction(() =>
+                {
+                    ShowRunWindow(windowTitle);
+                    return Task.CompletedTask;
+                });
+            }
+            else
+            {
+                RunWindow.BringToFront();
+            }
+        }
+
+        return;
+    }
+
+    public static void ShowRunWindow(string title = "Run")
+    {
+        RunWindow = new();
+        RunWindow.AppWindowInitialized += (s, e) =>
+        {
+            RunWindow.IsPersistenceEnabled = false;
+            RunWindow.MoveAndResize(
+                25,
+                (int)(Display.GetAvailableRectForWindow(RunWindow.Handle).bottom / Display.GetScale(RunWindow.Handle)) - 265,
+                450,
+                240);
+            RunWindow.Title = title;
+            RunWindow.AppWindow?.SetIcon($"{AppContext.BaseDirectory}\\Assets\\RunBox.ico");
+            RunWindow.AppWindow?.TitleBar.ExtendsContentIntoTitleBar = true;
+            RunWindow.AppWindow?.TitleBar.ButtonBackgroundColor = Colors.Transparent;
+            RunWindow.AppWindow?.TitleBar.ButtonInactiveBackgroundColor = Colors.Transparent;
+            RunWindow.IsMaximizable = false;
+            RunWindow.IsMinimizable = false;
+            RunWindow.IsResizable = false;
+            RunWindow.OnClosing += (sender, args) =>
+            {
+                RunWindow = null;
+            };
+        };
+        RunWindow.XamlInitialized += (s, e) =>
+        {
+            var frame = new Frame();
+            frame.Navigate(typeof(RunWindow));
+            RunWindow.Content = frame;
+            (frame.Content as RunWindow).WindowTitle.Text = title;
+        };
+        RunWindow.Create();
+    }
+
+    public static void CloseRunWindow()
+    {
+        UIThreadQueue.QueueAction(() =>
+        {
+            RunWindow?.Close();
+            return Task.CompletedTask;
+        });
+    }
+
+    public static IslandsWindow? RunWindow { get; set; }
+    public static IslandsWindow? ContextMenuWindow { get; set; }
+    public static IslandsWindow? DesktopWindow { get; set; }
+    public static IslandsWindow? ShutdownDialog { get; set; }
+    public static IslandsWindow? BackgroundWindow { get; set; }
+    public static IslandsWindow? CantRunDialog { get; set; }
+}
