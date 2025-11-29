@@ -11,6 +11,7 @@ using Rebound.Forge.Cogs;
 using Rebound.Forge.Engines;
 using Rebound.Generators;
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Threading;
@@ -34,40 +35,40 @@ public partial class App : Application
             // it's required to enable SeDebugPrivilege to allow injection inside those processes.
             _ = DLLInjectionAPI.TryEnableSeDebugPrivilege(out _);
 
-            // Hook thread
-            var hookThread = new Thread(() =>
+            List<(string dllName, List<string> targetProcesses)> dllInjectionDefinitions =
+            [
+                ("Rebound.Forge.Hooks.Run.dll", ["taskmgr.exe", "procexp.exe", "explorer.exe"]),
+                ("Rebound.Forge.Hooks.ShutdownWindow.dll", ["explorer.exe"]),
+            ];
+
+            foreach (var dllInjectionDefinition in dllInjectionDefinitions)
             {
-                string reboundRunDll = $"{AppContext.BaseDirectory}\\Hooks\\Rebound.Forge.Hooks.Run.dll";
-
-                // Start the DLL injector in a separate thread
-                var monitorThread = new Thread(() =>
+                // Hook thread
+                var hookThread = new Thread(() =>
                 {
-                    var injector = new DLLInjector(reboundRunDll);
+                    string dllPath = Path.Combine(AppContext.BaseDirectory, "Hooks", dllInjectionDefinition.dllName);
+                    var monitorThread = new Thread(() =>
+                    {
+                        var injector = new DLLInjector(dllPath);
+                        injector.TargetProcesses.AddRange(dllInjectionDefinition.targetProcesses);
+                        injector.StartInjection();
+                    })
+                    {
+                        IsBackground = true,
+                        Name = $"Process Monitor for {dllInjectionDefinition.dllName}"
+                    };
+                    monitorThread.Start();
 
-                    injector.TargetProcesses.AddRange(
-                    [
-                        "explorer.exe",
-                        "taskmgr.exe",
-                        "procexp.exe"
-                    ]);
-
-                    injector.StartInjection();
+                    // Keep message loop running for hooks
+                    NativeMessageLoop();
                 })
                 {
                     IsBackground = true,
-                    Name = "Process Monitor"
+                    Name = $"DLL Injector Thread for {dllInjectionDefinition.dllName}"
                 };
-                monitorThread.Start();
-
-                // Keep message loop running for hooks
-                NativeMessageLoop();
-            })
-            {
-                IsBackground = true,
-                Name = "Hook Thread"
-            };
-            hookThread.SetApartmentState(ApartmentState.STA);
-            hookThread.Start();
+                hookThread.SetApartmentState(ApartmentState.STA);
+                hookThread.Start();
+            }
 
             // Pipe server thread
             var pipeThread = new Thread(async () =>

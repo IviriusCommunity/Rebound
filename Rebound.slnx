@@ -85,6 +85,9 @@
     <Project Path="src/core/forge/hooks/Rebound.Forge.Hooks.Run/Rebound.Forge.Hooks.Run.vcxproj" Id="27009764-e84a-40b3-932b-e6096272f365">
       <Platform Solution="*|ARM64" Project="x64" />
     </Project>
+    <Project Path="src/core/forge/hooks/Rebound.Forge.Hooks.ShutdownWindow/Rebound.Forge.Hooks.ShutdownWindow.vcxproj" Id="6b18fe88-a000-4d5d-9674-c6927847e1ae">
+      <Platform Solution="*|ARM64" Project="x64" />
+    </Project>
   </Folder>
   <Folder Name="/src/core/generators/" Id="4ec41458-d783-4ff2-b3a5-4baf78f04948">
     <Project Path="src/core/generators/Rebound.Core.SourceGenerator/Rebound.Core.SourceGenerator.csproj">

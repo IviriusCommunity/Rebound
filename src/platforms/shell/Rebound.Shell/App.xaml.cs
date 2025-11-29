@@ -63,6 +63,22 @@ public partial class App : Application
                 RunWindow.BringToFront();
             }
         }
+        if (parts[0] == "Shell::SpawnShutdownWindow")
+        {
+            var windowTitle = "Shut Down Windows";
+            if (RunWindow is null)
+            {
+                UIThreadQueue.QueueAction(() =>
+                {
+                    ShowRunWindow(windowTitle);
+                    return Task.CompletedTask;
+                });
+            }
+            else
+            {
+                RunWindow.BringToFront();
+            }
+        }
 
         return;
     }

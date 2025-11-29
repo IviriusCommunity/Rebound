@@ -14,7 +14,9 @@
 // --------------------------------------------
 // Typedefs
 // --------------------------------------------
-typedef int (WINAPI* RunFileDlg_t)(HWND, HICON, LPCWSTR, LPCWSTR, LPCWSTR, UINT);
+typedef void (WINAPI* ExitWindowsDialog_t)(HWND);
+typedef void (WINAPI* LogoffWindowsDialog_t)(HWND);
+typedef void (WINAPI* DisconnectWindowsDialog_t)(HWND);
 
 // Process name to watch for
 static const wchar_t* REBOUND_SERVICE_HOST_EXE = L"Rebound Service Host.exe";
@@ -28,8 +30,10 @@ static volatile bool g_running = true;
 // Hooks installed flag
 static volatile bool g_hooksInstalled = false;
 
-// Original function pointer
-static RunFileDlg_t g_originalRunFileDlg = nullptr;
+// Original function pointers
+static ExitWindowsDialog_t g_originalExitWindowsDialog = nullptr;
+static LogoffWindowsDialog_t g_originalLogoffWindowsDialog = nullptr;
+static DisconnectWindowsDialog_t g_originalDisconnectWindowsDialog = nullptr;
 
 // --------------------------------------------
 // Settings Helper - Simple XML parser
@@ -209,12 +213,22 @@ DWORD WINAPI MonitorInjectorThread(LPVOID lpParam) {
 
     g_running = false;
 
-    // Only disable our specific hook if it was installed
+    // Only disable our specific hooks if they were installed
     if (g_hooksInstalled) {
         HMODULE shell32 = GetModuleHandleW(L"shell32.dll");
-        if (shell32 && g_originalRunFileDlg) {
-            FARPROC target = GetProcAddress(shell32, MAKEINTRESOURCEA(61));
-            if (target) MH_DisableHook(target);
+        if (shell32) {
+            if (g_originalExitWindowsDialog) {
+                FARPROC exitTarget = GetProcAddress(shell32, MAKEINTRESOURCEA(60));
+                if (exitTarget) MH_DisableHook(exitTarget);
+            }
+            if (g_originalLogoffWindowsDialog) {
+                FARPROC logoffTarget = GetProcAddress(shell32, MAKEINTRESOURCEA(54));
+                if (logoffTarget) MH_DisableHook(logoffTarget);
+            }
+            if (g_originalDisconnectWindowsDialog) {
+                FARPROC disconnectTarget = GetProcAddress(shell32, MAKEINTRESOURCEA(254));
+                if (disconnectTarget) MH_DisableHook(disconnectTarget);
+            }
         }
     }
 
@@ -228,125 +242,197 @@ DWORD WINAPI MonitorInjectorThread(LPVOID lpParam) {
 }
 
 // --------------------------------------------
-// Hook Function
+// Hook Functions
 // --------------------------------------------
-int WINAPI RunFileDlg_Hook(HWND hwnd, HICON icon, LPCWSTR path, LPCWSTR title, LPCWSTR prompt, UINT flags)
+void WINAPI ExitWindowsDialog_Hook(HWND hwnd)
 {
-    bool hookEnabled = GetBoolSetting(L"InstallRun", L"rebound", true);
-
-    if (!hookEnabled) {
-        if (g_originalRunFileDlg)
-            return g_originalRunFileDlg(hwnd, icon, path, title, prompt, flags);
-        return 0;
-    }
-
     if (IsReboundShellRunning())
     {
-        SendMessageToApp(L"Shell::SpawnRunWindow##" + std::wstring(title ? title : L""));
-        return 0;
+        SendMessageToApp(L"Shell::SpawnShutdownWindow");
     }
     else
     {
         MessageBoxW(
             hwnd,
-            L"Rebound Shell is not currently running.\n\nThe Run dialog hook is enabled, but the Rebound Shell process could not be found.\n\nPlease start Rebound Shell or disable the Run dialog hook in settings.",
+            L"Rebound Shell is not currently running.\n\nThe Shutdown dialog hook is enabled, but the Rebound Shell process could not be found.\n\nPlease start Rebound Shell or disable the Shutdown dialog hook in settings.",
             L"Rebound Shell Not Running",
             MB_OK | MB_ICONWARNING | MB_SETFOREGROUND
         );
 
-        if (g_originalRunFileDlg)
-            return g_originalRunFileDlg(hwnd, icon, path, title, prompt, flags);
-        return 0;
+        if (g_originalExitWindowsDialog)
+            g_originalExitWindowsDialog(hwnd);
+    }
+}
+
+void WINAPI LogoffWindowsDialog_Hook(HWND hwnd)
+{
+    if (IsReboundShellRunning())
+    {
+        SendMessageToApp(L"Shell::SpawnShutdownWindow");
+    }
+    else
+    {
+        MessageBoxW(
+            hwnd,
+            L"Rebound Shell is not currently running.\n\nThe Shutdown dialog hook is enabled, but the Rebound Shell process could not be found.\n\nPlease start Rebound Shell or disable the Shutdown dialog hook in settings.",
+            L"Rebound Shell Not Running",
+            MB_OK | MB_ICONWARNING | MB_SETFOREGROUND
+        );
+
+        if (g_originalLogoffWindowsDialog)
+            g_originalLogoffWindowsDialog(hwnd);
+    }
+}
+
+void WINAPI DisconnectWindowsDialog_Hook(HWND hwnd)
+{
+    if (IsReboundShellRunning())
+    {
+        SendMessageToApp(L"Shell::SpawnShutdownWindow");
+    }
+    else
+    {
+        MessageBoxW(
+            hwnd,
+            L"Rebound Shell is not currently running.\n\nThe Shutdown dialog hook is enabled, but the Rebound Shell process could not be found.\n\nPlease start Rebound Shell or disable the Shutdown dialog hook in settings.",
+            L"Rebound Shell Not Running",
+            MB_OK | MB_ICONWARNING | MB_SETFOREGROUND
+        );
+
+        if (g_originalDisconnectWindowsDialog)
+            g_originalDisconnectWindowsDialog(hwnd);
     }
 }
 
 // --------------------------------------------
-// Install hook - with detailed logging
+// Install hooks - with detailed logging
 // --------------------------------------------
-bool InstallRunFileDlgHook() {
-    OutputDebugStringW(L"[RunHook] InstallRunFileDlgHook: enter\n");
+bool InstallShutdownDialogHooks() {
+    OutputDebugStringW(L"[ShutdownHook] InstallShutdownDialogHooks: enter\n");
 
     HMODULE shell32 = LoadLibraryW(L"shell32.dll");
     if (!shell32) {
-        OutputDebugStringW(L"[RunHook] LoadLibraryW(shell32.dll) FAILED\n");
+        OutputDebugStringW(L"[ShutdownHook] LoadLibraryW(shell32.dll) FAILED\n");
         return false;
     }
 
     wchar_t msg[256];
-    swprintf_s(msg, L"[RunHook] shell32 handle: 0x%p\n", shell32);
+    swprintf_s(msg, L"[ShutdownHook] shell32 handle: 0x%p\n", shell32);
     OutputDebugStringW(msg);
 
-    FARPROC target = GetProcAddress(shell32, MAKEINTRESOURCEA(61));
-    swprintf_s(msg, L"[RunHook] RunFileDlg (ordinal 61) address: 0x%p\n", target);
+    bool anySuccess = false;
+
+    // Hook ExitWindowsDialog (ordinal 60)
+    FARPROC exitTarget = GetProcAddress(shell32, MAKEINTRESOURCEA(60));
+    swprintf_s(msg, L"[ShutdownHook] ExitWindowsDialog (ordinal 60) address: 0x%p\n", exitTarget);
     OutputDebugStringW(msg);
 
-    if (!target) {
-        OutputDebugStringW(L"[RunHook] GetProcAddress(ordinal 61) returned NULL\n");
-        return false;
+    if (exitTarget) {
+        MH_STATUS status = MH_CreateHook(exitTarget, &ExitWindowsDialog_Hook,
+            reinterpret_cast<LPVOID*>(&g_originalExitWindowsDialog));
+
+        swprintf_s(msg, L"[ShutdownHook] MH_CreateHook(ExitWindowsDialog) status: %d\n", status);
+        OutputDebugStringW(msg);
+
+        if (status == MH_OK || status == MH_ERROR_ALREADY_CREATED) {
+            status = MH_EnableHook(exitTarget);
+            swprintf_s(msg, L"[ShutdownHook] MH_EnableHook(ExitWindowsDialog) status: %d\n", status);
+            OutputDebugStringW(msg);
+
+            if (status == MH_OK) {
+                anySuccess = true;
+            }
+        }
     }
 
-    MH_STATUS status = MH_CreateHook(target, &RunFileDlg_Hook,
-        reinterpret_cast<LPVOID*>(&g_originalRunFileDlg));
-
-    swprintf_s(msg, L"[RunHook] MH_CreateHook status: %d\n", status);
+    // Hook LogoffWindowsDialog (ordinal 54)
+    FARPROC logoffTarget = GetProcAddress(shell32, MAKEINTRESOURCEA(54));
+    swprintf_s(msg, L"[ShutdownHook] LogoffWindowsDialog (ordinal 54) address: 0x%p\n", logoffTarget);
     OutputDebugStringW(msg);
 
-    // Tolerate already-created hooks
-    if (status == MH_ERROR_ALREADY_CREATED) {
-        OutputDebugStringW(L"[RunHook] Hook already created, trying to enable\n");
-        status = MH_OK; // Treat as success, will try to enable
+    if (logoffTarget) {
+        MH_STATUS status = MH_CreateHook(logoffTarget, &LogoffWindowsDialog_Hook,
+            reinterpret_cast<LPVOID*>(&g_originalLogoffWindowsDialog));
+
+        swprintf_s(msg, L"[ShutdownHook] MH_CreateHook(LogoffWindowsDialog) status: %d\n", status);
+        OutputDebugStringW(msg);
+
+        if (status == MH_OK || status == MH_ERROR_ALREADY_CREATED) {
+            status = MH_EnableHook(logoffTarget);
+            swprintf_s(msg, L"[ShutdownHook] MH_EnableHook(LogoffWindowsDialog) status: %d\n", status);
+            OutputDebugStringW(msg);
+
+            if (status == MH_OK) {
+                anySuccess = true;
+            }
+        }
     }
 
-    if (status != MH_OK) {
-        OutputDebugStringW(L"[RunHook] MH_CreateHook FAILED\n");
-        return false;
-    }
-
-    status = MH_EnableHook(target);
-    swprintf_s(msg, L"[RunHook] MH_EnableHook status: %d\n", status);
+    // Hook DisconnectWindowsDialog (ordinal 254)
+    FARPROC disconnectTarget = GetProcAddress(shell32, MAKEINTRESOURCEA(254));
+    swprintf_s(msg, L"[ShutdownHook] DisconnectWindowsDialog (ordinal 254) address: 0x%p\n", disconnectTarget);
     OutputDebugStringW(msg);
 
-    if (status != MH_OK) {
-        OutputDebugStringW(L"[RunHook] MH_EnableHook FAILED\n");
-        return false;
+    if (disconnectTarget) {
+        MH_STATUS status = MH_CreateHook(disconnectTarget, &DisconnectWindowsDialog_Hook,
+            reinterpret_cast<LPVOID*>(&g_originalDisconnectWindowsDialog));
+
+        swprintf_s(msg, L"[ShutdownHook] MH_CreateHook(DisconnectWindowsDialog) status: %d\n", status);
+        OutputDebugStringW(msg);
+
+        if (status == MH_OK || status == MH_ERROR_ALREADY_CREATED) {
+            status = MH_EnableHook(disconnectTarget);
+            swprintf_s(msg, L"[ShutdownHook] MH_EnableHook(DisconnectWindowsDialog) status: %d\n", status);
+            OutputDebugStringW(msg);
+
+            if (status == MH_OK) {
+                anySuccess = true;
+            }
+        }
     }
 
-    OutputDebugStringW(L"[RunHook] Hook installed successfully!\n");
-    return true;
+    if (anySuccess) {
+        OutputDebugStringW(L"[ShutdownHook] At least one hook installed successfully\n");
+    }
+    else {
+        OutputDebugStringW(L"[ShutdownHook] All hooks FAILED to install\n");
+    }
+
+    return anySuccess;
 }
 
 // --------------------------------------------
 // Deferred initialization thread
 // --------------------------------------------
 DWORD WINAPI DeferredInitThread(LPVOID lpParam) {
-    OutputDebugStringW(L"[RunHook] DeferredInitThread: enter\n");
+    OutputDebugStringW(L"[ShutdownHook] DeferredInitThread: enter\n");
 
     // Allow loader lock to be released
     Sleep(300);
 
-    OutputDebugStringW(L"[RunHook] Calling MH_Initialize\n");
+    OutputDebugStringW(L"[ShutdownHook] Calling MH_Initialize\n");
 
     MH_STATUS status = MH_Initialize();
 
     wchar_t msg[256];
-    swprintf_s(msg, L"[RunHook] MH_Initialize status: %d\n", status);
+    swprintf_s(msg, L"[ShutdownHook] MH_Initialize status: %d\n", status);
     OutputDebugStringW(msg);
 
     if (status == MH_ERROR_ALREADY_INITIALIZED) {
-        OutputDebugStringW(L"[RunHook] MH_Initialize returned MH_ERROR_ALREADY_INITIALIZED, continuing\n");
+        OutputDebugStringW(L"[ShutdownHook] MH_Initialize returned MH_ERROR_ALREADY_INITIALIZED, continuing\n");
         status = MH_OK;
     }
     if (status != MH_OK) {
-        OutputDebugStringW(L"[RunHook] MH_Initialize FAILED, continuing without hooks\n");
+        OutputDebugStringW(L"[ShutdownHook] MH_Initialize FAILED, continuing without hooks\n");
         return 1;
     }
 
-    if (InstallRunFileDlgHook()) {
+    if (InstallShutdownDialogHooks()) {
         g_hooksInstalled = true;
-        OutputDebugStringW(L"[RunHook] Hook installed successfully!\n");
+        OutputDebugStringW(L"[ShutdownHook] Hooks installed successfully!\n");
     }
     else {
-        OutputDebugStringW(L"[RunHook] Hook installation FAILED, continuing without hooks\n");
+        OutputDebugStringW(L"[ShutdownHook] Hook installation FAILED, continuing without hooks\n");
     }
 
     return 0;
@@ -359,15 +445,15 @@ BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID) {
     static HANDLE g_initMutex = nullptr;
 
     if (fdwReason == DLL_PROCESS_ATTACH) {
-        OutputDebugStringW(L"[RunHook] DllMain: DLL_PROCESS_ATTACH enter\n");
+        OutputDebugStringW(L"[ShutdownHook] DllMain: DLL_PROCESS_ATTACH enter\n");
 
         DisableThreadLibraryCalls(hinstDLL);
 
         wchar_t mutexName[256];
-        swprintf_s(mutexName, L"ReboundShell_RunHook_%lu", GetCurrentProcessId());
+        swprintf_s(mutexName, L"ReboundShell_ShutdownHook_%lu", GetCurrentProcessId());
         g_initMutex = CreateMutexW(nullptr, FALSE, mutexName);
         if (GetLastError() == ERROR_ALREADY_EXISTS) {
-            OutputDebugStringW(L"[RunHook] Mutex already exists, DLL already loaded\n");
+            OutputDebugStringW(L"[ShutdownHook] Mutex already exists, DLL already loaded\n");
             if (g_initMutex) CloseHandle(g_initMutex);
             return FALSE;
         }
@@ -378,23 +464,23 @@ BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID) {
         HANDLE hInitThread = CreateThread(nullptr, 0, DeferredInitThread, nullptr, 0, nullptr);
         if (hInitThread) {
             CloseHandle(hInitThread);
-            OutputDebugStringW(L"[RunHook] Deferred init thread created\n");
+            OutputDebugStringW(L"[ShutdownHook] Deferred init thread created\n");
         }
         else {
-            OutputDebugStringW(L"[RunHook] Failed to create init thread\n");
+            OutputDebugStringW(L"[ShutdownHook] Failed to create init thread\n");
         }
 
         // Start monitor thread
         HANDLE hMonitorThread = CreateThread(nullptr, 0, MonitorInjectorThread, nullptr, 0, nullptr);
         if (hMonitorThread) {
             CloseHandle(hMonitorThread);
-            OutputDebugStringW(L"[RunHook] Monitor thread created\n");
+            OutputDebugStringW(L"[ShutdownHook] Monitor thread created\n");
         }
 
-        OutputDebugStringW(L"[RunHook] DllMain: returning TRUE\n");
+        OutputDebugStringW(L"[ShutdownHook] DllMain: returning TRUE\n");
     }
     else if (fdwReason == DLL_PROCESS_DETACH) {
-        OutputDebugStringW(L"[RunHook] DllMain: DLL_PROCESS_DETACH\n");
+        OutputDebugStringW(L"[ShutdownHook] DllMain: DLL_PROCESS_DETACH\n");
         g_running = false;
 
         HWND dialogHwnd = FindWindowW(NULL, L"Rebound Shell Not Running");
@@ -404,9 +490,19 @@ BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID) {
 
         if (g_hooksInstalled) {
             HMODULE shell32 = GetModuleHandleW(L"shell32.dll");
-            if (shell32 && g_originalRunFileDlg) {
-                FARPROC target = GetProcAddress(shell32, MAKEINTRESOURCEA(61));
-                if (target) MH_DisableHook(target);
+            if (shell32) {
+                if (g_originalExitWindowsDialog) {
+                    FARPROC exitTarget = GetProcAddress(shell32, MAKEINTRESOURCEA(60));
+                    if (exitTarget) MH_DisableHook(exitTarget);
+                }
+                if (g_originalLogoffWindowsDialog) {
+                    FARPROC logoffTarget = GetProcAddress(shell32, MAKEINTRESOURCEA(54));
+                    if (logoffTarget) MH_DisableHook(logoffTarget);
+                }
+                if (g_originalDisconnectWindowsDialog) {
+                    FARPROC disconnectTarget = GetProcAddress(shell32, MAKEINTRESOURCEA(254));
+                    if (disconnectTarget) MH_DisableHook(disconnectTarget);
+                }
             }
         }
 

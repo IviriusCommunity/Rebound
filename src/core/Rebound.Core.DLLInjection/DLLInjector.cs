@@ -37,15 +37,20 @@ public class DLLInjector
     /// calling this method.</remarks>
     public void StartInjection()
     {
+        Debug.WriteLine($"[DLLInjector] Starting injection process...");
+        Debug.WriteLine($"[DLLInjector] Target processes: {(TargetProcesses.Count > 0 ? string.Join(", ", TargetProcesses) : "ALL")}");
+
         DLLInjectionAPI.InjectIntoExistingProcesses(_dllPath, TargetProcesses);
         Task.Run(() => DLLInjectionAPI.MonitorNewProcessesLoop(_dllPath, TargetProcesses));
+
+        Debug.WriteLine($"[DLLInjector] Injection monitoring started");
     }
 }
 
 
 public static class DLLInjectionAPI
 {
-    private static readonly ConcurrentDictionary<int, byte> InjectedProcessIds = new();
+    private static ConcurrentDictionary<(int pid, string dllPath), int> InjectedProcessDlls = new();
     private static readonly SemaphoreSlim InjectionSemaphore = new(4);
     private static readonly HashSet<string> ExcludedProcesses = new(StringComparer.OrdinalIgnoreCase)
     {
@@ -66,32 +71,32 @@ public static class DLLInjectionAPI
     /// <returns>true if the SeDebugPrivilege was successfully enabled for the current process; otherwise, false.</returns>
     public static unsafe bool TryEnableSeDebugPrivilege(out string? error)
     {
+        Debug.WriteLine("[Privilege] Attempting to enable SeDebugPrivilege...");
         error = null;
         HANDLE processToken;
         LUID luid;
 
         try
         {
-            // Get current process token
             if (!TerraFX.Interop.Windows.Windows.OpenProcessToken(
-                new((void*)Process.GetCurrentProcess().Handle), // The process handle here is a memory address
-                0x0020 | 0x0008, // TOKEN_ADJUST_PRIVILEGES, TOKEN_QUERY
+                new((void*)Process.GetCurrentProcess().Handle),
+                0x0020 | 0x0008,
                 &processToken))
             {
                 error = $"OpenProcessToken failed: {Marshal.GetLastWin32Error()}";
+                Debug.WriteLine($"[Privilege] ERROR: {error}");
                 return false;
             }
 
             try
             {
-                // Lookup the LUID for SeDebugPrivilege
                 if (!TerraFX.Interop.Windows.Windows.LookupPrivilegeValue(null, SE.SE_DEBUG_NAME.ToPCWSTR().Value, &luid))
                 {
                     error = $"LookupPrivilegeValue failed: {Marshal.GetLastWin32Error()}";
+                    Debug.WriteLine($"[Privilege] ERROR: {error}");
                     return false;
                 }
 
-                // Adjust token privileges to enable SeDebugPrivilege
                 var tp = new TOKEN_PRIVILEGES
                 {
                     PrivilegeCount = 1,
@@ -105,21 +110,22 @@ public static class DLLInjectionAPI
                     }
                 };
 
-                // Enable the privilege for the current process
                 if (!TerraFX.Interop.Windows.Windows.AdjustTokenPrivileges(processToken, false, &tp, 0, null, null))
                 {
                     error = $"AdjustTokenPrivileges failed: {Marshal.GetLastWin32Error()}";
+                    Debug.WriteLine($"[Privilege] ERROR: {error}");
                     return false;
                 }
 
-                // AdjustTokenPrivileges may succeed but still set last error; check Marshal.GetLastWin32Error() == 0
                 var last = Marshal.GetLastWin32Error();
                 if (last != 0)
                 {
                     error = $"AdjustTokenPrivileges succeeded but returned last error {last}";
+                    Debug.WriteLine($"[Privilege] WARNING: {error}");
                     return false;
                 }
 
+                Debug.WriteLine("[Privilege] Successfully enabled SeDebugPrivilege");
                 return true;
             }
             finally
@@ -130,6 +136,7 @@ public static class DLLInjectionAPI
         catch (Exception ex)
         {
             error = ex.Message;
+            Debug.WriteLine($"[Privilege] EXCEPTION: {ex.Message}");
             return false;
         }
     }
@@ -150,34 +157,56 @@ public static class DLLInjectionAPI
     /// finishes, regardless of success or failure.</returns>
     public static async Task InjectIntoProcessAsync(Process proc, string dllPath, int injectTimeoutMs = 10_000)
     {
-        // If the process is null or has exited, return
-        if (proc == null) return;
+        if (proc == null)
+        {
+            Debug.WriteLine("[Inject] Process is null, skipping");
+            return;
+        }
 
-        // Get the process ID (there shouldn't be any issues regarding access here
-        // unless the process it's trying to access is running as NT AUTHORITY\SYSTEM or TI)
         int pid = proc.Id;
+        var key = (pid, dllPath);
 
         try
         {
-            // Return if the process has already been injected into
-            if (InjectedProcessIds.ContainsKey(pid)) return;
+            if (InjectedProcessDlls.ContainsKey(key))
+            {
+                Debug.WriteLine($"[Inject] PID {pid} with DLL {dllPath} already injected, skipping");
+                return;
+            }
 
-            // Make sure the process is still running and responsive
             proc.Refresh();
-            if (proc.HasExited) return;
+            if (proc.HasExited)
+            {
+                Debug.WriteLine($"[Inject] PID {pid} has exited, skipping");
+                return;
+            }
 
-            // Excluded process
-            if (ExcludedProcesses.Contains(proc.ProcessName + ".exe")) return;
+            if (ExcludedProcesses.Contains(proc.ProcessName + ".exe"))
+            {
+                Debug.WriteLine($"[Inject] PID {pid} ({proc.ProcessName}) is excluded, skipping");
+                return;
+            }
 
-            // Final checks: return if the session ID is zero or if there's not enough permissions to open the process
-            if (proc.SessionId == 0) return;
-            if (!CanOpenProcess(pid)) return;
+            if (proc.SessionId == 0)
+            {
+                Debug.WriteLine($"[Inject] PID {pid} ({proc.ProcessName}) is in session 0 (system process), skipping");
+                return;
+            }
 
-            // Reserve in-progress marker (2 == in-progress)
-            if (!InjectedProcessIds.TryAdd(pid, 2)) return;
+            if (!CanOpenProcess(pid))
+            {
+                Debug.WriteLine($"[Inject] Cannot open PID {pid} ({proc.ProcessName}), insufficient permissions");
+                return;
+            }
 
-            // Cancellation token for timeout, otherwise the thread might end up waiting forever
-            // if the process it tries to inject into is an AV or heavily protected
+            if (!InjectedProcessDlls.TryAdd(key, 2))
+            {
+                Debug.WriteLine($"[Inject] PID {pid} with DLL {dllPath} injection already in progress, skipping");
+                return;
+            }
+
+            Debug.WriteLine($"[Inject] Starting injection of DLL '{Path.GetFileName(dllPath)}' into PID {pid} ({proc.ProcessName})...");
+
             using var cts = new CancellationTokenSource(injectTimeoutMs);
             try
             {
@@ -185,20 +214,21 @@ public static class DLLInjectionAPI
             }
             catch (OperationCanceledException)
             {
-                InjectedProcessIds.TryRemove(pid, out _); Debug.WriteLine($"Timed out waiting slot for PID {pid}"); return;
+                InjectedProcessDlls.TryRemove(key, out _);
+                Debug.WriteLine($"[Inject] Timed out waiting for semaphore slot for PID {pid} with DLL '{Path.GetFileName(dllPath)}'");
+                return;
             }
 
             try
             {
-                // Check if the process is still running, for safety
                 proc.Refresh();
                 if (proc.HasExited)
                 {
-                    InjectedProcessIds.TryRemove(pid, out _);
+                    InjectedProcessDlls.TryRemove(key, out _);
+                    Debug.WriteLine($"[Inject] PID {pid} exited while waiting for semaphore");
                     return;
                 }
 
-                // 64-bit OS -> skip 32-bit processes (Rebound does not have support for x32 or ARM64)
                 if (Environment.Is64BitOperatingSystem)
                 {
                     try
@@ -206,23 +236,23 @@ public static class DLLInjectionAPI
                         BOOL isWow64 = false;
                         unsafe
                         {
-#pragma warning disable CS9123 // The '&' operator should not be used on parameters or local variables in async methods.
+#pragma warning disable CS9123
                             _ = TerraFX.Interop.Windows.Windows.IsWow64Process(new((void*)proc.Handle), &isWow64);
-#pragma warning restore CS9123 // The '&' operator should not be used on parameters or local variables in async methods.
+#pragma warning restore CS9123
                         }
                         if (isWow64)
                         {
-                            InjectedProcessIds.TryRemove(pid, out _);
+                            InjectedProcessDlls.TryRemove(key, out _);
+                            Debug.WriteLine($"[Inject] PID {pid} is 32-bit on 64-bit OS, skipping");
                             return;
                         }
                     }
                     catch (Exception ex)
                     {
-                        Debug.WriteLine($"Wow64 check warning PID {pid}: {ex.Message}");
+                        Debug.WriteLine($"[Inject] Wow64 check warning for PID {pid}: {ex.Message}");
                     }
                 }
 
-                // Start injection thread
                 var injectTask = Task.Run(() =>
                 {
                     try
@@ -231,20 +261,19 @@ public static class DLLInjectionAPI
                     }
                     catch (Exception e)
                     {
-                        Debug.WriteLine($"Injector threw PID {pid}: {e.Message}");
+                        Debug.WriteLine($"[Inject] Injector threw exception for PID {pid}: {e.Message}");
                         return false;
                     }
                 }, cts.Token);
 
-                // Wait for injection success or timeout
                 var finished = await Task.WhenAny(injectTask, Task.Delay(injectTimeoutMs, cts.Token)).ConfigureAwait(false);
                 if (finished != injectTask)
                 {
-                    InjectedProcessIds.TryRemove(pid, out _); Debug.WriteLine($"Injection timed out PID {pid}");
+                    InjectedProcessDlls.TryRemove(key, out _);
+                    Debug.WriteLine($"[Inject] Injection timed out for PID {pid} with DLL '{Path.GetFileName(dllPath)}'");
                     return;
                 }
 
-                // Get injection result
                 bool success = false;
                 try
                 {
@@ -252,19 +281,18 @@ public static class DLLInjectionAPI
                 }
                 catch (Exception e)
                 {
-                    Debug.WriteLine($"Injection fault PID {pid}: {e.Message}");
+                    Debug.WriteLine($"[Inject] Injection fault for PID {pid}: {e.Message}");
                 }
 
-                // Mark as injected or remove on failure
                 if (success)
                 {
-                    InjectedProcessIds[pid] = 0;
-                    Debug.WriteLine($"Injected PID {pid} ({proc.ProcessName})");
+                    InjectedProcessDlls[key] = 0;
+                    Debug.WriteLine($"[Inject] ✓ Successfully injected DLL '{Path.GetFileName(dllPath)}' into PID {pid} ({proc.ProcessName})");
                 }
                 else
                 {
-                    InjectedProcessIds.TryRemove(pid, out _);
-                    Debug.WriteLine($"Injection failed PID {pid}");
+                    InjectedProcessDlls.TryRemove(key, out _);
+                    Debug.WriteLine($"[Inject] ✗ Injection failed for PID {pid} ({proc.ProcessName}) with DLL '{Path.GetFileName(dllPath)}'");
                 }
             }
             finally
@@ -274,8 +302,8 @@ public static class DLLInjectionAPI
         }
         catch (Exception ex)
         {
-            Debug.WriteLine($"InjectIntoProcessAsync error PID {proc?.Id}: {ex.Message}");
-            InjectedProcessIds.TryRemove(proc?.Id ?? 0, out _);
+            Debug.WriteLine($"[Inject] InjectIntoProcessAsync error for PID {pid}: {ex.Message}");
+            InjectedProcessDlls.TryRemove(key, out _);
         }
     }
 
@@ -289,12 +317,9 @@ public static class DLLInjectionAPI
     /// <param name="dllPath">The full file path to the DLL to be injected into each process. Must refer to a valid, accessible DLL file.</param>
     public static void InjectIntoExistingProcesses(string dllPath, List<string>? targetProcesses)
     {
-        // Get every running process
         var procs = Process.GetProcesses();
-        Debug.WriteLine($"Scanning {procs.Length} processes...");
+        Debug.WriteLine($"[Scan] Scanning {procs.Length} processes...");
 
-        // Normalize targetProcesses into a HashSet for fast, case-insensitive lookups.
-        // Accept entries like "notepad" or "notepad.exe".
         HashSet<string>? normalizedTargets = null;
 
         if (targetProcesses != null && targetProcesses.Count > 0)
@@ -308,6 +333,11 @@ public static class DLLInjectionAPI
                     n = n.Substring(0, n.Length - 4);
                 normalizedTargets.Add(n);
             }
+            Debug.WriteLine($"[Scan] Targeting specific processes: {string.Join(", ", normalizedTargets)}");
+        }
+        else
+        {
+            Debug.WriteLine("[Scan] No target filter specified - will attempt injection into all eligible processes");
         }
 
         List<Process> filteredProcs;
@@ -318,7 +348,6 @@ public static class DLLInjectionAPI
             {
                 try
                 {
-                    // Process.ProcessName is the exe name without extension; compare using normalizedTargets.
                     if (normalizedTargets.Contains(proc.ProcessName ?? string.Empty))
                     {
                         filteredProcs.Add(proc);
@@ -329,24 +358,21 @@ public static class DLLInjectionAPI
                     // Ignore processes that can't be accessed
                 }
             }
-            Debug.WriteLine($"Filtered to {filteredProcs.Count} target processes.");
+            Debug.WriteLine($"[Scan] Filtered to {filteredProcs.Count} target processes");
         }
         else
         {
-            // No targets given -> inject into everything
             filteredProcs = new List<Process>(procs);
         }
 
-        // Perform injection on a separate thread per process
         foreach (var p in filteredProcs)
         {
-            // capture local var so Task.Run uses the right one
             var capture = p;
             Task.Run(() =>
                 InjectIntoProcessAsync(capture, dllPath).ContinueWith(t =>
                 {
                     if (t.Exception != null)
-                        Debug.WriteLine(t.Exception.Flatten().InnerException?.Message);
+                        Debug.WriteLine($"[Scan] Task exception: {t.Exception.Flatten().InnerException?.Message}");
                 },
                 TaskScheduler.Default));
         }
@@ -368,15 +394,15 @@ public static class DLLInjectionAPI
     /// 200 milliseconds.</param>
     public static void MonitorNewProcessesLoop(string dllPath, List<string> targetProcesses, int pollMs = 200)
     {
-        // Ensure only one monitor is running
         if (_monitorRunning)
+        {
+            Debug.WriteLine("[Monitor] Already running, skipping start.");
             return;
+        }
 
         _monitorRunning = true;
-        Debug.WriteLine("Starting Toolhelp-based process monitor...");
+        Debug.WriteLine("[Monitor] Starting Toolhelp-based process monitor...");
 
-        // Normalize targetProcesses into a HashSet for fast, case-insensitive lookups.
-        // Accept entries like "notepad" or "notepad.exe".
         HashSet<string> normalizedTargets = null;
         if (targetProcesses != null && targetProcesses.Count > 0)
         {
@@ -389,53 +415,57 @@ public static class DLLInjectionAPI
                     n = n.Substring(0, n.Length - 4);
                 normalizedTargets.Add(n);
             }
+            Debug.WriteLine($"[Monitor] Tracking targets: {string.Join(", ", normalizedTargets)}");
         }
-        // If normalizedTargets == null, treat as "inject into everything".
+        else
+        {
+            Debug.WriteLine("[Monitor] No specific target processes specified, injecting into all.");
+        }
 
-        // Keep track of seen processes to avoid re-checking them
         var seen = new HashSet<int>();
         while (true)
         {
             try
             {
-                // Get a list of all PIDs
                 var pids = EnumerateProcessIds();
+
                 foreach (var pid in pids)
                 {
-                    if (InjectedProcessIds.ContainsKey(pid))
+                    // Skip if this pid with this dllPath was already injected
+                    if (InjectedProcessDlls.ContainsKey((pid, dllPath)))
                     {
-                        seen.Add(pid); continue; // already injected
+                        seen.Add(pid);
+                        continue;
                     }
-                    if (seen.Contains(pid)) continue; // already observed previously but not injected (race)
+                    if (seen.Contains(pid))
+                        continue;
 
                     try
                     {
-                        // Try to open the process and inject into it on a separate thread
-                        // to avoid blocking the monitor loop on protected processes
                         var proc = Process.GetProcessById(pid);
                         if (proc.HasExited)
                         {
-                            seen.Add(pid); continue;
+                            Debug.WriteLine($"[Monitor] Process {pid} has exited.");
+                            seen.Add(pid);
+                            continue;
                         }
 
-                        // If a target list was provided, only inject if the process name matches.
                         if (normalizedTargets != null)
                         {
-                            // ProcessName returns the executable name without ".exe"
-                            var procName = proc.ProcessName ?? string.Empty; // safe fallback
+                            var procName = proc.ProcessName ?? string.Empty;
                             if (!normalizedTargets.Contains(procName))
                             {
-                                // Not a target — skip injection but mark as seen
                                 seen.Add(pid);
                                 continue;
                             }
                         }
 
+                        Debug.WriteLine($"[Monitor] Attempting injection of DLL '{Path.GetFileName(dllPath)}' into process {pid} ({proc.ProcessName})...");
                         Task.Run(() => InjectIntoProcessAsync(proc, dllPath));
                     }
-                    catch
+                    catch (Exception ex)
                     {
-                        /* Process vanished or cannot be opened; we'll never know why */
+                        Debug.WriteLine($"[Monitor] Exception handling process {pid}: {ex.Message}");
                     }
                     finally
                     {
@@ -443,29 +473,30 @@ public static class DLLInjectionAPI
                     }
                 }
 
-                // Cleanup seen/InjectedProcessIds for dead processes to allow
-                // injecting back into these PIDs on the very rare occasion that two PIDs will ever be the same
-                var toRemove = new List<int>();
-                foreach (var kvp in InjectedProcessIds)
+                // Cleanup dead process+DLL injection entries
+                var toRemove = new List<(int pid, string dll)>();
+                foreach (var kvp in InjectedProcessDlls)
                 {
-                    int pid = kvp.Key;
+                    int pid = kvp.Key.pid;
                     try
                     {
-                        var p = Process.GetProcessById(pid); if (p.HasExited) toRemove.Add(pid);
+                        var p = Process.GetProcessById(pid);
+                        if (p.HasExited) toRemove.Add(kvp.Key);
                     }
                     catch
                     {
-                        toRemove.Add(pid);
+                        toRemove.Add(kvp.Key);
                     }
                 }
-                foreach (var pid in toRemove)
+                foreach (var key in toRemove)
                 {
-                    InjectedProcessIds.TryRemove(pid, out _);
+                    Debug.WriteLine($"[Monitor] Cleaning up dead injected PID+DLL: {key.pid} + {Path.GetFileName(key.dll)}");
+                    InjectedProcessDlls.TryRemove(key, out _);
                 }
             }
             catch (Exception ex)
             {
-                Debug.WriteLine($"Monitor loop error: {ex.Message}");
+                Debug.WriteLine($"[Monitor] Monitor loop error: {ex.Message}");
             }
             Thread.Sleep(pollMs);
         }
@@ -485,12 +516,12 @@ public static class DLLInjectionAPI
         HANDLE snap = HANDLE.NULL;
         try
         {
-            // Create snapshot of all processes
             snap = TerraFX.Interop.Windows.Windows.CreateToolhelp32Snapshot(0x00000002, 0); // TH32CS_SNAPPROCESS
 
-            // Return if snapshot handle is invalid
             if (snap == IntPtr.Zero || snap == new IntPtr(-1))
+            {
                 return ret;
+            }
 
             var pe = new PROCESSENTRY32W
             {
@@ -498,18 +529,25 @@ public static class DLLInjectionAPI
             };
 
             if (!TerraFX.Interop.Windows.Windows.Process32FirstW(snap, &pe))
+            {
                 return ret;
+            }
 
-            // Iterate through processes
             do
             {
                 ret.Add((int)pe.th32ProcessID);
             }
             while (TerraFX.Interop.Windows.Windows.Process32NextW(snap, &pe));
         }
+        catch (Exception ex)
+        {
+        }
         finally
         {
-            if (snap != HANDLE.NULL && snap != HANDLE.INVALID_VALUE) _ = TerraFX.Interop.Windows.Windows.CloseHandle(snap);
+            if (snap != HANDLE.NULL && snap != HANDLE.INVALID_VALUE)
+            {
+                _ = TerraFX.Interop.Windows.Windows.CloseHandle(snap);
+            }
         }
         return ret;
     }
@@ -526,9 +564,14 @@ public static class DLLInjectionAPI
     /// langword="false"/>.</returns>
     public static bool CanOpenProcess(int pid)
     {
-        var hProcess = TerraFX.Interop.Windows.Windows.OpenProcess(PROCESS_ALL_ACCESS, bInheritHandle: false, dwProcessId: (uint)pid);
-        if (hProcess == IntPtr.Zero) return false;
-        _ = TerraFX.Interop.Windows.Windows.CloseHandle(hProcess);
+        var hProcess = TerraFX.Interop.Windows.Windows.OpenProcess(PROCESS_ALL_ACCESS, false, (uint)pid);
+        if (hProcess == IntPtr.Zero)
+        {
+            Debug.WriteLine($"[CanOpenProcess] Cannot open process {pid}.");
+            return false;
+        }
+        TerraFX.Interop.Windows.Windows.CloseHandle(hProcess);
+        Debug.WriteLine($"[CanOpenProcess] Can open process {pid}.");
         return true;
     }
 
@@ -552,43 +595,34 @@ public static class DLLInjectionAPI
     /// <returns>true if the DLL was successfully injected into the target process; otherwise, false.</returns>
     public static unsafe bool Inject(uint pid, string dllPath, uint waitTimeoutMs = 10_000)
     {
-        // Variables
+        Debug.WriteLine($"[Inject] Starting injection into PID {pid} with DLL '{dllPath}'");
         HANDLE hProcess = HANDLE.NULL;
         void* allocMem = null;
         HANDLE hThread = HANDLE.NULL;
-        HANDLE procNamePtr = HANDLE.NULL;
 
         try
         {
             try
             {
-                // Get process from PID
                 var proc = Process.GetProcessById((int)pid);
 
-                // Check if process is 32-bit or 64-bit
                 BOOL isWow64 = false;
                 TerraFX.Interop.Windows.Windows.IsWow64Process(new((void*)proc.Handle), &isWow64);
 
-                // Check DLL architecture
                 if (File.Exists(dllPath))
                 {
-                    // Create file stream to read DLL headers
                     using var fs = new FileStream(dllPath, FileMode.Open, FileAccess.Read);
                     using var reader = new BinaryReader(fs);
 
-                    // Read DOS header
                     fs.Seek(0x3C, SeekOrigin.Begin);
                     int peHeaderOffset = reader.ReadInt32();
 
-                    // Read PE signature
                     fs.Seek(peHeaderOffset, SeekOrigin.Begin);
                     uint peSignature = reader.ReadUInt32();
 
                     if (peSignature == 0x00004550) // "PE\0\0"
                     {
                         ushort machine = reader.ReadUInt16();
-
-                        // This will be needed for ARM64 support later
                         string architecture = machine switch
                         {
                             0x014c => "x86 (32-bit)",
@@ -596,120 +630,88 @@ public static class DLLInjectionAPI
                             0xAA64 => "ARM64",
                             _ => $"Unknown (0x{machine:X4})"
                         };
+                        Debug.WriteLine($"[Inject] DLL architecture: {architecture}, Target isWow64: {isWow64}");
 
-                        // Check for mismatch
                         if ((machine == 0x014c && !isWow64) || (machine == 0x8664 && isWow64))
                         {
-                            // 32-bit, can't inject
+                            Debug.WriteLine("[Inject] Architecture mismatch, cannot inject.");
                             return false;
                         }
                     }
                 }
             }
-            catch
+            catch (Exception ex)
             {
-
+                Debug.WriteLine($"[Inject] Exception checking architecture: {ex.Message}");
             }
 
-            // Step 1: Open the target process
-            hProcess = TerraFX.Interop.Windows.Windows.OpenProcess(
-                dwDesiredAccess: PROCESS_ALL_ACCESS,
-                bInheritHandle: false,
-                dwProcessId: pid);
+            hProcess = TerraFX.Interop.Windows.Windows.OpenProcess(PROCESS_ALL_ACCESS, false, pid);
 
-            // Check handle validity
             if (hProcess == IntPtr.Zero)
             {
+                Debug.WriteLine($"[Inject] Failed to open process {pid}.");
                 return false;
             }
 
-            // Step 2: Allocate memory in target process
             var dllPathBytes = System.Text.Encoding.Unicode.GetBytes(dllPath + "\0");
-            allocMem = TerraFX.Interop.Windows.Windows.VirtualAllocEx(
-                hProcess,
-                lpAddress: null,
-                dwSize: (uint)dllPathBytes.Length,
-                flAllocationType: MEM_COMMIT | MEM_RESERVE,
-                flProtect: PAGE_READWRITE);
+            allocMem = TerraFX.Interop.Windows.Windows.VirtualAllocEx(hProcess, null, (uint)dllPathBytes.Length, MEM_COMMIT | MEM_RESERVE, PAGE_READWRITE);
 
             if ((nint)allocMem == IntPtr.Zero)
             {
-                int error = Marshal.GetLastWin32Error();
+                Debug.WriteLine($"[Inject] VirtualAllocEx failed for process {pid}.");
                 TerraFX.Interop.Windows.Windows.CloseHandle(hProcess);
                 return false;
             }
 
-            // Step 3: Write DLL path to allocated memory
             bool writeSuccess;
             fixed (byte* pBytes = dllPathBytes)
             {
-                writeSuccess = TerraFX.Interop.Windows.Windows.WriteProcessMemory(
-                    hProcess,
-                    lpBaseAddress: allocMem,
-                    lpBuffer: pBytes,
-                    nSize: (uint)dllPathBytes.Length,
-                    lpNumberOfBytesWritten: null);
+                writeSuccess = TerraFX.Interop.Windows.Windows.WriteProcessMemory(hProcess, allocMem, pBytes, (uint)dllPathBytes.Length, null);
             }
 
             if (!writeSuccess)
             {
-                int error = Marshal.GetLastWin32Error();
+                Debug.WriteLine($"[Inject] WriteProcessMemory failed for process {pid}.");
                 TerraFX.Interop.Windows.Windows.VirtualFreeEx(hProcess, allocMem, 0, MEM_RELEASE);
                 TerraFX.Interop.Windows.Windows.CloseHandle(hProcess);
                 return false;
             }
 
-            // Step 4: Get LoadLibraryW address
             var hKernel32 = TerraFX.Interop.Windows.Windows.GetModuleHandleW("kernel32.dll".ToPCWSTR().Value);
             if (hKernel32 == IntPtr.Zero)
             {
-                int error = Marshal.GetLastWin32Error();
+                Debug.WriteLine("[Inject] GetModuleHandleW failed for kernel32.dll.");
                 TerraFX.Interop.Windows.Windows.VirtualFreeEx(hProcess, allocMem, 0, MEM_RELEASE);
                 TerraFX.Interop.Windows.Windows.CloseHandle(hProcess);
                 return false;
             }
 
-            procNamePtr = new(Marshal.StringToHGlobalAnsi("LoadLibraryW").ToPointer());
-            var loadLibraryAddr = TerraFX.Interop.Windows.Windows.GetProcAddress(
-                hKernel32,
-                (sbyte*)procNamePtr);
+            var loadLibraryAddr = TerraFX.Interop.Windows.Windows.GetProcAddress(hKernel32, (sbyte*)Marshal.StringToHGlobalAnsi("LoadLibraryW").ToPointer());
 
             if (loadLibraryAddr == null)
             {
-                int error = Marshal.GetLastWin32Error();
-                Marshal.FreeHGlobal(procNamePtr);
+                Debug.WriteLine("[Inject] GetProcAddress failed for LoadLibraryW.");
                 TerraFX.Interop.Windows.Windows.VirtualFreeEx(hProcess, allocMem, 0, MEM_RELEASE);
                 TerraFX.Interop.Windows.Windows.CloseHandle(hProcess);
                 return false;
             }
 
-            Marshal.FreeHGlobal(procNamePtr);
-            procNamePtr = HANDLE.NULL;
-
-            // Step 5: Create remote thread
             var loadLibraryFunc = (delegate* unmanaged<void*, uint>)loadLibraryAddr;
-            hThread = TerraFX.Interop.Windows.Windows.CreateRemoteThread(
-                hProcess,
-                null,
-                0,
-                loadLibraryFunc,
-                allocMem,
-                0,
-                null);
+            hThread = TerraFX.Interop.Windows.Windows.CreateRemoteThread(hProcess, null, 0, loadLibraryFunc, allocMem, 0, null);
 
             if (hThread == IntPtr.Zero)
             {
-                int error = Marshal.GetLastWin32Error();
+                Debug.WriteLine($"[Inject] CreateRemoteThread failed for process {pid}.");
                 TerraFX.Interop.Windows.Windows.VirtualFreeEx(hProcess, allocMem, 0, MEM_RELEASE);
                 TerraFX.Interop.Windows.Windows.CloseHandle(hProcess);
                 return false;
             }
 
-            // Step 6: Wait for thread completion
             uint waitResult = TerraFX.Interop.Windows.Windows.WaitForSingleObject(hThread, waitTimeoutMs);
 
             if (waitResult == WAIT.WAIT_TIMEOUT)
             {
+                Debug.WriteLine($"[Inject] WaitForSingleObject timed out for process {pid}.");
                 TerraFX.Interop.Windows.Windows.VirtualFreeEx(hProcess, allocMem, 0, MEM_RELEASE);
                 TerraFX.Interop.Windows.Windows.CloseHandle(hThread);
                 TerraFX.Interop.Windows.Windows.CloseHandle(hProcess);
@@ -717,67 +719,46 @@ public static class DLLInjectionAPI
             }
             else if (waitResult != WAIT.WAIT_OBJECT_0)
             {
-                int error = Marshal.GetLastWin32Error();
+                Debug.WriteLine($"[Inject] WaitForSingleObject returned unexpected code {waitResult} for process {pid}.");
                 TerraFX.Interop.Windows.Windows.VirtualFreeEx(hProcess, allocMem, 0, MEM_RELEASE);
                 TerraFX.Interop.Windows.Windows.CloseHandle(hThread);
                 TerraFX.Interop.Windows.Windows.CloseHandle(hProcess);
                 return false;
             }
 
-            // Step 7: Check exit code with enhanced diagnostics
             uint exitCode;
             bool getExitSuccess = TerraFX.Interop.Windows.Windows.GetExitCodeThread(hThread, &exitCode);
 
             if (!getExitSuccess)
             {
-                int error = Marshal.GetLastWin32Error();
+                Debug.WriteLine($"[Inject] GetExitCodeThread failed for process {pid}.");
                 TerraFX.Interop.Windows.Windows.VirtualFreeEx(hProcess, allocMem, 0, MEM_RELEASE);
                 TerraFX.Interop.Windows.Windows.CloseHandle(hThread);
                 TerraFX.Interop.Windows.Windows.CloseHandle(hProcess);
                 return false;
             }
 
-            // Error check for logging (needs implementation)
-            if (exitCode is 0)
+            Debug.WriteLine($"[Inject] Remote thread exit code: {exitCode}");
+
+            if (exitCode == 0)
             {
-                // Try to get the actual error from the target process
-                // Use GetLastError via remote thread (advanced diagnostic)
-                var getLastErrorAddr = TerraFX.Interop.Windows.Windows.GetProcAddress(
-                    hKernel32,
-                    (sbyte*)Marshal.StringToHGlobalAnsi("GetLastError"));
-
-                if (getLastErrorAddr != null)
-                {
-                    var getLastErrorFunc = (delegate* unmanaged<void*, uint>)getLastErrorAddr;
-                    var errorThread = TerraFX.Interop.Windows.Windows.CreateRemoteThread(
-                        hProcess, null, 0, getLastErrorFunc, null, 0, null);
-
-                    if (errorThread != IntPtr.Zero)
-                    {
-                        _ = TerraFX.Interop.Windows.Windows.WaitForSingleObject(errorThread, 1000);
-                        uint remoteError = 0;
-                        TerraFX.Interop.Windows.Windows.GetExitCodeThread(errorThread, &remoteError);
-                        TerraFX.Interop.Windows.Windows.CloseHandle(errorThread);
-                    }
-                }
-
+                Debug.WriteLine("[Inject] Remote thread exit code 0 indicates LoadLibraryW failed.");
                 TerraFX.Interop.Windows.Windows.VirtualFreeEx(hProcess, allocMem, 0, MEM_RELEASE);
                 TerraFX.Interop.Windows.Windows.CloseHandle(hThread);
                 TerraFX.Interop.Windows.Windows.CloseHandle(hProcess);
                 return false;
             }
 
-            // Cleanup
             TerraFX.Interop.Windows.Windows.VirtualFreeEx(hProcess, allocMem, 0, MEM_RELEASE);
             TerraFX.Interop.Windows.Windows.CloseHandle(hThread);
             TerraFX.Interop.Windows.Windows.CloseHandle(hProcess);
 
+            Debug.WriteLine($"[Inject] Successfully injected DLL into process {pid}.");
             return true;
         }
-        catch
+        catch (Exception ex)
         {
-            if (procNamePtr != IntPtr.Zero)
-                Marshal.FreeHGlobal(procNamePtr);
+            Debug.WriteLine($"[Inject] Exception during injection: {ex.Message}");
             if (allocMem != null && hProcess != IntPtr.Zero)
                 TerraFX.Interop.Windows.Windows.VirtualFreeEx(hProcess, allocMem, 0, MEM_RELEASE);
             if (hThread != IntPtr.Zero)
