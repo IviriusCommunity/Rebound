@@ -109,7 +109,7 @@ public partial class App : Application
         }
         if (parts[0] == "Shell::SpawnShutdownWindow")
         {
-            if (RunWindow is null)
+            if (ShutdownWindow is null)
             {
                 UIThreadQueue.QueueAction(() =>
                 {
@@ -119,7 +119,7 @@ public partial class App : Application
             }
             else
             {
-                RunWindow.BringToFront();
+                ShutdownWindow.BringToFront();
             }
         }
 
