@@ -342,15 +342,12 @@ public partial class IslandsWindow : ObservableObject, IDisposable
     // Native handles
     private GCHandle _thisHandle;
     private HWND _xamlHwnd;
-    private HWND _coreHwnd;
 
     // UWP
     private DesktopWindowXamlSource? _desktopWindowXamlSource;
-    private CoreWindow? _coreWindow;
 
     // WinRT
     private ComPtr<IDesktopWindowXamlSourceNative2> _nativeSource;
-    private ComPtr<ICoreWindowInterop> _coreWindowInterop;
 
     /// <summary>
     /// Indicates if the window has been closed. Use this property to check if the window is still open in case
@@ -579,15 +576,14 @@ public partial class IslandsWindow : ObservableObject, IDisposable
         SetWindowPos(_xamlHwnd, HWND.NULL, 0, 0, clientWidth, clientHeight, SWP_SHOWWINDOW | SWP_NOACTIVATE | SWP_NOZORDER);
 
         // Obtain the CoreWindow for the XAML island
-        _coreWindow = CoreWindow.GetForCurrentThread();
-        var coreRaw = ((IUnknown*)((IWinRTObject)_coreWindow).NativeObject.ThisPtr);
-        ThrowIfFailed(coreRaw->QueryInterface(__uuidof<ICoreWindowInterop>(), (void**)_coreWindowInterop.GetAddressOf()));
-        ThrowIfFailed(_coreWindowInterop.Get()->get_WindowHandle((HWND*)Unsafe.AsPointer(ref _coreHwnd)));
+        //_coreWindow = CoreWindow.GetForCurrentThread();
+        //var coreRaw = ((IUnknown*)((IWinRTObject)_coreWindow).NativeObject.ThisPtr);
+        //ThrowIfFailed(coreRaw->QueryInterface(__uuidof<ICoreWindowInterop>(), (void**)_coreWindowInterop.GetAddressOf()));
+        //ThrowIfFailed(_coreWindowInterop.Get()->get_WindowHandle((HWND*)Unsafe.AsPointer(ref _coreHwnd)));
 
         // Trigger the XamlInitialized event and set the synchronization context
         _xamlInitialized = true;
         XamlInitialized?.Invoke(this, new XamlInitializedEventArgs());
-        SynchronizationContext.SetSynchronizationContext(new DispatcherQueueSynchronizationContext(DispatcherQueue.GetForCurrentThread()));
 
         // Theme stuff for dark mode support on the window itself
         using var themeListener = new ThemeListener();
@@ -658,11 +654,11 @@ public partial class IslandsWindow : ObservableObject, IDisposable
 
         _nativeSource.Dispose();
         _nativeSource = default;
-        _coreWindowInterop.Dispose();
-        _coreWindowInterop = default;
+        //_coreWindowInterop.Dispose();
+        //_coreWindowInterop = default;
 
         _desktopWindowXamlSource?.Dispose();
-        _coreWindow = null;
+        //_coreWindow = null;
 
         AppWindow?.Destroy();
         AppWindow = null;
@@ -1072,9 +1068,9 @@ public partial class IslandsWindow : ObservableObject, IDisposable
                 SWP_SHOWWINDOW | SWP_NOACTIVATE | SWP_NOZORDER);
         }
 
-        if (_coreHwnd != default)
+        if (CoreWindowPriv._coreHwnd != default)
         {
-            SendMessageW(_coreHwnd, WM_SIZE, (WPARAM)physicalWidth, (LPARAM)physicalHeight);
+            SendMessageW(CoreWindowPriv._coreHwnd, WM_SIZE, (WPARAM)physicalWidth, (LPARAM)physicalHeight);
         }
 
         if (AppWindow != null && !_isInitializing)
@@ -1213,8 +1209,8 @@ public partial class IslandsWindow : ObservableObject, IDisposable
 
     internal void ProcessCoreWindowMessage(uint message, WPARAM wParam, LPARAM lParam)
     {
-        if (_coreHwnd != default)
-            SendMessageW(_coreHwnd, message, wParam, lParam);
+        if (CoreWindowPriv._coreHwnd != default)
+            SendMessageW(CoreWindowPriv._coreHwnd, message, wParam, lParam);
     }
 
     internal void OnSetFocus()

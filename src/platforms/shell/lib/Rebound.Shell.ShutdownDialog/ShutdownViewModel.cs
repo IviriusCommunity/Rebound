@@ -1,44 +1,42 @@
-﻿using System;
-using System.Linq;
-using System.Runtime.InteropServices;
+﻿// Copyright (C) Ivirius(TM) Community 2020 - 2025. All Rights Reserved.
+// Licensed under the MIT License.
+
 using CommunityToolkit.Mvvm.ComponentModel;
-using Microsoft.Win32;
-using Rebound.Core.Helpers;
+using Rebound.Core;
+using Rebound.Core.SystemInformation.Software;
+using Rebound.Core.UI;
 
 namespace Rebound.Shell.ShutdownDialog
 {
     public partial class ShutdownViewModel : ObservableObject
     {
         [ObservableProperty]
-        public partial string WindowsVersionTitle { get; set; } = GetProductName();
+        public partial string WindowsVersionTitle { get; set; } = WindowsInformation.GetOSName();
 
         [ObservableProperty]
-        public partial string WindowsVersionName { get; set; } = GetProductName().Contains("10") ? "Windows 10" : "Windows 11";
+        public partial string WindowsVersionName { get; set; } = WindowsInformation.GetOSDisplayName();
 
         [ObservableProperty]
         public partial bool ShowBlurAndGlow { get; set; }
 
+        private readonly SettingsListener _listener;
+
         public ShutdownViewModel()
         {
-            ShowBlurAndGlow = SettingsHelper.GetValue("ShowBlurAndGlow", "rebound", true);
+            UpdateSettings();
+            _listener = new SettingsListener();
+            _listener.SettingChanged += Listener_SettingChanged;
         }
 
-        private static string GetProductName()
+
+        private void Listener_SettingChanged(object? sender, SettingChangedEventArgs e) => UpdateSettings();
+
+        private void UpdateSettings()
         {
-            // Open the registry key
-            using var key = Registry.LocalMachine.OpenSubKey(@"SOFTWARE\Microsoft\Windows NT\CurrentVersion");
-            if (key != null)
+            UIThreadQueue.QueueAction(async () =>
             {
-                // Retrieve build number and revision
-                var productName = key.GetValue("ProductName", "Unknown") as string;
-                var buildNumber = key.GetValue("CurrentBuildNumber", "Unknown") as string;
-                if (int.Parse(buildNumber ?? "") >= 22000)
-                {
-                    return productName.Replace("10", "11");
-                }
-                return productName;
-            }
-            return "Unknown";
+                ShowBlurAndGlow = SettingsManager.GetValue("ShowBlurAndGlow", "rebound", true);
+            });
         }
     }
 }

@@ -13,14 +13,12 @@ namespace Rebound.Shell.ShutdownDialog;
 
 public sealed partial class ShutdownDialog : Page
 {
-    private readonly Action? onClosedCallback;
-
     private ShutdownViewModel ViewModel { get; set; }
 
     bool isServer;
 
-    [DllImport("ntdll.dll", SetLastError = true)]
-    private static extern int RtlGetVersion(ref OSVERSIONINFOEX lpVersionInformation);
+    [DllImport("ntdll.dll")]
+    private static extern unsafe int RtlGetVersion(OSVERSIONINFOEX* lpVersionInformation);
 
     [StructLayout(LayoutKind.Sequential)]
     public struct OSVERSIONINFOEX
@@ -39,53 +37,50 @@ public sealed partial class ShutdownDialog : Page
         public byte wReserved;
     }
 
-    public ShutdownDialog(Action? onClosed = null)
+    public ShutdownDialog()
     {
         ViewModel = new();
-        onClosedCallback = onClosed;
         OSVERSIONINFOEX ver = new();
-        _ = RtlGetVersion(ref ver);
-        //this.SetWindowSize(512, ver.wProductType == 3 ? 512 : 360);
+        unsafe
+        {
+            _ = RtlGetVersion(&ver);
+        }
         isServer = ver.wProductType == 3;
         InitializeComponent();
-        /*this.SetWindowIcon($"{AppContext.BaseDirectory}\\Assets\\Shutdown.ico");
-        this.TurnOffDoubleClick();
-        this.CenterOnScreen();
-        ExtendsContentIntoTitleBar = true;*/
     }
 
     [RelayCommand]
     public void Cancel()
     {
-        //Close();
+        App.ShutdownWindow?.Close();
     }
 
     [RelayCommand]
     public void RestartToUEFI()
     {
-        //App.ReboundPipeClient.SendMessageAsync("Shell::RestartToUEFI");
-        //Close();
+        App.ReboundPipeClient.SendAsync("Shell::RestartToUEFI");
+        App.ShutdownWindow?.Close();
     }
 
     [RelayCommand]
     public void RestartToRecovery()
     {
-        //App.ReboundPipeClient.SendMessageAsync("Shell::RestartToRecovery");
-        //Close();
+        App.ReboundPipeClient.SendAsync("Shell::RestartToRecovery");
+        App.ShutdownWindow?.Close();
     }
 
     [RelayCommand]
     public void Shutdown()
     {
-        //App.ReboundPipeClient.SendMessageAsync(isServer ? $"Shell::ShutdownServer#{OperationReason.SelectedIndex}{OperationMode.SelectedIndex}" : "Shell::Shutdown");
-        //Close();
+        App.ReboundPipeClient.SendAsync(isServer ? $"Shell::ShutdownServer#{OperationReason.SelectedIndex}{OperationMode.SelectedIndex}" : "Shell::Shutdown");
+        App.ShutdownWindow?.Close();
     }
 
     [RelayCommand]
     public void Restart()
     {
-        //App.ReboundPipeClient.SendMessageAsync("Shell::Restart");
-        //Close();
+        App.ReboundPipeClient.SendAsync("Shell::Restart");
+        App.ShutdownWindow?.Close();
     }
 
     [RelayCommand]
@@ -94,7 +89,7 @@ public sealed partial class ShutdownDialog : Page
         try
         {
             PInvoke.SetSuspendState(false, false, false);
-            //Close();
+            App.ShutdownWindow?.Close();
         }
         catch
         {
@@ -112,7 +107,7 @@ public sealed partial class ShutdownDialog : Page
                 FileName = "tsdiscon.exe",
                 UseShellExecute = true
             });
-            //Close();
+            App.ShutdownWindow?.Close();
         }
         catch
         {
@@ -131,7 +126,7 @@ public sealed partial class ShutdownDialog : Page
                 Arguments = "user32.dll,LockWorkStation",
                 UseShellExecute = true
             });
-            //Close();
+            App.ShutdownWindow?.Close();
         }
         catch
         {
@@ -145,7 +140,7 @@ public sealed partial class ShutdownDialog : Page
         try
         {
             PInvoke.SetSuspendState(true, false, false);
-            //Close();
+            App.ShutdownWindow?.Close();
         }
         catch
         {

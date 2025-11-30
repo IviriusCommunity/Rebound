@@ -43,7 +43,7 @@
     </Project>
     <Project Path="src/apps/Rebound.UserAccountControlSettings/Rebound.UserAccountControlSettings.csproj">
       <Platform Project="x64" />
-      <Deploy Solution="Debug|x64" />
+      <Deploy Solution="*|x64" />
     </Project>
   </Folder>
   <Folder Name="/src/core/" Id="fb5d6fae-fad5-4679-aec2-b8fb3878993e">

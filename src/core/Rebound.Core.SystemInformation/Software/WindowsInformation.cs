@@ -193,7 +193,24 @@ public static class WindowsInformation
         var driveLetter = Path.GetPathRoot(systemPath);
         return driveLetter ??= "C:\\";
     }
-    
+
+    /// <summary>
+    /// Gets the display name of the current Windows installation.
+    /// </summary>
+    /// <returns>Windows 10, Windows 11, or Windows Server.</returns>
+    public static string GetOSDisplayName()
+    {
+        return GetOSName().Contains("10", StringComparison.InvariantCultureIgnoreCase) ?
+            "Windows 10" :
+            GetOSName().Contains("Server", StringComparison.InvariantCultureIgnoreCase) ?
+            "Windows Server" :
+            "Windows 11";
+    }
+
+    /// <summary>
+    /// Gets the official name of the current Windows operating system.
+    /// </summary>
+    /// <returns>Windows 10 Home, Windows 11 Pro, etc.</returns>
     public static string GetOSName()
     {
         string regPath = $@"SOFTWARE\Microsoft\Windows NT\CurrentVersion";
@@ -227,6 +244,10 @@ public static class WindowsInformation
         return "UnknownLicenseHolders";
     }
 
+    /// <summary>
+    /// Gets the current Windows display version.
+    /// </summary>
+    /// <returns>24H2, 25H2, etc.</returns>
     public static string GetDisplayVersion()
     {
         // Open the registry key
