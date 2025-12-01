@@ -94,8 +94,12 @@
                 <Button
                     Width="120"
                     Command="{x:Bind ApplyCommand}"
-                    Content="Apply"
-                    Style="{StaticResource AccentButtonStyle}" />
+                    Style="{StaticResource AccentButtonStyle}">
+                    <StackPanel Orientation="Horizontal" Spacing="8">
+                        <FontIcon FontSize="16" Glyph="&#xEA18;" />
+                        <TextBlock Text="Apply" />
+                    </StackPanel>
+                </Button>
                 <Button
                     Width="120"
                     Command="{x:Bind CloseCommand}"

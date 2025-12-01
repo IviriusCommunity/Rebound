@@ -193,16 +193,16 @@ public partial class Catalog : ObservableObject
                 PreferredInstallationTemplate = InstallationTemplate.Extras,
                 Cogs =
                 [
+                    new IFEOCog()
+                    {
+                        OriginalExecutableName = "charmap.exe",
+                        LauncherPath = Variables.ReboundLauncherPath
+                    },
                     new StorePackageCog()
                     {
                         StoreProductId = "9WZDNCRDXF41",
                         PackageFamilyName = "58027.265370AB8DB33_fjemmk5ta3a5g"
                     },
-                    new IFEOCog()
-                    {
-                        OriginalExecutableName = "charmap.exe",
-                        LauncherPath = Variables.ReboundLauncherPath
-                    }
                 ],
                 Settings =
                 [

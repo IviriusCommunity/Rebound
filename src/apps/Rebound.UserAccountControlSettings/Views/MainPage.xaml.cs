@@ -17,7 +17,7 @@ internal sealed partial class MainPage : Page
     }
 
     [RelayCommand]
-    public static void Close() => App.MainAppWindow?.Close();
+    public static void Close() => App.MainWindow?.Close();
 
     [RelayCommand]
     public void Apply()
@@ -57,7 +57,7 @@ internal sealed partial class MainPage : Page
         try
         {
             MainViewModel.RunPowerShellCommand(command);
-            App.MainAppWindow?.Close();
+            App.MainWindow?.Close();
         }
         catch
         {

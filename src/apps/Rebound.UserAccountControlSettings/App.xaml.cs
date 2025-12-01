@@ -2,11 +2,13 @@
 // Licensed under the MIT License.
 
 using Microsoft.UI.Windowing;
+using Rebound.Core;
 using Rebound.Core.IPC;
 using Rebound.Core.UI;
 using Rebound.Generators;
 using System;
 using System.Diagnostics;
+using System.Threading;
 using System.Threading.Tasks;
 using Windows.UI;
 using Windows.UI.Xaml;
@@ -21,68 +23,130 @@ public partial class App : Application
 
     private async void OnSingleInstanceLaunched(object? sender, SingleInstanceLaunchEventArgs e)
     {
-        if (e.IsFirstLaunch)
+        try
         {
-            ReboundPipeClient = new();
-            await ReboundPipeClient.ConnectAsync().ConfigureAwait(false);
-        }
+            if (e.IsFirstLaunch)
+            {
+                UIThreadQueue.QueueAction(async () =>
+                {
+                    // Spawn or activate the main window immediately
+                    if (MainWindow != null)
+                        MainWindow.BringToFront();
+                    else
+                        CreateMainWindow();
+                });
 
-        if (!string.IsNullOrWhiteSpace(e.Arguments) || e.Arguments.Trim() == "legacy")
-        {
-            await ReboundPipeClient.SendAsync("IFEOEngine::Pause#useraccountcontrolsettings.exe").ConfigureAwait(false);
-            Process.Start(new ProcessStartInfo
-            {
-                FileName = "useraccountcontrolsettings.exe",
-                UseShellExecute = true,
-                Arguments = e.Arguments == "legacy" ? string.Empty : e.Arguments
-            });
-            await ReboundPipeClient.SendAsync("IFEOEngine::Resume#useraccountcontrolsettings.exe").ConfigureAwait(false);
-            return;
-        }
+                // Initialize pipe client if not already
+                ReboundPipeClient ??= new();
 
-        if (e.IsFirstLaunch)
-        {
-            UIThreadQueue.QueueAction(() =>
+                // Start listening (optional, for future messages)
+                ReboundPipeClient.MessageReceived += OnPipeMessageReceived;
+
+                // Pipe server thread
+                var pipeThread = new Thread(async () =>
+                {
+                    try
+                    {
+                        await ReboundPipeClient.ConnectAsync().ConfigureAwait(false);
+                    }
+                    catch
+                    {
+                        UIThreadQueue.QueueAction(async () =>
+                        {
+                            await ReboundDialog.ShowAsync(
+                                "Rebound Service Host not found.",
+                                "Could not find Rebound Service Host.\nPlease ensure it is running in the background.",
+                                DialogIcon.Warning
+                            ).ConfigureAwait(false);
+                        });
+                    }
+                })
+                {
+                    IsBackground = true,
+                    Name = "Pipe Server Thread"
+                };
+                pipeThread.SetApartmentState(ApartmentState.STA);
+                pipeThread.Start();
+            }
+            else
             {
-                MainAppWindow = new()
+                if (MainWindow != null)
+                    MainWindow.BringToFront();
+            }
+
+            // Handle legacy launch
+            if (!string.IsNullOrWhiteSpace(e.Arguments) || e.Arguments.Trim() == "legacy")
+            {
+                try
                 {
-                    Width = 680,
-                    Height = 480
-                };
-                MainAppWindow.AppWindowInitialized += (s, e) =>
+                    await ReboundPipeClient.SendAsync("IFEOEngine::Pause#useraccountcontrolsettings.exe").ConfigureAwait(false);
+
+                    Process.Start(new ProcessStartInfo
+                    {
+                        FileName = "winver.exe",
+                        UseShellExecute = true,
+                    });
+
+                    await ReboundPipeClient.SendAsync("IFEOEngine::Resume#useraccountcontrolsettings.exe").ConfigureAwait(false);
+                }
+                catch
                 {
-                    MainAppWindow.IsMaximizable = false;
-                    MainAppWindow.IsResizable = false;
-                    MainAppWindow.IsPersistenceEnabled = false;
-                    MainAppWindow.Title = "User Account Control Settings";
-                    MainAppWindow.AppWindow?.TitleBar.ExtendsContentIntoTitleBar = true;
-                    MainAppWindow.AppWindow?.TitleBar.ButtonBackgroundColor = Colors.Transparent;
-                    MainAppWindow.AppWindow?.TitleBar.ButtonHoverBackgroundColor = Color.FromArgb(40, 120, 120, 120);
-                    MainAppWindow.AppWindow?.TitleBar.ButtonPressedBackgroundColor = Color.FromArgb(24, 120, 120, 120);
-                    MainAppWindow.AppWindow?.TitleBar.ButtonInactiveBackgroundColor = Colors.Transparent;
-                    MainAppWindow.AppWindow?.SetTaskbarIcon($"{AppContext.BaseDirectory}\\Assets\\Admin.ico");
-                    MainAppWindow.CenterWindow();
-                };
-                MainAppWindow.XamlInitialized += (s, e) =>
-                {
-                    var frame = new Frame();
-                    frame.Navigate(typeof(Views.MainPage));
-                    MainAppWindow.Content = frame;
-                };
-                MainAppWindow.Create();
-                MainAppWindow.CenterWindow();
-                return Task.CompletedTask;
-            });
+                    UIThreadQueue.QueueAction(async () =>
+                    {
+                        await ReboundDialog.ShowAsync(
+                            "Legacy Launch Failed",
+                            "Could not communicate with Rebound Service Host.\nPlease ensure it is running and try again.",
+                            DialogIcon.Warning
+                        ).ConfigureAwait(false);
+                    });
+                }
+            }
         }
-        else
+        catch (Exception ex)
         {
-            UIThreadQueue.QueueAction(() =>
-            {
-                MainAppWindow?.BringToFront();
-                return Task.CompletedTask;
-            });
+            ReboundLogger.Log("[Rebound About] Single instance launch error", ex);
         }
     }
 
-    public static IslandsWindow? MainAppWindow { get; set; }
+    private static void OnPipeMessageReceived(string message)
+    {
+
+    }
+
+    private static void CreateMainWindow()
+    {
+        UIThreadQueue.QueueAction(() =>
+        {
+            MainWindow = new()
+            {
+                Width = 680,
+                Height = 480
+            };
+            MainWindow.AppWindowInitialized += (s, e) =>
+            {
+                MainWindow.IsMaximizable = false;
+                MainWindow.IsResizable = false;
+                MainWindow.IsPersistenceEnabled = false;
+                MainWindow.Title = "User Account Control Settings";
+                MainWindow.AppWindow?.TitleBar.ExtendsContentIntoTitleBar = true;
+                MainWindow.AppWindow?.TitleBar.ButtonBackgroundColor = Colors.Transparent;
+                MainWindow.AppWindow?.TitleBar.ButtonHoverBackgroundColor = Color.FromArgb(40, 120, 120, 120);
+                MainWindow.AppWindow?.TitleBar.ButtonPressedBackgroundColor = Color.FromArgb(24, 120, 120, 120);
+                MainWindow.AppWindow?.TitleBar.ButtonInactiveBackgroundColor = Colors.Transparent;
+                MainWindow.AppWindow?.SetTaskbarIcon($"{AppContext.BaseDirectory}\\Assets\\Admin.ico");
+                MainWindow.CenterWindow();
+            };
+            MainWindow.XamlInitialized += (s, e) =>
+            {
+                var frame = new Frame();
+                frame.Navigate(typeof(Views.MainPage));
+                MainWindow.Content = frame;
+            };
+            MainWindow.Create();
+            MainWindow.CenterWindow();
+            return Task.CompletedTask;
+        });
+    }
+
+    public static IslandsWindow? MainWindow { get; set; }
 }
