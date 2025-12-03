@@ -19,6 +19,7 @@ using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Markup;
 using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Media.Imaging;
+using NavigationViewItem = Microsoft.UI.Xaml.Controls.NavigationViewItem;
 
 #pragma warning disable CA2007 // Consider calling ConfigureAwait on the awaited task
 #pragma warning disable CA1031 // Do not catch general exception types
@@ -36,13 +37,13 @@ internal partial class SearchResult : ObservableObject
 
 internal sealed partial class ShellPage : Page
 {
-    private readonly List<SearchResult> SearchResults = [];
-    private readonly ObservableCollection<SearchResult> Suggestions = [];
+    private readonly List<SearchResult> SearchResults = new();
+    private readonly ObservableCollection<SearchResult> Suggestions = new();
 
-    private void NavigateTo(Type pageType, object? parameter = null)
-    {
-        MainFrame.Navigate(pageType, parameter);
-    }
+    // Store all catalog mod related nav items and search results separately for toggling
+    private readonly List<SearchResult> _catalogSearchResults = new();
+    private readonly List<NavigationViewItem> _catalogNavItems = new(); 
+    private readonly List<NavigationViewItem> _categoryItems = new();
 
     public ShellPage()
     {
@@ -57,8 +58,7 @@ internal sealed partial class ShellPage : Page
 
         foreach (var categoryGroup in categoryGroups)
         {
-            // Create the category NavigationViewItem
-            var categoryItem = new Microsoft.UI.Xaml.Controls.NavigationViewItem
+            var categoryItem = new NavigationViewItem
             {
                 Content = categoryGroup.Key.ToString(),
                 Tag = categoryGroup.Key.ToString(),
@@ -78,44 +78,103 @@ internal sealed partial class ShellPage : Page
                 }
             };
 
-            // Add mods as sub-items
+            var modNavItems = new List<NavigationViewItem>();
+            var modSearchResults = new List<SearchResult>();
+
             foreach (var mod in categoryGroup)
             {
-                var modItem = new Microsoft.UI.Xaml.Controls.NavigationViewItem
+                var modItem = new NavigationViewItem
                 {
                     Content = mod.Name,
                     Tag = mod.Name,
                     Icon = new ImageIcon { Source = new BitmapImage(new Uri(mod.Icon!)) }
                 };
-                SearchResults.Add(new SearchResult
+
+                var searchResult = new SearchResult
                 {
                     Title = mod.Name!,
                     PageType = typeof(ModPage),
                     Parameter = mod
-                });
+                };
+
+                modNavItems.Add(modItem);
+                modSearchResults.Add(searchResult);
+            }
+
+            // Add mod items as children of category item
+            foreach (var modItem in modNavItems)
+            {
                 categoryItem.MenuItems.Add(modItem);
             }
 
-            NavigationViewControl.MenuItems.Add(categoryItem);
+            _catalogNavItems.AddRange(modNavItems);
+            _catalogSearchResults.AddRange(modSearchResults);
+            _categoryItems.Add(categoryItem);
         }
 
-        SearchResults.Add(new()
-        {
-            Title = "Home",
-            PageType = typeof(HomePage)
-        });
-        SearchResults.Add(new()
-        {
-            Title = "Rebound",
-            PageType = typeof(ReboundPage)
-        });
-        SearchResults.Add(new()
-        {
-            Title = "Settings",
-            PageType = typeof(SettingsPage)
-        });
+        // Add static items to SearchResults directly
+        SearchResults.Add(new SearchResult { Title = "Home", PageType = typeof(HomePage) });
+        SearchResults.Add(new SearchResult { Title = "Rebound", PageType = typeof(ReboundPage) });
+        SearchResults.Add(new SearchResult { Title = "Settings", PageType = typeof(SettingsPage) });
 
         Loaded += ShellPage_Loaded;
+
+        App.ReboundService.PropertyChanged += (s, e) =>
+        {
+            if (e.PropertyName == nameof(App.ReboundService.IsReboundEnabled))
+            {
+                var enabled = App.ReboundService.IsReboundEnabled;
+                ToggleCatalogMods(enabled);
+            }
+        };
+
+        // Initialize based on current state
+        ToggleCatalogMods(App.ReboundService.IsReboundEnabled);
+    }
+
+    public void NavigateTo(Type pageType, object? parameter = null)
+    {
+        MainFrame.Navigate(pageType, parameter);
+    }
+
+    private void ToggleCatalogMods(bool isEnabled)
+    {
+        if (isEnabled)
+        {
+            // Add categories with their children (mods)
+            foreach (var categoryItem in _categoryItems)
+            {
+                if (!NavigationViewControl.MenuItems.Contains(categoryItem))
+                {
+                    NavigationViewControl.MenuItems.Add(categoryItem);
+                }
+            }
+
+            // Add catalog search results
+            foreach (var searchResult in _catalogSearchResults)
+            {
+                if (!SearchResults.Contains(searchResult))
+                    SearchResults.Add(searchResult);
+            }
+        }
+        else
+        {
+            // Remove all category items (and thus mods)
+            foreach (var categoryItem in _categoryItems)
+            {
+                NavigationViewControl.MenuItems.Remove(categoryItem);
+            }
+
+            // Remove catalog mod search results
+            foreach (var searchResult in _catalogSearchResults)
+            {
+                SearchResults.Remove(searchResult);
+            }
+        }
+
+        Suggestions.Clear();
+        foreach (var item in SearchResults)
+            Suggestions.Add(item);
     }
 
     private async void ShellPage_Loaded(object sender, RoutedEventArgs e)
@@ -149,43 +208,32 @@ internal sealed partial class ShellPage : Page
 
     private void NavigationViewControl_ItemInvoked(Microsoft.UI.Xaml.Controls.NavigationView sender, Microsoft.UI.Xaml.Controls.NavigationViewItemInvokedEventArgs args)
     {
-        // Settings button
         if (args.IsSettingsInvoked)
         {
             NavigateTo(typeof(SettingsPage));
             return;
         }
 
-        // Normal item
-        if (args.InvokedItemContainer is Microsoft.UI.Xaml.Controls.NavigationViewItem item &&
-            item.Tag is string tag)
+        if (args.InvokedItemContainer is NavigationViewItem item && item.Tag is string tag)
         {
-            // Home
-            if (tag == "Home")
+            switch (tag)
             {
-                NavigateTo(typeof(HomePage));
-                return;
-            }
-
-            // Rebound
-            if (tag == "Rebound")
-            {
-                NavigateTo(typeof(ReboundPage));
-                return;
-            }
-
-            // Rebound
-            if (tag == "Update")
-            {
-                Launcher.LaunchUriAsync(new("https://ivirius.com/download/rebound/")).Wait();
-                return;
-            }
-
-            // Mods
-            var mod = Catalog.Mods.FirstOrDefault(m => m.Name == tag);
-            if (mod != null)
-            {
-                NavigateTo(typeof(ModPage), mod);
+                case "Home":
+                    NavigateTo(typeof(HomePage));
+                    break;
+                case "Rebound":
+                    NavigateTo(typeof(ReboundPage));
+                    break;
+                case "Update":
+                    Launcher.LaunchUriAsync(new Uri("https://ivirius.com/download/rebound/")).AsTask().Wait();
+                    break;
+                default:
+                    var mod = Catalog.Mods.FirstOrDefault(m => m.Name == tag);
+                    if (mod != null)
+                    {
+                        NavigateTo(typeof(ModPage), mod);
+                    }
+                    break;
             }
         }
     }
@@ -195,7 +243,63 @@ internal sealed partial class ShellPage : Page
         if (args.SelectedItem is SearchResult result && result.PageType != null)
         {
             NavigateTo(result.PageType, result.Parameter);
+
+            if (result.Parameter is Mod mod)
+            {
+                var ancestors = new Stack<NavigationViewItem>();
+                if (FindNavItemByContent(NavigationViewControl.MenuItems, mod.Name, out var navItem, ancestors) && navItem != null)
+                {
+                    foreach (var ancestor in ancestors)
+                        ancestor.IsExpanded = true;
+
+                    NavigationViewControl.SelectedItem = navItem;
+                }
+            }
+            else
+            {
+                var ancestors = new Stack<NavigationViewItem>();
+                if (FindNavItemByContent(NavigationViewControl.MenuItems, result.Title, out var navItem, ancestors) && navItem != null)
+                {
+                    foreach (var ancestor in ancestors)
+                        ancestor.IsExpanded = true;
+
+                    NavigationViewControl.SelectedItem = navItem;
+                }
+            }
         }
+    }
+
+    private bool FindNavItemByContent(IEnumerable<object> items, string content, out NavigationViewItem? foundItem, Stack<NavigationViewItem> ancestors)
+    {
+        foreach (var item in items)
+        {
+            if (item is NavigationViewItem navItem)
+            {
+                if (navItem.Content?.ToString() == content)
+                {
+                    foundItem = navItem;
+                    return true;
+                }
+
+                if (navItem.MenuItems?.Count > 0)
+                {
+                    ancestors.Push(navItem);
+                    if (FindNavItemByContent(navItem.MenuItems, content, out foundItem, ancestors))
+                        return true;
+                    ancestors.Pop();
+                }
+            }
+        }
+
+        foundItem = null;
+        return false;
+    }
+
+    // Overload for FindNavItemByContent without ancestors stack (returns the found item)
+    private bool FindNavItemByContent(IEnumerable<object> items, string content, out NavigationViewItem foundItem)
+    {
+        var ancestors = new Stack<NavigationViewItem>();
+        return FindNavItemByContent(items, content, out foundItem, ancestors);
     }
 
     private void AutoSuggestBox_TextChanged(AutoSuggestBox sender, AutoSuggestBoxTextChangedEventArgs args)
@@ -205,7 +309,7 @@ internal sealed partial class ShellPage : Page
 
         string query = sender.Text?.Trim() ?? string.Empty;
 
-        List<SearchResult> suitableItems = [];
+        List<SearchResult> suitableItems;
 
         if (string.IsNullOrEmpty(query))
         {
@@ -213,10 +317,11 @@ internal sealed partial class ShellPage : Page
         }
         else
         {
-            string[] tokens = query.ToUpperInvariant().Split([' '], StringSplitOptions.RemoveEmptyEntries);
+            string[] tokens = query.ToUpperInvariant().Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
             suitableItems = SearchResults
                 .Where(r => !string.IsNullOrEmpty(r.Title) &&
-                            tokens.All(t => r.Title.Contains(t, StringComparison.InvariantCultureIgnoreCase))).ToList();
+                            tokens.All(t => r.Title.Contains(t, StringComparison.InvariantCultureIgnoreCase)))
+                .ToList();
         }
 
         if (suitableItems.Count == 0)
@@ -231,8 +336,6 @@ internal sealed partial class ShellPage : Page
 
         Suggestions.Clear();
         foreach (var item in suitableItems)
-        {
             Suggestions.Add(item);
-        }
     }
 }

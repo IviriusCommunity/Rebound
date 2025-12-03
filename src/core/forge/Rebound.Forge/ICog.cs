@@ -30,6 +30,11 @@ public enum ModIntegrity
 public enum InstallationTemplate
 {
     /// <summary>
+    /// Must be used for every item in <see cref="Catalog.MandatoryMods"/>.
+    /// </summary>
+    Mandatory,
+
+    /// <summary>
     /// Mods that represent the core Rebound experience.
     /// </summary>
     Basic,
@@ -51,7 +56,7 @@ public enum InstallationTemplate
 }
 
 /// <summary>
-/// Commom interface for Rebound modding cogs, used to define a set of
+/// Common interface for Rebound modding cogs, used to define a set of
 /// instructions for each mod to apply
 /// </summary>
 public interface ICog

@@ -30,6 +30,7 @@
                 </ResourceDictionary>
             </ResourceDictionary.ThemeDictionaries>
             <local:ModToTasksListConverter_Page x:Key="ModToTasksListConverter" />
+            <local:VariantCountToVisibilityConverter x:Key="VariantCountToVisibilityConverter" />
             <Style x:Key="RepairButtonStyle" TargetType="Button">
                 <Setter Property="Foreground" Value="{ThemeResource AccentButtonForeground}" />
                 <Setter Property="Background" Value="{ThemeResource RepairButtonBackgroundBrush}" />
@@ -63,7 +64,6 @@
                                         <VisualState x:Name="Normal" />
 
                                         <VisualState x:Name="PointerOver">
-
                                             <Storyboard>
                                                 <ObjectAnimationUsingKeyFrames Storyboard.TargetName="ContentPresenter" Storyboard.TargetProperty="Background">
                                                     <DiscreteObjectKeyFrame KeyTime="0" Value="{ThemeResource RepairButtonBackgroundPointerOverBrush}" />
@@ -78,7 +78,6 @@
                                         </VisualState>
 
                                         <VisualState x:Name="Pressed">
-
                                             <Storyboard>
                                                 <ObjectAnimationUsingKeyFrames Storyboard.TargetName="ContentPresenter" Storyboard.TargetProperty="Background">
                                                     <DiscreteObjectKeyFrame KeyTime="0" Value="{ThemeResource RepairButtonBackgroundPressedBrush}" />
@@ -93,7 +92,6 @@
                                         </VisualState>
 
                                         <VisualState x:Name="Disabled">
-
                                             <Storyboard>
                                                 <ObjectAnimationUsingKeyFrames Storyboard.TargetName="ContentPresenter" Storyboard.TargetProperty="Background">
                                                     <DiscreteObjectKeyFrame KeyTime="0" Value="{ThemeResource AccentButtonBackgroundDisabled}" />
@@ -106,12 +104,9 @@
                                                 </ObjectAnimationUsingKeyFrames>
                                             </Storyboard>
                                         </VisualState>
-
                                     </VisualStateGroup>
-
                                 </VisualStateManager.VisualStateGroups>
                             </ContentPresenter>
-
                         </ControlTemplate>
                     </Setter.Value>
                 </Setter>
@@ -229,9 +224,10 @@
                                 <RowDefinition Height="Auto" />
                                 <RowDefinition Height="Auto" />
                                 <RowDefinition Height="Auto" />
+                                <RowDefinition Height="Auto" />
                             </Grid.RowDefinitions>
                             <Image
-                                Grid.RowSpan="2"
+                                Grid.RowSpan="3"
                                 Width="80"
                                 Height="80"
                                 VerticalAlignment="Top"
@@ -249,9 +245,30 @@
                                 Text="{x:Bind Description}"
                                 TextWrapping="WrapWholeWords" />
 
+                            <!--  Variant Selector (only visible if more than 1 variant)  -->
+                            <toolkitControls:SettingsCard
+                                Grid.Row="2"
+                                Grid.ColumnSpan="3"
+                                Margin="0,8,0,0"
+                                HorizontalAlignment="Stretch"
+                                Description="Pick what variant of this mod you want to install."
+                                Header="Variant"
+                                Visibility="{x:Bind Variants.Count, Mode=OneWay, Converter={StaticResource VariantCountToVisibilityConverter}}">
+                                <toolkitControls:SettingsCard.HeaderIcon>
+                                    <FontIcon Glyph="&#xE713;" />
+                                </toolkitControls:SettingsCard.HeaderIcon>
+                                <ComboBox ItemsSource="{x:Bind Variants, Mode=OneWay}" SelectedIndex="{x:Bind SelectedVariantIndex, Mode=TwoWay}">
+                                    <ComboBox.ItemTemplate>
+                                        <DataTemplate x:DataType="forge:ModVariant">
+                                            <TextBlock Text="{x:Bind Name, Mode=OneWay}" />
+                                        </DataTemplate>
+                                    </ComboBox.ItemTemplate>
+                                </ComboBox>
+                            </toolkitControls:SettingsCard>
+
                             <!--  Buttons area  -->
                             <Grid
-                                Grid.RowSpan="2"
+                                Grid.RowSpan="3"
                                 Grid.Column="2"
                                 Margin="0,16,0,0"
                                 VerticalAlignment="Top"
@@ -357,7 +374,7 @@
                                     Visibility="{x:Bind IsIntact, Mode=OneWay, Converter={StaticResource BoolToReverseVisibilityConverter}}" />
                             </Grid>
                             <StackPanel
-                                Grid.Row="3"
+                                Grid.Row="4"
                                 Grid.ColumnSpan="3"
                                 Margin="0,8,0,0">
                                 <muxc:InfoBar
@@ -367,10 +384,11 @@
                                     IsOpen="True">
                                     <ContentPresenter Content="{x:Bind Converter={StaticResource ModToTasksListConverter}}" />
                                 </muxc:InfoBar>
+                                <muxc:ProgressRing Tag="ItemsControlRing" HorizontalAlignment="Center" Width="32" Height="32" Margin="0, 32, 0, 0"/>
                                 <ItemsControl
                                     Margin="0,16,0,0"
                                     ItemTemplateSelector="{StaticResource ModSettingSelector}"
-                                    ItemsSource="{x:Bind Settings, Mode=OneWay}">
+                                    Tag="{x:Bind}">
                                     <ItemsControl.ItemsPanel>
                                         <ItemsPanelTemplate>
                                             <StackPanel Orientation="Vertical" Spacing="4" />

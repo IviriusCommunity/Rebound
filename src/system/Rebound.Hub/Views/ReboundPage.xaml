@@ -37,6 +37,25 @@
                     <ImageSource x:Key="HeroImage">/Assets/Backgrounds/WallpaperDark.png</ImageSource>
                 </ResourceDictionary>
             </ResourceDictionary.ThemeDictionaries>
+
+            <local:CategoryToBoolOrVisibilityConverter
+                x:Key="SideloadedVisibilityConverter"
+                ExpectedValue="Sideloaded"
+                OutputType="Visibility" />
+            <local:CategoryToBoolOrVisibilityConverter
+                x:Key="NotSideloadedVisibilityConverter"
+                ExpectedValue="Sideloaded"
+                Invert="True"
+                OutputType="Visibility" />
+
+            <converters:DoubleToVisibilityConverter x:Key="VariantsNumberToVisibilityConverter" GreaterThan="1" />
+
+            <local:CategoryToBoolOrVisibilityConverter
+                x:Key="NonMandatoryCorruptedVisibilityConverter"
+                ExpectedValue="Mandatory"
+                Invert="True"
+                OutputType="Visibility" />
+
             <local:ModToTasksListConverter x:Key="ModToTasksListConverter" />
             <Style x:Key="RepairButtonStyle" TargetType="Button">
                 <Setter Property="Foreground" Value="{ThemeResource AccentButtonForeground}" />
@@ -177,6 +196,284 @@
                 FalseValue="True"
                 TrueValue="False" />
             <converters:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter" />
+            <!--  Unified data template  -->
+            <DataTemplate x:Key="ModCardTemplate" x:DataType="forge:Mod">
+                <Button
+                    Width="320"
+                    Padding="12"
+                    VerticalAlignment="Stretch"
+                    HorizontalContentAlignment="Stretch"
+                    VerticalContentAlignment="Stretch"
+                    Click="Button_Click">
+                    <Grid HorizontalAlignment="Stretch">
+
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="*" />
+                            <RowDefinition Height="Auto" />
+                        </Grid.RowDefinitions>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="16" />
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="16" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+
+                        <!--  Icon shadow background  -->
+                        <Border
+                            Width="48"
+                            Height="48"
+                            HorizontalAlignment="Left"
+                            VerticalAlignment="Top">
+                            <ui:Effects.Shadow>
+                                <media:AttachedCardShadow
+                                    BlurRadius="12"
+                                    Opacity="0.3"
+                                    Offset="0, 4"
+                                    Color="Black" />
+                            </ui:Effects.Shadow>
+                        </Border>
+
+                        <!--  Icon container  -->
+                        <Grid
+                            Grid.RowSpan="3"
+                            HorizontalAlignment="Left"
+                            VerticalAlignment="Top">
+
+                            <!--  Background rectangle with border  -->
+                            <Grid
+                                Width="48"
+                                Height="48"
+                                Background="{ThemeResource SolidBackgroundFillColorBaseBrush}"
+                                CornerRadius="4">
+                                <Image
+                                    Margin="-8"
+                                    Source="{x:Bind Icon, Mode=OneWay}"
+                                    Stretch="Fill" />
+                                <Grid
+                                    BorderBrush="{ThemeResource SolidBackgroundFillColorBaseBrush}"
+                                    BorderThickness="2"
+                                    CornerRadius="3" />
+                            </Grid>
+
+                            <!--  Overlay acrylic effect with smaller icon  -->
+                            <Border CornerRadius="4">
+                                <Border.Background>
+                                    <media:AcrylicBrush
+                                        BlurAmount="8"
+                                        TintColor="{ThemeResource SolidBackgroundFillColorBase}"
+                                        TintOpacity="0.7" />
+                                </Border.Background>
+                                <Image
+                                    Width="32"
+                                    Height="32"
+                                    Margin="8"
+                                    Source="{x:Bind Icon, Mode=OneWay}" />
+                            </Border>
+                        </Grid>
+
+                        <!--  Mod Name  -->
+                        <TextBlock
+                            Grid.Column="2"
+                            VerticalAlignment="Top"
+                            FontSize="16"
+                            FontWeight="SemiBold"
+                            Text="{x:Bind Name, Mode=OneWay}"
+                            TextWrapping="WrapWholeWords" />
+
+                        <!--  Mod Description  -->
+                        <TextBlock
+                            Grid.Row="1"
+                            Grid.Column="2"
+                            Grid.ColumnSpan="3"
+                            Margin="0,-20,0,0"
+                            VerticalAlignment="Top"
+                            FontSize="12"
+                            Opacity="0.5"
+                            Text="{x:Bind Description, Mode=OneWay}"
+                            TextWrapping="WrapWholeWords" />
+
+                        <!--  Variant Selector (only visible if more than 1 variant)  -->
+                        <ComboBox
+                            Grid.Row="2"
+                            Grid.ColumnSpan="8"
+                            Margin="0,16,0,0"
+                            HorizontalAlignment="Stretch"
+                            Header="Mod variant"
+                            ItemsSource="{x:Bind Variants, Mode=OneWay}"
+                            SelectedIndex="{x:Bind SelectedVariantIndex, Mode=TwoWay}"
+                            Visibility="{x:Bind Variants.Count, Converter={StaticResource VariantsNumberToVisibilityConverter}}">
+                            <ComboBox.ItemTemplate>
+                                <DataTemplate x:DataType="forge:ModVariant">
+                                    <TextBlock Text="{x:Bind Name, Mode=OneWay}" />
+                                </DataTemplate>
+                            </ComboBox.ItemTemplate>
+                        </ComboBox>
+
+                        <muxc:ProgressBar
+                            Grid.Row="3"
+                            Grid.ColumnSpan="8"
+                            Margin="0,8"
+                            VerticalAlignment="Bottom"
+                            Background="Transparent"
+                            Maximum="{x:Bind TaskCount, Mode=OneWay}"
+                            Value="{x:Bind Progress, Mode=OneWay}" />
+
+                        <!--  Buttons area  -->
+                        <Grid
+                            Grid.Row="4"
+                            Grid.ColumnSpan="5"
+                            ColumnSpacing="8">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto" />
+                                <ColumnDefinition Width="Auto" />
+                                <ColumnDefinition Width="Auto" />
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="Auto" />
+                                <ColumnDefinition Width="*" />
+                            </Grid.ColumnDefinitions>
+
+                            <!--  Installation steps flyout button  -->
+                            <Button
+                                Padding="8"
+                                HorizontalAlignment="Left"
+                                Background="Transparent"
+                                BorderBrush="Transparent">
+                                <FontIcon FontSize="16" Glyph="&#xE946;" />
+                                <Button.Flyout>
+                                    <Flyout>
+                                        <ContentPresenter Content="{x:Bind Converter={StaticResource ModToTasksListConverter}}" />
+                                    </Flyout>
+                                </Button.Flyout>
+                            </Button>
+
+                            <!--  Sideloaded indicator (only for sideloaded mods)  -->
+                            <Grid
+                                Grid.Column="1"
+                                Padding="8"
+                                HorizontalAlignment="Left"
+                                Background="Transparent"
+                                ToolTipService.ToolTip="This mod is sideloaded. Proceed with care."
+                                Visibility="{x:Bind Category, Converter={StaticResource SideloadedVisibilityConverter}}">
+                                <FontIcon FontSize="16" Glyph="&#xE74C;" />
+                            </Grid>
+
+                            <!--  Action flyout (Install/Uninstall/Repair/Open) - only for non-mandatory  -->
+                            <Button
+                                Grid.Column="2"
+                                Padding="8"
+                                Background="Transparent"
+                                BorderBrush="Transparent"
+                                IsEnabled="{x:Bind IsLoading, Mode=OneWay, Converter={StaticResource BoolNegationConverter}}"
+                                Visibility="{x:Bind Category, Converter={StaticResource NonMandatoryCorruptedVisibilityConverter}}">
+                                <FontIcon FontSize="16" Glyph="&#xE712;" />
+                                <Button.Flyout>
+                                    <MenuFlyout>
+                                        <!--  Install  -->
+                                        <MenuFlyoutItem
+                                            Command="{x:Bind InstallCommand}"
+                                            IsEnabled="{x:Bind IsInstalled, Mode=OneWay, Converter={StaticResource BoolNegationConverter}}"
+                                            Text="Install">
+                                            <MenuFlyoutItem.Icon>
+                                                <FontIcon Glyph="&#xE896;" />
+                                            </MenuFlyoutItem.Icon>
+                                        </MenuFlyoutItem>
+
+                                        <!--  Uninstall  -->
+                                        <MenuFlyoutItem
+                                            Command="{x:Bind UninstallCommand}"
+                                            IsEnabled="{x:Bind IsInstalled, Mode=OneWay}"
+                                            Text="Uninstall">
+                                            <MenuFlyoutItem.Icon>
+                                                <FontIcon Glyph="&#xE74D;" />
+                                            </MenuFlyoutItem.Icon>
+                                        </MenuFlyoutItem>
+
+                                        <!--  Repair  -->
+                                        <MenuFlyoutItem
+                                            Command="{x:Bind RepairCommand}"
+                                            IsEnabled="{x:Bind IsIntact, Mode=OneWay, Converter={StaticResource BoolNegationConverter}}"
+                                            Text="Repair">
+                                            <MenuFlyoutItem.Icon>
+                                                <FontIcon Glyph="&#xE90F;" />
+                                            </MenuFlyoutItem.Icon>
+                                        </MenuFlyoutItem>
+
+                                        <!--  Open  -->
+                                        <MenuFlyoutItem
+                                            Command="{x:Bind OpenCommand}"
+                                            IsEnabled="{x:Bind IsInstalled, Mode=OneWay}"
+                                            Text="Open">
+                                            <MenuFlyoutItem.Icon>
+                                                <FontIcon Glyph="&#xE8A7;" />
+                                            </MenuFlyoutItem.Icon>
+                                        </MenuFlyoutItem>
+                                    </MenuFlyout>
+                                </Button.Flyout>
+                            </Button>
+
+                            <!--  Corruption indicator  -->
+                            <Grid
+                                Grid.Column="3"
+                                Padding="8"
+                                HorizontalAlignment="Left"
+                                Background="Transparent"
+                                ToolTipService.ToolTip="This mod is corrupted and needs to be repaired."
+                                Visibility="{x:Bind IsIntact, Mode=OneWay, Converter={StaticResource BoolToReverseVisibilityConverter}}">
+                                <FontIcon
+                                    FontSize="16"
+                                    Foreground="{ThemeResource RepairButtonBackgroundBrush}"
+                                    Glyph="&#xF736;"
+                                    Visibility="{x:Bind Category, Converter={StaticResource NonMandatoryCorruptedVisibilityConverter}}" />
+                            </Grid>
+
+                            <muxc:ProgressRing
+                                Grid.Column="4"
+                                Width="32"
+                                Height="32"
+                                IsActive="{x:Bind IsLoading, Mode=OneWay}" />
+
+                            <!--  Only shows if NOT mandatory  -->
+                            <Grid Grid.Column="5" Visibility="{x:Bind Category, Converter={StaticResource NonMandatoryCorruptedVisibilityConverter}}">
+
+                                <!--  Only shows if intact  -->
+                                <Grid Visibility="{x:Bind IsIntact, Mode=OneWay}">
+
+                                    <!--  Open button (visible if installed)  -->
+                                    <Button
+                                        HorizontalAlignment="Stretch"
+                                        Command="{x:Bind OpenCommand}"
+                                        Content="Open"
+                                        IsEnabled="{x:Bind IsLoading, Mode=OneWay, Converter={StaticResource BoolNegationConverter}}"
+                                        Visibility="{x:Bind IsInstalled, Mode=OneWay}" />
+
+                                    <!--  Install button (visible if not installed)  -->
+                                    <Button
+                                        HorizontalAlignment="Stretch"
+                                        Command="{x:Bind InstallCommand}"
+                                        Content="Install"
+                                        IsEnabled="{x:Bind IsLoading, Mode=OneWay, Converter={StaticResource BoolNegationConverter}}"
+                                        Style="{StaticResource AccentButtonStyle}"
+                                        Visibility="{x:Bind IsInstalled, Mode=OneWay, Converter={StaticResource BoolToReverseVisibilityConverter}}" />
+                                </Grid>
+                            </Grid>
+
+                            <!--  Repair button (visible if mod is corrupted, only for non-mandatory)  -->
+                            <Grid Grid.Column="5" Visibility="{x:Bind Category, Converter={StaticResource NonMandatoryCorruptedVisibilityConverter}}">
+                                <Button
+                                    HorizontalAlignment="Stretch"
+                                    Command="{x:Bind RepairCommand}"
+                                    Content="Repair"
+                                    Style="{StaticResource RepairButtonStyle}"
+                                    Visibility="{x:Bind IsIntact, Mode=OneWay, Converter={StaticResource BoolToReverseVisibilityConverter}}" />
+                            </Grid>
+                        </Grid>
+                    </Grid>
+                </Button>
+            </DataTemplate>
         </ResourceDictionary>
     </Page.Resources>
     <Grid>
@@ -309,6 +606,7 @@
                         <ColumnDefinition Width="Auto" />
                         <ColumnDefinition Width="Auto" />
                         <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="Auto" />
                     </Grid.ColumnDefinitions>
                     <ToggleButton
                         Padding="12,8"
@@ -352,6 +650,38 @@
                             </MenuFlyout>
                         </muxc:DropDownButton.Flyout>
                     </muxc:DropDownButton>
+                    <muxc:DropDownButton
+                        Grid.Column="3"
+                        Background="Transparent"
+                        BorderBrush="Transparent"
+                        IsEnabled="{x:Bind app:App.ReboundService.IsReboundEnabled, Mode=OneWay}">
+                        <StackPanel Orientation="Horizontal" Spacing="8">
+                            <FontIcon FontSize="16" Glyph="&#xF158;" />
+                            <TextBlock Text="Installation templates" />
+                        </StackPanel>
+                        <muxc:DropDownButton.Flyout>
+                            <MenuFlyout>
+                                <MenuFlyoutItem IsEnabled="False" Text="Selecting one of these options&#x0a;will overwrite your current&#x0a;Rebound installation." />
+                                <MenuFlyoutSeparator />
+                                <MenuFlyoutItem
+                                    Command="{x:Bind app:App.ReboundService.InstallTemplateCommand}"
+                                    CommandParameter="Basic"
+                                    Text="Basic" />
+                                <MenuFlyoutItem
+                                    Command="{x:Bind app:App.ReboundService.InstallTemplateCommand}"
+                                    CommandParameter="Recommended"
+                                    Text="Recommended" />
+                                <MenuFlyoutItem
+                                    Command="{x:Bind app:App.ReboundService.InstallTemplateCommand}"
+                                    CommandParameter="Complete"
+                                    Text="Complete" />
+                                <MenuFlyoutItem
+                                    Command="{x:Bind app:App.ReboundService.InstallTemplateCommand}"
+                                    CommandParameter="Extras"
+                                    Text="Extras" />
+                            </MenuFlyout>
+                        </muxc:DropDownButton.Flyout>
+                    </muxc:DropDownButton>
                 </Grid>
 
                 <!--  Mandatory mods  -->
@@ -368,154 +698,12 @@
                     Margin="48,16"
                     HorizontalAlignment="Stretch">
                     <ContentControl HorizontalContentAlignment="Stretch" IsEnabled="{x:Bind app:App.ReboundService.IsReboundEnabled, Mode=OneWay}">
-                        <ItemsControl ItemsSource="{x:Bind forge:Catalog.MandatoryMods}">
+                        <ItemsControl ItemTemplate="{StaticResource ModCardTemplate}" ItemsSource="{x:Bind forge:Catalog.MandatoryMods}">
                             <ItemsControl.ItemsPanel>
                                 <ItemsPanelTemplate>
                                     <controls:WrapPanel HorizontalSpacing="8" VerticalSpacing="8" />
                                 </ItemsPanelTemplate>
                             </ItemsControl.ItemsPanel>
-                            <ItemsControl.ItemTemplate>
-                                <DataTemplate x:DataType="forge:Mod">
-                                    <Grid
-                                        Width="320"
-                                        Padding="12"
-                                        HorizontalAlignment="Stretch"
-                                        Background="{ThemeResource CardBackgroundFillColorDefault}"
-                                        BorderBrush="{ThemeResource ControlElevationBorderBrush}"
-                                        BorderThickness="1"
-                                        CornerRadius="4">
-
-                                        <Grid.RowDefinitions>
-                                            <RowDefinition Height="Auto" />
-                                            <RowDefinition Height="Auto" />
-                                            <RowDefinition Height="*" />
-                                            <RowDefinition Height="Auto" />
-                                        </Grid.RowDefinitions>
-                                        <Grid.ColumnDefinitions>
-                                            <ColumnDefinition Width="Auto" />
-                                            <ColumnDefinition Width="16" />
-                                            <ColumnDefinition Width="*" />
-                                            <ColumnDefinition Width="16" />
-                                            <ColumnDefinition Width="Auto" />
-                                        </Grid.ColumnDefinitions>
-
-                                        <!--  Icon shadow background  -->
-                                        <Border
-                                            Grid.RowSpan="2"
-                                            Width="48"
-                                            Height="48"
-                                            HorizontalAlignment="Left"
-                                            VerticalAlignment="Top">
-                                            <ui:Effects.Shadow>
-                                                <media:AttachedCardShadow
-                                                    BlurRadius="12"
-                                                    Opacity="0.3"
-                                                    Offset="0, 4"
-                                                    Color="Black" />
-                                            </ui:Effects.Shadow>
-                                        </Border>
-
-                                        <!--  Icon container  -->
-                                        <Grid
-                                            Grid.RowSpan="2"
-                                            HorizontalAlignment="Left"
-                                            VerticalAlignment="Top">
-
-                                            <!--  Background rectangle with border  -->
-                                            <Grid
-                                                Width="48"
-                                                Height="48"
-                                                Background="{ThemeResource SolidBackgroundFillColorBaseBrush}"
-                                                CornerRadius="4">
-                                                <Image
-                                                    Margin="-8"
-                                                    Source="{x:Bind Icon, Mode=OneWay}"
-                                                    Stretch="Fill" />
-                                                <Grid
-                                                    BorderBrush="{ThemeResource SolidBackgroundFillColorBaseBrush}"
-                                                    BorderThickness="2"
-                                                    CornerRadius="3" />
-                                            </Grid>
-
-                                            <!--  Overlay acrylic effect with smaller icon  -->
-                                            <Border CornerRadius="4">
-                                                <Border.Background>
-                                                    <media:AcrylicBrush
-                                                        BlurAmount="8"
-                                                        TintColor="{ThemeResource SolidBackgroundFillColorBase}"
-                                                        TintOpacity="0.7" />
-                                                </Border.Background>
-                                                <Image
-                                                    Width="32"
-                                                    Height="32"
-                                                    Margin="8"
-                                                    Source="{x:Bind Icon, Mode=OneWay}" />
-                                            </Border>
-                                        </Grid>
-
-                                        <!--  Mod Name  -->
-                                        <TextBlock
-                                            Grid.Column="2"
-                                            FontSize="16"
-                                            FontWeight="SemiBold"
-                                            Text="{x:Bind Name, Mode=OneWay}"
-                                            TextWrapping="WrapWholeWords" />
-
-                                        <!--  Mod Description  -->
-                                        <TextBlock
-                                            Grid.Row="1"
-                                            Grid.Column="2"
-                                            Grid.ColumnSpan="3"
-                                            Margin="0,0,0,16"
-                                            FontSize="12"
-                                            Opacity="0.5"
-                                            Text="{x:Bind Description, Mode=OneWay}"
-                                            TextWrapping="WrapWholeWords" />
-
-                                        <muxc:ProgressBar
-                                            Grid.Row="2"
-                                            Margin="0,8"
-                                            VerticalAlignment="Bottom"
-                                            Background="Transparent"
-                                            Maximum="{x:Bind TaskCount, Mode=OneWay}"
-                                            Value="{x:Bind Progress, Mode=OneWay}" />
-
-                                        <!--  Buttons area  -->
-                                        <Grid
-                                            Grid.Row="3"
-                                            Grid.ColumnSpan="5"
-                                            ColumnSpacing="8">
-                                            <Grid.ColumnDefinitions>
-                                                <ColumnDefinition Width="Auto" />
-                                                <ColumnDefinition Width="Auto" />
-                                                <ColumnDefinition Width="*" />
-                                                <ColumnDefinition Width="*" />
-                                            </Grid.ColumnDefinitions>
-
-                                            <!--  Installation steps flyout button  -->
-                                            <Button
-                                                Padding="8"
-                                                HorizontalAlignment="Left"
-                                                Background="Transparent"
-                                                BorderBrush="Transparent">
-                                                <FontIcon FontSize="16" Glyph="&#xE946;" />
-                                                <Button.Flyout>
-                                                    <Flyout>
-                                                        <ContentPresenter Content="{x:Bind Converter={StaticResource ModToTasksListConverter}}" />
-                                                    </Flyout>
-                                                </Button.Flyout>
-                                            </Button>
-                                        </Grid>
-
-                                        <muxc:ProgressRing
-                                            Grid.Row="3"
-                                            Grid.Column="4"
-                                            Width="32"
-                                            Height="32"
-                                            IsActive="{x:Bind IsLoading, Mode=OneWay}" />
-                                    </Grid>
-                                </DataTemplate>
-                            </ItemsControl.ItemTemplate>
                         </ItemsControl>
                     </ContentControl>
                 </Grid>
@@ -534,251 +722,12 @@
                     Margin="48,16,48,48"
                     HorizontalAlignment="Stretch">
                     <ContentControl HorizontalContentAlignment="Stretch" IsEnabled="{x:Bind app:App.ReboundService.IsReboundEnabled, Mode=OneWay}">
-                        <ItemsControl ItemsSource="{x:Bind forge:Catalog.Mods, Mode=OneWay}">
+                        <ItemsControl ItemTemplate="{StaticResource ModCardTemplate}" ItemsSource="{x:Bind forge:Catalog.Mods, Mode=OneWay}">
                             <ItemsControl.ItemsPanel>
                                 <ItemsPanelTemplate>
                                     <controls:WrapPanel HorizontalSpacing="8" VerticalSpacing="8" />
                                 </ItemsPanelTemplate>
                             </ItemsControl.ItemsPanel>
-                            <ItemsControl.ItemTemplate>
-                                <DataTemplate x:DataType="forge:Mod">
-                                    <Grid
-                                        Width="320"
-                                        Padding="12"
-                                        HorizontalAlignment="Stretch"
-                                        Background="{ThemeResource CardBackgroundFillColorDefault}"
-                                        BorderBrush="{ThemeResource ControlElevationBorderBrush}"
-                                        BorderThickness="1"
-                                        CornerRadius="4">
-
-                                        <Grid.RowDefinitions>
-                                            <RowDefinition Height="Auto" />
-                                            <RowDefinition Height="Auto" />
-                                            <RowDefinition Height="*" />
-                                            <RowDefinition Height="Auto" />
-                                        </Grid.RowDefinitions>
-                                        <Grid.ColumnDefinitions>
-                                            <ColumnDefinition Width="Auto" />
-                                            <ColumnDefinition Width="16" />
-                                            <ColumnDefinition Width="*" />
-                                            <ColumnDefinition Width="16" />
-                                            <ColumnDefinition Width="Auto" />
-                                        </Grid.ColumnDefinitions>
-
-                                        <!--  Icon shadow background  -->
-                                        <Border
-                                            Grid.RowSpan="2"
-                                            Width="48"
-                                            Height="48"
-                                            HorizontalAlignment="Left"
-                                            VerticalAlignment="Top">
-                                            <ui:Effects.Shadow>
-                                                <media:AttachedCardShadow
-                                                    BlurRadius="12"
-                                                    Opacity="0.3"
-                                                    Offset="0, 4"
-                                                    Color="Black" />
-                                            </ui:Effects.Shadow>
-                                        </Border>
-
-                                        <!--  Icon container  -->
-                                        <Grid
-                                            Grid.RowSpan="2"
-                                            HorizontalAlignment="Left"
-                                            VerticalAlignment="Top">
-
-                                            <!--  Background rectangle with border  -->
-                                            <Grid
-                                                Width="48"
-                                                Height="48"
-                                                Background="{ThemeResource SolidBackgroundFillColorBaseBrush}"
-                                                CornerRadius="4">
-                                                <Image
-                                                    Margin="-8"
-                                                    Source="{x:Bind Icon, Mode=OneWay}"
-                                                    Stretch="Fill" />
-                                                <Grid
-                                                    BorderBrush="{ThemeResource SolidBackgroundFillColorBaseBrush}"
-                                                    BorderThickness="2"
-                                                    CornerRadius="3" />
-                                            </Grid>
-
-                                            <!--  Overlay acrylic effect with smaller icon  -->
-                                            <Border CornerRadius="4">
-                                                <Border.Background>
-                                                    <media:AcrylicBrush
-                                                        BlurAmount="8"
-                                                        TintColor="{ThemeResource SolidBackgroundFillColorBase}"
-                                                        TintOpacity="0.7" />
-                                                </Border.Background>
-                                                <Image
-                                                    Width="32"
-                                                    Height="32"
-                                                    Margin="8"
-                                                    Source="{x:Bind Icon, Mode=OneWay}" />
-                                            </Border>
-                                        </Grid>
-
-                                        <!--  Mod Name  -->
-                                        <TextBlock
-                                            Grid.Column="2"
-                                            FontSize="16"
-                                            FontWeight="SemiBold"
-                                            Text="{x:Bind Name, Mode=OneWay}"
-                                            TextWrapping="WrapWholeWords" />
-
-                                        <!--  Mod Description  -->
-                                        <TextBlock
-                                            Grid.Row="1"
-                                            Grid.Column="2"
-                                            Grid.ColumnSpan="3"
-                                            Margin="0,0,0,16"
-                                            FontSize="12"
-                                            Opacity="0.5"
-                                            Text="{x:Bind Description, Mode=OneWay}"
-                                            TextWrapping="WrapWholeWords" />
-
-                                        <muxc:ProgressBar
-                                            Grid.Row="2"
-                                            Margin="0,8"
-                                            VerticalAlignment="Bottom"
-                                            Background="Transparent"
-                                            Maximum="{x:Bind TaskCount, Mode=OneWay}"
-                                            Value="{x:Bind Progress, Mode=OneWay}" />
-
-                                        <!--  Buttons area  -->
-                                        <Grid
-                                            Grid.Row="3"
-                                            Grid.ColumnSpan="5"
-                                            ColumnSpacing="8">
-                                            <Grid.ColumnDefinitions>
-                                                <ColumnDefinition Width="Auto" />
-                                                <ColumnDefinition Width="Auto" />
-                                                <ColumnDefinition Width="*" />
-                                                <ColumnDefinition Width="Auto" />
-                                                <ColumnDefinition Width="*" />
-                                            </Grid.ColumnDefinitions>
-
-                                            <!--  Installation steps flyout button  -->
-                                            <Button
-                                                Padding="8"
-                                                HorizontalAlignment="Left"
-                                                Background="Transparent"
-                                                BorderBrush="Transparent">
-                                                <FontIcon FontSize="16" Glyph="&#xE946;" />
-                                                <Button.Flyout>
-                                                    <Flyout>
-                                                        <ContentPresenter Content="{x:Bind Converter={StaticResource ModToTasksListConverter}}" />
-                                                    </Flyout>
-                                                </Button.Flyout>
-                                            </Button>
-
-                                            <!--  Action flyout (Install/Uninstall/Repair/Open)  -->
-                                            <Button
-                                                Grid.Column="1"
-                                                Padding="8"
-                                                Background="Transparent"
-                                                BorderBrush="Transparent"
-                                                IsEnabled="{x:Bind IsLoading, Mode=OneWay, Converter={StaticResource BoolNegationConverter}}">
-                                                <FontIcon FontSize="16" Glyph="&#xE712;" />
-                                                <Button.Flyout>
-                                                    <MenuFlyout>
-                                                        <!--  Install  -->
-                                                        <MenuFlyoutItem
-                                                            Command="{x:Bind InstallCommand}"
-                                                            IsEnabled="{x:Bind IsInstalled, Mode=OneWay, Converter={StaticResource BoolNegationConverter}}"
-                                                            Text="Install">
-                                                            <MenuFlyoutItem.Icon>
-                                                                <FontIcon Glyph="&#xE896;" />
-                                                            </MenuFlyoutItem.Icon>
-                                                        </MenuFlyoutItem>
-
-                                                        <!--  Uninstall  -->
-                                                        <MenuFlyoutItem
-                                                            Command="{x:Bind UninstallCommand}"
-                                                            IsEnabled="{x:Bind IsInstalled, Mode=OneWay}"
-                                                            Text="Uninstall">
-                                                            <MenuFlyoutItem.Icon>
-                                                                <FontIcon Glyph="&#xE74D;" />
-                                                            </MenuFlyoutItem.Icon>
-                                                        </MenuFlyoutItem>
-
-                                                        <!--  Repair  -->
-                                                        <MenuFlyoutItem
-                                                            Command="{x:Bind RepairCommand}"
-                                                            IsEnabled="{x:Bind IsIntact, Mode=OneWay, Converter={StaticResource BoolNegationConverter}}"
-                                                            Text="Repair">
-                                                            <MenuFlyoutItem.Icon>
-                                                                <FontIcon Glyph="&#xE90F;" />
-                                                            </MenuFlyoutItem.Icon>
-                                                        </MenuFlyoutItem>
-
-                                                        <!--  Open  -->
-                                                        <MenuFlyoutItem
-                                                            Command="{x:Bind OpenCommand}"
-                                                            IsEnabled="{x:Bind IsInstalled, Mode=OneWay}"
-                                                            Text="Open">
-                                                            <MenuFlyoutItem.Icon>
-                                                                <FontIcon Glyph="&#xE8A7;" />
-                                                            </MenuFlyoutItem.Icon>
-                                                        </MenuFlyoutItem>
-                                                    </MenuFlyout>
-                                                </Button.Flyout>
-                                            </Button>
-
-                                            <!--  Corruption indicator  -->
-                                            <Grid
-                                                Grid.Column="2"
-                                                Padding="8"
-                                                HorizontalAlignment="Left"
-                                                Background="Transparent"
-                                                ToolTipService.ToolTip="This mod is corrupted and needs to be repaired."
-                                                Visibility="{x:Bind IsIntact, Mode=OneWay, Converter={StaticResource BoolToReverseVisibilityConverter}}">
-                                                <FontIcon
-                                                    FontSize="16"
-                                                    Foreground="{ThemeResource RepairButtonBackgroundBrush}"
-                                                    Glyph="&#xF736;" />
-                                            </Grid>
-
-                                            <muxc:ProgressRing
-                                                Grid.Column="3"
-                                                Width="32"
-                                                Height="32"
-                                                IsActive="{x:Bind IsLoading, Mode=OneWay}" />
-
-                                            <!--  Open/Install/Repair buttons  -->
-                                            <Grid Grid.Column="4" Visibility="{x:Bind IsIntact, Mode=OneWay}">
-                                                <!--  Open button (visible if installed)  -->
-                                                <Button
-                                                    HorizontalAlignment="Stretch"
-                                                    Command="{x:Bind OpenCommand}"
-                                                    Content="Open"
-                                                    IsEnabled="{x:Bind IsLoading, Mode=OneWay, Converter={StaticResource BoolNegationConverter}}"
-                                                    Visibility="{x:Bind IsInstalled, Mode=OneWay}" />
-
-                                                <!--  Install button (visible if not installed)  -->
-                                                <Button
-                                                    HorizontalAlignment="Stretch"
-                                                    Command="{x:Bind InstallCommand}"
-                                                    Content="Install"
-                                                    IsEnabled="{x:Bind IsLoading, Mode=OneWay, Converter={StaticResource BoolNegationConverter}}"
-                                                    Style="{StaticResource AccentButtonStyle}"
-                                                    Visibility="{x:Bind IsInstalled, Mode=OneWay, Converter={StaticResource BoolToReverseVisibilityConverter}}" />
-                                            </Grid>
-
-                                            <!--  Repair button (visible if mod is corrupted)  -->
-                                            <Button
-                                                Grid.Column="4"
-                                                HorizontalAlignment="Stretch"
-                                                Command="{x:Bind RepairCommand}"
-                                                Content="Repair"
-                                                IsEnabled="{x:Bind IsLoading, Mode=OneWay, Converter={StaticResource BoolNegationConverter}}"
-                                                Style="{StaticResource RepairButtonStyle}"
-                                                Visibility="{x:Bind IsIntact, Mode=OneWay, Converter={StaticResource BoolToReverseVisibilityConverter}}" />
-                                        </Grid>
-                                    </Grid>
-                                </DataTemplate>
-                            </ItemsControl.ItemTemplate>
                         </ItemsControl>
                     </ContentControl>
                 </Grid>
@@ -799,251 +748,12 @@
                     HorizontalAlignment="Stretch"
                     Visibility="{x:Bind app:App.ReboundService.HasSideloadedMods, Mode=OneWay}">
                     <ContentControl HorizontalContentAlignment="Stretch" IsEnabled="{x:Bind app:App.ReboundService.IsReboundEnabled, Mode=OneWay}">
-                        <ItemsControl ItemsSource="{x:Bind forge:Catalog.SideloadedMods, Mode=OneWay}">
+                        <ItemsControl ItemTemplate="{StaticResource ModCardTemplate}" ItemsSource="{x:Bind forge:Catalog.SideloadedMods, Mode=OneWay}">
                             <ItemsControl.ItemsPanel>
                                 <ItemsPanelTemplate>
                                     <controls:WrapPanel HorizontalSpacing="8" VerticalSpacing="8" />
                                 </ItemsPanelTemplate>
                             </ItemsControl.ItemsPanel>
-                            <ItemsControl.ItemTemplate>
-                                <DataTemplate x:DataType="forge:Mod">
-                                    <Grid
-                                        Width="320"
-                                        Padding="12"
-                                        HorizontalAlignment="Stretch"
-                                        Background="{ThemeResource CardBackgroundFillColorDefault}"
-                                        BorderBrush="{ThemeResource ControlElevationBorderBrush}"
-                                        BorderThickness="1"
-                                        CornerRadius="4">
-
-                                        <Grid.RowDefinitions>
-                                            <RowDefinition Height="Auto" />
-                                            <RowDefinition Height="Auto" />
-                                            <RowDefinition Height="*" />
-                                            <RowDefinition Height="Auto" />
-                                        </Grid.RowDefinitions>
-                                        <Grid.ColumnDefinitions>
-                                            <ColumnDefinition Width="Auto" />
-                                            <ColumnDefinition Width="16" />
-                                            <ColumnDefinition Width="*" />
-                                            <ColumnDefinition Width="16" />
-                                            <ColumnDefinition Width="Auto" />
-                                        </Grid.ColumnDefinitions>
-
-                                        <!--  Icon shadow background  -->
-                                        <Border
-                                            Grid.RowSpan="2"
-                                            Width="48"
-                                            Height="48"
-                                            HorizontalAlignment="Left"
-                                            VerticalAlignment="Top">
-                                            <ui:Effects.Shadow>
-                                                <media:AttachedCardShadow
-                                                    BlurRadius="12"
-                                                    Opacity="0.3"
-                                                    Offset="0, 4"
-                                                    Color="Black" />
-                                            </ui:Effects.Shadow>
-                                        </Border>
-
-                                        <!--  Icon container  -->
-                                        <Grid
-                                            Grid.RowSpan="2"
-                                            HorizontalAlignment="Left"
-                                            VerticalAlignment="Top">
-
-                                            <!--  Background rectangle with border  -->
-                                            <Grid
-                                                Width="48"
-                                                Height="48"
-                                                Background="{ThemeResource SolidBackgroundFillColorBaseBrush}"
-                                                CornerRadius="4">
-                                                <Image
-                                                    Margin="-8"
-                                                    Source="{x:Bind Icon, Mode=OneWay}"
-                                                    Stretch="Fill" />
-                                                <Grid
-                                                    BorderBrush="{ThemeResource SolidBackgroundFillColorBaseBrush}"
-                                                    BorderThickness="2"
-                                                    CornerRadius="3" />
-                                            </Grid>
-
-                                            <!--  Overlay acrylic effect with smaller icon  -->
-                                            <Border CornerRadius="4">
-                                                <Border.Background>
-                                                    <media:AcrylicBrush
-                                                        BlurAmount="8"
-                                                        TintColor="{ThemeResource SolidBackgroundFillColorBase}"
-                                                        TintOpacity="0.7" />
-                                                </Border.Background>
-                                                <Image
-                                                    Width="32"
-                                                    Height="32"
-                                                    Margin="8"
-                                                    Source="{x:Bind Icon, Mode=OneWay}" />
-                                            </Border>
-                                        </Grid>
-
-                                        <!--  Mod Name  -->
-                                        <TextBlock
-                                            Grid.Column="2"
-                                            FontSize="16"
-                                            FontWeight="SemiBold"
-                                            Text="{x:Bind Name, Mode=OneWay}"
-                                            TextWrapping="WrapWholeWords" />
-
-                                        <!--  Mod Description  -->
-                                        <TextBlock
-                                            Grid.Row="1"
-                                            Grid.Column="2"
-                                            Grid.ColumnSpan="3"
-                                            Margin="0,0,0,16"
-                                            FontSize="12"
-                                            Opacity="0.5"
-                                            Text="{x:Bind Description, Mode=OneWay}"
-                                            TextWrapping="WrapWholeWords" />
-
-                                        <muxc:ProgressBar
-                                            Grid.Row="2"
-                                            Margin="0,8"
-                                            VerticalAlignment="Bottom"
-                                            Background="Transparent"
-                                            Maximum="{x:Bind TaskCount, Mode=OneWay}"
-                                            Value="{x:Bind Progress, Mode=OneWay}" />
-
-                                        <!--  Buttons area  -->
-                                        <Grid
-                                            Grid.Row="3"
-                                            Grid.ColumnSpan="5"
-                                            ColumnSpacing="8">
-                                            <Grid.ColumnDefinitions>
-                                                <ColumnDefinition Width="Auto" />
-                                                <ColumnDefinition Width="Auto" />
-                                                <ColumnDefinition Width="Auto" />
-                                                <ColumnDefinition Width="*" />
-                                                <ColumnDefinition Width="*" />
-                                            </Grid.ColumnDefinitions>
-
-                                            <!--  Installation steps flyout button  -->
-                                            <Button
-                                                Padding="8"
-                                                HorizontalAlignment="Left"
-                                                Background="Transparent"
-                                                BorderBrush="Transparent">
-                                                <FontIcon FontSize="16" Glyph="&#xE946;" />
-                                                <Button.Flyout>
-                                                    <Flyout>
-                                                        <ContentPresenter Content="{x:Bind Converter={StaticResource ModToTasksListConverter}}" />
-                                                    </Flyout>
-                                                </Button.Flyout>
-                                            </Button>
-
-                                            <!--  Sideloaded indicator  -->
-                                            <Grid
-                                                Grid.Column="1"
-                                                Padding="8"
-                                                HorizontalAlignment="Left"
-                                                Background="Transparent"
-                                                ToolTipService.ToolTip="This mod is sideloaded. Proceed with care.">
-                                                <FontIcon FontSize="16" Glyph="&#xE74C;" />
-                                            </Grid>
-
-                                            <!--  Action flyout (Install/Uninstall/Repair/Open)  -->
-                                            <Button
-                                                Grid.Column="2"
-                                                Padding="8"
-                                                Background="Transparent"
-                                                BorderBrush="Transparent">
-                                                <FontIcon FontSize="16" Glyph="&#xE712;" />
-                                                <Button.Flyout>
-                                                    <MenuFlyout>
-                                                        <!--  Install  -->
-                                                        <MenuFlyoutItem
-                                                            Command="{x:Bind InstallCommand}"
-                                                            IsEnabled="{x:Bind IsInstalled, Mode=OneWay, Converter={StaticResource BoolNegationConverter}}"
-                                                            Text="Install">
-                                                            <MenuFlyoutItem.Icon>
-                                                                <FontIcon Glyph="&#xE896;" />
-                                                            </MenuFlyoutItem.Icon>
-                                                        </MenuFlyoutItem>
-
-                                                        <!--  Uninstall  -->
-                                                        <MenuFlyoutItem
-                                                            Command="{x:Bind UninstallCommand}"
-                                                            IsEnabled="{x:Bind IsInstalled, Mode=OneWay}"
-                                                            Text="Uninstall">
-                                                            <MenuFlyoutItem.Icon>
-                                                                <FontIcon Glyph="&#xE74D;" />
-                                                            </MenuFlyoutItem.Icon>
-                                                        </MenuFlyoutItem>
-
-                                                        <!--  Repair  -->
-                                                        <MenuFlyoutItem
-                                                            Command="{x:Bind RepairCommand}"
-                                                            IsEnabled="{x:Bind IsIntact, Mode=OneWay, Converter={StaticResource BoolNegationConverter}}"
-                                                            Text="Repair">
-                                                            <MenuFlyoutItem.Icon>
-                                                                <FontIcon Glyph="&#xE90F;" />
-                                                            </MenuFlyoutItem.Icon>
-                                                        </MenuFlyoutItem>
-
-                                                        <!--  Open  -->
-                                                        <MenuFlyoutItem
-                                                            Command="{x:Bind OpenCommand}"
-                                                            IsEnabled="{x:Bind IsInstalled, Mode=OneWay}"
-                                                            Text="Open">
-                                                            <MenuFlyoutItem.Icon>
-                                                                <FontIcon Glyph="&#xE8A7;" />
-                                                            </MenuFlyoutItem.Icon>
-                                                        </MenuFlyoutItem>
-                                                    </MenuFlyout>
-                                                </Button.Flyout>
-                                            </Button>
-
-                                            <!--  Corruption indicator  -->
-                                            <Grid
-                                                Grid.Column="3"
-                                                Padding="8"
-                                                HorizontalAlignment="Left"
-                                                Background="Transparent"
-                                                ToolTipService.ToolTip="This mod is corrupted and needs to be repaired."
-                                                Visibility="{x:Bind IsIntact, Mode=OneWay, Converter={StaticResource BoolToReverseVisibilityConverter}}">
-                                                <FontIcon
-                                                    FontSize="16"
-                                                    Foreground="{ThemeResource RepairButtonBackgroundBrush}"
-                                                    Glyph="&#xF736;" />
-                                            </Grid>
-
-                                            <!--  Open/Install/Repair buttons  -->
-                                            <Grid Grid.Column="4" Visibility="{x:Bind IsIntact, Mode=OneWay}">
-                                                <!--  Open button (visible if installed)  -->
-                                                <Button
-                                                    HorizontalAlignment="Stretch"
-                                                    Command="{x:Bind OpenCommand}"
-                                                    Content="Open"
-                                                    Visibility="{x:Bind IsInstalled, Mode=OneWay}" />
-
-                                                <!--  Install button (visible if not installed)  -->
-                                                <Button
-                                                    HorizontalAlignment="Stretch"
-                                                    Command="{x:Bind InstallCommand}"
-                                                    Content="Install"
-                                                    Style="{StaticResource AccentButtonStyle}"
-                                                    Visibility="{x:Bind IsInstalled, Mode=OneWay, Converter={StaticResource BoolToReverseVisibilityConverter}}" />
-                                            </Grid>
-
-                                            <!--  Repair button (visible if mod is corrupted)  -->
-                                            <Button
-                                                Grid.Column="4"
-                                                HorizontalAlignment="Stretch"
-                                                Command="{x:Bind RepairCommand}"
-                                                Content="Repair"
-                                                Style="{StaticResource RepairButtonStyle}"
-                                                Visibility="{x:Bind IsIntact, Mode=OneWay, Converter={StaticResource BoolToReverseVisibilityConverter}}" />
-                                        </Grid>
-                                    </Grid>
-                                </DataTemplate>
-                            </ItemsControl.ItemTemplate>
                         </ItemsControl>
                     </ContentControl>
                 </Grid>

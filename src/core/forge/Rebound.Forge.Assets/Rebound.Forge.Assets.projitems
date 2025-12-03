@@ -33,6 +33,9 @@
     <Content Include="$(MSBuildThisFileDirectory)Assets\ReboundApps\OSK.ico">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
+    <Content Include="$(MSBuildThisFileDirectory)Assets\ReboundApps\RunBox.ico">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
     <Content Include="$(MSBuildThisFileDirectory)Assets\ReboundApps\ServiceHost.ico">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>

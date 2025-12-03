@@ -241,6 +241,42 @@ public partial class ReboundService : ObservableObject
     }
 
     [RelayCommand]
+    public async Task InstallTemplateAsync(string templStr)
+    {
+        // Uninstall all mods first
+        foreach (var mod in Catalog.Mods)
+        {
+            await mod.UninstallAsync();
+        }
+
+        // Parse input to template enum
+        var template = templStr switch
+        {
+            "Basic" => InstallationTemplate.Basic,
+            "Recommended" => InstallationTemplate.Recommended,
+            "Complete" => InstallationTemplate.Complete,
+            "Extras" => InstallationTemplate.Extras,
+            _ => InstallationTemplate.Basic
+        };
+
+        // Define hierarchy of templates included per selected template
+        HashSet<InstallationTemplate> includedTemplates = template switch
+        {
+            InstallationTemplate.Basic => [InstallationTemplate.Basic],
+            InstallationTemplate.Recommended => [InstallationTemplate.Basic, InstallationTemplate.Recommended],
+            InstallationTemplate.Complete => [InstallationTemplate.Basic, InstallationTemplate.Recommended, InstallationTemplate.Complete],
+            InstallationTemplate.Extras => [InstallationTemplate.Basic, InstallationTemplate.Recommended, InstallationTemplate.Complete, InstallationTemplate.Extras],
+            _ => [InstallationTemplate.Basic]
+        };
+
+        // Filter mods that match included templates and install them
+        foreach (var mod in Catalog.Mods.Where(m => includedTemplates.Contains(m.PreferredInstallationTemplate)))
+        {
+            await mod.InstallAsync();
+        }
+    }
+
+    [RelayCommand]
     public async Task UpdateOrRepairAllAsync()
     {
         try

@@ -184,7 +184,7 @@ public static class ModParser
                 Name = modElement.Element("Name")?.Value ?? "Unnamed Mod",
                 Description = modElement.Element("Description")?.Value ?? "",
                 Icon = Path.Combine(path, "icon.png"),
-                Cogs = instructions, // inline instructions
+                //Cogs = instructions, // inline instructions
                 Category = ModCategory.Sideloaded,
                 PreferredInstallationTemplate = InstallationTemplate.Extras
             };

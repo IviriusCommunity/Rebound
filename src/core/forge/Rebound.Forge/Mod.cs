@@ -15,6 +15,11 @@ namespace Rebound.Forge;
 public enum ModCategory
 {
     /// <summary>
+    /// Mandatory mods (the ones from <see cref="Catalog.MandatoryMods"/>).
+    /// </summary>
+    Mandatory,
+
+    /// <summary>
     /// Mods that do not have a defined category.
     /// </summary>
     General,
@@ -47,6 +52,45 @@ public enum ModCategory
 }
 
 /// <summary>
+/// Represents a variant of a <see cref="Mod"/>.
+/// </summary>
+public partial class ModVariant : ObservableObject
+{
+    /// <summary>
+    /// The display name of a mod variant.
+    /// </summary>
+    public string? Name { get; set; }
+
+    /// <summary>
+    /// The ID of a mod variant. Example: Rebound.About.Default
+    /// </summary>
+    public string? Id { get; set; }
+
+    /// <summary>
+    /// The tasks that this mod does in the system. Can be anything from file
+    /// operations to registry tweaks.
+    /// </summary>
+#pragma warning disable CA2227 // Collection properties should be read only
+    public ObservableCollection<ICog> Cogs { get; set; } = [];
+
+    /// <summary>
+    /// The settings that are displayed in the mod's page in Rebound Hub.
+    /// </summary>
+    public ObservableCollection<IModItem> Settings { get; set; } = [];
+
+    /// <summary>
+    /// Launcher tasks to do upon opening the mod.
+    /// </summary>
+    public ObservableCollection<ILauncher> Launchers { get; set; } = [];
+
+    /// <summary>
+    /// Dependencies for the current mod. Collection consists of <see cref="Mod.Id"/> strings.
+    /// </summary>
+    public ObservableCollection<string> Dependencies { get; set; } = [];
+#pragma warning restore CA2227 // Collection properties should be read only
+}
+
+/// <summary>
 /// Definition class for a system modification that the Rebound Forge can interpret and
 /// install based on given instructions.
 /// </summary>
@@ -59,11 +103,17 @@ public partial class Mod : ObservableObject
     [ObservableProperty] public partial bool IsLoading { get; set; } = false;
     [ObservableProperty] public partial int Progress { get; set; }
     [ObservableProperty] public partial int TaskCount { get; set; }
+    [ObservableProperty] public partial int SelectedVariantIndex { get; set; } = -1;
 
     /// <summary>
     /// The display name of a mod.
     /// </summary>
     public string? Name { get; set; }
+
+    /// <summary>
+    /// The ID of a mod. Example: Rebound.About
+    /// </summary>
+    public string? Id { get; set; }
 
     /// <summary>
     /// The mod's description.
@@ -95,21 +145,10 @@ public partial class Mod : ObservableObject
     public InstallationTemplate PreferredInstallationTemplate { get; set; } = InstallationTemplate.Extras;
 
     /// <summary>
-    /// The tasks that this mod does in the system. Can be anything from file
-    /// operations to registry tweaks.
+    /// Variants of the current mod.
     /// </summary>
 #pragma warning disable CA2227 // Collection properties should be read only
-    public ObservableCollection<ICog> Cogs { get; set; } = [];
-
-    /// <summary>
-    /// The settings that are displayed in the mod's page in Rebound Hub.
-    /// </summary>
-    public ObservableCollection<IModItem> Settings { get; set; } = [];
-
-    /// <summary>
-    /// Launcher tasks to do upon calling <see cref="OpenAsync"/>.
-    /// </summary>
-    public ObservableCollection<ILauncher> Launchers { get; set; } = [];
+    public ObservableCollection<ModVariant> Variants { get; set; } = [];
 #pragma warning restore CA2227 // Collection properties should be read only
 
     private readonly SemaphoreSlim _operationLock = new(1, 1);
@@ -118,6 +157,18 @@ public partial class Mod : ObservableObject
     /// Creates a new instance of the <see cref="Mod"/> class.
     /// </summary>
     public Mod() { }
+
+    async partial void OnSelectedVariantIndexChanged(int value)
+    {
+        if (value < 0 || value >= Variants.Count) return;
+
+        var result = await UpdateIntegrityAsync();
+        UIThreadQueue.QueueAction(() =>
+        {
+            IsInstalled = result.Installed;
+            IsIntact = result.Intact;
+        });
+    }
 
     /// <summary>
     /// Triggers <see cref="ICog.ApplyAsync"/> on every <see cref="ICog"/> from <see cref="Cogs"/>.
@@ -139,57 +190,92 @@ public partial class Mod : ObservableObject
         await RunTask(false).ConfigureAwait(false);
     }
 
+    /// <summary>
+    /// Performs the installation or uninstallation process for the currently selected mod variant, including handling
+    /// dependencies and updating progress state.
+    /// </summary>
+    /// <remarks>This method manages progress tracking and logging throughout the operation. It ensures that
+    /// dependencies are installed before installation and dependents are uninstalled before uninstallation. The method
+    /// is thread-safe and serializes operations using an internal lock. If an error occurs during the process, it is
+    /// logged and the operation continues with remaining items.</remarks>
+    /// <param name="install">true to install the selected mod variant and its dependencies; false to uninstall the selected mod variant and
+    /// its dependents.</param>
+    /// <returns>A task that represents the asynchronous operation.</returns>
     private async Task RunTask(bool install)
     {
-        // Prevent concurrent operations on the same mod
         await _operationLock.WaitAsync().ConfigureAwait(false);
 
         try
         {
-            // Validate collections
-            if (Cogs == null || Cogs.Count == 0)
+            // Validate variant selection
+            if (SelectedVariantIndex < 0 || SelectedVariantIndex >= Variants.Count)
             {
-                ReboundLogger.Log($"[Mod] Cannot {(install ? "install" : "uninstall")} {Name} - no cogs defined");
+                ReboundLogger.Log($"[Mod] Cannot {(install ? "install" : "uninstall")} {Name} - invalid variant selection");
                 return;
             }
 
-            // Progress trackers
-            int taskCount = Cogs.Count(c => !c.Ignorable);
-            int progress = 0;
+            // Obtain the currently selected variant
+            var selectedVariant = Variants[SelectedVariantIndex];
 
-            // Initialize
-            ReboundLogger.Log($"[Mod] {(install ? "Installing" : "Uninstalling")} {Name}...");
-            await UIThreadQueue.QueueActionAsync(async () =>
+            // Install dependencies before proceeding with installation
+            if (install)
             {
-                IsLoading = true;
-                TaskCount = taskCount;
-                Progress = 0;
-            });
+                await InstallDependenciesAsync(selectedVariant).ConfigureAwait(false);
+            }
+            else
+            {
+                // Uninstall dependents before uninstalling this mod
+                await UninstallDependentAsync(selectedVariant).ConfigureAwait(false);
+            }
 
-            // Go through each cog and (un)install it
-            foreach (var cog in Cogs)
+            // Handle every variant
+            foreach (var variant in Variants)
             {
-                try
+                // Validate collections
+                if (variant.Cogs == null || variant.Cogs.Count == 0)
                 {
-                    if (install)
-                        await cog.ApplyAsync().ConfigureAwait(false);
-                    else
-                        await cog.RemoveAsync().ConfigureAwait(false);
-
-                    if (!cog.Ignorable)
-                    {
-                        progress++;
-                        int currentProgress = progress; // Capture for closure
-                        await UIThreadQueue.QueueActionAsync(async () =>
-                        {
-                            Progress = currentProgress;
-                        });
-                    }
+                    ReboundLogger.Log($"[Mod] Cannot {(install ? "install" : "uninstall")} {Name} - no cogs defined");
+                    return;
                 }
-                catch (Exception ex)
+
+                // Progress trackers
+                int taskCount1 = variant.Cogs.Count(c => !c.Ignorable);
+                int progress1 = 0;
+
+                // Initialize
+                ReboundLogger.Log($"[Mod] {(install ? "Installing" : "Uninstalling")} {Name}...");
+                UIThreadQueue.QueueAction(() =>
                 {
-                    ReboundLogger.Log($"[Mod] Cog operation failed for {Name}", ex);
-                    // Continue with other cogs even if one fails
+                    IsLoading = true;
+                    TaskCount = taskCount1;
+                    Progress = 0;
+                });
+
+                // Go through each cog and modify it accordingly
+                foreach (var cog in variant.Cogs)
+                {
+                    try
+                    {
+                        if (install && variant.Id == selectedVariant.Id)
+                            await cog.ApplyAsync().ConfigureAwait(false);
+                        else
+                            await cog.RemoveAsync().ConfigureAwait(false);
+
+                        if (!cog.Ignorable)
+                        {
+                            progress1++;
+                            int currentProgress = progress1; // Capture for closure
+                            UIThreadQueue.QueueAction(() =>
+                            {
+                                Progress = currentProgress;
+                            });
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        ReboundLogger.Log($"[Mod] Cog operation failed for {Name}", ex);
+                        // Continue with other cogs even if one fails
+                    }
                 }
             }
 
@@ -206,7 +292,7 @@ public partial class Mod : ObservableObject
         finally
         {
             // Finish progress tracking
-            await UIThreadQueue.QueueActionAsync(async () =>
+            UIThreadQueue.QueueAction(() =>
             {
                 IsLoading = false;
                 Progress = 0;
@@ -224,13 +310,18 @@ public partial class Mod : ObservableObject
     [RelayCommand]
     public async Task OpenAsync()
     {
-        if (Launchers == null || Launchers.Count == 0)
+        if (SelectedVariantIndex == -1) return;
+
+        // Obtain the currently selected variant
+        var selectedVariant = Variants[SelectedVariantIndex];
+
+        if (selectedVariant.Launchers == null || selectedVariant.Launchers.Count == 0)
         {
             ReboundLogger.Log($"[Mod] Cannot open {Name} - no launchers defined");
             return;
         }
 
-        foreach (var launcher in Launchers)
+        foreach (var launcher in selectedVariant.Launchers)
         {
             try
             {
@@ -250,6 +341,155 @@ public partial class Mod : ObservableObject
     [RelayCommand]
     public async Task RepairAsync() => await InstallAsync().ConfigureAwait(false);
 
+    private async Task <(bool Installed, bool Intact)> RetrieveIntegrityStatusForModVariant(ModVariant variant)
+    {
+        // Set loading state
+        UIThreadQueue.QueueAction(() =>
+        {
+            IsLoading = true;
+        });
+
+        // Get non-ignorable cogs
+        var nonIgnorableCogs = variant.Cogs.Where(c => !c.Ignorable).ToList();
+        int totalLocal = nonIgnorableCogs.Count;
+
+        if (totalLocal == 0)
+        {
+            UIThreadQueue.QueueAction(() =>
+            {
+                IsInstalled = false;
+                IsIntact = true;
+                IsLoading = false;
+            });
+
+            return (false, true);
+        }
+
+        // Get the results
+        var results = await Task.WhenAll(nonIgnorableCogs.Select(c => c.IsAppliedAsync())).ConfigureAwait(false);
+        int intactLocal = results.Count(applied => applied);
+
+        bool installed = intactLocal != 0;
+        bool intact = intactLocal == 0 || intactLocal == totalLocal;
+
+        // Update properties on the UI thread in a single batch
+        UIThreadQueue.QueueAction(() =>
+        {
+            IsInstalled = installed;
+            IsIntact = intact;
+            IsLoading = false;
+        });
+
+        // Log mod integrity
+        ReboundLogger.Log($"[Mod] Updated integrity for {Name} and variant {variant.Name}: Installed={installed}, Intact={intact}, intactItems={intactLocal}, totalItems={totalLocal}");
+
+        return (installed, intact);
+    }
+
+    /// <summary>
+    /// Installs dependencies for a given variant.
+    /// </summary>
+    /// <param name="variant">The variant whose dependencies need to be installed.</param>
+    /// <returns>A task corresponding to the action.</returns>
+    private async Task InstallDependenciesAsync(ModVariant variant)
+    {
+        if (variant.Dependencies == null || variant.Dependencies.Count == 0)
+            return;
+
+        ReboundLogger.Log($"[Mod] Installing dependencies for {Name} (Variant: {variant.Name})...");
+
+        // Collect all mods from the full catalog to search dependencies
+        var allMods = new List<Mod>();
+        allMods.AddRange(Catalog.MandatoryMods);
+        allMods.AddRange(Catalog.Mods);
+        allMods.AddRange(Catalog.SideloadedMods);
+
+        foreach (var dependency in variant.Dependencies)
+        {
+            try
+            {
+                // Find the dependency mod by ID across the entire catalog
+                var dependencyMod = allMods.FirstOrDefault(m => m.Id == dependency);
+
+                if (dependencyMod == null)
+                {
+                    ReboundLogger.Log($"[Mod] Dependency '{dependency}' not found for {Name}");
+                    continue;
+                }
+
+                // Check if the dependency is already installed and intact
+                var (installed, intact) = await dependencyMod.UpdateIntegrityAsync().ConfigureAwait(false);
+
+                if (installed && intact)
+                {
+                    ReboundLogger.Log($"[Mod] Dependency '{dependency}' is already installed and intact");
+                    continue;
+                }
+
+                // Install the dependency if not installed or not intact
+                ReboundLogger.Log($"[Mod] Installing dependency '{dependency}' for {Name}");
+                await dependencyMod.InstallAsync().ConfigureAwait(false);
+            }
+            catch (Exception ex)
+            {
+                ReboundLogger.Log($"[Mod] Failed to install dependency '{dependency}' for {Name}", ex);
+                // Continue with other dependencies even if one fails
+            }
+        }
+
+        ReboundLogger.Log($"[Mod] Finished installing dependencies for {Name} (Variant: {variant.Name})");
+    }
+
+    /// <summary>
+    /// Uninstalls all mods that depend on the specified mod variant.
+    /// </summary>
+    /// <remarks>This method attempts to uninstall each mod that declares a dependency on the given variant.
+    /// If a dependent mod is not installed or cannot be found, it is skipped. Exceptions encountered while uninstalling
+    /// individual dependents are logged, and the operation continues with remaining dependents.</remarks>
+    /// <param name="variant">The mod variant whose dependent mods will be uninstalled. Cannot be null.</param>
+    /// <returns>A task that represents the asynchronous operation.</returns>
+    private async Task UninstallDependentAsync(ModVariant variant)
+    {
+        if (variant == null) return;
+
+        string currentModId = this.Id;
+
+        ReboundLogger.Log($"[Mod] Searching for dependents of {currentModId}...");
+
+        // Gather all mods from all catalogs to search dependencies
+        var allMods = new List<Mod>();
+        allMods.AddRange(Catalog.MandatoryMods);
+        allMods.AddRange(Catalog.Mods);
+        allMods.AddRange(Catalog.SideloadedMods);
+
+        // Find mods that depend on the current mod ID
+        var dependentMods = allMods
+            .Where(mod => mod.Variants.Any(v => v.Dependencies.Any(d => d == currentModId)))
+            .ToList();
+
+        foreach (var dependentMod in dependentMods)
+        {
+            try
+            {
+                // Avoid uninstalling self again in case of weird circular dependencies
+                if (dependentMod.Id == currentModId)
+                    continue;
+
+                ReboundLogger.Log($"[Mod] Found dependent mod '{dependentMod.Name}' (ID: {dependentMod.Id}). Uninstalling...");
+
+                // Recursively uninstall dependent mod
+                await dependentMod.UninstallAsync().ConfigureAwait(false);
+            }
+            catch (Exception ex)
+            {
+                ReboundLogger.Log($"[Mod] Failed to uninstall dependent mod '{dependentMod.Id}'", ex);
+                // Continue with others even if one fails
+            }
+        }
+
+        ReboundLogger.Log($"[Mod] Finished uninstalling dependents of {currentModId}");
+    }
+
     /// <summary>
     /// Updates the <see cref="IsInstalled"/> and <see cref="IsIntact"/> properties.
     /// </summary>
@@ -257,67 +497,64 @@ public partial class Mod : ObservableObject
     [RelayCommand]
     public async Task<(bool Installed, bool Intact)> UpdateIntegrityAsync()
     {
-        // Validate collections
-        if (Cogs == null || Cogs.Count == 0)
-        {
-            await UIThreadQueue.QueueActionAsync(async () =>
-            {
-                IsInstalled = false;
-                IsIntact = true;
-            });
-
-            return (false, true);
-        }
-
         try
         {
-            // Set loading state
-            await UIThreadQueue.QueueActionAsync(async () =>
+            // If no variant is selected, try to find one that is installed and intact
+            if (SelectedVariantIndex == -1)
             {
-                IsLoading = true;
-            });
+                List<int> corruptModIndexList = [];
 
-            // Get non-ignorable cogs
-            var nonIgnorableCogs = Cogs.Where(c => !c.Ignorable).ToList();
-            int totalLocal = nonIgnorableCogs.Count;
-
-            if (totalLocal == 0)
-            {
-                await UIThreadQueue.QueueActionAsync(async () =>
+                // Iterate through all variants to find any installed one
+                foreach (var variant in Variants)
                 {
-                    IsInstalled = false;
-                    IsIntact = true;
-                    IsLoading = false;
-                });
+                    var (installed, intact) = await RetrieveIntegrityStatusForModVariant(variant);
 
+                    // If the mod is installed but not intact, log it for later
+                    if (installed && !intact)
+                    {
+                        corruptModIndexList.Add(Variants.IndexOf(variant));
+                    }
+
+                    // Select this variant if it's installed and intact
+                    if (installed && intact)
+                    {
+                        SelectedVariantIndex = Variants.IndexOf(variant);
+                        return (true, true);
+                    }
+                }
+
+                // If no intact variant was found, but there are corrupt ones, select the first corrupt one
+                if (corruptModIndexList.Count > 0)
+                {
+                    SelectedVariantIndex = corruptModIndexList[0];
+                    return (true, false);
+                }
+
+                // Fallback: select the first variant and mark the mod as uninstalled
+                SelectedVariantIndex = 0;
                 return (false, true);
             }
 
-            // Get the results
-            var results = await Task.WhenAll(nonIgnorableCogs.Select(c => c.IsAppliedAsync())).ConfigureAwait(false);
-            int intactLocal = results.Count(applied => applied);
+            // Else, obtain the currently selected variant
+            var selectedVariant = Variants[SelectedVariantIndex];
 
-            bool installed = intactLocal != 0;
-            bool intact = intactLocal == 0 || intactLocal == totalLocal;
+            var (installed1, intact1) = await RetrieveIntegrityStatusForModVariant(selectedVariant);
 
             // Update properties on the UI thread in a single batch
-            await UIThreadQueue.QueueActionAsync(async () =>
+            UIThreadQueue.QueueAction(() =>
             {
-                IsInstalled = installed;
-                IsIntact = intact;
+                IsInstalled = installed1;
+                IsIntact = intact1;
                 IsLoading = false;
             });
 
-            // Log mod integrity
-            ReboundLogger.Log($"[Mod] Updated integrity for {Name}: Installed={installed}, Intact={intact}, intactItems={intactLocal}, totalItems={totalLocal}");
-
-            return (installed, intact);
+            return (installed1, intact1);
         }
         catch (Exception ex)
         {
             ReboundLogger.Log($"[Mod] UpdateIntegrityAsync failed for {Name}", ex);
 
-            await UIThreadQueue.QueueActionAsync(async () =>
+            UIThreadQueue.QueueAction(() =>
             {
                 IsLoading = false;
             });

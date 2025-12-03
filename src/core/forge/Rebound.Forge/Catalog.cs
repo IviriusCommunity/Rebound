@@ -101,60 +101,109 @@ public partial class Catalog : ObservableObject
                 EntryExecutable = $"{Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles)}\\Rebound\\rosk.exe",
                 PreferredInstallationTemplate = InstallationTemplate.Extras
             },*/
-
+            
             // Rebound Shell
             new()
             {
                 Name = "Rebound Shell",
+                Id = "Rebound.Shell",
                 Description = "Replacement for the shell and its components such as the run box, shutdown dialog, desktop, etc.",
                 Icon = "ms-appx:///Assets/ReboundApps/Shell.ico",
                 Category = ModCategory.Customization,
                 PreferredInstallationTemplate = InstallationTemplate.Extras,
-                Cogs =
-                [
-                    new ProcessKillCog()
+                Variants = [
+                    new()
                     {
-                        ProcessName = "Rebound Shell"
-                    },
-                    new PackageCog()
-                    {
-                        PackageURI = Path.Combine(AppContext.BaseDirectory, "Modding", "Packages", "Rebound.Shell.msixbundle"),
-                        PackageFamilyName = "Rebound.Shell_rcz2tbwv5qzb8"
-                    },
-                    new StartupPackageCog()
-                    {
-                        TargetPackageFamilyName = "Rebound.Shell_rcz2tbwv5qzb8",
-                        Description = "Rebound Shell task for overlapping the Windows shell.",
-                        Name = "Shell",
-                        RequireAdmin = false
-                    },
-                    new PackageLaunchCog()
-                    {
-                        PackageFamilyName = "Rebound.Shell_rcz2tbwv5qzb8"
+                        Name = "Default",
+                        Id = "Rebound.Shell.Default",
+                        Cogs =
+                        [
+                            new ProcessKillCog()
+                            {
+                                ProcessName = "Rebound Shell"
+                            },
+                            new PackageCog()
+                            {
+                                PackageURI = Path.Combine(AppContext.BaseDirectory, "Modding", "Packages", "Rebound.Shell.msixbundle"),
+                                PackageFamilyName = "Rebound.Shell_rcz2tbwv5qzb8"
+                            },
+                            new StartupPackageCog()
+                            {
+                                TargetPackageFamilyName = "Rebound.Shell_rcz2tbwv5qzb8",
+                                Description = "Rebound Shell task for overlapping the Windows shell.",
+                                Name = "Shell",
+                                RequireAdmin = false
+                            },
+                            new PackageLaunchCog()
+                            {
+                                PackageFamilyName = "Rebound.Shell_rcz2tbwv5qzb8"
+                            }
+                        ],
+                        /*Settings =
+                        [
+                            new ModLabel()
+                            {
+                                Text = "Content"
+                            },
+                            new ModBoolSetting(true)
+                            {
+                                Name = "Run",
+                                IconGlyph = "\uF0D2",
+                                Description = "Enable Rebound Run.",
+                                Identifier = "InstallRun",
+                                AppName = "rshell"
+                            },
+                        ],*/
+                        Launchers =
+                        [
+                            new PackageLauncher()
+                            {
+                                PackageFamilyName = "Rebound.Shell_rcz2tbwv5qzb8"
+                            }
+                        ],
                     }
-                ],
-                Settings =
-                [
-                    new ModLabel()
+                ]
+            },
+
+            // Rebound Shell
+            new()
+            {
+                Name = "Rebound Run",
+                Id = "Rebound.Run",
+                Description = "Replacement for the run box.",
+                Icon = "ms-appx:///Assets/ReboundApps/RunBox.ico",
+                Category = ModCategory.Customization,
+                PreferredInstallationTemplate = InstallationTemplate.Extras,
+                Variants = [
+                    new()
                     {
-                        Text = "Content"
+                        Name = "Default",
+                        Id = "Rebound.Run.Default",
+                        Cogs =
+                        [
+                            new BoolSettingCog()
+                            {
+                                AppliedValue = true,
+                                AppName = "rebound",
+                                Key = "InstallRun"
+                            }
+                        ],
+                        Dependencies = [ "Rebound.Shell" ]
                     },
-                    new ModBoolSetting(true)
+                    new()
                     {
-                        Name = "Run",
-                        IconGlyph = "\uF0D2",
-                        Description = "Enable Rebound Run.",
-                        Identifier = "InstallRun",
-                        AppName = "rshell"
-                    },
-                ],
-                Launchers =
-                [
-                    new PackageLauncher()
-                    {
-                        PackageFamilyName = "Rebound.Shell_rcz2tbwv5qzb8"
+                        Name = "Extended",
+                        Id = "Rebound.Run.Extended",
+                        Cogs =
+                        [
+                            new TaskFolderCog()
+                            {
+                                Name = "Rebound Run Extended"
+                            }
+                        ],
+                        Dependencies = [ "Rebound.Shell" ]
                     }
-                ],
+                ]
             },
 
             /*// Rebound User Account Control Settings
@@ -187,121 +236,137 @@ public partial class Catalog : ObservableObject
             new()
             {
                 Name = "Character Map",
+                Id = "Rebound.CharacterMap",
                 Description = "Utility for searching through characters in any installed font. (3rd party)",
                 Icon = "ms-appx:///Assets/AppIcons/PartnerApps/Character Map UWP.png",
                 Category = ModCategory.Productivity,
                 PreferredInstallationTemplate = InstallationTemplate.Extras,
-                Cogs =
-                [
-                    new IFEOCog()
+                Variants = [
+                    new()
                     {
-                        OriginalExecutableName = "charmap.exe",
-                        LauncherPath = Variables.ReboundLauncherPath
-                    },
-                    new StorePackageCog()
-                    {
-                        StoreProductId = "9WZDNCRDXF41",
-                        PackageFamilyName = "58027.265370AB8DB33_fjemmk5ta3a5g"
-                    },
-                ],
-                Settings =
-                [
-                    new ModInfoBar()
-                    {
-                        IsClosable = false,
-                        Title = "Settings for this app can be found inside the app itself."
+                        Name = "Default",
+                        Id = "Rebound.CharacterMap.Default",
+                        Cogs =
+                        [
+                            new IFEOCog()
+                            {
+                                OriginalExecutableName = "charmap.exe",
+                                LauncherPath = Variables.ReboundLauncherPath
+                            },
+                            new StorePackageCog()
+                            {
+                                StoreProductId = "9WZDNCRDXF41",
+                                PackageFamilyName = "58027.265370AB8DB33_fjemmk5ta3a5g"
+                            },
+                        ],
+                        Settings =
+                        [
+                            new ModInfoBar()
+                            {
+                                IsClosable = false,
+                                Title = "Settings for this app can be found inside the app itself."
+                            }
+                        ],
+                        Launchers =
+                        [
+                            new PackageLauncher()
+                            {
+                                PackageFamilyName = "58027.265370AB8DB33_fjemmk5ta3a5g"
+                            }
+                        ],
                     }
-                ],
-                Launchers =
-                [
-                    new PackageLauncher()
-                    {
-                        PackageFamilyName = "58027.265370AB8DB33_fjemmk5ta3a5g"
-                    }
-                ],
+                ]
             },
 
             // Rebound About Windows
             new()
             {
                 Name = "About Windows",
+                Id = "Rebound.About",
                 Description = "Replacement for the winver applet. Details about the currently installed Rebound version can be found here.",
                 Icon = "ms-appx:///Assets/ReboundApps/AboutWindows.ico",
                 Category = ModCategory.Customization,
                 PreferredInstallationTemplate = InstallationTemplate.Basic,
-                Cogs =
-                [
-                    new PackageCog()
+                Variants = [
+                    new()
                     {
-                        PackageURI = Path.Combine(AppContext.BaseDirectory, "Modding", "Packages", "Rebound.About.msixbundle"),
-                        PackageFamilyName = "Rebound.About_rcz2tbwv5qzb8"
-                    },
-                    new IFEOCog()
-                    {
-                        OriginalExecutableName = "winver.exe",
-                        LauncherPath = Variables.ReboundLauncherPath
+                        Name = "Default",
+                        Id = "Rebound.About.Default",
+                        Cogs =
+                        [
+                            new PackageCog()
+                            {
+                                PackageURI = Path.Combine(AppContext.BaseDirectory, "Modding", "Packages", "Rebound.About.msixbundle"),
+                                PackageFamilyName = "Rebound.About_rcz2tbwv5qzb8"
+                            },
+                            new IFEOCog()
+                            {
+                                OriginalExecutableName = "winver.exe",
+                                LauncherPath = Variables.ReboundLauncherPath
+                            }
+                        ],
+                        Settings =
+                        [
+                            new ModLabel()
+                            {
+                                Text = "Layout"
+                            },
+                            new ModBoolSetting(true)
+                            {
+                                Name = "Show Rebound version",
+                                IconGlyph = "\uE946",
+                                Description = "Show the installed Rebound version above the bottom bar.",
+                                Identifier = "IsReboundOn",
+                                AppName = "winver"
+                            },
+                            new ModInfoBar()
+                            {
+                                IsClosable = false,
+                                Title = "You will still be able to see the Rebound version inside Rebound Hub.",
+                                Severity = ModInfoBarSeverity.Informational
+                            },
+                            new ModBoolSetting(true)
+                            {
+                                Name = "Show specs",
+                                IconGlyph = "\uE950",
+                                Description = "Show a section with specs (CPU, GPU, RAM).",
+                                Identifier = "IsSidebarOn",
+                                AppName = "winver"
+                            },
+                            new ModBoolSetting(true)
+                            {
+                                Name = "Show \"Hello User\"",
+                                IconGlyph = "\uE77B",
+                                Description = "Show the greeting text alongside the user's profile picture in the bottom bar.",
+                                Identifier = "ShowHelloUser",
+                                AppName = "winver"
+                            },
+                            new ModBoolSetting(true)
+                            {
+                                Name = "Show activation state",
+                                IconGlyph = "\uEB95",
+                                Description = "Show the Windows activation state for the current installation.",
+                                Identifier = "ShowActivationInfo",
+                                AppName = "winver"
+                            },
+                            new ModBoolSetting(true)
+                            {
+                                Name = "Tabs",
+                                IconGlyph = "\uEC6C",
+                                Description = "Display tabs below the Windows logo.",
+                                Identifier = "ShowTabs",
+                                AppName = "winver"
+                            },
+                        ],
+                        Launchers =
+                        [
+                            new PackageLauncher()
+                            {
+                                PackageFamilyName = "Rebound.About_rcz2tbwv5qzb8"
+                            }
+                        ],
                     }
-                ],
-                Settings =
-                [
-                    new ModLabel()
-                    {
-                        Text = "Layout"
-                    },
-                    new ModBoolSetting(true)
-                    {
-                        Name = "Show Rebound version",
-                        IconGlyph = "\uE946",
-                        Description = "Show the installed Rebound version above the bottom bar.",
-                        Identifier = "IsReboundOn",
-                        AppName = "winver"
-                    },
-                    new ModInfoBar()
-                    {
-                        IsClosable = false,
-                        Title = "You will still be able to see the Rebound version inside Rebound Hub.",
-                        Severity = ModInfoBarSeverity.Informational
-                    },
-                    new ModBoolSetting(true)
-                    {
-                        Name = "Show specs",
-                        IconGlyph = "\uE950",
-                        Description = "Show a section with specs (CPU, GPU, RAM).",
-                        Identifier = "IsSidebarOn",
-                        AppName = "winver"
-                    },
-                    new ModBoolSetting(true)
-                    {
-                        Name = "Show \"Hello User\"",
-                        IconGlyph = "\uE77B",
-                        Description = "Show the greeting text alongside the user's profile picture in the bottom bar.",
-                        Identifier = "ShowHelloUser",
-                        AppName = "winver"
-                    },
-                    new ModBoolSetting(true)
-                    {
-                        Name = "Show activation state",
-                        IconGlyph = "\uEB95",
-                        Description = "Show the Windows activation state for the current installation.",
-                        Identifier = "ShowActivationInfo",
-                        AppName = "winver"
-                    },
-                    new ModBoolSetting(true)
-                    {
-                        Name = "Tabs",
-                        IconGlyph = "\uEC6C",
-                        Description = "Display tabs below the Windows logo.",
-                        Identifier = "ShowTabs",
-                        AppName = "winver"
-                    },
-                ],
-                Launchers =
-                [
-                    new PackageLauncher()
-                    {
-                        PackageFamilyName = "Rebound.About_rcz2tbwv5qzb8"
-                    }
-                ],
+                ]
             }
         };
         return new(mods.OrderBy(m => m.Name));
@@ -321,88 +386,115 @@ public partial class Catalog : ObservableObject
             new()
             {
                 Name = "Environment",
+                Id = "Rebound.Environment",
                 Description = "Mandatory mod required for Rebound to run properly.",
                 Icon = "ms-appx:///Assets/ReboundApps/Environment.ico",
-                Category = ModCategory.General,
-                PreferredInstallationTemplate = InstallationTemplate.Basic,
-                Cogs =
+                Category = ModCategory.Mandatory,
+                PreferredInstallationTemplate = InstallationTemplate.Mandatory,
+                Variants = 
                 [
-                    new FolderCog()
+                    new()
                     {
-                        Path = Variables.ReboundDataFolder,
-                        AllowPersistence = true
-                    },
-                    new FolderCog()
-                    {
-                        Path = Variables.ReboundProgramFilesFolder,
-                        AllowPersistence = true
-                    },
-                    new FolderCog()
-                    {
-                        Path = Variables.ReboundProgramFilesModsFolder,
-                        AllowPersistence = true
-                    },
-                    new FolderCog()
-                    {
-                        Path = Variables.ReboundStartMenuFolder,
-                        AllowPersistence = false
-                    },
-                    new TaskFolderCog()
-                    {
-                        Name = "Rebound"
+                        Name = "Default",
+                        Id = "Rebound.Environment.Default",
+                        Cogs =
+                        [
+                            new FolderCog()
+                            {
+                                Path = Variables.ReboundDataFolder,
+                                AllowPersistence = true
+                            },
+                            new FolderCog()
+                            {
+                                Path = Variables.ReboundProgramFilesFolder,
+                                AllowPersistence = true
+                            },
+                            new FolderCog()
+                            {
+                                Path = Variables.ReboundProgramFilesModsFolder,
+                                AllowPersistence = true
+                            },
+                            new FolderCog()
+                            {
+                                Path = Variables.ReboundStartMenuFolder,
+                                AllowPersistence = false
+                            },
+                            new TaskFolderCog()
+                            {
+                                Name = "Rebound"
+                            }
+                        ],
                     }
-                ],
+                ]
             },
 
             // Service Host
             new()
             {
                 Name = "Service Host",
+                Id = "Rebound.ServiceHost",
                 Description = "Mandatory background service required for Rebound apps to run properly.",
                 Icon = "ms-appx:///Assets/ReboundApps/ServiceHost.ico",
-                Category = ModCategory.General,
-                PreferredInstallationTemplate = InstallationTemplate.Basic,
-                Cogs =
+                Category = ModCategory.Mandatory,
+                PreferredInstallationTemplate = InstallationTemplate.Mandatory,
+                Variants = 
                 [
-                    new ProcessKillCog()
+                    new()
                     {
-                        ProcessName = "Rebound Service Host"
-                    },
-                    new PackageCog()
-                    {
-                        PackageURI = Path.Combine(AppContext.BaseDirectory, "Modding", "Packages", "Rebound.ServiceHost.msixbundle"),
-                        PackageFamilyName = "Rebound.ServiceHost_rcz2tbwv5qzb8"
-                    },
-                    new StartupPackageCog()
-                    {
-                        TargetPackageFamilyName = "Rebound.ServiceHost_rcz2tbwv5qzb8",
-                        Description = "Rebound Service Host task for managing Rebound actions as admin.",
-                        Name = "Service Host",
-                        RequireAdmin = true
-                    },
-                    new PackageLaunchCog()
-                    {
-                        PackageFamilyName = "Rebound.ServiceHost_rcz2tbwv5qzb8"
+                        Name = "Default",
+                        Id = "Rebound.ServiceHost.Default",
+                        Cogs =
+                        [
+                            new ProcessKillCog()
+                            {
+                                ProcessName = "Rebound Service Host"
+                            },
+                            new PackageCog()
+                            {
+                                PackageURI = Path.Combine(AppContext.BaseDirectory, "Modding", "Packages", "Rebound.ServiceHost.msixbundle"),
+                                PackageFamilyName = "Rebound.ServiceHost_rcz2tbwv5qzb8"
+                            },
+                            new StartupPackageCog()
+                            {
+                                TargetPackageFamilyName = "Rebound.ServiceHost_rcz2tbwv5qzb8",
+                                Description = "Rebound Service Host task for managing Rebound actions as admin.",
+                                Name = "Service Host",
+                                RequireAdmin = true
+                            },
+                            new PackageLaunchCog()
+                            {
+                                PackageFamilyName = "Rebound.ServiceHost_rcz2tbwv5qzb8"
+                            }
+                        ],
                     }
-                ],
+                ]
             },
             
             // Launcher
             new()
             {
                 Name = "Launcher",
+                Id = "Rebound.Launcher",
                 Description = "Mandatory executable for Rebound apps to run properly.",
                 Icon = "ms-appx:///Assets/ReboundApps/Launcher.ico",
-                Category = ModCategory.General,
-                PreferredInstallationTemplate = InstallationTemplate.Basic,
-                Cogs =
+                Category = ModCategory.Mandatory,
+                PreferredInstallationTemplate = InstallationTemplate.Mandatory,
+                Variants =
                 [
-                    new FileCopyCog
+                    new()
                     {
-                        Path = Path.Combine(AppContext.BaseDirectory, "Modding", "Launchers", "Rebound.Launcher.exe"),
-                        TargetPath = Variables.ReboundLauncherPath
+                        Name = "Default",
+                        Id = "Rebound.Launcher.Default",
+                        Cogs =
+                        [
+                            new FileCopyCog
+                            {
+                                Path = Path.Combine(AppContext.BaseDirectory, "Modding", "Launchers", "Rebound.Launcher.exe"),
+                                TargetPath = Variables.ReboundLauncherPath
+                            }
+                        ],
                     }
-                ],
+                ]
             },
         };
         return new(mods.OrderBy(m => m.Name));
