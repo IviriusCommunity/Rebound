@@ -139,21 +139,6 @@ public partial class Catalog : ObservableObject
                                 PackageFamilyName = "Rebound.Shell_rcz2tbwv5qzb8"
                             }
                         ],
-                        /*Settings =
-                        [
-                            new ModLabel()
-                            {
-                                Text = "Content"
-                            },
-                            new ModBoolSetting(true)
-                            {
-                                Name = "Run",
-                                IconGlyph = "\uF0D2",
-                                Description = "Enable Rebound Run.",
-                                Identifier = "InstallRun",
-                                AppName = "rshell"
-                            },
-                        ],*/
                         Launchers =
                         [
                             new PackageLauncher()
@@ -164,11 +149,11 @@ public partial class Catalog : ObservableObject
                     }
                 ]
             },
-
+            
             // Rebound Shell
             new()
             {
-                Name = "Rebound Run",
+                Name = "Run",
                 Id = "Rebound.Run",
                 Description = "Replacement for the run box.",
                 Icon = "ms-appx:///Assets/ReboundApps/RunBox.ico",
@@ -208,6 +193,34 @@ public partial class Catalog : ObservableObject
                                 Title = "PowerToys must be installed for this setting to work.",
                                 Severity = ModInfoBarSeverity.Warning
                              }
+                        ],
+                        Dependencies = [ "Rebound.Shell" ]
+                    },
+                ]
+            },
+
+            // Rebound Shell
+            new()
+            {
+                Name = "Shutdown Dialog",
+                Id = "Rebound.ShutdownDialog",
+                Description = "Replacement for the Alt + F4 dialog.",
+                Icon = "ms-appx:///Assets/ReboundApps/ShutdownDialog.ico",
+                Category = ModCategory.Customization,
+                PreferredInstallationTemplate = InstallationTemplate.Extras,
+                Variants = [
+                    new()
+                    {
+                        Name = "Default",
+                        Id = "Rebound.ShutdownDialog.Default",
+                        Cogs =
+                        [
+                            new BoolSettingCog()
+                            {
+                                AppliedValue = true,
+                                AppName = "rebound",
+                                Key = "InstallShutdown"
+                            }
                         ],
                         Dependencies = [ "Rebound.Shell" ]
                     },

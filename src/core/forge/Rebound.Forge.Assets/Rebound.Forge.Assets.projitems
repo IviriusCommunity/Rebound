@@ -42,6 +42,9 @@
     <Content Include="$(MSBuildThisFileDirectory)Assets\ReboundApps\Shell.ico">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
+    <Content Include="$(MSBuildThisFileDirectory)Assets\ReboundApps\ShutdownDialog.ico">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
     <Content Include="$(MSBuildThisFileDirectory)Assets\ReboundApps\UACSettings.ico">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
