@@ -1,169 +1,191 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
-	<!-- Application and library only - These will apply to everything that isn't a source code generator -->
-	<PropertyGroup>
+	<!-- Versioning project -->
+	<Import Project="..\..\..\var\Version.props" />
 
-		<!-- Versions -->
+	<!-- Framework and platform configuration  -->
+	<PropertyGroup Label="Framework Configuration">
+
+		<!-- .NET and Windows targets -->
 		<TargetFramework>net10.0-windows10.0.26100.0</TargetFramework>
 		<TargetPlatformMinVersion>10.0.22000.0</TargetPlatformMinVersion>
 
-		<!-- Advanced -->
+		<!-- UWP properties -->
+		<UseUwp>true</UseUwp>
+		<UseUwpTools>true</UseUwpTools>
+
+	</PropertyGroup>
+
+	<!-- General application properties -->
+	<PropertyGroup Label="Application Properties">
+
+		<!-- Specific -->
+		<AssemblyName>Rebound Service Host</AssemblyName>
+		<RootNamespace>Rebound.ServiceHost</RootNamespace>
+		<ApplicationIcon>Assets\ServiceHost.ico</ApplicationIcon>
+
+		<!-- Generic -->
+		<OutputType>WinExe</OutputType>
+		<DefaultLanguage>en-US</DefaultLanguage>
+		<ApplicationManifest>app.manifest</ApplicationManifest>
+		<DefineConstants>DISABLE_XAML_GENERATED_MAIN;$(DefineConstants)</DefineConstants>
+
+		<!-- Versioning -->
+		<AssemblyVersion>$(Win32Version)</AssemblyVersion>
+		<Version>$(Win32Version)</Version>
+		<FileVersion>$(FullVersion)</FileVersion>
+
+	</PropertyGroup>
+
+	<!-- Advanced build features -->
+	<PropertyGroup Label="Advanced Features">
+
+		<!-- Generic -->
 		<EnableMsixTooling>true</EnableMsixTooling>
+		<WindowsAppSDKSelfContained>true</WindowsAppSDKSelfContained>
+
+		<!-- Native AOT -->
+		<!-- Enable COM interop support -->
 		<EnableComInterop>true</EnableComInterop>
+		<!-- Enable source generators -->
 		<UseSourceGenerators>true</UseSourceGenerators>
+		<!-- Disable runtime marshalling for better API handling -->
 		<DisableRuntimeMarshalling>true</DisableRuntimeMarshalling>
+		<!-- Run CsWin32 as a build task for COM NAOT compatibility -->
+		<CsWin32RunAsBuildTask>true</CsWin32RunAsBuildTask>
+		<!-- No idea what this is for but it fixes package publishing (thanks Rafael) -->
+		<EnableSourceLink>false</EnableSourceLink>
 
-		<!-- Self-contained settings -->
-		<PublishReadyToRun>true</PublishReadyToRun>
-		<PublishAot>true</PublishAot>
+		<!-- Required for WinUI 2 to work properly -->
+		<ProjectPriFileName>resources.pri</ProjectPriFileName>
+		
+	</PropertyGroup>
 
-		<!-- Publishing Settings -->
+	<!-- Publishing and optimization -->
+	<PropertyGroup Label="Publishing Configuration">
+
+		<!-- Generic -->
 		<PublishProfile>win-$(Platform).pubxml</PublishProfile>
+		<PublishReadyToRun>true</PublishReadyToRun>
 
-		<!-- Trimmming -->
+		<!-- Native AOT -->
+		<PublishAot>true</PublishAot>
 		<SelfContained>true</SelfContained>
 		<PublishTrimmed>true</PublishTrimmed>
 		<OptimizationPreference>Speed</OptimizationPreference>
 		<IlcOptimizationPreference>Speed</IlcOptimizationPreference>
 
-		<CsWin32RunAsBuildTask>true</CsWin32RunAsBuildTask>
-		<WindowsAppSDKSelfContained>true</WindowsAppSDKSelfContained>
+	</PropertyGroup>
 
-		<EnableSourceLink>false</EnableSourceLink>
+	<!-- Packaging and signing -->
+	<PropertyGroup Label="Packaging Settings">
+
+		<!-- Common certificate file -->
+		<PackageCertificateKeyFile>..\Rebound.Hub_TemporaryKey.pfx</PackageCertificateKeyFile>
+
+		<!-- Generic -->
+		<AppxPackageSigningEnabled>True</AppxPackageSigningEnabled>
+		<AppxPackageSigningTimestampDigestAlgorithm>SHA256</AppxPackageSigningTimestampDigestAlgorithm>
+		<AppxAutoIncrementPackageRevision>False</AppxAutoIncrementPackageRevision>
+		<AppxBundle>Always</AppxBundle>
+		<AppxBundlePlatforms>x64</AppxBundlePlatforms>
+		<GenerateTestArtifacts>True</GenerateTestArtifacts>
+		<GenerateAppInstallerFile>True</GenerateAppInstallerFile>
+		<AppInstallerUri>C:\</AppInstallerUri>
+		<HoursBetweenUpdateChecks>0</HoursBetweenUpdateChecks>
 
 	</PropertyGroup>
 
-	<!-- Package references -->
-	<ItemGroup>
+	<!-- Packages -->
 
-		<Manifest Include="$(ApplicationManifest)" />
-
+	<!-- Windows SDK & WinUI -->
+	<ItemGroup Label="Windows Platform">
+		<PackageReference Include="Microsoft.UI.Xaml" Version="2.8.7-prerelease.241119001" />
 		<PackageReference Include="Microsoft.Windows.SDK.BuildTools.MSIX" Version="1.7.20250829.1" />
+		<PackageReference Include="Microsoft.WindowsAppSDK.Base" Version="1.8.250831001" />
+		<PackageReference Include="Microsoft.WindowsAppSDK.InteractiveExperiences" Version="1.8.251104001" />
+		<PackageReference Include="MicaForUWP" Version="0.2.13" />
+	</ItemGroup>
 
-		<!-- Windows Interop -->
+	<!-- Windows Interop -->
+	<ItemGroup Label="Windows Interop">
 		<PackageReference Include="Dongle.GuidRVAGen" Version="1.0.5" />
-		<PackageReference Include="Microsoft.Windows.CsWin32" Version="0.3.238">
+		<PackageReference Include="Microsoft.Windows.CsWin32" Version="0.3.257">
 			<PrivateAssets>all</PrivateAssets>
 			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
 		</PackageReference>
-		<PackageReference Include="TerraFX.Interop.Windows" Version="10.0.26100.4" />
+		<PackageReference Include="TerraFX.Interop.Windows" Version="10.0.26100.5" />
+	</ItemGroup>
 
-		<!-- System and Management -->
-		<PackageReference Include="System.Diagnostics.PerformanceCounter" Version="10.0.0-rc.2.25502.107" />
-		<!--<PackageReference Include="System.ServiceProcess.ServiceController" Version="10.0.0-preview.5.25277.114" />-->
+	<!-- System & Management -->
+	<ItemGroup Label="System Libraries">
+		<PackageReference Include="System.Diagnostics.PerformanceCounter" Version="10.0.0" />
 		<PackageReference Include="System.IO.Pipes.AccessControl" Version="6.0.0-preview.5.21301.5" />
 		<PackageReference Include="OwlCore.Storage" Version="0.14.0" />
-
-		<!-- Task Scheduler -->
 		<PackageReference Include="TaskScheduler" Version="2.12.2" />
+	</ItemGroup>
 
-		<!-- CommunityToolkit WinUI -->
+	<!-- CommunityToolkit -->
+	<ItemGroup Label="CommunityToolkit">
 		<PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.0" />
-
 	</ItemGroup>
 
-	<!-- Properties -->
-	<PropertyGroup>
-
-		<!-- General -->
-		<OutputType>WinExe</OutputType>
-		<AssemblyName>Rebound Service Host</AssemblyName>
-		<ApplicationIcon>Assets\ServiceHost.ico</ApplicationIcon>
-		<ApplicationManifest>app.manifest</ApplicationManifest>
-
-		<DefineConstants>DISABLE_XAML_GENERATED_MAIN;UNPACKAGED;$(DefineConstants)</DefineConstants>
-
-		<!-- Deployment -->
-		<WindowsPackageType>None</WindowsPackageType>
-		<DefaultLanguage>en-US</DefaultLanguage>
-
-	</PropertyGroup>
-
-	<!-- UWP Properties -->
-	<PropertyGroup>
-		<UseUwp>true</UseUwp>
-		<UseUwpTools>true</UseUwpTools>
-	</PropertyGroup>
-
-	<ItemGroup>
-		<AppxTargetDeviceFamilyItem Include="Windows.Desktop" />
-	</ItemGroup>
-
-	<!-- Project content -->
-	<ItemGroup>
-		<None Remove="Hooks\Rebound.Forge.Hooks.ShutdownWindow.dll" />
-		<None Remove="Views\MainPage.xaml" />
-
+	<!-- Content -->
+	<ItemGroup Label="Content">
+		<Content Update="Assets\**\*">
+			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</Content>
 		<Content Include="Strings\**\*.resw">
 			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-		</Content>
-
-		<Content Update="Assets\AboutWindows.ico">
-			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
-		</Content>
-		<Content Update="Assets\Exe.ico">
-			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
-		</Content>
-		<Content Update="Assets\ServiceHost.ico">
-			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
-		</Content>
-		<Content Update="Strings\ar-SA\Resources.resw">
 			<SubType>Designer</SubType>
 		</Content>
-		<Content Update="Strings\it-IT\Resources.resw">
-			<SubType>Designer</SubType>
-		</Content>
-		<Content Update="Strings\vi-VN\Resources.resw">
-			<SubType>Designer</SubType>
-		</Content>
-		<Content Update="Strings\es-PY\Resources.resw">
-			<SubType>Designer</SubType>
-		</Content>
-		<Content Update="Strings\en-US\Resources.resw">
-			<SubType>Designer</SubType>
-		</Content>
-
-		<Page Update="Views\MainPage.xaml">
-			<Generator>MSBuild:Compile</Generator>
-		</Page>
-	</ItemGroup>
-
-	<ItemGroup>
 		<Content Include="Hooks\Rebound.Forge.Hooks.Run.dll">
-		  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
 		</Content>
 		<Content Include="Hooks\Rebound.Forge.Hooks.ShutdownWindow.dll">
-		  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
 		</Content>
-		<Content Include="NativeMethods.json" />
-	</ItemGroup>
-	<ItemGroup>
-		<PRIResource Remove="Strings\en-US\Resources.resw" />
-	</ItemGroup>
-	<ItemGroup>
-		<PRIResource Remove="Strings\es-PY\Resources.resw" />
-	</ItemGroup>
-	<ItemGroup>
-		<PRIResource Remove="Strings\ar-SA\Resources.resw" />
-	</ItemGroup>
-	<ItemGroup>
-		<PRIResource Remove="Strings\vi-VN\Resources.resw" />
-	</ItemGroup>
-	<ItemGroup>
-		<PRIResource Remove="Strings\it-IT\Resources.resw" />
 	</ItemGroup>
 
-	<!-- Project References -->
-	<ItemGroup>
+	<!-- Excluded items -->
+	<ItemGroup Label="Exclusions">
+		<None Remove="Assets\ServiceHost.ico" />
+	</ItemGroup>
+
+	<!-- Project references -->
+	<ItemGroup Label="Project References">
 		<ProjectReference Include="..\..\core\forge\Rebound.Forge\Rebound.Forge.csproj" />
 		<ProjectReference Include="..\..\core\generators\Rebound.Core.SourceGeneratorAttributes\Rebound.Core.SourceGeneratorAttributes.csproj" />
 		<ProjectReference Include="..\..\core\generators\Rebound.Core.SourceGenerator\Rebound.Core.SourceGenerator.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
-		<ProjectReference Include="..\..\core\Rebound.Core.DLLInjection\Rebound.Core.DLLInjection.csproj" />
 		<ProjectReference Include="..\..\core\Rebound.Core.IPC\Rebound.Core.IPC.csproj" />
 		<ProjectReference Include="..\..\core\Rebound.Core.Native\Rebound.Core.Native.csproj" />
+		<ProjectReference Include="..\..\core\Rebound.Core.DLLInjection\Rebound.Core.DLLInjection.csproj" />
 		<ProjectReference Include="..\..\core\Rebound.Core.SystemInformation\Rebound.Core.SystemInformation.csproj" />
 		<ProjectReference Include="..\..\core\Rebound.Core.UI\Rebound.Core.UI.csproj" />
 		<ProjectReference Include="..\..\core\Rebound.Core\Rebound.Core.csproj" />
 	</ItemGroup>
+
+	<!-- Custom build tasks -->
+
+	<!-- Native Hook DLL Build Targets -->
+	<Target Name="BuildNativeHooks" BeforeTargets="BeforeBuild">
+
+		<!-- Build Run Hook -->
+		<Message Importance="high" Text="Compiling Run DLL" />
+		<MSBuild Projects="$(SolutionDir)src\core\forge\hooks\Rebound.Forge.Hooks.Run\Rebound.Forge.Hooks.Run.vcxproj" Properties="Configuration=$(Configuration);Platform=$(Platform)" />
+
+		<!-- Build Shutdown Hook -->
+		<Message Importance="high" Text="Compiling Shutdown Dialog DLL" />
+		<MSBuild Projects="$(SolutionDir)src\core\forge\hooks\Rebound.Forge.Hooks.ShutdownWindow\Rebound.Forge.Hooks.ShutdownWindow.vcxproj" Properties="Configuration=$(Configuration);Platform=$(Platform)" />
+
+		<!-- Copy Run Hook DLL -->
+		<Message Importance="high" Text="Copying Rebound.Forge.Hooks.Run.dll" />
+		<Copy SourceFiles="$(SolutionDir)x64\$(Configuration)\Rebound.Forge.Hooks.Run.dll" DestinationFiles="Hooks\Rebound.Forge.Hooks.Run.dll" SkipUnchangedFiles="true" />
+
+		<!-- Copy Shutdown Window Hook DLL -->
+		<Message Importance="high" Text="Copying Rebound.Forge.Hooks.ShutdownWindow.dll" />
+		<Copy SourceFiles="$(SolutionDir)x64\$(Configuration)\Rebound.Forge.Hooks.ShutdownWindow.dll" DestinationFiles="Hooks\Rebound.Forge.Hooks.ShutdownWindow.dll" SkipUnchangedFiles="true" />
+		
+	</Target>
 
 </Project>

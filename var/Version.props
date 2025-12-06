@@ -1,0 +1,16 @@
+<Project>
+	<PropertyGroup>
+		<!-- Read base version from files -->
+		<FullVersion>$([System.IO.File]::ReadAllText('$(MSBuildThisFileDirectory)VERSION.txt').Trim())</FullVersion>
+		<VersionName>$([System.IO.File]::ReadAllText('$(MSBuildThisFileDirectory)VERSION_NAME.txt').Trim())</VersionName>
+
+		<!-- MSIX MUST be 4-part (e.g., 1.0.0.0) -->
+		<MsixVersion>$(FullVersion)</MsixVersion>
+
+		<!-- Win32 MUST be 3-part (e.g., 1.0.0) - Extract first 3 parts using regex -->
+		<Win32Version>$([System.Text.RegularExpressions.Regex]::Match('$(FullVersion)', '^(\d+\.\d+\.\d+)').Groups[1].Value)</Win32Version>
+
+		<!-- Display version -->
+		<DisplayVersion>v$(FullVersion) $(VersionName)</DisplayVersion>
+	</PropertyGroup>
+</Project>

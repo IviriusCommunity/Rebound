@@ -61,4 +61,7 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
   </ItemGroup>
+  <ItemGroup>
+    <Folder Include="$(MSBuildThisFileDirectory)Modding\ServiceHost\" />
+  </ItemGroup>
 </Project>

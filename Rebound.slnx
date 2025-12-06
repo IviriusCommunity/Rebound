@@ -12,7 +12,13 @@
   <Folder Name="/eng/" />
   <Folder Name="/eng/distribution/" />
   <Folder Name="/eng/distribution/standalone/">
-    <Project Path="eng/distribution/standalone/Rebound.Installer/Rebound.Installer.csproj" />
+    <Project Path="eng/distribution/standalone/Rebound.Distribution/Rebound.Distribution.shproj" Id="e6316951-4b3c-4212-a601-bdc65d1fbeba" />
+    <Project Path="eng/distribution/standalone/Rebound.Installer/Rebound.Installer.csproj">
+      <Platform Solution="*|x64" Project="x64" />
+      <Build Solution="*|ARM64" Project="false" />
+      <Build Solution="*|x86" Project="false" />
+      <Build Solution="Release|x64" Project="false" />
+    </Project>
   </Folder>
   <Folder Name="/src/" Id="02ea681e-c7d8-13c7-8484-4ac65e1b71e8">
     <File Path="src/Directory.Build.props" />
@@ -133,5 +139,8 @@
     <File Path="docfx.json" />
     <File Path="LICENSE.md" />
     <File Path="toc.yml" />
+    <File Path="var/Version.props" />
+    <File Path="var/VERSION.txt" />
+    <File Path="var/VERSION_NAME.txt" />
   </Folder>
 </Solution>

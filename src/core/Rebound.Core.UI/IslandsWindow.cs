@@ -2,10 +2,10 @@
 // Licensed under the MIT License.
 
 using CommunityToolkit.Mvvm.ComponentModel;
-using CommunityToolkit.WinUI.Helpers;
 using Microsoft.UI;
 using Microsoft.UI.Windowing;
 using Microsoft.UI.Xaml.Controls;
+using Microsoft.Win32;
 using Rebound.Core.Helpers;
 using System.Diagnostics;
 using System.Runtime.CompilerServices;
@@ -41,6 +41,88 @@ public enum DialogIcon
     Warning,
     Error,
     Shield
+}
+
+public class ThemeRegistryListener : IDisposable
+{
+    public const int REG_NOTIFY_CHANGE_NAME = 0x00000001;
+    public const int REG_NOTIFY_CHANGE_ATTRIBUTES = 0x00000002;
+    public const int REG_NOTIFY_CHANGE_LAST_SET = 0x00000004;
+    public const int REG_NOTIFY_CHANGE_SECURITY = 0x00000008;
+
+    private const string RegistryKeyPath = @"Software\Microsoft\Windows\CurrentVersion\Themes\Personalize";
+    private const string ValueName = "AppsUseLightTheme";
+    private readonly RegistryKey registryKey;
+    private Task? watchTask;
+    private CancellationTokenSource? cts;
+
+    public event Action<bool>? ThemeChanged; // true = dark mode, false = light mode
+
+    public ThemeRegistryListener()
+    {
+        registryKey = Registry.CurrentUser.OpenSubKey(RegistryKeyPath, false) ?? throw new Exception("Failed to open registry key.");
+    }
+
+    public void Start()
+    {
+        if (watchTask != null)
+            throw new InvalidOperationException("Already started.");
+
+        cts = new CancellationTokenSource();
+        watchTask = Task.Run(() => WatchRegistry(cts.Token));
+    }
+
+    public void Stop()
+    {
+        cts?.Cancel();
+        watchTask = null;
+        cts = null;
+    }
+
+    private void WatchRegistry(CancellationToken token)
+    {
+        var regHandle = registryKey.Handle;
+        while (!token.IsCancellationRequested)
+        {
+            try
+            {
+                // Wait for changes on the key or cancellation
+                Microsoft.Win32.SafeHandles.SafeRegistryHandle handle = regHandle;
+                var waitResult = TerraFX.Interop.Windows.Windows.RegNotifyChangeKeyValue(HKEY.HKEY_CURRENT_USER,
+                    true,
+                    REG_NOTIFY_CHANGE_LAST_SET,
+                    HANDLE.NULL,
+                    false);
+
+                if (waitResult == 0)
+                {
+                    var isDarkMode = !IsLightTheme();
+                    ThemeChanged?.Invoke(isDarkMode);
+                }
+
+                if (token.IsCancellationRequested)
+                    break;
+            }
+            catch
+            {
+                break;
+            }
+        }
+    }
+
+    public bool IsLightTheme()
+    {
+        var val = registryKey.GetValue(ValueName);
+        if (val is int intValue)
+            return intValue != 0;
+        return true; // default to light if missing
+    }
+
+    public void Dispose()
+    {
+        Stop();
+        registryKey.Dispose();
+    }
 }
 
 public class IslandsWindowClosingEventArgs : EventArgs
@@ -90,9 +172,9 @@ public sealed partial class ReboundDialog : IslandsWindow
     /// <param name="message">Message content for the dialog.</param>
     /// <param name="icon">The icon used by the dialog. Queried from the system.</param>
     /// <returns>A task corresponding to the object.</returns>
-    public static async Task ShowAsync(string title, string message, DialogIcon icon = DialogIcon.Info)
+    public static async Task ShowAsync(string title, string message, DialogIcon icon = DialogIcon.Info, int height = 256)
     {
-        using var dlg = new ReboundDialog(title, message, icon);
+        using var dlg = new ReboundDialog(title, message, icon, height);
         dlg.Create();
         await dlg._tcs.Task.ConfigureAwait(false);
     }
@@ -105,7 +187,7 @@ public sealed partial class ReboundDialog : IslandsWindow
     /// <param name="title">The title of the window. Appears in the title bar, taskbar, and header.</param>
     /// <param name="message">Message content for the dialog.</param>
     /// <param name="icon">The icon used by the dialog. Queried from the system.</param>
-    public ReboundDialog(string title, string message, DialogIcon icon)
+    public ReboundDialog(string title, string message, DialogIcon icon, int height)
     {
         Title = title;
         IsPersistenceEnabled = false;
@@ -229,7 +311,7 @@ public sealed partial class ReboundDialog : IslandsWindow
             AppWindow?.TitleBar.ButtonBackgroundColor = Windows.UI.Colors.Transparent;
             AppWindow?.TitleBar.ButtonInactiveBackgroundColor = Windows.UI.Colors.Transparent;
             Width = 480;
-            Height = 256;
+            Height = height;
             IsMaximizable = false;
             IsMinimizable = false;
             IsResizable = false;
@@ -331,7 +413,7 @@ public partial class IslandsWindow : ObservableObject, IDisposable
     // Constants and static fields
     private const string WindowClassName = "XamlIslandsClass";
     private static readonly ushort _classAtom;
-    private static readonly WindowsXamlManager? _xamlManager;
+    private static WindowsXamlManager? _xamlManager;
 
     // Internal stuff
     private bool _disposed;
@@ -448,7 +530,10 @@ public partial class IslandsWindow : ObservableObject, IDisposable
             InternalLoadLibrary("threadpoolwinrt.dll");
         }
 
-        _xamlManager = WindowsXamlManager.InitializeForCurrentThread();
+        UIThreadQueue.QueueAction(() =>
+        {
+            _xamlManager = WindowsXamlManager.InitializeForCurrentThread();
+        });
     }
 
     [UnmanagedCallersOnly]
@@ -586,12 +671,12 @@ public partial class IslandsWindow : ObservableObject, IDisposable
         XamlInitialized?.Invoke(this, new XamlInitializedEventArgs());
 
         // Theme stuff for dark mode support on the window itself
-        using var themeListener = new ThemeListener();
+        using var themeListener = new ThemeRegistryListener();
         themeListener.ThemeChanged += (args) =>
         {
             unsafe
             {
-                int darkMode = args.CurrentTheme == ApplicationTheme.Dark ? 1 : 0;
+                int darkMode = args ? 1 : 0;
                 DwmSetWindowAttribute(Handle,
                     (uint)DWMWINDOWATTRIBUTE.DWMWA_USE_IMMERSIVE_DARK_MODE,
                     &darkMode, sizeof(int));
@@ -603,7 +688,7 @@ public partial class IslandsWindow : ObservableObject, IDisposable
         {
             var backdrop = (int)DWM_SYSTEMBACKDROP_TYPE.DWMSBT_MAINWINDOW;
             DwmSetWindowAttribute(Handle, (uint)DWMWINDOWATTRIBUTE.DWMWA_SYSTEMBACKDROP_TYPE, &backdrop, sizeof(int));
-            int dark = themeListener.CurrentTheme == ApplicationTheme.Light ? 0 : 1;
+            int dark = themeListener.IsLightTheme() ? 0 : 1;
             DwmSetWindowAttribute(Handle, (uint)DWMWINDOWATTRIBUTE.DWMWA_USE_IMMERSIVE_DARK_MODE, &dark, sizeof(int));
         }
     }

@@ -136,10 +136,8 @@ public class ReboundAppSourceGenerator : IIncrementalGenerator
         return classDecl;
     }
 
-    // FIX: Must be 'static' to be called from the non-static RegisterSourceOutput lambda
     private static ClassDeclarationSyntax GenerateProgramClass()
     {
-        // ... (implementation remains the same)
         return ParseMemberDeclaration(@"
 internal static partial class Program
 {
@@ -153,39 +151,40 @@ internal static partial class Program
         TerraFX.Interop.WinRT.WinRT.RoInitialize(
             TerraFX.Interop.WinRT.RO_INIT_TYPE.RO_INIT_SINGLETHREADED);
 
+        // SET THE MAIN THREAD ID FOR UIThreadQueue
+        Rebound.Core.UI.UIThreadQueue.SetMainThreadId(
+            TerraFX.Interop.Windows.Windows.GetCurrentThreadId());
+
         var app = new App();
 
         Task.Run(() => app._singleInstanceAppService.Launch(string.Join("" "", args)));
 
         MSG msg;
-        while (true)
+        // CHANGED: Use GetMessage instead of the busy-wait loop
+        while (TerraFX.Interop.Windows.Windows.GetMessageW(&msg, default, 0, 0) > 0)
         {
-            while (TerraFX.Interop.Windows.Windows.PeekMessageW(&msg, HWND.NULL, 0, 0, PM.PM_REMOVE))
+            foreach (var window in WindowList.OpenWindows.ToArray())
             {
-                foreach (var window in WindowList.OpenWindows.ToArray())
+                if (!window.Closed)
                 {
-                    if (!window.Closed)
+                    if (!window.PreTranslateMessage(&msg))
                     {
-                        if (!window.PreTranslateMessage(&msg))
-                        {
-                            TerraFX.Interop.Windows.Windows.TranslateMessage(&msg);
-                            TerraFX.Interop.Windows.Windows.DispatchMessageW(&msg);
-                        }
+                        TerraFX.Interop.Windows.Windows.TranslateMessage(&msg);
+                        TerraFX.Interop.Windows.Windows.DispatchMessageW(&msg);
                     }
                 }
             }
 
-            var actionsToRun2 = new System.Collections.Generic.List<System.Func<System.Threading.Tasks.Task>>();
-            while (Rebound.Core.UI.UIThreadQueue._actions.TryDequeue(out var action2))
-                actionsToRun2.Add(action2);
+            // Process queued UI actions after each message
+            var actionsToRun = new System.Collections.Generic.List<System.Func<System.Threading.Tasks.Task>>();
+            while (Rebound.Core.UI.UIThreadQueue._actions.TryDequeue(out var action))
+                actionsToRun.Add(action);
 
-            foreach (var action2 in actionsToRun2.ToArray())
+            foreach (var action in actionsToRun)
             {
-                try { _ = action2(); }
+                try { _ = action(); }
                 catch (Exception ex) { Rebound.Core.ReboundLogger.Log(""[UIThreadQueue] UI thread crash."", ex); }
             }
-            
-            //System.Threading.Thread.Sleep(1);
         }
     }
 }").NormalizeWhitespace() as ClassDeclarationSyntax ?? throw new System.Exception("Failed to generate Program class");

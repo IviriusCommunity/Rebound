@@ -188,21 +188,29 @@ public partial class Catalog : ObservableObject
                                 Key = "InstallRun"
                             }
                         ],
-                        Dependencies = [ "Rebound.Shell" ]
-                    },
-                    new()
-                    {
-                        Name = "Extended",
-                        Id = "Rebound.Run.Extended",
-                        Cogs =
+                        Settings =
                         [
-                            new TaskFolderCog()
+                            new ModLabel()
                             {
-                                Name = "Rebound Run Extended"
-                            }
+                                Text = "Behavior"
+                            },
+                            new ModBoolSetting()
+                            {
+                                AppName = "rshell",
+                                Description = "Launch PowerToys Command Palette when opening the Run box.",
+                                IconGlyph = "\uE945",
+                                Identifier = "RunBoxUseCommandPalette",
+                                Name = "Use PowerToys Command Palette"
+                            },
+                            new ModInfoBar()
+                            {
+                                IsClosable = false,
+                                Title = "PowerToys must be installed for this setting to work.",
+                                Severity = ModInfoBarSeverity.Warning
+                             }
                         ],
                         Dependencies = [ "Rebound.Shell" ]
-                    }
+                    },
                 ]
             },
 
@@ -449,21 +457,21 @@ public partial class Catalog : ObservableObject
                             {
                                 ProcessName = "Rebound Service Host"
                             },
-                            new PackageCog()
+                            new ProgramFolderCopyCog()
                             {
-                                PackageURI = Path.Combine(AppContext.BaseDirectory, "Modding", "Packages", "Rebound.ServiceHost.msixbundle"),
-                                PackageFamilyName = "Rebound.ServiceHost_rcz2tbwv5qzb8"
+                                Path = Path.Combine(AppContext.BaseDirectory, "Modding", "ServiceHost"),
+                                DestinationPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles), "Rebound", "ServiceHost")
                             },
-                            new StartupPackageCog()
+                            new StartupTaskCog()
                             {
-                                TargetPackageFamilyName = "Rebound.ServiceHost_rcz2tbwv5qzb8",
+                                TargetPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles), "Rebound", "ServiceHost", "Rebound Service Host.exe"),
                                 Description = "Rebound Service Host task for managing Rebound actions as admin.",
                                 Name = "Service Host",
                                 RequireAdmin = true
                             },
-                            new PackageLaunchCog()
+                            new ProcessLaunchCog()
                             {
-                                PackageFamilyName = "Rebound.ServiceHost_rcz2tbwv5qzb8"
+                                ExecutablePath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles), "Rebound", "ServiceHost", "Rebound Service Host.exe")
                             }
                         ],
                     }
@@ -499,6 +507,39 @@ public partial class Catalog : ObservableObject
         };
         return new(mods.OrderBy(m => m.Name));
     }
+
+    /// <summary>
+    /// Represents the Rebound Hub declaration mod. Must only be used in the installers.
+    /// </summary>
+    public readonly static Mod ReboundHub = new()
+    {
+        Name = "Rebound Hub",
+        Id = "Rebound.Hub",
+        Description = "The Rebound Hub.",
+        Icon = string.Empty,
+        Category = ModCategory.Mandatory,
+        PreferredInstallationTemplate = InstallationTemplate.Mandatory,
+        Variants =
+        [
+            new()
+            {
+                Name = "Default",
+                Id = "Rebound.Hub.Default",
+                Cogs =
+                [
+                    new ProcessKillCog()
+                    {
+                        ProcessName = "Rebound Hub"
+                    },
+                    new PackageCog()
+                    {
+                        PackageURI = Path.Combine(AppContext.BaseDirectory, "Rebound.Hub.msixbundle"),
+                        PackageFamilyName = "Rebound.Hub_rcz2tbwv5qzb8"
+                    },
+                ],
+            }
+        ]
+    };
 
     /// <summary>
     /// Custom mods that are loaded from a folder at runtime.

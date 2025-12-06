@@ -1,32 +1,123 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
+	<!-- Application and library only - These will apply to everything that isn't a source code generator -->
+	<PropertyGroup>
+
+		<!-- Versions -->
+		<TargetFramework>net10.0-windows10.0.26100.0</TargetFramework>
+		<TargetPlatformMinVersion>10.0.22000.0</TargetPlatformMinVersion>
+
+		<!-- Advanced -->
+		<EnableComInterop>true</EnableComInterop>
+		<UseSourceGenerators>true</UseSourceGenerators>
+		<DisableRuntimeMarshalling>true</DisableRuntimeMarshalling>
+		<EnableMsixTooling>true</EnableMsixTooling>
+
+		<!-- Self-contained settings -->
+		<PublishReadyToRun>true</PublishReadyToRun>
+		<PublishAot>true</PublishAot>
+
+		<!-- Publishing Settings -->
+		<PublishProfile>win-$(Platform).pubxml</PublishProfile>
+
+		<!-- Trimmming -->
+		<SelfContained>true</SelfContained>
+		<PublishTrimmed>true</PublishTrimmed>
+		<OptimizationPreference>Speed</OptimizationPreference>
+		<IlcOptimizationPreference>Speed</IlcOptimizationPreference>
+
+		<CsWin32RunAsBuildTask>true</CsWin32RunAsBuildTask>
+		<WindowsAppSDKSelfContained>true</WindowsAppSDKSelfContained>
+
+		<EnableSourceLink>false</EnableSourceLink>
+
+		<ProjectPriFileName>resources.pri</ProjectPriFileName>
+
+		<PlatformTarget>x64</PlatformTarget>
+
+		<Platforms>x64</Platforms>
+		
+	</PropertyGroup>
+	<PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x64'">
+		<PlatformTarget>x64</PlatformTarget>
+		<OutputPath>bin\Debug\x64\</OutputPath>
+		<DefineConstants>DEBUG;TRACE;$(DefineConstants)</DefineConstants>
+		<Optimize>false</Optimize>
+	</PropertyGroup>
+
+	<PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x64'">
+		<PlatformTarget>x64</PlatformTarget>
+		<OutputPath>bin\Release\x64\</OutputPath>
+		<DefineConstants>TRACE;$(DefineConstants)</DefineConstants>
+		<Optimize>true</Optimize>
+	</PropertyGroup>
+	<ItemGroup>
+	  <AdditionalFiles Remove="NativeMethods.json" />
+	</ItemGroup>
+
+	<!-- Package references -->
+	<ItemGroup>
+
+		<Manifest Include="$(ApplicationManifest)" />
+
+		<!-- Windows SDK and WinUI -->
+		<PackageReference Include="Microsoft.UI.Xaml" Version="2.8.7-prerelease.241119001" />
+		<!--<PackageReference Include="Microsoft.Windows.SDK.BuildTools.MSIX" Version="1.7.20250829.1">
+			<PrivateAssets>all</PrivateAssets>
+			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+		</PackageReference>-->
+		<PackageReference Include="Microsoft.Windows.SDK.BuildTools.MSIX" Version="1.7.20250829.1" />
+		<PackageReference Include="Microsoft.WindowsAppSDK.Base" Version="1.8.250831001" />
+		<PackageReference Include="Microsoft.WindowsAppSDK.InteractiveExperiences" Version="1.8.251104001" />
+
+		<PackageReference Include="MicaForUWP" Version="0.2.13" />
+
+		<!-- Windows Interop -->
+		<PackageReference Include="Dongle.GuidRVAGen" Version="1.0.5" />
+		<PackageReference Include="Microsoft.Windows.CsWin32" Version="0.3.257">
+			<PrivateAssets>all</PrivateAssets>
+			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+		</PackageReference>
+		<PackageReference Include="TerraFX.Interop.Windows" Version="10.0.26100.5" />
+
+		<!-- System and Management -->
+		<PackageReference Include="System.Diagnostics.PerformanceCounter" Version="10.0.0" />
+		<!--<PackageReference Include="System.ServiceProcess.ServiceController" Version="10.0.0-preview.5.25277.114" />-->
+		<PackageReference Include="System.IO.Pipes.AccessControl" Version="6.0.0-preview.5.21301.5" />
+		<PackageReference Include="OwlCore.Storage" Version="0.14.0" />
+
+		<!-- Task Scheduler -->
+		<PackageReference Include="TaskScheduler" Version="2.12.2" />
+
+		<!-- CommunityToolkit WinUI -->
+		<PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.0" />
+
+	</ItemGroup>
+
 	<!-- Properties -->
 	<PropertyGroup>
 
 		<!-- General -->
 		<OutputType>WinExe</OutputType>
-		<AssemblyName>Rebound Hub Installer</AssemblyName>
+		<AssemblyName>Rebound Installer</AssemblyName>
 		<ApplicationIcon>Assets\ReboundHubInstaller.ico</ApplicationIcon>
 		<ApplicationManifest>app.manifest</ApplicationManifest>
 
+		<DefineConstants>DISABLE_XAML_GENERATED_MAIN;UNPACKAGED;$(DefineConstants)</DefineConstants>
+
 		<!-- Deployment -->
-		<EnableMsixTooling>true</EnableMsixTooling>
 		<WindowsPackageType>None</WindowsPackageType>
+		<DefaultLanguage>en-US</DefaultLanguage>
 
-		<!-- Self-contained settings -->
-		<SelfContained>true</SelfContained>
-		<PublishSingleFile>true</PublishSingleFile>
-		<EnableCompressionInSingleFile>true</EnableCompressionInSingleFile>
-		<WindowsAppSDKSelfContained>true</WindowsAppSDKSelfContained>
-		<CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
-		<PublishAot>false</PublishAot>
+		<LangVersion>preview</LangVersion>
+		<Nullable>enable</Nullable>
+		
+	</PropertyGroup>
 
-		<!-- Trimmming -->
-		<PublishTrimmed>false</PublishTrimmed>
-		<Optimize>true</Optimize>
-		<OptimizationPreference>Speed</OptimizationPreference>
-		<IlcOptimizationPreference>Speed</IlcOptimizationPreference>
-
+	<!-- UWP Properties -->
+	<PropertyGroup>
+		<UseUwp>true</UseUwp>
+		<UseUwpTools>true</UseUwpTools>
 	</PropertyGroup>
 
 	<!-- Project content -->
@@ -40,8 +131,14 @@
 
 	<!-- Project references -->
 	<ItemGroup>
-		<ProjectReference Include="..\..\core\unpackaged\Rebound.Core.SourceGeneratorAttributes\Rebound.Core.SourceGeneratorAttributes.csproj" />
-		<ProjectReference Include="..\..\core\unpackaged\Rebound.Core.SourceGenerator\Rebound.Core.SourceGenerator.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
+		<ProjectReference Include="..\..\..\..\src\core\forge\Rebound.Forge\Rebound.Forge.csproj" />
+		<ProjectReference Include="..\..\..\..\src\core\generators\Rebound.Core.SourceGeneratorAttributes\Rebound.Core.SourceGeneratorAttributes.csproj" />
+		<ProjectReference Include="..\..\..\..\src\core\generators\Rebound.Core.SourceGenerator\Rebound.Core.SourceGenerator.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
+	</ItemGroup>
+	<ItemGroup>
+	  <AdditionalFiles Update="NativeMethods.txt">
+	    <Generator>MSBuild:Compile</Generator>
+	  </AdditionalFiles>
 	</ItemGroup>
 	<ItemGroup>
 	  <Content Update="Assets\ReboundHubInstaller.ico">
@@ -56,12 +153,6 @@
 	    <Generator>MSBuild:Compile</Generator>
 	  </Page>
 	</ItemGroup>
-
-	<!-- Shared project imports -->
-	<Import Project="..\..\core\forge\Rebound.Forge\Rebound.Forge.projitems" Label="Shared" />
-	<Import Project="..\..\core\shared\Rebound.Core.Helpers\Rebound.Core.Helpers.projitems" Label="Shared" />
-
-
 	<!-- Copy and rename launchers -->
 	<!--<Target Name="CopyExecutablesToLaunchers" BeforeTargets="Build" Condition="'$(Configuration)' == 'Release'">
 		<MSBuild Projects="..\Rebound.App\Rebound.App.csproj" Targets="Publish" Properties="Configuration=Release;PublishDir=..\Rebound.App\bin\Release\Publish\" />

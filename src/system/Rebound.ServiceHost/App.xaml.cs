@@ -16,7 +16,10 @@ using System.Diagnostics;
 using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
+using TerraFX.Interop.Windows;
+using Windows.System;
 using Windows.UI.Xaml;
+using Windows.UI.Xaml.Controls;
 using Windows.Win32;
 using Windows.Win32.System.Shutdown;
 
@@ -31,6 +34,8 @@ public partial class App : Application
     {
         if (e.IsFirstLaunch)
         {
+            WindowList.KeepAlive = true;
+
             // Since some processes like task manager are heavily locked down to prevent malicious injection,
             // it's required to enable SeDebugPrivilege to allow injection inside those processes.
             _ = DLLInjectionAPI.TryEnableSeDebugPrivilege(out _);
@@ -73,7 +78,7 @@ public partial class App : Application
             // Pipe server thread
             var pipeThread = new Thread(async () =>
             {
-                PipeServer = new("REBOUND_SERVICE_HOST", AccessLevel.ModWhitelist);
+                PipeServer = new("REBOUND_SERVICE_HOST", AccessLevel.Everyone);
                 PipeServer.MessageReceived += PipeServer_MessageReceived;
                 await PipeServer.StartAsync().ConfigureAwait(false);
             })
@@ -83,8 +88,6 @@ public partial class App : Application
             };
             pipeThread.SetApartmentState(ApartmentState.STA);
             pipeThread.Start();
-
-            NativeMessageLoop();
         }
         else Process.GetCurrentProcess().Kill();
     });
@@ -154,6 +157,33 @@ public partial class App : Application
 
                 RunShutdownCommand("/s /t 0", reasonCode);
             }
+        }
+        else if (arg.StartsWith("Shell::BringWindowToFront#", StringComparison.InvariantCultureIgnoreCase))
+        {
+            var raw = arg["Shell::BringWindowToFront#".Length..];
+            
+            unsafe
+            {
+                if (nint.TryParse(raw, out var handle))
+                {
+                    var hWnd = new HWND((void*)handle);
+                    WindowHelper.ForceBringToFront(hWnd);
+                }
+            }
+        }
+
+        else if (arg.StartsWith("DialogWindow::Show#", StringComparison.InvariantCultureIgnoreCase))
+        {
+            var part = arg["DialogWindow::Show#".Length..];
+            var parts = part.Split("##");
+            UIThreadQueue.QueueAction(async () =>
+            {
+                await ReboundDialog.ShowAsync(
+                    parts[1],
+                    parts[2],
+                    DialogIcon.Warning, int.Parse(parts[0], null)
+                ).ConfigureAwait(false);
+            });
         }
 
         else if (arg.StartsWith("IFEOEngine::Pause#", StringComparison.InvariantCultureIgnoreCase))

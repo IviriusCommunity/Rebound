@@ -6,8 +6,13 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:local="using:Rebound.Installer"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:muxc="using:Microsoft.UI.Xaml.Controls"
     d:DataContext="{x:Bind ViewModel}"
+    muxc:BackdropMaterial.ApplyToRootOrPageBackground="True"
     mc:Ignorable="d">
+    <Page.Resources>
+        <local:BoolUniversalConverter x:Key="BoolUniversalConverter" />
+    </Page.Resources>
     <Grid>
         <StackPanel
             Margin="10,6,0,0"
@@ -19,6 +24,7 @@
                 FontSize="12"
                 Text="Rebound Installer" />
             <Border
+                Margin="0,2,0,0"
                 Padding="6,2,6,3"
                 VerticalAlignment="Center"
                 Background="{ThemeResource AccentFillColorDefaultBrush}"
@@ -40,63 +46,172 @@
                     FontSize="20"
                     FontWeight="SemiBold"
                     Text="{x:Bind ViewModel.Title, Mode=OneWay}" />
-                <TextBlock FontSize="10" Height="48" Text="{x:Bind ViewModel.Status, Mode=OneWay}" TextWrapping="WrapWholeWords" TextTrimming="CharacterEllipsis" />
+                <TextBlock
+                    Height="48"
+                    FontSize="10"
+                    Text="{x:Bind ViewModel.Status, Mode=OneWay}"
+                    TextTrimming="CharacterEllipsis"
+                    TextWrapping="WrapWholeWords" />
                 <ProgressBar
                     IsIndeterminate="{x:Bind ViewModel.IsIndeterminate, Mode=OneWay}"
                     Maximum="{x:Bind ViewModel.Steps, Mode=OneWay}"
                     Value="{x:Bind ViewModel.Progress, Mode=OneWay}" />
-                <InfoBar
-                    Title="{x:Bind ViewModel.ErrorMessage, Mode=OneWay}"
-                    IsOpen="{x:Bind ViewModel.IsError, Mode=TwoWay}"
-                    Severity="Error" />
             </StackPanel>
-            <Grid
-                Height="80"
-                VerticalAlignment="Bottom"
-                Background="{ThemeResource SystemControlBackgroundAltMediumLowBrush}">
-                <ProgressRing
-                    Margin="24"
-                    HorizontalAlignment="Left"
-                    IsIndeterminate="True" />
+            <Grid Height="80" VerticalAlignment="Bottom">
+                <ProgressRing Margin="24" HorizontalAlignment="Left" />
             </Grid>
         </Grid>
         <Grid
             x:Name="Panel1"
             Margin="0,32,0,0"
-            Background="{ThemeResource LayerFillColorDefaultBrush}"
             Visibility="Visible">
-            <Grid Margin="0,0,0,80">
-                <Image
-                    Width="200"
-                    HorizontalAlignment="Left"
-                    Source="/Assets/Splash.png"
-                    Stretch="UniformToFill" />
-                <StackPanel
+            <Grid Margin="0,0,0,80" Background="{ThemeResource LayerFillColorDefaultBrush}">
+                <Grid Width="200" HorizontalAlignment="Left">
+                    <Grid.Background>
+                        <LinearGradientBrush StartPoint="0, 0" EndPoint="0, 1">
+                            <GradientStop Color="#4488FF" />
+                            <GradientStop Offset="1" Color="#2244BB" />
+                        </LinearGradientBrush>
+                    </Grid.Background>
+                    <FontIcon
+                        x:Name="ShadowTarget"
+                        HorizontalAlignment="Center"
+                        VerticalAlignment="Center"
+                        FontSize="128"
+                        Foreground="Black"
+                        Glyph="&#xF8AF;" />
+                    <FontIcon
+                        FontSize="128"
+                        Foreground="White"
+                        Glyph="&#xE8B0;" />
+                </Grid>
+                <Grid
                     Margin="200,0,0,0"
                     Padding="20,12"
-                    Spacing="8">
+                    ColumnSpacing="16"
+                    RowSpacing="8"
+                    Visibility="{x:Bind ViewModel.IsOldReboundInstalled, Mode=OneWay, Converter={StaticResource BoolUniversalConverter}, ConverterParameter=Invert}">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="*" />
+                        <RowDefinition Height="Auto" />
+                    </Grid.RowDefinitions>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="*" />
+                    </Grid.ColumnDefinitions>
                     <TextBlock
+                        Grid.ColumnSpan="2"
                         HorizontalAlignment="Left"
                         FontSize="24"
                         FontWeight="SemiBold"
                         HorizontalTextAlignment="Left"
                         Text="Welcome to the Rebound installer!"
                         TextWrapping="WrapWholeWords" />
-                    <TextBlock Text="Configure and install Rebound Hub." />
-                    <RadioButtons>
-                        <RadioButton
-                            x:Name="InstallButton"
-                            Content="Install Rebound"
-                            IsChecked="True" />
-                        <RadioButton x:Name="RepairButton" Content="Repair Rebound" />
-                        <RadioButton x:Name="UninstallButton" Content="Uninstall Rebound" />
-                    </RadioButtons>
-                    <InfoBar
-                        Title="Rebound is a Windows mod. Install only if you have sufficient knowledge of Windows internals."
+                    <TextBlock
+                        Grid.Row="1"
+                        Grid.ColumnSpan="2"
+                        Opacity="0.5"
+                        Text="Install Rebound Hub, update, repair, and uninstall Rebound." />
+                    <muxc:RadioButtons Grid.Row="2">
+                        <RadioButton Content="Install" />
+                        <RadioButton Content="Uninstall" />
+                        <RadioButton Content="Repair" />
+                        <RadioButton Content="Update" />
+                    </muxc:RadioButtons>
+                    <ScrollViewer
+                        Grid.Row="4"
+                        Grid.ColumnSpan="12"
+                        Background="{ThemeResource LayerFillColorDefaultBrush}"
+                        BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                        BorderThickness="1"
+                        CornerRadius="4">
+                        <StackPanel Padding="8" Spacing="8">
+                            <StackPanel Orientation="Horizontal" Spacing="8">
+                                <muxc:ProgressRing Width="16" Height="16" />
+                                <FontIcon
+                                    FontSize="16"
+                                    Foreground="{ThemeResource SystemFillColorSuccessBrush}"
+                                    Glyph="&#xEC61;" />
+                                <FontIcon
+                                    FontSize="16"
+                                    Foreground="{ThemeResource SystemFillColorCriticalBrush}"
+                                    Glyph="&#xEB90;" />
+                                <TextBlock Text="Rebound Hub" />
+                            </StackPanel>
+                            <StackPanel Orientation="Horizontal" Spacing="8">
+                                <muxc:ProgressRing Width="16" Height="16" />
+                                <FontIcon
+                                    FontSize="16"
+                                    Foreground="{ThemeResource SystemFillColorSuccessBrush}"
+                                    Glyph="&#xEC61;" />
+                                <FontIcon
+                                    FontSize="16"
+                                    Foreground="{ThemeResource SystemFillColorCriticalBrush}"
+                                    Glyph="&#xEB90;" />
+                                <TextBlock Text="Rebound" />
+                            </StackPanel>
+                        </StackPanel>
+                    </ScrollViewer>
+                    <Grid Grid.Row="5" Grid.ColumnSpan="2">
+                        <muxc:InfoBar
+                            Grid.Column="1"
+                            Margin="0,8,0,8"
+                            IsClosable="False"
+                            IsOpen="True"
+                            Message="Installs the Rebound Hub app without installing Rebound." />
+                    </Grid>
+                </Grid>
+                <Grid
+                    Margin="200,0,0,0"
+                    Padding="20,12"
+                    ColumnSpacing="16"
+                    RowSpacing="8"
+                    Visibility="{x:Bind ViewModel.IsOldReboundInstalled, Mode=OneWay, Converter={StaticResource BoolUniversalConverter}}">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="*" />
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                    </Grid.RowDefinitions>
+                    <TextBlock
+                        Grid.ColumnSpan="2"
+                        HorizontalAlignment="Left"
+                        FontSize="24"
+                        FontWeight="SemiBold"
+                        HorizontalTextAlignment="Left"
+                        Text="Welcome to the Rebound installer!"
+                        TextWrapping="WrapWholeWords" />
+                    <TextBlock
+                        Grid.Row="1"
+                        Grid.ColumnSpan="2"
+                        Opacity="0.5"
+                        Text="Install Rebound Hub, update, repair, and uninstall Rebound." />
+                    <muxc:RadioButtons Grid.Row="2">
+                        <RadioButton Content="Upgrade from v0.0.10" />
+                        <RadioButton Content="Uninstall v0.0.10" />
+                    </muxc:RadioButtons>
+                    <muxc:InfoBar
+                        Title="Rebound v0.0.10 is installed. Installer is set to compatibility mode."
+                        Grid.Row="4"
                         IsClosable="False"
                         IsOpen="True"
+                        Message="Compatibility mode ensures there will be no conflicts between versions of Rebound with different environments and distribution models."
                         Severity="Warning" />
-                </StackPanel>
+                    <Grid Grid.Row="5" Grid.ColumnSpan="2">
+                        <muxc:InfoBar
+                            Grid.Column="1"
+                            Margin="0,8,0,8"
+                            IsClosable="False"
+                            IsOpen="True"
+                            Message="Installs the Rebound Hub app without installing Rebound." />
+                    </Grid>
+                </Grid>
             </Grid>
             <Grid
                 Height="80"
@@ -122,7 +237,6 @@
         <Grid
             x:Name="Panel3"
             Margin="0,32,0,0"
-            Background="{ThemeResource LayerFillColorDefaultBrush}"
             Visibility="Collapsed">
             <Grid Margin="0,0,0,80">
                 <Image
@@ -148,10 +262,7 @@
                         IsChecked="True" />
                 </StackPanel>
             </Grid>
-            <Grid
-                Height="80"
-                VerticalAlignment="Bottom"
-                Background="{ThemeResource SystemControlBackgroundAltMediumLowBrush}">
+            <Grid Height="80" VerticalAlignment="Bottom">
                 <StackPanel
                     Margin="24"
                     HorizontalAlignment="Right"

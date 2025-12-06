@@ -6,7 +6,7 @@ namespace Rebound.Core;
 /// <summary>
 /// Contains variables that are used everywhere in Rebound: paths, versions, etc.
 /// </summary>
-public static class Variables
+public static partial class Variables
 {
     /// <summary>
     /// Represents the full file system path to the application's Start Menu folder for all users.
@@ -70,9 +70,4 @@ public static class Variables
     /// </summary>
     public static readonly string ReboundCurrentVersionPath =
         Path.Combine(ReboundDataFolder, "version.txt");
-
-    /// <summary>
-    /// Represents the current version identifier for Rebound as a whole.
-    /// </summary>
-    public const string ReboundVersion = "v0.0.10.3 Developer Preview";
 }

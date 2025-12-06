@@ -4,6 +4,7 @@
 using Microsoft.UI.Xaml.Controls;
 using Rebound.Forge;
 using System;
+using System.Threading.Tasks;
 using Windows.UI.Text;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
@@ -157,15 +158,19 @@ internal partial class ModSettingTemplateSelector : DataTemplateSelector
 internal sealed partial class ModPage : Page
 {
     private Mod? Mod { get; set; }
+    private bool isLoaded = false;
+    private bool isNavigated = false;
 
     public ModPage()
     {
         InitializeComponent();
-        Loaded += ModPage_Loaded;
     }
 
-    private void ModPage_Loaded(object sender, RoutedEventArgs e)
+    private void ItemsControl_Loaded(object sender, RoutedEventArgs e)
     {
+        isLoaded = true;
+        TryUpdateSettings();
+
         if (Mod != null)
         {
             Mod.PropertyChanged += (s, args) =>
@@ -187,27 +192,46 @@ internal sealed partial class ModPage : Page
             Mod = mod;
             DataContext = Mod;
             await Mod.UpdateIntegrityAsync().ConfigureAwait(false);
+            isNavigated = true;
+            TryUpdateSettings();
+        }
+    }
+
+    private void TryUpdateSettings()
+    {
+        // Only update when both conditions are met
+        if (isLoaded && isNavigated)
+        {
             UpdateSettings();
         }
     }
 
-    private void UpdateSettings()
+    private async void UpdateSettings()
     {
-        // Find the ItemsControl by querying the visual tree
-        var itemsControl = FindItemsControlInVisualTree(Content);
-        var progressRing = FindProgressRingInVisualTree(Content);
+        if (Mod == null) return;
 
-        if (itemsControl != null && itemsControl.Tag is Mod mod)
+        // Small delay to ensure visual tree is ready
+        await Task.Delay(50);
+
+        await Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, () =>
         {
-            itemsControl.Visibility = Visibility.Collapsed;
-            progressRing.Visibility = Visibility.Visible;
-            if (mod.SelectedVariantIndex >= 0 && mod.SelectedVariantIndex < mod.Variants.Count)
+            var itemsControl = FindItemsControlInVisualTree(Content);
+            var progressRing = FindProgressRingInVisualTree(Content);
+
+            if (itemsControl != null && progressRing != null)
             {
-                itemsControl.ItemsSource = mod.Variants[mod.SelectedVariantIndex].Settings;
+                progressRing.Visibility = Visibility.Visible;
+                itemsControl.Visibility = Visibility.Collapsed;
+
+                if (Mod.SelectedVariantIndex >= 0 && Mod.SelectedVariantIndex < Mod.Variants.Count)
+                {
+                    itemsControl.ItemsSource = Mod.Variants[Mod.SelectedVariantIndex].Settings;
+                }
+
+                itemsControl.Visibility = Visibility.Visible;
+                progressRing.Visibility = Visibility.Collapsed;
             }
-            itemsControl.Visibility = Visibility.Visible;
-            progressRing.Visibility = Visibility.Collapsed;
-        }
+        });
     }
 
     private ItemsControl? FindItemsControlInVisualTree(DependencyObject? parent)
@@ -219,7 +243,8 @@ internal sealed partial class ModPage : Page
         {
             var child = VisualTreeHelper.GetChild(parent, i);
 
-            if (child is ItemsControl itemsControl && itemsControl.Tag is Mod)
+            // Match against THIS page's Mod instance specifically
+            if (child is ItemsControl itemsControl && ReferenceEquals(itemsControl.Tag, Mod))
             {
                 return itemsControl;
             }

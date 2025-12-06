@@ -1,6 +1,7 @@
 ﻿// Copyright (C) Ivirius(TM) Community 2020 - 2025. All Rights Reserved.
 // Licensed under the MIT License.
 
+using Rebound.Core;
 using Rebound.Core.Helpers;
 using Rebound.Core.IPC;
 using Rebound.Core.UI;
@@ -9,9 +10,11 @@ using Rebound.Shell.Run;
 using Rebound.Shell.ShutdownDialog;
 using System;
 using System.Diagnostics;
+using System.Runtime.InteropServices;
 using System.Threading;
 using System.Threading.Tasks;
 using TerraFX.Interop.Windows;
+using Windows.System;
 using Windows.UI;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
@@ -20,6 +23,54 @@ using Windows.UI.Xaml.Controls;
 #pragma warning disable CA1515  // Consider making public types internal
 
 namespace Rebound.Shell.ExperienceHost;
+
+public static unsafe class NextWindowFocus
+{
+    const uint WINEVENT_OUTOFCONTEXT = 0x0000;
+
+    private static HWINEVENTHOOK _hook;
+    private static readonly delegate* unmanaged<
+        HWINEVENTHOOK, uint, HWND, int, int, uint, uint, void> _callback = &Callback;
+
+    public static void Start()
+    {
+        // Listen for newly shown top-level windows system-wide.
+        _hook = TerraFX.Interop.Windows.Windows.SetWinEventHook(
+            EVENT.EVENT_OBJECT_SHOW,
+            EVENT.EVENT_OBJECT_SHOW,
+            HMODULE.NULL,
+            _callback,
+            0,
+            0,
+            WINEVENT_OUTOFCONTEXT
+        );
+    }
+
+    [UnmanagedCallersOnly]
+    private static unsafe void Callback(
+        HWINEVENTHOOK hWinEventHook,
+        uint eventType,
+        HWND hwnd,
+        int idObject,
+        int idChild,
+        uint idEventThread,
+        uint dwmsEventTime)
+    {
+        // We only want actual top-level windows.
+        if (idObject != OBJID.OBJID_WINDOW || hwnd == HWND.NULL)
+            return;
+
+        // Unhook immediately — we only want ONE window.
+        TerraFX.Interop.Windows.Windows.UnhookWinEvent(_hook);
+        _hook = default;
+
+        // Bring to front and focus
+        TerraFX.Interop.Windows.Windows.SetForegroundWindow(hwnd);
+        TerraFX.Interop.Windows.Windows.BringWindowToTop(hwnd);
+        TerraFX.Interop.Windows.Windows.SetFocus(hwnd);
+        TerraFX.Interop.Windows.Windows.ShowWindow(hwnd, SW.SW_SHOW);
+    }
+}
 
 [ReboundApp("Rebound.ShellExperienceHost", "")]
 public partial class App : Application
@@ -78,6 +129,42 @@ public partial class App : Application
             };
 
             pipeServerThread.Start();
+
+            // Create the window
+            using var MainWindow = new IslandsWindow()
+            {
+                IsPersistenceEnabled = false,
+                PersistenceKey = "Rebound.Shell.GhostWindow",
+                Width = 0,
+                Height = 0,
+                X = -9999,
+                Y = -9999
+            };
+
+            // AppWindow init
+            MainWindow.AppWindowInitialized += (s, e) =>
+            {
+                // Window metrics
+                MainWindow.MinWidth = 0;
+                MainWindow.MinHeight = 0;
+                MainWindow.MaxWidth = 0;
+                MainWindow.MaxHeight = 0;
+
+                // Window properties
+                MainWindow.IsMaximizable = false;
+                MainWindow.IsMinimizable = false;
+                MainWindow.SetWindowOpacity(0);
+            };
+
+            // Load main page
+            MainWindow.XamlInitialized += (s, e) =>
+            {
+                var frame = new Button();
+                MainWindow.Content = frame;
+            };
+
+            // Spawn the window
+            MainWindow.Create();
         }
         else Process.GetCurrentProcess().Kill();
     }
@@ -92,19 +179,38 @@ public partial class App : Application
         var parts = arg.Split("##");
         if (parts[0] == "Shell::SpawnRunWindow")
         {
-            var windowTitle = parts.Length > 1 ? parts[1].Trim() : "Run";
-            if (string.IsNullOrWhiteSpace(windowTitle)) windowTitle = "Run";
-            if (RunWindow is null)
+            if (SettingsManager.GetValue("RunBoxUseCommandPalette", "rshell", false))
             {
-                UIThreadQueue.QueueAction(() =>
+                UIThreadQueue.QueueAction(async () =>
                 {
-                    ShowRunWindow(windowTitle);
-                    return Task.CompletedTask;
+                    await Launcher.LaunchUriAsync(new("x-cmdpal:///"));
+                    await Task.Delay(50);
+                    HWND hwnd;
+                    nint rawHwnd;
+                    unsafe
+                    {
+                        hwnd = TerraFX.Interop.Windows.Windows.FindWindowExW(HWND.NULL, HWND.NULL, "WinUIDesktopWin32WindowClass".ToPointer(), "Command Palette".ToPointer());
+                        rawHwnd = (nint)hwnd;
+                    }
+                    await ReboundPipeClient.SendAsync("Shell::BringWindowToFront#" + rawHwnd);
                 });
             }
             else
             {
-                RunWindow.BringToFront();
+                var windowTitle = parts.Length > 1 ? parts[1].Trim() : "Run";
+                if (string.IsNullOrWhiteSpace(windowTitle)) windowTitle = "Run";
+                if (RunWindow is null)
+                {
+                    UIThreadQueue.QueueAction(async () =>
+                    {
+                        ShowRunWindow(windowTitle);
+                        await ReboundPipeClient.SendAsync("Shell::BringWindowToFront#" + RunWindow!.Handle);
+                    });
+                }
+                else
+                {
+                    RunWindow.BringToFront();
+                }
             }
         }
         if (parts[0] == "Shell::SpawnShutdownWindow")

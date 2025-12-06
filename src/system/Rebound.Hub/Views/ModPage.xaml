@@ -385,7 +385,7 @@
                                     <ContentPresenter Content="{x:Bind Converter={StaticResource ModToTasksListConverter}}" />
                                 </muxc:InfoBar>
                                 <muxc:ProgressRing Tag="ItemsControlRing" HorizontalAlignment="Center" Width="32" Height="32" Margin="0, 32, 0, 0"/>
-                                <ItemsControl
+                                <ItemsControl Loaded="ItemsControl_Loaded"
                                     Margin="0,16,0,0"
                                     ItemTemplateSelector="{StaticResource ModSettingSelector}"
                                     Tag="{x:Bind}">

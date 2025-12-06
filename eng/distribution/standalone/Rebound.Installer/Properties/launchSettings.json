@@ -1,7 +1,12 @@
 {
   "profiles": {
-    "Rebound Installer": {
-      "commandName": "Project"
+    "Rebound Installer (Unpackaged)": {
+      "commandName": "Project",
+      "nativeDebugging": false
+    },
+    "Rebound Installer (Packaged)": {
+      "commandName": "MsixPackage",
+      "nativeDebugging": true
     }
   }
 }

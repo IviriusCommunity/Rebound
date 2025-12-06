@@ -137,6 +137,55 @@ bool SendMessageToApp(const std::wstring& message)
     return true;
 }
 
+bool SendMessageToServiceHost(const std::wstring& message)
+{
+    HANDLE hPipe = INVALID_HANDLE_VALUE;
+
+    int retries = 0;
+    while (retries < 10)
+    {
+        hPipe = CreateFileW(
+            L"\\\\.\\pipe\\REBOUND_SERVICE_HOST",
+            GENERIC_WRITE,
+            0,
+            nullptr,
+            OPEN_EXISTING,
+            0,
+            nullptr
+        );
+
+        if (hPipe != INVALID_HANDLE_VALUE)
+            break;
+
+        if (GetLastError() != ERROR_PIPE_BUSY)
+            return false;
+
+        Sleep(50);
+        retries++;
+    }
+
+    if (hPipe == INVALID_HANDLE_VALUE)
+        return false;
+
+    DWORD bytesWritten = 0;
+    std::string utf8Message;
+
+    int size_needed = WideCharToMultiByte(CP_UTF8, 0, message.c_str(), -1, nullptr, 0, nullptr, nullptr);
+    if (size_needed <= 0)
+    {
+        CloseHandle(hPipe);
+        return false;
+    }
+    utf8Message.resize(size_needed - 1);
+    WideCharToMultiByte(CP_UTF8, 0, message.c_str(), -1, utf8Message.data(), size_needed, nullptr, nullptr);
+
+    utf8Message += "\n";
+
+    WriteFile(hPipe, utf8Message.data(), static_cast<DWORD>(utf8Message.size()), &bytesWritten, nullptr);
+    CloseHandle(hPipe);
+    return true;
+}
+
 bool IsReboundShellRunning()
 {
     HANDLE hSnapshot = CreateToolhelp32Snapshot(TH32CS_SNAPPROCESS, 0);
@@ -247,12 +296,8 @@ int WINAPI RunFileDlg_Hook(HWND hwnd, HICON icon, LPCWSTR path, LPCWSTR title, L
     }
     else
     {
-        MessageBoxW(
-            hwnd,
-            L"Rebound Shell is not currently running.\n\nThe Run dialog hook is enabled, but the Rebound Shell process could not be found.\n\nPlease start Rebound Shell or disable the Run dialog hook in settings.",
-            L"Rebound Shell Not Running",
-            MB_OK | MB_ICONWARNING | MB_SETFOREGROUND
-        );
+        std::wstring dialogMessage = L"DialogWindow::Show#256##Rebound Shell Not Running##Rebound Shell is not currently running. The Run dialog hook is enabled, but the Rebound Shell process could not be found. Please start Rebound Shell or disable the Run dialog hook in settings.";
+        SendMessageToServiceHost(dialogMessage);
 
         if (g_originalRunFileDlg)
             return g_originalRunFileDlg(hwnd, icon, path, title, prompt, flags);
@@ -396,11 +441,6 @@ BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID) {
     else if (fdwReason == DLL_PROCESS_DETACH) {
         OutputDebugStringW(L"[RunHook] DllMain: DLL_PROCESS_DETACH\n");
         g_running = false;
-
-        HWND dialogHwnd = FindWindowW(NULL, L"Rebound Shell Not Running");
-        if (dialogHwnd != NULL) {
-            SendMessage(dialogHwnd, WM_CLOSE, 0, 0);
-        }
 
         if (g_hooksInstalled) {
             HMODULE shell32 = GetModuleHandleW(L"shell32.dll");

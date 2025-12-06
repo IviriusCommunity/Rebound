@@ -34,14 +34,24 @@ public partial class MainViewModel : ObservableObject
     [ObservableProperty]
     public partial bool IsIndeterminate { get; set; } = false;
 
-    private readonly string _reboundInstallationPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles), "Rebound");
-    private readonly string _reboundHubInstallationPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles), "ReboundHub");
-    private readonly string _startMenuPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.CommonStartMenu), "Programs");
-    private readonly string _dataPath = Path.Combine(Path.GetDirectoryName(Environment.ProcessPath), "data");
+    [ObservableProperty]
+    public partial bool IsOldReboundInstalled { get; set; } = false;
+
+    public readonly string oldReboundHubFolder = Path.Combine(
+        Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles),
+        "ReboundHub");
+
+    public MainViewModel()
+    {
+        if (Directory.Exists(oldReboundHubFolder))
+        {
+            IsOldReboundInstalled = false;
+        }
+    }
 
     public async Task InstallAsync(bool repair)
     {
-        // Kill processes
+        /*// Kill processes
         await KillAllProcesses();
 
         // Init
@@ -126,12 +136,12 @@ public partial class MainViewModel : ObservableObject
         foreach (var instruction in ReboundTotalInstructions.MandatoryInstructions)
         {
             Process.Start(instruction.EntryExecutable);
-        }
+        }*/
     }
 
     public async Task RemoveAsync()
     {
-        // Kill processes
+        /*// Kill processes
         await DeleteReboundModAsync();
 
         // Init
@@ -159,12 +169,12 @@ public partial class MainViewModel : ObservableObject
             return;
         }
 
-        Process.GetCurrentProcess().Kill();
+        Process.GetCurrentProcess().Kill();*/
     }
 
     private async Task InstallShortcutAsync()
     {
-        try
+        /*try
         {
             unsafe
             {
@@ -172,7 +182,7 @@ public partial class MainViewModel : ObservableObject
 
                 var shortcutPath = Path.Combine(_startMenuPath, $"Rebound Hub.lnk");
 
-                ReboundWorkingEnvironment.EnsureFolderIntegrity();
+                //ReboundWorkingEnvironment.EnsureFolderIntegrity();
 
                 var startMenuFolder = Path.Combine(
                     Environment.GetFolderPath(Environment.SpecialFolder.CommonStartMenu),
@@ -225,12 +235,12 @@ public partial class MainViewModel : ObservableObject
         {
             Status = $"Couldn't install the Rebound Hub shortcut. {ex.Message}";
             await Task.Delay(2000);
-        }
+        }*/
     }
 
     private async Task InstallDotNetRuntimeAsync()
     {
-        try
+        /*try
         {
             var runtimeTemp = Path.Combine(_dataPath, "dotNET9Runtime.exe");
 
@@ -252,12 +262,12 @@ public partial class MainViewModel : ObservableObject
             IsError = true;
             Status = "Couldn't install .NET 9.0 Runtime.";
             await Task.Delay(5000);
-        }
+        }*/
     }
 
     private async Task InstallWARuntimeAsync()
     {
-        try
+        /*try
         {
             var runtimeTemp = Path.Combine(_dataPath, "WindowsAppRuntime.exe");
 
@@ -278,12 +288,12 @@ public partial class MainViewModel : ObservableObject
             IsError = true;
             Status = "Couldn't install Windows App Runtime.";
             await Task.Delay(5000);
-        }
+        }*/
     }
 
     public async Task ExtractToPathAsync(string zipFilePath, string targetPath)
     {
-        if (string.IsNullOrEmpty(zipFilePath) || string.IsNullOrEmpty(targetPath) || !File.Exists(zipFilePath))
+        /*if (string.IsNullOrEmpty(zipFilePath) || string.IsNullOrEmpty(targetPath) || !File.Exists(zipFilePath))
         {
             Status = "Invalid zip file path or target path.";
             IsError = true;
@@ -305,12 +315,12 @@ public partial class MainViewModel : ObservableObject
             Status = "Extraction failed.";
             IsError = true;
             ErrorMessage = ex.Message;
-        }
+        }*/
     }
 
     public static async Task<double> GetItemCountForFolderAsync(string folderPath)
     {
-        if (string.IsNullOrEmpty(folderPath) || !Directory.Exists(folderPath))
+        /*if (string.IsNullOrEmpty(folderPath) || !Directory.Exists(folderPath))
             return 0;
 
         try
@@ -320,12 +330,13 @@ public partial class MainViewModel : ObservableObject
         catch
         {
             return 0;
-        }
+        }*/
+        return 0;
     }
 
     public async Task CopyFolderAsync(string path, string targetPath)
     {
-        if (string.IsNullOrEmpty(path) || string.IsNullOrEmpty(targetPath) || !Directory.Exists(path))
+        /*if (string.IsNullOrEmpty(path) || string.IsNullOrEmpty(targetPath) || !Directory.Exists(path))
         {
             return;
         }
@@ -349,24 +360,24 @@ public partial class MainViewModel : ObservableObject
 
             Progress++;
             Status = $"Copying {filePath} to {destFile}...";
-        }
+        }*/
     }
 
     public async Task DeleteReboundModAsync()
     {
-        foreach (var instruction in ReboundTotalInstructions.AppInstructions)
+        /*foreach (var instruction in ReboundTotalInstructions.AppInstructions)
         {
             await instruction.UninstallAsync();
         }
         foreach (var instruction in ReboundTotalInstructions.MandatoryInstructions)
         {
             await instruction.UninstallAsync();
-        }
+        }*/
     }
 
     public async Task KillAllProcesses()
     {
-        foreach (var instruction in ReboundTotalInstructions.AppInstructions)
+        /*foreach (var instruction in ReboundTotalInstructions.AppInstructions)
         {
             foreach (var process in Process.GetProcessesByName(instruction.ProcessName))
             {
@@ -379,6 +390,6 @@ public partial class MainViewModel : ObservableObject
             {
                 process.Kill();
             }
-        }
+        }*/
     }
 }
