@@ -391,3 +391,4 @@ FodyWeavers.xsd
 /src/platforms/Rebound.App/Modding/Apps/
 /_site
 /api
+/eng/distribution/standalone/Rebound.Distribution/Rebound.Hub.msixbundle
