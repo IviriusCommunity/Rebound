@@ -392,3 +392,4 @@ FodyWeavers.xsd
 /_site
 /api
 /eng/distribution/standalone/Rebound.Distribution/Rebound.Hub.msixbundle
+/src/core/forge/Rebound.Forge.Assets/Modding/ServiceHost
