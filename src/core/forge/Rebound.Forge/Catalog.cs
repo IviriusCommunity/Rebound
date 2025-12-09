@@ -473,7 +473,8 @@ public partial class Catalog : ObservableObject
                             new ProgramFolderCopyCog()
                             {
                                 Path = Path.Combine(AppContext.BaseDirectory, "Modding", "ServiceHost"),
-                                DestinationPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles), "Rebound", "ServiceHost")
+                                DestinationPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles), "Rebound", "ServiceHost"),
+                                RestoreXbfExtension = true
                             },
                             new StartupTaskCog()
                             {

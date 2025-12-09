@@ -4,6 +4,9 @@
     <Platform Name="x64" />
     <Platform Name="x86" />
   </Configurations>
+  <Folder Name="/build/">
+    <File Path="build/Rebound.Forge.Assets.targets" />
+  </Folder>
   <Folder Name="/docs/">
     <File Path="docs/getting-started.md" />
     <File Path="docs/introduction.md" />

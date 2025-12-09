@@ -248,4 +248,7 @@
 		<ModifyAppxManifest ManifestFile="$(ManifestPath)" NewVersion="$(MsixVersion)" NewName="Rebound.Hub" NewPublisher="CN=Ivirius Community" />
 	</Target>
 
+	<!-- B. Rebound Forge Assets -->
+	<Import Project="$(SolutionDir)\build\Rebound.Forge.Assets.targets"/>
+
 </Project>

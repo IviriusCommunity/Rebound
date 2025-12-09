@@ -1,0 +1,66 @@
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+
+	<!-- A. Native Launcher Build Targets -->
+	<Target Name="BuildNativeHooks" BeforeTargets="BeforeBuild" Condition="'$(Configuration)' == 'Release'">
+		<!-- Build Launcher -->
+		<Message Importance="high" Text="Compiling Rebound Launcher" />
+		<MSBuild Projects="$(SolutionDir)src\system\Rebound.Launcher\Rebound.Launcher.vcxproj" Properties="Configuration=$(Configuration);Platform=$(Platform)" />
+		<!-- Copy Launcher -->
+		<Message Importance="high" Text="Copying Rebound.Launcher.exe" />
+		<Copy SourceFiles="$(SolutionDir)$(Platform)\$(Configuration)\Rebound.Launcher.exe" DestinationFiles="$(SolutionDir)src\core\forge\Rebound.Forge.Assets\Modding\Launchers\Rebound.Launcher.exe" SkipUnchangedFiles="true" />
+	</Target>
+
+	<!-- B. ServiceHost Build Targets -->
+	<PropertyGroup>
+		<ServiceHostOutputDir>$(SolutionDir)src\system\Rebound.ServiceHost\bin\$(Platform)\$(Configuration)\net10.0-windows10.0.26100.0\</ServiceHostOutputDir>
+		<ServiceHostDestinationDir>$(SolutionDir)src\core\forge\Rebound.Forge.Assets\Modding\ServiceHost\</ServiceHostDestinationDir>
+	</PropertyGroup>
+
+	<Target Name="BuildServiceHost"
+			BeforeTargets="BeforeBuild"
+			Condition="'$(Configuration)' == 'Release'">
+		<Message Importance="high" Text="Cleaning previous ServiceHost assets" />
+		<RemoveDir Directories="$(ServiceHostDestinationDir)" />
+
+		<Message Importance="high" Text="Building Rebound.ServiceHost project" />
+		<MSBuild Projects="$(SolutionDir)src\system\Rebound.ServiceHost\Rebound.ServiceHost.csproj"
+				 Properties="Configuration=$(Configuration);Platform=$(Platform)" />
+
+		<MakeDir Directories="$(ServiceHostDestinationDir)" />
+
+		<!-- Get the file lists after build completes -->
+		<ItemGroup>
+			<ServiceHostNonXbfFilesActual Include="$(ServiceHostOutputDir)**\*.*"
+										  Exclude="$(ServiceHostOutputDir)**\*.xbf" />
+			<ServiceHostXbfFilesActual Include="$(ServiceHostOutputDir)**\*.xbf" />
+		</ItemGroup>
+
+		<!-- Copy everything EXCEPT .xbf -->
+		<Copy SourceFiles="@(ServiceHostNonXbfFilesActual)"
+			  DestinationFiles="@(ServiceHostNonXbfFilesActual->'$(ServiceHostDestinationDir)%(RecursiveDir)%(Filename)%(Extension)')"
+			  SkipUnchangedFiles="true" />
+
+		<!-- Copy .xbf → .xbf1 -->
+		<Copy SourceFiles="@(ServiceHostXbfFilesActual)"
+			  DestinationFiles="@(ServiceHostXbfFilesActual->'$(ServiceHostDestinationDir)%(RecursiveDir)%(Filename).xbf1')"
+			  SkipUnchangedFiles="true" />
+
+		<Message Importance="high" Text="ServiceHost assets copied (XBF files renamed to .xbf1)" />
+	</Target>
+
+	<!-- C. Copy ServiceHost to output directory AFTER build -->
+	<Target Name="CopyServiceHostToOutput"
+			AfterTargets="Build"
+			Condition="'$(Configuration)' == 'Release'">
+		<ItemGroup>
+			<ServiceHostOutputFiles Include="$(ServiceHostDestinationDir)**\*.*" />
+		</ItemGroup>
+
+		<Copy SourceFiles="@(ServiceHostOutputFiles)"
+			  DestinationFiles="@(ServiceHostOutputFiles->'$(OutDir)Modding\ServiceHost\%(RecursiveDir)%(Filename)%(Extension)')"
+			  SkipUnchangedFiles="true" />
+
+		<Message Importance="high" Text="ServiceHost assets copied to output directory" />
+	</Target>
+
+</Project>

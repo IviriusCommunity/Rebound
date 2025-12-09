@@ -28,6 +28,11 @@ public partial class ProgramFolderCopyCog : ICog
     /// location.</remarks>
     public required string DestinationPath { get; set; }
 
+    /// <summary>
+    /// If true, files with the .xbf1 extension will be renamed to .xbf during copy.
+    /// </summary>
+    public bool RestoreXbfExtension { get; set; }
+
     /// <inheritdoc/>
     public bool Ignorable { get; }
 
@@ -43,6 +48,20 @@ public partial class ProgramFolderCopyCog : ICog
     public async Task ApplyAsync()
     {
         DirectoryEx.Copy(Path, DestinationPath);
+
+        if (!RestoreXbfExtension)
+            return;
+
+        RestoreXbfFiles(DestinationPath);
+    }
+
+    private static void RestoreXbfFiles(string root)
+    {
+        foreach (var file in Directory.EnumerateFiles(root, "*.xbf1", SearchOption.AllDirectories))
+        {
+            var restoredPath = System.IO.Path.ChangeExtension(file, ".xbf");
+            File.Move(file, restoredPath, overwrite: true);
+        }
     }
 
     /// <inheritdoc/>
