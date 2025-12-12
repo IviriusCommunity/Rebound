@@ -470,11 +470,10 @@ public partial class Catalog : ObservableObject
                             {
                                 ProcessName = "Rebound Service Host"
                             },
-                            new ProgramFolderCopyCog()
+                            new ProgramZipExtractCog()
                             {
-                                Path = Path.Combine(AppContext.BaseDirectory, "Modding", "ServiceHost"),
-                                DestinationPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles), "Rebound", "ServiceHost"),
-                                RestoreXbfExtension = true
+                                ZipFilePath = Path.Combine(AppContext.BaseDirectory, "Modding", "ServiceHost", "ServiceHost.zip"),
+                                DestinationFolder = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles), "Rebound", "ServiceHost")
                             },
                             new StartupTaskCog()
                             {

@@ -1,5 +1,5 @@
 <Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-
+	
 	<!-- A. Native Launcher Build Targets -->
 	<Target Name="BuildNativeHooks" BeforeTargets="BeforeBuild" Condition="'$(Configuration)' == 'Release'">
 		<!-- Build Launcher -->
@@ -10,57 +10,71 @@
 		<Copy SourceFiles="$(SolutionDir)$(Platform)\$(Configuration)\Rebound.Launcher.exe" DestinationFiles="$(SolutionDir)src\core\forge\Rebound.Forge.Assets\Modding\Launchers\Rebound.Launcher.exe" SkipUnchangedFiles="true" />
 	</Target>
 
-	<!-- B. ServiceHost Build Targets -->
+	<!-- B. Include ServiceHost files as Content items -->
 	<PropertyGroup>
-		<ServiceHostOutputDir>$(SolutionDir)src\system\Rebound.ServiceHost\bin\$(Platform)\$(Configuration)\net10.0-windows10.0.26100.0\</ServiceHostOutputDir>
-		<ServiceHostDestinationDir>$(SolutionDir)src\core\forge\Rebound.Forge.Assets\Modding\ServiceHost\</ServiceHostDestinationDir>
+		<ServiceHostBuildOutput>$(SolutionDir)src\system\Rebound.ServiceHost\bin\$(Platform)\$(Configuration)\$(TargetFramework)\$(RuntimeIdentifier)\</ServiceHostBuildOutput>
+		<ServiceHostZipDestination>$(SolutionDir)src\core\forge\Rebound.Forge.Assets\Modding\ServiceHost\ServiceHost.zip</ServiceHostZipDestination>
 	</PropertyGroup>
 
-	<Target Name="BuildServiceHost"
-			BeforeTargets="BeforeBuild"
-			Condition="'$(Configuration)' == 'Release'">
-		<Message Importance="high" Text="Cleaning previous ServiceHost assets" />
-		<RemoveDir Directories="$(ServiceHostDestinationDir)" />
+	<Target Name="BuildAndZipServiceHost"
+			BeforeTargets="BeforeBuild">
+		<Message Importance="high" Text="Building Rebound.ServiceHost project in $(Configuration)|$(Platform) with TargetFramework=$(TargetFramework) and RuntimeIdentifier=$(RuntimeIdentifier)" />
 
-		<Message Importance="high" Text="Building Rebound.ServiceHost project" />
 		<MSBuild Projects="$(SolutionDir)src\system\Rebound.ServiceHost\Rebound.ServiceHost.csproj"
-				 Properties="Configuration=$(Configuration);Platform=$(Platform)" />
+				 Properties="Configuration=$(Configuration);
+                       Platform=$(Platform);
+                       TargetFramework=$(TargetFramework);
+                       RuntimeIdentifier=$(RuntimeIdentifier)" />
 
-		<MakeDir Directories="$(ServiceHostDestinationDir)" />
+		<Message Importance="high" Text="Zipping ServiceHost output folder '$(ServiceHostBuildOutput)'..." />
 
-		<!-- Get the file lists after build completes -->
-		<ItemGroup>
-			<ServiceHostNonXbfFilesActual Include="$(ServiceHostOutputDir)**\*.*"
-										  Exclude="$(ServiceHostOutputDir)**\*.xbf" />
-			<ServiceHostXbfFilesActual Include="$(ServiceHostOutputDir)**\*.xbf" />
-		</ItemGroup>
+		<MakeDir Directories="$(SolutionDir)src\core\forge\Rebound.Forge.Assets\Modding\ServiceHost\" />
 
-		<!-- Copy everything EXCEPT .xbf -->
-		<Copy SourceFiles="@(ServiceHostNonXbfFilesActual)"
-			  DestinationFiles="@(ServiceHostNonXbfFilesActual->'$(ServiceHostDestinationDir)%(RecursiveDir)%(Filename)%(Extension)')"
+		<Exec Command="powershell -NoProfile -Command &quot;Compress-Archive -Path &apos;$(ServiceHostBuildOutput)*&apos; -DestinationPath &apos;$(ServiceHostZipDestination)&apos; -Force&quot;" />
+
+		<Message Importance="high" Text="ServiceHost zipped to $(ServiceHostZipDestination)" />
+
+		<Copy SourceFiles="$(ServiceHostZipDestination)"
+			  DestinationFolder="$(SolutionDir)src\core\forge\Rebound.Forge.Assets\Modding\ServiceHost\"
 			  SkipUnchangedFiles="true" />
-
-		<!-- Copy .xbf → .xbf1 -->
-		<Copy SourceFiles="@(ServiceHostXbfFilesActual)"
-			  DestinationFiles="@(ServiceHostXbfFilesActual->'$(ServiceHostDestinationDir)%(RecursiveDir)%(Filename).xbf1')"
-			  SkipUnchangedFiles="true" />
-
-		<Message Importance="high" Text="ServiceHost assets copied (XBF files renamed to .xbf1)" />
 	</Target>
 
-	<!-- C. Copy ServiceHost to output directory AFTER build -->
-	<Target Name="CopyServiceHostToOutput"
-			AfterTargets="Build"
-			Condition="'$(Configuration)' == 'Release'">
-		<ItemGroup>
-			<ServiceHostOutputFiles Include="$(ServiceHostDestinationDir)**\*.*" />
-		</ItemGroup>
+	<!-- C. Include Rebound About inside the Assets project -->
+	<PropertyGroup>
+		<ReboundAboutProject>$(SolutionDir)src\apps\Rebound.About\Rebound.About.csproj</ReboundAboutProject>
+		<ReboundAboutPackageSource>$(SolutionDir)src\apps\Rebound.About\AppPackages\Rebound.About\**\*.msixbundle</ReboundAboutPackageSource>
+		<ReboundAboutDestination>$(SolutionDir)src\core\forge\Rebound.Forge.Assets\Modding\Packages\Rebound.About.msixbundle</ReboundAboutDestination>
+	</PropertyGroup>
 
-		<Copy SourceFiles="@(ServiceHostOutputFiles)"
-			  DestinationFiles="@(ServiceHostOutputFiles->'$(OutDir)Modding\ServiceHost\%(RecursiveDir)%(Filename)%(Extension)')"
-			  SkipUnchangedFiles="true" />
-
-		<Message Importance="high" Text="ServiceHost assets copied to output directory" />
-	</Target>
+<Target Name="BuildAndCopyReboundAboutPackage"
+        BeforeTargets="BeforeBuild"
+        Condition="'$(Configuration)' == 'Release'">
+    <Message Importance="high" Text="Building Rebound.About project..." />
+  
+    <MSBuild Projects="$(ReboundAboutProject)"
+             Properties="Configuration=$(Configuration);
+                         Platform=$(Platform);
+                         AppxBundle=Always;
+                         UapAppxPackageBuildMode=SideloadOnly;
+                         GenerateAppxPackageOnBuild=true"
+             Targets="Build;_GenerateAppxPackage" />
+    
+    <Message Importance="high" Text="Looking for .msixbundle files in Rebound.About output..." />
+  
+    <CreateItem Include="$(SolutionDir)src\apps\Rebound.About\AppPackages\**\*.msixbundle">
+        <Output TaskParameter="Include" ItemName="AboutMsixBundles"/>
+    </CreateItem>
+    
+    <Message Importance="high" Text="Found bundles: @(AboutMsixBundles)" />
+    
+    <Error Condition="'@(AboutMsixBundles)' == ''" 
+           Text="No .msixbundle file found. Packaging may have failed." />
+    
+    <Copy SourceFiles="@(AboutMsixBundles)"
+          DestinationFiles="$(ReboundAboutDestination)"
+          SkipUnchangedFiles="true" />
+    
+    <Message Importance="high" Text="Copied Rebound.About package to $(ReboundAboutDestination)" />
+</Target>
 
 </Project>

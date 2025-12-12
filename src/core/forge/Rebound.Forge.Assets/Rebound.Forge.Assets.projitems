@@ -63,8 +63,8 @@
     <Content Include="$(MSBuildThisFileDirectory)Modding\Packages\Rebound.Shell.msixbundle">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-  </ItemGroup>
-  <ItemGroup>
-    <Folder Include="$(MSBuildThisFileDirectory)Modding\ServiceHost\" />
+    <Content Include="$(MSBuildThisFileDirectory)Modding\ServiceHost\ServiceHost.zip">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
   </ItemGroup>
 </Project>
