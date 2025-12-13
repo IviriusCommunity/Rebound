@@ -60,7 +60,16 @@ internal sealed partial class ShellPage : Page
         {
             var categoryItem = new NavigationViewItem
             {
-                Content = categoryGroup.Key.ToString(),
+                Content = categoryGroup.Key switch
+                {
+                    ModCategory.General => "General",
+                    ModCategory.Productivity => "Productivity",
+                    ModCategory.SystemAdministration => "System administration",
+                    ModCategory.Customization => "Customization",
+                    ModCategory.Extras => "Extras",
+                    ModCategory.Sideloaded => "Sideloaded",
+                    _ => "\uE897"
+                },
                 Tag = categoryGroup.Key.ToString(),
                 SelectsOnInvoked = false,
                 Icon = new FontIcon

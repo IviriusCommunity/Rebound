@@ -118,7 +118,6 @@
 	</PropertyGroup>
 
 	<ItemGroup>
-	  <None Remove="Assets\r11logo.png" />
 	  <None Remove="Assets\RunBox.ico" />
 	  <None Remove="Assets\RunBox.png" />
 	  <None Remove="Launcher.obj" />
@@ -133,9 +132,6 @@
 	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
 	  </Content>
 	  <Content Update="Assets\LivelyWallpaper.png">
-	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-	  </Content>
-	  <Content Update="Assets\r11logo.png">
 	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
 	  </Content>
 	  <Content Update="Assets\ReboundIcon.ico">

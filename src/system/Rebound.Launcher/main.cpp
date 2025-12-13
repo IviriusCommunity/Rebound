@@ -320,6 +320,7 @@ struct LaunchEntry {
 std::vector<LaunchEntry> KnownLaunchEntries = {
     { L"charmap.exe", std::optional<std::wstring>(L"58027.265370AB8DB33_fjemmk5ta3a5g!App") },
     { L"winver.exe", std::optional<std::wstring>(L"Rebound.About_rcz2tbwv5qzb8!App") },
+    { L"useraccountcontrolsettings.exe", std::optional<std::wstring>(L"Rebound.UserAccountControlSettings_rcz2tbwv5qzb8!App") },
 };
 
 // Searches the launch mapping table for a given executable name (case-insensitive).

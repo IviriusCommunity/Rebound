@@ -693,6 +693,91 @@ public partial class IslandsWindow : ObservableObject, IDisposable
         }
     }
 
+    private HBRUSH _backgroundBrush = HBRUSH.NULL;
+    private bool _isTransparent;
+
+    /// <summary>
+    /// Makes the window transparent by configuring DWM and handling window messages.
+    /// This will disable the Mica backdrop to prevent conflicts.
+    /// </summary>
+    public unsafe void MakeWindowTransparent()
+    {
+        if (Handle == HWND.NULL)
+            throw new InvalidOperationException("Window must be created before making it transparent.");
+
+        if (_isTransparent)
+            return;
+
+        _isTransparent = true;
+
+        // Disable Mica backdrop to prevent conflicts
+        var backdrop = (int)DWM_SYSTEMBACKDROP_TYPE.DWMSBT_NONE;
+        DwmSetWindowAttribute(Handle, (uint)DWMWINDOWATTRIBUTE.DWMWA_SYSTEMBACKDROP_TYPE, &backdrop, sizeof(int));
+
+        // Configure DWM for transparency
+        ConfigureDwmForTransparency((ulong)Handle.Value);
+    }
+
+    /// <summary>
+    /// Reverts the transparency settings and re-enables Mica backdrop.
+    /// </summary>
+    public unsafe void DisableTransparency()
+    {
+        if (!_isTransparent)
+            return;
+
+        _isTransparent = false;
+
+        // Clean up brush
+        if (_backgroundBrush != HBRUSH.NULL)
+        {
+            DeleteObject(_backgroundBrush);
+            _backgroundBrush = HBRUSH.NULL;
+        }
+
+        // Re-enable Mica backdrop
+        var backdrop = (int)DWM_SYSTEMBACKDROP_TYPE.DWMSBT_MAINWINDOW;
+        DwmSetWindowAttribute(Handle, (uint)DWMWINDOWATTRIBUTE.DWMWA_SYSTEMBACKDROP_TYPE, &backdrop, sizeof(int));
+    }
+
+    private unsafe void ConfigureDwmForTransparency(ulong hWnd)
+    {
+        var margins = new MARGINS()
+        {
+            cxLeftWidth = -1,
+            cxRightWidth = -1,
+            cyTopHeight = -1,
+            cyBottomHeight = -1,
+        };
+
+        // Extend frame into client area
+        DwmExtendFrameIntoClientArea(Handle, &margins);
+
+        var config = new DWM_BLURBEHIND()
+        {
+            dwFlags = 3,
+            fEnable = true,
+            hRgnBlur = CreateRectRgn(-2, -2, -1, -1),
+        };
+
+        // Enable blur behind
+        DwmEnableBlurBehindWindow(Handle, &config);
+    }
+
+    private unsafe bool ClearTransparentBackground(nint hwnd, HDC hdc)
+    {
+        RECT lpRect;
+        if (GetClientRect(Handle, &lpRect))
+        {
+            if (_backgroundBrush == HBRUSH.NULL)
+                _backgroundBrush = CreateSolidBrush(new COLORREF(0));
+
+            FillRect(hdc, &lpRect, _backgroundBrush);
+            return true;
+        }
+        return false;
+    }
+
     /// <summary>
     /// Closes the current window. If you want to intercept the closing process,
     /// subscribe to the <see cref="OnClosing"/> event.
@@ -752,6 +837,11 @@ public partial class IslandsWindow : ObservableObject, IDisposable
         {
             DestroyWindow(Handle);
             Handle = HWND.NULL;
+        }
+
+        if (_isTransparent)
+        {
+            DisableTransparency();
         }
 
         GC.SuppressFinalize(this);
@@ -1233,7 +1323,23 @@ public partial class IslandsWindow : ObservableObject, IDisposable
 
                     return 0;
                 }
+            case WM_ERASEBKGND:
+                if (_isTransparent)
+                {
+                    if (ClearTransparentBackground((nint)hwnd, (HDC)wParam))
+                    {
+                        return new LRESULT(1);
+                    }
+                }
+                break;
 
+            case WM_DWMCOMPOSITIONCHANGED:
+                if (_isTransparent)
+                {
+                    ConfigureDwmForTransparency((ulong)hwnd);
+                    return new LRESULT(0);
+                }
+                break;
             case WM_SETTINGCHANGE:
             case WM_THEMECHANGED:
                 ProcessCoreWindowMessage(msg, wParam, lParam);

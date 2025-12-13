@@ -54,10 +54,7 @@
     <Content Include="$(MSBuildThisFileDirectory)Modding\Launchers\rosk.exe">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="$(MSBuildThisFileDirectory)Modding\Packages\Rebound.About.msixbundle">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="$(MSBuildThisFileDirectory)Modding\Packages\Rebound.Shell.msixbundle">
+    <Content Include="$(MSBuildThisFileDirectory)Modding\**\*.*">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <Content Include="$(MSBuildThisFileDirectory)Modding\ServiceHost\ServiceHost.zip">

@@ -1,6 +1,7 @@
 ﻿// Copyright (C) Ivirius(TM) Community 2020 - 2025. All Rights Reserved.
 // Licensed under the MIT License.
 
+using Microsoft.UI.Windowing;
 using Rebound.Core;
 using Rebound.Core.Helpers;
 using Rebound.Core.IPC;
@@ -100,6 +101,34 @@ public partial class App : Application
                 {
                     UIThreadQueue.QueueAction(async () =>
                     {
+                        // Create the window
+                        using var TestShellWindow = new IslandsWindow()
+                        {
+                            IsPersistenceEnabled = false,
+                        };
+
+                        // AppWindow init
+                        TestShellWindow.AppWindowInitialized += (s, e) =>
+                        {
+                            TestShellWindow.Title = "Rebound Shell";
+                            TestShellWindow.AppWindow?.TitleBar.ExtendsContentIntoTitleBar = true;
+                            TestShellWindow.AppWindow?.TitleBar.PreferredHeightOption = TitleBarHeightOption.Collapsed;
+                            TestShellWindow.AppWindow?.TitleBar.ButtonBackgroundColor = Colors.Transparent;
+                            TestShellWindow.AppWindow?.TitleBar.ButtonHoverBackgroundColor = Color.FromArgb(40, 120, 120, 120);
+                            TestShellWindow.AppWindow?.TitleBar.ButtonPressedBackgroundColor = Color.FromArgb(24, 120, 120, 120);
+                            TestShellWindow.AppWindow?.TitleBar.ButtonInactiveBackgroundColor = Colors.Transparent;
+                        };
+
+                        // Load main page
+                        TestShellWindow.XamlInitialized += (s, e) =>
+                        {
+                            var frame = new FullShellTestPage();
+                            TestShellWindow.Content = frame;
+                        };
+
+                        // Spawn the window
+                        TestShellWindow.Create();
+                        TestShellWindow.MakeWindowTransparent();
                         await ReboundDialog.ShowAsync(
                             "Rebound Service Host not found.",
                             "Could not find Rebound Service Host.\nPlease ensure it is running in the background.",
@@ -129,7 +158,7 @@ public partial class App : Application
             };
 
             pipeServerThread.Start();
-
+#if RELEASE
             // Create the window
             using var MainWindow = new IslandsWindow()
             {
@@ -165,6 +194,9 @@ public partial class App : Application
 
             // Spawn the window
             MainWindow.Create();
+
+#else
+#endif
         }
         else Process.GetCurrentProcess().Kill();
     }

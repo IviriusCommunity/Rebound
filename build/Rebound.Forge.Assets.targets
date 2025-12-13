@@ -139,4 +139,28 @@
 
 	</Target>
 
+	<!-- 5. Compile Rebound User Account Control Settings -->
+	<!-- 5. A. Define properties for Rebound User Account Control Settings build and package copy -->
+	<PropertyGroup>
+		<ReboundUserAccountControlSettingsProject>$(SolutionDir)src\apps\Rebound.UserAccountControlSettings\Rebound.UserAccountControlSettings.csproj</ReboundUserAccountControlSettingsProject>
+		<ReboundUserAccountControlSettingsPackageOutputFolder>$(SolutionDir)src\apps\Rebound.UserAccountControlSettings\AppPackages\</ReboundUserAccountControlSettingsPackageOutputFolder>
+		<ReboundUserAccountControlSettingsPackageDestination>$(SolutionDir)src\core\forge\Rebound.Forge.Assets\Modding\Packages\Rebound.UserAccountControlSettings.msixbundle</ReboundUserAccountControlSettingsPackageDestination>
+	</PropertyGroup>
+
+	<!-- 5. B. Build and copy Rebound User Account Control Settings inside the Assets project -->
+	<Target Name="BuildAndCopyReboundUserAccountControlSettingsPackage"
+			BeforeTargets="BeforeBuild"
+			Condition="'$(Configuration)' == 'Release'">
+
+		<!-- Call generic packaging with properties -->
+		<MSBuild Projects="$(MSBuildProjectFile)"
+				 Targets="BuildAndCopyMsixPackage"
+				 Properties="PackageProject=$(ReboundUserAccountControlSettingsProject);
+							 PackageOutputFolder=$(ReboundUserAccountControlSettingsPackageOutputFolder);
+							 PackageDestination=$(ReboundUserAccountControlSettingsPackageDestination);
+							 Configuration=$(Configuration);
+							 Platform=$(Platform)" />
+
+	</Target>
+
 </Project>

@@ -227,31 +227,48 @@ public partial class Catalog : ObservableObject
                 ]
             },
 
-            /*// Rebound User Account Control Settings
-            new Mod(
-                name: "UAC Settings",
-                description: "Replacement for the useraccountcontrolsettings applet.",
-                icon: "ms-appx:///Assets/ReboundApps/UACSettings.ico",
-                installationSteps: "•   Redirect app launch\n•   Create a start menu shortcut",
-                instructions: new ObservableCollection<ICog>
-                {
-                    new IFEOCog()
-                    {
-                        OriginalExecutableName = "useraccountcontrolsettings.exe",
-                        LauncherPath = $"{Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles)}\\Rebound\\ruseraccountcontrolsettings\\Rebound User Account Control Settings.exe"
-                    },
-                    new ShortcutCog()
-                    {
-                        ShortcutName = "Change User Account Control Settings",
-                        ExePath = $"{Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles)}\\Rebound\\ruseraccountcontrolsettings\\Rebound User Account Control Settings.exe"
-                    },
-                },
-                processName: "Rebound User Account Control Settings"
-            )
+            // Rebound User Account Control Settings
+            new()
             {
-                EntryExecutable = $"{Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles)}\\Rebound\\ruseraccountcontrolsettings\\Rebound User Account Control Settings.exe",
-                PreferredInstallationTemplate = InstallationTemplate.Basic
-            },*/
+                Name = "UAC Settings",
+                Id = "Rebound.UserAccountControlSettings",
+                Description = "Replacement for the useraccountcontrolsettings applet.",
+                Icon = "ms-appx:///Assets/ReboundApps/UACSettings.ico",
+                Category = ModCategory.SystemAdministration,
+                PreferredInstallationTemplate = InstallationTemplate.Recommended,
+                Variants =
+                [
+                    new()
+                    {
+                        Name = "Default",
+                        Id = "Rebound.UserAccountControlSettings.Default",
+                        Cogs =
+                        [
+                            new ProcessKillCog()
+                            {
+                                ProcessName = "Rebound User Account Control Settings"
+                            },
+                            new PackageCog()
+                            {
+                                PackageURI = Path.Combine(AppContext.BaseDirectory, "Modding", "Packages", "Rebound.UserAccountControlSettings.msixbundle"),
+                                PackageFamilyName = "Rebound.UserAccountControlSettings_rcz2tbwv5qzb8"
+                            },
+                            new IFEOCog()
+                            {
+                                OriginalExecutableName = "useraccountcontrolsettings.exe",
+                                LauncherPath = Variables.ReboundLauncherPath
+                            }
+                        ],
+                        Launchers =
+                        [
+                            new PackageLauncher()
+                            {
+                                PackageFamilyName = "Rebound.UserAccountControlSettings_rcz2tbwv5qzb8"
+                            }
+                        ],
+                    }
+                ],
+            },
 
             // Character Map
             new()
