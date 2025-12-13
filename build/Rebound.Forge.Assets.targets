@@ -1,80 +1,142 @@
 <Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-	
-	<!-- A. Native Launcher Build Targets -->
+
+	<!-- === C++ PROGRAMS === -->
+	<!-- ==================== -->
+
+	<!-- 1. Compile Rebound Launcher -->
+	<!-- 1. A. Native Launcher Build Targets -->
 	<Target Name="BuildNativeHooks" BeforeTargets="BeforeBuild" Condition="'$(Configuration)' == 'Release'">
+
 		<!-- Build Launcher -->
 		<Message Importance="high" Text="Compiling Rebound Launcher" />
 		<MSBuild Projects="$(SolutionDir)src\system\Rebound.Launcher\Rebound.Launcher.vcxproj" Properties="Configuration=$(Configuration);Platform=$(Platform)" />
+
 		<!-- Copy Launcher -->
 		<Message Importance="high" Text="Copying Rebound.Launcher.exe" />
 		<Copy SourceFiles="$(SolutionDir)$(Platform)\$(Configuration)\Rebound.Launcher.exe" DestinationFiles="$(SolutionDir)src\core\forge\Rebound.Forge.Assets\Modding\Launchers\Rebound.Launcher.exe" SkipUnchangedFiles="true" />
+
 	</Target>
 
-	<!-- B. Include ServiceHost files as Content items -->
+	<!-- === C# UNPACKAGED APPS === -->
+	<!-- ========================== -->
+
+	<!-- 2. Compile Service Host -->
+	<!-- 2. A. Define properties for ServiceHost build and zip -->
 	<PropertyGroup>
 		<ServiceHostBuildOutput>$(SolutionDir)src\system\Rebound.ServiceHost\bin\$(Platform)\$(Configuration)\$(TargetFramework)\$(RuntimeIdentifier)\</ServiceHostBuildOutput>
 		<ServiceHostZipDestination>$(SolutionDir)src\core\forge\Rebound.Forge.Assets\Modding\ServiceHost\ServiceHost.zip</ServiceHostZipDestination>
 	</PropertyGroup>
 
+	<!-- 2. B. Build and zip ServiceHost -->
 	<Target Name="BuildAndZipServiceHost"
 			BeforeTargets="BeforeBuild">
-		<Message Importance="high" Text="Building Rebound.ServiceHost project in $(Configuration)|$(Platform) with TargetFramework=$(TargetFramework) and RuntimeIdentifier=$(RuntimeIdentifier)" />
 
+		<!-- Build Rebound Service Host -->
+		<Message Importance="high" Text="Building Rebound.ServiceHost project in $(Configuration)|$(Platform) with TargetFramework=$(TargetFramework) and RuntimeIdentifier=$(RuntimeIdentifier)" />
 		<MSBuild Projects="$(SolutionDir)src\system\Rebound.ServiceHost\Rebound.ServiceHost.csproj"
 				 Properties="Configuration=$(Configuration);
                        Platform=$(Platform);
                        TargetFramework=$(TargetFramework);
                        RuntimeIdentifier=$(RuntimeIdentifier)" />
 
+		<!-- Zip the output folder -->
 		<Message Importance="high" Text="Zipping ServiceHost output folder '$(ServiceHostBuildOutput)'..." />
-
 		<MakeDir Directories="$(SolutionDir)src\core\forge\Rebound.Forge.Assets\Modding\ServiceHost\" />
-
 		<Exec Command="powershell -NoProfile -Command &quot;Compress-Archive -Path &apos;$(ServiceHostBuildOutput)*&apos; -DestinationPath &apos;$(ServiceHostZipDestination)&apos; -Force&quot;" />
-
 		<Message Importance="high" Text="ServiceHost zipped to $(ServiceHostZipDestination)" />
 
+		<!-- Copy the zip to the Assets project -->
 		<Copy SourceFiles="$(ServiceHostZipDestination)"
 			  DestinationFolder="$(SolutionDir)src\core\forge\Rebound.Forge.Assets\Modding\ServiceHost\"
 			  SkipUnchangedFiles="true" />
+		<Message Importance="high" Text="Copied $(ServiceHostZipDestination) to $(SolutionDir)src\core\forge\Rebound.Forge.Assets\Modding\ServiceHost\" />
+
 	</Target>
 
-	<!-- C. Include Rebound About inside the Assets project -->
+	<!-- === PACKAGED APPS === -->
+	<!-- ===================== -->
+
+	<!-- #. Generic reusable packaging target -->
+	<Target Name="BuildAndCopyMsixPackage">
+
+		<!-- Build the project -->
+		<Message Importance="high" Text="Building project $(PackageProject) in $(Configuration)|$(Platform) with AppxBundle=Always" />
+		<MSBuild Projects="$(PackageProject)"
+				 Properties="Configuration=$(Configuration);
+							 Platform=$(Platform);
+							 AppxBundle=Always;
+							 UapAppxPackageBuildMode=SideloadOnly;
+							 GenerateAppxPackageOnBuild=true"
+				 Targets="Build;_GenerateAppxPackage" />
+
+		<!-- Find the generated .msixbundle files -->
+		<Message Importance="high" Text="Looking for .msixbundle files in $(PackageOutputFolder)" />
+		<CreateItem Include="$(PackageOutputFolder)**\*.msixbundle">
+			<Output TaskParameter="Include" ItemName="MsixBundles"/>
+		</CreateItem>
+
+		<!-- Error if none found -->
+		<Error Condition="'@(MsixBundles)' == ''"
+			   Text="No .msixbundle file found in $(PackageOutputFolder). Packaging may have failed." />
+
+		<!-- Copy .msixbundle only if files were found -->
+		<Copy Condition="'@(MsixBundles)' != ''"
+			  SourceFiles="@(MsixBundles)"
+			  DestinationFiles="$(PackageDestination)"
+			  SkipUnchangedFiles="true" />
+
+		<Message Condition="'@(MsixBundles)' != ''"
+				 Importance="high"
+				 Text="Copied package to $(PackageDestination)" />
+
+	</Target>
+
+	<!-- 3. Compile Rebound About -->
+	<!-- 3. A. Define properties for Rebound About build and package copy -->
 	<PropertyGroup>
 		<ReboundAboutProject>$(SolutionDir)src\apps\Rebound.About\Rebound.About.csproj</ReboundAboutProject>
-		<ReboundAboutPackageSource>$(SolutionDir)src\apps\Rebound.About\AppPackages\Rebound.About\**\*.msixbundle</ReboundAboutPackageSource>
-		<ReboundAboutDestination>$(SolutionDir)src\core\forge\Rebound.Forge.Assets\Modding\Packages\Rebound.About.msixbundle</ReboundAboutDestination>
+		<ReboundAboutPackageOutputFolder>$(SolutionDir)src\apps\Rebound.About\AppPackages\</ReboundAboutPackageOutputFolder>
+		<ReboundAboutPackageDestination>$(SolutionDir)src\core\forge\Rebound.Forge.Assets\Modding\Packages\Rebound.About.msixbundle</ReboundAboutPackageDestination>
 	</PropertyGroup>
 
-<Target Name="BuildAndCopyReboundAboutPackage"
-        BeforeTargets="BeforeBuild"
-        Condition="'$(Configuration)' == 'Release'">
-    <Message Importance="high" Text="Building Rebound.About project..." />
-  
-    <MSBuild Projects="$(ReboundAboutProject)"
-             Properties="Configuration=$(Configuration);
-                         Platform=$(Platform);
-                         AppxBundle=Always;
-                         UapAppxPackageBuildMode=SideloadOnly;
-                         GenerateAppxPackageOnBuild=true"
-             Targets="Build;_GenerateAppxPackage" />
-    
-    <Message Importance="high" Text="Looking for .msixbundle files in Rebound.About output..." />
-  
-    <CreateItem Include="$(SolutionDir)src\apps\Rebound.About\AppPackages\**\*.msixbundle">
-        <Output TaskParameter="Include" ItemName="AboutMsixBundles"/>
-    </CreateItem>
-    
-    <Message Importance="high" Text="Found bundles: @(AboutMsixBundles)" />
-    
-    <Error Condition="'@(AboutMsixBundles)' == ''" 
-           Text="No .msixbundle file found. Packaging may have failed." />
-    
-    <Copy SourceFiles="@(AboutMsixBundles)"
-          DestinationFiles="$(ReboundAboutDestination)"
-          SkipUnchangedFiles="true" />
-    
-    <Message Importance="high" Text="Copied Rebound.About package to $(ReboundAboutDestination)" />
-</Target>
+	<!-- 3. B. Build and copy Rebound About inside the Assets project -->
+	<Target Name="BuildAndCopyReboundAboutPackage"
+			BeforeTargets="BeforeBuild"
+			Condition="'$(Configuration)' == 'Release'">
+
+		<!-- Call generic packaging with properties -->
+		<MSBuild Projects="$(MSBuildProjectFile)"
+				 Targets="BuildAndCopyMsixPackage"
+				 Properties="PackageProject=$(ReboundAboutProject);
+							 PackageOutputFolder=$(ReboundAboutPackageOutputFolder);
+							 PackageDestination=$(ReboundAboutPackageDestination);
+							 Configuration=$(Configuration);
+							 Platform=$(Platform)" />
+
+	</Target>
+
+	<!-- 4. Compile Rebound Shell -->
+	<!-- 4. A. Define properties for Rebound Shell build and package copy -->
+	<PropertyGroup>
+		<ReboundShellProject>$(SolutionDir)src\platforms\shell\Rebound.Shell\Rebound.Shell.csproj</ReboundShellProject>
+		<ReboundShellPackageOutputFolder>$(SolutionDir)src\platforms\shell\Rebound.Shell\AppPackages\</ReboundShellPackageOutputFolder>
+		<ReboundShellPackageDestination>$(SolutionDir)src\core\forge\Rebound.Forge.Assets\Modding\Packages\Rebound.Shell.msixbundle</ReboundShellPackageDestination>
+	</PropertyGroup>
+
+	<!-- 4. B. Build and copy Rebound Shell inside the Assets project -->
+	<Target Name="BuildAndCopyReboundShellPackage"
+			BeforeTargets="BeforeBuild"
+			Condition="'$(Configuration)' == 'Release'">
+
+		<!-- Call generic packaging with properties -->
+		<MSBuild Projects="$(MSBuildProjectFile)"
+				 Targets="BuildAndCopyMsixPackage"
+				 Properties="PackageProject=$(ReboundShellProject);
+							 PackageOutputFolder=$(ReboundShellPackageOutputFolder);
+							 PackageDestination=$(ReboundShellPackageDestination);
+							 Configuration=$(Configuration);
+							 Platform=$(Platform)" />
+
+	</Target>
 
 </Project>

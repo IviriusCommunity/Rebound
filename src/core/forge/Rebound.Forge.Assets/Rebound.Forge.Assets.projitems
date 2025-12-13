@@ -57,9 +57,6 @@
     <Content Include="$(MSBuildThisFileDirectory)Modding\Packages\Rebound.About.msixbundle">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="$(MSBuildThisFileDirectory)Modding\Packages\Rebound.ServiceHost.msixbundle">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
     <Content Include="$(MSBuildThisFileDirectory)Modding\Packages\Rebound.Shell.msixbundle">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
