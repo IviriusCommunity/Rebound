@@ -12,12 +12,12 @@ using Windows.Win32.System.Com;
 
 namespace Rebound.Core.Defrag;
 
-public class DefragClientImpl
+public class CDefragClient
 {
     public unsafe HRESULT ReRegisterEngine(IDefragEnginePriv* enginePtr)
     {
         // Initialize COM for this thread
-        var hrInit = PInvoke.CoInitializeEx(null, COINIT.COINIT_APARTMENTTHREADED);
+        HRESULT hrInit;
 
         var clsid_DefragEngine = CLSID.CLSID_DefragEngine;
         var iid_IDefragEnginePriv = IDefragEnginePriv.Guid;
@@ -39,49 +39,54 @@ public class DefragClientImpl
             }
         }
 
+        if (enginePtr != (nint*)0)
+        {
+            ((IUnknown*)enginePtr)->Release();
+        }
+
         return hrInit;
     }
 
     public unsafe HRESULT Register(IDefragEnginePriv* enginePtr)
     {
-        ComPtr<IDefragClient> client = default;
-
-        if (enginePtr == null)
+        /*if (enginePtr == null)
             return HRESULT.E_POINTER;
 
-        // Step 1: Get clientUnknown by calling method at vtable offset 0x20 on this
-        var clientUnknownPtr = client.Get()->GetControllingUnknown();
-        if (clientUnknownPtr == null)
-            return HRESULT.E_FAIL;
+        // Step 1: AddRef enginePtr
+        ((IUnknown*)enginePtr)->AddRef();
 
-        IUnknown* clientUnknown = clientUnknownPtr;
-        clientUnknown->AddRef();
-
-        // Step 2: QueryInterface for IID_IDefragClient
+        // Step 3: QueryInterface IID_IDefragClient on that interface
         IDefragClient* defragClient = null;
-        void* ptr;
-
-        HRESULT hr = clientUnknown->QueryInterface(in IDefragClient.Guid, out ptr);
-
+        void* clientPtr;
+        HRESULT hr = someInterface->QueryInterface(in IDefragClient.Guid, out clientPtr);
         if (hr.Succeeded)
         {
-            defragClient = (IDefragClient*)ptr;
+            defragClient = (IDefragClient*)clientPtr;
         }
-        clientUnknown->Release();
-        if (hr.Failed)
-            return hr;
-
-        fixed (Guid* iUnknownGuid = &IUnknown.IID_Guid)
+        else
         {
-            hr = enginePtr->Register(defragClient, iUnknownGuid);
+            someInterface->Release();
+            enginePtr->Release();
+            return hr;
         }
 
-        // Step 4: Release defragClient
-        IUnknown* unknown = defragClient->GetControllingUnknown();
-        if (unknown != null)
-            unknown->Release();
+        // Step 4: Call Register on enginePtr
+        // Assuming `this.RegisterDataPtr` corresponds to (this + 0x140) in native
+        IntPtr registerDataPtr = this.RegisterDataPtr;
 
-        return hr;
+        hr = enginePtr->Register(defragClient, registerDataPtr);
+
+        // Step 5: Cleanup: release interfaces
+        if (defragClient != null)
+        {
+            defragClient->Release();
+        }
+
+        someInterface->Release();
+        enginePtr->Release();
+
+        return hr;*/
+        return new();
     }
 
     public unsafe HRESULT Unregister(IDefragEnginePriv* enginePtr)

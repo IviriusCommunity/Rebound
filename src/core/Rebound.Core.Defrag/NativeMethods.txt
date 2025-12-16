@@ -273,3 +273,9 @@ GdiplusStartup
 
 CoInitializeEx
 CoInitializeSecurity
+CreateThread
+CloseHandle
+SetEvent
+CoDisconnectObject
+ResetEvent
+CreateEvent

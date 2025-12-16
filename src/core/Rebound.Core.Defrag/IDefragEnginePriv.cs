@@ -254,6 +254,6 @@ public unsafe partial struct IDefragEnginePriv : IComIID
         return (IUnknown*)((delegate* unmanaged[MemberFunction]<IDefragEnginePriv*, int>)(lpVtbl[29]))((IDefragEnginePriv*)Unsafe.AsPointer(ref this));
     }
 
-    [GuidRVAGen.Guid("0C401E84-3083-4764-B6B5-A0DE8FEDD40C")]
+    [GuidRVAGen.Guid("759b45ae-5c6d-4e1d-97a6-7aa7408c1787")]
     public static partial ref readonly Guid Guid { get; }
 }
