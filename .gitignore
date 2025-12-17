@@ -394,3 +394,5 @@ FodyWeavers.xsd
 /eng/distribution/standalone/Rebound.Distribution/Rebound.Hub.msixbundle
 /src/core/forge/Rebound.Forge.Assets/Modding/ServiceHost
 /src/system/Rebound.Hub/Modding/ServiceHost
+/src/core/forge/Rebound.Forge.Assets/Modding/ServiceHost/ServiceHost.zip
+/src/core/forge/Rebound.Forge.Assets/Modding/ServiceHost/ServiceHost.zip
