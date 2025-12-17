@@ -1,6 +1,7 @@
 ﻿// Copyright (C) Ivirius(TM) Community 2020 - 2025. All Rights Reserved.
 // Licensed under the MIT License.
 
+using CommunityToolkit.Mvvm.ComponentModel;
 using Rebound.Core;
 using System.Diagnostics;
 using System.Security.Principal;
@@ -13,7 +14,7 @@ namespace Rebound.Forge.Cogs
     /// <summary>
     /// Handles installation and management of Microsoft Store apps by product ID.
     /// </summary>
-    public class StorePackageCog : ICog
+    public partial class StorePackageCog : ObservableObject, ICog
     {
         /// <summary>
         /// The Microsoft Store product ID.
@@ -28,7 +29,8 @@ namespace Rebound.Forge.Cogs
         public required string PackageFamilyName { get; set; }
 
         /// <inheritdoc/>
-        public bool Ignorable { get; }
+        [ObservableProperty]
+        public partial bool Ignorable { get; set; }
 
         /// <inheritdoc/>
         public string TaskDescription { get => $"Installs the app {StoreProductId} from the Microsoft Store"; }
@@ -36,6 +38,8 @@ namespace Rebound.Forge.Cogs
         /// <inheritdoc/>
         public async Task ApplyAsync()
         {
+            Ignorable = !SettingsManager.GetValue("ManageStoreApps", "rebound", true);
+
             try
             {
                 ReboundLogger.Log($"[StorePackageCog] Starting Store install for product ID: {StoreProductId}");
@@ -56,6 +60,10 @@ namespace Rebound.Forge.Cogs
         /// <inheritdoc/>
         public async Task RemoveAsync()
         {
+            Ignorable = !SettingsManager.GetValue("ManageStoreApps", "rebound", true);
+
+            if (Ignorable) return;
+
             try
             {
                 ReboundLogger.Log($"[StorePackageCog] Attempting to uninstall Store package: {StoreProductId}");
@@ -75,6 +83,8 @@ namespace Rebound.Forge.Cogs
         /// <inheritdoc/>
         public async Task<bool> IsAppliedAsync()
         {
+            Ignorable = !SettingsManager.GetValue("ManageStoreApps", "rebound", true);
+
             try
             {
                 var packageManager = new PackageManager();

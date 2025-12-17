@@ -28,26 +28,24 @@ namespace Rebound.Uninstaller;
 /// </summary>
 public sealed partial class MainPage : Page
 {
+    public MainViewModel ViewModel { get; } = new();
+
     public MainPage()
     {
         InitializeComponent();
     }
 
-    [RelayCommand]
-    public async Task UninstallAsync()
+    public async void Uninstall_Click(object sender, RoutedEventArgs e)
     {
-        foreach (var mod in Catalog.SideloadedMods)
+        if (ManageStoreAppsCheckBox.IsChecked == true)
         {
-            await mod.UninstallAsync();
+            ViewModel.ManageStoreApps = true;
         }
-        foreach (var mod in Catalog.Mods)
+        else
         {
-            await mod.UninstallAsync();
+            ViewModel.ManageStoreApps = false;
         }
-        foreach (var mod in Catalog.MandatoryMods)
-        {
-            await mod.UninstallAsync();
-        }
-        await Catalog.ReboundHub.UninstallAsync();
+
+        await ViewModel.UninstallAsync();
     }
 }

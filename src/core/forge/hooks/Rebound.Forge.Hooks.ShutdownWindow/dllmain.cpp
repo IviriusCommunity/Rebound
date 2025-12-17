@@ -141,55 +141,6 @@ bool SendMessageToApp(const std::wstring& message)
     return true;
 }
 
-bool SendMessageToServiceHost(const std::wstring& message)
-{
-    HANDLE hPipe = INVALID_HANDLE_VALUE;
-
-    int retries = 0;
-    while (retries < 10)
-    {
-        hPipe = CreateFileW(
-            L"\\\\.\\pipe\\REBOUND_SERVICE_HOST",
-            GENERIC_WRITE,
-            0,
-            nullptr,
-            OPEN_EXISTING,
-            0,
-            nullptr
-        );
-
-        if (hPipe != INVALID_HANDLE_VALUE)
-            break;
-
-        if (GetLastError() != ERROR_PIPE_BUSY)
-            return false;
-
-        Sleep(50);
-        retries++;
-    }
-
-    if (hPipe == INVALID_HANDLE_VALUE)
-        return false;
-
-    DWORD bytesWritten = 0;
-    std::string utf8Message;
-
-    int size_needed = WideCharToMultiByte(CP_UTF8, 0, message.c_str(), -1, nullptr, 0, nullptr, nullptr);
-    if (size_needed <= 0)
-    {
-        CloseHandle(hPipe);
-        return false;
-    }
-    utf8Message.resize(size_needed - 1);
-    WideCharToMultiByte(CP_UTF8, 0, message.c_str(), -1, utf8Message.data(), size_needed, nullptr, nullptr);
-
-    utf8Message += "\n";
-
-    WriteFile(hPipe, utf8Message.data(), static_cast<DWORD>(utf8Message.size()), &bytesWritten, nullptr);
-    CloseHandle(hPipe);
-    return true;
-}
-
 bool IsReboundShellRunning()
 {
     HANDLE hSnapshot = CreateToolhelp32Snapshot(TH32CS_SNAPPROCESS, 0);
@@ -311,10 +262,7 @@ void WINAPI ExitWindowsDialog_Hook(HWND hwnd)
     }
     else
     {
-        std::wstring dialogMessage = L"DialogWindow::Show#300##Rebound Shell Not Running##The Shutdown dialog hook is enabled, but the Rebound Shell process could not be found. Please start Rebound Shell or disable the Shutdown dialog hook in settings. The legacy dialog will open in 3 seconds.";
-        SendMessageToServiceHost(dialogMessage);
-
-        Sleep(3000);
+		MessageBoxW(NULL, L"The Shutdown dialog hook is enabled, but the Rebound Shell process could not be found. Please start Rebound Shell or disable the Shutdown dialog hook in settings.", L"Rebound Shell Not Running", MB_OK | MB_ICONWARNING);
 
         if (g_originalExitWindowsDialog) {
             HWND desktopHwnd = FindWindowW(L"Progman", nullptr);
@@ -339,8 +287,7 @@ void WINAPI LogoffWindowsDialog_Hook(HWND hwnd)
     }
     else
     {
-        std::wstring dialogMessage = L"DialogWindow::Show#270##Rebound Shell Not Running##The Shutdown dialog hook is enabled, but the Rebound Shell process could not be found.\n\nPlease start Rebound Shell or disable the Shutdown dialog hook in settings.";
-        SendMessageToServiceHost(dialogMessage);
+        MessageBoxW(NULL, L"The Shutdown dialog hook is enabled, but the Rebound Shell process could not be found. Please start Rebound Shell or disable the Shutdown dialog hook in settings.", L"Rebound Shell Not Running", MB_OK | MB_ICONWARNING);
 
         if (g_originalLogoffWindowsDialog)
             g_originalLogoffWindowsDialog(hwnd);
@@ -363,8 +310,7 @@ void WINAPI DisconnectWindowsDialog_Hook(HWND hwnd)
     }
     else
     {
-        std::wstring dialogMessage = L"DialogWindow::Show#270##Rebound Shell Not Running##The Shutdown dialog hook is enabled, but the Rebound Shell process could not be found.\n\nPlease start Rebound Shell or disable the Shutdown dialog hook in settings.";
-        SendMessageToServiceHost(dialogMessage);
+        MessageBoxW(NULL, L"The Shutdown dialog hook is enabled, but the Rebound Shell process could not be found. Please start Rebound Shell or disable the Shutdown dialog hook in settings.", L"Rebound Shell Not Running", MB_OK | MB_ICONWARNING);
 
         if (g_originalDisconnectWindowsDialog)
             g_originalDisconnectWindowsDialog(hwnd);

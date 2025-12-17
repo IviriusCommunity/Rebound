@@ -20,34 +20,6 @@
     </winuiex:WindowEx.SystemBackdrop>
 
     <Grid>
-        <StackPanel>
-            <TextBlock
-                Margin="24,24,0,0"
-                FontSize="24"
-                FontWeight="SemiBold"
-                Text="Are you sure you want to uninstall Rebound?" />
-            <CheckBox Margin="24,16,0,0" Content="Delete application data" />
-            <CheckBox Margin="24,0,0,0" Content="Delete partenered apps managed by the Microsoft Store" />
-        </StackPanel>
-        <Grid
-            Height="80"
-            VerticalAlignment="Bottom"
-            Background="{ThemeResource SystemControlBackgroundAltMediumLowBrush}" />
-        <StackPanel
-            Margin="24"
-            HorizontalAlignment="Right"
-            VerticalAlignment="Bottom"
-            Orientation="Horizontal"
-            Spacing="8">
-            <Button
-                Width="120"
-                Content="Uninstall"
-                Style="{ThemeResource AccentButtonStyle}" />
-            <Button Width="120" Content="Cancel">
-                <Button.KeyboardAccelerators>
-                    <KeyboardAccelerator Key="Escape" />
-                </Button.KeyboardAccelerators>
-            </Button>
-        </StackPanel>
+        <Frame x:Name="RootFrame" />
     </Grid>
 </winuiex:WindowEx>

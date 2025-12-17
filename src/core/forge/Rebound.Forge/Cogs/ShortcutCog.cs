@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using Rebound.Core;
+using Rebound.Core.Storage;
 using Windows.Win32;
 using Windows.Win32.Foundation;
 using Windows.Win32.System.Com;
@@ -51,12 +52,7 @@ public class ShortcutCog : ICog
             var shortcutPath = GetShortcutPath(ShortcutName);
             using ComPtr<IShellLinkW> shellLink = default;
 
-            // Check if shortcut installation is enabled in settings
-            if (!SettingsManager.GetValue("InstallShortcuts", "rebound", true))
-            {
-                ReboundLogger.Log("[ShortcutCog] Shortcut installation disabled via settings. Exiting Apply.");
-                return;
-            }
+            DirectoryEx.Create(Variables.ReboundStartMenuFolder);
 
             // Ensure the Rebound start menu folder exists
             ReboundLogger.Log("[ShortcutCog] Ensured folder integrity.");

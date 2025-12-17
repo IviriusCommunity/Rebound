@@ -46,6 +46,12 @@
                         </toolkitControls:SettingsCard.HeaderIcon>
                         <ToggleSwitch IsOn="{x:Bind ViewModel.ShowBlurAndGlow, Mode=TwoWay}" />
                     </toolkitControls:SettingsCard>
+                    <toolkitControls:SettingsCard Description="Uninstall Microsoft Store apps associated with Rebound mods when removing a mod. Apps will still be installed by mods that require them." Header="Manage Store apps">
+                        <toolkitControls:SettingsCard.HeaderIcon>
+                            <FontIcon Glyph="&#xE719;" />
+                        </toolkitControls:SettingsCard.HeaderIcon>
+                        <ToggleSwitch IsOn="{x:Bind ViewModel.ManageStoreApps, Mode=TwoWay}" />
+                    </toolkitControls:SettingsCard>
                 </StackPanel>
             </Grid>
         </Grid>

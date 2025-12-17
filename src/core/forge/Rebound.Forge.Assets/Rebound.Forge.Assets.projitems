@@ -54,7 +54,7 @@
     <Content Include="$(MSBuildThisFileDirectory)Modding\Launchers\rosk.exe">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="$(MSBuildThisFileDirectory)Modding\**\*.*">
+    <Content Include="$(MSBuildThisFileDirectory)Modding\Packages\*.*">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <Content Include="$(MSBuildThisFileDirectory)Modding\ServiceHost\ServiceHost.zip">

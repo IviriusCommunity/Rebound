@@ -31,5 +31,6 @@ public sealed partial class MainWindow : WindowEx
         InitializeComponent();
         this.CenterOnScreen();
         this.ExtendsContentIntoTitleBar = true;
+        RootFrame.Navigate(typeof(MainPage));
     }
 }

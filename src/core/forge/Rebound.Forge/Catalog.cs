@@ -571,6 +571,37 @@ public partial class Catalog : ObservableObject
         ]
     };
 
+    public readonly static Mod Uninstaller = new()
+    {
+        Name = "Rebound Uninstaller",
+        Id = "Rebound.Uninstaller",
+        Description = "The Rebound uninstaller executable.",
+        Icon = string.Empty,
+        Category = ModCategory.Mandatory,
+        PreferredInstallationTemplate = InstallationTemplate.Mandatory,
+        Variants =
+        [
+            new()
+            {
+                Name = "Default",
+                Id = "Rebound.Uninstaller.Default",
+                Cogs =
+                [
+                    new FileCopyCog
+                    {
+                        Path = Path.Combine(AppContext.BaseDirectory, "Rebound.Uninstaller.exe"),
+                        TargetPath = Variables.ReboundUninstallerPath
+                    },
+                    new ShortcutCog()
+                    {
+                        ExePath = Variables.ReboundUninstallerPath,
+                        ShortcutName = "Uninstall Rebound"
+                    }
+                ],
+            }
+        ]
+    };
+
     /// <summary>
     /// Custom mods that are loaded from a folder at runtime.
     /// </summary>

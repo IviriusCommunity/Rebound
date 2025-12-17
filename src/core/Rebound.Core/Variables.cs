@@ -48,6 +48,15 @@ public static partial class Variables
                      "Rebound");
 
     /// <summary>
+    /// Represents the full path to the Rebound Uninstaller folder within the Program Files directory.
+    /// </summary>
+    /// <remarks>This value is constructed using the system's Program Files folder and is intended for use
+    /// when accessing files or resources related to the Rebound Uninstaller application.</remarks>
+    public static readonly string ReboundUninstallerFolder =
+        Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles),
+                     "ReboundUninstaller");
+
+    /// <summary>
     /// Represents the full path to the Mods folder within the application's program data directory.
     /// </summary>
     public static readonly string ReboundProgramFilesModsFolder =
@@ -64,6 +73,14 @@ public static partial class Variables
     /// </summary>
     public static readonly string ReboundLauncherPath =
         Path.Combine(ReboundProgramFilesFolder, "Rebound.Launcher.exe");
+
+    /// <summary>
+    /// Gets the full file system path to the Rebound Uninstaller executable.
+    /// </summary>
+    /// <remarks>This path is constructed by combining the Rebound uninstaller folder with the executable file
+    /// name. Use this value when launching or referencing the Rebound Uninstaller from code.</remarks>
+    public static readonly string ReboundUninstallerPath =
+        Path.Combine(ReboundUninstallerFolder, "Rebound Uninstaller.exe");
 
     /// <summary>
     /// File containing information about the currently installed version of Rebound.
