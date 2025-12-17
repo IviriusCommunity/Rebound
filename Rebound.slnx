@@ -22,6 +22,12 @@
       <Build Solution="*|x86" Project="false" />
       <Build Solution="Release|x64" Project="false" />
     </Project>
+    <Project Path="eng/distribution/standalone/Rebound.Uninstaller/Rebound.Uninstaller.csproj" Id="faffec5b-d7cd-44bb-922b-e994b7367d92">
+      <Platform Solution="*|ARM64" Project="ARM64" />
+      <Platform Solution="*|x64" Project="x64" />
+      <Platform Solution="*|x86" Project="x86" />
+      <Deploy />
+    </Project>
   </Folder>
   <Folder Name="/src/" Id="02ea681e-c7d8-13c7-8484-4ac65e1b71e8">
     <File Path="src/Directory.Build.props" />
@@ -74,7 +80,7 @@
     <Project Path="src/core/Rebound.Core.SystemInformation/Rebound.Core.SystemInformation.csproj" Id="0779e817-1c61-45cd-80c3-21224dfac145">
       <Platform Project="x64" />
     </Project>
-    <Project Path="src/core/Rebound.Core.UI/Rebound.Core.UI.csproj" Id="436dbd21-fd5a-4a15-8e8f-3c0eb56bac95">
+    <Project Path="src/core/Rebound.Core.UI.UWP/Rebound.Core.UI.UWP.csproj">
       <Platform Project="x64" />
     </Project>
     <Project Path="src/core/Rebound.Core/Rebound.Core.csproj" Id="74219c55-d31d-4364-935b-169a8f8fd03b">
@@ -86,9 +92,13 @@
   </Folder>
   <Folder Name="/src/core/forge/" Id="473f543c-1a05-4310-bf4c-f1df3286f45b">
     <Project Path="src/core/forge/Rebound.Forge.Assets/Rebound.Forge.Assets.shproj" Id="c65ed457-d826-40b0-a627-1ced191823c8" />
-    <Project Path="src/core/forge/Rebound.Forge/Rebound.Forge.csproj">
+    <Project Path="src/core/forge/Rebound.Forge.UWP/Rebound.Forge.UWP.csproj" Id="4608cb19-f34e-4e19-a0e7-b2a1fa41d354">
       <Platform Project="x64" />
     </Project>
+    <Project Path="src/core/forge/Rebound.Forge.WinUI/Rebound.Forge.WinUI.csproj" Id="a812702e-a496-4463-8ee8-a619e765df4d">
+      <Platform Project="x64" />
+    </Project>
+    <Project Path="src/core/forge/Rebound.Forge/Rebound.Forge.shproj" Id="f43daf59-768d-4caa-95fb-be1ee39dab16" />
   </Folder>
   <Folder Name="/src/core/forge/hooks/">
     <Project Path="src/core/forge/hooks/Rebound.Forge.Hooks.Run/Rebound.Forge.Hooks.Run.vcxproj" Id="27009764-e84a-40b3-932b-e6096272f365">

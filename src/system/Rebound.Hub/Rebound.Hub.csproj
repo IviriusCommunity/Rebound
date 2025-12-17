@@ -78,7 +78,7 @@
 	<PropertyGroup Label="Packaging Settings">
 
 		<!-- Common certificate file -->
-		<PackageCertificateKeyFile>..\Rebound.Hub_TemporaryKey.pfx</PackageCertificateKeyFile>
+		<PackageCertificateKeyFile>$(SolutionDir)\src\Rebound.Hub_TemporaryKey.pfx</PackageCertificateKeyFile>
 
 		<!-- Generic -->
 		<AppxPackageSigningEnabled>True</AppxPackageSigningEnabled>
@@ -169,13 +169,13 @@
 
 	<!-- Project references -->
 	<ItemGroup Label="Project References">
-		<ProjectReference Include="..\..\core\forge\Rebound.Forge\Rebound.Forge.csproj" />
+		<ProjectReference Include="..\..\core\forge\Rebound.Forge.UWP\Rebound.Forge.UWP.csproj" />
 		<ProjectReference Include="..\..\core\generators\Rebound.Core.SourceGeneratorAttributes\Rebound.Core.SourceGeneratorAttributes.csproj" />
 		<ProjectReference Include="..\..\core\generators\Rebound.Core.SourceGenerator\Rebound.Core.SourceGenerator.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
 		<ProjectReference Include="..\..\core\Rebound.Core.IPC\Rebound.Core.IPC.csproj" />
 		<ProjectReference Include="..\..\core\Rebound.Core.Native\Rebound.Core.Native.csproj" />
 		<ProjectReference Include="..\..\core\Rebound.Core.SystemInformation\Rebound.Core.SystemInformation.csproj" />
-		<ProjectReference Include="..\..\core\Rebound.Core.UI\Rebound.Core.UI.csproj" />
+		<ProjectReference Include="..\..\core\Rebound.Core.UI.UWP\Rebound.Core.UI.UWP.csproj" />
 		<ProjectReference Include="..\..\core\Rebound.Core\Rebound.Core.csproj" />
 	</ItemGroup>
 

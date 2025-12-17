@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<winuiex:WindowEx
+    x:Class="Rebound.Uninstaller.MainWindow"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:local="using:Rebound.Uninstaller"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:winuiex="using:WinUIEx"
+    Title="Rebound.Uninstaller"
+    Width="600"
+    Height="240"
+    IsMaximizable="False"
+    IsMinimizable="False"
+    IsResizable="False"
+    mc:Ignorable="d">
+
+    <winuiex:WindowEx.SystemBackdrop>
+        <MicaBackdrop />
+    </winuiex:WindowEx.SystemBackdrop>
+
+    <Grid>
+        <StackPanel>
+            <TextBlock
+                Margin="24,24,0,0"
+                FontSize="24"
+                FontWeight="SemiBold"
+                Text="Are you sure you want to uninstall Rebound?" />
+            <CheckBox Margin="24,16,0,0" Content="Delete application data" />
+            <CheckBox Margin="24,0,0,0" Content="Delete partenered apps managed by the Microsoft Store" />
+        </StackPanel>
+        <Grid
+            Height="80"
+            VerticalAlignment="Bottom"
+            Background="{ThemeResource SystemControlBackgroundAltMediumLowBrush}" />
+        <StackPanel
+            Margin="24"
+            HorizontalAlignment="Right"
+            VerticalAlignment="Bottom"
+            Orientation="Horizontal"
+            Spacing="8">
+            <Button
+                Width="120"
+                Content="Uninstall"
+                Style="{ThemeResource AccentButtonStyle}" />
+            <Button Width="120" Content="Cancel">
+                <Button.KeyboardAccelerators>
+                    <KeyboardAccelerator Key="Escape" />
+                </Button.KeyboardAccelerators>
+            </Button>
+        </StackPanel>
+    </Grid>
+</winuiex:WindowEx>

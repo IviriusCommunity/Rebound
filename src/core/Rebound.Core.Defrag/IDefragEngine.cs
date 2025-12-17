@@ -16,6 +16,27 @@ public unsafe partial struct IDefragEngine : IComIID
     public void** lpVtbl;
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public HRESULT QueryInterface(Guid* riid, void** ppvObject)
+    {
+        return (HRESULT)((delegate* unmanaged[MemberFunction]<IDefragEngine*, Guid*, void**, int>)
+            (lpVtbl[0]))((IDefragEngine*)Unsafe.AsPointer(ref this), riid, ppvObject);
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public uint AddRef()
+    {
+        return ((delegate* unmanaged[MemberFunction]<IDefragEngine*, uint>)
+            (lpVtbl[1]))((IDefragEngine*)Unsafe.AsPointer(ref this));
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public uint Release()
+    {
+        return ((delegate* unmanaged[MemberFunction]<IDefragEngine*, uint>)
+            (lpVtbl[2]))((IDefragEngine*)Unsafe.AsPointer(ref this));
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public HRESULT Analyze(
         char* volumeName,
         Guid* param1,
@@ -64,12 +85,20 @@ public unsafe partial struct IDefragEngine : IComIID
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public HRESULT DefragmentSimple(
-        ulong param1,
-        void* param2)
+        ushort* volumePath,
+        Guid* operationGuid,
+        Guid* trackingGuid)
     {
-        return (HRESULT)((delegate* unmanaged[MemberFunction]<IDefragEngine*, ulong, void*, uint>)(lpVtbl[10]))
-            ((IDefragEngine*)Unsafe.AsPointer(ref this), param1, param2);
+        return (HRESULT)((delegate* unmanaged[MemberFunction]<IDefragEngine*, ushort*, Guid*, Guid*, uint>)(lpVtbl[10]))
+            ((IDefragEngine*)Unsafe.AsPointer(ref this), volumePath, operationGuid, trackingGuid);
     }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public HRESULT SimpleOptimize(
+        ushort* volumePath,
+        Guid* operationGuid,
+        Guid* trackingGuid)
+            => DefragmentSimple(volumePath, operationGuid, trackingGuid);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public HRESULT GetPossibleShrinkSpace(

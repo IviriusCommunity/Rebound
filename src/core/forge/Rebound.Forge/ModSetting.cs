@@ -5,7 +5,9 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using Microsoft.UI.Xaml.Controls;
 using Rebound.Core;
 using System.Collections.ObjectModel;
+#if !WINUI
 using Windows.UI.Xaml.Controls;
+#endif
 
 namespace Rebound.Forge;
 

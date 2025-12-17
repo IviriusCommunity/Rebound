@@ -1,0 +1,10 @@
+{
+  "profiles": {
+    "Rebound.Uninstaller (Package)": {
+      "commandName": "MsixPackage"
+    },
+    "Rebound.Uninstaller (Unpackaged)": {
+      "commandName": "Project"
+    }
+  }
+}

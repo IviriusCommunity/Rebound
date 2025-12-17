@@ -1,0 +1,40 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+	<PropertyGroup>
+		<TargetFramework>net10.0-windows10.0.26100.0</TargetFramework>
+		<TargetPlatformMinVersion>10.0.22000.0</TargetPlatformMinVersion>
+		<ImplicitUsings>enable</ImplicitUsings>
+		<Nullable>enable</Nullable>
+		<UseUwp>true</UseUwp>
+		<GenerateDocumentationFile>true</GenerateDocumentationFile>
+		<IsPackable>false</IsPackable>
+		<PackOnBuild>false</PackOnBuild>
+		<GeneratePackageOnBuild>false</GeneratePackageOnBuild>
+	</PropertyGroup>
+
+	<ItemGroup>
+	  <Content Include="NativeMethods.json" />
+	  <Content Include="NativeMethods.txt" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.0" />
+		<PackageReference Include="Microsoft.WindowsAppSDK.Base" Version="1.8.250831001" />
+		<PackageReference Include="Microsoft.WindowsAppSDK.InteractiveExperiences" Version="1.8.251104001" />
+		<PackageReference Include="TerraFX.Interop.Windows" Version="10.0.26100.5" />
+		<PackageReference Include="Microsoft.Windows.CsWin32" Version="0.3.257">
+			<PrivateAssets>all</PrivateAssets>
+			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+		</PackageReference>
+	</ItemGroup>
+
+	<ItemGroup>
+		<ProjectReference Include="..\..\Rebound.Core.Native\Rebound.Core.Native.csproj" />
+		<ProjectReference Include="..\..\Rebound.Core.Storage\Rebound.Core.Storage.csproj" />
+		<ProjectReference Include="..\..\Rebound.Core.UI.UWP\Rebound.Core.UI.UWP.csproj" />
+		<ProjectReference Include="..\..\Rebound.Core\Rebound.Core.csproj" />
+	</ItemGroup>
+
+	<Import Project="..\Rebound.Forge\Rebound.Forge.projitems" Label="Shared" />
+
+</Project>

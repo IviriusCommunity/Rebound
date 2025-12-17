@@ -2,7 +2,6 @@
 // Licensed under the MIT License.
 
 using Rebound.Core;
-using Rebound.Core.Helpers;
 using Rebound.Core.UI;
 using System.Runtime.InteropServices;
 using TerraFX.Interop.Windows;

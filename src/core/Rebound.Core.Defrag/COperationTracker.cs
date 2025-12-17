@@ -290,7 +290,7 @@ internal unsafe class COperationTracker : IDisposable
             {
                 1 => InvokeAnalyze(volumePath),
                 2 => InvokeDefragment(volumePath),
-                3 => InvokeOptimize(volumePath),
+                3 => InvokeOptimize(volumePath, (DefragOptions*)options),
                 4 => InvokeConsolidateFreeSpace(volumePath),
                 5 => InvokeRescan(volumePath),
                 6 => InvokeSlabConsolidation(volumePath),
@@ -338,54 +338,217 @@ internal unsafe class COperationTracker : IDisposable
         }
     }
 
-    private unsafe HRESULT InvokeOptimize(IDefragEngine* engine, ushort* volumePath, DefragOptions options)
+    private unsafe HRESULT InvokeOptimize(ushort* volumePath, DefragOptions* options)
     {
-        // Query for appropriate optimization interface
-        if (options.UseSimpleOptimization)
+        HRESULT hr;
+
+        var engine = (IDefragEngine*)m_spUnknownInterface.Get();
+
+        Guid operationGuid = Guid.NewGuid();
+
+        fixed (ulong* pTrackingRaw = m_trackingArray1)
         {
-            ComPtr<IDefragmentSimple2> simpleDefrag = default;
-            var hr = engine->QueryInterface(IDefragmentSimple2.Guid, out void* ptr);
-            if (hr.Failed)
-                return hr;
+            Guid* trackingGuid = (Guid*)pTrackingRaw;
 
-            simpleDefrag.Attach((IDefragmentSimple2*)ptr);
+            // Native code uses two paths: original + normalized
+            ushort* normalizedPath = volumePath;
 
-            // Start simple optimization
-            ulong[] volumeInfo = new ulong[2];
-            fixed (ulong* pTracking = m_trackingArray1)
-            fixed (ulong* pVolInfo = volumeInfo)
+            if (options->UseSimpleOptimization != 0)
             {
-                return simpleDefrag.Get()->StartSimpleOptimize(
-                    volumePath, options.Priority, options.Flags, (Guid*)pTracking);
+                void* simplePtr;
+
+                // SIMPLE OPTIMIZE PATH
+                fixed (Guid* guid = &IDefragmentSimple2.Guid)
+                {
+                    hr = engine->QueryInterface(
+                        guid,
+                        &simplePtr);
+                }
+                if (hr.Failed)
+                {
+                    // If extended flags requested → fail (native behavior)
+                    if (options->ExtendedFlags != 0)
+                        return hr;
+
+                    // Legacy fallback
+                    return engine->SimpleOptimize(
+                        volumePath,
+                        null,
+                        trackingGuid);
+                }
+
+                using var simpleIface = new ComPtr<IUnknown>((IUnknown*)simplePtr);
+                var simple = (IDefragmentSimple2*)simpleIface.Get();
+
+                return simple->StartSimpleOptimize(
+                    volumePath,
+                    (int)options->Priority,
+                    normalizedPath,
+                    &operationGuid,
+                    trackingGuid);
             }
-        }
-        else
-        {
-            ComPtr<IDefragmentFull2> fullDefrag = default;
-            var hr = engine->QueryInterface(IDefragmentFull2.Guid, out void* ptr);
-            if (hr.Failed)
-                return hr;
-
-            fullDefrag.Attach((IDefragmentFull2*)ptr);
-
-            // Start full optimization
-            ulong[] volumeInfo = new ulong[2];
-            fixed (ulong* pTracking = m_trackingArray1)
-            fixed (ulong* pVolInfo = volumeInfo)
+            else
             {
-                return fullDefrag.Get()->StartFullOptimize(
-                    volumePath, options.Priority, options.Flags, (Guid*)pTracking);
+                // FULL OPTIMIZE PATH
+                hr = engine->QueryInterface(
+                    IDefragmentFull2.Guid,
+                    out void* fullPtr);
+
+                if (hr.Failed)
+                {
+                    if (options->ExtendedFlags != 0)
+                        return hr;
+
+                    return engine->FullDefragment(
+                        volumePath,
+                        null,
+                        trackingGuid);
+                }
+
+                using var fullIface = new ComPtr<IUnknown>((IUnknown*)fullPtr);
+                var full = (IDefragmentFull2*)fullIface.Get();
+
+                return full->StartFullOptimize(
+                    volumePath,
+                    options->Priority,
+                    normalizedPath,
+                    &operationGuid,
+                    trackingGuid);
             }
         }
     }
 
-    private HRESULT InvokeConsolidateFreeSpace(ushort* volumePath) => HRESULT.E_NOTIMPL;
-    private HRESULT InvokeRescan(ushort* volumePath) => HRESULT.E_NOTIMPL;
-    private HRESULT InvokeSlabConsolidation(ushort* volumePath) => HRESULT.E_NOTIMPL;
-    private HRESULT InvokeTierOptimization(ushort* volumePath) => HRESULT.E_NOTIMPL;
-    private HRESULT InvokeRetrim(ushort* volumePath) => HRESULT.E_NOTIMPL;
-    private HRESULT InvokeThinProvisioning(ushort* volumePath) => HRESULT.E_NOTIMPL;
-    private HRESULT InvokeTieredStorageOptimization(ushort* volumePath) => HRESULT.E_NOTIMPL;
+    private unsafe HRESULT InvokeConsolidateFreeSpace(ushort* volumePath, DefragOptions options)
+    {
+        var engine = (IDefragEngine*)m_spUnknownInterface.Get();
+        ulong[] volumeInfo = new ulong[2];
+
+        fixed (ulong* pTracking = m_trackingArray1)
+        fixed (ulong* pVolInfo = volumeInfo)
+        {
+            var hr = engine->ConsolidateFreeSpace(
+                volumePath,
+                pVolInfo,
+                (Guid*)pTracking);
+
+            if (hr.Succeeded)
+            {
+                // Set operation tracking with engine
+                fixed (uint* pData = new uint[] {
+                (uint)m_trackingArray1[0], (uint)m_trackingArray1[1],
+                (uint)m_trackingArray1[2], (uint)m_trackingArray1[3]
+            })
+                {
+                    engine->SetOperationTracking(pData);
+                }
+            }
+
+            return hr;
+        }
+    }
+
+    private unsafe HRESULT InvokeRescan(ushort* volumePath, DefragOptions options)
+    {
+        var engine = (IDefragEngine*)m_spUnknownInterface.Get();
+        ulong[] volumeInfo = new ulong[2];
+
+        fixed (ulong* pTracking = m_trackingArray1)
+        fixed (ulong* pVolInfo = volumeInfo)
+        {
+            return engine->Rescan(
+                volumePath,
+                options.RescanFlags,
+                pVolInfo,
+                (Guid*)pTracking);
+        }
+    }
+
+    private unsafe HRESULT InvokeSlabConsolidation(ushort* volumePath, DefragOptions options)
+    {
+        var engine = (IDefragEngine*)m_spUnknownInterface.Get();
+        ulong[] volumeInfo = new ulong[2];
+
+        fixed (ulong* pTracking = m_trackingArray1)
+        fixed (ulong* pVolInfo = volumeInfo)
+        {
+            return engine->SlabConsolidation(
+                volumePath,
+                options.Priority,
+                pVolInfo,
+                (Guid*)pTracking);
+        }
+    }
+
+    private unsafe HRESULT InvokeTierOptimization(ushort* volumePath, DefragOptions options)
+    {
+        var engine = (IDefragEngine*)m_spUnknownInterface.Get();
+        ulong[] volumeInfo = new ulong[2];
+
+        fixed (ulong* pTracking = m_trackingArray1)
+        fixed (ulong* pVolInfo = volumeInfo)
+        {
+            return engine->TierOptimization(
+                volumePath,
+                options.Priority,
+                pVolInfo,
+                (Guid*)pTracking);
+        }
+    }
+
+    private unsafe HRESULT InvokeRetrim(ushort* volumePath, DefragOptions options)
+    {
+        var engine = (IDefragEngine*)m_spUnknownInterface.Get();
+        ulong[] volumeInfo = new ulong[2];
+
+        fixed (ulong* pTracking = m_trackingArray1)
+        fixed (ulong* pVolInfo = volumeInfo)
+        {
+            return engine->Retrim(
+                volumePath,
+                options.Priority,
+                pVolInfo,
+                (Guid*)pTracking);
+        }
+    }
+
+    private unsafe HRESULT InvokeThinProvisioning(ushort* volumePath, DefragOptions options)
+    {
+        var engine = (IDefragEngine*)m_spUnknownInterface.Get();
+        ulong[] volumeInfo = new ulong[2];
+
+        fixed (ulong* pTracking = m_trackingArray1)
+        fixed (ulong* pVolInfo = volumeInfo)
+        {
+            return engine->ThinProvisioning(
+                volumePath,
+                pVolInfo,
+                (Guid*)pTracking);
+        }
+    }
+
+    private unsafe HRESULT InvokeTieredStorageOptimization(ushort* volumePath, DefragOptions options)
+    {
+        var engine = (IDefragEngine*)m_spUnknownInterface.Get();
+
+        // Build tiered storage parameters structure
+        TieredStorageParams tierParams = new()
+        {
+            VolumePath = volumePath,
+            Priority = options.Priority,
+            MinFileSize = options.TierMinFileSize,
+            MaxFileSize = options.TierMaxFileSize,
+            TierFlags = options.TierFlags,
+            HotTierThreshold = options.HotTierThreshold,
+            ColdTierThreshold = options.ColdTierThreshold
+        };
+
+        fixed (ulong* pTracking = m_trackingArray1)
+        {
+            tierParams.OperationId = (Guid*)pTracking;
+
+            return engine->TieredStorageOptimization(&tierParams, (Guid*)pTracking);
+        }
+    }
 
     public HRESULT InternalCancelOperation()
     {
@@ -510,31 +673,129 @@ internal unsafe class COperationTracker : IDisposable
 
     #region Change Notifications
 
-    public HRESULT ChangeNotification(ulong sequenceNumber, uint statusCount, void* statusArray)
+    public unsafe HRESULT ChangeNotification(
+        ulong sequenceNumber,
+        uint statusCount,
+        DefragStatus* statusArray)
     {
         if (statusArray == null || statusCount == 0)
             return HRESULT.E_INVALIDARG;
 
         lock (m_criticalSection)
         {
-            // Check for old notification
+            // Check if this is an old notification (already processed)
             if (sequenceNumber < m_sequenceNumber)
+            {
+                m_cRef = 1; // Mark as processed
                 return new HRESULT(1);
+            }
 
-            // Wait for sequence if out of order
-            uint retries = 0;
-            while (m_sequenceNumber < sequenceNumber && retries < 5)
+            // Handle out-of-order notifications with retry logic
+            uint retryCount = 0;
+            while (m_sequenceNumber < sequenceNumber && retryCount < 5)
             {
                 Monitor.Exit(m_criticalSection);
                 Thread.Sleep(100);
                 Monitor.Enter(m_criticalSection);
-                retries++;
+                retryCount++;
             }
 
+            // Update sequence number
             m_sequenceNumber = sequenceNumber + 1;
 
-            // Process status updates
-            // ... (complex notification processing)
+            // Check if operation tracking has changed
+            bool trackingChanged =
+                m_trackingArray1[0] != m_trackingArray2[0] ||
+                m_trackingArray1[1] != m_trackingArray2[1];
+
+            if (!trackingChanged)
+            {
+                m_cRef = unchecked((int)0x89000005); // E_NO_CHANGE
+                return new HRESULT(unchecked((int)0x89000005));
+            }
+
+            // Process each status update
+            bool statusUpdated = false;
+
+            for (uint i = 0; i < statusCount; i++)
+            {
+                var status = &statusArray[i];
+
+                // Check if this status matches our tracked operation
+                if (status->OperationId.Data1 != (uint)m_trackingArray1[0] ||
+                    status->OperationId.Data2 != (ushort)m_trackingArray1[1])
+                    continue;
+
+                // Handle phase/status changes
+                if (m_currentPhase != status->Phase ||
+                    m_currentStatus != status->CurrentStatus ||
+                    m_subStatus != status->SubStatus)
+                {
+                    // Print phase change if in detailed mode
+                    if (m_detailedProgress != 0)
+                    {
+                        PrintPhaseChange(status);
+                    }
+
+                    // Special handling for analysis completion
+                    if (m_verboseOutput == 0 && status->Phase == 13) // Analysis complete
+                    {
+                        if (m_jsonOutputMode == 0 || status->Statistics->IsAnalysisComplete == 0)
+                        {
+                            PrintMessageFromID(0xD4); // "Analysis complete" message
+                            InternalPrintStatistics(status->Statistics, 2);
+                        }
+                        else
+                        {
+                            // JSON mode with analysis data
+                            Console.WriteLine($"    \"AnalysisTimeMs\": {status->Statistics->AnalysisTimeMs},");
+                        }
+                    }
+
+                    // Update tracking state
+                    m_currentPhase = status->Phase;
+                    m_currentStatus = status->CurrentStatus;
+                    m_subStatus = status->SubStatus;
+                    m_percentComplete = status->PercentComplete;
+                }
+
+                // Print file statistics if configured
+                if (m_jsonOutputMode != 0)
+                {
+                    if (m_verboseOutput == 0 || status->Phase != 13)
+                    {
+                        PrintFileStatistics(status->UnfragmentedFiles);
+                    }
+                    else
+                    {
+                        PrintFraggedFileStatistics(status->FragmentedFiles);
+                    }
+                }
+
+                // Update operation tracking
+                m_trackingArray2[0] = status->OperationId.Data1;
+                m_trackingArray2[1] = status->OperationId.Data2;
+                m_trackingArray2[2] = status->OperationId.Data3;
+                m_trackingArray2[3] = (ulong)status->OperationId.Data4;
+
+                // Call status callback if provided
+                if ((nint)CompletionEvent.Value is not 0 and not -1)
+                {
+                    var callback = (IDefragCallback*)CompletionEvent.Value;
+                    callback->OnStatusUpdate(status->Result);
+                }
+
+                statusUpdated = true;
+            }
+
+            // Set processed flag
+            if (statusUpdated)
+            {
+                if (m_cRef == 0)
+                {
+                    m_cRef = 1;
+                }
+            }
 
             return HRESULT.S_OK;
         }
@@ -583,8 +844,377 @@ internal unsafe class COperationTracker : IDisposable
             return HRESULT.S_OK;
         }
     }
+    private unsafe void PrintPhaseChange(DefragStatus* status)
+    {
+        uint messageId = 0;
+        HRESULT hr = GetMessageFromPhase(status->Phase, &messageId);
+
+        if (hr.Failed)
+            return;
+
+        string message = LoadStringResource(messageId);
+
+        if (m_jsonOutputMode == 0)
+        {
+            if (status->Result < 0)
+            {
+                // Error format
+                Console.WriteLine($"\t{message} [FAILED: 0x{status->Result:X8}]");
+            }
+            else
+            {
+                // Normal format
+                Console.WriteLine($"\r\t{message}");
+            }
+        }
+    }
+
+    private unsafe HRESULT GetMessageFromPhase(int phase, uint* messageId)
+    {
+        *messageId = phase switch
+        {
+            0 => 0x100,  // Initializing
+            1 => 0x101,  // Analyzing
+            2 => 0x102,  // Defragmenting
+            5 => 0x105,  // Consolidating
+            7 => 0x107,  // Optimizing
+            10 => 0x10A, // Retrimming
+            13 => 0x10D, // Complete
+            _ => 0
+        };
+
+        return *messageId != 0 ? HRESULT.S_OK : HRESULT.E_FAIL;
+    }
+
+    private string LoadStringResource(uint resourceId)
+    {
+        // This would load from embedded resources
+        // For now, return placeholder strings
+        return resourceId switch
+        {
+            0x100 => "Initializing...",
+            0x101 => "Analyzing volume...",
+            0x102 => "Defragmenting files...",
+            0x105 => "Consolidating free space...",
+            0x107 => "Optimizing...",
+            0x10A => "Performing TRIM operation...",
+            0x10D => "Operation complete",
+            0xD4 => "\nAnalysis Report:",
+            _ => $"Phase {resourceId}"
+        };
+    }
 
     #endregion
+
+    private unsafe void PrintStatisticsJson(DefragStatistics* stats)
+    {
+        Console.WriteLine("{");
+        Console.WriteLine($"    \"OptimizationStatistics\": {{");
+        Console.WriteLine($"        \"FilesCount\": {stats->FilesCount},");
+        Console.WriteLine($"        \"FragmentedFilesCount\": {stats->FragmentedFilesCount},");
+        Console.WriteLine($"        \"TotalFilesBytes\": {stats->TotalFilesBytes},");
+        Console.WriteLine($"        \"TotalMoveBytes\": {stats->TotalMoveBytes},");
+        Console.WriteLine($"        \"TotalMoveCounts\": {stats->TotalMoveCounts},");
+        Console.WriteLine($"        \"TotalSkipBytes\": {stats->TotalSkipBytes},");
+        Console.WriteLine($"        \"TotalSkipCounts\": {stats->TotalSkipCounts},");
+        Console.WriteLine($"        \"TotalFailBytes\": {stats->TotalFailBytes},");
+        Console.WriteLine($"        \"TotalFailCounts\": {stats->TotalFailCounts},");
+        Console.WriteLine($"        \"TotalMoveTimeMs\": {stats->TotalMoveTimeMs}");
+        Console.WriteLine($"    }}");
+        Console.WriteLine("}");
+    }
+
+    private unsafe void PrintStatisticsNormal(DefragStatistics* stats, uint operationType)
+    {
+        uint bytesPerCluster = stats->BytesPerCluster;
+        ulong totalClusters = stats->TotalClusters;
+        ulong freeClusters = stats->FreeClusters;
+        ulong usedClusters = stats->UsedClusters;
+
+        char decimalSeparator = '.';
+        var locale = System.Globalization.CultureInfo.CurrentCulture;
+        if (locale.NumberFormat.NumberDecimalSeparator.Length > 0)
+        {
+            decimalSeparator = locale.NumberFormat.NumberDecimalSeparator[0];
+        }
+
+        // Check if this is analysis or optimization
+        if (m_jsonOutputMode == 0 || stats->IsAnalysisComplete == 0)
+        {
+            // Volume information
+            Console.WriteLine(LoadStringResource(0x105)); // Volume report header
+
+            Console.WriteLine(LoadStringResource(0x100)); // Total volume size
+            Console.WriteLine($"    {FormatNumberString((ulong)bytesPerCluster * totalClusters, decimalSeparator)}");
+
+            if (m_verboseOutput != 0)
+            {
+                Console.WriteLine(LoadStringResource(0x101)); // Cluster size
+                Console.WriteLine($"    {FormatNumberString(bytesPerCluster, decimalSeparator)}");
+
+                if (m_verboseOutput != 0)
+                {
+                    Console.WriteLine(LoadStringResource(0x102)); // Used space
+                    Console.WriteLine($"    {FormatNumberString((ulong)bytesPerCluster * usedClusters, decimalSeparator)}");
+                }
+            }
+
+            Console.WriteLine(LoadStringResource(0x103)); // Free space
+            Console.WriteLine($"    {FormatNumberString((ulong)bytesPerCluster * (totalClusters - usedClusters), decimalSeparator)}");
+        }
+        else
+        {
+            // Optimization summary
+            Console.WriteLine(LoadStringResource(0x156)); // Optimization header
+            Console.WriteLine($"    {FormatNumberString((ulong)bytesPerCluster * (stats->ExcessFragmentation + stats->TotalFragmentation), decimalSeparator)}");
+            Console.WriteLine(LoadStringResource(0x157));
+            Console.WriteLine($"    {stats->TotalFragmentedFiles + stats->TotalUnfragmentedFiles}");
+            Console.WriteLine(LoadStringResource(0x158));
+            Console.WriteLine($"    {stats->MovableFiles + stats->UnmovableFiles}");
+            Console.WriteLine(LoadStringResource(0x159));
+        }
+
+        // Operation-specific statistics
+        if (operationType >= 6 && operationType <= 9)
+        {
+            PrintOptimizationStatistics(stats);
+        }
+    }
+
+    private unsafe void PrintOptimizationStatistics(DefragStatistics* stats)
+    {
+        char decimalSeparator = '.';
+
+        if (stats->OptimizationEnabled != 0)
+        {
+            Console.WriteLine(LoadStringResource(0x12F)); // "Optimization Statistics:"
+            Console.WriteLine(LoadStringResource(0x130)); // Header separator
+
+            if (m_verboseOutput != 0)
+            {
+                Console.WriteLine(LoadStringResource(0x131)); // Files moved
+                Console.WriteLine($"    {FormatNumberString((ulong)stats->BytesPerCluster * stats->ClustersMoved, decimalSeparator)}");
+
+                if (m_verboseOutput != 0)
+                {
+                    Console.WriteLine(LoadStringResource(0x132)); // Total bytes moved
+                    Console.WriteLine($"    {FormatNumberString((ulong)stats->BytesPerCluster * stats->TotalBytesMoved, decimalSeparator)}");
+                }
+            }
+
+            Console.WriteLine(LoadStringResource(0x133)); // Files fragmented
+            Console.WriteLine($"    {stats->FragmentedFileCount}");
+        }
+
+        // Slab consolidation stats
+        if ((operationType - 6 & 0xFFFFFFFD) == 0) // Operations 6 or 8
+        {
+            Console.WriteLine(LoadStringResource(0x138)); // "Slab Consolidation:"
+            Console.WriteLine(LoadStringResource(0x142)); // Total slabs
+            Console.WriteLine($"    {stats->TotalSlabs}");
+
+            if (m_verboseOutput != 0)
+            {
+                Console.WriteLine(LoadStringResource(0x139)); // Slabs consolidated
+                Console.WriteLine($"    {stats->SlabsConsolidated}");
+
+                if (m_verboseOutput != 0)
+                {
+                    Console.WriteLine(LoadStringResource(0x13A)); // Slab moves
+                    Console.WriteLine($"    {stats->SlabMoves}");
+
+                    if (m_verboseOutput != 0)
+                    {
+                        Console.WriteLine(LoadStringResource(0x13B)); // Slab failures
+                        Console.WriteLine($"    {stats->SlabFailures}");
+                    }
+                }
+            }
+
+            Console.WriteLine(LoadStringResource(0x13C)); // Space recovered
+            Console.WriteLine($"    {FormatNumberString((ulong)stats->BytesPerCluster * stats->SpaceRecovered, decimalSeparator)}");
+        }
+
+        // Tier optimization stats
+        if (operationType >= 7 && operationType <= 8)
+        {
+            Console.WriteLine(LoadStringResource(0x134)); // "Tier Optimization:"
+
+            if (m_verboseOutput != 0)
+            {
+                Console.WriteLine(LoadStringResource(0x135)); // Files moved to fast tier
+                Console.WriteLine($"    {stats->FilesMovedToFastTier}");
+
+                if (m_verboseOutput != 0)
+                {
+                    Console.WriteLine(LoadStringResource(0x136)); // Files moved to slow tier
+                    Console.WriteLine($"    {stats->FilesMovedToSlowTier}");
+                }
+            }
+
+            Console.WriteLine(LoadStringResource(0x137)); // Total bytes tiered
+            Console.WriteLine($"    {FormatNumberString((ulong)stats->BytesPerCluster * stats->BytesTiered, decimalSeparator)}");
+        }
+    }
+
+    private unsafe HRESULT PrintFraggedFileStatistics(FileStatisticsList* fileList)
+    {
+        if (fileList == null)
+            return HRESULT.E_INVALIDARG;
+
+        Console.WriteLine("    \"FragmentedFileStatistics\": [");
+
+        var current = fileList->Head;
+        bool first = true;
+
+        while (current != null)
+        {
+            if (!first)
+                Console.WriteLine(",");
+
+            // Convert file path to JSON-safe string
+            string filePath = ConvertToJsonString(current->FilePath);
+
+            Console.WriteLine("        {");
+            Console.WriteLine($"            \"FilePath\": \"{filePath}\",");
+            Console.WriteLine($"            \"Status\": \"0x{current->Status:X8}\",");
+            Console.WriteLine($"            \"DurationMs\": {current->DurationMs},");
+            Console.WriteLine($"            \"TotalBytes\": {current->TotalBytes},");
+            Console.WriteLine($"            \"MoveBytes\": {current->MoveBytes},");
+            Console.WriteLine($"            \"MoveCounts\": {current->MoveCounts},");
+            Console.WriteLine($"            \"MoveTimeMs\": {current->MoveTimeMs},");
+            Console.WriteLine($"            \"SkipBytes\": {current->SkipBytes},");
+            Console.WriteLine($"            \"SkipCounts\": {current->SkipCounts},");
+            Console.WriteLine($"            \"FailBytes\": {current->FailBytes},");
+            Console.WriteLine($"            \"FailCounts\": {current->FailCounts},");
+            Console.WriteLine($"            \"MoveIops\": {current->MoveIops},");
+            Console.WriteLine($"            \"MoveMbps\": {current->MoveMbps}");
+            Console.Write("        }");
+
+            first = false;
+            current = current->Next;
+        }
+
+        Console.WriteLine("\n    ],");
+        return HRESULT.S_OK;
+    }
+
+    private unsafe string ConvertToJsonString(ushort* path)
+    {
+        if (path == null)
+            return "";
+
+        // This calls ToJsonFormatString from native code
+        // We'll implement a managed version
+        string str = Marshal.PtrToStringUni((IntPtr)path) ?? "";
+
+        // Escape JSON special characters
+        return str
+            .Replace("\\", "\\\\")
+            .Replace("\"", "\\\"")
+            .Replace("\n", "\\n")
+            .Replace("\r", "\\r")
+            .Replace("\t", "\\t");
+    }
+
+    private string FormatNumberString(ulong number, char decimalSeparator)
+    {
+        // Format with thousands separators and decimal point
+        string formatted = number.ToString("N0");
+
+        // Replace decimal separator if needed
+        if (decimalSeparator != '.')
+        {
+            formatted = formatted.Replace('.', decimalSeparator);
+        }
+
+        return formatted;
+    }
+
+    private void PrintMessageFromID(uint messageId)
+    {
+        string message = LoadStringResource(messageId);
+        Console.WriteLine(message);
+    }
+
+    public unsafe struct DefragOptions
+    {
+        public int UseSimpleOptimization;
+        public uint Priority;
+        public ulong ExtendedFlags;
+        public ulong RescanFlags;
+        public ulong TierFlags;
+        public ulong TierMinFileSize;
+        public ulong TierMaxFileSize;
+        public uint HotTierThreshold;
+        public uint ColdTierThreshold;
+    }
+
+    public unsafe struct TieredStorageParams
+    {
+        public ushort* VolumePath;
+        public uint Priority;
+        public ulong MinFileSize;
+        public ulong MaxFileSize;
+        public ulong TierFlags;
+        public uint HotTierThreshold;
+        public uint ColdTierThreshold;
+        public Guid* OperationId;
+    }
+
+    public unsafe struct DefragStatus
+    {
+        public Guid OperationId;
+        public int Phase;
+        public int CurrentStatus;
+        public int SubStatus;
+        public int PercentComplete;
+        public int Result;
+        public DefragStatistics* Statistics;
+        public FileStatisticsList* FragmentedFiles;
+        public FileStatisticsList* UnfragmentedFiles;
+    }
+
+    public unsafe struct DefragStatistics
+    {
+        public uint FilesCount;
+        public uint FragmentedFilesCount;
+        public ulong TotalFilesBytes;
+        public ulong TotalMoveBytes;
+        public ulong TotalMoveCounts;
+        public ulong TotalSkipBytes;
+        public ulong TotalSkipCounts;
+        public ulong TotalFailBytes;
+        public ulong TotalFailCounts;
+        public ulong TotalMoveTimeMs;
+        public uint BytesPerCluster;
+        public ulong TotalClusters;
+        public ulong FreeClusters;
+        public ulong UsedClusters;
+        public uint FragmentationPercent;
+        public uint FilesProcessed;
+        public double AverageFragmentsPerFile;
+        public int IsAnalysisComplete;
+        public ulong AnalysisTimeMs;
+        public ulong ExcessFragmentation;
+        public ulong TotalFragmentation;
+        public uint TotalFragmentedFiles;
+        public uint TotalUnfragmentedFiles;
+        public uint MovableFiles;
+        public uint UnmovableFiles;
+        public int OptimizationEnabled;
+        public ulong ClustersMoved;
+        public ulong TotalBytesMoved;
+        public uint FragmentedFileCount;
+        public uint TotalSlabs;
+        public uint SlabsConsolidated;
+        public uint SlabMoves;
+        public uint SlabFailures;
+        public ulong SpaceRecovered;
+        public uint FilesMovedToFastTier;
+        public uint FilesMovedToSlowTier;
+        public ulong BytesTiered;
+    }
 
     #region Life Tick Thread
 

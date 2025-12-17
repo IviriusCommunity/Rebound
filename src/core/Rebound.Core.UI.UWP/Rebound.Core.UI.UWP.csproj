@@ -6,6 +6,9 @@
 		<ImplicitUsings>enable</ImplicitUsings>
 		<Nullable>enable</Nullable>
 		<UseUwp>true</UseUwp>
+		<IsPackable>false</IsPackable>
+		<PackOnBuild>false</PackOnBuild>
+		<GeneratePackageOnBuild>false</GeneratePackageOnBuild>
 	</PropertyGroup>
 
 	<ItemGroup>

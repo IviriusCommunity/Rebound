@@ -62,12 +62,12 @@
 		<!-- Build the project -->
 		<Message Importance="high" Text="Building project $(PackageProject) in $(Configuration)|$(Platform) with AppxBundle=Always" />
 		<MSBuild Projects="$(PackageProject)"
+				 Targets="BeforeBuild"
 				 Properties="Configuration=$(Configuration);
-							 Platform=$(Platform);
-							 AppxBundle=Always;
-							 UapAppxPackageBuildMode=SideloadOnly;
-							 GenerateAppxPackageOnBuild=true"
-				 Targets="Build;_GenerateAppxPackage" />
+                       Platform=$(Platform);
+                       AppxBundle=Always;
+                       UapAppxPackageBuildMode=SideloadOnly;
+                       GenerateAppxPackageOnBuild=true" />
 
 		<!-- Find the generated .msixbundle files -->
 		<Message Importance="high" Text="Looking for .msixbundle files in $(PackageOutputFolder)" />
@@ -79,15 +79,30 @@
 		<Error Condition="'@(MsixBundles)' == ''"
 			   Text="No .msixbundle file found in $(PackageOutputFolder). Packaging may have failed." />
 
-		<!-- Copy .msixbundle only if files were found -->
-		<Copy Condition="'@(MsixBundles)' != ''"
-			  SourceFiles="@(MsixBundles)"
+		<!-- Filter .msixbundle files by $(MsixVersion) in filename -->
+		<ItemGroup>
+			<FilteredMsixBundles Include="@(MsixBundles)"
+			  Condition="$([System.String]::Copy('%(Filename)').Contains('$(MsixVersion)'))" />
+		</ItemGroup>
+
+		<!-- Error if none found after filtering -->
+		<Error Condition="'@(FilteredMsixBundles)' == ''"
+			   Text="No .msixbundle file found containing '$(MsixVersion)' in $(PackageOutputFolder)." />
+
+		<!-- Pick the first filtered file -->
+		<PropertyGroup>
+			<FilteredMsixBundle>%(FilteredMsixBundles.Identity)</FilteredMsixBundle>
+		</PropertyGroup>
+
+		<!-- Copy the filtered .msixbundle file -->
+		<Copy Condition="'$(FilteredMsixBundle)' != ''"
+			  SourceFiles="$(FilteredMsixBundle)"
 			  DestinationFiles="$(PackageDestination)"
 			  SkipUnchangedFiles="true" />
 
-		<Message Condition="'@(MsixBundles)' != ''"
+		<Message Condition="'$(FilteredMsixBundle)' != ''"
 				 Importance="high"
-				 Text="Copied package to $(PackageDestination)" />
+				 Text="Copied filtered package '$(FilteredMsixBundle)' to $(PackageDestination)" />
 
 	</Target>
 

@@ -1,0 +1,39 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <MSBuildAllProjects Condition="'$(MSBuildVersion)' == '' Or '$(MSBuildVersion)' &lt; '16.0'">$(MSBuildAllProjects);$(MSBuildThisFileFullPath)</MSBuildAllProjects>
+    <HasSharedItems>true</HasSharedItems>
+    <SharedGUID>f43daf59-768d-4caa-95fb-be1ee39dab16</SharedGUID>
+  </PropertyGroup>
+  <PropertyGroup Label="Configuration">
+    <Import_RootNamespace>Rebound.Forge</Import_RootNamespace>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="$(MSBuildThisFileDirectory)Catalog.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Cogs\BoolSettingCog.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Cogs\DLLInjectionCog.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Cogs\FileCopyCog.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Cogs\FolderCog.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Cogs\IFEOCog.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Cogs\PackageCog.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Cogs\PackageLaunchCog.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Cogs\ProcessKillCog.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Cogs\ProcessLaunchCog.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Cogs\ProgramFolderCopyCog.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Cogs\ProgramZipExtractCog.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Cogs\ShortcutCog.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Cogs\StartupPackageCog.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Cogs\StartupTaskCog.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Cogs\StorePackageCog.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Cogs\TaskFolderCog.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Engines\IFEOEngine.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Hooks\WindowHook.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)ICog.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)ILauncher.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Launchers\PackageLauncher.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)LegacyReboundRemover.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Mod.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)ModParser.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)ModSetting.cs" />
+  </ItemGroup>
+</Project>

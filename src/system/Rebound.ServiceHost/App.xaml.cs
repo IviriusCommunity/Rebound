@@ -172,20 +172,6 @@ public partial class App : Application
             }
         }
 
-        else if (arg.StartsWith("DialogWindow::Show#", StringComparison.InvariantCultureIgnoreCase))
-        {
-            var part = arg["DialogWindow::Show#".Length..];
-            var parts = part.Split("##");
-            UIThreadQueue.QueueAction(async () =>
-            {
-                await ReboundDialog.ShowAsync(
-                    parts[1],
-                    parts[2],
-                    DialogIcon.Warning, int.Parse(parts[0], null)
-                ).ConfigureAwait(false);
-            });
-        }
-
         else if (arg.StartsWith("IFEOEngine::Pause#", StringComparison.InvariantCultureIgnoreCase))
         {
             var part = arg["IFEOEngine::Pause#".Length..];

@@ -1,13 +1,13 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
 	<PropertyGroup>
-		<TargetFramework>net10.0</TargetFramework>
+		<TargetFramework>net10.0-windows10.0.26100.0</TargetFramework>
 		<ImplicitUsings>enable</ImplicitUsings>
 		<Nullable>enable</Nullable>
 	</PropertyGroup>
 
 	<ItemGroup>
-	  <AdditionalFiles Include="NativeMethods.txt" />
+		<AdditionalFiles Include="NativeMethods.txt" />
 	</ItemGroup>
 
 	<ItemGroup>

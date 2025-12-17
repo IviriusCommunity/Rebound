@@ -2,7 +2,6 @@
 // Licensed under the MIT License.
 
 using Rebound.Core;
-using Rebound.Core.Helpers;
 using Windows.Win32;
 using Windows.Win32.Foundation;
 using Windows.Win32.System.Com;
