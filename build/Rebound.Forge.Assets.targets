@@ -62,7 +62,7 @@
 		<!-- Build the project -->
 		<Message Importance="high" Text="Building project $(PackageProject) in $(Configuration)|$(Platform) with AppxBundle=Always" />
 		<MSBuild Projects="$(PackageProject)"
-				 Targets="BeforeBuild"
+				 Targets="Build"
 				 Properties="Configuration=$(Configuration);
                        Platform=$(Platform);
                        AppxBundle=Always;
