@@ -396,3 +396,6 @@ FodyWeavers.xsd
 /src/system/Rebound.Hub/Modding/ServiceHost
 /src/core/forge/Rebound.Forge.Assets/Modding/ServiceHost/ServiceHost.zip
 /src/core/forge/Rebound.Forge.Assets/Modding/ServiceHost/ServiceHost.zip
+/src/system/Rebound.ServiceHost/Hooks/Rebound.Forge.Hooks.Run.dll
+/src/system/Rebound.ServiceHost/Hooks/Rebound.Forge.Hooks.ShutdownWindow.dll
+/src/core/forge/Rebound.Forge.Assets/Modding/Launchers/Rebound.Launcher.exe
