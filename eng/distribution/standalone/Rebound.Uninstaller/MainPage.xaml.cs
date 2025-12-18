@@ -37,6 +37,11 @@ public sealed partial class MainPage : Page
 
     public async void Uninstall_Click(object sender, RoutedEventArgs e)
     {
+        App.canClose = false;
+
+        UninstallGrid.Visibility = Visibility.Collapsed;
+        ProgressGrid.Visibility = Visibility.Visible;
+
         if (ManageStoreAppsCheckBox.IsChecked == true)
         {
             ViewModel.ManageStoreApps = true;
@@ -47,5 +52,14 @@ public sealed partial class MainPage : Page
         }
 
         await ViewModel.UninstallAsync();
+
+        App.canClose = true;
+        App._window.Close();
+    }
+
+    public void Cancel_Click(object sender, RoutedEventArgs e)
+    {
+        App.canClose = true;
+        App._window.Close();
     }
 }

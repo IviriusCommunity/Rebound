@@ -9,43 +9,67 @@
     mc:Ignorable="d">
 
     <Grid>
-        <StackPanel>
-            <TextBlock
-                Margin="24,24,0,0"
-                FontSize="24"
-                FontWeight="SemiBold"
-                Text="Are you sure you want to uninstall Rebound?" />
-            <CheckBox
-                Margin="24,16,0,0"
-                Content="Delete application data"
-                IsThreeState="False" />
-            <CheckBox
-                x:Name="ManageStoreAppsCheckBox"
-                Margin="24,0,0,0"
-                Content="Delete partenered apps managed by the Microsoft Store"
-                IsChecked="{x:Bind ViewModel.ManageStoreApps}"
-                IsThreeState="False" />
-        </StackPanel>
-        <Grid
-            Height="80"
-            VerticalAlignment="Bottom"
-            Background="{ThemeResource SystemControlBackgroundAltMediumLowBrush}" />
-        <StackPanel
-            Margin="24"
-            HorizontalAlignment="Right"
-            VerticalAlignment="Bottom"
-            Orientation="Horizontal"
-            Spacing="8">
-            <Button
-                Width="120"
-                Click="Uninstall_Click"
-                Content="Uninstall"
-                Style="{ThemeResource AccentButtonStyle}" />
-            <Button Width="120" Content="Cancel">
-                <Button.KeyboardAccelerators>
-                    <KeyboardAccelerator Key="Escape" />
-                </Button.KeyboardAccelerators>
-            </Button>
-        </StackPanel>
+        <Grid x:Name="UninstallGrid">
+            <StackPanel>
+                <TextBlock
+                    Margin="24,24,0,0"
+                    FontSize="24"
+                    FontWeight="SemiBold"
+                    Text="Are you sure you want to uninstall Rebound?" />
+                <CheckBox
+                    Margin="24,16,0,0"
+                    Content="Delete application data"
+                    IsChecked="{x:Bind ViewModel.DeleteAppData, Mode=TwoWay}"
+                    IsThreeState="False" />
+                <CheckBox
+                    x:Name="ManageStoreAppsCheckBox"
+                    Margin="24,0,0,0"
+                    Content="Delete partenered apps managed by the Microsoft Store"
+                    IsChecked="{x:Bind ViewModel.ManageStoreApps}"
+                    IsThreeState="False" />
+            </StackPanel>
+            <Grid
+                Height="80"
+                VerticalAlignment="Bottom"
+                Background="{ThemeResource SystemControlBackgroundAltMediumLowBrush}" />
+            <StackPanel
+                Margin="24"
+                HorizontalAlignment="Right"
+                VerticalAlignment="Bottom"
+                Orientation="Horizontal"
+                Spacing="8">
+                <Button
+                    Width="120"
+                    Click="Uninstall_Click"
+                    Content="Uninstall"
+                    Style="{ThemeResource AccentButtonStyle}" />
+                <Button
+                    Width="120"
+                    Click="Cancel_Click"
+                    Content="Cancel">
+                    <Button.KeyboardAccelerators>
+                        <KeyboardAccelerator Key="Escape" />
+                    </Button.KeyboardAccelerators>
+                </Button>
+            </StackPanel>
+        </Grid>
+        <Grid x:Name="ProgressGrid" Visibility="Collapsed">
+            <StackPanel>
+                <TextBlock
+                    Margin="24,24,0,0"
+                    FontSize="24"
+                    FontWeight="SemiBold"
+                    Text="Uninstalling..." />
+                <TextBlock Margin="24,32,24,0" Text="{x:Bind ViewModel.CurrentTaskText, Mode=OneWay}" />
+                <ProgressBar
+                    Margin="24,8,24,0"
+                    Maximum="{x:Bind ViewModel.TotalTasks, Mode=OneWay}"
+                    Value="{x:Bind ViewModel.CurrentTaskProgress, Mode=OneWay}" />
+            </StackPanel>
+            <Grid
+                Height="80"
+                VerticalAlignment="Bottom"
+                Background="{ThemeResource SystemControlBackgroundAltMediumLowBrush}" />
+        </Grid>
     </Grid>
 </Page>

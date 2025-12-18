@@ -7,6 +7,7 @@ using Rebound.Core;
 using Rebound.Forge;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Text;
 using System.Threading.Tasks;
 using TerraFX.Interop.Windows;
@@ -24,8 +25,11 @@ public partial class MainViewModel : ObservableObject
     [ObservableProperty]
     public partial int TotalTasks { get; set; }
 
-    [ObservableProperty] 
+    [ObservableProperty]
     public partial bool ManageStoreApps { get; set; }
+
+    [ObservableProperty]
+    public partial bool DeleteAppData { get; set; }
 
     public MainViewModel()
     {
@@ -68,5 +72,10 @@ public partial class MainViewModel : ObservableObject
         await Catalog.ReboundHub.UninstallAsync();
         CurrentTaskText = $"Uninstalled Rebound Hub";
         CurrentTaskProgress++;
+
+        if (DeleteAppData)
+        {
+            Directory.Delete(Variables.ReboundDataFolder, true);
+        }
     }
 }

@@ -22,6 +22,28 @@ public enum WindowsActivationType
 
 public static class WindowsInformation
 {
+    public static bool IsServerShutdownUIEnabled()
+    {
+        const string policyKey = @"SOFTWARE\Policies\Microsoft\Windows NT\Reliability";
+        const string fallbackKey = @"SOFTWARE\Microsoft\Windows\CurrentVersion\Reliability";
+        const string valueNamePolicy = "ShutdownReasonUI";
+        const string valueNameFallback = "ShutdownReasonOn";
+
+        int? policyValue = null;
+        int? fallbackValue = null;
+
+        using (var key = Registry.LocalMachine.OpenSubKey(policyKey))
+            policyValue = key?.GetValue(valueNamePolicy) as int?;
+
+        if (policyValue.HasValue)
+            return policyValue.Value != 0;
+
+        using (var key = Registry.LocalMachine.OpenSubKey(fallbackKey))
+            fallbackValue = key?.GetValue(valueNameFallback) as int?;
+
+        return fallbackValue.HasValue && fallbackValue.Value != 0;
+    }
+
     private static unsafe char* ToPointer(this string value)
     {
         fixed (char* valueCharPtr = value)

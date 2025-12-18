@@ -210,8 +210,32 @@ public partial class Mod : ObservableObject
             // Validate variant selection
             if (SelectedVariantIndex < 0 || SelectedVariantIndex >= Variants.Count)
             {
-                ReboundLogger.Log($"[Mod] Cannot {(install ? "install" : "uninstall")} {Name} - invalid variant selection");
-                return;
+                ReboundLogger.Log($"[Mod] Invalid variant selection for {Name}, attempting to find installed variant...");
+
+                // Try to find the first installed variant
+                int installedVariantIndex = -1;
+                for (int i = 0; i < Variants.Count; i++)
+                {
+                    var variant = Variants[i];
+                    var (installed, _) = await RetrieveIntegrityStatusForModVariant(variant).ConfigureAwait(false);
+
+                    if (installed)
+                    {
+                        installedVariantIndex = i;
+                        ReboundLogger.Log($"[Mod] Found installed variant at index {i} for {Name}");
+                        break;
+                    }
+                }
+
+                // If no installed variant found, return
+                if (installedVariantIndex == -1)
+                {
+                    ReboundLogger.Log($"[Mod] Cannot {(install ? "install" : "uninstall")} {Name} - no installed variant found");
+                    return;
+                }
+
+                // Set the found variant as selected
+                SelectedVariantIndex = installedVariantIndex;
             }
 
             // Obtain the currently selected variant

@@ -10,6 +10,23 @@ namespace Rebound.Shell.ShutdownDialog
 {
     public partial class ShutdownViewModel : ObservableObject
     {
+        public static string CurrentUser
+        {
+            get
+            {
+                var fullName = UserInformation.GetDisplayName();
+                return fullName;
+            }
+        }
+
+        [ObservableProperty] public partial bool ShowUserInfo { get; set; }
+
+        [ObservableProperty] public partial bool UseShutdownScreen { get; set; }
+
+        [ObservableProperty] public partial int OperationMode { get; set; }
+
+        [ObservableProperty] public partial int OperationReason { get; set; }
+
         [ObservableProperty]
         public partial string WindowsVersionTitle { get; set; } = WindowsInformation.GetOSName();
 
@@ -18,6 +35,8 @@ namespace Rebound.Shell.ShutdownDialog
 
         [ObservableProperty]
         public partial bool ShowBlurAndGlow { get; set; }
+
+        public bool IsWindowsServerPanelVisible = WindowsInformation.IsServerShutdownUIEnabled();
 
         private readonly SettingsListener _listener;
 
@@ -35,6 +54,8 @@ namespace Rebound.Shell.ShutdownDialog
         {
             UIThreadQueue.QueueAction(async () =>
             {
+                ShowUserInfo = SettingsManager.GetValue("ShowUserInfo", "rshutdown", true);
+                UseShutdownScreen = SettingsManager.GetValue("UseShutdownScreen", "rshutdown", false);
                 ShowBlurAndGlow = SettingsManager.GetValue("ShowBlurAndGlow", "rebound", true);
             });
         }

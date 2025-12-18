@@ -962,6 +962,22 @@ public partial class IslandsWindow : ObservableObject, IDisposable
     }
 
     /// <summary>
+    /// Sets whether the window should remain above all non-topmost windows.
+    /// </summary>
+    /// <remarks>This method has no effect if the window handle is not valid. A topmost window stays above all
+    /// non-topmost windows, even when the window is deactivated.</remarks>
+    /// <param name="alwaysOnTop">true to make the window topmost; otherwise, false to restore normal window z-order.</param>
+    public void SetAlwaysOnTop(bool alwaysOnTop)
+    {
+        if (Handle == HWND.NULL) return;
+        SetWindowPos(
+            Handle,
+            alwaysOnTop ? HWND.HWND_TOPMOST : HWND.HWND_NOTOPMOST,
+            0, 0, 0, 0,
+            SWP.SWP_NOMOVE | SWP.SWP_NOSIZE);
+    }
+
+    /// <summary>
     /// Set extended window style bits.
     /// </summary>
     /// <param name="style">Extended window style flags</param>

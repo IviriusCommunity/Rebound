@@ -222,7 +222,29 @@ public partial class Catalog : ObservableObject
                                 Key = "InstallShutdown"
                             }
                         ],
-                        Dependencies = [ "Rebound.Shell" ]
+                        Dependencies = [ "Rebound.Shell" ],
+                        Settings = [
+                            new ModLabel()
+                            {
+                                Text = "Layout"
+                            },
+                            new ModBoolSetting(true)
+                            {
+                                Name = "Show user",
+                                IconGlyph = "\uE77B",
+                                Description = "Show the username alongside the user's profile picture in the bottom bar.",
+                                Identifier = "ShowUserInfo",
+                                AppName = "rshutdown"
+                            },
+                            new ModBoolSetting(false)
+                            {
+                                Name = "Use the shutdown screen",
+                                IconGlyph = "\uE740",
+                                Description = "Show the shutdown options in fullscreen instead of a dialog window.",
+                                Identifier = "UseShutdownScreen",
+                                AppName = "rshutdown"
+                            },
+                        ]
                     },
                 ]
             },

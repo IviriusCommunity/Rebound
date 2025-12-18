@@ -33,4 +33,12 @@ public sealed partial class MainWindow : WindowEx
         this.ExtendsContentIntoTitleBar = true;
         RootFrame.Navigate(typeof(MainPage));
     }
+
+    private void WindowEx_Closed(object sender, WindowEventArgs args)
+    {
+        if (!App.canClose)
+        {
+            args.Handled = true;
+        }
+    }
 }

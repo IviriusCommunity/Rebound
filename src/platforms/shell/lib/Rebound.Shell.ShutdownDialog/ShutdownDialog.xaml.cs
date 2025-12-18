@@ -1,21 +1,37 @@
 ﻿// Copyright (C) Ivirius(TM) Community 2020 - 2025. All Rights Reserved.
 // Licensed under the MIT License.
 
+using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Input;
+using Rebound.Core.SystemInformation.Software;
+using Rebound.Core.UI;
+using Rebound.Shell.ExperienceHost;
 using System;
 using System.Diagnostics;
 using System.Runtime.InteropServices;
-using CommunityToolkit.Mvvm.Input;
-using Rebound.Shell.ExperienceHost;
+using System.Threading.Tasks;
 using Windows.UI.Xaml.Controls;
+using Windows.UI.Xaml.Media.Imaging;
 using Windows.Win32;
 
 namespace Rebound.Shell.ShutdownDialog;
 
+[ObservableObject]
 public sealed partial class ShutdownDialog : Page
 {
     private ShutdownViewModel ViewModel { get; set; }
 
     bool isServer;
+
+    [ObservableProperty]
+    public partial BitmapImage UserPicture { get; set; }
+
+    private static async Task<BitmapImage?> GetUserPictureAsync()
+    {
+        var picturePath = UserInformation.GetUserPicturePath();
+        if (!string.IsNullOrEmpty(picturePath)) return new BitmapImage(new Uri(picturePath));
+        else return null;
+    }
 
     [DllImport("ntdll.dll")]
     private static extern unsafe int RtlGetVersion(OSVERSIONINFOEX* lpVersionInformation);
@@ -47,11 +63,22 @@ public sealed partial class ShutdownDialog : Page
         }
         isServer = ver.wProductType == 3;
         InitializeComponent();
+        UIThreadQueue.QueueAction(async () =>
+        {
+            UserPicture = await GetUserPictureAsync();
+        });
     }
 
     [RelayCommand]
     public void Cancel()
     {
+        App.ShutdownWindow?.Close();
+    }
+
+    [RelayCommand]
+    public void SignOut()
+    {
+        TerraFX.Interop.Windows.Windows.ExitWindowsEx(0x00000000, 0);
         App.ShutdownWindow?.Close();
     }
 
@@ -72,7 +99,7 @@ public sealed partial class ShutdownDialog : Page
     [RelayCommand]
     public void Shutdown()
     {
-        App.ReboundPipeClient.SendAsync(isServer ? $"Shell::ShutdownServer#{OperationReason.SelectedIndex}{OperationMode.SelectedIndex}" : "Shell::Shutdown");
+        App.ReboundPipeClient.SendAsync(isServer ? $"Shell::ShutdownServer#{ViewModel.OperationReason}{ViewModel.OperationMode}" : "Shell::Shutdown");
         App.ShutdownWindow?.Close();
     }
 
@@ -146,14 +173,5 @@ public sealed partial class ShutdownDialog : Page
         {
 
         }
-    }
-
-    private void MenuFlyoutItem_Click(object sender, Windows.UI.Xaml.RoutedEventArgs e)
-    {
-        Process.Start(new ProcessStartInfo()
-        {
-            FileName = "control.exe",
-            ArgumentList = { "/name Rebound.Settings" },
-        });
     }
 }

@@ -5,6 +5,7 @@ using Microsoft.UI.Windowing;
 using Rebound.Core;
 using Rebound.Core.Helpers;
 using Rebound.Core.IPC;
+using Rebound.Core.SystemInformation.Software;
 using Rebound.Core.UI;
 using Rebound.Generators;
 using Rebound.Shell.Run;
@@ -101,6 +102,7 @@ public partial class App : Application
                 {
                     UIThreadQueue.QueueAction(async () =>
                     {
+#if DEBUG
                         // Create the window
                         using var TestShellWindow = new IslandsWindow()
                         {
@@ -129,6 +131,7 @@ public partial class App : Application
                         // Spawn the window
                         TestShellWindow.Create();
                         TestShellWindow.MakeWindowTransparent();
+#endif
                         await ReboundDialog.ShowAsync(
                             "Rebound Service Host not found.",
                             "Could not find Rebound Service Host.\nPlease ensure it is running in the background.",
@@ -194,8 +197,6 @@ public partial class App : Application
 
             // Spawn the window
             MainWindow.Create();
-
-#else
 #endif
         }
         else Process.GetCurrentProcess().Kill();
@@ -300,34 +301,59 @@ public partial class App : Application
 
     public static void ShowShutdownWindow()
     {
-        ShutdownWindow = new();
+        ShutdownWindow = new()
+        {
+            IsPersistenceEnabled = false
+        };
         ShutdownWindow.AppWindowInitialized += (s, e) =>
         {
-            ShutdownWindow.Resize(480, 344);
-            ShutdownWindow.IsPersistenceEnabled = false;
-            ShutdownWindow.Title = "Power options";
-            ShutdownWindow.AppWindow?.SetIcon($"{AppContext.BaseDirectory}\\Assets\\Shutdown.ico");
-            ShutdownWindow.AppWindow?.TitleBar.ExtendsContentIntoTitleBar = true;
-            ShutdownWindow.AppWindow?.TitleBar.ButtonBackgroundColor = Colors.Transparent;
-            ShutdownWindow.AppWindow?.TitleBar.ButtonInactiveBackgroundColor = Colors.Transparent;
-            ShutdownWindow.IsMaximizable = false;
-            ShutdownWindow.IsMinimizable = false;
-            ShutdownWindow.IsResizable = false;
-            ShutdownWindow.CenterWindow();
-            ShutdownWindow.OnClosing += (sender, args) =>
+            if (SettingsManager.GetValue("UseShutdownScreen", "rshutdown", false))
             {
-                ShutdownWindow = null;
-            };
+                ShutdownWindow.Title = "Power options";
+                ShutdownWindow.AppWindow?.SetIcon($"{AppContext.BaseDirectory}\\Assets\\Shutdown.ico");
+                ShutdownWindow.AppWindow?.TitleBar.ExtendsContentIntoTitleBar = true;
+                ShutdownWindow.MaxWidth = 9999999;
+                ShutdownWindow.MaxHeight = 9999999;
+                ShutdownWindow.OnClosing += (sender, args) =>
+                {
+                    ShutdownWindow = null;
+                };
+            }
+            else
+            {
+                ShutdownWindow.Resize(480, WindowsInformation.IsServerShutdownUIEnabled() ? 552 : 400);
+                ShutdownWindow.IsPersistenceEnabled = false;
+                ShutdownWindow.Title = "Power options";
+                ShutdownWindow.AppWindow?.SetIcon($"{AppContext.BaseDirectory}\\Assets\\Shutdown.ico");
+                ShutdownWindow.AppWindow?.TitleBar.ExtendsContentIntoTitleBar = true;
+                ShutdownWindow.AppWindow?.TitleBar.ButtonBackgroundColor = Colors.Transparent;
+                ShutdownWindow.AppWindow?.TitleBar.ButtonInactiveBackgroundColor = Colors.Transparent;
+                ShutdownWindow.IsMaximizable = false;
+                ShutdownWindow.IsMinimizable = false;
+                ShutdownWindow.IsResizable = false;
+                ShutdownWindow.CenterWindow();
+                ShutdownWindow.OnClosing += (sender, args) =>
+                {
+                    ShutdownWindow = null;
+                };
+            }
         };
         ShutdownWindow.XamlInitialized += (s, e) =>
         {
             var frame = new Frame();
             frame.Navigate(typeof(ShutdownDialog.ShutdownDialog));
             ShutdownWindow.Content = frame;
-            (frame.Content as ShutdownDialog.ShutdownDialog).WindowTitle.Text = "Power options";
         };
         ShutdownWindow.Create();
-        ShutdownWindow.CenterWindow();
+        if (SettingsManager.GetValue("UseShutdownScreen", "rshutdown", false))
+        {
+            ShutdownWindow.MakeWindowTransparent();
+            ShutdownWindow.AppWindow?.SetPresenter(AppWindowPresenterKind.FullScreen);
+        }
+        else
+        {
+            ShutdownWindow.CenterWindow();
+        }
     }
 
     public static void CloseRunWindow()

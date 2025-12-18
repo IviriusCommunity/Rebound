@@ -29,6 +29,8 @@ namespace Rebound.Uninstaller;
 /// </summary>
 public partial class App : Application
 {
+    public static bool canClose = true;
+
     public static WindowEx? _window;
 
     /// <summary>

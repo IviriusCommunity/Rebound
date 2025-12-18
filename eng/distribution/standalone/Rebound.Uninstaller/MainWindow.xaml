@@ -11,6 +11,7 @@
     Width="600"
     Height="240"
     IsMaximizable="False"
+    Closed="WindowEx_Closed"
     IsMinimizable="False"
     IsResizable="False"
     mc:Ignorable="d">
