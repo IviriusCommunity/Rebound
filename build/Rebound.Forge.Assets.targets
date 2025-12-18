@@ -1,5 +1,8 @@
 <Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
 
+	<!-- Import version properties -->
+	<Import Project="$(SolutionDir)var\Version.props" />
+
 	<!-- === C++ PROGRAMS === -->
 	<!-- ==================== -->
 
@@ -58,6 +61,13 @@
 
 	<!-- #. Generic reusable packaging target -->
 	<Target Name="BuildAndCopyMsixPackage">
+		<!-- Validate required properties -->
+		<Error Condition="'$(PackageProject)' == ''"
+			   Text="PackageProject property is required for BuildAndCopyMsixPackage target" />
+		<Error Condition="'$(PackageDestination)' == ''"
+			   Text="PackageDestination property is required for BuildAndCopyMsixPackage target" />
+		<Error Condition="'$(MsixVersion)' == ''"
+			   Text="MsixVersion property is required for BuildAndCopyMsixPackage target. Ensure Version.props is imported." />
 
 		<!-- Build the project -->
 		<Message Importance="high" Text="Building project $(PackageProject) in $(Configuration)|$(Platform) with AppxBundle=Always" />
@@ -67,17 +77,30 @@
                        Platform=$(Platform);
                        AppxBundle=Always;
                        UapAppxPackageBuildMode=SideloadOnly;
-                       GenerateAppxPackageOnBuild=true" />
+                       GenerateAppxPackageOnBuild=true">
+			<Output TaskParameter="TargetOutputs" ItemName="BuildOutputs" />
+		</MSBuild>
 
-		<!-- Find the generated .msixbundle files -->
-		<Message Importance="high" Text="Looking for .msixbundle files in $(PackageOutputFolder)" />
-		<CreateItem Include="$(PackageOutputFolder)**\*.msixbundle">
-			<Output TaskParameter="Include" ItemName="MsixBundles"/>
-		</CreateItem>
+		<!-- Get the packaging project's directory and output path -->
+		<PropertyGroup>
+			<PackageProjectDir>$([System.IO.Path]::GetDirectoryName('$(PackageProject)'))</PackageProjectDir>
+			<PackageProjectName>$([System.IO.Path]::GetFileNameWithoutExtension('$(PackageProject)'))</PackageProjectName>
+			<!-- Look in the AppPackages folder where MSIX projects output -->
+			<ActualPackageOutputFolder>$(PackageProjectDir)\AppPackages\</ActualPackageOutputFolder>
+		</PropertyGroup>
+
+		<!-- Find the generated .msixbundle files in the ACTUAL output location -->
+		<Message Importance="high" Text="Looking for .msixbundle files in $(ActualPackageOutputFolder)" />
+
+		<ItemGroup>
+			<MsixBundles Include="$(ActualPackageOutputFolder)**\*.msixbundle" />
+		</ItemGroup>
+
+		<Message Importance="high" Text="Found @(MsixBundles->Count()) msixbundle file(s)" />
 
 		<!-- Error if none found -->
 		<Error Condition="'@(MsixBundles)' == ''"
-			   Text="No .msixbundle file found in $(PackageOutputFolder). Packaging may have failed." />
+			   Text="No .msixbundle file found in $(ActualPackageOutputFolder). Packaging may have failed." />
 
 		<!-- Filter .msixbundle files by $(MsixVersion) in filename -->
 		<ItemGroup>
@@ -85,25 +108,20 @@
 			  Condition="$([System.String]::Copy('%(Filename)').Contains('$(MsixVersion)'))" />
 		</ItemGroup>
 
+		<Message Importance="high" Text="After filtering by version '$(MsixVersion)': @(FilteredMsixBundles->Count()) file(s)" />
+
 		<!-- Error if none found after filtering -->
 		<Error Condition="'@(FilteredMsixBundles)' == ''"
-			   Text="No .msixbundle file found containing '$(MsixVersion)' in $(PackageOutputFolder)." />
+			   Text="No .msixbundle file found containing '$(MsixVersion)' in $(ActualPackageOutputFolder). Found files: @(MsixBundles)" />
 
-		<!-- Pick the first filtered file -->
-		<PropertyGroup>
-			<FilteredMsixBundle>%(FilteredMsixBundles.Identity)</FilteredMsixBundle>
-		</PropertyGroup>
-
-		<!-- Copy the filtered .msixbundle file -->
-		<Copy Condition="'$(FilteredMsixBundle)' != ''"
-			  SourceFiles="$(FilteredMsixBundle)"
+		<!-- Copy to the Forge assets location (where version will be stripped from name) -->
+		<Copy SourceFiles="@(FilteredMsixBundles)"
 			  DestinationFiles="$(PackageDestination)"
-			  SkipUnchangedFiles="true" />
+			  SkipUnchangedFiles="true"
+			  OverwriteReadOnlyFiles="true" />
 
-		<Message Condition="'$(FilteredMsixBundle)' != ''"
-				 Importance="high"
-				 Text="Copied filtered package '$(FilteredMsixBundle)' to $(PackageDestination)" />
-
+		<Message Importance="high"
+				 Text="Copied package '@(FilteredMsixBundles)' to $(PackageDestination)" />
 	</Target>
 
 	<!-- 3. Compile Rebound About -->
@@ -119,12 +137,12 @@
 			BeforeTargets="BeforeBuild"
 			Condition="'$(Configuration)' == 'Release'">
 
-		<!-- Call generic packaging with properties -->
+		<!-- Call generic packaging with properties - MsixVersion now inherited from imported Version.props -->
 		<MSBuild Projects="$(MSBuildProjectFile)"
 				 Targets="BuildAndCopyMsixPackage"
 				 Properties="PackageProject=$(ReboundAboutProject);
-							 PackageOutputFolder=$(ReboundAboutPackageOutputFolder);
 							 PackageDestination=$(ReboundAboutPackageDestination);
+							 MsixVersion=$(MsixVersion);
 							 Configuration=$(Configuration);
 							 Platform=$(Platform)" />
 
@@ -143,12 +161,12 @@
 			BeforeTargets="BeforeBuild"
 			Condition="'$(Configuration)' == 'Release'">
 
-		<!-- Call generic packaging with properties -->
+		<!-- Call generic packaging with properties - MsixVersion now inherited from imported Version.props -->
 		<MSBuild Projects="$(MSBuildProjectFile)"
 				 Targets="BuildAndCopyMsixPackage"
 				 Properties="PackageProject=$(ReboundShellProject);
-							 PackageOutputFolder=$(ReboundShellPackageOutputFolder);
 							 PackageDestination=$(ReboundShellPackageDestination);
+							 MsixVersion=$(MsixVersion);
 							 Configuration=$(Configuration);
 							 Platform=$(Platform)" />
 
@@ -167,12 +185,12 @@
 			BeforeTargets="BeforeBuild"
 			Condition="'$(Configuration)' == 'Release'">
 
-		<!-- Call generic packaging with properties -->
+		<!-- Call generic packaging with properties - MsixVersion now inherited from imported Version.props -->
 		<MSBuild Projects="$(MSBuildProjectFile)"
 				 Targets="BuildAndCopyMsixPackage"
 				 Properties="PackageProject=$(ReboundUserAccountControlSettingsProject);
-							 PackageOutputFolder=$(ReboundUserAccountControlSettingsPackageOutputFolder);
 							 PackageDestination=$(ReboundUserAccountControlSettingsPackageDestination);
+							 MsixVersion=$(MsixVersion);
 							 Configuration=$(Configuration);
 							 Platform=$(Platform)" />
 
