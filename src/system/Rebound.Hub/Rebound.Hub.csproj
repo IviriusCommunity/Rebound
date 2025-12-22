@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
 	<!-- Versioning project -->
 	<Import Project="..\..\..\var\Version.props" />
@@ -31,9 +31,9 @@
 		<DefineConstants>DISABLE_XAML_GENERATED_MAIN;$(DefineConstants)</DefineConstants>
 
 		<!-- Versioning -->
-		<AssemblyVersion>$(Win32Version)</AssemblyVersion>
-		<Version>$(Win32Version)</Version>
-		<FileVersion>$(FullVersion)</FileVersion>
+		<AssemblyVersion>0.0.10</AssemblyVersion>
+		<Version>0.0.10</Version>
+		<FileVersion>0.0.10</FileVersion>
 
 	</PropertyGroup>
 

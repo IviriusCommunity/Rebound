@@ -96,6 +96,7 @@ public partial class App : Application
             {
                 try
                 {
+                    await Task.Delay(1000);
                     await ReboundPipeClient.ConnectAsync().ConfigureAwait(false);
                 }
                 catch

@@ -6,6 +6,7 @@
   </Configurations>
   <Folder Name="/build/">
     <File Path="build/Rebound.Forge.Assets.targets" />
+    <File Path="build/version.ps1" />
   </Folder>
   <Folder Name="/docs/">
     <File Path="docs/getting-started.md" />

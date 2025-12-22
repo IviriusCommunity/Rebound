@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
 	<!-- Versioning project -->
 	<Import Project="..\..\..\..\var\Version.props" />
@@ -33,6 +33,11 @@
 		<WindowsAppSDKSelfContained>true</WindowsAppSDKSelfContained>
 
 		<EnableSourceLink>false</EnableSourceLink>
+
+		<!-- Versioning -->
+		<AssemblyVersion>0.0.10</AssemblyVersion>
+		<Version>0.0.10</Version>
+		<FileVersion>0.0.10</FileVersion>
 
 	</PropertyGroup>
 
