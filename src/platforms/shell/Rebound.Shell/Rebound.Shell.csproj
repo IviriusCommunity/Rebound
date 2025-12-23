@@ -1,8 +1,5 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
-	<!-- Versioning project -->
-	<Import Project="..\..\..\..\var\Version.props" />
-
 	<!-- Application and library only - These will apply to everything that isn't a source code generator -->
 	<PropertyGroup>
 
@@ -186,69 +183,5 @@
 	<!-- Shared project imports -->
 	<Import Project="..\lib\Rebound.Shell.Run\Rebound.Shell.Run.projitems" Label="Shared" />
 	<Import Project="..\lib\Rebound.Shell.ShutdownDialog\Rebound.Shell.ShutdownDialog.projitems" Label="Shared" />
-
-	<!-- A. Modify AppxManifest -->
-	<UsingTask TaskName="ModifyAppxManifest" TaskFactory="CodeTaskFactory" AssemblyFile="$(MSBuildToolsPath)\Microsoft.Build.Tasks.Core.dll">
-		<ParameterGroup>
-			<ManifestFile ParameterType="System.String" Required="true" />
-			<NewVersion ParameterType="System.String" Required="false" />
-			<NewName ParameterType="System.String" Required="false" />
-			<NewPublisher ParameterType="System.String" Required="false" />
-		</ParameterGroup>
-		<Task>
-			<Reference Include="System.Xml" />
-			<Reference Include="System.Xml.Linq" />
-			<Using Namespace="System" />
-			<Using Namespace="System.Xml.Linq" />
-			<Code Type="Fragment" Language="cs">
-				<![CDATA[
-        try
-        {
-          var doc = XDocument.Load(ManifestFile);
-          XNamespace ns = doc.Root.Name.Namespace;
-
-          var identity = doc.Root.Element(ns + "Identity");
-          if (identity == null)
-          {
-            Log.LogError("Could not find <Identity> element in manifest.");
-            return false;
-          }
-
-          if (!string.IsNullOrEmpty(NewVersion))
-            identity.SetAttributeValue("Version", NewVersion);
-
-          if (!string.IsNullOrEmpty(NewName))
-            identity.SetAttributeValue("Name", NewName);
-
-          if (!string.IsNullOrEmpty(NewPublisher))
-            identity.SetAttributeValue("Publisher", NewPublisher);
-
-          doc.Save(ManifestFile);
-
-          Log.LogMessage(Microsoft.Build.Framework.MessageImportance.High, 
-            "Manifest updated: Version=" + NewVersion + ", Name=" + NewName + ", Publisher=" + NewPublisher);
-          return true;
-        }
-        catch (Exception ex)
-        {
-          Log.LogErrorFromException(ex);
-          return false;
-        }
-        ]]>
-			</Code>
-		</Task>
-	</UsingTask>
-
-	<!-- A. Target: Update Manifest Version -->
-	<Target Name="UpdateManifestVersion" BeforeTargets="BeforeBuild;_GenerateCurrentProjectAppxManifest">
-		<PropertyGroup>
-			<ManifestPath>$(MSBuildProjectDirectory)\Package.appxmanifest</ManifestPath>
-		</PropertyGroup>
-
-		<Message Importance="high" Text="Manifest path: $(ManifestPath)" />
-		<Message Importance="high" Text="MsixVersion: $(MsixVersion)" />
-
-		<ModifyAppxManifest ManifestFile="$(ManifestPath)" NewVersion="$(MsixVersion)" NewName="Rebound.Shell" NewPublisher="CN=Ivirius Community" />
-	</Target>
 
 </Project>

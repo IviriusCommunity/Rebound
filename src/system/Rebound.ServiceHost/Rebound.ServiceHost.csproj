@@ -1,8 +1,5 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
-	<!-- Versioning project -->
-	<Import Project="..\..\..\var\Version.props" />
-
 	<!-- Framework and platform configuration  -->
 	<PropertyGroup Label="Framework Configuration">
 
