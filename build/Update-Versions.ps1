@@ -90,7 +90,7 @@ function Update-AppxManifestVersion {
     $updated = [Regex]::Replace(
         $content,
         $pattern,
-        "`$1$fourPartVersion`$2"
+        "`${1}$fourPartVersion`${2}"
     )
 
     if ($content -ne $updated) {

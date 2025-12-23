@@ -106,16 +106,16 @@
 	<!-- Windows Interop -->
 	<ItemGroup Label="Windows Interop">
 		<PackageReference Include="Dongle.GuidRVAGen" Version="1.0.5" />
-		<PackageReference Include="Microsoft.Windows.CsWin32" Version="0.3.257">
+		<PackageReference Include="Microsoft.Windows.CsWin32" Version="0.3.264">
 			<PrivateAssets>all</PrivateAssets>
 			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
 		</PackageReference>
-		<PackageReference Include="TerraFX.Interop.Windows" Version="10.0.26100.5" />
+		<PackageReference Include="TerraFX.Interop.Windows" Version="10.0.26100.6" />
 	</ItemGroup>
 
 	<!-- System & Management -->
 	<ItemGroup Label="System Libraries">
-		<PackageReference Include="System.Diagnostics.PerformanceCounter" Version="10.0.0" />
+		<PackageReference Include="System.Diagnostics.PerformanceCounter" Version="10.0.1" />
 		<PackageReference Include="System.IO.Pipes.AccessControl" Version="6.0.0-preview.5.21301.5" />
 		<PackageReference Include="OwlCore.Storage" Version="0.14.0" />
 		<PackageReference Include="TaskScheduler" Version="2.12.2" />

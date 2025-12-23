@@ -7,6 +7,7 @@
   <Folder Name="/build/">
     <File Path="build/Build-Forge-Assets.ps1" />
     <File Path="build/Build-Native.ps1" />
+    <File Path="build/Build-Packaged-Apps.ps1" />
     <File Path="build/Build-ServiceHost.ps1" />
     <File Path="build/Rebound.Forge.Assets.targets" />
     <File Path="build/Update-Versions.ps1" />

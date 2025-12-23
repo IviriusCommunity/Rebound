@@ -12,8 +12,8 @@
 
 	<ItemGroup>
 		<PackageReference Include="Dongle.GuidRVAGen" Version="1.0.5" />
-		<PackageReference Include="TerraFX.Interop.Windows" Version="10.0.26100.4" />
-		<PackageReference Include="Microsoft.Windows.CsWin32" Version="0.3.238">
+		<PackageReference Include="TerraFX.Interop.Windows" Version="10.0.26100.6" />
+		<PackageReference Include="Microsoft.Windows.CsWin32" Version="0.3.264">
 			<PrivateAssets>all</PrivateAssets>
 			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
 		</PackageReference>

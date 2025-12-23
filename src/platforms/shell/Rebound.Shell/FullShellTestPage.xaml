@@ -9,34 +9,145 @@
     xmlns:muxc="using:Microsoft.UI.Xaml.Controls"
     muxc:BackdropMaterial.ApplyToRootOrPageBackground="True"
     mc:Ignorable="d">
-
+    <Page.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.ThemeDictionaries>
+                <ResourceDictionary x:Key="Light">
+                    <media:AcrylicBrush
+                        x:Key="ShellBackgroundBrush"
+                        BackgroundSource="HostBackdrop"
+                        BlurAmount="32"
+                        TintColor="White"
+                        TintOpacity="0.7" />
+                </ResourceDictionary>
+                <ResourceDictionary x:Key="Dark">
+                    <media:AcrylicBrush
+                        x:Key="ShellBackgroundBrush"
+                        BackgroundSource="HostBackdrop"
+                        BlurAmount="32"
+                        TintColor="Black"
+                        TintOpacity="0.4" />
+                </ResourceDictionary>
+            </ResourceDictionary.ThemeDictionaries>
+        </ResourceDictionary>
+    </Page.Resources>
     <Grid>
         <Grid>
             <Grid
                 Height="48"
+                Padding="8,0"
                 VerticalAlignment="Bottom"
+                Background="{ThemeResource ShellBackgroundBrush}"
                 BorderBrush="{ThemeResource SurfaceStrokeColorDefaultBrush}"
                 BorderThickness="0,1,0,0">
-                <Grid.Background>
-                    <media:AcrylicBrush
-                        BackgroundSource="HostBackdrop"
-                        BlurAmount="32"
-                        TintColor="Black"
-                        TintOpacity="0.2" />
-                </Grid.Background>
+                <StackPanel Orientation="Horizontal" Spacing="4">
+                    <Button Padding="8,6">
+                        <Path Data="F1 M 0 2 C 0 1 1 0 2 0 L 12 0 L 12 12 L 0 12 M 13 0 L 23 0 C 24 0 25 1 25 2 L 25 12 L 13 12 M 13 13 L 25 13 L 25 23 C 25 24 24 25 23 25 L 13 25 M 12 25 L 2 25 C 1 25 0 24 0 23 L 0 13 L 12 13">
+                            <Path.Fill>
+                                <LinearGradientBrush StartPoint="0, 0" EndPoint="1, 1">
+                                    <LinearGradientBrush.GradientStops>
+                                        <GradientStop Color="{ThemeResource SystemAccentColorLight3}" />
+                                        <GradientStop Offset="1" Color="{ThemeResource SystemAccentColor}" />
+                                    </LinearGradientBrush.GradientStops>
+                                </LinearGradientBrush>
+                            </Path.Fill>
+                        </Path>
+                    </Button>
+                    <AutoSuggestBox
+                        Width="240"
+                        Margin="4,0"
+                        VerticalAlignment="Center"
+                        PlaceholderText="Search..."
+                        QueryIcon="Find" />
+                </StackPanel>
+                <StackPanel HorizontalAlignment="Right" Orientation="Horizontal">
+                    <Button
+                        Margin="0,4"
+                        Padding="8"
+                        VerticalAlignment="Stretch"
+                        Background="Transparent"
+                        BorderBrush="Transparent">
+                        <FontIcon FontSize="16" Glyph="&#xE70E;" />
+                    </Button>
+                    <Button
+                        Margin="0,4"
+                        Padding="8"
+                        VerticalAlignment="Stretch"
+                        Background="Transparent"
+                        BorderBrush="Transparent">
+                        <Image
+                            Width="16"
+                            Height="16"
+                            Source="/Assets/Files.png" />
+                    </Button>
+                    <Button
+                        Margin="0,4"
+                        Padding="8"
+                        VerticalAlignment="Stretch"
+                        Background="Transparent"
+                        BorderBrush="Transparent">
+                        <FontIcon FontSize="16" Glyph="&#xF353;" />
+                    </Button>
+                    <Button
+                        Margin="0,4"
+                        Padding="8"
+                        VerticalAlignment="Stretch"
+                        Background="Transparent"
+                        BorderBrush="Transparent">
+                        <FontIcon FontSize="16" Glyph="&#xE765;" />
+                    </Button>
+                    <Button
+                        Padding="8,2"
+                        Background="Transparent"
+                        BorderBrush="Transparent">
+                        <StackPanel>
+                            <TextBlock FontSize="12" Text="ENG" />
+                            <TextBlock FontSize="12" Text="ROP" />
+                        </StackPanel>
+                    </Button>
+                    <Button
+                        Margin="0,4"
+                        Padding="8"
+                        VerticalAlignment="Stretch">
+                        <StackPanel Orientation="Horizontal" Spacing="8">
+                            <FontIcon FontSize="16" Glyph="&#xE701;" />
+                            <FontIcon FontSize="16" Glyph="&#xEC41;" />
+                            <Grid>
+                                <FontIcon
+                                    FontSize="16"
+                                    Glyph="&#xE995;"
+                                    Opacity="0.25" />
+                                <FontIcon FontSize="16" Glyph="&#xE994;" />
+                            </Grid>
+                            <FontIcon FontSize="16" Glyph="&#xE706;" />
+                            <FontIcon FontSize="16" Glyph="&#xEBB5;" />
+                            <TextBlock FontSize="12" Text="100%" />
+                        </StackPanel>
+                    </Button>
+                    <Button
+                        Padding="8,2"
+                        Background="Transparent"
+                        BorderBrush="Transparent">
+                        <StackPanel Orientation="Horizontal" Spacing="8">
+                            <StackPanel>
+                                <TextBlock
+                                    HorizontalAlignment="Right"
+                                    FontSize="12"
+                                    Text="11:23:36 PM" />
+                                <TextBlock FontSize="12" Text="Tuesday, 12.23.2025" />
+                            </StackPanel>
+                            <FontIcon FontSize="16" Glyph="&#xF2A8;" />
+                        </StackPanel>
+                    </Button>
+                </StackPanel>
             </Grid>
             <Grid
                 Height="48"
                 VerticalAlignment="Top"
+                Background="{ThemeResource ShellBackgroundBrush}"
                 BorderBrush="{ThemeResource SurfaceStrokeColorDefaultBrush}"
-                BorderThickness="0,0,0,1">
-                <Grid.Background>
-                    <media:AcrylicBrush
-                        BackgroundSource="HostBackdrop"
-                        BlurAmount="32"
-                        TintColor="Black"
-                        TintOpacity="0.2" />
-                </Grid.Background>
+                BorderThickness="0,0,0,1"
+                Visibility="Collapsed">
                 <StackPanel
                     Margin="24,0"
                     VerticalAlignment="Center"
@@ -84,6 +195,7 @@
                 Padding="24,16"
                 HorizontalAlignment="Right"
                 VerticalAlignment="Bottom"
+                Background="{ThemeResource ShellBackgroundBrush}"
                 BorderBrush="{ThemeResource SurfaceStrokeColorDefaultBrush}"
                 BorderThickness="1"
                 CornerRadius="8">
@@ -91,13 +203,7 @@
                     <RowDefinition Height="Auto" />
                     <RowDefinition Height="Auto" />
                 </Grid.RowDefinitions>
-                <Grid.Background>
-                    <media:AcrylicBrush
-                        BackgroundSource="HostBackdrop"
-                        BlurAmount="32"
-                        TintColor="Black"
-                        TintOpacity="0.2" />
-                </Grid.Background>
+
                 <Grid
                     Margin="0,8,0,0"
                     ColumnSpacing="8"
@@ -279,7 +385,7 @@
                                 <FontIcon
                                     FontSize="16"
                                     Glyph="&#xE767;"
-                                    Opacity="0.5" />
+                                    Opacity="0.25" />
                                 <FontIcon FontSize="16" Glyph="&#xE994;" />
                             </Grid>
                         </Button>
@@ -327,6 +433,616 @@
                         </StackPanel>
                     </Grid>
                 </StackPanel>
+            </Grid>
+            <Grid
+                Margin="16,0,0,64"
+                HorizontalAlignment="Left"
+                VerticalAlignment="Bottom"
+                Background="{ThemeResource ShellBackgroundBrush}"
+                BorderBrush="{ThemeResource SurfaceStrokeColorDefaultBrush}"
+                BorderThickness="1"
+                CornerRadius="8">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                </Grid.RowDefinitions>
+                <Grid
+                    Grid.RowSpan="2"
+                    Width="280"
+                    Background="{ThemeResource LayerOnMicaBaseAltFillColorDefaultBrush}"
+                    BorderBrush="{ThemeResource DividerStrokeColorDefaultBrush}"
+                    BorderThickness="0,0,1,0">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="*" />
+                        <RowDefinition Height="Auto" />
+                    </Grid.RowDefinitions>
+                    <Button
+                        Margin="8,8,8,0"
+                        Padding="12,8"
+                        HorizontalAlignment="Stretch"
+                        HorizontalContentAlignment="Left"
+                        Background="Transparent"
+                        BorderBrush="Transparent">
+                        <StackPanel Orientation="Horizontal" Spacing="16">
+                            <FontIcon FontSize="16" Glyph="&#xE700;" />
+                            <TextBlock FontWeight="SemiBold" Text="Start" />
+                        </StackPanel>
+                    </Button>
+                    <StackPanel Grid.Row="1" Margin="8">
+                        <Border
+                            Height="1"
+                            Margin="12,4,12,12"
+                            HorizontalAlignment="Stretch"
+                            VerticalAlignment="Top"
+                            Background="{ThemeResource DividerStrokeColorDefaultBrush}" />
+                        <Button
+                            Padding="12,8"
+                            HorizontalAlignment="Stretch"
+                            HorizontalContentAlignment="Stretch"
+                            Background="Transparent"
+                            BorderBrush="Transparent">
+                            <Grid>
+                                <StackPanel Orientation="Horizontal" Spacing="16">
+                                    <FontIcon FontSize="16" Glyph="&#xE943;" />
+                                    <TextBlock Text="Development" />
+                                </StackPanel>
+                                <FontIcon
+                                    HorizontalAlignment="Right"
+                                    FontSize="12"
+                                    Glyph="&#xE76C;"
+                                    Opacity="0.5" />
+                            </Grid>
+                        </Button>
+                        <Button
+                            Padding="12,8"
+                            HorizontalAlignment="Stretch"
+                            HorizontalContentAlignment="Stretch"
+                            Background="Transparent"
+                            BorderBrush="Transparent">
+                            <Grid>
+                                <StackPanel Orientation="Horizontal" Spacing="16">
+                                    <FontIcon FontSize="16" Glyph="&#xE771;" />
+                                    <TextBlock Text="Graphics" />
+                                </StackPanel>
+                                <FontIcon
+                                    HorizontalAlignment="Right"
+                                    FontSize="12"
+                                    Glyph="&#xE76C;"
+                                    Opacity="0.5" />
+                            </Grid>
+                        </Button>
+                        <Button
+                            Padding="12,8"
+                            HorizontalAlignment="Stretch"
+                            HorizontalContentAlignment="Stretch"
+                            Background="Transparent"
+                            BorderBrush="Transparent">
+                            <Grid>
+                                <StackPanel Orientation="Horizontal" Spacing="16">
+                                    <FontIcon FontSize="16" Glyph="&#xE774;" />
+                                    <TextBlock Text="Internet" />
+                                </StackPanel>
+                                <FontIcon
+                                    HorizontalAlignment="Right"
+                                    FontSize="12"
+                                    Glyph="&#xE76C;"
+                                    Opacity="0.5" />
+                            </Grid>
+                        </Button>
+                        <Button
+                            Padding="12,8"
+                            HorizontalAlignment="Stretch"
+                            HorizontalContentAlignment="Stretch"
+                            Background="Transparent"
+                            BorderBrush="Transparent">
+                            <Grid>
+                                <StackPanel Orientation="Horizontal" Spacing="16">
+                                    <FontIcon FontSize="16" Glyph="&#xE954;" />
+                                    <TextBlock Text="Multimedia" />
+                                </StackPanel>
+                                <FontIcon
+                                    HorizontalAlignment="Right"
+                                    FontSize="12"
+                                    Glyph="&#xE76C;"
+                                    Opacity="0.5" />
+                            </Grid>
+                        </Button>
+                        <Button
+                            Padding="12,8"
+                            HorizontalAlignment="Stretch"
+                            HorizontalContentAlignment="Stretch"
+                            Background="Transparent"
+                            BorderBrush="Transparent">
+                            <Grid>
+                                <StackPanel Orientation="Horizontal" Spacing="16">
+                                    <FontIcon FontSize="16" Glyph="&#xE821;" />
+                                    <TextBlock Text="Office" />
+                                </StackPanel>
+                                <FontIcon
+                                    HorizontalAlignment="Right"
+                                    FontSize="12"
+                                    Glyph="&#xE76C;"
+                                    Opacity="0.5" />
+                            </Grid>
+                        </Button>
+                        <Button
+                            Padding="12,8"
+                            HorizontalAlignment="Stretch"
+                            HorizontalContentAlignment="Stretch"
+                            Background="Transparent"
+                            BorderBrush="Transparent">
+                            <Grid>
+                                <StackPanel Orientation="Horizontal" Spacing="16">
+                                    <FontIcon FontSize="16" Glyph="&#xE713;" />
+                                    <TextBlock Text="Settings" />
+                                </StackPanel>
+                                <FontIcon
+                                    HorizontalAlignment="Right"
+                                    FontSize="12"
+                                    Glyph="&#xE76C;"
+                                    Opacity="0.5" />
+                            </Grid>
+                        </Button>
+                        <Button
+                            Padding="12,8"
+                            HorizontalAlignment="Stretch"
+                            HorizontalContentAlignment="Stretch"
+                            Background="Transparent"
+                            BorderBrush="Transparent">
+                            <Grid>
+                                <StackPanel Orientation="Horizontal" Spacing="16">
+                                    <FontIcon FontSize="16" Glyph="&#xE770;" />
+                                    <TextBlock Text="System" />
+                                </StackPanel>
+                                <FontIcon
+                                    HorizontalAlignment="Right"
+                                    FontSize="12"
+                                    Glyph="&#xE76C;"
+                                    Opacity="0.5" />
+                            </Grid>
+                        </Button>
+                        <Button
+                            Padding="12,8"
+                            HorizontalAlignment="Stretch"
+                            HorizontalContentAlignment="Stretch"
+                            Background="Transparent"
+                            BorderBrush="Transparent">
+                            <Grid>
+                                <StackPanel Orientation="Horizontal" Spacing="16">
+                                    <FontIcon FontSize="16" Glyph="&#xE90F;" />
+                                    <TextBlock Text="Utilities" />
+                                </StackPanel>
+                                <FontIcon
+                                    HorizontalAlignment="Right"
+                                    FontSize="12"
+                                    Glyph="&#xE76C;"
+                                    Opacity="0.5" />
+                            </Grid>
+                        </Button>
+                        <Button
+                            Padding="12,8"
+                            HorizontalAlignment="Stretch"
+                            HorizontalContentAlignment="Stretch"
+                            Background="Transparent"
+                            BorderBrush="Transparent">
+                            <Grid>
+                                <StackPanel Orientation="Horizontal" Spacing="16">
+                                    <FontIcon FontSize="16" Glyph="&#xE712;" />
+                                    <TextBlock Text="All apps" />
+                                </StackPanel>
+                                <FontIcon
+                                    HorizontalAlignment="Right"
+                                    FontSize="12"
+                                    Glyph="&#xE76C;"
+                                    Opacity="0.5" />
+                            </Grid>
+                        </Button>
+                    </StackPanel>
+                    <StackPanel Grid.Row="2" Margin="8">
+                        <Border
+                            Height="1"
+                            Margin="12,-4,12,12"
+                            HorizontalAlignment="Stretch"
+                            VerticalAlignment="Top"
+                            Background="{ThemeResource DividerStrokeColorDefaultBrush}" />
+                        <Button
+                            Padding="12,8"
+                            HorizontalAlignment="Stretch"
+                            HorizontalContentAlignment="Stretch"
+                            Background="Transparent"
+                            BorderBrush="Transparent">
+                            <StackPanel Orientation="Horizontal" Spacing="16">
+                                <FontIcon FontSize="16" Glyph="&#xEC25;" />
+                                <TextBlock Text="User folder" />
+                            </StackPanel>
+                        </Button>
+                        <Button
+                            Padding="12,8"
+                            HorizontalAlignment="Stretch"
+                            HorizontalContentAlignment="Stretch"
+                            Background="Transparent"
+                            BorderBrush="Transparent">
+                            <StackPanel Orientation="Horizontal" Spacing="16">
+                                <FontIcon FontSize="16" Glyph="&#xF000;" />
+                                <TextBlock Text="Documents" />
+                            </StackPanel>
+                        </Button>
+                        <Button
+                            Padding="12,8"
+                            HorizontalAlignment="Stretch"
+                            HorizontalContentAlignment="Stretch"
+                            Background="Transparent"
+                            BorderBrush="Transparent">
+                            <StackPanel Orientation="Horizontal" Spacing="16">
+                                <FontIcon FontSize="16" Glyph="&#xE896;" />
+                                <TextBlock Text="Downloads" />
+                            </StackPanel>
+                        </Button>
+                        <Button
+                            Padding="12,8"
+                            HorizontalAlignment="Stretch"
+                            HorizontalContentAlignment="Stretch"
+                            Background="Transparent"
+                            BorderBrush="Transparent">
+                            <StackPanel Orientation="Horizontal" Spacing="16">
+                                <FontIcon FontSize="16" Glyph="&#xEDA2;" />
+                                <TextBlock Text="Data drive" />
+                            </StackPanel>
+                        </Button>
+                        <Button
+                            Padding="12,8"
+                            HorizontalAlignment="Stretch"
+                            HorizontalContentAlignment="Stretch"
+                            Background="Transparent"
+                            BorderBrush="Transparent">
+                            <StackPanel Orientation="Horizontal" Spacing="16">
+                                <FontIcon FontSize="16" Glyph="&#xE8B7;" />
+                                <TextBlock Text="Rebound source code" />
+                            </StackPanel>
+                        </Button>
+                        <Button
+                            Padding="12,8"
+                            HorizontalAlignment="Stretch"
+                            HorizontalContentAlignment="Stretch"
+                            Background="Transparent"
+                            BorderBrush="Transparent">
+                            <StackPanel Orientation="Horizontal" Spacing="16">
+                                <FontIcon FontSize="16" Glyph="&#xE8B7;" />
+                                <TextBlock Text="Zippy" />
+                            </StackPanel>
+                        </Button>
+                    </StackPanel>
+                    <AutoSuggestBox
+                        Grid.Row="2"
+                        Margin="16"
+                        VerticalAlignment="Bottom"
+                        PlaceholderText="Search..."
+                        QueryIcon="Find" />
+                </Grid>
+                <Grid
+                    Grid.Column="1"
+                    Padding="24"
+                    Background="{ThemeResource LayerFillColorDefaultBrush}"
+                    ColumnSpacing="8"
+                    RowSpacing="8">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="64" />
+                        <ColumnDefinition Width="64" />
+                        <ColumnDefinition Width="64" />
+                        <ColumnDefinition Width="64" />
+                        <ColumnDefinition Width="64" />
+                        <ColumnDefinition Width="64" />
+                    </Grid.ColumnDefinitions>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="64" />
+                        <RowDefinition Height="64" />
+                        <RowDefinition Height="64" />
+                        <RowDefinition Height="64" />
+                        <RowDefinition Height="64" />
+                        <RowDefinition Height="64" />
+                        <RowDefinition Height="64" />
+                        <RowDefinition Height="64" />
+                    </Grid.RowDefinitions>
+                    <TextBlock
+                        Grid.ColumnSpan="2"
+                        VerticalAlignment="Bottom"
+                        FontSize="20"
+                        FontWeight="SemiBold"
+                        Text="General" />
+                    <Button
+                        Grid.Row="1"
+                        Padding="8"
+                        HorizontalAlignment="Stretch"
+                        VerticalAlignment="Stretch">
+                        <Image
+                            Width="24"
+                            Height="24"
+                            Source="/Assets/Files.png" />
+                    </Button>
+                    <Button
+                        Grid.Row="1"
+                        Grid.Column="1"
+                        Padding="8"
+                        HorizontalAlignment="Stretch"
+                        VerticalAlignment="Stretch">
+                        <Image
+                            Width="24"
+                            Height="24"
+                            Source="/Assets/imageres_110.ico" />
+                    </Button>
+                    <Button
+                        Grid.Row="2"
+                        Grid.RowSpan="2"
+                        Grid.ColumnSpan="2"
+                        Padding="8"
+                        HorizontalAlignment="Stretch"
+                        VerticalAlignment="Stretch"
+                        HorizontalContentAlignment="Stretch"
+                        VerticalContentAlignment="Stretch">
+                        <Grid>
+                            <Image
+                                Width="64"
+                                Height="64"
+                                Source="/Assets/eqossnap_3000.ico" />
+                            <TextBlock
+                                HorizontalAlignment="Left"
+                                VerticalAlignment="Bottom"
+                                FontSize="12"
+                                Text="Resource Monitor v2" />
+                        </Grid>
+                    </Button>
+                    <Button
+                        Grid.Row="4"
+                        Grid.RowSpan="2"
+                        Grid.ColumnSpan="4"
+                        Padding="8"
+                        HorizontalAlignment="Stretch"
+                        VerticalAlignment="Stretch"
+                        HorizontalContentAlignment="Stretch"
+                        VerticalContentAlignment="Stretch">
+                        <Grid>
+                            <Image
+                                Width="64"
+                                Height="64"
+                                Source="/Assets/LivelyWallpaper.png" />
+                            <TextBlock
+                                HorizontalAlignment="Left"
+                                VerticalAlignment="Bottom"
+                                FontSize="12"
+                                Text="Lively wallpaper" />
+                        </Grid>
+                    </Button>
+                    <Button
+                        Grid.Row="4"
+                        Grid.RowSpan="2"
+                        Grid.Column="4"
+                        Grid.ColumnSpan="2"
+                        Padding="8"
+                        HorizontalAlignment="Stretch"
+                        VerticalAlignment="Stretch"
+                        HorizontalContentAlignment="Stretch"
+                        VerticalContentAlignment="Stretch">
+                        <Grid>
+                            <Image
+                                Width="64"
+                                Height="64"
+                                Source="/Assets/RunBox.png" />
+                            <TextBlock
+                                HorizontalAlignment="Left"
+                                VerticalAlignment="Bottom"
+                                FontSize="12"
+                                Text="Run" />
+                        </Grid>
+                    </Button>
+                    <Border
+                        Grid.Row="1"
+                        Grid.RowSpan="3"
+                        Grid.Column="2"
+                        Grid.ColumnSpan="4"
+                        CornerRadius="4">
+                        <Grid Padding="12">
+                            <Image
+                                Margin="-12"
+                                Source="https://pixnio.com/free-images/2022/09/22/2022-09-22-10-14-34-1350x900.jpg"
+                                Stretch="UniformToFill" />
+                            <StackPanel Spacing="4">
+                                <TextBlock
+                                    FontSize="12"
+                                    Foreground="White"
+                                    Text="Tuesday, 12.23.2025" />
+                                <TextBlock
+                                    FontSize="12"
+                                    Foreground="White"
+                                    Text="Cleveland, Ohio" />
+                            </StackPanel>
+                            <TextBlock
+                                Margin="0,48,0,0"
+                                FontSize="48"
+                                FontWeight="SemiBold"
+                                Foreground="White"
+                                Text="12&#176; C" />
+                            <Image
+                                Width="96"
+                                Height="96"
+                                Margin="16"
+                                HorizontalAlignment="Right"
+                                VerticalAlignment="Top"
+                                Source="/Assets/Cloud with rain.png" />
+                            <StackPanel
+                                Margin="0,136,0,0"
+                                Orientation="Horizontal"
+                                Spacing="4">
+                                <Image
+                                    Width="16"
+                                    VerticalAlignment="Top"
+                                    Source="/Assets/Droplet.png" />
+                                <TextBlock
+                                    FontSize="12"
+                                    Foreground="White"
+                                    Text="67%" />
+                                <Border Width="8" />
+                                <Image
+                                    Width="16"
+                                    VerticalAlignment="Top"
+                                    Source="/Assets/Sun.png" />
+                                <TextBlock
+                                    FontSize="12"
+                                    Foreground="White"
+                                    Text="2%" />
+                                <Border Width="8" />
+                                <Image
+                                    Width="16"
+                                    VerticalAlignment="Top"
+                                    Source="/Assets/Leaf fluttering in wind.png" />
+                                <TextBlock
+                                    FontSize="12"
+                                    Foreground="White"
+                                    Text="4 km/h" />
+                            </StackPanel>
+                            <TextBlock
+                                VerticalAlignment="Bottom"
+                                FontSize="12"
+                                Foreground="White"
+                                Text="Cloudy with a chance of rain" />
+                        </Grid>
+                    </Border>
+                    <TextBlock
+                        Grid.Row="6"
+                        Grid.ColumnSpan="2"
+                        VerticalAlignment="Bottom"
+                        FontSize="20"
+                        FontWeight="SemiBold"
+                        Text="More stuff" />
+                    <Button
+                        Grid.Row="7"
+                        Padding="8"
+                        HorizontalAlignment="Stretch"
+                        VerticalAlignment="Stretch">
+                        <StackPanel>
+                            <FontIcon FontSize="16" Glyph="&#xEEA1;" />
+                            <TextBlock Text="3%" />
+                        </StackPanel>
+                    </Button>
+                    <Button
+                        Grid.Row="8"
+                        Padding="8"
+                        HorizontalAlignment="Stretch"
+                        VerticalAlignment="Stretch">
+                        <StackPanel>
+                            <FontIcon FontSize="16" Glyph="&#xEEA0;" />
+                            <TextBlock Text="44%" />
+                        </StackPanel>
+                    </Button>
+                    <Button
+                        Grid.Row="7"
+                        Grid.RowSpan="2"
+                        Grid.Column="1"
+                        Grid.ColumnSpan="2"
+                        Padding="8"
+                        HorizontalAlignment="Stretch"
+                        VerticalAlignment="Stretch"
+                        HorizontalContentAlignment="Stretch"
+                        VerticalContentAlignment="Stretch">
+                        <Grid>
+                            <Image
+                                Width="64"
+                                Height="64"
+                                Source="/Assets/shell32_180.ico" />
+                            <TextBlock
+                                HorizontalAlignment="Left"
+                                VerticalAlignment="Bottom"
+                                FontSize="12"
+                                Text="Rebound Shell" />
+                        </Grid>
+                    </Button>
+                    <Button
+                        Grid.Row="7"
+                        Grid.RowSpan="2"
+                        Grid.Column="3"
+                        Grid.ColumnSpan="2"
+                        Padding="8"
+                        HorizontalAlignment="Stretch"
+                        VerticalAlignment="Stretch"
+                        HorizontalContentAlignment="Stretch"
+                        VerticalContentAlignment="Stretch">
+                        <Grid>
+                            <Image
+                                Width="64"
+                                Height="64"
+                                Source="/Assets/shell32_16741.ico" />
+                            <TextBlock
+                                HorizontalAlignment="Left"
+                                VerticalAlignment="Bottom"
+                                FontSize="12"
+                                Text="Task Scheduler" />
+                        </Grid>
+                    </Button>
+                    <Button
+                        Grid.Row="7"
+                        Grid.Column="5"
+                        Padding="8"
+                        HorizontalAlignment="Stretch"
+                        VerticalAlignment="Stretch">
+                        <Image
+                            Width="24"
+                            Height="24"
+                            Source="/Assets/shell32_151.ico" />
+                    </Button>
+                    <Button
+                        Grid.Row="8"
+                        Grid.Column="5"
+                        Padding="8"
+                        HorizontalAlignment="Stretch"
+                        VerticalAlignment="Stretch">
+                        <Image
+                            Width="24"
+                            Height="24"
+                            Source="/Assets/mssvp_508.ico" />
+                    </Button>
+                </Grid>
+                <Grid Grid.Row="1" Grid.Column="1">
+                    <Border
+                        Height="1"
+                        HorizontalAlignment="Stretch"
+                        VerticalAlignment="Top"
+                        Background="{ThemeResource DividerStrokeColorDefaultBrush}" />
+                    <Grid Padding="8">
+                        <Button
+                            Padding="8"
+                            Background="Transparent"
+                            BorderBrush="Transparent">
+                            <StackPanel Orientation="Horizontal" Spacing="8">
+                                <muxc:PersonPicture Width="32" />
+                                <TextBlock VerticalAlignment="Center" Text="Username" />
+                            </StackPanel>
+                        </Button>
+                        <StackPanel
+                            Margin="8,0"
+                            HorizontalAlignment="Right"
+                            Orientation="Horizontal"
+                            Spacing="8">
+                            <Button
+                                Padding="8"
+                                Background="Transparent"
+                                BorderBrush="Transparent">
+                                <FontIcon FontSize="16" Glyph="&#xE713;" />
+                            </Button>
+                            <Button
+                                Padding="8"
+                                Background="Transparent"
+                                BorderBrush="Transparent">
+                                <FontIcon FontSize="16" Glyph="&#xE7E8;" />
+                            </Button>
+                        </StackPanel>
+                    </Grid>
+                </Grid>
             </Grid>
         </Grid>
     </Grid>

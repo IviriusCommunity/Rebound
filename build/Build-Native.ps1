@@ -152,6 +152,7 @@ try {
         -Platform $Platform
     
     Write-Host "`n  [SUCCESS] Build process completed!`n" -ForegroundColor Green
+    exit 0
 }
 catch {
     Write-Host "`n  [FAILED] Build process failed!" -ForegroundColor Red
