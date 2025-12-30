@@ -160,12 +160,12 @@ try {
     $msbuildArgs = @(
         $projectPath
         "-p:Configuration=Release"
-        "-p:Platform=x64"
-        "-p:PublishDir=bin\Release\Publish\win-x64\"
+        "-p:Platform=$Platform"
+        "-p:PublishDir=bin\Release\Publish\win-$Platform\"
         "-p:PublishProtocol=FileSystem"
         "-p:_TargetId=Folder"
         "-p:TargetFramework=net10.0-windows10.0.26100.0"
-        "-p:RuntimeIdentifier=win-x64"
+        "-p:RuntimeIdentifier=win-$Platform"
         "-p:SelfContained=true"
         "-p:CopyMsixContentFromProjectReferences=false"
         "-p:DisableMsixProjectCapabilityAddedByProject=true"
