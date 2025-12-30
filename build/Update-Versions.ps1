@@ -141,7 +141,8 @@ try {
         "src/apps/Rebound.UserAccountControlSettings/Rebound.UserAccountControlSettings.csproj",
         "src/platforms/shell/Rebound.Shell/Rebound.Shell.csproj",
         "src/system/Rebound.Hub/Rebound.Hub.csproj",
-        "src/system/Rebound.ServiceHost/Rebound.ServiceHost.csproj"
+        "src/system/Rebound.ServiceHost/Rebound.ServiceHost.csproj",
+        "eng/distribution/standalone/Rebound.Uninstaller/Rebound.Uninstaller.csproj"
     )
 
     foreach ($file in $csprojFiles) {

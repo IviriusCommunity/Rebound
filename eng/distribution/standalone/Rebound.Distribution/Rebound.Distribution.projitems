@@ -9,6 +9,11 @@
     <Import_RootNamespace>Rebound.Distribution</Import_RootNamespace>
   </PropertyGroup>
   <ItemGroup>
-    <None Include="$(MSBuildThisFileDirectory)Rebound.Hub.msixbundle" />
+    <Content Include="$(MSBuildThisFileDirectory)Rebound Uninstaller.exe">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="$(MSBuildThisFileDirectory)Rebound.Hub.msixbundle">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
   </ItemGroup>
 </Project>

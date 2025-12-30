@@ -1,6 +1,7 @@
 param(
     [string]$Configuration = "Release",
     [string]$Platform = "x64",
+    [string]$RuntimeIdentifier = "win-x64",
     [switch]$Verbose
 )
 
@@ -127,10 +128,67 @@ function Build-MsixPackage {
 }
 
 # Main execution
-Write-Header "Rebound Package Builder"
+Write-Header "Distribution Build & Package Script"
 
 try {
     $root = Resolve-Path "$PSScriptRoot\.."
+    $projectPath = Join-Path $root "eng\distribution\standalone\Rebound.Uninstaller\Rebound.Uninstaller.csproj"
+
+    # Load target framework from .csproj
+    Write-Step "Reading project configuration"
+    [xml]$projXml = Get-Content $projectPath
+    $targetFrameworkNode = $projXml.Project.PropertyGroup.TargetFramework | Select-Object -First 1
+    
+    if (-not $targetFrameworkNode) {
+        throw "TargetFramework element not found in $projectPath"
+    }
+    
+    $TargetFramework = $targetFrameworkNode.Trim()
+    Write-Success "Target Framework: $TargetFramework"
+
+    # Define paths
+    $buildOutput = Join-Path $root "eng\distribution\standalone\Rebound.Uninstaller\bin\$Configuration\Publish\win-$Platform\Rebound Uninstaller.exe"
+    $executableDestination = Join-Path $root "eng\distribution\standalone\Rebound.Distribution\Rebound Uninstaller.exe"
+
+    # Build project
+    Write-Step "Restoring NuGet packages for Rebound.Uninstaller"
+    dotnet restore $projectPath
+
+    Write-Step "Building Rebound.Uninstaller ($Configuration | $Platform)"
+    
+    $solutionDir = (Resolve-Path "$PSScriptRoot\..").Path + "\\"
+    $msbuildArgs = @(
+        $projectPath
+        "-p:Configuration=Release"
+        "-p:Platform=x64"
+        "-p:PublishDir=bin\Release\Publish\win-x64\"
+        "-p:PublishProtocol=FileSystem"
+        "-p:_TargetId=Folder"
+        "-p:TargetFramework=net10.0-windows10.0.26100.0"
+        "-p:RuntimeIdentifier=win-x64"
+        "-p:SelfContained=true"
+        "-p:CopyMsixContentFromProjectReferences=false"
+        "-p:DisableMsixProjectCapabilityAddedByProject=true"
+        "-p:EnableMsixTooling=true"
+    )
+
+    Write-Info "MSBuild: msbuild.exe $($msbuildArgs -join ' ')"
+    
+    & dotnet publish @msbuildArgs
+    
+    if ($LASTEXITCODE -ne 0) {
+        throw "MSBuild failed with exit code $LASTEXITCODE"
+    }
+    
+    Write-Success "Build completed successfully"
+
+    # Copy output over to Rebound Distribution
+    Copy-Item -Path $buildOutput -Destination $executableDestination -Force
+    Write-Success "Copied Rebound Uninstaller.exe"
+    
+    # Build and package Rebound Hub
+    Write-Step "Building Rebound.Hub ($Configuration | $Platform)"
+    
     $versionFile = Join-Path $root "var\VERSION.txt"
 
     # Read version
@@ -140,54 +198,24 @@ try {
     }
 
     $msixVersion = (Get-Content $versionFile -Raw).Trim()
-    Write-Success "Building packages for version: $msixVersion"
 
-    # Define packages to build
-    $packages = @(
-        @{
-            Name = "Rebound.About"
-            Project = Join-Path $root "src\apps\Rebound.About\Rebound.About.csproj"
-            Destination = Join-Path $root "src\core\forge\Rebound.Forge.Assets\Modding\Packages\Rebound.About.msixbundle"
-        },
-        @{
-            Name = "Rebound.Shell"
-            Project = Join-Path $root "src\platforms\shell\Rebound.Shell\Rebound.Shell.csproj"
-            Destination = Join-Path $root "src\core\forge\Rebound.Forge.Assets\Modding\Packages\Rebound.Shell.msixbundle"
-        },
-        @{
-            Name = "Rebound.UserAccountControlSettings"
-            Project = Join-Path $root "src\apps\Rebound.UserAccountControlSettings\Rebound.UserAccountControlSettings.csproj"
-            Destination = Join-Path $root "src\core\forge\Rebound.Forge.Assets\Modding\Packages\Rebound.UserAccountControlSettings.msixbundle"
-        }
-    )
+    $hubPath = Join-Path $root "src\system\Rebound.Hub\Rebound.Hub.csproj"
+    $hubDestinationPath = Join-Path $root "eng\distribution\standalone\Rebound.Distribution\Rebound.Hub.msixbundle"
 
-    # Set SolutionDir
-    $solutionDir = (Resolve-Path "$PSScriptRoot\..").Path + "\\"
+    Build-MsixPackage `
+        -ProjectPath $hubPath `
+        -DestinationPath $hubDestinationPath `
+        -MsixVersion $msixVersion `
+        -Configuration $Configuration `
+        -Platform $Platform `
+        -SolutionDir $solutionDir
 
-    # Build each package
-    $successCount = 0
-    foreach ($package in $packages) {
-        try {
-            Build-MsixPackage `
-                -ProjectPath $package.Project `
-                -DestinationPath $package.Destination `
-                -MsixVersion $msixVersion `
-                -Configuration $Configuration `
-                -Platform $Platform `
-                -SolutionDir $solutionDir
-            
-            $successCount++
-        }
-        catch {
-            Write-ErrorMessage "Failed to build $($package.Name): $_"
-            throw
-        }
-    }
+    Write-Host "`n  [SUCCESS] Build and packaging completed!`n" -ForegroundColor Green
 
-    Write-Host "`n  [SUCCESS] Built and packaged $successCount application(s)!`n" -ForegroundColor Green
+    Write-Host "`n  [SUCCESS] Build distribution completed!`n" -ForegroundColor Green
 }
 catch {
-    Write-Host "`n  [FAILED] Package build failed!" -ForegroundColor Red
+    Write-Host "`n  [FAILED] Build process failed!" -ForegroundColor Red
     Write-Host "  Error: $_`n" -ForegroundColor Red
     exit 1
 }

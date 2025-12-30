@@ -1,76 +1,128 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
-	<PropertyGroup>
-		<OutputType>WinExe</OutputType>
+
+	<!-- Framework and platform configuration  -->
+	<PropertyGroup Label="Framework Configuration">
+
+		<!-- .NET and Windows targets -->
 		<TargetFramework>net10.0-windows10.0.26100.0</TargetFramework>
-		<TargetPlatformMinVersion>10.0.17763.0</TargetPlatformMinVersion>
-		<RootNamespace>Rebound.Uninstaller</RootNamespace>
-		<ApplicationManifest>app.manifest</ApplicationManifest>
-		<Platforms>x86;x64;ARM64</Platforms>
-		<RuntimeIdentifiers>win-x86;win-x64;win-arm64</RuntimeIdentifiers>
-		<PublishProfile>win-$(Platform).pubxml</PublishProfile>
+		<TargetPlatformMinVersion>10.0.22000.0</TargetPlatformMinVersion>
+
+		<!-- WinUI properties -->
 		<UseWinUI>true</UseWinUI>
 		<WinUISDKReferences>false</WinUISDKReferences>
-		<EnableMsixTooling>true</EnableMsixTooling>
-		<PackageType>None</PackageType>
-		<Nullable>enable</Nullable>
-		<WindowsAppSDKSelfContained>true</WindowsAppSDKSelfContained>
+
+		<!-- Platform targets -->
+		<PlatformTarget>x64</PlatformTarget>
+		<Platforms>x64</Platforms>
+
+		<!-- C# language version -->
 		<LangVersion>preview</LangVersion>
+		
 	</PropertyGroup>
-	<ItemGroup>
-	  <None Remove="MainPage.xaml" />
-	</ItemGroup>
 
-	<ItemGroup>
-		<Content Include="Assets\SplashScreen.scale-200.png" />
-		<Content Include="Assets\LockScreenLogo.scale-200.png" />
-		<Content Include="Assets\Square150x150Logo.scale-200.png" />
-		<Content Include="Assets\Square44x44Logo.scale-200.png" />
-		<Content Include="Assets\Square44x44Logo.targetsize-24_altform-unplated.png" />
-		<Content Include="Assets\StoreLogo.png" />
-		<Content Include="Assets\Wide310x150Logo.scale-200.png" />
-	</ItemGroup>
+	<!-- General application properties -->
+	<PropertyGroup Label="Application Properties">
 
-	<ItemGroup>
-		<Manifest Include="$(ApplicationManifest)" />
-	</ItemGroup>
+		<!-- Specific -->
+		<AssemblyName>Rebound Uninstaller</AssemblyName>
+		<RootNamespace>Rebound.Uninstaller</RootNamespace>
+		<ApplicationIcon>Assets\Uninstaller.ico</ApplicationIcon>
 
-	<!--
-    Defining the "Msix" ProjectCapability here allows the Single-project MSIX Packaging
-    Tools extension to be activated for this project even if the Windows App SDK Nuget
-    package has not yet been restored.
-  -->
-	<ItemGroup Condition="'$(DisableMsixProjectCapabilityAddedByProject)'!='true' and '$(EnableMsixTooling)'=='true'">
-		<ProjectCapability Include="Msix" />
-	</ItemGroup>
+		<!-- Generic -->
+		<OutputType>WinExe</OutputType>
+		<DefaultLanguage>en-US</DefaultLanguage>
+		<ApplicationManifest>app.manifest</ApplicationManifest>
+
+		<!-- Versioning -->
+		<AssemblyVersion>0.0.10</AssemblyVersion>
+		<Version>0.0.10</Version>
+		<FileVersion>0.0.10</FileVersion>
+
+	</PropertyGroup>
+
+	<!-- Advanced build features -->
+	<PropertyGroup Label="Advanced Features">
+
+		<!-- Generic -->
+		<EnableMsixTooling>true</EnableMsixTooling>
+		<WindowsAppSDKSelfContained>true</WindowsAppSDKSelfContained>
+
+		<!-- Native AOT -->
+		<!-- Enable COM interop support -->
+		<EnableComInterop>true</EnableComInterop>
+		<!-- Enable source generators -->
+		<UseSourceGenerators>true</UseSourceGenerators>
+		<!-- Disable runtime marshalling for better API handling -->
+		<DisableRuntimeMarshalling>true</DisableRuntimeMarshalling>
+		<!-- Run CsWin32 as a build task for COM NAOT compatibility -->
+		<CsWin32RunAsBuildTask>true</CsWin32RunAsBuildTask>
+		<!-- No idea what this is for but it fixes package publishing (thanks Rafael) -->
+		<EnableSourceLink>false</EnableSourceLink>
+
+	</PropertyGroup>
+
+	<!-- Publishing and optimization -->
+	<PropertyGroup Label="Publishing Configuration">
+
+		<!-- Generic -->
+		<PublishProfile>win-$(Platform).pubxml</PublishProfile>
+
+		<!-- Native AOT -->
+		<PublishAot>false</PublishAot>
+		<SelfContained>true</SelfContained>
+		<PublishReadyToRun>false</PublishReadyToRun>
+		<PublishTrimmed>false</PublishTrimmed>
+		<OptimizationPreference>Speed</OptimizationPreference>
+		<IlcOptimizationPreference>Speed</IlcOptimizationPreference>
+
+		<!-- Single file -->
+		<PackageType>None</PackageType>
+		<WindowsPackageType>None</WindowsPackageType>
+		<PublishSingleFile>true</PublishSingleFile>
+		
+	</PropertyGroup>
+
+	<!-- Packages -->
+
+	<!-- Windows SDK & WinUI -->
 	<ItemGroup>
 		<PackageReference Include="Microsoft.Windows.SDK.BuildTools" Version="10.0.26100.7175" />
 		<PackageReference Include="Microsoft.WindowsAppSDK" Version="1.8.251106002" />
 		<PackageReference Include="WinUIEx" Version="2.9.0" />
 	</ItemGroup>
-	<ItemGroup>
-	  <ProjectReference Include="..\..\..\..\src\core\forge\Rebound.Forge.WinUI\Rebound.Forge.WinUI.csproj" />
-	</ItemGroup>
-	<ItemGroup>
-	  <Page Update="MainPage.xaml">
-	    <Generator>MSBuild:Compile</Generator>
-	  </Page>
+
+	<!-- CommunityToolkit -->
+	<ItemGroup Label="CommunityToolkit">
+		<PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.0" />
 	</ItemGroup>
 
-	<!--
-    Defining the "HasPackageAndPublishMenuAddedByProject" property here allows the Solution
-    Explorer "Package and Publish" context menu entry to be enabled for this project even if
-    the Windows App SDK Nuget package has not yet been restored.
-  -->
-	<PropertyGroup Condition="'$(DisableHasPackageAndPublishMenuAddedByProject)'!='true' and '$(EnableMsixTooling)'=='true'">
-		<HasPackageAndPublishMenu>true</HasPackageAndPublishMenu>
-	</PropertyGroup>
+	<!-- Content -->
+	<ItemGroup Label="Content">
+		<Content Update="Assets\Uninstaller.ico">
+			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</Content>
+		<Page Update="MainPage.xaml">
+			<Generator>MSBuild:Compile</Generator>
+		</Page>
+	</ItemGroup>
 
-	<!-- Publish Properties -->
-	<PropertyGroup>
-		<PublishReadyToRun Condition="'$(Configuration)' == 'Debug'">False</PublishReadyToRun>
-		<PublishReadyToRun Condition="'$(Configuration)' != 'Debug'">True</PublishReadyToRun>
-		<PublishTrimmed Condition="'$(Configuration)' == 'Debug'">False</PublishTrimmed>
-		<PublishTrimmed Condition="'$(Configuration)' != 'Debug'">True</PublishTrimmed>
-	</PropertyGroup>
+	<!-- Excluded items -->
+	<ItemGroup Label="Exclusions">
+		<None Remove="Assets\Uninstaller.ico" />
+		<None Remove="MainPage.xaml" />
+	</ItemGroup>
+
+	<!-- App manifest -->
+	<ItemGroup>
+		<Manifest Include="$(ApplicationManifest)" />
+	</ItemGroup>
+
+	<!-- Project references -->
+	<ItemGroup>
+		<ProjectReference Include="..\..\..\..\src\core\forge\Rebound.Forge.WinUI\Rebound.Forge.WinUI.csproj"/>
+	</ItemGroup>
+
+	<!-- Shared imports -->
 	<Import Project="..\..\..\..\src\core\forge\Rebound.Forge.Assets\Rebound.Forge.Assets.projitems" Label="Shared" />
+
 </Project>

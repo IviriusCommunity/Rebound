@@ -7,11 +7,11 @@
     xmlns:local="using:Rebound.Uninstaller"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:winuiex="using:WinUIEx"
-    Title="Rebound.Uninstaller"
+    Title="Rebound Uninstaller"
     Width="600"
     Height="240"
-    IsMaximizable="False"
     Closed="WindowEx_Closed"
+    IsMaximizable="False"
     IsMinimizable="False"
     IsResizable="False"
     mc:Ignorable="d">

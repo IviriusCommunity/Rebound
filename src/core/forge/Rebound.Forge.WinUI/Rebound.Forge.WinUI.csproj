@@ -8,8 +8,11 @@
 		<UseWinUI>true</UseWinUI>
 		<GenerateDocumentationFile>true</GenerateDocumentationFile>
 		<DefineConstants>WINUI;$(DefineConstants)</DefineConstants>
+		<OutputType>Library</OutputType>
 	</PropertyGroup>
-
+	<PropertyGroup>
+		<EnableMsixTooling>true</EnableMsixTooling>
+	</PropertyGroup>
 	<ItemGroup>
 	  <Content Include="NativeMethods.json" />
 	  <Content Include="NativeMethods.txt" />

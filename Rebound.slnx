@@ -5,6 +5,7 @@
     <Platform Name="x86" />
   </Configurations>
   <Folder Name="/build/">
+    <File Path="build/Build-Distribution.ps1" />
     <File Path="build/Build-Forge-Assets.ps1" />
     <File Path="build/Build-Native.ps1" />
     <File Path="build/Build-Packaged-Apps.ps1" />

@@ -65,7 +65,7 @@ try {
     # Build project
     Write-Step "Building Rebound.ServiceHost ($Configuration | $Platform)"
     
-    $solutionDir = "$root\"
+    $solutionDir = (Resolve-Path "$PSScriptRoot\..").Path + "\\"
     $msbuildArgs = @(
         $projectPath
         "/p:Configuration=$Configuration"
