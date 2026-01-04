@@ -1,6 +1,6 @@
 # MIT License
 
-*Copyright (c) 2020 - 2025 Ivirius(TM) Community*
+*Copyright (c) 2020 - 2026 Ivirius(TM) Community*
 
 ```
 Permission is hereby granted, free of charge, to any person obtaining a copy
