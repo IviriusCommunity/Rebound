@@ -139,3 +139,4 @@ Rebound has been tested and is compatible with the following security software:
 
 [![Windows Security](https://img.shields.io/badge/Windows%20Security-4466FF?style=flat)](https://www.microsoft.com/windows/comprehensive-security?r=1)
 [![ESET](https://img.shields.io/badge/ESET-22BBCC?style=flat)](https://www.eset.com/)
+[![Bitdefender](https://img.shields.io/badge/Bitdefender-ff0000?style=flat)](https://bitdefender.com/)
