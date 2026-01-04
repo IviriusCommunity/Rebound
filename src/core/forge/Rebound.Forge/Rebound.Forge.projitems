@@ -26,6 +26,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)Cogs\StartupTaskCog.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Cogs\StorePackageCog.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Cogs\TaskFolderCog.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Engines\DistributionEngine.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Engines\IFEOEngine.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Hooks\WindowHook.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ICog.cs" />

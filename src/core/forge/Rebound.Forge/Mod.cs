@@ -210,32 +210,40 @@ public partial class Mod : ObservableObject
             // Validate variant selection
             if (SelectedVariantIndex < 0 || SelectedVariantIndex >= Variants.Count)
             {
-                ReboundLogger.Log($"[Mod] Invalid variant selection for {Name}, attempting to find installed variant...");
-
-                // Try to find the first installed variant
-                int installedVariantIndex = -1;
-                for (int i = 0; i < Variants.Count; i++)
+                if (install)
                 {
-                    var variant = Variants[i];
-                    var (installed, _) = await RetrieveIntegrityStatusForModVariant(variant).ConfigureAwait(false);
+                    // For installation, default to the first variant if none selected
+                    ReboundLogger.Log($"[Mod] No variant selected for {Name}, defaulting to first variant for installation");
+                    SelectedVariantIndex = 0;
+                }
+                else
+                {
+                    // For uninstallation, find which variant is installed
+                    ReboundLogger.Log($"[Mod] Invalid variant selection for {Name}, attempting to find installed variant...");
 
-                    if (installed)
+                    int installedVariantIndex = -1;
+                    for (int i = 0; i < Variants.Count; i++)
                     {
-                        installedVariantIndex = i;
-                        ReboundLogger.Log($"[Mod] Found installed variant at index {i} for {Name}");
-                        break;
+                        var variant = Variants[i];
+                        var (installed, _) = await RetrieveIntegrityStatusForModVariant(variant).ConfigureAwait(false);
+
+                        if (installed)
+                        {
+                            installedVariantIndex = i;
+                            ReboundLogger.Log($"[Mod] Found installed variant at index {i} for {Name}");
+                            break;
+                        }
                     }
-                }
 
-                // If no installed variant found, return
-                if (installedVariantIndex == -1)
-                {
-                    ReboundLogger.Log($"[Mod] Cannot {(install ? "install" : "uninstall")} {Name} - no installed variant found");
-                    return;
-                }
+                    // If no installed variant found, return
+                    if (installedVariantIndex == -1)
+                    {
+                        ReboundLogger.Log($"[Mod] Cannot uninstall {Name} - no installed variant found");
+                        return;
+                    }
 
-                // Set the found variant as selected
-                SelectedVariantIndex = installedVariantIndex;
+                    SelectedVariantIndex = installedVariantIndex;
+                }
             }
 
             // Obtain the currently selected variant

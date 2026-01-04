@@ -43,7 +43,11 @@ public partial class MainViewModel : ObservableObject
 
     public async Task UninstallAsync()
     {
-        TotalTasks = Catalog.SideloadedMods.Count + Catalog.Mods.Count + Catalog.MandatoryMods.Count + 1;
+        TotalTasks = 
+            Catalog.SideloadedMods.Count + 
+            Catalog.Mods.Count + 
+            Catalog.MandatoryMods.Count + 
+            1; // Rebound Hub
         CurrentTaskProgress = 0;
         CurrentTaskText = "Uninstalling Rebound...";
 
@@ -77,5 +81,7 @@ public partial class MainViewModel : ObservableObject
         {
             Directory.Delete(Variables.ReboundDataFolder, true);
         }
+
+        Forge.Engines.DistributionEngine.UninstallUninstaller();
     }
 }

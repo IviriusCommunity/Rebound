@@ -2,12 +2,13 @@
 // Licensed under the MIT License.
 
 using Microsoft.UI.Xaml;
+using Rebound.Updater;
 using System;
 using System.Diagnostics;
 using System.Linq;
 using WinUIEx;
 
-namespace Rebound.Installer;
+namespace Rebound.Updater;
 
 public partial class App : Application
 {

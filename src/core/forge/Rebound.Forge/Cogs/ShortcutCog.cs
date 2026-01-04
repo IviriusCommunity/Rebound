@@ -36,8 +36,13 @@ public class ShortcutCog : ICog
 
     /// <inheritdoc/>
     public string TaskDescription { get => $"Create a shortcut to {ExePath} at {GetShortcutPath(ShortcutName)}"; }
-
-    private static string GetShortcutPath(string shortcutName) =>
+    
+    /// <summary>
+    /// Returns the full file system path to a Start Menu shortcut with the specified name.
+    /// </summary>
+    /// <param name="shortcutName">The name of the shortcut, without file extension. Cannot be null or empty.</param>
+    /// <returns>A string containing the full path to the shortcut file, including the ".lnk" extension.</returns>
+    public static string GetShortcutPath(string shortcutName) =>
         Path.Combine(Variables.ReboundStartMenuFolder, $"{shortcutName}.lnk");
 
     /// <inheritdoc/>

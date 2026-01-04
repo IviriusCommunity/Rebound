@@ -1,9 +1,9 @@
 {
   "profiles": {
-    "Rebound.Installer (Package)": {
+    "Rebound.Updater (Package)": {
       "commandName": "MsixPackage"
     },
-    "Rebound.Installer (Unpackaged)": {
+    "Rebound.Updater (Unpackaged)": {
       "commandName": "Project"
     }
   }

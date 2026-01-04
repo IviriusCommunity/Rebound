@@ -28,15 +28,16 @@ function Write-ErrorMessage {
 }
 
 # Main execution
-Write-Header "Rebound Forge Assets Build"
+Write-Header "Rebound Full Build"
 
 try {
     $scriptFolder = Split-Path -Parent $MyInvocation.MyCommand.Path
     
     $scriptsToRun = @(
-        "Build-Native.ps1",
-        "Build-ServiceHost.ps1",
-        "Build-Packaged-Apps.ps1"
+        "Update-Versions.ps1",
+        "Build-Forge-Assets.ps1",
+        "Build-Distribution.ps1",
+        "Build-Installer-Updater.ps1"
     )
 
     $completedCount = 0
@@ -69,6 +70,8 @@ try {
     }
 
     Write-Host "`n  [SUCCESS] All $completedCount build script(s) completed!`n" -ForegroundColor Green
+
+    Write-Host "`n  [SUCCESS] Rebound build has finished! Enjoy!`n" -ForegroundColor Green
 }
 catch {
     Write-Host "`n  [FAILED] Build process failed!" -ForegroundColor Red

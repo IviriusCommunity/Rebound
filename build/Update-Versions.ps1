@@ -142,7 +142,9 @@ try {
         "src/platforms/shell/Rebound.Shell/Rebound.Shell.csproj",
         "src/system/Rebound.Hub/Rebound.Hub.csproj",
         "src/system/Rebound.ServiceHost/Rebound.ServiceHost.csproj",
-        "eng/distribution/standalone/Rebound.Uninstaller/Rebound.Uninstaller.csproj"
+        "eng/distribution/standalone/Rebound.Uninstaller/Rebound.Uninstaller.csproj",
+        "eng/distribution/standalone/Rebound.Installer/Rebound.Installer.csproj",
+        "eng/distribution/standalone/Rebound.Updater/Rebound.Updater.csproj"
     )
 
     foreach ($file in $csprojFiles) {

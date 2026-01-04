@@ -593,6 +593,12 @@ public partial class Catalog : ObservableObject
         ]
     };
 
+    /// <summary>
+    /// Represents the built-in mod definition for the Rebound uninstaller executable.
+    /// </summary>
+    /// <remarks>This mod is categorized as mandatory and is used to install the Rebound uninstaller,
+    /// including its executable and a desktop shortcut. It is intended to be present in all installations to allow
+    /// users to uninstall Rebound through the provided shortcut.</remarks>
     public readonly static Mod Uninstaller = new()
     {
         Name = "Rebound Uninstaller",

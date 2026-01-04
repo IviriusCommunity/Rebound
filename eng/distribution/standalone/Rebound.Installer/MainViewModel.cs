@@ -1,38 +1,40 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.IO;
-using System.IO.Compression;
-using System.Linq;
-using System.Threading.Tasks;
+﻿// Copyright (C) Ivirius(TM) Community 2020 - 2025. All Rights Reserved.
+// Licensed under the MIT License.
+
 using CommunityToolkit.Mvvm.ComponentModel;
+using Rebound.Core;
 using Rebound.Forge;
-using Windows.Win32;
+using Rebound.Forge.Engines;
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Text;
+using System.Threading.Tasks;
 
 namespace Rebound.Installer;
 
 public partial class MainViewModel : ObservableObject
 {
     [ObservableProperty]
-    public partial double Progress { get; set; } = 0;
+    public partial int CurrentTaskProgress { get; set; }
 
     [ObservableProperty]
-    public partial string Status { get; set; } = "Processing...";
+    public partial string CurrentTaskText { get; set; }
 
     [ObservableProperty]
-    public partial string Title { get; set; } = "Initializing...";
+    public partial int TotalTasks { get; set; }
 
     [ObservableProperty]
-    public partial string ErrorMessage { get; set; } = string.Empty;
+    public partial int SelectedAction { get; set; } = 0;
 
     [ObservableProperty]
-    public partial bool IsError { get; set; } = false;
+    public partial string CurrentPage { get; set; } = "Main";
 
     [ObservableProperty]
-    public partial double Steps { get; set; } = 1;
+    public partial bool DeleteAppData { get; set; }
 
     [ObservableProperty]
-    public partial bool IsIndeterminate { get; set; } = false;
+    public partial bool Success { get; set; }
 
     [ObservableProperty]
     public partial bool IsOldReboundInstalled { get; set; } = false;
@@ -45,351 +47,217 @@ public partial class MainViewModel : ObservableObject
     {
         if (Directory.Exists(oldReboundHubFolder))
         {
-            IsOldReboundInstalled = false;
+            IsOldReboundInstalled = true;
+            SelectedAction = 3;
         }
     }
 
-    public async Task InstallAsync(bool repair)
+    public async Task RunActionAsync()
     {
-        /*// Kill processes
-        await KillAllProcesses();
-
-        // Init
-        IsIndeterminate = true;
-        Title = repair ? "Repairing..." : "Installing...";
-
-        // Calculating steps
-        Steps =
-            20 + // Initial
-            await GetItemCountForFolderAsync(_dataPath) + // All items
-            1; // Shortcut
-
-        if (!repair)
+        switch (SelectedAction + 1)
         {
-            Steps +=
-            100 + // .NET runtiume
-            100; // WARuntime
-        }
-
-        // Initial
-        IsIndeterminate = false;
-        Progress += 20;
-
-        await Task.Delay(100);
-
-        if (!repair)
-        {
-            // .NET runtime
-            Status = "Installing .NET runtime...";
-            await InstallDotNetRuntimeAsync();
-            Progress += 100;
-
-            // WARuntime
-            Status = "Installing Windows App Runtime...";
-            await InstallWARuntimeAsync();
-            Progress += 100;
-        }
-
-        // Copying files
-        Status = "Copying files...";
-        try
-        {
-            foreach (var folder in Directory.EnumerateDirectories(_dataPath)) // Rebound
-            {
-                var relativePath = Path.GetRelativePath(_dataPath, folder);
-                if (relativePath is not "rhub")
+            case 1:
+                // Install Rebound
                 {
-                    var targetPath = Path.Combine(_reboundInstallationPath, relativePath);
-                    if (!Directory.Exists(targetPath))
+                    TotalTasks = 
+                        Catalog.MandatoryMods.Count + 
+                        1; // Rebound Hub
+                    CurrentTaskProgress = 0;
+                    CurrentTaskText = "Installing Rebound...";
+
+                    DistributionEngine.InstallReboundHubCertificate();
+
+                    foreach (var mod in Catalog.MandatoryMods)
                     {
-                        Directory.CreateDirectory(targetPath);
-                        File.SetAttributes(targetPath, FileAttributes.Directory);
+                        CurrentTaskText = $"Installing {mod.Name}...";
+                        try
+                        {
+                            await mod.InstallAsync();
+                            CurrentTaskText = $"Installed {mod.Name}";
+                        }
+                        catch (Exception ex)
+                        {
+                            CurrentTaskText = $"Failed to install {mod.Name}: {ex.Message}";
+                            ReboundLogger.Log("[ReboundInstaller] Failed to install mod " + mod.Name, ex);
+                        }
+                        CurrentTaskProgress++;
                     }
-                    await CopyFolderAsync(folder, targetPath);
+                    CurrentTaskText = $"Installing Rebound Hub...";
+                    await Catalog.ReboundHub.InstallAsync();
+                    CurrentTaskText = $"Installed Rebound Hub";
+                    CurrentTaskProgress++;
                 }
-            }
-            var hubFolder = Directory.GetDirectories(_dataPath, "rhub", SearchOption.TopDirectoryOnly).FirstOrDefault();
-            var hubTargetPath = Path.Combine(_reboundInstallationPath, _reboundHubInstallationPath);
-            if (!Directory.Exists(hubTargetPath))
-            {
-                Directory.CreateDirectory(hubTargetPath);
-                File.SetAttributes(hubTargetPath, FileAttributes.Directory);
-            }
-            await CopyFolderAsync(hubFolder, hubTargetPath);
-        }
-        catch
-        {
-
-        }
-
-        // Creating start menu shortcut
-        Status = "Creating start menu shortcut...";
-        try
-        {
-            await InstallShortcutAsync();
-        }
-        catch
-        {
-
-        }
-
-        foreach (var instruction in ReboundTotalInstructions.MandatoryInstructions)
-        {
-            Process.Start(instruction.EntryExecutable);
-        }*/
-    }
-
-    public async Task RemoveAsync()
-    {
-        /*// Kill processes
-        await DeleteReboundModAsync();
-
-        // Init
-        Title = "Uninstalling...";
-
-        // Initial
-        Progress = 0;
-        IsIndeterminate = true;
-        Status = "Deleting Rebound Hub...";
-
-        try
-        {
-            // Delete shortcut
-            var shortcutPath = Path.Combine(_startMenuPath, $"Rebound Hub.lnk");
-            await Task.Run(() => File.Delete(shortcutPath));
-
-            // Delete Rebound Hub
-            await Task.Run(() => Directory.Delete(_reboundHubInstallationPath, true));
-        }
-        catch (Exception ex)
-        {
-            Status = $"Couldn't delete Rebound Hub. {ex.Message}";
-            IsError = true;
-            ErrorMessage = ex.Message;
-            return;
-        }
-
-        Process.GetCurrentProcess().Kill();*/
-    }
-
-    private async Task InstallShortcutAsync()
-    {
-        /*try
-        {
-            unsafe
-            {
-                var targetPath = Path.Combine(_reboundHubInstallationPath, "Rebound Hub.exe");
-
-                var shortcutPath = Path.Combine(_startMenuPath, $"Rebound Hub.lnk");
-
-                //ReboundWorkingEnvironment.EnsureFolderIntegrity();
-
-                var startMenuFolder = Path.Combine(
-                    Environment.GetFolderPath(Environment.SpecialFolder.CommonStartMenu),
-                    "Programs", "Rebound");
-
-                var clsidShellLink = CLSID.CLSID_ShellLink;
-                var iidIShellLinkW = Windows.Win32.UI.Shell.IShellLinkW.IID_Guid;
-                var iidIPersistFile = IID.IID_IPersistFile;
-
-                Windows.Win32.UI.Shell.IShellLinkW* pShellLink;
-
-                Windows.Win32.Foundation.HRESULT hr = PInvoke.CoCreateInstance(
-                    clsidShellLink,
-                    null,
-                    Windows.Win32.System.Com.CLSCTX.CLSCTX_INPROC_SERVER,
-                    &iidIShellLinkW,
-                    (void**)&pShellLink);
-
-                if (hr.Failed || pShellLink is null)
-                    return;
-
-                fixed (char* exePath = targetPath)
+                break;
+            case 2:
+                // Install Rebound Hub
                 {
-                    pShellLink->SetPath(new Windows.Win32.Foundation.PCWSTR(exePath));
+                    TotalTasks = 1; // Rebound Hub
+                    CurrentTaskProgress = 0;
+                    CurrentTaskText = $"Installing Rebound Hub...";
+                    await Catalog.ReboundHub.InstallAsync();
+                    CurrentTaskText = $"Installed Rebound Hub";
+                    CurrentTaskProgress++;
                 }
-
-                string workingDir = Path.GetDirectoryName(targetPath)!;
-                fixed (char* workingDirPtr = workingDir)
+                break;
+            case 3:
+                // Upgrade or repair
                 {
-                    pShellLink->SetWorkingDirectory(new Windows.Win32.Foundation.PCWSTR(workingDirPtr));
-                }
-
-                Windows.Win32.System.Com.IPersistFile* pPersistFile;
-                hr = ((Windows.Win32.System.Com.IUnknown*)pShellLink)->QueryInterface(iidIPersistFile, (void**)&pPersistFile);
-
-                if (hr.Succeeded && pPersistFile is not null)
-                {
-                    fixed (char* shortcutPathPtr = shortcutPath)
+                    TotalTasks = 1; // Rebound Hub
+                    foreach (var mod in Catalog.MandatoryMods)
                     {
-                        pPersistFile->Save(new Windows.Win32.Foundation.PCWSTR(shortcutPathPtr), true);
+                        if (mod.IsInstalled || !mod.IsIntact)
+                            TotalTasks++;
+                    }
+                    foreach (var mod in Catalog.Mods)
+                    {
+                        if (mod.IsInstalled || !mod.IsIntact)
+                            TotalTasks++;
+                    }
+                    foreach (var mod in Catalog.SideloadedMods)
+                    {
+                        if (mod.IsInstalled || !mod.IsIntact)
+                            TotalTasks++;
                     }
 
-                    pPersistFile->Release();
+                    CurrentTaskProgress = 0;
+                    CurrentTaskText = "Upgrading/repairing Rebound...";
+
+                    foreach (var mod in Catalog.MandatoryMods)
+                    {
+                        if (mod.IsInstalled || !mod.IsIntact)
+                        {
+                            CurrentTaskText = $"Upgrading/repairing {mod.Name}...";
+                            await mod.RepairAsync();
+                            CurrentTaskText = $"Upgraded/repaired {mod.Name}";
+                            CurrentTaskProgress++;
+                        }
+                    }
+                    foreach (var mod in Catalog.Mods)
+                    {
+                        if (mod.IsInstalled || !mod.IsIntact)
+                        {
+                            CurrentTaskText = $"Upgrading/repairing {mod.Name}...";
+                            await mod.RepairAsync();
+                            CurrentTaskText = $"Upgraded/repaired {mod.Name}";
+                            CurrentTaskProgress++;
+                        }
+                    }
+                    foreach (var mod in Catalog.SideloadedMods)
+                    {
+                        if (mod.IsInstalled || !mod.IsIntact)
+                        {
+                            CurrentTaskText = $"Upgrading/repairing {mod.Name}...";
+                            await mod.RepairAsync();
+                            CurrentTaskText = $"Upgraded/repaired {mod.Name}";
+                            CurrentTaskProgress++;
+                        }
+                    }
+
+                    CurrentTaskText = $"Upgrading/repairing Rebound Hub...";
+                    await Catalog.ReboundHub.RepairAsync();
+                    CurrentTaskText = $"Upgraded/repaired Rebound Hub";
+                    CurrentTaskProgress++;
                 }
+                break;
+            case 4:
+                // Upgrade from Rebound v0.0.10
+                {
+                    TotalTasks =
+                        Catalog.MandatoryMods.Count +
+                        1 + // Deleting old Rebound
+                        1; // Rebound Hub
+                    CurrentTaskProgress = 0;
+                    CurrentTaskText = "Installing Rebound...";
 
-                pShellLink->Release();
-            }
+                    CurrentTaskText = $"Removing old Rebound installation...";
+                    LegacyReboundRemover.DeleteOldRebound();
+                    CurrentTaskText = $"Removed old Rebound installation";
+                    CurrentTaskProgress++;
+
+                    DistributionEngine.InstallReboundHubCertificate();
+
+                    foreach (var mod in Catalog.MandatoryMods)
+                    {
+                        CurrentTaskText = $"Installing {mod.Name}...";
+                        await mod.InstallAsync();
+                        CurrentTaskText = $"Installed {mod.Name}";
+                        CurrentTaskProgress++;
+                    }
+
+                    CurrentTaskText = $"Installing Rebound Hub...";
+                    await Catalog.ReboundHub.InstallAsync();
+                    CurrentTaskText = $"Installed Rebound Hub";
+                    CurrentTaskProgress++;
+                }
+                break;
+            case 5:
+                // Uninstall Rebound v0.0.10
+                {
+                    TotalTasks = 1; // Deleting old Rebound
+                    CurrentTaskProgress = 0;
+                    CurrentTaskText = "Uninstalling Rebound v0.0.10...";
+
+                    CurrentTaskText = $"Removing old Rebound installation...";
+                    LegacyReboundRemover.DeleteOldRebound();
+                    CurrentTaskText = $"Removed old Rebound installation";
+                    CurrentTaskProgress++;
+                }
+                break;
+            case 6:
+                // Uninstall
+                {
+                    TotalTasks = 1; // Rebound Hub
+                    foreach (var mod in Catalog.MandatoryMods)
+                    {
+                        TotalTasks++;
+                    }
+                    foreach (var mod in Catalog.Mods)
+                    {
+                        TotalTasks++;
+                    }
+                    foreach (var mod in Catalog.SideloadedMods)
+                    {
+                        TotalTasks++;
+                    }
+
+                    CurrentTaskProgress = 0;
+                    CurrentTaskText = "Uninstalling Rebound...";
+
+                    foreach (var mod in Catalog.SideloadedMods)
+                    {
+                        CurrentTaskText = $"Uninstalling {mod.Name}...";
+                        await mod.UninstallAsync();
+                        CurrentTaskText = $"Uninstalled {mod.Name}";
+                        CurrentTaskProgress++;
+                    }
+                    foreach (var mod in Catalog.Mods)
+                    {
+                        CurrentTaskText = $"Uninstalling {mod.Name}...";
+                        await mod.UninstallAsync();
+                        CurrentTaskText = $"Uninstalled {mod.Name}";
+                        CurrentTaskProgress++;
+                    }
+                    foreach (var mod in Catalog.MandatoryMods)
+                    {
+                        CurrentTaskText = $"Uninstalling {mod.Name}...";
+                        await mod.UninstallAsync();
+                        CurrentTaskText = $"Uninstalled {mod.Name}";
+                        CurrentTaskProgress++;
+                    }
+                    CurrentTaskText = $"Uninstalling Rebound Hub...";
+                    await Catalog.ReboundHub.UninstallAsync();
+                    CurrentTaskText = $"Uninstalled Rebound Hub";
+                    CurrentTaskProgress++;
+
+                    if (DeleteAppData)
+                    {
+                        Directory.Delete(Variables.ReboundDataFolder, true);
+                    }
+                }
+                break;
+            default:
+                break;
         }
-        catch (Exception ex)
-        {
-            Status = $"Couldn't install the Rebound Hub shortcut. {ex.Message}";
-            await Task.Delay(2000);
-        }*/
-    }
-
-    private async Task InstallDotNetRuntimeAsync()
-    {
-        /*try
-        {
-            var runtimeTemp = Path.Combine(_dataPath, "dotNET9Runtime.exe");
-
-            var psi = new ProcessStartInfo
-            {
-                FileName = runtimeTemp,
-                Arguments = "/quiet /norestart",
-                CreateNoWindow = true,
-                UseShellExecute = false
-            };
-
-            using var process = Process.Start(psi);
-            if (process != null)
-                await process.WaitForExitAsync();
-        }
-        catch (Exception ex)
-        {
-            ErrorMessage = ex.Message;
-            IsError = true;
-            Status = "Couldn't install .NET 9.0 Runtime.";
-            await Task.Delay(5000);
-        }*/
-    }
-
-    private async Task InstallWARuntimeAsync()
-    {
-        /*try
-        {
-            var runtimeTemp = Path.Combine(_dataPath, "WindowsAppRuntime.exe");
-
-            var psi = new ProcessStartInfo
-            {
-                FileName = runtimeTemp,
-                CreateNoWindow = true,
-                UseShellExecute = false
-            };
-
-            using var process = Process.Start(psi);
-            if (process != null)
-                await process.WaitForExitAsync();
-        }
-        catch (Exception ex)
-        {
-            ErrorMessage = ex.Message;
-            IsError = true;
-            Status = "Couldn't install Windows App Runtime.";
-            await Task.Delay(5000);
-        }*/
-    }
-
-    public async Task ExtractToPathAsync(string zipFilePath, string targetPath)
-    {
-        /*if (string.IsNullOrEmpty(zipFilePath) || string.IsNullOrEmpty(targetPath) || !File.Exists(zipFilePath))
-        {
-            Status = "Invalid zip file path or target path.";
-            IsError = true;
-            ErrorMessage = "Invalid zip file path or target path.";
-            return;
-        }
-
-        try
-        {
-            if (!Directory.Exists(targetPath))
-            {
-                Directory.CreateDirectory(targetPath);
-            }
-
-            await Task.Run(() => ZipFile.ExtractToDirectory(zipFilePath, targetPath, true));
-        }
-        catch (Exception ex)
-        {
-            Status = "Extraction failed.";
-            IsError = true;
-            ErrorMessage = ex.Message;
-        }*/
-    }
-
-    public static async Task<double> GetItemCountForFolderAsync(string folderPath)
-    {
-        /*if (string.IsNullOrEmpty(folderPath) || !Directory.Exists(folderPath))
-            return 0;
-
-        try
-        {
-            return await Task.Run(() => Directory.EnumerateFiles(folderPath, "*", SearchOption.AllDirectories).ToList().Count);
-        }
-        catch
-        {
-            return 0;
-        }*/
-        return 0;
-    }
-
-    public async Task CopyFolderAsync(string path, string targetPath)
-    {
-        /*if (string.IsNullOrEmpty(path) || string.IsNullOrEmpty(targetPath) || !Directory.Exists(path))
-        {
-            return;
-        }
-
-        var allFiles = await Task.Run(() => Directory.EnumerateFiles(path, "*", SearchOption.AllDirectories).ToList());
-
-        foreach (var filePath in allFiles)
-        {
-            var relativePath = Path.GetRelativePath(path, filePath);
-            var destFile = Path.Combine(targetPath, relativePath);
-            var destDir = Path.GetDirectoryName(destFile);
-
-            if (!Directory.Exists(destDir) && destDir != null)
-            {
-                Directory.CreateDirectory(destDir);
-                File.SetAttributes(destDir, FileAttributes.Directory);
-            }
-
-            await Task.Run(() => File.Copy(filePath, destFile, true));
-            await Task.Delay(2);
-
-            Progress++;
-            Status = $"Copying {filePath} to {destFile}...";
-        }*/
-    }
-
-    public async Task DeleteReboundModAsync()
-    {
-        /*foreach (var instruction in ReboundTotalInstructions.AppInstructions)
-        {
-            await instruction.UninstallAsync();
-        }
-        foreach (var instruction in ReboundTotalInstructions.MandatoryInstructions)
-        {
-            await instruction.UninstallAsync();
-        }*/
-    }
-
-    public async Task KillAllProcesses()
-    {
-        /*foreach (var instruction in ReboundTotalInstructions.AppInstructions)
-        {
-            foreach (var process in Process.GetProcessesByName(instruction.ProcessName))
-            {
-                process.Kill();
-            }
-        }
-        foreach (var instruction in ReboundTotalInstructions.MandatoryInstructions)
-        {
-            foreach (var process in Process.GetProcessesByName(instruction.ProcessName))
-            {
-                process.Kill();
-            }
-        }*/
+        Success = true;
     }
 }

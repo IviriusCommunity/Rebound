@@ -17,16 +17,16 @@
 
 		<!-- C# language version -->
 		<LangVersion>preview</LangVersion>
-		
+
 	</PropertyGroup>
 
 	<!-- General application properties -->
 	<PropertyGroup Label="Application Properties">
 
 		<!-- Specific -->
-		<AssemblyName>Rebound Installer</AssemblyName>
-		<RootNamespace>Rebound.Installer</RootNamespace>
-		<ApplicationIcon>Assets\Installer.ico</ApplicationIcon>
+		<AssemblyName>Rebound Updater</AssemblyName>
+		<RootNamespace>Rebound.Updater</RootNamespace>
+		<ApplicationIcon>Assets\Updater.ico</ApplicationIcon>
 
 		<!-- Generic -->
 		<OutputType>WinExe</OutputType>
@@ -86,8 +86,6 @@
 
 	<!-- Windows SDK & WinUI -->
 	<ItemGroup>
-		<PackageReference Include="CommunityToolkit.WinUI.Controls.Primitives" Version="8.2.251219" />
-		<PackageReference Include="CommunityToolkit.WinUI.Converters" Version="8.2.251219" />
 		<PackageReference Include="Microsoft.Windows.SDK.BuildTools" Version="10.0.26100.7175" />
 		<PackageReference Include="Microsoft.WindowsAppSDK" Version="1.8.251106002" />
 		<PackageReference Include="WinUIEx" Version="2.9.0" />
@@ -100,10 +98,7 @@
 
 	<!-- Content -->
 	<ItemGroup Label="Content">
-		<Content Update="Assets\Installer.ico">
-			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
-		</Content>
-		<Content Include="Rebound.Hub_TemporaryKey.pfx">
+		<Content Update="Assets\Updater.ico">
 			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
 		</Content>
 		<Page Update="MainPage.xaml">
@@ -113,9 +108,8 @@
 
 	<!-- Excluded items -->
 	<ItemGroup Label="Exclusions">
-		<None Remove="Assets\Installer.ico" />
+		<None Remove="Assets\Updater.ico" />
 		<None Remove="MainPage.xaml" />
-		<None Remove="Rebound.Hub_TemporaryKey.pfx" />
 	</ItemGroup>
 
 	<!-- App manifest -->

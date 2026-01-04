@@ -7,9 +7,11 @@
   <Folder Name="/build/">
     <File Path="build/Build-Distribution.ps1" />
     <File Path="build/Build-Forge-Assets.ps1" />
+    <File Path="build/Build-Installer-Updater.ps1" />
     <File Path="build/Build-Native.ps1" />
     <File Path="build/Build-Packaged-Apps.ps1" />
     <File Path="build/Build-ServiceHost.ps1" />
+    <File Path="build/Build.ps1" />
     <File Path="build/Rebound.Forge.Assets.targets" />
     <File Path="build/Update-Versions.ps1" />
   </Folder>
@@ -22,13 +24,19 @@
   <Folder Name="/eng/distribution/" />
   <Folder Name="/eng/distribution/standalone/">
     <Project Path="eng/distribution/standalone/Rebound.Distribution/Rebound.Distribution.shproj" Id="e6316951-4b3c-4212-a601-bdc65d1fbeba" />
-    <Project Path="eng/distribution/standalone/Rebound.Installer/Rebound.Installer.csproj">
+    <Project Path="eng/distribution/standalone/Rebound.Installer/Rebound.Installer.csproj" Id="f21ea290-6928-45c6-97c1-c54a53826e76">
+      <Platform Solution="*|ARM64" Project="ARM64" />
       <Platform Solution="*|x64" Project="x64" />
-      <Build Solution="*|ARM64" Project="false" />
-      <Build Solution="*|x86" Project="false" />
-      <Build Solution="Release|x64" Project="false" />
+      <Platform Solution="*|x86" Project="x86" />
+      <Deploy />
     </Project>
     <Project Path="eng/distribution/standalone/Rebound.Uninstaller/Rebound.Uninstaller.csproj" Id="faffec5b-d7cd-44bb-922b-e994b7367d92">
+      <Platform Solution="*|ARM64" Project="ARM64" />
+      <Platform Solution="*|x64" Project="x64" />
+      <Platform Solution="*|x86" Project="x86" />
+      <Deploy />
+    </Project>
+    <Project Path="eng/distribution/standalone/Rebound.Updater/Rebound.Updater.csproj" Id="231136da-1e80-4180-947b-a65af7cf4612">
       <Platform Solution="*|ARM64" Project="ARM64" />
       <Platform Solution="*|x64" Project="x64" />
       <Platform Solution="*|x86" Project="x86" />
