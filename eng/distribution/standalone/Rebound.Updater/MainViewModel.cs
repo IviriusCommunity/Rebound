@@ -27,7 +27,9 @@ public partial class MainViewModel : ObservableObject
 
     public async Task UpdateAsync()
     {
-        TotalTasks = 1; // Rebound Hub
+        TotalTasks = 
+            1 + // Rebound Uninstaller
+            1; // Rebound Hub
         foreach (var mod in Catalog.MandatoryMods)
         {
             if (mod.IsInstalled || !mod.IsIntact)
@@ -81,6 +83,10 @@ public partial class MainViewModel : ObservableObject
         CurrentTaskText = $"Upgrading Rebound Hub...";
         await Catalog.ReboundHub.RepairAsync();
         CurrentTaskText = $"Upgraded Rebound Hub";
+
+        CurrentTaskText = $"Upgrading Rebound Uninstaller...";
+        await Catalog.Uninstaller.RepairAsync();
+        CurrentTaskText = $"Upgraded Rebound Uninstaller";
         CurrentTaskProgress++;
     }
 }

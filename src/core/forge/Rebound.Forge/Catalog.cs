@@ -617,7 +617,7 @@ public partial class Catalog : ObservableObject
                 [
                     new FileCopyCog
                     {
-                        Path = Path.Combine(AppContext.BaseDirectory, "Rebound.Uninstaller.exe"),
+                        Path = Path.Combine(AppContext.BaseDirectory, "Rebound Uninstaller.exe"),
                         TargetPath = Variables.ReboundUninstallerPath
                     },
                     new ShortcutCog()

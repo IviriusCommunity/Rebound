@@ -29,33 +29,40 @@ public class ProcessLaunchCog : ICog
     /// <inheritdoc/>
     public async Task ApplyAsync()
     {
-        await Task.Delay(500);
-
-        if (string.IsNullOrWhiteSpace(ExecutablePath))
+        try
         {
-            ReboundLogger.Log("[ProcessLaunchCog] ExecutablePath is null or empty");
-            return;
+            await Task.Delay(500);
+
+            if (string.IsNullOrWhiteSpace(ExecutablePath))
+            {
+                ReboundLogger.Log("[ProcessLaunchCog] ExecutablePath is null or empty");
+                return;
+            }
+
+            ReboundLogger.Log($"[ProcessLaunchCog] Attempting launch: {ExecutablePath}");
+
+            if (!File.Exists(ExecutablePath))
+            {
+                ReboundLogger.Log($"[ProcessLaunchCog] File does not exist");
+                return;
+            }
+
+            // Try standard shell launch first
+            if (TryShellExecute(ExecutablePath, elevate: false))
+                return;
+
+            // If that failed, retry elevated
+            ReboundLogger.Log("[ProcessLaunchCog] Retry with elevation");
+
+            if (TryShellExecute(ExecutablePath, elevate: true))
+                return;
+
+            ReboundLogger.Log("[ProcessLaunchCog] All launch attempts failed");
         }
-
-        ReboundLogger.Log($"[ProcessLaunchCog] Attempting launch: {ExecutablePath}");
-
-        if (!File.Exists(ExecutablePath))
+        catch (Exception ex)
         {
-            ReboundLogger.Log($"[ProcessLaunchCog] File does not exist");
-            return;
+            ReboundLogger.Log("[ProcessLaunchCog] Exception during launch", ex);
         }
-
-        // Try standard shell launch first
-        if (TryShellExecute(ExecutablePath, elevate: false))
-            return;
-
-        // If that failed, retry elevated
-        ReboundLogger.Log("[ProcessLaunchCog] Retry with elevation");
-
-        if (TryShellExecute(ExecutablePath, elevate: true))
-            return;
-
-        ReboundLogger.Log("[ProcessLaunchCog] All launch attempts failed");
     }
 
     const uint SEE_MASK_NOCLOSEPROCESS = 0x00000040;

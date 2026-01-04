@@ -111,7 +111,7 @@
                             <ComboBox
                                 Margin="0,8"
                                 HorizontalAlignment="Stretch"
-                                SelectedIndex="{x:Bind ViewModel.SelectedAction, Mode=OneWay}">
+                                SelectedIndex="{x:Bind ViewModel.SelectedAction, Mode=TwoWay}">
                                 <ComboBoxItem Visibility="{x:Bind ViewModel.IsOldReboundInstalled, Converter={StaticResource BoolToInverseVisibilityConverter}}">
                                     <StackPanel>
                                         <TextBlock Text="Install Rebound" />

@@ -61,6 +61,7 @@ public partial class MainViewModel : ObservableObject
                 {
                     TotalTasks = 
                         Catalog.MandatoryMods.Count + 
+                        1 + // Rebound Uninstaller
                         1; // Rebound Hub
                     CurrentTaskProgress = 0;
                     CurrentTaskText = "Installing Rebound...";
@@ -86,23 +87,37 @@ public partial class MainViewModel : ObservableObject
                     await Catalog.ReboundHub.InstallAsync();
                     CurrentTaskText = $"Installed Rebound Hub";
                     CurrentTaskProgress++;
+
+                    CurrentTaskText = $"Installing Rebound Uninstaller...";
+                    await Catalog.Uninstaller.InstallAsync();
+                    CurrentTaskText = $"Installed Rebound Uninstaller";
+                    CurrentTaskProgress++;
                 }
                 break;
             case 2:
                 // Install Rebound Hub
                 {
-                    TotalTasks = 1; // Rebound Hub
+                    TotalTasks = 
+                        1 + // Rebound Uninstaller
+                        1; // Rebound Hub
                     CurrentTaskProgress = 0;
                     CurrentTaskText = $"Installing Rebound Hub...";
                     await Catalog.ReboundHub.InstallAsync();
                     CurrentTaskText = $"Installed Rebound Hub";
+                    CurrentTaskProgress++;
+
+                    CurrentTaskText = $"Installing Rebound Uninstaller...";
+                    await Catalog.Uninstaller.InstallAsync();
+                    CurrentTaskText = $"Installed Rebound Uninstaller";
                     CurrentTaskProgress++;
                 }
                 break;
             case 3:
                 // Upgrade or repair
                 {
-                    TotalTasks = 1; // Rebound Hub
+                    TotalTasks = 
+                        1 + // Rebound Uninstaller
+                        1; // Rebound Hub
                     foreach (var mod in Catalog.MandatoryMods)
                     {
                         if (mod.IsInstalled || !mod.IsIntact)
@@ -157,6 +172,11 @@ public partial class MainViewModel : ObservableObject
                     await Catalog.ReboundHub.RepairAsync();
                     CurrentTaskText = $"Upgraded/repaired Rebound Hub";
                     CurrentTaskProgress++;
+
+                    CurrentTaskText = $"Upgrading/repairing Rebound Uninstaller...";
+                    await Catalog.Uninstaller.RepairAsync();
+                    CurrentTaskText = $"Upgraded/repaired Rebound Uninstaller";
+                    CurrentTaskProgress++;
                 }
                 break;
             case 4:
@@ -165,6 +185,7 @@ public partial class MainViewModel : ObservableObject
                     TotalTasks =
                         Catalog.MandatoryMods.Count +
                         1 + // Deleting old Rebound
+                        1 + // Rebound Uninstaller
                         1; // Rebound Hub
                     CurrentTaskProgress = 0;
                     CurrentTaskText = "Installing Rebound...";
@@ -188,6 +209,11 @@ public partial class MainViewModel : ObservableObject
                     await Catalog.ReboundHub.InstallAsync();
                     CurrentTaskText = $"Installed Rebound Hub";
                     CurrentTaskProgress++;
+
+                    CurrentTaskText = $"Installing Rebound Uninstaller...";
+                    await Catalog.Uninstaller.InstallAsync();
+                    CurrentTaskText = $"Installed Rebound Uninstaller";
+                    CurrentTaskProgress++;
                 }
                 break;
             case 5:
@@ -206,7 +232,9 @@ public partial class MainViewModel : ObservableObject
             case 6:
                 // Uninstall
                 {
-                    TotalTasks = 1; // Rebound Hub
+                    TotalTasks =
+                        1 + // Rebound Uninstaller
+                        1; // Rebound Hub
                     foreach (var mod in Catalog.MandatoryMods)
                     {
                         TotalTasks++;
@@ -247,6 +275,11 @@ public partial class MainViewModel : ObservableObject
                     CurrentTaskText = $"Uninstalling Rebound Hub...";
                     await Catalog.ReboundHub.UninstallAsync();
                     CurrentTaskText = $"Uninstalled Rebound Hub";
+                    CurrentTaskProgress++;
+
+                    CurrentTaskText = $"Uninstalling Rebound Uninstaller...";
+                    await Catalog.Uninstaller.UninstallAsync();
+                    CurrentTaskText = $"Uninstalled Rebound Uninstaller";
                     CurrentTaskProgress++;
 
                     if (DeleteAppData)
