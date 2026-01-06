@@ -272,25 +272,29 @@
 
                                         <TextBlock
                                             Grid.Column="1"
-                                            Opacity="0.5"
+                                            Foreground="{ThemeResource TextFillColorDisabledBrush}"
+                                            IsTextSelectionEnabled="True"
                                             Text="{x:Bind viewModels:MainViewModel.DetailedWindowsVersion}"
                                             TextWrapping="WrapWholeWords" />
                                         <TextBlock
                                             Grid.Row="1"
                                             Grid.Column="1"
-                                            Opacity="0.5"
+                                            Foreground="{ThemeResource TextFillColorDisabledBrush}"
+                                            IsTextSelectionEnabled="True"
                                             Text="{x:Bind viewModels:MainViewModel.WindowsEdition}"
                                             TextWrapping="WrapWholeWords" />
                                         <TextBlock
                                             Grid.Row="2"
                                             Grid.Column="1"
-                                            Opacity="0.5"
+                                            Foreground="{ThemeResource TextFillColorDisabledBrush}"
+                                            IsTextSelectionEnabled="True"
                                             Text="{x:Bind viewModels:MainViewModel.InstalledOn}"
                                             TextWrapping="WrapWholeWords" />
                                         <TextBlock
                                             Grid.Row="3"
                                             Grid.Column="1"
-                                            Opacity="0.5"
+                                            Foreground="{ThemeResource TextFillColorDisabledBrush}"
+                                            IsTextSelectionEnabled="True"
                                             Text="{x:Bind viewModels:MainViewModel.ComputerName}"
                                             TextWrapping="WrapWholeWords" />
 
@@ -598,17 +602,6 @@
                                         </StackPanel>
                                     </Button>
                                 </StackPanel>
-                                <Button
-                                    Grid.Column="2"
-                                    Margin="-8"
-                                    Padding="8"
-                                    HorizontalAlignment="Right"
-                                    VerticalAlignment="Top"
-                                    Background="Transparent"
-                                    BorderBrush="Transparent"
-                                    Command="{x:Bind CopyLicenseOwnersCommand}">
-                                    <FontIcon FontSize="16" Glyph="&#xE8C8;" />
-                                </Button>
                             </Grid>
                         </Border>
 

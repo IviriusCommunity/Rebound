@@ -1,7 +1,8 @@
-﻿// Copyright (C) Ivirius(TM) Community 2020 - 2025. All Rights Reserved.
+﻿// Copyright (C) Ivirius(TM) Community 2020 - 2026. All Rights Reserved.
 // Licensed under the MIT License.
 
 using Microsoft.UI.Xaml.Controls;
+using Rebound.Core.UI;
 using Rebound.Forge;
 using System;
 using System.Threading.Tasks;
@@ -213,7 +214,7 @@ internal sealed partial class ModPage : Page
         // Small delay to ensure visual tree is ready
         await Task.Delay(50);
 
-        await Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, () =>
+        UIThreadQueue.QueueAction(() =>
         {
             var itemsControl = FindItemsControlInVisualTree(Content);
             var progressRing = FindProgressRingInVisualTree(Content);

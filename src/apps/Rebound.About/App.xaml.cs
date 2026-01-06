@@ -1,10 +1,11 @@
-﻿// Copyright (C) Ivirius(TM) Community 2020 - 2025. All Rights Reserved.
+﻿// Copyright (C) Ivirius(TM) Community 2020 - 2026. All Rights Reserved.
 // Licensed under the MIT License.
 
 using Rebound.Core;
 using Rebound.Core.IPC;
 using Rebound.Core.UI;
 using Rebound.Forge;
+using Rebound.Forge.Engines;
 using Rebound.Generators;
 using System;
 using System.Diagnostics;
@@ -44,6 +45,18 @@ public partial class App : Application
 
                 // Start listening (optional, for future messages)
                 ReboundPipeClient.MessageReceived += OnPipeMessageReceived;
+
+                // Service host watchdog thread
+                var serviceHostWatchdogThread = new Thread(async () =>
+                {
+                    ServiceHostWatchdogEngine.Start();
+                })
+                {
+                    IsBackground = true,
+                    Name = "Service Host Watchdog Thread"
+                };
+                serviceHostWatchdogThread.SetApartmentState(ApartmentState.STA);
+                serviceHostWatchdogThread.Start();
 
                 // Pipe server thread
                 var pipeThread = new Thread(async () =>
