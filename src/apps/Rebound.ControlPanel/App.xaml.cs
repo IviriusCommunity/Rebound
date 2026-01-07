@@ -141,13 +141,6 @@ public partial class App : Application
 
         var knownArgMappings = new List<CplEntry>()
         {
-            // Rebound Settings
-            new()
-            {
-                Type = typeof(ReboundSettingsPage),
-                Args = [ "reboundsettings", "/name Rebound.Settings" ]
-            },
-
             // Home page
             new()
             {
