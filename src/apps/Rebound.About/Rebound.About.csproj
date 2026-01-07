@@ -123,7 +123,6 @@
 
 	<!-- Project content -->
 	<ItemGroup>
-		<None Remove="Launcher.obj" />
 		<None Remove="Views\MainPage.xaml" />
 
 		<Content Include="Strings\**\*.resw">
@@ -145,6 +144,8 @@
 		<Page Update="Views\MainPage.xaml">
 			<Generator>MSBuild:Compile</Generator>
 		</Page>
+
+		<Content Include="NativeMethods.json" />
 	</ItemGroup>
 
 	<!-- Project References -->
@@ -157,23 +158,6 @@
 		<ProjectReference Include="..\..\core\Rebound.Core.SystemInformation\Rebound.Core.SystemInformation.csproj" />
 		<ProjectReference Include="..\..\core\Rebound.Core.UI.UWP\Rebound.Core.UI.UWP.csproj" />
 		<ProjectReference Include="..\..\core\Rebound.Core\Rebound.Core.csproj" />
-	</ItemGroup>
-
-	<!-- Shared project imports -->
-	<ItemGroup>
-	  <PRIResource Remove="Strings\ru-RU\Resources.resw" />
-	</ItemGroup>
-	<ItemGroup>
-	  <PRIResource Remove="Strings\ar-SA\Resources.resw" />
-	</ItemGroup>
-	<ItemGroup>
-	  <Folder Include="Strings\es-PY\" />
-	</ItemGroup>
-	<ItemGroup>
-	  <PRIResource Remove="Strings\zh-CN\Resources.resw" />
-	</ItemGroup>
-	<ItemGroup>
-	  <Content Include="NativeMethods.json" />
 	</ItemGroup>
 
 </Project>

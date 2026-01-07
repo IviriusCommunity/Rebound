@@ -3,35 +3,35 @@
     x:Class="Rebound.ControlPanel.App"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:controls="using:Microsoft.UI.Xaml.Controls"
     xmlns:local="using:Rebound.ControlPanel">
     <Application.Resources>
-        <ResourceDictionary>
-            <ResourceDictionary.ThemeDictionaries>
+        <controls:XamlControlsResources x:Key="Main">
+            <controls:XamlControlsResources.MergedDictionaries>
+                <ResourceDictionary>
+                    <ResourceDictionary.ThemeDictionaries>
 
-                <ResourceDictionary x:Key="Default">
+                        <ResourceDictionary x:Key="Default">
 
-                    <ImageSource x:Key="HeroBackgroundBitmapImage">ms-appx:///Assets/Backgrounds/WallpaperRebornDark.png</ImageSource>
+                            <ImageSource x:Key="HeroBackgroundBitmapImage">ms-appx:///Assets/Backgrounds/WallpaperRebornDark.png</ImageSource>
 
+                        </ResourceDictionary>
+
+                        <ResourceDictionary x:Key="Light">
+
+                            <ImageSource x:Key="HeroBackgroundBitmapImage">ms-appx:///Assets/Backgrounds/WallpaperRebornLight.png</ImageSource>
+
+                        </ResourceDictionary>
+
+                        <ResourceDictionary x:Key="HighContrast">
+
+                            <ImageSource x:Key="HeroBackgroundBitmapImage">ms-appx:///Assets/Backgrounds/WallpaperRebornDark.png</ImageSource>
+
+                        </ResourceDictionary>
+
+                    </ResourceDictionary.ThemeDictionaries>
                 </ResourceDictionary>
-
-                <ResourceDictionary x:Key="Light">
-
-                    <ImageSource x:Key="HeroBackgroundBitmapImage">ms-appx:///Assets/Backgrounds/WallpaperRebornLight.png</ImageSource>
-
-                </ResourceDictionary>
-
-                <ResourceDictionary x:Key="HighContrast">
-
-                    <ImageSource x:Key="HeroBackgroundBitmapImage">ms-appx:///Assets/Backgrounds/WallpaperRebornDark.png</ImageSource>
-
-                </ResourceDictionary>
-
-            </ResourceDictionary.ThemeDictionaries>
-            <ResourceDictionary.MergedDictionaries>
-                <XamlControlsResources xmlns="using:Microsoft.UI.Xaml.Controls" />
-                <!--  Other merged dictionaries here  -->
-            </ResourceDictionary.MergedDictionaries>
-            <!--  Other app resources here  -->
-        </ResourceDictionary>
+            </controls:XamlControlsResources.MergedDictionaries>
+        </controls:XamlControlsResources>
     </Application.Resources>
 </Application>

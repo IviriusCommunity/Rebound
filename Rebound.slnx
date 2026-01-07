@@ -57,6 +57,7 @@
     </Project>
     <Project Path="src/apps/Rebound.ControlPanel/Rebound.ControlPanel.csproj">
       <Platform Project="x64" />
+      <Deploy Solution="Debug|x64" />
     </Project>
     <Project Path="src/apps/Rebound.Defrag/Rebound.Defrag.csproj">
       <Platform Project="x64" />

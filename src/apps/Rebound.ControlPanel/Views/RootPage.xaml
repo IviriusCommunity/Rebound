@@ -7,9 +7,11 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:local="using:Rebound.ControlPanel.Views"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:muxc="using:Microsoft.UI.Xaml.Controls"
+    muxc:BackdropMaterial.ApplyToRootOrPageBackground="True"
     mc:Ignorable="d">
     <Page.Resources>
-        <Style TargetType="TabViewItem">
+        <Style TargetType="muxc:TabViewItem">
             <Setter Property="Background" Value="{ThemeResource TabViewItemHeaderBackground}" />
             <Setter Property="HorizontalContentAlignment" Value="Left" />
             <Setter Property="UseSystemFocusVisuals" Value="{StaticResource UseSystemFocusVisuals}" />
@@ -19,7 +21,7 @@
             <Setter Property="BorderBrush" Value="{ThemeResource TabViewItemBorderBrush}" />
             <Setter Property="Template">
                 <Setter.Value>
-                    <ControlTemplate TargetType="TabViewItem">
+                    <ControlTemplate TargetType="muxc:TabViewItem">
                         <Grid
                             x:Name="LayoutRoot"
                             Padding="{TemplateBinding Padding}"
@@ -489,17 +491,17 @@
                 BorderBrush="Transparent"
                 Command="{x:Bind GoBackCommand}"
                 IsEnabled="{x:Bind RootFrame.CanGoBack, Mode=OneWay}">
-                <AnimatedIcon
+                <muxc:AnimatedIcon
                     Width="15"
                     Margin="-4,0"
                     Opacity="0.75">
-                    <AnimatedIcon.Source>
+                    <muxc:AnimatedIcon.Source>
                         <animatedvisuals:AnimatedBackVisualSource />
-                    </AnimatedIcon.Source>
-                    <AnimatedIcon.FallbackIconSource>
-                        <SymbolIconSource Symbol="Back" />
-                    </AnimatedIcon.FallbackIconSource>
-                </AnimatedIcon>
+                    </muxc:AnimatedIcon.Source>
+                    <muxc:AnimatedIcon.FallbackIconSource>
+                        <muxc:SymbolIconSource Symbol="Back" />
+                    </muxc:AnimatedIcon.FallbackIconSource>
+                </muxc:AnimatedIcon>
             </Button>
             <Image
                 Width="16"

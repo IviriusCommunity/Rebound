@@ -3,8 +3,9 @@ using System.Diagnostics;
 using System.IO;
 using CommunityToolkit.Mvvm.Input;
 using Microsoft.UI.Xaml.Controls;
-using Microsoft.UI.Xaml.Shapes;
 using Rebound.ControlPanel.ViewModels;
+using Windows.UI.Xaml.Controls;
+using Windows.UI.Xaml.Documents;
 
 namespace Rebound.ControlPanel.Views;
 
@@ -17,7 +18,7 @@ internal sealed partial class HomePage : Page
         InitializeComponent();
     }
 
-    private void NavigationView_ItemInvoked(NavigationView sender, NavigationViewItemInvokedEventArgs args)
+    private void NavigationView_ItemInvoked(Microsoft.UI.Xaml.Controls.NavigationView sender, Microsoft.UI.Xaml.Controls.NavigationViewItemInvokedEventArgs args)
     {
         switch (args.InvokedItem)
         {
@@ -76,7 +77,7 @@ internal sealed partial class HomePage : Page
         }
     }
 
-    private void WinverHyperlink_Click(Microsoft.UI.Xaml.Documents.Hyperlink sender, Microsoft.UI.Xaml.Documents.HyperlinkClickEventArgs args)
+    private void WinverHyperlink_Click(Hyperlink sender, HyperlinkClickEventArgs args)
     {
         Process.Start("winver");
     }

@@ -8,16 +8,16 @@
   IgnorableNamespaces="uap rescap">
 
   <Identity
-    Name="6be5c1d5-5262-4a91-ad84-5203ad52917e"
-    Publisher="CN=Desktop Ivirius"
+    Name="Rebound.ControlPanel"
+    Publisher="CN=Ivirius Community"
     Version="1.0.0.0" />
 
   <mp:PhoneIdentity PhoneProductId="6be5c1d5-5262-4a91-ad84-5203ad52917e" PhonePublisherId="00000000-0000-0000-0000-000000000000"/>
 
   <Properties>
-    <DisplayName>Rebound.ControlPanel</DisplayName>
-    <PublisherDisplayName>Desktop Ivirius</PublisherDisplayName>
-    <Logo>Assets\StoreLogo.png</Logo>
+    <DisplayName>Rebound Control Panel</DisplayName>
+    <PublisherDisplayName>Ivirius Community</PublisherDisplayName>
+    <Logo>Assets\Package\StoreLogo.png</Logo>
   </Properties>
 
   <Dependencies>
@@ -34,13 +34,13 @@
       Executable="$targetnametoken$.exe"
       EntryPoint="$targetentrypoint$">
       <uap:VisualElements
-        DisplayName="Rebound.ControlPanel"
-        Description="Rebound.ControlPanel"
+        DisplayName="Rebound Control Panel"
+        Description="Rebound Control Panel"
         BackgroundColor="transparent"
-        Square150x150Logo="Assets\Square150x150Logo.png"
-        Square44x44Logo="Assets\Square44x44Logo.png">
-        <uap:DefaultTile Wide310x150Logo="Assets\Wide310x150Logo.png" />
-        <uap:SplashScreen Image="Assets\SplashScreen.png" />
+        Square150x150Logo="Assets\Package\Square150x150Logo.png"
+        Square44x44Logo="Assets\Package\Square44x44Logo.png">
+        <uap:DefaultTile Wide310x150Logo="Assets\Package\Wide310x150Logo.png"  Square71x71Logo="Assets\Package\SmallTile.png" Square310x310Logo="Assets\Package\LargeTile.png"/>
+        <uap:SplashScreen Image="Assets\Package\SplashScreen.png" />
       </uap:VisualElements>
     </Application>
   </Applications>

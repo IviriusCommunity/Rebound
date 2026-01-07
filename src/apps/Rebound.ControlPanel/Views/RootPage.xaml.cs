@@ -1,6 +1,7 @@
 using System.Xml.Linq;
 using CommunityToolkit.Mvvm.Input;
 using Microsoft.UI.Xaml.Controls;
+using Windows.UI.Xaml.Controls;
 
 namespace Rebound.ControlPanel.Views;
 

@@ -1,6 +1,6 @@
 ﻿using System.Collections.ObjectModel;
 using CommunityToolkit.Mvvm.ComponentModel;
-using Rebound.Helpers;
+using Rebound.Core;
 
 namespace Rebound.ControlPanel.ViewModels;
 
@@ -20,29 +20,29 @@ public partial class ReboundSettingsViewModel : ObservableObject
 
     public ReboundSettingsViewModel()
     {
-        ShowBlurAndGlow = SettingsHelper.GetValue("ShowBlurAndGlow", "rebound", true);
-        FetchMode = SettingsHelper.GetValue("FetchMode", "rebound", false);
-        AllowDesktopFeature = SettingsHelper.GetValue("AllowDesktopFeature", "rebound", false);
-        ShowBranding = SettingsHelper.GetValue("ShowBranding", "rebound", true);
+        ShowBlurAndGlow = SettingsManager.GetValue("ShowBlurAndGlow", "rebound", true);
+        FetchMode = SettingsManager.GetValue("FetchMode", "rebound", false);
+        AllowDesktopFeature = SettingsManager.GetValue("AllowDesktopFeature", "rebound", false);
+        ShowBranding = SettingsManager.GetValue("ShowBranding", "rebound", true);
     }
 
     partial void OnShowBlurAndGlowChanged(bool value)
     {
-        SettingsHelper.SetValue("ShowBlurAndGlow", "rebound", value);
+        SettingsManager.SetValue("ShowBlurAndGlow", "rebound", value);
     }
 
     partial void OnFetchModeChanged(bool value)
     {
-        SettingsHelper.SetValue("FetchMode", "rebound", value);
+        SettingsManager.SetValue("FetchMode", "rebound", value);
     }
 
     partial void OnAllowDesktopFeatureChanged(bool value)
     {
-        SettingsHelper.SetValue("AllowDesktopFeature", "rebound", value);
+        SettingsManager.SetValue("AllowDesktopFeature", "rebound", value);
     }
 
     partial void OnShowBrandingChanged(bool value)
     {
-        SettingsHelper.SetValue("ShowBranding", "rebound", value);
+        SettingsManager.SetValue("ShowBranding", "rebound", value);
     }
 }

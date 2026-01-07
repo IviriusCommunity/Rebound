@@ -7,6 +7,7 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:local="using:Rebound.ControlPanel.Views"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:muxc="using:Microsoft.UI.Xaml.Controls"
     xmlns:toolkit="using:CommunityToolkit.WinUI.Controls"
     mc:Ignorable="d">
     <Grid>
@@ -27,7 +28,7 @@
                 Foreground="{ThemeResource AccentTextFillColorPrimaryBrush}"
                 Text="Windows Tools" />
             <TextBlock Margin="48,40,0,0" Text="Built-in apps and programs made for various tasks." />
-            <DropDownButton
+            <muxc:DropDownButton
                 Margin="16"
                 Padding="8"
                 HorizontalAlignment="Right"
@@ -35,32 +36,34 @@
                 Background="Transparent"
                 BorderBrush="Transparent">
                 <FontIcon FontSize="16" Glyph="&#xF0E2;" />
-                <DropDownButton.Flyout>
+                <muxc:DropDownButton.Flyout>
                     <MenuFlyout>
-                        <RadioMenuFlyoutItem x:Name="ListItem" Text="List" />
-                        <RadioMenuFlyoutItem x:Name="DetailsItem" Text="Details" />
-                        <RadioMenuFlyoutItem
+                        <muxc:RadioMenuFlyoutItem x:Name="ListItem" Text="List" />
+                        <muxc:RadioMenuFlyoutItem x:Name="DetailsItem" Text="Details" />
+                        <muxc:RadioMenuFlyoutItem
                             x:Name="TilesItem"
                             IsChecked="True"
                             Text="Tiles" />
                     </MenuFlyout>
-                </DropDownButton.Flyout>
-            </DropDownButton>
+                </muxc:DropDownButton.Flyout>
+            </muxc:DropDownButton>
         </Grid>
         <ScrollViewer Margin="0,72,0,0">
             <Grid>
-                <ItemsRepeater
+                <ItemsControl
                     Margin="12"
                     HorizontalAlignment="Stretch"
                     ItemsSource="{x:Bind Tools}"
                     Visibility="{x:Bind ListItem.IsChecked, Mode=OneWay}">
-                    <ItemsRepeater.Layout>
-                        <toolkit:StaggeredLayout
-                            ColumnSpacing="8"
-                            DesiredColumnWidth="280"
-                            RowSpacing="8" />
-                    </ItemsRepeater.Layout>
-                    <ItemsRepeater.ItemTemplate>
+                    <ItemsControl.ItemsPanel>
+                        <ItemsPanelTemplate>
+                            <toolkit:StaggeredPanel
+                                ColumnSpacing="8"
+                                DesiredColumnWidth="280"
+                                RowSpacing="8" />
+                        </ItemsPanelTemplate>
+                    </ItemsControl.ItemsPanel>
+                    <ItemsControl.ItemTemplate>
                         <DataTemplate x:DataType="local:Tool">
                             <Button
                                 Padding="8,4"
@@ -100,17 +103,19 @@
                                 </Grid>
                             </Button>
                         </DataTemplate>
-                    </ItemsRepeater.ItemTemplate>
-                </ItemsRepeater>
-                <ItemsRepeater
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+                <ItemsControl
                     Margin="12"
                     HorizontalAlignment="Stretch"
                     ItemsSource="{x:Bind Tools}"
                     Visibility="{x:Bind DetailsItem.IsChecked, Mode=OneWay}">
-                    <ItemsRepeater.Layout>
-                        <StackLayout Spacing="8" />
-                    </ItemsRepeater.Layout>
-                    <ItemsRepeater.ItemTemplate>
+                    <ItemsControl.ItemsPanel>
+                        <ItemsPanelTemplate>
+                            <StackPanel Spacing="8" />
+                        </ItemsPanelTemplate>
+                    </ItemsControl.ItemsPanel>
+                    <ItemsControl.ItemTemplate>
                         <DataTemplate x:DataType="local:Tool">
                             <Button
                                 Padding="8,4"
@@ -148,20 +153,22 @@
                                 </Grid>
                             </Button>
                         </DataTemplate>
-                    </ItemsRepeater.ItemTemplate>
-                </ItemsRepeater>
-                <ItemsRepeater
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+                <ItemsControl
                     Margin="12"
                     HorizontalAlignment="Stretch"
                     ItemsSource="{x:Bind Tools}"
                     Visibility="{x:Bind TilesItem.IsChecked, Mode=OneWay}">
-                    <ItemsRepeater.Layout>
-                        <toolkit:StaggeredLayout
-                            ColumnSpacing="8"
-                            DesiredColumnWidth="280"
-                            RowSpacing="8" />
-                    </ItemsRepeater.Layout>
-                    <ItemsRepeater.ItemTemplate>
+                    <ItemsControl.ItemsPanel>
+                        <ItemsPanelTemplate>
+                            <toolkit:StaggeredPanel
+                                ColumnSpacing="8"
+                                DesiredColumnWidth="280"
+                                RowSpacing="8" />
+                        </ItemsPanelTemplate>
+                    </ItemsControl.ItemsPanel>
+                    <ItemsControl.ItemTemplate>
                         <DataTemplate x:DataType="local:Tool">
                             <Button
                                 Padding="8"
@@ -200,8 +207,8 @@
                                 </Grid>
                             </Button>
                         </DataTemplate>
-                    </ItemsRepeater.ItemTemplate>
-                </ItemsRepeater>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
             </Grid>
         </ScrollViewer>
     </Grid>

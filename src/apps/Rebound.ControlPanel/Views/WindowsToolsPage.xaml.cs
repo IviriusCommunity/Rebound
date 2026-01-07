@@ -2,6 +2,7 @@
 using System.Diagnostics;
 using CommunityToolkit.Mvvm.Input;
 using Microsoft.UI.Xaml.Controls;
+using Windows.UI.Xaml.Controls;
 
 namespace Rebound.ControlPanel.Views;
 
@@ -39,12 +40,19 @@ public partial class Tool
             }
             catch
             {
-                Process.Start(new ProcessStartInfo()
+                try
                 {
-                    FileName = name,
-                    UseShellExecute = true,
-                    Verb = "runas"
-                });
+                    Process.Start(new ProcessStartInfo()
+                    {
+                        FileName = name,
+                        UseShellExecute = true,
+                        Verb = "runas"
+                    });
+                }
+                catch
+                {
+
+                }
             }
         }
     }
@@ -54,8 +62,8 @@ public sealed partial class WindowsToolsPage : Page
 {
     List<Tool> Tools =
     [
-        new() { Name = "winver", DisplayName = "About Windows", Description = "View details about your Windows version.", Icon = "ms-appx:///Assets/winver.ico" },
-        new() { Name = "charmap", DisplayName = "Character Map", Description = "Browse and copy special characters from installed fonts.", Icon = "ms-appx:///Assets/CharacterMap.png" },
+        new() { Name = "winver.exe", DisplayName = "About Windows", Description = "View details about your Windows version.", Icon = "ms-appx:///Assets/winver.ico" },
+        new() { Name = "charmap.exe", DisplayName = "Character Map", Description = "Browse and copy special characters from installed fonts.", Icon = "ms-appx:///Assets/CharacterMap.png" },
         new() { Name = "cmd", DisplayName = "Command Prompt", Description = "Open the legacy Windows Command Prompt.", Icon = "ms-appx:///Assets/cmd.ico" },
         new() { Name = "dcomcnfg", DisplayName = "Component Services", Description = "Manage COM+ and DCOM application settings.", Icon = "ms-appx:///Assets/componentservices.ico" },
         new() { Name = "compmgmt.msc", DisplayName = "Computer Management", Description = "Access system tools like disk management and services.", Icon = "ms-appx:///Assets/compmgmt.ico" },
