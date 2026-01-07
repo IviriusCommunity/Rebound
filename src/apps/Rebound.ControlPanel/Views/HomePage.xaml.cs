@@ -74,6 +74,6 @@ internal sealed partial class HomePage : Page
 
     private void WinverHyperlink_Click(Hyperlink sender, HyperlinkClickEventArgs args)
     {
-        Process.Start("winver");
+        Process.Start("winver.exe");
     }
 }
