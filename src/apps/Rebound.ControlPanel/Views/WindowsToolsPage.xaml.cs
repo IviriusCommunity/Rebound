@@ -2,6 +2,8 @@
 using System.Diagnostics;
 using CommunityToolkit.Mvvm.Input;
 using Microsoft.UI.Xaml.Controls;
+using Rebound.Core;
+using TerraFX.Interop.Windows;
 using Windows.UI.Xaml.Controls;
 
 namespace Rebound.ControlPanel.Views;
@@ -94,7 +96,8 @@ public sealed partial class WindowsToolsPage : Page
         new() { Name = "mdsched", DisplayName = "Windows Memory Diagnostic", Description = "Test your computer’s memory for errors.", Icon = "ms-appx:///Assets/mdsched.ico" },
         new() { Name = "powershell", DisplayName = "Windows PowerShell", Description = "Run command‑line tasks and scripts in PowerShell.", Icon = "ms-appx:///Assets/executable.ico" },
         new() { Name = "powershell_ise", DisplayName = "Windows PowerShell ISE", Description = "Integrated Scripting Environment for PowerShell.", Icon = "ms-appx:///Assets/executable.ico" },
-        new() { Name = "wordpad", DisplayName = "WordPad", Description = "Edit RTF documents.", Icon = "ms-appx:///Assets/wordpad.png" }
+        new() { Name = "wordpad", DisplayName = "WordPad", Description = "Edit RTF documents.", Icon = "ms-appx:///Assets/wordpad.png" },
+        new () { Name = "run", DisplayName = "Run", Description = "Launch programs, files, and URLs.", Icon = "ms-appx:///Assets/RunBox.ico" }
     ];
 
     public WindowsToolsPage()
@@ -119,6 +122,13 @@ public sealed partial class WindowsToolsPage : Page
             catch
             {
 
+            }
+        }
+        else if (name == "run")
+        {
+            unsafe
+            {
+                Shell32RE.RunFileDlg(App.MainWindow!.Handle, HICON.NULL, null, null, null, 0);
             }
         }
         else

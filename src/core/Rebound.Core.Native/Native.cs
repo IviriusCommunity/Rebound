@@ -1,9 +1,40 @@
 ﻿// Copyright (C) Ivirius(TM) Community 2020 - 2026. All Rights Reserved.
 // Licensed under the MIT License.
 
-using Windows.Win32.Foundation;
+using System.Runtime.InteropServices;
+using TerraFX.Interop.Windows;
 
 namespace Rebound.Core;
+
+public static unsafe partial class Shell32RE
+{
+    [LibraryImport("shell32.dll", EntryPoint = "#61")]
+    [DefaultDllImportSearchPaths(DllImportSearchPath.System32)]
+    private static partial int RunFileDlgNative(
+        nint hWnd,
+        nint icon,
+        char* path,
+        char* title,
+        char* prompt,
+        uint flags);
+
+    public static HRESULT RunFileDlg(
+        HWND hWnd,
+        HICON icon,
+        char* path,
+        char* title,
+        char* prompt,
+        uint flags)
+    {
+        return (HRESULT)RunFileDlgNative(
+            hWnd,
+            icon,
+            path,
+            title,
+            prompt,
+            flags);
+    }
+}
 
 public static class Native
 {
@@ -28,11 +59,11 @@ public static class Native
         return *(TerraFX.Interop.Windows.HWND*)hwnd.Value;
     }
 
-    public static unsafe PCWSTR ToPCWSTR(this string value)
+    public static unsafe Windows.Win32.Foundation.PCWSTR ToPCWSTR(this string value)
     {
         fixed (char* valueCharPtr = value)
         {
-            return new PCWSTR(valueCharPtr);
+            return new Windows.Win32.Foundation.PCWSTR(valueCharPtr);
         }
     }
 
@@ -44,11 +75,11 @@ public static class Native
         }
     }
 
-    public static unsafe PWSTR ToPWSTR(this string value)
+    public static unsafe Windows.Win32.Foundation.PWSTR ToPWSTR(this string value)
     {
         fixed (char* valueCharPtr = value)
         {
-            return new PWSTR(valueCharPtr);
+            return new Windows.Win32.Foundation.PWSTR(valueCharPtr);
         }
     }
 }
