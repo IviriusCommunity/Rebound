@@ -1,6 +1,7 @@
 ﻿// Copyright (C) Ivirius(TM) Community 2020 - 2026. All Rights Reserved.
 // Licensed under the MIT License.
 
+using CommunityToolkit.Mvvm.ComponentModel;
 using Microsoft.UI.Windowing;
 using Rebound.Core;
 using Rebound.Core.Helpers;
@@ -11,72 +12,43 @@ using Rebound.Generators;
 using Rebound.Shell.Run;
 using Rebound.Shell.ShutdownDialog;
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
+using System.Runtime.InteropServices.Marshalling;
 using System.Threading;
 using System.Threading.Tasks;
+using TerraFX.Interop;
 using TerraFX.Interop.Windows;
 using Windows.System;
 using Windows.UI;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
+using WinRT;
+using static TerraFX.Interop.Windows.Windows;
+using static TerraFX.Interop.Windows.SWP;
+using TerraFX.Interop.DirectX;
 
 #pragma warning disable IDE0079 // Remove unnecessary suppression
 #pragma warning disable CA1515  // Consider making public types internal
 
 namespace Rebound.Shell.ExperienceHost;
 
-public static unsafe class NextWindowFocus
+public partial class StartMenuService : ObservableObject
 {
-    const uint WINEVENT_OUTOFCONTEXT = 0x0000;
-
-    private static HWINEVENTHOOK _hook;
-    private static readonly delegate* unmanaged<
-        HWINEVENTHOOK, uint, HWND, int, int, uint, uint, void> _callback = &Callback;
-
-    public static void Start()
-    {
-        // Listen for newly shown top-level windows system-wide.
-        _hook = TerraFX.Interop.Windows.Windows.SetWinEventHook(
-            EVENT.EVENT_OBJECT_SHOW,
-            EVENT.EVENT_OBJECT_SHOW,
-            HMODULE.NULL,
-            _callback,
-            0,
-            0,
-            WINEVENT_OUTOFCONTEXT
-        );
-    }
-
-    [UnmanagedCallersOnly]
-    private static unsafe void Callback(
-        HWINEVENTHOOK hWinEventHook,
-        uint eventType,
-        HWND hwnd,
-        int idObject,
-        int idChild,
-        uint idEventThread,
-        uint dwmsEventTime)
-    {
-        // We only want actual top-level windows.
-        if (idObject != OBJID.OBJID_WINDOW || hwnd == HWND.NULL)
-            return;
-
-        // Unhook immediately — we only want ONE window.
-        TerraFX.Interop.Windows.Windows.UnhookWinEvent(_hook);
-        _hook = default;
-
-        // Bring to front and focus
-        TerraFX.Interop.Windows.Windows.SetForegroundWindow(hwnd);
-        TerraFX.Interop.Windows.Windows.BringWindowToTop(hwnd);
-        TerraFX.Interop.Windows.Windows.SetFocus(hwnd);
-        TerraFX.Interop.Windows.Windows.ShowWindow(hwnd, SW.SW_SHOW);
-    }
+    [ObservableProperty]
+    public partial bool IsStartMenuOpen { get; set; }
 }
 
 [ReboundApp("Rebound.ShellExperienceHost", "")]
 public partial class App : Application
 {
+    private static HWND? _previousFocusedWindow = null;
+
+    public static StartMenuService StartMenuService { get; } = new();
+
     public static PipeClient? ReboundPipeClient { get; private set; }
 
     private async void OnSingleInstanceLaunched(object? sender, SingleInstanceLaunchEventArgs e)
@@ -98,14 +70,11 @@ public partial class App : Application
                 {
                     await Task.Delay(1000);
                     await ReboundPipeClient.ConnectAsync().ConfigureAwait(false);
-                }
-                catch
-                {
                     UIThreadQueue.QueueAction(async () =>
                     {
 #if DEBUG
                         // Create the window
-                        using var TestShellWindow = new IslandsWindow()
+                        TestShellWindow = new IslandsWindow()
                         {
                             IsPersistenceEnabled = false,
                         };
@@ -132,7 +101,27 @@ public partial class App : Application
                         // Spawn the window
                         TestShellWindow.Create();
                         TestShellWindow.MakeWindowTransparent();
+                        TestShellWindow.Maximize();
+                        TestShellWindow.SetAlwaysOnTop(true);
+                        unsafe
+                        {
+                            SetWindowPos(
+                                App.TestShellWindow!.Handle,
+                                HWND.NULL,
+                                0, 0, 0, 0,
+                                SWP_NOMOVE | SWP_NOSIZE | SWP_HIDEWINDOW);
+                            const int DWMWA_TRANSITIONS_FORCEDISABLED = 3;
+                            int trueValue = 1;
+                            DwmSetWindowAttribute(App.TestShellWindow!.Handle, DWMWA_TRANSITIONS_FORCEDISABLED, &trueValue, sizeof(int));
+
+                        }
 #endif
+                    });
+                }
+                catch
+                {
+                    UIThreadQueue.QueueAction(async () =>
+                    {
                         await ReboundDialog.ShowAsync(
                             "Rebound Service Host not found.",
                             "Could not find Rebound Service Host.\nPlease ensure it is running in the background.",
@@ -262,8 +251,60 @@ public partial class App : Application
                 ShutdownWindow.BringToFront();
             }
         }
+        if (parts[0] == "Shell::ShowStartMenu")
+        {
+            ToggleStartMenu();
+        }
 
         return;
+    }
+
+    public static void ToggleStartMenu()
+    {
+        UIThreadQueue.QueueAction(async () =>
+        {
+            bool opening = !StartMenuService.IsStartMenuOpen;
+            if (opening)
+            {
+                // Save previously focused window before opening the start menu
+                _previousFocusedWindow = GetForegroundWindow();
+                StartMenuService.IsStartMenuOpen = true;
+
+                TestShellWindow?.ForceBringToFront();
+
+                unsafe
+                {
+                    SetWindowPos(
+                        App.TestShellWindow!.Handle,
+                        HWND.NULL,
+                        0, 0, 0, 0,
+                        SWP_NOMOVE | SWP_NOSIZE | SWP_SHOWWINDOW);
+                }
+            }
+            else
+            {
+                // Closing start menu
+                StartMenuService.IsStartMenuOpen = false;
+
+                await Task.Delay(250); // wait before hiding
+
+                unsafe
+                {
+                    SetWindowPos(
+                        App.TestShellWindow!.Handle,
+                        HWND.NULL,
+                        0, 0, 0, 0,
+                        SWP_NOMOVE | SWP_NOSIZE | SWP_HIDEWINDOW);
+                }
+
+                // Refocus previous window if available
+                if (_previousFocusedWindow.HasValue)
+                {
+                    await ReboundPipeClient.SendAsync($"Shell::BringWindowToFront#{(nint)_previousFocusedWindow.Value}");
+                    _previousFocusedWindow = null;
+                }
+            }
+        });
     }
 
     public static void ShowRunWindow(string title = "Run")
@@ -372,4 +413,5 @@ public partial class App : Application
     public static IslandsWindow? ShutdownWindow { get; set; }
     public static IslandsWindow? BackgroundWindow { get; set; }
     public static IslandsWindow? CantRunDialog { get; set; }
+    public static IslandsWindow? TestShellWindow { get; set; }
 }

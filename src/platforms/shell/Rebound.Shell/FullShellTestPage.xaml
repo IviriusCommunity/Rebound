@@ -4,8 +4,9 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:animations="using:CommunityToolkit.WinUI.Animations"
     xmlns:controls="using:CommunityToolkit.WinUI.Controls"
+    xmlns:converters="using:CommunityToolkit.WinUI.Converters"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-    xmlns:local="using:Rebound.Shell"
+    xmlns:local="using:Rebound.Shell.ExperienceHost"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:media="using:CommunityToolkit.WinUI.Media"
     xmlns:muxc="using:Microsoft.UI.Xaml.Controls"
@@ -32,6 +33,7 @@
                         TintOpacity="0.4" />
                 </ResourceDictionary>
             </ResourceDictionary.ThemeDictionaries>
+            <converters:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter" />
             <Style x:Key="TaskbarToggleButtonStyle" TargetType="ToggleButton">
                 <Setter Property="Background" Value="{ThemeResource ToggleButtonBackground}" />
                 <Setter Property="BackgroundSizing" Value="InnerBorderEdge" />
@@ -242,7 +244,7 @@
             </Style>
         </ResourceDictionary>
     </Page.Resources>
-    <Grid>
+    <Grid Background="Transparent" PointerPressed="Grid_PointerPressed">
         <Grid>
             <Button
                 Width="96"
@@ -253,7 +255,8 @@
                 HorizontalContentAlignment="Stretch"
                 VerticalContentAlignment="Stretch"
                 BorderBrush="{ThemeResource AccentFillColorDefaultBrush}"
-                BorderThickness="2">
+                BorderThickness="2"
+                Visibility="Collapsed">
                 <Grid>
                     <Image
                         Width="64"
@@ -294,15 +297,17 @@
                 VerticalAlignment="Bottom"
                 Background="{ThemeResource ShellBackgroundBrush}"
                 BorderBrush="{ThemeResource SurfaceStrokeColorDefaultBrush}"
-                BorderThickness="0,1,0,0">
+                BorderThickness="0,1,0,0"
+                Visibility="Collapsed">
                 <StackPanel Orientation="Horizontal" Spacing="4">
                     <ToggleButton
-                        x:Name="StartButton"
                         Margin="0,4"
                         Padding="6,0"
                         VerticalAlignment="Stretch"
                         Background="Transparent"
                         BorderBrush="Transparent"
+                        IsChecked="{x:Bind local:App.StartMenuService.IsStartMenuOpen, Mode=TwoWay}"
+                        IsThreeState="False"
                         Style="{StaticResource TaskbarToggleButtonStyle}">
                         <Path Data="F1 M 0 2 C 0 1 1 0 2 0 L 12 0 L 12 12 L 0 12 M 13 0 L 23 0 C 24 0 25 1 25 2 L 25 12 L 13 12 M 13 13 L 25 13 L 25 23 C 25 24 24 25 23 25 L 13 25 M 12 25 L 2 25 C 1 25 0 24 0 23 L 0 13 L 12 13">
                             <Path.Fill>
@@ -1003,14 +1008,14 @@
                 </StackPanel>
             </Grid>
             <Grid
-                Margin="16,0,0,64"
+                Margin="16,0,0,16"
                 HorizontalAlignment="Left"
                 VerticalAlignment="Bottom"
                 Background="{ThemeResource ShellBackgroundBrush}"
                 BorderBrush="{ThemeResource SurfaceStrokeColorDefaultBrush}"
                 BorderThickness="1"
                 CornerRadius="8"
-                Visibility="{x:Bind StartButton.IsChecked, Mode=OneWay}">
+                Visibility="{x:Bind local:App.StartMenuService.IsStartMenuOpen, Mode=TwoWay, Converter={StaticResource BoolToVisibilityConverter}}">
                 <!--  Implicit show animations  -->
                 <animations:Implicit.ShowAnimations>
                     <animations:TranslationAnimation

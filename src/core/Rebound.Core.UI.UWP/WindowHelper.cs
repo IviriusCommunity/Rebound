@@ -57,10 +57,10 @@ public static class WindowHelper
         }
 
         // 4. Manipulate the window state aggressively
-        TerraFX.Interop.Windows.Windows.ShowWindow(hWnd, SW.SW_HIDE);
-        TerraFX.Interop.Windows.Windows.ShowWindow(hWnd, SW.SW_SHOWMINIMIZED);
-        TerraFX.Interop.Windows.Windows.ShowWindow(hWnd, SW.SW_SHOWNORMAL);
-        TerraFX.Interop.Windows.Windows.ShowWindow(hWnd, SW.SW_RESTORE);
+        //TerraFX.Interop.Windows.Windows.ShowWindow(hWnd, SW.SW_HIDE);
+        //TerraFX.Interop.Windows.Windows.ShowWindow(hWnd, SW.SW_SHOWMINIMIZED);
+        //TerraFX.Interop.Windows.Windows.ShowWindow(hWnd, SW.SW_SHOWNORMAL);
+        //TerraFX.Interop.Windows.Windows.ShowWindow(hWnd, SW.SW_RESTORE);
         TerraFX.Interop.Windows.Windows.ShowWindow(hWnd, SW.SW_SHOW);
 
         // 5. Enable window

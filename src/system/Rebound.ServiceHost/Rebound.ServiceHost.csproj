@@ -141,11 +141,15 @@
 		<Content Include="Hooks\Rebound.Forge.Hooks.ShutdownWindow.dll">
 			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
 		</Content>
+		<Content Include="Hooks\Rebound.Forge.Hooks.Start.dll">
+		  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</Content>
 	</ItemGroup>
 
 	<!-- Excluded items -->
 	<ItemGroup Label="Exclusions">
 		<None Remove="Assets\ServiceHost.ico" />
+		<None Remove="Hooks\Rebound.Forge.Hooks.Start.dll" />
 	</ItemGroup>
 
 	<!-- Project references -->
@@ -174,6 +178,10 @@
 		<Message Importance="high" Text="Compiling Shutdown Dialog DLL" />
 		<MSBuild Projects="$(SolutionDir)src\core\forge\hooks\Rebound.Forge.Hooks.ShutdownWindow\Rebound.Forge.Hooks.ShutdownWindow.vcxproj" Properties="Configuration=$(Configuration);Platform=$(Platform)" />
 
+		<!-- Build Start Hook -->
+		<Message Importance="high" Text="Compiling Start DLL" />
+		<MSBuild Projects="$(SolutionDir)src\core\forge\hooks\Rebound.Forge.Hooks.Start\Rebound.Forge.Hooks.Start.vcxproj" Properties="Configuration=$(Configuration);Platform=$(Platform)" />
+
 		<!-- Copy Run Hook DLL -->
 		<Message Importance="high" Text="Copying Rebound.Forge.Hooks.Run.dll" />
 		<Copy SourceFiles="$(SolutionDir)x64\$(Configuration)\Rebound.Forge.Hooks.Run.dll" DestinationFiles="Hooks\Rebound.Forge.Hooks.Run.dll" SkipUnchangedFiles="true" />
@@ -181,7 +189,11 @@
 		<!-- Copy Shutdown Window Hook DLL -->
 		<Message Importance="high" Text="Copying Rebound.Forge.Hooks.ShutdownWindow.dll" />
 		<Copy SourceFiles="$(SolutionDir)x64\$(Configuration)\Rebound.Forge.Hooks.ShutdownWindow.dll" DestinationFiles="Hooks\Rebound.Forge.Hooks.ShutdownWindow.dll" SkipUnchangedFiles="true" />
-		
+
+		<!-- Copy Start Hook DLL -->
+		<Message Importance="high" Text="Copying Rebound.Forge.Hooks.Start.dll" />
+		<Copy SourceFiles="$(SolutionDir)x64\$(Configuration)\Rebound.Forge.Hooks.Start.dll" DestinationFiles="Hooks\Rebound.Forge.Hooks.Start.dll" SkipUnchangedFiles="true" />
+
 	</Target>
 
 </Project>

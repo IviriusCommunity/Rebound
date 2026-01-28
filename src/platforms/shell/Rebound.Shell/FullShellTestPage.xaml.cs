@@ -1,6 +1,7 @@
 ﻿// Copyright (C) Ivirius(TM) Community 2020 - 2026. All Rights Reserved.
 // Licensed under the MIT License.
 
+using Rebound.Shell.ExperienceHost;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -27,5 +28,10 @@ public sealed partial class FullShellTestPage : Page
     public FullShellTestPage()
     {
         this.InitializeComponent();
+    }
+
+    private void Grid_PointerPressed(object sender, PointerRoutedEventArgs e)
+    {
+        App.ToggleStartMenu();
     }
 }

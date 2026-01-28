@@ -44,6 +44,7 @@ public partial class App : Application
             [
                 ("Rebound.Forge.Hooks.Run.dll", ["taskmgr.exe", "procexp.exe", "explorer.exe"]),
                 ("Rebound.Forge.Hooks.ShutdownWindow.dll", ["explorer.exe"]),
+                ("Rebound.Forge.Hooks.Start.dll", ["explorer.exe"]),
             ];
 
             foreach (var dllInjectionDefinition in dllInjectionDefinitions)
@@ -188,8 +189,8 @@ public partial class App : Application
         return;
     }
 
-    private static void RunShutdownCommand(string args, SHUTDOWN_REASON reason) => _ = PInvoke.InitiateSystemShutdownEx(
-            null, "Shutdown initiated via broker".ToPWSTR(),
+    private static unsafe void RunShutdownCommand(string args, SHUTDOWN_REASON reason) => _ = PInvoke.InitiateSystemShutdownEx(
+            null, new((nint)"Shutdown initiated via broker".ToPointer()),
             0, true, args.Contains("/r", StringComparison.InvariantCultureIgnoreCase), reason);
 
     private static void RunShutdownCommand(string arguments)
