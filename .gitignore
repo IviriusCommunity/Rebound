@@ -400,3 +400,5 @@ FodyWeavers.xsd
 /src/system/Rebound.ServiceHost/Hooks/Rebound.Forge.Hooks.ShutdownWindow.dll
 /src/core/forge/Rebound.Forge.Assets/Modding/Launchers/Rebound.Launcher.exe
 /eng/distribution/standalone/Rebound.Distribution/Rebound Uninstaller.exe
+/src/system/Rebound.ServiceHost/Hooks/Rebound.Forge.Hooks.Start.dll
+/src/system/Rebound.ServiceHost/Hooks/Rebound.Forge.Hooks.Start.dll
