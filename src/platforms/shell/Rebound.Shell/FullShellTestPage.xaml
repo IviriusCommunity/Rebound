@@ -1015,6 +1015,7 @@
                 BorderBrush="{ThemeResource SurfaceStrokeColorDefaultBrush}"
                 BorderThickness="1"
                 CornerRadius="8"
+                PointerPressed="Grid_PointerPressed_1"
                 Visibility="{x:Bind local:App.StartMenuService.IsStartMenuOpen, Mode=TwoWay, Converter={StaticResource BoolToVisibilityConverter}}">
                 <!--  Implicit show animations  -->
                 <animations:Implicit.ShowAnimations>
@@ -1620,6 +1621,56 @@
                                 <muxc:PersonPicture Width="32" />
                                 <TextBlock VerticalAlignment="Center" Text="Username" />
                             </StackPanel>
+                            <Button.Flyout>
+                                <Flyout>
+                                    <Grid>
+                                        <StackPanel>
+                                            <StackPanel Orientation="Horizontal" Spacing="16">
+                                                <muxc:PersonPicture Width="64" />
+                                                <StackPanel Spacing="0">
+                                                    <TextBlock
+                                                        VerticalAlignment="Center"
+                                                        FontSize="20"
+                                                        FontWeight="SemiBold"
+                                                        Text="Username" />
+                                                    <TextBlock
+                                                        VerticalAlignment="Center"
+                                                        FontSize="12"
+                                                        Text="User" />
+                                                    <TextBlock
+                                                        VerticalAlignment="Center"
+                                                        FontSize="12"
+                                                        Opacity="0.5"
+                                                        Text="Microsoft account" />
+                                                </StackPanel>
+                                            </StackPanel>
+                                            <Button
+                                                Margin="0,16,0,0"
+                                                Padding="8"
+                                                HorizontalAlignment="Stretch"
+                                                HorizontalContentAlignment="Stretch"
+                                                Background="Transparent"
+                                                BorderBrush="Transparent">
+                                                <StackPanel Orientation="Horizontal" Spacing="16">
+                                                    <FontIcon FontSize="16" Glyph="&#xEC25;" />
+                                                    <TextBlock Text="User folder" />
+                                                </StackPanel>
+                                            </Button>
+                                            <Button
+                                                Padding="8"
+                                                HorizontalAlignment="Stretch"
+                                                HorizontalContentAlignment="Stretch"
+                                                Background="Transparent"
+                                                BorderBrush="Transparent">
+                                                <StackPanel Orientation="Horizontal" Spacing="16">
+                                                    <FontIcon FontSize="16" Glyph="&#xF3B1;" />
+                                                    <TextBlock Text="Sign out" />
+                                                </StackPanel>
+                                            </Button>
+                                        </StackPanel>
+                                    </Grid>
+                                </Flyout>
+                            </Button.Flyout>
                         </Button>
                         <StackPanel
                             Margin="8,0"
@@ -1637,6 +1688,64 @@
                                 Background="Transparent"
                                 BorderBrush="Transparent">
                                 <FontIcon FontSize="16" Glyph="&#xE7E8;" />
+                                <Button.Flyout>
+                                    <MenuFlyout>
+                                        <MenuFlyoutItem Text="Shut down">
+                                            <MenuFlyoutItem.Icon>
+                                                <FontIcon FontSize="16" Glyph="&#xE7E8;" />
+                                            </MenuFlyoutItem.Icon>
+                                        </MenuFlyoutItem>
+                                        <MenuFlyoutItem Text="Restart">
+                                            <MenuFlyoutItem.Icon>
+                                                <FontIcon FontSize="16" Glyph="&#xE72C;" />
+                                            </MenuFlyoutItem.Icon>
+                                        </MenuFlyoutItem>
+                                        <MenuFlyoutItem Text="Sleep">
+                                            <MenuFlyoutItem.Icon>
+                                                <FontIcon FontSize="16" Glyph="&#xEC46;" />
+                                            </MenuFlyoutItem.Icon>
+                                        </MenuFlyoutItem>
+                                        <MenuFlyoutItem Text="Hibernate">
+                                            <MenuFlyoutItem.Icon>
+                                                <FontIcon
+                                                    FontSize="16"
+                                                    Glyph="&#xECE4;"
+                                                    RenderTransformOrigin="0.5, 0.5">
+                                                    <FontIcon.RenderTransform>
+                                                        <RotateTransform Angle="90" />
+                                                    </FontIcon.RenderTransform>
+                                                </FontIcon>
+                                            </MenuFlyoutItem.Icon>
+                                        </MenuFlyoutItem>
+                                        <MenuFlyoutSeparator />
+                                        <MenuFlyoutItem Text="Lock">
+                                            <MenuFlyoutItem.Icon>
+                                                <FontIcon FontSize="16" Glyph="&#xE72E;" />
+                                            </MenuFlyoutItem.Icon>
+                                        </MenuFlyoutItem>
+                                        <MenuFlyoutItem Text="Sign out">
+                                            <MenuFlyoutItem.Icon>
+                                                <FontIcon FontSize="16" Glyph="&#xF3B1;" />
+                                            </MenuFlyoutItem.Icon>
+                                        </MenuFlyoutItem>
+                                        <MenuFlyoutItem Text="Switch user">
+                                            <MenuFlyoutItem.Icon>
+                                                <FontIcon FontSize="16" Glyph="&#xE748;" />
+                                            </MenuFlyoutItem.Icon>
+                                        </MenuFlyoutItem>
+                                        <MenuFlyoutSeparator />
+                                        <MenuFlyoutItem Text="UEFI settings">
+                                            <MenuFlyoutItem.Icon>
+                                                <FontIcon FontSize="16" Glyph="&#xE9F5;" />
+                                            </MenuFlyoutItem.Icon>
+                                        </MenuFlyoutItem>
+                                        <MenuFlyoutItem Text="Recovery">
+                                            <MenuFlyoutItem.Icon>
+                                                <FontIcon FontSize="16" Glyph="&#xE67A;" />
+                                            </MenuFlyoutItem.Icon>
+                                        </MenuFlyoutItem>
+                                    </MenuFlyout>
+                                </Button.Flyout>
                             </Button>
                         </StackPanel>
                     </Grid>

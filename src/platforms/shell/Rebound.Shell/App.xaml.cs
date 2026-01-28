@@ -30,11 +30,449 @@ using WinRT;
 using static TerraFX.Interop.Windows.Windows;
 using static TerraFX.Interop.Windows.SWP;
 using TerraFX.Interop.DirectX;
+using System.Collections.ObjectModel;
 
 #pragma warning disable IDE0079 // Remove unnecessary suppression
 #pragma warning disable CA1515  // Consider making public types internal
 
 namespace Rebound.Shell.ExperienceHost;
+
+public enum SystemPanelPosition
+{
+    Left,
+    Right,
+    Top,
+    Bottom
+}
+
+public partial class SystemPanel : ObservableObject
+{
+    [ObservableProperty] public partial SystemPanelPosition Position { get; set; }
+    [ObservableProperty] public partial bool AllowFloat { get; set; }
+    [ObservableProperty] public partial bool AvoidWindows { get; set; }
+    [ObservableProperty] public partial int Size { get; set; }
+    [ObservableProperty] public partial int FillSize { get; set; }
+}
+
+public sealed class SystemPanelController
+{
+    public SystemPanel Panel { get; }
+    public IslandsWindow Window { get; private set; }
+
+    private DispatcherTimer _proximityTimer;
+    private bool _isHidden;
+    private const int PROXIMITY_CHECK_INTERVAL = 100; // ms
+    private const int HIDE_THRESHOLD = 50; // pixels from panel edge
+    private const int ANIMATION_DURATION = 200; // ms
+
+    private RECT _logicalPanelRect;
+
+    public SystemPanelController(SystemPanel panel)
+    {
+        Panel = panel;
+    }
+
+    unsafe void ConfigureWindow()
+    {
+        var hwnd = Window.Handle;
+        var exStyle = GetWindowLongPtrW(hwnd, GWL.GWL_EXSTYLE);
+        exStyle |= WS.WS_EX_TOOLWINDOW;
+        //exStyle |= WS.WS_EX_NOACTIVATE;
+        exStyle &= ~WS.WS_EX_APPWINDOW;
+        SetWindowLongPtrW(hwnd, GWL.GWL_EXSTYLE, exStyle);
+        var style = GetWindowLongPtrW(hwnd, GWL.GWL_STYLE);
+        style &= ~WS.WS_BORDER;
+        style &= ~WS.WS_THICKFRAME;
+        SetWindowLongPtrW(hwnd, GWL.GWL_STYLE, style);
+        SetWindowPos(
+            hwnd,
+            HWND.HWND_TOPMOST,
+            0, 0, 0, 0,
+            SWP_NOMOVE | SWP_NOSIZE | SWP_NOACTIVATE
+        );
+    }
+
+    unsafe void RegisterAppBar()
+    {
+        APPBARDATA abd = new()
+        {
+            cbSize = (uint)sizeof(APPBARDATA),
+            hWnd = Window.Handle
+        };
+        SHAppBarMessage(ABM.ABM_NEW, &abd);
+    }
+
+    unsafe void ApplyLayout()
+    {
+        if (!Panel.AvoidWindows)
+            RegisterAppBar(); // ideally once, but this is fine for now
+        var monitorSize = Display.GetAvailableRectForWindow(Window.Handle);
+        var scale = Display.GetScale(Window.Handle);
+        int thickness = (int)(Panel.Size * scale);
+        Debug.WriteLine("Thickness: " + thickness);
+        APPBARDATA abd = new()
+        {
+            cbSize = (uint)sizeof(APPBARDATA),
+            hWnd = Window.Handle
+        };
+        switch (Panel.Position)
+        {
+            case SystemPanelPosition.Top:
+                abd.uEdge = ABE_TOP;
+                abd.rc.left = monitorSize.left;
+                abd.rc.right = monitorSize.right;
+                abd.rc.top = monitorSize.top;
+                abd.rc.bottom = thickness;
+                break;
+            case SystemPanelPosition.Bottom:
+                abd.uEdge = ABE_BOTTOM;
+                abd.rc.left = monitorSize.left;
+                abd.rc.right = monitorSize.right;
+                abd.rc.top = monitorSize.bottom - thickness;
+                abd.rc.bottom = thickness;
+                break;
+            case SystemPanelPosition.Left:
+                abd.uEdge = ABE_LEFT;
+                abd.rc.left = monitorSize.left;
+                abd.rc.right = (int)(thickness * scale);
+                abd.rc.top = monitorSize.top;
+                abd.rc.bottom = monitorSize.bottom;
+                break;
+            case SystemPanelPosition.Right:
+                abd.uEdge = ABE_RIGHT;
+                abd.rc.left = (int)(monitorSize.right - thickness * scale);
+                abd.rc.right = monitorSize.right;
+                abd.rc.top = monitorSize.top;
+                abd.rc.bottom = monitorSize.bottom;
+                break;
+        }
+        if (!Panel.AvoidWindows)
+        {
+            SHAppBarMessage(ABM.ABM_QUERYPOS, &abd);
+            // Commit the negotiated rectangle
+            SHAppBarMessage(ABM.ABM_SETPOS, &abd);
+        }
+        _logicalPanelRect = abd.rc;
+
+        Window.MoveAndResize(
+            (int)((abd.rc.left) / scale),
+            (int)((abd.rc.top) / scale),
+            (int)((abd.rc.right - abd.rc.left) / scale),
+            (int)((abd.rc.bottom - abd.rc.top) / scale)
+        );
+        Debug.WriteLine("Window height: " + (abd.rc.bottom - abd.rc.top));
+    }
+
+    public void Create()
+    {
+        Window = new IslandsWindow
+        {
+            IsPersistenceEnabled = false
+        };
+        Window.AppWindowInitialized += (_, _) =>
+        {
+            Window.AppWindow?.TitleBar.ExtendsContentIntoTitleBar = true;
+            Window.AppWindow?.TitleBar.PreferredHeightOption = TitleBarHeightOption.Collapsed;
+            ConfigureWindow();
+            ApplyLayout();
+
+            if (Panel.AvoidWindows)
+            {
+                StartProximityMonitoring();
+            }
+        };
+        Window.XamlInitialized += (_, _) =>
+        {
+            //Window.Content = CreatePanelRoot();
+        };
+        Window.Create();
+    }
+
+    private void StartProximityMonitoring()
+    {
+        UIThreadQueue.QueueAction(() =>
+        {
+            _proximityTimer = new DispatcherTimer
+            {
+                Interval = TimeSpan.FromMilliseconds(PROXIMITY_CHECK_INTERVAL)
+            };
+            _proximityTimer.Tick += async (_, _) => await UIThreadQueue.QueueActionAsync(async () => await CheckWindowProximity());
+            _proximityTimer.Start();
+        });
+    }
+
+    private unsafe struct EnumWindowsState
+    {
+        public HWND PanelHwnd;
+        public HMONITOR MonitorHandle;
+        public RECT PanelRect;
+        public SystemPanelPosition Position;
+        public bool FoundNearbyWindow;
+    }
+
+    private unsafe bool IsAnyWindowNearby()
+    {
+        RECT panelRect = _logicalPanelRect;
+        var monitorHandle = MonitorFromWindow(Window.Handle, MONITOR.MONITOR_DEFAULTTONEAREST);
+
+        EnumWindowsState state = new()
+        {
+            PanelHwnd = Window.Handle,
+            MonitorHandle = monitorHandle,
+            PanelRect = panelRect,
+            Position = Panel.Position,
+            FoundNearbyWindow = false
+        };
+
+        EnumWindows(&EnumWindowCallback, (LPARAM)(&state));
+
+        return state.FoundNearbyWindow;
+    }
+
+    [UnmanagedCallersOnly]
+    private static unsafe BOOL EnumWindowCallback(HWND hwnd, LPARAM lParam)
+    {
+        var state = (EnumWindowsState*)lParam;
+
+        // Skip our own window
+        if (hwnd == state->PanelHwnd)
+            return true;
+
+        // Only check visible windows
+        if (!IsWindowVisible(hwnd))
+            return true;
+
+        // Skip minimized windows
+        if (IsIconic(hwnd))
+            return true;
+
+        // Check extended styles
+        var exStyle = GetWindowLongPtrW(hwnd, GWL.GWL_EXSTYLE);
+        var style = GetWindowLongPtrW(hwnd, GWL.GWL_EXSTYLE);
+        bool isToolWindow = (exStyle & WS.WS_EX_TOOLWINDOW) != 0;
+        bool isAppWindow = (exStyle & WS.WS_EX_APPWINDOW) != 0;
+
+        // Skip tool windows that aren't explicitly app windows
+        if (isToolWindow && !isAppWindow)
+            return true;
+
+        // Get window owner - top-level windows have no owner
+        HWND owner = GetWindow(hwnd, GW_OWNER);
+
+        // Skip owned windows (like dialogs) unless they have WS_EX_APPWINDOW
+        if (owner != HWND.NULL && !isAppWindow)
+            return true;
+
+        // Skip windows with no title and no app window style (usually helper windows)
+        const int titleBufferSize = 256;
+        char* titleBuffer = stackalloc char[titleBufferSize];
+        int titleLength = GetWindowTextW(hwnd, titleBuffer, titleBufferSize);
+        string title = new string(titleBuffer, 0, titleLength);
+
+        if (titleLength == 0 && !isAppWindow)
+            return true;
+
+        if (title == "Windows Input Experience")
+            return true;
+
+        RECT windowRect;
+        GetWindowRect(hwnd, &windowRect);
+
+        if (IsWindowNearPanel(windowRect, state->PanelRect, state->Position))
+        {
+            // Get window class name
+            const int classBufferSize = 256;
+            char* classBuffer = stackalloc char[classBufferSize];
+            int classLength = GetClassNameW(hwnd, classBuffer, classBufferSize);
+            string windowClass = new string(classBuffer, 0, classLength);
+
+            Debug.WriteLine($"Nearby window - Class: {windowClass}");
+
+            state->FoundNearbyWindow = true;
+            return false; // Stop enumeration
+        }
+
+        return true;
+    }
+
+    private static bool IsWindowNearPanel(RECT windowRect, RECT panelRect, SystemPanelPosition position)
+    {
+        const int HIDE_THRESHOLD = 50;
+
+        switch (position)
+        {
+            case SystemPanelPosition.Top:
+                return windowRect.top <= panelRect.bottom + HIDE_THRESHOLD;
+            case SystemPanelPosition.Bottom:
+                return windowRect.bottom >= panelRect.top - HIDE_THRESHOLD;
+            case SystemPanelPosition.Left:
+                return windowRect.left <= panelRect.right + HIDE_THRESHOLD;
+            case SystemPanelPosition.Right:
+                return windowRect.right >= panelRect.left - HIDE_THRESHOLD;
+            default:
+                return false;
+        }
+    }
+
+    private async Task AnimateShowAsync()
+    {
+        _isHidden = false;
+        await AnimatePositionAsync(0);
+    }
+
+    private int GetCurrentOffset(RECT rect)
+    {
+        var monitorSize = Display.GetAvailableRectForWindow(Window.Handle);
+
+        switch (Panel.Position)
+        {
+            case SystemPanelPosition.Top:
+                return monitorSize.top - rect.top;
+            case SystemPanelPosition.Bottom:
+                return rect.bottom - monitorSize.bottom;
+            case SystemPanelPosition.Left:
+                return monitorSize.left - rect.left;
+            case SystemPanelPosition.Right:
+                return rect.right - monitorSize.right;
+            default:
+                return 0;
+        }
+    }
+
+    private async Task CheckWindowProximity()
+    {
+        bool shouldHide = IsAnyWindowNearby();
+
+        if (shouldHide && !_isHidden)
+        {
+            await AnimateHideAsync();
+            Debug.WriteLine("Hiding");
+        }
+        else if (!shouldHide && _isHidden)
+        {
+            await AnimateShowAsync();
+            Debug.WriteLine("Showing");
+        }
+    }
+
+    private async Task AnimateHideAsync()
+    {
+        _isHidden = true;
+        var scale = Display.GetScale(Window.Handle);
+        int thickness = (int)(Panel.Size * scale);
+        await AnimatePositionAsync(thickness);
+    }
+
+    private async Task AnimatePositionAsync(int targetOffset)
+    {
+        var startTime = DateTime.Now;
+        var scale = Display.GetScale(Window.Handle);
+
+        RECT currentRect;
+        unsafe
+        {
+            GetWindowRect(Window.Handle, &currentRect);
+        }
+
+        var startOffset = GetCurrentOffset(currentRect);
+
+        var delta = targetOffset - startOffset;
+
+        while (true)
+        {
+            var elapsed = (DateTime.Now - startTime).TotalMilliseconds;
+            var progress = Math.Min(elapsed / ANIMATION_DURATION, 1.0);
+
+            var easedProgress = 1 - Math.Pow(1 - progress, 3);
+
+            var currentOffset = startOffset + delta * easedProgress;
+
+            UIThreadQueue.QueueAction(() =>
+            {
+                ApplyOffset((int)Math.Round(currentOffset), scale);
+            });
+
+            if (progress >= 1.0)
+                return;
+
+            await Task.Delay(16);
+        }
+    }
+
+    private unsafe void ApplyOffset(int offset, double scale)
+    {
+        var monitorSize = Display.GetAvailableRectForWindow(Window.Handle);
+        int thickness = (int)(Panel.Size * scale);
+
+        int x = 0, y = 0, width = 0, height = 0;
+
+        switch (Panel.Position)
+        {
+            case SystemPanelPosition.Top:
+                x = monitorSize.left;
+                y = monitorSize.top - offset;
+                width = monitorSize.right - monitorSize.left;
+                height = thickness;
+                break;
+
+            case SystemPanelPosition.Bottom:
+                x = monitorSize.left;
+                y = monitorSize.bottom - thickness + offset;
+                width = monitorSize.right - monitorSize.left;
+                height = thickness;
+                break;
+
+            case SystemPanelPosition.Left:
+                x = (int)(monitorSize.left - offset * scale);
+                y = monitorSize.top;
+                width = (int)(thickness * scale);
+                height = monitorSize.bottom - monitorSize.top;
+                break;
+
+            case SystemPanelPosition.Right:
+                x = (int)(monitorSize.right + (- thickness + offset) * scale);
+                y = monitorSize.top;
+                width = (int)(thickness * scale);
+                height = monitorSize.bottom - monitorSize.top;
+                break;
+        }
+
+        Task.Run(() =>
+            SetWindowPos(
+                Window.Handle,
+                HWND.HWND_TOPMOST,
+                x, y, width, height,
+                SWP_NOACTIVATE
+        ));
+    }
+
+    public void Dispose()
+    {
+        _proximityTimer?.Stop();
+        _proximityTimer = null;
+    }
+}
+
+public class SystemPanelsService
+{
+    public ObservableCollection<SystemPanel> PanelItems { get; } = new();
+    private readonly List<SystemPanelController> _controllers = new();
+
+    public void Initialize()
+    {
+        foreach (var panel in PanelItems)
+            SpawnPanel(panel);
+
+        //PanelItems.CollectionChanged += OnPanelsChanged;
+    }
+
+    void SpawnPanel(SystemPanel panel)
+    {
+        var controller = new SystemPanelController(panel);
+        controller.Create();
+        _controllers.Add(controller);
+    }
+}
 
 public partial class StartMenuService : ObservableObject
 {
@@ -105,11 +543,15 @@ public partial class App : Application
                         TestShellWindow.SetAlwaysOnTop(true);
                         unsafe
                         {
+                            var exStyle = GetWindowLongPtrW(TestShellWindow.Handle, GWL.GWL_EXSTYLE);
+                            exStyle |= WS.WS_EX_TOOLWINDOW;
+                            exStyle &= ~WS.WS_EX_APPWINDOW;
+                            SetWindowLongPtrW(TestShellWindow.Handle, GWL.GWL_EXSTYLE, exStyle);
                             SetWindowPos(
                                 App.TestShellWindow!.Handle,
                                 HWND.NULL,
                                 0, 0, 0, 0,
-                                SWP_NOMOVE | SWP_NOSIZE | SWP_HIDEWINDOW);
+                                SWP_NOMOVE | SWP_NOSIZE | SWP_HIDEWINDOW | SWP_FRAMECHANGED);
                             const int DWMWA_TRANSITIONS_FORCEDISABLED = 3;
                             int trueValue = 1;
                             DwmSetWindowAttribute(App.TestShellWindow!.Handle, DWMWA_TRANSITIONS_FORCEDISABLED, &trueValue, sizeof(int));
@@ -188,6 +630,33 @@ public partial class App : Application
             // Spawn the window
             MainWindow.Create();
 #endif
+
+            var panels = new SystemPanelsService();
+            panels.PanelItems.Add(new SystemPanel
+            {
+                Position = SystemPanelPosition.Top,
+                Size = 40,
+                AvoidWindows = false,
+                AllowFloat = false
+            });
+
+            panels.PanelItems.Add(new SystemPanel
+            {
+                Position = SystemPanelPosition.Left,
+                Size = 64,
+                AvoidWindows = true, // overlay-style
+                AllowFloat = false
+            });
+
+            panels.PanelItems.Add(new SystemPanel
+            {
+                Position = SystemPanelPosition.Right,
+                Size = 64,
+                AvoidWindows = true, // overlay-style
+                AllowFloat = false
+            });
+
+            panels.Initialize();
         }
         else Process.GetCurrentProcess().Kill();
     }
@@ -271,6 +740,7 @@ public partial class App : Application
                 StartMenuService.IsStartMenuOpen = true;
 
                 TestShellWindow?.ForceBringToFront();
+                TestShellWindow?.SetAlwaysOnTop(true);
 
                 unsafe
                 {

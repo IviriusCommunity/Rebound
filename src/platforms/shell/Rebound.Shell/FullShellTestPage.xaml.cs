@@ -34,4 +34,9 @@ public sealed partial class FullShellTestPage : Page
     {
         App.ToggleStartMenu();
     }
+
+    private void Grid_PointerPressed_1(object sender, PointerRoutedEventArgs e)
+    {
+        e.Handled = true;
+    }
 }
