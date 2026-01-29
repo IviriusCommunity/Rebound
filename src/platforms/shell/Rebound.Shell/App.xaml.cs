@@ -77,12 +77,13 @@ public sealed class SystemPanelController
         var hwnd = Window.Handle;
         var exStyle = GetWindowLongPtrW(hwnd, GWL.GWL_EXSTYLE);
         exStyle |= WS.WS_EX_TOOLWINDOW;
-        //exStyle |= WS.WS_EX_NOACTIVATE;
+        exStyle |= WS.WS_EX_NOACTIVATE;
         exStyle &= ~WS.WS_EX_APPWINDOW;
         SetWindowLongPtrW(hwnd, GWL.GWL_EXSTYLE, exStyle);
         var style = GetWindowLongPtrW(hwnd, GWL.GWL_STYLE);
         style &= ~WS.WS_BORDER;
         style &= ~WS.WS_THICKFRAME;
+        style &= ~WS.WS_DLGFRAME;
         SetWindowLongPtrW(hwnd, GWL.GWL_STYLE, style);
         SetWindowPos(
             hwnd,
@@ -183,9 +184,20 @@ public sealed class SystemPanelController
         };
         Window.XamlInitialized += (_, _) =>
         {
+            Window.Content = new Grid()
+            {
+                Background = new CommunityToolkit.WinUI.Media.AcrylicBrush()
+                {
+                    BlurAmount = 32,
+                    TintOpacity = 0.4,
+                    TintColor = Colors.Black,
+                    BackgroundSource = Windows.UI.Xaml.Media.AcrylicBackgroundSource.Backdrop
+                }
+            };
             //Window.Content = CreatePanelRoot();
         };
         Window.Create();
+        Window.MakeWindowTransparent();
     }
 
     private void StartProximityMonitoring()
@@ -441,7 +453,10 @@ public sealed class SystemPanelController
             SetWindowPos(
                 Window.Handle,
                 HWND.HWND_TOPMOST,
-                x, y, width, height,
+                (int)(x),
+                (int)(y),
+                (int)(width),
+                (int)(height),
                 SWP_NOACTIVATE
         ));
     }
@@ -468,9 +483,12 @@ public class SystemPanelsService
 
     void SpawnPanel(SystemPanel panel)
     {
-        var controller = new SystemPanelController(panel);
-        controller.Create();
-        _controllers.Add(controller);
+        UIThreadQueue.QueueAction(() =>
+        {
+            var controller = new SystemPanelController(panel);
+            controller.Create();
+            _controllers.Add(controller);
+        });
     }
 }
 
@@ -639,20 +657,53 @@ public partial class App : Application
                 AvoidWindows = false,
                 AllowFloat = false
             });
-
+            panels.PanelItems.Add(new SystemPanel
+            {
+                Position = SystemPanelPosition.Bottom,
+                Size = 40,
+                AvoidWindows = false,
+                AllowFloat = false
+            });
             panels.PanelItems.Add(new SystemPanel
             {
                 Position = SystemPanelPosition.Left,
-                Size = 64,
-                AvoidWindows = true, // overlay-style
+                Size = 40,
+                AvoidWindows = false,
                 AllowFloat = false
             });
-
             panels.PanelItems.Add(new SystemPanel
             {
                 Position = SystemPanelPosition.Right,
-                Size = 64,
-                AvoidWindows = true, // overlay-style
+                Size = 40,
+                AvoidWindows = false,
+                AllowFloat = false
+            });
+            panels.PanelItems.Add(new SystemPanel
+            {
+                Position = SystemPanelPosition.Top,
+                Size = 60,
+                AvoidWindows = true,
+                AllowFloat = false
+            });
+            panels.PanelItems.Add(new SystemPanel
+            {
+                Position = SystemPanelPosition.Bottom,
+                Size = 60,
+                AvoidWindows = true,
+                AllowFloat = false
+            });
+            panels.PanelItems.Add(new SystemPanel
+            {
+                Position = SystemPanelPosition.Left,
+                Size = 60,
+                AvoidWindows = true,
+                AllowFloat = false
+            });
+            panels.PanelItems.Add(new SystemPanel
+            {
+                Position = SystemPanelPosition.Right,
+                Size = 60,
+                AvoidWindows = true,
                 AllowFloat = false
             });
 
