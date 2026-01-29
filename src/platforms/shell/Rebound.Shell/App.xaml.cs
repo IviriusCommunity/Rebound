@@ -45,11 +45,18 @@ public enum SystemPanelPosition
     Bottom
 }
 
+public enum SystemPanelVisibilityMode
+{
+    AlwaysVisible,
+    AutoHide,
+    Hidden
+}
+
 public partial class SystemPanel : ObservableObject
 {
     [ObservableProperty] public partial SystemPanelPosition Position { get; set; }
-    [ObservableProperty] public partial bool AllowFloat { get; set; }
-    [ObservableProperty] public partial bool AvoidWindows { get; set; }
+    [ObservableProperty] public partial bool Floating { get; set; }
+    [ObservableProperty] public partial SystemPanelVisibilityMode VisibilityMode { get; set; }
     [ObservableProperty] public partial int Size { get; set; }
     [ObservableProperty] public partial int FillSize { get; set; }
 }
@@ -61,11 +68,26 @@ public sealed class SystemPanelController
 
     private DispatcherTimer _proximityTimer;
     private bool _isHidden;
+    private bool _isMouseNear; // Track if mouse is near the edge
+    private bool _isMouseInPanel; // Track if mouse is inside the panel
     private const int PROXIMITY_CHECK_INTERVAL = 100; // ms
     private const int HIDE_THRESHOLD = 50; // pixels from panel edge
     private const int ANIMATION_DURATION = 200; // ms
+    private const int MOUSE_REVEAL_THRESHOLD = 5; // pixels from screen edge to reveal
+    private const int MOUSE_LEAVE_DELAY = 500; // ms delay before hiding after mouse leaves
+    private const int MOUSE_REVEAL_DELAY = 500; // ms delay before revealing when mouse approaches edge
+    private const int FLOAT_MARGIN = 8; // margin for floating panels
+    private const int HIDDEN_REVEAL_DELAY = 300; // ms
+    private const int HIDDEN_HIDE_DELAY = 200;   // ms
+
+    private DateTime _mouseLeftPanelTime = DateTime.MinValue;
+    private DateTime _mouseNearEdgeTime = DateTime.MinValue;
+    private bool _wasMouseNearEdge = false;
 
     private RECT _logicalPanelRect;
+
+    private DateTime _lastRevealTime = DateTime.MinValue;
+    private const int REVEAL_GRACE_PERIOD = 300; // ms (tweakable)
 
     public SystemPanelController(SystemPanel panel)
     {
@@ -105,63 +127,76 @@ public sealed class SystemPanelController
 
     unsafe void ApplyLayout()
     {
-        if (!Panel.AvoidWindows)
-            RegisterAppBar(); // ideally once, but this is fine for now
-        var monitorSize = Display.GetAvailableRectForWindow(Window.Handle);
+        if (Panel.VisibilityMode == SystemPanelVisibilityMode.AlwaysVisible)
+        {
+            RegisterAppBar();
+        }
+
+        var workArea = Display.GetDisplayWorkArea(Window.Handle);
         var scale = Display.GetScale(Window.Handle);
-        int thickness = (int)(Panel.Size * scale);
-        Debug.WriteLine("Thickness: " + thickness);
+
+        // Add float margin inflation (16px total = 8px on each side)
+        int floatInflation = Panel.Floating ? (int)(16 * scale) : 0;
+        int thickness = (int)(Panel.Size * scale) + floatInflation;
+
+        Debug.WriteLine($"Thickness: {thickness} (base: {Panel.Size * scale}, inflation: {floatInflation})");
+
         APPBARDATA abd = new()
         {
             cbSize = (uint)sizeof(APPBARDATA),
             hWnd = Window.Handle
         };
+
+        int thicknessPhysical = (int)(thickness * scale);
+
         switch (Panel.Position)
         {
             case SystemPanelPosition.Top:
                 abd.uEdge = ABE_TOP;
-                abd.rc.left = monitorSize.left;
-                abd.rc.right = monitorSize.right;
-                abd.rc.top = monitorSize.top;
-                abd.rc.bottom = thickness;
+                abd.rc.left = workArea.left;
+                abd.rc.right = workArea.right;
+                abd.rc.top = workArea.top;
+                abd.rc.bottom = abd.rc.top + thicknessPhysical;
                 break;
+
             case SystemPanelPosition.Bottom:
                 abd.uEdge = ABE_BOTTOM;
-                abd.rc.left = monitorSize.left;
-                abd.rc.right = monitorSize.right;
-                abd.rc.top = monitorSize.bottom - thickness;
-                abd.rc.bottom = thickness;
+                abd.rc.left = workArea.left;
+                abd.rc.right = workArea.right;
+                abd.rc.bottom = workArea.bottom;
+                abd.rc.top = abd.rc.bottom - thicknessPhysical;
                 break;
+
             case SystemPanelPosition.Left:
                 abd.uEdge = ABE_LEFT;
-                abd.rc.left = monitorSize.left;
-                abd.rc.right = (int)(thickness * scale);
-                abd.rc.top = monitorSize.top;
-                abd.rc.bottom = monitorSize.bottom;
+                abd.rc.top = workArea.top;
+                abd.rc.bottom = workArea.bottom;
+                abd.rc.left = workArea.left;
+                abd.rc.right = abd.rc.left + thicknessPhysical;
                 break;
+
             case SystemPanelPosition.Right:
                 abd.uEdge = ABE_RIGHT;
-                abd.rc.left = (int)(monitorSize.right - thickness * scale);
-                abd.rc.right = monitorSize.right;
-                abd.rc.top = monitorSize.top;
-                abd.rc.bottom = monitorSize.bottom;
+                abd.rc.top = workArea.top;
+                abd.rc.bottom = workArea.bottom;
+                abd.rc.right = workArea.right;
+                abd.rc.left = abd.rc.right - thicknessPhysical;
                 break;
         }
-        if (!Panel.AvoidWindows)
+
+        if (Panel.VisibilityMode == SystemPanelVisibilityMode.AlwaysVisible)
         {
             SHAppBarMessage(ABM.ABM_QUERYPOS, &abd);
-            // Commit the negotiated rectangle
             SHAppBarMessage(ABM.ABM_SETPOS, &abd);
         }
+
         _logicalPanelRect = abd.rc;
 
         Window.MoveAndResize(
-            (int)((abd.rc.left) / scale),
-            (int)((abd.rc.top) / scale),
+            (int)(abd.rc.left / scale),
+            (int)(abd.rc.top / scale),
             (int)((abd.rc.right - abd.rc.left) / scale),
-            (int)((abd.rc.bottom - abd.rc.top) / scale)
-        );
-        Debug.WriteLine("Window height: " + (abd.rc.bottom - abd.rc.top));
+            (int)((abd.rc.bottom - abd.rc.top) / scale));
     }
 
     public void Create()
@@ -177,14 +212,15 @@ public sealed class SystemPanelController
             ConfigureWindow();
             ApplyLayout();
 
-            if (Panel.AvoidWindows)
+            if (Panel.VisibilityMode is SystemPanelVisibilityMode.AutoHide
+                or SystemPanelVisibilityMode.Hidden)
             {
                 StartProximityMonitoring();
             }
         };
         Window.XamlInitialized += (_, _) =>
         {
-            Window.Content = new Grid()
+            var grid = new Grid()
             {
                 Background = new CommunityToolkit.WinUI.Media.AcrylicBrush()
                 {
@@ -194,7 +230,21 @@ public sealed class SystemPanelController
                     BackgroundSource = Windows.UI.Xaml.Media.AcrylicBackgroundSource.Backdrop
                 }
             };
-            //Window.Content = CreatePanelRoot();
+            if (Panel.Floating)
+            {
+                grid.Margin = new Thickness(FLOAT_MARGIN);
+                grid.CornerRadius = new CornerRadius(8);
+            }
+
+            // Track mouse enter/leave events
+            grid.PointerEntered += (s, e) => _isMouseInPanel = true;
+            grid.PointerExited += (s, e) =>
+            {
+                _isMouseInPanel = false;
+                _mouseLeftPanelTime = DateTime.Now;
+            };
+
+            Window.Content = grid;
         };
         Window.Create();
         Window.MakeWindowTransparent();
@@ -246,36 +296,27 @@ public sealed class SystemPanelController
     {
         var state = (EnumWindowsState*)lParam;
 
-        // Skip our own window
         if (hwnd == state->PanelHwnd)
             return true;
 
-        // Only check visible windows
         if (!IsWindowVisible(hwnd))
             return true;
 
-        // Skip minimized windows
         if (IsIconic(hwnd))
             return true;
 
-        // Check extended styles
         var exStyle = GetWindowLongPtrW(hwnd, GWL.GWL_EXSTYLE);
-        var style = GetWindowLongPtrW(hwnd, GWL.GWL_EXSTYLE);
         bool isToolWindow = (exStyle & WS.WS_EX_TOOLWINDOW) != 0;
         bool isAppWindow = (exStyle & WS.WS_EX_APPWINDOW) != 0;
 
-        // Skip tool windows that aren't explicitly app windows
         if (isToolWindow && !isAppWindow)
             return true;
 
-        // Get window owner - top-level windows have no owner
         HWND owner = GetWindow(hwnd, GW_OWNER);
 
-        // Skip owned windows (like dialogs) unless they have WS_EX_APPWINDOW
         if (owner != HWND.NULL && !isAppWindow)
             return true;
 
-        // Skip windows with no title and no app window style (usually helper windows)
         const int titleBufferSize = 256;
         char* titleBuffer = stackalloc char[titleBufferSize];
         int titleLength = GetWindowTextW(hwnd, titleBuffer, titleBufferSize);
@@ -292,16 +333,8 @@ public sealed class SystemPanelController
 
         if (IsWindowNearPanel(windowRect, state->PanelRect, state->Position))
         {
-            // Get window class name
-            const int classBufferSize = 256;
-            char* classBuffer = stackalloc char[classBufferSize];
-            int classLength = GetClassNameW(hwnd, classBuffer, classBufferSize);
-            string windowClass = new string(classBuffer, 0, classLength);
-
-            Debug.WriteLine($"Nearby window - Class: {windowClass}");
-
             state->FoundNearbyWindow = true;
-            return false; // Stop enumeration
+            return false;
         }
 
         return true;
@@ -326,52 +359,182 @@ public sealed class SystemPanelController
         }
     }
 
-    private async Task AnimateShowAsync()
+    private unsafe bool IsMouseNearEdge()
     {
-        _isHidden = false;
-        await AnimatePositionAsync(0);
-    }
+        POINT cursorPos;
+        GetCursorPos(&cursorPos);
 
-    private int GetCurrentOffset(RECT rect)
-    {
-        var monitorSize = Display.GetAvailableRectForWindow(Window.Handle);
+        // Get the actual monitor bounds (not work area)
+        var monitor = MonitorFromWindow(Window.Handle, MONITOR.MONITOR_DEFAULTTONEAREST);
+        MONITORINFO monitorInfo = new() { cbSize = (uint)sizeof(MONITORINFO) };
+        GetMonitorInfoW(monitor, &monitorInfo);
+        var monitorRect = monitorInfo.rcMonitor;
 
         switch (Panel.Position)
         {
             case SystemPanelPosition.Top:
-                return monitorSize.top - rect.top;
+                return cursorPos.y <= monitorRect.top + MOUSE_REVEAL_THRESHOLD;
             case SystemPanelPosition.Bottom:
-                return rect.bottom - monitorSize.bottom;
+                return cursorPos.y >= monitorRect.bottom - MOUSE_REVEAL_THRESHOLD;
             case SystemPanelPosition.Left:
-                return monitorSize.left - rect.left;
+                return cursorPos.x <= monitorRect.left + MOUSE_REVEAL_THRESHOLD;
             case SystemPanelPosition.Right:
-                return rect.right - monitorSize.right;
+                return cursorPos.x >= monitorRect.right - MOUSE_REVEAL_THRESHOLD;
             default:
-                return 0;
+                return false;
         }
     }
 
     private async Task CheckWindowProximity()
     {
-        bool shouldHide = IsAnyWindowNearby();
+        switch (Panel.VisibilityMode)
+        {
+            case SystemPanelVisibilityMode.AlwaysVisible:
+                return;
+
+            case SystemPanelVisibilityMode.Hidden:
+                await HandleHiddenModeAsync();
+                return;
+
+            case SystemPanelVisibilityMode.AutoHide:
+                await HandleAutoHideModeAsync();
+                return;
+        }
+    }
+
+    private async Task HandleHiddenModeAsync()
+    {
+        bool mouseNear = IsMouseNearEdge();
+
+        // Track edge entry time
+        if (mouseNear && !_wasMouseNearEdge)
+        {
+            _mouseNearEdgeTime = DateTime.Now;
+        }
+        else if (!mouseNear)
+        {
+            _mouseNearEdgeTime = DateTime.MinValue;
+        }
+
+        _wasMouseNearEdge = mouseNear;
+
+        bool hasMouseBeenNearLongEnough =
+            mouseNear &&
+            (DateTime.Now - _mouseNearEdgeTime).TotalMilliseconds >= HIDDEN_REVEAL_DELAY;
+
+        bool hasMouseLeftLongEnough =
+            !_isMouseInPanel &&
+            !mouseNear &&
+            (DateTime.Now - _mouseLeftPanelTime).TotalMilliseconds >= HIDDEN_HIDE_DELAY;
+
+        // Reveal
+        if (hasMouseBeenNearLongEnough && _isHidden)
+        {
+            _isHidden = false;
+            _lastRevealTime = DateTime.Now;
+            await AnimatePositionAsync(0);
+            Debug.WriteLine("Hidden → Revealed (edge hover)");
+            return;
+        }
+
+        // Hide
+        if (hasMouseLeftLongEnough && !_isHidden)
+        {
+            _isHidden = true;
+
+            // Reset intent state
+            _mouseNearEdgeTime = DateTime.MinValue;
+            _wasMouseNearEdge = false;
+
+            var scale = Display.GetScale(Window.Handle);
+            int floatInflation = Panel.Floating ? (int)(16 * scale) : 0;
+            int thickness = (int)(Panel.Size * scale) + floatInflation;
+
+            await AnimatePositionAsync(thickness);
+            Debug.WriteLine("Hidden ← Concealed (leave)");
+        }
+    }
+
+    private async Task HandleAutoHideModeAsync()
+    {
+        bool mouseNear = IsMouseNearEdge();
+        bool windowNearby = IsAnyWindowNearby();
+
+        // Edge timing
+        if (mouseNear && !_wasMouseNearEdge)
+            _mouseNearEdgeTime = DateTime.Now;
+        else if (!mouseNear)
+            _mouseNearEdgeTime = DateTime.MinValue;
+
+        _wasMouseNearEdge = mouseNear;
+
+        bool hasMouseBeenNearLongEnough =
+            mouseNear &&
+            (DateTime.Now - _mouseNearEdgeTime).TotalMilliseconds >= MOUSE_REVEAL_DELAY;
+
+        bool hasMouseLeftLongEnough =
+            !_isMouseInPanel &&
+            (DateTime.Now - _mouseLeftPanelTime).TotalMilliseconds >= MOUSE_LEAVE_DELAY;
+
+        bool isInRevealGracePeriod =
+            (DateTime.Now - _lastRevealTime).TotalMilliseconds < REVEAL_GRACE_PERIOD;
+
+        bool shouldReveal =
+            hasMouseBeenNearLongEnough ||
+            _isMouseInPanel ||
+            !windowNearby;
+
+        bool shouldHide =
+            windowNearby &&
+            !mouseNear &&
+            !_isMouseInPanel &&
+            hasMouseLeftLongEnough &&
+            !isInRevealGracePeriod;
 
         if (shouldHide && !_isHidden)
-        {
             await AnimateHideAsync();
-            Debug.WriteLine("Hiding");
-        }
-        else if (!shouldHide && _isHidden)
-        {
+        else if (shouldReveal && _isHidden)
             await AnimateShowAsync();
-            Debug.WriteLine("Showing");
+    }
+
+    private async Task AnimateShowAsync()
+    {
+        _isHidden = false;
+        _lastRevealTime = DateTime.Now;
+        await AnimatePositionAsync(0);
+    }
+
+    private int GetCurrentOffset(RECT rect)
+    {
+        var workArea = Display.GetDisplayWorkArea(Window.Handle);
+        var scale = Display.GetScale(Window.Handle);
+
+        switch (Panel.Position)
+        {
+            case SystemPanelPosition.Top:
+                return (int)((workArea.top - rect.top) / scale);
+            case SystemPanelPosition.Bottom:
+                return (int)((rect.bottom - workArea.bottom) / scale);
+            case SystemPanelPosition.Left:
+                return (int)((workArea.left - rect.left) / scale);
+            case SystemPanelPosition.Right:
+                return (int)((rect.right - workArea.right) / scale);
+            default:
+                return 0;
         }
     }
 
     private async Task AnimateHideAsync()
     {
         _isHidden = true;
+
+        // Reset mouse intent tracking
+        _mouseNearEdgeTime = DateTime.MinValue;
+        _wasMouseNearEdge = false;
+
         var scale = Display.GetScale(Window.Handle);
-        int thickness = (int)(Panel.Size * scale);
+        int floatInflation = Panel.Floating ? (int)(16 * scale) : 0;
+        int thickness = (int)(Panel.Size * scale) + floatInflation;
         await AnimatePositionAsync(thickness);
     }
 
@@ -379,29 +542,24 @@ public sealed class SystemPanelController
     {
         var startTime = DateTime.Now;
         var scale = Display.GetScale(Window.Handle);
-
         RECT currentRect;
         unsafe
         {
             GetWindowRect(Window.Handle, &currentRect);
         }
-
         var startOffset = GetCurrentOffset(currentRect);
-
         var delta = targetOffset - startOffset;
 
         while (true)
         {
             var elapsed = (DateTime.Now - startTime).TotalMilliseconds;
             var progress = Math.Min(elapsed / ANIMATION_DURATION, 1.0);
-
             var easedProgress = 1 - Math.Pow(1 - progress, 3);
-
             var currentOffset = startOffset + delta * easedProgress;
 
             UIThreadQueue.QueueAction(() =>
             {
-                ApplyOffset((int)Math.Round(currentOffset), scale);
+                ApplyOffset((int)Math.Round(currentOffset), scale, easedProgress);
             });
 
             if (progress >= 1.0)
@@ -411,54 +569,64 @@ public sealed class SystemPanelController
         }
     }
 
-    private unsafe void ApplyOffset(int offset, double scale)
+    private unsafe void ApplyOffset(int offset, double scale, double progress)
     {
-        var monitorSize = Display.GetAvailableRectForWindow(Window.Handle);
-        int thickness = (int)(Panel.Size * scale);
+        var area = Display.GetDisplayArea(Window.Handle);
+        var workArea = Display.GetDisplayWorkArea(Window.Handle);
+
+        int floatInflation = Panel.Floating ? (int)(16 * scale) : 0;
+        int thickness = (int)(Panel.Size * scale) + floatInflation; // logical pixels
+        int thicknessScaled = (int)(thickness * scale); // physical pixels
+
+        // Calculate the gap between work area and monitor edge (already in physical pixels)
+        int workAreaOffsetLeft = workArea.left - area.left;
+        int workAreaOffsetTop = workArea.top - area.top;
+        int workAreaOffsetRight = area.right - workArea.right;
+        int workAreaOffsetBottom = area.bottom - workArea.bottom;
 
         int x = 0, y = 0, width = 0, height = 0;
+
+        // offset is in logical pixels from AnimateHideAsync, convert to physical for progress calc
+        double hideProgress = thickness > 0 ? offset / (double)thickness : 0;
+        int offsetPhysical = (int)(offset * scale);
 
         switch (Panel.Position)
         {
             case SystemPanelPosition.Top:
-                x = monitorSize.left;
-                y = monitorSize.top - offset;
-                width = monitorSize.right - monitorSize.left;
-                height = thickness;
+                x = workArea.left;
+                y = workArea.top - offsetPhysical - (int)(workAreaOffsetTop * hideProgress);
+                width = workArea.right - workArea.left;
+                height = thicknessScaled;
                 break;
 
             case SystemPanelPosition.Bottom:
-                x = monitorSize.left;
-                y = monitorSize.bottom - thickness + offset;
-                width = monitorSize.right - monitorSize.left;
-                height = thickness;
+                x = workArea.left;
+                y = workArea.bottom - thicknessScaled + offsetPhysical + (int)(workAreaOffsetBottom * hideProgress);
+                width = workArea.right - workArea.left;
+                height = thicknessScaled;
                 break;
 
             case SystemPanelPosition.Left:
-                x = (int)(monitorSize.left - offset * scale);
-                y = monitorSize.top;
-                width = (int)(thickness * scale);
-                height = monitorSize.bottom - monitorSize.top;
+                x = workArea.left - offsetPhysical - (int)(workAreaOffsetLeft * hideProgress);
+                y = workArea.top;
+                width = thicknessScaled;
+                height = workArea.bottom - workArea.top;
                 break;
 
             case SystemPanelPosition.Right:
-                x = (int)(monitorSize.right + (- thickness + offset) * scale);
-                y = monitorSize.top;
-                width = (int)(thickness * scale);
-                height = monitorSize.bottom - monitorSize.top;
+                x = workArea.right - thicknessScaled + offsetPhysical + (int)(workAreaOffsetRight * hideProgress);
+                y = workArea.top;
+                width = thicknessScaled;
+                height = workArea.bottom - workArea.top;
                 break;
         }
 
-        Task.Run(() =>
-            SetWindowPos(
-                Window.Handle,
-                HWND.HWND_TOPMOST,
-                (int)(x),
-                (int)(y),
-                (int)(width),
-                (int)(height),
-                SWP_NOACTIVATE
-        ));
+        SetWindowPos(
+            Window.Handle,
+            HWND.HWND_TOPMOST,
+            x, y, width, height,
+            SWP_NOACTIVATE
+        );
     }
 
     public void Dispose()
@@ -654,57 +822,57 @@ public partial class App : Application
             {
                 Position = SystemPanelPosition.Top,
                 Size = 40,
-                AvoidWindows = false,
-                AllowFloat = false
+                VisibilityMode = SystemPanelVisibilityMode.AlwaysVisible,
+                Floating = true
             });
             panels.PanelItems.Add(new SystemPanel
             {
                 Position = SystemPanelPosition.Bottom,
                 Size = 40,
-                AvoidWindows = false,
-                AllowFloat = false
+                VisibilityMode = SystemPanelVisibilityMode.AlwaysVisible,
+                Floating = false
             });
             panels.PanelItems.Add(new SystemPanel
             {
                 Position = SystemPanelPosition.Left,
                 Size = 40,
-                AvoidWindows = false,
-                AllowFloat = false
+                VisibilityMode = SystemPanelVisibilityMode.AlwaysVisible,
+                Floating = false
             });
             panels.PanelItems.Add(new SystemPanel
             {
                 Position = SystemPanelPosition.Right,
                 Size = 40,
-                AvoidWindows = false,
-                AllowFloat = false
+                VisibilityMode = SystemPanelVisibilityMode.AlwaysVisible,
+                Floating = false
             });
             panels.PanelItems.Add(new SystemPanel
             {
                 Position = SystemPanelPosition.Top,
                 Size = 60,
-                AvoidWindows = true,
-                AllowFloat = false
+                VisibilityMode = SystemPanelVisibilityMode.AutoHide,
+                Floating = false
             });
             panels.PanelItems.Add(new SystemPanel
             {
                 Position = SystemPanelPosition.Bottom,
                 Size = 60,
-                AvoidWindows = true,
-                AllowFloat = false
+                VisibilityMode = SystemPanelVisibilityMode.Hidden,
+                Floating = false
             });
             panels.PanelItems.Add(new SystemPanel
             {
                 Position = SystemPanelPosition.Left,
                 Size = 60,
-                AvoidWindows = true,
-                AllowFloat = false
+                VisibilityMode = SystemPanelVisibilityMode.AutoHide,
+                Floating = true
             });
             panels.PanelItems.Add(new SystemPanel
             {
                 Position = SystemPanelPosition.Right,
                 Size = 60,
-                AvoidWindows = true,
-                AllowFloat = false
+                VisibilityMode = SystemPanelVisibilityMode.Hidden,
+                Floating = false
             });
 
             panels.Initialize();

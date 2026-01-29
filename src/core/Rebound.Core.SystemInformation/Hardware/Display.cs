@@ -37,6 +37,22 @@ public static class Display
         throw new InvalidOperationException("Failed to get monitor info.");
     }
 
+    public static unsafe RECT GetDisplayArea(HWND hwnd)
+    {
+        var monitor = TerraFX.Interop.Windows.Windows.MonitorFromWindow(hwnd, MONITOR.MONITOR_DEFAULTTONEAREST);
+        MONITORINFO monitorInfo = new() { cbSize = (uint)sizeof(MONITORINFO) };
+        TerraFX.Interop.Windows.Windows.GetMonitorInfoW(monitor, &monitorInfo);
+        return monitorInfo.rcMonitor;
+    }
+
+    public static unsafe RECT GetDisplayWorkArea(HWND hwnd)
+    {
+        var monitor = TerraFX.Interop.Windows.Windows.MonitorFromWindow(hwnd, MONITOR.MONITOR_DEFAULTTONEAREST);
+        MONITORINFO monitorInfo = new() { cbSize = (uint)sizeof(MONITORINFO) };
+        TerraFX.Interop.Windows.Windows.GetMonitorInfoW(monitor, &monitorInfo);
+        return monitorInfo.rcWork;
+    }
+
     public static double GetScale(HWND hwnd)
     {
         // Get the device context for the window
