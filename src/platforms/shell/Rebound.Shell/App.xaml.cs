@@ -58,7 +58,6 @@ public partial class SystemPanel : ObservableObject
     [ObservableProperty] public partial bool Floating { get; set; }
     [ObservableProperty] public partial SystemPanelVisibilityMode VisibilityMode { get; set; }
     [ObservableProperty] public partial int Size { get; set; }
-    [ObservableProperty] public partial int FillSize { get; set; }
 }
 
 public sealed class SystemPanelController
@@ -70,7 +69,7 @@ public sealed class SystemPanelController
     private bool _isHidden;
     private bool _isMouseNear; // Track if mouse is near the edge
     private bool _isMouseInPanel; // Track if mouse is inside the panel
-    private const int PROXIMITY_CHECK_INTERVAL = 100; // ms
+    private const int PROXIMITY_CHECK_INTERVAL = 25; // ms
     private const int HIDE_THRESHOLD = 50; // pixels from panel edge
     private const int ANIMATION_DURATION = 200; // ms
     private const int MOUSE_REVEAL_THRESHOLD = 5; // pixels from screen edge to reveal
@@ -88,6 +87,12 @@ public sealed class SystemPanelController
 
     private DateTime _lastRevealTime = DateTime.MinValue;
     private const int REVEAL_GRACE_PERIOD = 300; // ms (tweakable)
+
+    // Add these fields near the top of the class with the other constants/fields
+    private bool _isWindowNearbyForFloating;
+    private DateTime _windowNearbyChangeTime = DateTime.MinValue;
+    private const int FLOATING_ANIMATION_DELAY = 200; // ms delay before animating
+    private const int FLOATING_ANIMATION_DURATION = 150; // ms
 
     public SystemPanelController(SystemPanel panel)
     {
@@ -135,11 +140,14 @@ public sealed class SystemPanelController
         var workArea = Display.GetDisplayWorkArea(Window.Handle);
         var scale = Display.GetScale(Window.Handle);
 
-        // Add float margin inflation (16px total = 8px on each side)
-        int floatInflation = Panel.Floating ? (int)(16 * scale) : 0;
-        int thickness = (int)(Panel.Size * scale) + floatInflation;
+        // Base thickness for AppBar reservation (NO inflation)
+        int baseThickness = (int)(Panel.Size * scale);
 
-        Debug.WriteLine($"Thickness: {thickness} (base: {Panel.Size * scale}, inflation: {floatInflation})");
+        // Visual thickness includes float margin
+        int floatInflation = Panel.Floating ? (int)(16 * scale) : 0;
+        int visualThickness = baseThickness + floatInflation;
+
+        Debug.WriteLine($"Thickness: {visualThickness} (base: {Panel.Size * scale}, inflation: {floatInflation})");
 
         APPBARDATA abd = new()
         {
@@ -147,7 +155,7 @@ public sealed class SystemPanelController
             hWnd = Window.Handle
         };
 
-        int thicknessPhysical = (int)(thickness * scale);
+        int thicknessPhysical = (int)(baseThickness * scale); // Use BASE thickness for AppBar
 
         switch (Panel.Position)
         {
@@ -192,11 +200,51 @@ public sealed class SystemPanelController
 
         _logicalPanelRect = abd.rc;
 
-        Window.MoveAndResize(
-            (int)(abd.rc.left / scale),
-            (int)(abd.rc.top / scale),
-            (int)((abd.rc.right - abd.rc.left) / scale),
-            (int)((abd.rc.bottom - abd.rc.top) / scale));
+        // Position window using VISUAL thickness (with inflation for floating panels)
+        int windowThickness = (int)(visualThickness * scale);
+
+        int windowX, windowY, windowWidth, windowHeight;
+
+        // Calculate position based on reserved rect and visual thickness
+        switch (Panel.Position)
+        {
+            case SystemPanelPosition.Top:
+                windowX = (int)(abd.rc.left / scale);
+                windowY = (int)(abd.rc.top / scale);
+                windowWidth = (int)((abd.rc.right - abd.rc.left) / scale);
+                windowHeight = (int)visualThickness;
+                break;
+
+            case SystemPanelPosition.Bottom:
+                windowX = (int)(abd.rc.left / scale);
+                windowY = (int)((abd.rc.bottom - windowThickness) / scale);
+                windowWidth = (int)((abd.rc.right - abd.rc.left) / scale);
+                windowHeight = (int)visualThickness;
+                break;
+
+            case SystemPanelPosition.Left:
+                windowX = (int)(abd.rc.left / scale);
+                windowY = (int)(abd.rc.top / scale);
+                windowWidth = (int)visualThickness;
+                windowHeight = (int)((abd.rc.bottom - abd.rc.top) / scale);
+                break;
+
+            case SystemPanelPosition.Right:
+                windowX = (int)((abd.rc.right - windowThickness) / scale);
+                windowY = (int)(abd.rc.top / scale);
+                windowWidth = (int)visualThickness;
+                windowHeight = (int)((abd.rc.bottom - abd.rc.top) / scale);
+                break;
+
+            default:
+                windowX = (int)(abd.rc.left / scale);
+                windowY = (int)(abd.rc.top / scale);
+                windowWidth = (int)((abd.rc.right - abd.rc.left) / scale);
+                windowHeight = (int)((abd.rc.bottom - abd.rc.top) / scale);
+                break;
+        }
+
+        Window.MoveAndResize(windowX, windowY, windowWidth, windowHeight);
     }
 
     public void Create()
@@ -212,10 +260,16 @@ public sealed class SystemPanelController
             ConfigureWindow();
             ApplyLayout();
 
-            if (Panel.VisibilityMode is SystemPanelVisibilityMode.AutoHide
-                or SystemPanelVisibilityMode.Hidden)
+            switch (Panel.VisibilityMode)
             {
-                StartProximityMonitoring();
+                case SystemPanelVisibilityMode.AlwaysVisible:
+                    if (Panel.Floating)
+                        StartProximityMonitoring();
+                    break;
+                case SystemPanelVisibilityMode.AutoHide:
+                case SystemPanelVisibilityMode.Hidden:
+                    StartProximityMonitoring();
+                    break;
             }
         };
         Window.XamlInitialized += (_, _) =>
@@ -248,6 +302,159 @@ public sealed class SystemPanelController
         };
         Window.Create();
         Window.MakeWindowTransparent();
+    }
+
+    // Update CheckWindowProximity to handle the new mode
+    private async Task CheckWindowProximity()
+    {
+        switch (Panel.VisibilityMode)
+        {
+            case SystemPanelVisibilityMode.AlwaysVisible when Panel.Floating:
+                await HandleFloatingAlwaysVisibleAsync();
+                return;
+
+            case SystemPanelVisibilityMode.AlwaysVisible:
+                return;
+
+            case SystemPanelVisibilityMode.Hidden:
+                await HandleHiddenModeAsync();
+                return;
+
+            case SystemPanelVisibilityMode.AutoHide:
+                await HandleAutoHideModeAsync();
+                return;
+        }
+    }
+
+    // Add this new method
+    private async Task HandleFloatingAlwaysVisibleAsync()
+    {
+        bool windowNearby = IsAnyWindowNearby();
+
+        // Track state change timing
+        if (windowNearby != _isWindowNearbyForFloating)
+        {
+            _windowNearbyChangeTime = DateTime.Now;
+            _isWindowNearbyForFloating = windowNearby;
+        }
+
+        // Check if enough time has passed since state change
+        bool shouldAnimate =
+            (DateTime.Now - _windowNearbyChangeTime).TotalMilliseconds >= FLOATING_ANIMATION_DELAY;
+
+        if (shouldAnimate)
+        {
+            await AnimateFloatingThicknessAsync(windowNearby);
+        }
+    }
+
+    // Add this new animation method
+    private async Task AnimateFloatingThicknessAsync(bool windowNearby)
+    {
+        var scale = Display.GetScale(Window.Handle);
+        int baseThickness = (int)(Panel.Size * scale);
+        int margin = (int)(FLOAT_MARGIN * 2 * scale);
+
+        // Target: with window = base, without window = base + margin
+        int targetThickness = windowNearby ? baseThickness : baseThickness + margin;
+
+        RECT currentRect;
+        unsafe
+        {
+            GetWindowRect(Window.Handle, &currentRect);
+        }
+
+        int currentThickness = Panel.Position switch
+        {
+            SystemPanelPosition.Top or SystemPanelPosition.Bottom =>
+                (int)((currentRect.bottom - currentRect.top) / scale),
+            SystemPanelPosition.Left or SystemPanelPosition.Right =>
+                (int)((currentRect.right - currentRect.left) / scale),
+            _ => baseThickness
+        };
+
+        // Already at target, no animation needed
+        if (Math.Abs(currentThickness - targetThickness) < 2)
+            return;
+
+        var startTime = DateTime.Now;
+        var startThickness = currentThickness;
+        var delta = targetThickness - startThickness;
+
+        if (Window.Content is Grid grid)
+        {
+            grid.Margin = new Thickness(windowNearby ? 0 : FLOAT_MARGIN);
+            grid.CornerRadius = new CornerRadius(windowNearby ? 0 : 8);
+        }
+
+        while (true)
+        {
+            var elapsed = (DateTime.Now - startTime).TotalMilliseconds;
+            var progress = Math.Min(elapsed / FLOATING_ANIMATION_DURATION, 1.0);
+            var easedProgress = 1 - Math.Pow(1 - progress, 3); // Ease-out cubic
+            var thickness = (int)Math.Round(startThickness + delta * easedProgress);
+
+            UIThreadQueue.QueueAction(() =>
+            {
+                ApplyFloatingThickness(thickness, scale);
+            });
+
+            if (progress >= 1.0)
+                return;
+
+            await Task.Delay(16);
+        }
+    }
+
+    // Add this method to apply the thickness
+    private unsafe void ApplyFloatingThickness(int logicalThickness, double scale)
+    {
+        // Use the reserved AppBar rect, not the work area
+        RECT reservedRect = _logicalPanelRect;
+        int physicalThickness = (int)(logicalThickness * scale);
+
+        int x, y, width, height;
+
+        switch (Panel.Position)
+        {
+            case SystemPanelPosition.Top:
+                x = reservedRect.left;
+                y = reservedRect.top;
+                width = reservedRect.right - reservedRect.left;
+                height = physicalThickness;
+                break;
+
+            case SystemPanelPosition.Bottom:
+                x = reservedRect.left;
+                y = reservedRect.bottom - physicalThickness;
+                width = reservedRect.right - reservedRect.left;
+                height = physicalThickness;
+                break;
+
+            case SystemPanelPosition.Left:
+                x = reservedRect.left;
+                y = reservedRect.top;
+                width = physicalThickness;
+                height = reservedRect.bottom - reservedRect.top;
+                break;
+
+            case SystemPanelPosition.Right:
+                x = reservedRect.right - physicalThickness;
+                y = reservedRect.top;
+                width = physicalThickness;
+                height = reservedRect.bottom - reservedRect.top;
+                break;
+
+            default:
+                return;
+        }
+
+        SetWindowPos(
+            Window.Handle,
+            HWND.HWND_TOPMOST,
+            x, y, width, height,
+            SWP_NOACTIVATE
+        );
     }
 
     private void StartProximityMonitoring()
@@ -382,23 +589,6 @@ public sealed class SystemPanelController
                 return cursorPos.x >= monitorRect.right - MOUSE_REVEAL_THRESHOLD;
             default:
                 return false;
-        }
-    }
-
-    private async Task CheckWindowProximity()
-    {
-        switch (Panel.VisibilityMode)
-        {
-            case SystemPanelVisibilityMode.AlwaysVisible:
-                return;
-
-            case SystemPanelVisibilityMode.Hidden:
-                await HandleHiddenModeAsync();
-                return;
-
-            case SystemPanelVisibilityMode.AutoHide:
-                await HandleAutoHideModeAsync();
-                return;
         }
     }
 
@@ -821,58 +1011,16 @@ public partial class App : Application
             panels.PanelItems.Add(new SystemPanel
             {
                 Position = SystemPanelPosition.Top,
-                Size = 40,
+                Size = 32,
                 VisibilityMode = SystemPanelVisibilityMode.AlwaysVisible,
-                Floating = true
-            });
-            panels.PanelItems.Add(new SystemPanel
-            {
-                Position = SystemPanelPosition.Bottom,
-                Size = 40,
-                VisibilityMode = SystemPanelVisibilityMode.AlwaysVisible,
-                Floating = false
-            });
-            panels.PanelItems.Add(new SystemPanel
-            {
-                Position = SystemPanelPosition.Left,
-                Size = 40,
-                VisibilityMode = SystemPanelVisibilityMode.AlwaysVisible,
-                Floating = false
-            });
-            panels.PanelItems.Add(new SystemPanel
-            {
-                Position = SystemPanelPosition.Right,
-                Size = 40,
-                VisibilityMode = SystemPanelVisibilityMode.AlwaysVisible,
-                Floating = false
-            });
-            panels.PanelItems.Add(new SystemPanel
-            {
-                Position = SystemPanelPosition.Top,
-                Size = 60,
-                VisibilityMode = SystemPanelVisibilityMode.AutoHide,
                 Floating = false
             });
             panels.PanelItems.Add(new SystemPanel
             {
                 Position = SystemPanelPosition.Bottom,
-                Size = 60,
-                VisibilityMode = SystemPanelVisibilityMode.Hidden,
-                Floating = false
-            });
-            panels.PanelItems.Add(new SystemPanel
-            {
-                Position = SystemPanelPosition.Left,
-                Size = 60,
+                Size = 48,
                 VisibilityMode = SystemPanelVisibilityMode.AutoHide,
                 Floating = true
-            });
-            panels.PanelItems.Add(new SystemPanel
-            {
-                Position = SystemPanelPosition.Right,
-                Size = 60,
-                VisibilityMode = SystemPanelVisibilityMode.Hidden,
-                Floating = false
             });
 
             panels.Initialize();
