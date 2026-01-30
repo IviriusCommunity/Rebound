@@ -60,17 +60,15 @@ public partial class SystemPanel : ObservableObject
     [ObservableProperty] public partial int Size { get; set; }
 }
 
-public sealed class SystemPanelController
+public sealed class SystemPanelController(SystemPanel panel)
 {
-    public SystemPanel Panel { get; }
-    public IslandsWindow Window { get; private set; }
+    public SystemPanel Panel { get; } = panel;
+    public IslandsWindow? Window { get; private set; }
 
-    private DispatcherTimer _proximityTimer;
+    private DispatcherTimer? _proximityTimer;
     private bool _isHidden;
-    private bool _isMouseNear; // Track if mouse is near the edge
     private bool _isMouseInPanel; // Track if mouse is inside the panel
     private const int PROXIMITY_CHECK_INTERVAL = 25; // ms
-    private const int HIDE_THRESHOLD = 50; // pixels from panel edge
     private const int ANIMATION_DURATION = 200; // ms
     private const int MOUSE_REVEAL_THRESHOLD = 5; // pixels from screen edge to reveal
     private const int MOUSE_LEAVE_DELAY = 500; // ms delay before hiding after mouse leaves
@@ -81,9 +79,9 @@ public sealed class SystemPanelController
 
     private DateTime _mouseLeftPanelTime = DateTime.MinValue;
     private DateTime _mouseNearEdgeTime = DateTime.MinValue;
-    private bool _wasMouseNearEdge = false;
+    private bool _wasMouseNearEdge;
 
-    private RECT _logicalPanelRect;
+    private RECT _logicalPanelVisibleWorkArea;
 
     private DateTime _lastRevealTime = DateTime.MinValue;
     private const int REVEAL_GRACE_PERIOD = 300; // ms (tweakable)
@@ -94,14 +92,9 @@ public sealed class SystemPanelController
     private const int FLOATING_ANIMATION_DELAY = 200; // ms delay before animating
     private const int FLOATING_ANIMATION_DURATION = 150; // ms
 
-    public SystemPanelController(SystemPanel panel)
-    {
-        Panel = panel;
-    }
-
     unsafe void ConfigureWindow()
     {
-        var hwnd = Window.Handle;
+        var hwnd = Window!.Handle;
         var exStyle = GetWindowLongPtrW(hwnd, GWL.GWL_EXSTYLE);
         exStyle |= WS.WS_EX_TOOLWINDOW;
         exStyle |= WS.WS_EX_NOACTIVATE;
@@ -125,29 +118,29 @@ public sealed class SystemPanelController
         APPBARDATA abd = new()
         {
             cbSize = (uint)sizeof(APPBARDATA),
-            hWnd = Window.Handle
+            hWnd = Window!.Handle
         };
         SHAppBarMessage(ABM.ABM_NEW, &abd);
     }
 
+    /// <summary>
+    /// Initialize the layout for the current panel. Set its default size and position for
+    /// the desired configuration.
+    /// </summary>
     unsafe void ApplyLayout()
     {
+        // Register app bar only for fixed panels
         if (Panel.VisibilityMode == SystemPanelVisibilityMode.AlwaysVisible)
-        {
             RegisterAppBar();
-        }
 
-        var workArea = Display.GetDisplayWorkArea(Window.Handle);
+        // Obtain variables
+        var workArea = Display.GetDisplayWorkArea(Window!.Handle);
         var scale = Display.GetScale(Window.Handle);
 
-        // Base thickness for AppBar reservation (NO inflation)
-        int baseThickness = (int)(Panel.Size * scale);
-
+        // LOGICAL PIXELS
         // Visual thickness includes float margin
         int floatInflation = Panel.Floating ? (int)(16 * scale) : 0;
-        int visualThickness = baseThickness + floatInflation;
-
-        Debug.WriteLine($"Thickness: {visualThickness} (base: {Panel.Size * scale}, inflation: {floatInflation})");
+        int logicalVisualThickness = Panel.Size + floatInflation;
 
         APPBARDATA abd = new()
         {
@@ -155,8 +148,10 @@ public sealed class SystemPanelController
             hWnd = Window.Handle
         };
 
-        int thicknessPhysical = (int)(baseThickness * scale); // Use BASE thickness for AppBar
+        // PHYSICAL PIXELS
+        int physicalThickness = (int)(Panel.Size * scale);
 
+        // Set metrics
         switch (Panel.Position)
         {
             case SystemPanelPosition.Top:
@@ -164,7 +159,7 @@ public sealed class SystemPanelController
                 abd.rc.left = workArea.left;
                 abd.rc.right = workArea.right;
                 abd.rc.top = workArea.top;
-                abd.rc.bottom = abd.rc.top + thicknessPhysical;
+                abd.rc.bottom = abd.rc.top + physicalThickness;
                 break;
 
             case SystemPanelPosition.Bottom:
@@ -172,7 +167,7 @@ public sealed class SystemPanelController
                 abd.rc.left = workArea.left;
                 abd.rc.right = workArea.right;
                 abd.rc.bottom = workArea.bottom;
-                abd.rc.top = abd.rc.bottom - thicknessPhysical;
+                abd.rc.top = abd.rc.bottom - physicalThickness;
                 break;
 
             case SystemPanelPosition.Left:
@@ -180,7 +175,7 @@ public sealed class SystemPanelController
                 abd.rc.top = workArea.top;
                 abd.rc.bottom = workArea.bottom;
                 abd.rc.left = workArea.left;
-                abd.rc.right = abd.rc.left + thicknessPhysical;
+                abd.rc.right = abd.rc.left + physicalThickness;
                 break;
 
             case SystemPanelPosition.Right:
@@ -188,21 +183,21 @@ public sealed class SystemPanelController
                 abd.rc.top = workArea.top;
                 abd.rc.bottom = workArea.bottom;
                 abd.rc.right = workArea.right;
-                abd.rc.left = abd.rc.right - thicknessPhysical;
+                abd.rc.left = abd.rc.right - physicalThickness;
                 break;
         }
 
+        // Apply app bar config
         if (Panel.VisibilityMode == SystemPanelVisibilityMode.AlwaysVisible)
         {
             SHAppBarMessage(ABM.ABM_QUERYPOS, &abd);
             SHAppBarMessage(ABM.ABM_SETPOS, &abd);
         }
 
-        _logicalPanelRect = abd.rc;
+        // Cache the visible work area
+        _logicalPanelVisibleWorkArea = abd.rc;
 
-        // Position window using VISUAL thickness (with inflation for floating panels)
-        int windowThickness = (int)(visualThickness * scale);
-
+        int physicalVisualThickness = (int)(logicalVisualThickness * scale);
         int windowX, windowY, windowWidth, windowHeight;
 
         // Calculate position based on reserved rect and visual thickness
@@ -212,27 +207,27 @@ public sealed class SystemPanelController
                 windowX = (int)(abd.rc.left / scale);
                 windowY = (int)(abd.rc.top / scale);
                 windowWidth = (int)((abd.rc.right - abd.rc.left) / scale);
-                windowHeight = (int)visualThickness;
+                windowHeight = logicalVisualThickness;
                 break;
 
             case SystemPanelPosition.Bottom:
                 windowX = (int)(abd.rc.left / scale);
-                windowY = (int)((abd.rc.bottom - windowThickness) / scale);
+                windowY = (int)((abd.rc.bottom - physicalVisualThickness) / scale);
                 windowWidth = (int)((abd.rc.right - abd.rc.left) / scale);
-                windowHeight = (int)visualThickness;
+                windowHeight = logicalVisualThickness;
                 break;
 
             case SystemPanelPosition.Left:
                 windowX = (int)(abd.rc.left / scale);
                 windowY = (int)(abd.rc.top / scale);
-                windowWidth = (int)visualThickness;
+                windowWidth = logicalVisualThickness;
                 windowHeight = (int)((abd.rc.bottom - abd.rc.top) / scale);
                 break;
 
             case SystemPanelPosition.Right:
-                windowX = (int)((abd.rc.right - windowThickness) / scale);
+                windowX = (int)((abd.rc.right - physicalVisualThickness) / scale);
                 windowY = (int)(abd.rc.top / scale);
-                windowWidth = (int)visualThickness;
+                windowWidth = logicalVisualThickness;
                 windowHeight = (int)((abd.rc.bottom - abd.rc.top) / scale);
                 break;
 
@@ -244,6 +239,7 @@ public sealed class SystemPanelController
                 break;
         }
 
+        // Requires logical pixels
         Window.MoveAndResize(windowX, windowY, windowWidth, windowHeight);
     }
 
@@ -352,8 +348,8 @@ public sealed class SystemPanelController
     private async Task AnimateFloatingThicknessAsync(bool windowNearby)
     {
         var scale = Display.GetScale(Window.Handle);
-        int baseThickness = (int)(Panel.Size * scale);
-        int margin = (int)(FLOAT_MARGIN * 2 * scale);
+        int baseThickness = (int)(Panel.Size);
+        int margin = (int)(FLOAT_MARGIN * 2);
 
         // Target: with window = base, without window = base + margin
         int targetThickness = windowNearby ? baseThickness : baseThickness + margin;
@@ -410,7 +406,8 @@ public sealed class SystemPanelController
     private unsafe void ApplyFloatingThickness(int logicalThickness, double scale)
     {
         // Use the reserved AppBar rect, not the work area
-        RECT reservedRect = _logicalPanelRect;
+        RECT reservedRect = _logicalPanelVisibleWorkArea;
+
         int physicalThickness = (int)(logicalThickness * scale);
 
         int x, y, width, height;
@@ -481,7 +478,7 @@ public sealed class SystemPanelController
 
     private unsafe bool IsAnyWindowNearby()
     {
-        RECT panelRect = _logicalPanelRect;
+        RECT panelRect = _logicalPanelVisibleWorkArea;
         var monitorHandle = MonitorFromWindow(Window.Handle, MONITOR.MONITOR_DEFAULTTONEAREST);
 
         EnumWindowsState state = new()
@@ -765,7 +762,7 @@ public sealed class SystemPanelController
         var workArea = Display.GetDisplayWorkArea(Window.Handle);
 
         int floatInflation = Panel.Floating ? (int)(16 * scale) : 0;
-        int thickness = (int)(Panel.Size * scale) + floatInflation; // logical pixels
+        int thickness = Panel.Size + floatInflation; // logical pixels
         int thicknessScaled = (int)(thickness * scale); // physical pixels
 
         // Calculate the gap between work area and monitor edge (already in physical pixels)
@@ -854,6 +851,179 @@ public partial class StartMenuService : ObservableObject
 {
     [ObservableProperty]
     public partial bool IsStartMenuOpen { get; set; }
+}
+
+public static class TaskbarManager
+{
+    private static HWND _taskbarHandle = HWND.NULL;
+    private static bool _wasTaskbarVisible = false;
+    private static APPBARDATA _originalAppBarData;
+    private static RECT _originalWorkArea;
+    private static DispatcherTimer? _checkTimer;
+    private static bool _hideTaskbar = false;
+
+    /// <summary>
+    /// Hides the Windows taskbar completely, including its reserved AppBar area.
+    /// </summary>
+    public static void HideTaskbar()
+    {
+        unsafe
+        {
+            // Find the taskbar window
+            _taskbarHandle = FindWindowW("Shell_TrayWnd".ToPointer(), null);
+
+            if (_taskbarHandle == HWND.NULL)
+            {
+                System.Diagnostics.Debug.WriteLine("Taskbar window not found");
+                return;
+            }
+
+            // Check if taskbar is currently visible
+            _wasTaskbarVisible = IsWindowVisible(_taskbarHandle);
+        }
+
+        if (_wasTaskbarVisible)
+        {
+            unsafe
+            {
+                // Store original work area
+                RECT workArea;
+                SystemParametersInfoW(SPI.SPI_GETWORKAREA, 0, &workArea, 0);
+                _originalWorkArea = workArea;
+
+                // Query the current AppBar state and store it
+                APPBARDATA tempAbd = new()
+                {
+                    cbSize = (uint)sizeof(APPBARDATA),
+                    hWnd = _taskbarHandle
+                };
+                SHAppBarMessage(ABM.ABM_GETTASKBARPOS, &tempAbd);
+
+                // Store the original state
+                _originalAppBarData = tempAbd;
+
+                // Set taskbar to auto-hide state first (this releases the work area)
+                APPBARDATA autoHideAbd = new()
+                {
+                    cbSize = (uint)sizeof(APPBARDATA),
+                    hWnd = _taskbarHandle,
+                    lParam = (LPARAM)1 // ABS_AUTOHIDE
+                };
+                SHAppBarMessage(ABM.ABM_SETSTATE, &autoHideAbd);
+
+                // Small delay to let it process
+                System.Threading.Thread.Sleep(50);
+
+                // Now hide the window completely
+                ShowWindow(_taskbarHandle, SW.SW_HIDE);
+
+                // Remove the AppBar registration entirely
+                APPBARDATA removeAbd = new()
+                {
+                    cbSize = (uint)sizeof(APPBARDATA),
+                    hWnd = _taskbarHandle
+                };
+                SHAppBarMessage(ABM.ABM_REMOVE, &removeAbd);
+
+                // Get the monitor bounds
+                HMONITOR hMonitor = MonitorFromWindow(_taskbarHandle, MONITOR.MONITOR_DEFAULTTOPRIMARY);
+                MONITORINFO monitorInfo = new() { cbSize = (uint)sizeof(MONITORINFO) };
+                GetMonitorInfoW(hMonitor, &monitorInfo);
+
+                // Set work area to full screen
+                RECT fullArea = monitorInfo.rcMonitor;
+                SystemParametersInfoW(SPI.SPI_SETWORKAREA, 0, &fullArea, SPIF_SENDCHANGE);
+            }
+
+            _hideTaskbar = true;
+
+            Task.Run(async () =>
+            {
+                while (_hideTaskbar)
+                {
+                    unsafe
+                    {
+                        // Remove WS_VISIBLE
+                        var style = GetWindowLongPtrW(_taskbarHandle, GWL.GWL_STYLE);
+                        style &= ~WS.WS_VISIBLE;
+                        SetWindowLongPtrW(_taskbarHandle, GWL.GWL_STYLE, (int)style);
+
+                        // Hide the window
+                        ShowWindow(_taskbarHandle, SW.SW_HIDE);
+
+                        // Update the window to apply styles
+                        SetWindowPos(_taskbarHandle, HWND.NULL, 0, 0, 0, 0,
+                            SWP_NOMOVE | SWP_NOSIZE | SWP_NOZORDER | SWP_FRAMECHANGED);
+                    }
+
+                    await Task.Delay(100);
+                }
+            });
+        }
+    }
+
+    /// <summary>
+    /// Restores the Windows taskbar to its previous state.
+    /// </summary>
+    public static unsafe void ShowTaskbar()
+    {
+        _hideTaskbar = false;
+
+        if (_taskbarHandle == HWND.NULL)
+        {
+            System.Diagnostics.Debug.WriteLine("No taskbar handle stored");
+            return;
+        }
+
+        if (_wasTaskbarVisible)
+        {
+            // Re-register the AppBar first
+            APPBARDATA abd = new()
+            {
+                cbSize = (uint)sizeof(APPBARDATA),
+                hWnd = _taskbarHandle
+            };
+            SHAppBarMessage(ABM.ABM_NEW, &abd);
+
+            // Restore the AppBar position
+            abd.uEdge = _originalAppBarData.uEdge;
+            abd.rc = _originalAppBarData.rc;
+            SHAppBarMessage(ABM.ABM_QUERYPOS, &abd);
+            SHAppBarMessage(ABM.ABM_SETPOS, &abd);
+
+            // Restore auto-hide state to off
+            APPBARDATA stateAbd = new()
+            {
+                cbSize = (uint)sizeof(APPBARDATA),
+                hWnd = _taskbarHandle,
+                lParam = (LPARAM)0 // Remove auto-hide
+            };
+            SHAppBarMessage(ABM.ABM_SETSTATE, &stateAbd);
+
+            // Show the taskbar window
+            ShowWindow(_taskbarHandle, SW.SW_SHOW);
+
+            RECT rectTemp;
+
+            // Restore original work area
+            SystemParametersInfoW(SPI.SPI_SETWORKAREA, 0, &rectTemp, SPIF_SENDCHANGE);
+            _originalWorkArea = rectTemp;
+
+            System.Diagnostics.Debug.WriteLine("Taskbar restored successfully");
+        }
+
+        // Reset state
+        _taskbarHandle = HWND.NULL;
+        _wasTaskbarVisible = false;
+    }
+
+    /// <summary>
+    /// Checks if the taskbar is currently hidden by this manager.
+    /// </summary>
+    public static bool IsTaskbarHidden()
+    {
+        return _taskbarHandle != HWND.NULL && _wasTaskbarVisible;
+    }
 }
 
 [ReboundApp("Rebound.ShellExperienceHost", "")]
@@ -1007,6 +1177,10 @@ public partial class App : Application
             MainWindow.Create();
 #endif
 
+            TaskbarManager.HideTaskbar();
+
+            await Task.Delay(500);
+
             var panels = new SystemPanelsService();
             panels.PanelItems.Add(new SystemPanel
             {
@@ -1019,11 +1193,35 @@ public partial class App : Application
             {
                 Position = SystemPanelPosition.Bottom,
                 Size = 48,
-                VisibilityMode = SystemPanelVisibilityMode.AutoHide,
+                VisibilityMode = SystemPanelVisibilityMode.AlwaysVisible,
                 Floating = true
+            });
+            panels.PanelItems.Add(new SystemPanel
+            {
+                Position = SystemPanelPosition.Left,
+                Size = 64,
+                VisibilityMode = SystemPanelVisibilityMode.AutoHide,
+                Floating = false
+            });
+            panels.PanelItems.Add(new SystemPanel
+            {
+                Position = SystemPanelPosition.Right,
+                Size = 128,
+                VisibilityMode = SystemPanelVisibilityMode.Hidden,
+                Floating = false
             });
 
             panels.Initialize();
+
+            await UIThreadQueue.QueueActionAsync(async () =>
+            {
+                await ReboundDialog.ShowAsync(
+                    "Rebound Shell",
+                    "Close this window to bring back the taskbar.",
+                    DialogIcon.Warning
+                ).ConfigureAwait(false);
+            });
+            TaskbarManager.ShowTaskbar();
         }
         else Process.GetCurrentProcess().Kill();
     }
