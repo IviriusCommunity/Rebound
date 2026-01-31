@@ -183,5 +183,6 @@
 	<!-- Shared project imports -->
 	<Import Project="..\lib\Rebound.Shell.Run\Rebound.Shell.Run.projitems" Label="Shared" />
 	<Import Project="..\lib\Rebound.Shell.ShutdownDialog\Rebound.Shell.ShutdownDialog.projitems" Label="Shared" />
+	<Import Project="..\lib\Rebound.Shell.ExperiencePack\Rebound.Shell.ExperiencePack.projitems" Label="Shared" />
 
 </Project>

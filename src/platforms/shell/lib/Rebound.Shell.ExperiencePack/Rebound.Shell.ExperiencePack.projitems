@@ -13,5 +13,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="$(MSBuildThisFileDirectory)StringHelper.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)SystemPanel.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)TaskbarManager.cs" />
   </ItemGroup>
 </Project>

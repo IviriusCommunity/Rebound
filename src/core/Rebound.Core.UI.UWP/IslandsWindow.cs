@@ -163,6 +163,8 @@ public sealed partial class ReboundDialog : IslandsWindow
 {
     private readonly TaskCompletionSource<bool> _tcs = new();
 
+    private bool _resultSet;
+
     /// <summary>
     /// Shows a simple dialog window in WinUI 2 XAML islands, based on the Win32 message box. For quick usage
     /// of a disposable dialog used for notifying the user of various things, use this method instead of
@@ -291,7 +293,15 @@ public sealed partial class ReboundDialog : IslandsWindow
             okButton.Click += (_, _) =>
             {
                 _tcs.TrySetResult(true);
+                _resultSet = true;
                 Close();
+            };
+            AppWindow?.Closing += (_, _) =>
+            {
+                if (!_resultSet)
+                {
+                    _tcs.TrySetResult(true);
+                }
             };
 
             footerGrid.Children.Add(okButton);
