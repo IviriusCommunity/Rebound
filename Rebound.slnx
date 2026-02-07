@@ -116,6 +116,12 @@
     <Project Path="src/core/forge/Rebound.Forge/Rebound.Forge.shproj" Id="f43daf59-768d-4caa-95fb-be1ee39dab16" />
   </Folder>
   <Folder Name="/src/core/forge/hooks/">
+    <Project Path="src/core/forge/hooks/Rebound.Forge.Hooks.ActionCenter/Rebound.Forge.Hooks.ActionCenter.vcxproj" Id="bec2c8d3-2d92-4f8a-a388-adcea0254973">
+      <Platform Solution="*|ARM64" Project="x64" />
+    </Project>
+    <Project Path="src/core/forge/hooks/Rebound.Forge.Hooks.AltTab/Rebound.Forge.Hooks.AltTab.vcxproj" Id="ced3195e-5c7b-41aa-a77f-4c2d515960db">
+      <Platform Solution="*|ARM64" Project="x64" />
+    </Project>
     <Project Path="src/core/forge/hooks/Rebound.Forge.Hooks.Run/Rebound.Forge.Hooks.Run.vcxproj" Id="27009764-e84a-40b3-932b-e6096272f365">
       <Platform Solution="*|ARM64" Project="x64" />
     </Project>

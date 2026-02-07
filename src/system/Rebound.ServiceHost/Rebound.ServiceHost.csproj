@@ -170,6 +170,14 @@
 	<!-- Native Hook DLL Build Targets -->
 	<Target Name="BuildNativeHooks" BeforeTargets="BeforeBuild">
 
+		<!-- Build Action Center Hook -->
+		<Message Importance="high" Text="Compiling Action Center DLL" />
+		<MSBuild Projects="$(SolutionDir)src\core\forge\hooks\Rebound.Forge.Hooks.ActionCenter\Rebound.Forge.Hooks.ActionCenter.vcxproj" Properties="Configuration=$(Configuration);Platform=$(Platform)" />
+
+		<!-- Build Alt Tab Hook -->
+		<Message Importance="high" Text="Compiling Alt Tab DLL" />
+		<MSBuild Projects="$(SolutionDir)src\core\forge\hooks\Rebound.Forge.Hooks.AltTab\Rebound.Forge.Hooks.AltTab.vcxproj" Properties="Configuration=$(Configuration);Platform=$(Platform)" />
+
 		<!-- Build Run Hook -->
 		<Message Importance="high" Text="Compiling Run DLL" />
 		<MSBuild Projects="$(SolutionDir)src\core\forge\hooks\Rebound.Forge.Hooks.Run\Rebound.Forge.Hooks.Run.vcxproj" Properties="Configuration=$(Configuration);Platform=$(Platform)" />
@@ -181,6 +189,14 @@
 		<!-- Build Start Hook -->
 		<Message Importance="high" Text="Compiling Start DLL" />
 		<MSBuild Projects="$(SolutionDir)src\core\forge\hooks\Rebound.Forge.Hooks.Start\Rebound.Forge.Hooks.Start.vcxproj" Properties="Configuration=$(Configuration);Platform=$(Platform)" />
+
+		<!-- Copy Action Center Hook DLL -->
+		<Message Importance="high" Text="Copying Rebound.Forge.Hooks.ActionCenter.dll" />
+		<Copy SourceFiles="$(SolutionDir)x64\$(Configuration)\Rebound.Forge.Hooks.ActionCenter.dll" DestinationFiles="Hooks\Rebound.Forge.Hooks.ActionCenter.dll" SkipUnchangedFiles="true" />
+
+		<!-- Copy Alt Tab Hook DLL -->
+		<Message Importance="high" Text="Copying Rebound.Forge.Hooks.AltTab.dll" />
+		<Copy SourceFiles="$(SolutionDir)x64\$(Configuration)\Rebound.Forge.Hooks.AltTab.dll" DestinationFiles="Hooks\Rebound.Forge.Hooks.AltTab.dll" SkipUnchangedFiles="true" />
 
 		<!-- Copy Run Hook DLL -->
 		<Message Importance="high" Text="Copying Rebound.Forge.Hooks.Run.dll" />

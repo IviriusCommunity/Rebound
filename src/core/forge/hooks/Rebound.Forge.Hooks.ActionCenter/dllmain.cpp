@@ -1,4 +1,4 @@
-﻿// Copyright (C) Ivirius(TM) Community 2020 - 2026. All Rights Reserved.
+// Copyright (C) Ivirius(TM) Community 2020 - 2026. All Rights Reserved.
 // Licensed under the MIT License.
 
 #include "pch.h"
@@ -10,24 +10,6 @@
 #include <sstream>
 #include <string>
 #include "MinHook.h"
-
-#pragma pack(push, 1)
-
-struct TypeDescriptor {
-    void* vftable;
-    void* spare;
-    char  name[1];
-};
-
-struct CompleteObjectLocator {
-    uint32_t signature;
-    uint32_t offset;
-    uint32_t cdOffset;
-    int32_t  pTypeDescriptor; // RVA
-    int32_t  pClassDescriptor;
-};
-
-#pragma pack(pop)
 
 // Process name to watch for
 static const wchar_t* REBOUND_SERVICE_HOST_EXE = L"Rebound Service Host.exe";
@@ -42,23 +24,15 @@ static volatile bool g_running = true;
 static volatile bool g_hooksInstalled = false;
 
 // From twinui.pcshell.dll
-// -----
-// XamlLauncher::ShowStartView(IMMERSIVELAUNCHERSHOWMETHOD showMethod,IMMERSIVELAUNCHERSHOWFLAGS showFlags)
-// -----
-// Haven't documented IMMERSIVELAUNCHERSHOWMETHOD and IMMERSIVELAUNCHERSHOWFLAGS yet, but ShowStartView
-// alone is enough for this hook.
-// -----
-// ShowStartView is responsible for showing the start menu, probably via IPC with StartMenuExperienceHost
-// or something internal. I know these aren't the best docs you'll find but it's what I have for now.
+// DashboardManager::StartSwipe(uint param_1, tagPOINT param_2)
+// Responsible for showing the Action Center
 
-using ShowStartView_t = long(*)(void*, int, int);
+using StartSwipe_t = long(*)(void*, unsigned int, void*);
 
-static ShowStartView_t g_originalShowStartView = nullptr;
+static StartSwipe_t g_originalStartSwipe = nullptr;
 
 // --------------------------------------------
-// ResolveShowStartView - Debug build
-// MessageBoxW at every decision point so you
-// can see exactly where it bails out.
+// Helper Functions
 // --------------------------------------------
 
 PIMAGE_SECTION_HEADER FindSection(HMODULE mod, const char* name)
@@ -74,7 +48,7 @@ PIMAGE_SECTION_HEADER FindSection(HMODULE mod, const char* name)
     return nullptr;
 }
 
-void* ResolveShowStartView()
+void* ResolveStartSwipe()
 {
     HMODULE mod = GetModuleHandleW(L"twinui.pcshell.dll");
     if (!mod) return nullptr;
@@ -85,71 +59,36 @@ void* ResolveShowStartView()
     BYTE* sectionStart = (BYTE*)mod + textSection->VirtualAddress;
     BYTE* sectionEnd = sectionStart + textSection->Misc.VirtualSize;
 
-    // Pattern: CMP [RCX+160h], 0  followed by MOV EBP,R8D; MOV EBX,EDX; MOV RSI,RCX; JZ
-    // Then later: MOV EAX, 80070490h (the specific error code -0x7ff8fb70)
+    // Pattern from CActionCenterExperienceManager::StartSwipe function prologue:
+    // 48 89 5C 24 10              MOV [RSP+10h], RBX
+    // 55                          PUSH RBP
+    // 48 8D AC 24 70 FF FF FF     LEA RBP, [RSP-90h]
+    // 48 81 EC 90 01 00 00        SUB RSP, 190h
     static const BYTE sigBytes[] = {
-        0x48, 0x83, 0xB9, 0x60, 0x01, 0x00, 0x00, 0x00,  // CMP qword ptr [RCX+160h], 0
-        0x41, 0x8B, 0xE8,                                 // MOV EBP, R8D
-        0x8B, 0xDA,                                       // MOV EBX, EDX
-        0x48, 0x8B, 0xF1,                                 // MOV RSI, RCX
-        0x0F, 0x84                                        // JZ (rel32 follows)
+        0x48, 0x89, 0x5C, 0x24, 0x10,                    // MOV [RSP+10h], RBX
+        0x55,                                             // PUSH RBP
+        0x48, 0x8D, 0xAC, 0x24, 0x70, 0xFF, 0xFF, 0xFF,  // LEA RBP, [RSP-90h]
+        0x48, 0x81, 0xEC, 0x90, 0x01, 0x00, 0x00         // SUB RSP, 190h
     };
-    static const BYTE sigMask[] = {
-        0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
-        0xFF, 0xFF, 0xFF,
-        0xFF, 0xFF,
-        0xFF, 0xFF, 0xFF,
-        0xFF, 0xFF
-    };
+
     constexpr SIZE_T sigLen = sizeof(sigBytes);
 
     for (BYTE* p = sectionStart; p <= sectionEnd - sigLen; p++)
     {
-        bool found = true;
-        for (SIZE_T i = 0; i < sigLen; i++)
+        if (memcmp(p, sigBytes, sigLen) == 0)
         {
-            if (sigMask[i] && (p[i] != sigBytes[i]))
-            {
-                found = false;
-                break;
-            }
-        }
-
-        if (found)
-        {
-            // Found the pattern - now backtrack to find function start
-            // Look backwards for common function prologue
-            BYTE* funcStart = p;
-
-            // Search backwards (max 200 bytes) for: 48 89 5C 24 ?? 55 56 57 (MOV [RSP+??],RBX; PUSH RBP/RSI/RDI)
-            for (int back = 0; back < 200; back++)
-            {
-                BYTE* candidate = p - back;
-                if (candidate < sectionStart) break;
-
-                // Check for: MOV [RSP+imm8], RBX; PUSH RBP; PUSH RSI; PUSH RDI
-                if (candidate[0] == 0x48 && candidate[1] == 0x89 &&
-                    candidate[2] == 0x5C && candidate[3] == 0x24 &&
-                    candidate[5] == 0x55 && candidate[6] == 0x56 && candidate[7] == 0x57)
-                {
-                    funcStart = candidate;
-                    break;
-                }
-            }
-
-            return funcStart;
+            return p; // Found the function start
         }
     }
 
-fallback:
-    // Your fallback logic here
     return nullptr;
 }
 
 // --------------------------------------------
 // Settings Helper - Simple XML parser
 // --------------------------------------------
-bool GetBoolSetting(const wchar_t* key, const wchar_t* appName, bool defaultValue) {
+bool GetBoolSetting(const wchar_t* key, const wchar_t* appName, bool defaultValue)
+{
     wchar_t userProfile[MAX_PATH];
     if (FAILED(SHGetFolderPathW(nullptr, CSIDL_PROFILE, nullptr, 0, userProfile))) {
         return defaultValue;
@@ -280,7 +219,8 @@ bool IsReboundShellRunning()
 // --------------------------------------------
 // Process Monitor Functions
 // --------------------------------------------
-DWORD FindProcessByName(const wchar_t* processName) {
+DWORD FindProcessByName(const wchar_t* processName)
+{
     DWORD processId = 0;
     HANDLE snapshot = CreateToolhelp32Snapshot(TH32CS_SNAPPROCESS, 0);
 
@@ -301,7 +241,8 @@ DWORD FindProcessByName(const wchar_t* processName) {
     return processId;
 }
 
-DWORD WINAPI MonitorInjectorThread(LPVOID lpParam) {
+DWORD WINAPI MonitorInjectorThread(LPVOID lpParam)
+{
     const int checkIntervalMs = 1000;
     const int missingThreshold = 3;
     int missingCount = 0;
@@ -326,12 +267,14 @@ DWORD WINAPI MonitorInjectorThread(LPVOID lpParam) {
 
     // Disable hook if installed
     if (g_hooksInstalled) {
-        OutputDebugStringW(L"[Hook] Monitor: Disabling hooks due to service shutdown\n");
+        OutputDebugStringW(L"[ActionCenterHook] Monitor: Disabling hooks due to service shutdown\n");
 
         HMODULE twinui = GetModuleHandleW(L"twinui.pcshell.dll");
-        if (twinui && g_originalShowStartView) {
-            void* target = ResolveShowStartView();
-            MH_DisableHook(target);
+        if (twinui && g_originalStartSwipe) {
+            void* target = ResolveStartSwipe();
+            if (target) {
+                MH_DisableHook(target);
+            }
         }
     }
 
@@ -347,23 +290,23 @@ DWORD WINAPI MonitorInjectorThread(LPVOID lpParam) {
 // --------------------------------------------
 // Hook Function
 // --------------------------------------------
-long __fastcall ShowStartView_Hook(void* thisPtr, int showMethod, int showFlags)
+long __fastcall StartSwipe_Hook(void* thisPtr, unsigned int param1, void* param2)
 {
-    OutputDebugStringW(L"[StartMenuHook] ShowStartView called!\n");
+    OutputDebugStringW(L"[ActionCenterHook] StartSwipe called!\n");
 
-    bool hookEnabled = GetBoolSetting(L"InstallStart", L"rebound", true);
+    bool hookEnabled = GetBoolSetting(L"InstallActionCenter", L"rebound", true);
 
     if (!hookEnabled) {
-        if (g_originalShowStartView)
-            return g_originalShowStartView(thisPtr, showMethod, showFlags);
+        if (g_originalStartSwipe)
+            return g_originalStartSwipe(thisPtr, param1, param2);
         return 0;
     }
 
     if (IsReboundShellRunning())
     {
-        OutputDebugStringW(L"[StartMenuHook] Redirecting to Rebound Shell\n");
-        SendMessageToApp(L"Shell::ShowStartMenu");
-        return 0; // Success - don't show Windows Start Menu
+        OutputDebugStringW(L"[ActionCenterHook] Redirecting to Rebound Shell\n");
+        SendMessageToApp(L"Shell::ShowActionCenter");
+        return 0; // Success - don't show Windows Action Center
     }
     else
     {
@@ -373,25 +316,23 @@ long __fastcall ShowStartView_Hook(void* thisPtr, int showMethod, int showFlags)
             MB_OK | MB_ICONWARNING);
 
         // Fall back to original
-        if (g_originalShowStartView)
-            return g_originalShowStartView(thisPtr, showMethod, showFlags);
+        if (g_originalStartSwipe)
+            return g_originalStartSwipe(thisPtr, param1, param2);
         return 0;
     }
 }
 
 // --------------------------------------------
-// Install hook - with detailed logging
+// Install hook
 // --------------------------------------------
-bool InstallShowStartViewHook()
+bool InstallStartSwipeHook()
 {
-    OutputDebugStringW(L"[StartMenuHook] Installing ShowStartView hook\n");
+    OutputDebugStringW(L"[ActionCenterHook] Installing StartSwipe hook\n");
 
-    // Get twinui.pcshell.dll module
     HMODULE twinui = GetModuleHandleW(L"twinui.pcshell.dll");
     if (!twinui) {
-        OutputDebugStringW(L"[StartMenuHook] twinui.pcshell.dll not loaded yet, waiting...\n");
+        OutputDebugStringW(L"[ActionCenterHook] twinui.pcshell.dll not loaded yet, waiting...\n");
 
-        // Wait for it to load (up to 5 seconds)
         for (int i = 0; i < 50; i++) {
             Sleep(100);
             twinui = GetModuleHandleW(L"twinui.pcshell.dll");
@@ -399,24 +340,27 @@ bool InstallShowStartViewHook()
         }
 
         if (!twinui) {
-            OutputDebugStringW(L"[StartMenuHook] twinui.pcshell.dll never loaded\n");
+            OutputDebugStringW(L"[ActionCenterHook] twinui.pcshell.dll never loaded\n");
             return false;
         }
     }
 
-    // ShowStartView offset: 0x1D2320 (from Ghidra address 18011D2320 - base 180000000)
-    void* targetAddress = ResolveShowStartView();
+    void* targetAddress = ResolveStartSwipe();
+    if (!targetAddress) {
+        OutputDebugStringW(L"[ActionCenterHook] Failed to resolve StartSwipe\n");
+        return false;
+    }
 
     wchar_t msg[256];
-    swprintf_s(msg, L"[StartMenuHook] twinui.pcshell.dll base: 0x%p\n", twinui);
+    swprintf_s(msg, L"[ActionCenterHook] twinui.pcshell.dll base: 0x%p\n", twinui);
     OutputDebugStringW(msg);
-    swprintf_s(msg, L"[StartMenuHook] Target address: 0x%p\n", targetAddress);
+    swprintf_s(msg, L"[ActionCenterHook] Target address: 0x%p\n", targetAddress);
     OutputDebugStringW(msg);
 
     MH_STATUS status = MH_CreateHook(
         targetAddress,
-        &ShowStartView_Hook,
-        reinterpret_cast<LPVOID*>(&g_originalShowStartView)
+        &StartSwipe_Hook,
+        reinterpret_cast<LPVOID*>(&g_originalStartSwipe)
     );
 
     if (status == MH_ERROR_ALREADY_CREATED) {
@@ -426,7 +370,7 @@ bool InstallShowStartViewHook()
     if (status != MH_OK) {
         wchar_t errorMsg[256];
         swprintf_s(errorMsg, L"MH_CreateHook failed with status: %d", status);
-        MessageBoxW(NULL, errorMsg, L"Hook Failed", MB_OK);
+        OutputDebugStringW(errorMsg);
         return false;
     }
 
@@ -434,7 +378,7 @@ bool InstallShowStartViewHook()
     if (status != MH_OK) {
         wchar_t errorMsg[256];
         swprintf_s(errorMsg, L"MH_EnableHook failed with status: %d", status);
-        MessageBoxW(NULL, errorMsg, L"Hook Failed", MB_OK);
+        OutputDebugStringW(errorMsg);
         return false;
     }
 
@@ -444,45 +388,44 @@ bool InstallShowStartViewHook()
 // --------------------------------------------
 // Deferred initialization thread
 // --------------------------------------------
-DWORD WINAPI DeferredInitThread(LPVOID lpParam) {
+DWORD WINAPI DeferredInitThread(LPVOID lpParam)
+{
     Sleep(300);
 
     wchar_t processName[MAX_PATH];
     GetModuleFileNameW(nullptr, processName, MAX_PATH);
 
     wchar_t msg[512];
-    swprintf_s(msg, L"[Hook] Process: %s\n", processName);
+    swprintf_s(msg, L"[ActionCenterHook] Process: %s\n", processName);
     OutputDebugStringW(msg);
 
     MH_STATUS status = MH_Initialize();
-    swprintf_s(msg, L"[Hook] MH_Initialize status: %d\n", status);
+    swprintf_s(msg, L"[ActionCenterHook] MH_Initialize status: %d\n", status);
     OutputDebugStringW(msg);
 
     if (status == MH_ERROR_ALREADY_INITIALIZED) status = MH_OK;
     if (status != MH_OK) {
-        OutputDebugStringW(L"[Hook] MH_Initialize failed\n");
+        OutputDebugStringW(L"[ActionCenterHook] MH_Initialize failed\n");
         return 1;
     }
 
-    // Install hook in explorer.exe
     wchar_t processNameLower[MAX_PATH];
     wcscpy_s(processNameLower, processName);
     _wcslwr_s(processNameLower);
 
-    // Install hook in explorer.exe
     if (wcsstr(processNameLower, L"explorer.exe")) {
-        OutputDebugStringW(L"[Hook] Detected explorer.exe - installing Start Menu hook\n");
+        OutputDebugStringW(L"[ActionCenterHook] Detected explorer.exe - installing Action Center hook\n");
 
-        if (InstallShowStartViewHook()) {
+        if (InstallStartSwipeHook()) {
             g_hooksInstalled = true;
-            OutputDebugStringW(L"[Hook] Start Menu hook installed!\n");
+            OutputDebugStringW(L"[ActionCenterHook] Action Center hook installed!\n");
         }
         else {
-            OutputDebugStringW(L"[Hook] Hook installation FAILED\n");
+            OutputDebugStringW(L"[ActionCenterHook] Hook installation FAILED\n");
         }
     }
     else {
-        swprintf_s(msg, L"[Hook] NOT explorer.exe, skipping hook\n");
+        swprintf_s(msg, L"[ActionCenterHook] NOT explorer.exe, skipping hook\n");
         OutputDebugStringW(msg);
     }
 
@@ -492,15 +435,15 @@ DWORD WINAPI DeferredInitThread(LPVOID lpParam) {
 // --------------------------------------------
 // DLL entry point
 // --------------------------------------------
-BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID) {
+BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID)
+{
     static HANDLE g_initMutex = nullptr;
 
     if (fdwReason == DLL_PROCESS_ATTACH) {
-        
         DisableThreadLibraryCalls(hinstDLL);
 
         wchar_t mutexName[256];
-        swprintf_s(mutexName, L"ReboundShell_StartHook_%lu", GetCurrentProcessId());
+        swprintf_s(mutexName, L"ReboundShell_ActionCenterHook_%lu", GetCurrentProcessId());
         g_initMutex = CreateMutexW(nullptr, FALSE, mutexName);
         if (GetLastError() == ERROR_ALREADY_EXISTS) {
             if (g_initMutex) CloseHandle(g_initMutex);
@@ -509,40 +452,31 @@ BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID) {
 
         g_moduleHandle = hinstDLL;
 
-        // Start deferred initialization thread (avoids loader lock issues)
         HANDLE hInitThread = CreateThread(nullptr, 0, DeferredInitThread, nullptr, 0, nullptr);
         if (hInitThread) {
             CloseHandle(hInitThread);
         }
-        else {
 
-        }
-
-        // Start monitor thread
         HANDLE hMonitorThread = CreateThread(nullptr, 0, MonitorInjectorThread, nullptr, 0, nullptr);
         if (hMonitorThread) {
             CloseHandle(hMonitorThread);
         }
     }
     else if (fdwReason == DLL_PROCESS_DETACH) {
-        OutputDebugStringW(L"[Hook] DllMain: DLL_PROCESS_DETACH\n");
+        OutputDebugStringW(L"[ActionCenterHook] DllMain: DLL_PROCESS_DETACH\n");
         g_running = false;
 
         if (g_hooksInstalled) {
-            OutputDebugStringW(L"[Hook] Disabling hooks...\n");
+            OutputDebugStringW(L"[ActionCenterHook] Disabling hooks...\n");
 
-            // Unhook ShowStartView in twinui.pcshell.dll
             HMODULE twinui = GetModuleHandleW(L"twinui.pcshell.dll");
-            if (twinui && g_originalShowStartView) {
-                void* target = ResolveShowStartView();
-                MH_STATUS status = MH_DisableHook(target);
-
-                wchar_t msg[256];
-                swprintf_s(msg, L"[Hook] MH_DisableHook status: %d\n", status);
-                OutputDebugStringW(msg);
+            if (twinui && g_originalStartSwipe) {
+                void* target = ResolveStartSwipe();
+                if (target) {
+                    MH_DisableHook(target);
+                }
             }
 
-            // Uninitialize MinHook
             MH_Uninitialize();
         }
 
