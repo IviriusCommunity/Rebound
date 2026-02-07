@@ -402,3 +402,5 @@ FodyWeavers.xsd
 /eng/distribution/standalone/Rebound.Distribution/Rebound Uninstaller.exe
 /src/system/Rebound.ServiceHost/Hooks/Rebound.Forge.Hooks.Start.dll
 /src/system/Rebound.ServiceHost/Hooks/Rebound.Forge.Hooks.Start.dll
+/src/system/Rebound.ServiceHost/Hooks/Rebound.Forge.Hooks.ActionCenter.dll
+/src/system/Rebound.ServiceHost/Hooks/Rebound.Forge.Hooks.AltTab.dll
