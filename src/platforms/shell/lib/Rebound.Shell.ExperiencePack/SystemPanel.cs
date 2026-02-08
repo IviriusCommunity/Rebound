@@ -12,9 +12,9 @@ using Windows.UI.Xaml.Controls;
 using Windows.UI;
 using System.Threading.Tasks;
 using System.Runtime.InteropServices;
-using System.Collections.ObjectModel;
 using static TerraFX.Interop.Windows.Windows;
 using static TerraFX.Interop.Windows.SWP;
+using Rebound.Shell.ExperienceHost;
 
 #pragma warning disable CA1515 // Consider making public types internal
 
@@ -58,8 +58,22 @@ public enum SystemPanelVisibilityMode
 /// <summary>
 /// Represents a system panel with configurable position, floating behavior, visibility mode, size, etc.
 /// </summary>
-public partial class SystemPanel : ObservableObject
+public partial class SystemPanel(Guid id) : ObservableObject, IShellObject
 {
+    // -----------------------------------------------------------------------------------
+
+    // Mandatory fields for IShellObject
+    [ObservableProperty]
+    public partial Guid ID { get; private set; } = id;
+
+    [ObservableProperty]
+    public partial string Name { get; set; } = string.Empty;
+
+    // -----------------------------------------------------------------------------------
+
+    [ObservableProperty]
+    public partial Panel RootArea { get; set; }
+
     /// <summary>
     /// The panel's position on the screen.
     /// </summary>
@@ -250,7 +264,6 @@ public partial class SystemPanel : ObservableObject
         // Handle extended styles
         var exStyle = GetWindowLongPtrW(Window!.Handle, GWL.GWL_EXSTYLE);
         exStyle |= WS.WS_EX_TOOLWINDOW;
-        exStyle |= WS.WS_EX_NOACTIVATE;
         exStyle &= ~WS.WS_EX_APPWINDOW;
         SetWindowLongPtrW(Window!.Handle, GWL.GWL_EXSTYLE, exStyle);
 
@@ -460,6 +473,35 @@ public partial class SystemPanel : ObservableObject
     }
 
     /// <summary>
+    /// Removes the system panel, unregistering it from the system and cleaning up all resources.
+    /// </summary>
+    public unsafe void Remove()
+    {
+        // Stop proximity monitoring
+        _proximityTimer?.Stop();
+        _proximityTimer = null;
+
+        if (Window?.Handle != HWND.NULL)
+        {
+            // Unregister appbar if it was registered
+            if (VisibilityMode == SystemPanelVisibilityMode.AlwaysVisible)
+            {
+                APPBARDATA abd = new()
+                {
+                    cbSize = (uint)sizeof(APPBARDATA),
+                    hWnd = Window!.Handle
+                };
+                SHAppBarMessage(ABM.ABM_REMOVE, &abd);
+            }
+
+            // Close and dispose the window
+            Window?.Close();
+        }
+
+        Window = null;
+    }
+
+    /// <summary>
     /// Evaluates the current window's proximity state and updates the system panel's visibility according to the
     /// configured visibility mode.
     /// </summary>
@@ -639,8 +681,8 @@ public partial class SystemPanel : ObservableObject
             Window!.Handle,
             HWND.HWND_TOPMOST,
             x,
-            y, 
-            width, 
+            y,
+            width,
             height,
             SWP_NOACTIVATE
         );
@@ -1121,7 +1163,7 @@ public partial class SystemPanel : ObservableObject
             Window.Handle,
             HWND.HWND_TOPMOST,
             x,
-            y, 
+            y,
             width,
             height,
             SWP_NOACTIVATE
@@ -1135,23 +1177,5 @@ public partial class SystemPanel : ObservableObject
     {
         _proximityTimer?.Stop();
         _proximityTimer = null;
-    }
-}
-
-public class SystemPanelsService
-{
-    public ObservableCollection<SystemPanel> PanelItems { get; } = [];
-
-    public void Initialize()
-    {
-        foreach (var panel in PanelItems)
-            SpawnPanel(panel);
-
-        //PanelItems.CollectionChanged += OnPanelsChanged;
-    }
-
-    static void SpawnPanel(SystemPanel panel)
-    {
-        UIThreadQueue.QueueAction(panel.Create);
     }
 }

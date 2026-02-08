@@ -24,10 +24,10 @@ static volatile bool g_running = true;
 static volatile bool g_hooksInstalled = false;
 
 // From twinui.pcshell.dll
-// XamlAltTabViewHost::DisplayAltTab(void)
+// XamlAltTabViewHost::Show
 // Responsible for displaying the Alt+Tab task switcher
 
-using DisplayAltTab_t = void(*)(void*);
+using DisplayAltTab_t = long(*)(void*, void** param1, int param2, void** param3);
 
 static DisplayAltTab_t g_originalDisplayAltTab = nullptr;
 
@@ -59,21 +59,8 @@ void* ResolveDisplayAltTab()
     BYTE* sectionStart = (BYTE*)mod + textSection->VirtualAddress;
     BYTE* sectionEnd = sectionStart + textSection->Misc.VirtualSize;
 
-    // Pattern from DisplayAltTab function prologue:
-    // 48 8B C4           MOV RAX, RSP
-    // 48 89 58 10        MOV [RAX+10h], RBX
-    // 48 89 70 18        MOV [RAX+18h], RSI
-    // 48 89 78 20        MOV [RAX+20h], RDI
-    // 41 56              PUSH R14
-    // 48 83 EC 30        SUB RSP, 30h
-    static const BYTE sigBytes[] = {
-        0x48, 0x8B, 0xC4,                    // MOV RAX, RSP
-        0x48, 0x89, 0x58, 0x10,              // MOV [RAX+10h], RBX
-        0x48, 0x89, 0x70, 0x18,              // MOV [RAX+18h], RSI
-        0x48, 0x89, 0x78, 0x20,              // MOV [RAX+20h], RDI
-        0x41, 0x56,                          // PUSH R14
-        0x48, 0x83, 0xEC, 0x30               // SUB RSP, 30h
-    };
+    // XamlAltTabViewHost::Show
+    static const BYTE sigBytes[] = { 0x48, 0x8b, 0xc4, 0x53, 0x56, 0x57, 0x41, 0x54, 0x41, 0x55, 0x41, 0x56, 0x41, 0x57, 0x48, 0x81, 0xec, 0x80, 0x03, 0x00, 0x00, 0x0f, 0x29, 0x70, 0xb8, 0x0f, 0x29, 0x78, 0xa8 };
 
     constexpr SIZE_T sigLen = sizeof(sigBytes);
 
@@ -294,7 +281,7 @@ DWORD WINAPI MonitorInjectorThread(LPVOID lpParam)
 // --------------------------------------------
 // Hook Function
 // --------------------------------------------
-void __fastcall DisplayAltTab_Hook(void* thisPtr)
+long __fastcall DisplayAltTab_Hook(void* thisPtr, void** param1, int param2, void** param3)
 {
     OutputDebugStringW(L"[AltTabHook] DisplayAltTab called!\n");
 
@@ -302,15 +289,15 @@ void __fastcall DisplayAltTab_Hook(void* thisPtr)
 
     if (!hookEnabled) {
         if (g_originalDisplayAltTab)
-            g_originalDisplayAltTab(thisPtr);
-        return;
+            g_originalDisplayAltTab(thisPtr, param1, param2, param3);
+        return 0;
     }
 
     if (IsReboundShellRunning())
     {
         OutputDebugStringW(L"[AltTabHook] Redirecting to Rebound Shell\n");
         SendMessageToApp(L"Shell::ShowTaskSwitcher");
-        return; // Success - don't show Windows Alt+Tab
+        return 0; // Success - don't show Windows Alt+Tab
     }
     else
     {
@@ -321,8 +308,9 @@ void __fastcall DisplayAltTab_Hook(void* thisPtr)
 
         // Fall back to original
         if (g_originalDisplayAltTab)
-            g_originalDisplayAltTab(thisPtr);
+            g_originalDisplayAltTab(thisPtr, param1, param2, param3);
     }
+    return 0;
 }
 
 // --------------------------------------------
@@ -420,10 +408,12 @@ DWORD WINAPI DeferredInitThread(LPVOID lpParam)
         OutputDebugStringW(L"[AltTabHook] Detected explorer.exe - installing Alt+Tab hook\n");
 
         if (InstallDisplayAltTabHook()) {
+			MessageBoxW(NULL, L"Alt+Tab hook installed successfully! You can now use Alt+Tab to switch to Rebound Shell when it's running.", L"Hook Installed", MB_OK | MB_ICONINFORMATION);
             g_hooksInstalled = true;
             OutputDebugStringW(L"[AltTabHook] Alt+Tab hook installed!\n");
         }
         else {
+			MessageBoxW(NULL, L"Failed to install Alt+Tab hook. Make sure Rebound Shell is running and the hook is enabled in settings.", L"Hook Installation Failed", MB_OK | MB_ICONERROR);
             OutputDebugStringW(L"[AltTabHook] Hook installation FAILED\n");
         }
     }
@@ -444,6 +434,8 @@ BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID)
 
     if (fdwReason == DLL_PROCESS_ATTACH) {
         DisableThreadLibraryCalls(hinstDLL);
+
+		MessageBoxW(NULL, L"Rebound Shell Alt+Tab hook loaded! If you see this message, the DLL was injected successfully. You can now enable the hook in settings.", L"Hook Loaded", MB_OK | MB_ICONINFORMATION);
 
         wchar_t mutexName[256];
         swprintf_s(mutexName, L"ReboundShell_AltTabHook_%lu", GetCurrentProcessId());

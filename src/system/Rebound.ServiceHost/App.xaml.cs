@@ -42,6 +42,8 @@ public partial class App : Application
 
             List<(string dllName, List<string> targetProcesses)> dllInjectionDefinitions =
             [
+                //("Rebound.Forge.Hooks.ActionCenter.dll", ["explorer.exe"]),
+                ("Rebound.Forge.Hooks.AltTab.dll", ["explorer.exe"]),
                 ("Rebound.Forge.Hooks.Run.dll", ["taskmgr.exe", "procexp.exe", "explorer.exe"]),
                 ("Rebound.Forge.Hooks.ShutdownWindow.dll", ["explorer.exe"]),
                 ("Rebound.Forge.Hooks.Start.dll", ["explorer.exe"]),

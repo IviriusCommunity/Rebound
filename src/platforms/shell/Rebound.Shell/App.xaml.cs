@@ -19,20 +19,136 @@ using Windows.System;
 using Windows.UI;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
-using WinRT;
 using static TerraFX.Interop.Windows.Windows;
 using static TerraFX.Interop.Windows.SWP;
 using Rebound.Shell.ExperiencePack;
+using System.Collections.ObjectModel;
 
 #pragma warning disable IDE0079 // Remove unnecessary suppression
 #pragma warning disable CA1515  // Consider making public types internal
 
 namespace Rebound.Shell.ExperienceHost;
 
-public partial class StartMenuService : ObservableObject
+public partial interface IShellObject
+{
+    Guid ID { get; }
+    string Name { get; }
+}
+
+public partial class SystemScreen(Guid id) : ObservableObject, IShellObject
+{
+    // -----------------------------------------------------------------------------------
+
+    // Mandatory fields for IShellObject
+    [ObservableProperty]
+    public partial Guid ID { get; private set; } = id;
+
+    [ObservableProperty]
+    public partial string Name { get; set; } = string.Empty;
+
+    // -----------------------------------------------------------------------------------
+
+    [ObservableProperty]
+    public partial Panel RootArea { get; set; }
+
+    [ObservableProperty]
+    public partial bool IsVisible { get; set; }
+}
+
+/// <summary>
+/// A floating menu that can be summoned from an action, button, etc.
+/// </summary>
+/// <param name="id">The shell object ID.</param>
+public partial class SystemMenu(Guid id) : ObservableObject, IShellObject
+{
+    // -----------------------------------------------------------------------------------
+
+    // Mandatory fields for IShellObject
+    [ObservableProperty]
+    public partial Guid ID { get; private set; } = id;
+
+    [ObservableProperty]
+    public partial string Name { get; set; } = string.Empty;
+
+    // -----------------------------------------------------------------------------------
+
+    [ObservableProperty]
+    public partial Panel RootArea { get; set; }
+
+    [ObservableProperty]
+    public partial bool IsVisible { get; set; }
+}
+
+/// <summary>
+/// The service responsible for managing the shell's panels, system menus, and screens. This is the core of the shell's UI management,
+/// allowing for dynamic updates and interactions with the various components of the shell.
+/// </summary>
+public partial class ShellService : ObservableObject
+{
+    public ObservableCollection<SystemPanel> Panels { get; } = [];
+
+    public ObservableCollection<SystemMenu> Menus { get; } = [];
+
+    public ObservableCollection<SystemScreen> Screens { get; } = [];
+
+    public ShellService()
+    {
+        Panels.CollectionChanged += Panels_CollectionChanged;
+    }
+
+    private void Panels_CollectionChanged(object? sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
+    {
+        UIThreadQueue.QueueAction(() =>
+        {
+            bool hasUpdatedAlwaysVisiblePanel = false;
+
+            if (e.OldItems != null)
+            {
+                foreach (SystemPanel panel in e.OldItems)
+                {
+                    panel.Remove();
+                    if (panel.VisibilityMode == SystemPanelVisibilityMode.AlwaysVisible)
+                        hasUpdatedAlwaysVisiblePanel = true;
+                }
+            }
+            if (e.NewItems != null)
+            {
+                foreach (SystemPanel panel in e.NewItems)
+                {
+                    panel.Create();
+                    if (panel.VisibilityMode == SystemPanelVisibilityMode.AlwaysVisible)
+                        hasUpdatedAlwaysVisiblePanel = true;
+                }
+            }
+
+            if (hasUpdatedAlwaysVisiblePanel)
+                RefreshAllDynamicPanels();
+        });
+    }
+
+    private void RefreshAllDynamicPanels()
+    {
+        UIThreadQueue.QueueAction(() =>
+        {
+            foreach (var panel in Panels)
+            {
+                if (panel.VisibilityMode != SystemPanelVisibilityMode.AlwaysVisible)
+                {
+                    panel.Remove();
+                    panel.Create();
+                }
+            }
+        });
+    }
+}
+
+public partial class WindowsShellActionsService : ObservableObject
 {
     [ObservableProperty]
     public partial bool IsStartMenuOpen { get; set; }
+
+    [ObservableProperty]
+    public partial bool IsAltTabOpen { get; set; }
 }
 
 [ReboundApp("Rebound.ShellExperienceHost", "")]
@@ -40,7 +156,7 @@ public partial class App : Application
 {
     private static HWND? _previousFocusedWindow = null;
 
-    public static StartMenuService StartMenuService { get; } = new();
+    public static WindowsShellActionsService WindowsShellActionsService { get; } = new();
 
     public static PipeClient? ReboundPipeClient { get; private set; }
 
@@ -139,23 +255,21 @@ public partial class App : Application
 
             await Task.Delay(500);
 
-            var panels = new SystemPanelsService();
-            panels.PanelItems.Add(new SystemPanel
+            var shellService = new ShellService();
+            shellService.Panels.Add(new SystemPanel(new())
             {
                 Position = SystemPanelPosition.Bottom,
                 Size = 48,
                 VisibilityMode = SystemPanelVisibilityMode.AlwaysVisible,
                 Floating = false
             });
-            panels.PanelItems.Add(new SystemPanel
+            shellService.Panels.Add(new SystemPanel(new())
             {
                 Position = SystemPanelPosition.Right,
                 Size = 128,
                 VisibilityMode = SystemPanelVisibilityMode.Hidden,
                 Floating = false
             });
-
-            panels.Initialize();
 
             UIThreadQueue.QueueAction(() =>
             {
@@ -301,6 +415,10 @@ public partial class App : Application
         {
             ToggleStartMenu();
         }
+        if (parts[0] == "Shell::ShowTaskSwitcher")
+        {
+            ToggleStartMenu();
+        }
 
         return;
     }
@@ -309,12 +427,12 @@ public partial class App : Application
     {
         UIThreadQueue.QueueAction(async () =>
         {
-            bool opening = !StartMenuService.IsStartMenuOpen;
+            bool opening = !WindowsShellActionsService.IsStartMenuOpen;
             if (opening)
             {
                 // Save previously focused window before opening the start menu
                 _previousFocusedWindow = GetForegroundWindow();
-                StartMenuService.IsStartMenuOpen = true;
+                WindowsShellActionsService.IsStartMenuOpen = true;
 
                 TestShellWindow?.ForceBringToFront();
                 TestShellWindow?.SetAlwaysOnTop(true);
@@ -331,7 +449,7 @@ public partial class App : Application
             else
             {
                 // Closing start menu
-                StartMenuService.IsStartMenuOpen = false;
+                WindowsShellActionsService.IsStartMenuOpen = false;
 
                 await Task.Delay(250); // wait before hiding
 

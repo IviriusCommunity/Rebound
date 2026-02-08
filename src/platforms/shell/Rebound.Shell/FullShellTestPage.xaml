@@ -306,7 +306,7 @@
                         VerticalAlignment="Stretch"
                         Background="Transparent"
                         BorderBrush="Transparent"
-                        IsChecked="{x:Bind local:App.StartMenuService.IsStartMenuOpen, Mode=TwoWay}"
+                        IsChecked="{x:Bind local:App.WindowsShellActionsService.IsStartMenuOpen, Mode=TwoWay}"
                         IsThreeState="False"
                         Style="{StaticResource TaskbarToggleButtonStyle}">
                         <Path Data="F1 M 0 2 C 0 1 1 0 2 0 L 12 0 L 12 12 L 0 12 M 13 0 L 23 0 C 24 0 25 1 25 2 L 25 12 L 13 12 M 13 13 L 25 13 L 25 23 C 25 24 24 25 23 25 L 13 25 M 12 25 L 2 25 C 1 25 0 24 0 23 L 0 13 L 12 13">
@@ -1016,7 +1016,7 @@
                 BorderThickness="1"
                 CornerRadius="8"
                 PointerPressed="Grid_PointerPressed_1"
-                Visibility="{x:Bind local:App.StartMenuService.IsStartMenuOpen, Mode=TwoWay, Converter={StaticResource BoolToVisibilityConverter}}">
+                Visibility="{x:Bind local:App.WindowsShellActionsService.IsStartMenuOpen, Mode=TwoWay, Converter={StaticResource BoolToVisibilityConverter}}">
                 <!--  Implicit show animations  -->
                 <animations:Implicit.ShowAnimations>
                     <animations:TranslationAnimation

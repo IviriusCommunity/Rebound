@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
 	<!-- Framework and platform configuration  -->
 	<PropertyGroup Label="Framework Configuration">
@@ -135,6 +135,12 @@
 			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 			<SubType>Designer</SubType>
 		</Content>
+		<Content Include="Hooks\Rebound.Forge.Hooks.ActionCenter.dll">
+		  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</Content>
+		<Content Include="Hooks\Rebound.Forge.Hooks.AltTab.dll">
+		  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</Content>
 		<Content Include="Hooks\Rebound.Forge.Hooks.Run.dll">
 			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
 		</Content>
@@ -149,6 +155,8 @@
 	<!-- Excluded items -->
 	<ItemGroup Label="Exclusions">
 		<None Remove="Assets\ServiceHost.ico" />
+		<None Remove="Hooks\Rebound.Forge.Hooks.ActionCenter.dll" />
+		<None Remove="Hooks\Rebound.Forge.Hooks.AltTab.dll" />
 		<None Remove="Hooks\Rebound.Forge.Hooks.Start.dll" />
 	</ItemGroup>
 
