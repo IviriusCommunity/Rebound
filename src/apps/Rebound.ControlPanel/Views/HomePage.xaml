@@ -325,7 +325,7 @@
                                 <TextBlock Text="{x:Bind sysinfoHardware:CPU.GetCPUName()}" />
                             </StackPanel>
                             <StackPanel Orientation="Horizontal" Spacing="16">
-                                <FontIcon FontSize="16" Glyph="&#xEEA1;" />
+                                <FontIcon FontSize="16" Glyph="&#xE7F4;" />
                                 <TextBlock FontWeight="SemiBold" Text="GPU" />
                                 <TextBlock Text="{x:Bind sysinfoHardware:GPU.GetGPUName()}" />
                             </StackPanel>
