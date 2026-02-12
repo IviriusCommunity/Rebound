@@ -1,21 +1,59 @@
-using System;
-using System.Diagnostics;
-using System.IO;
+using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Microsoft.UI.Xaml.Controls;
 using Rebound.ControlPanel.ViewModels;
+using Rebound.Core;
+using Rebound.Core.SystemInformation.Software;
+using Rebound.Core.UI;
+using System;
+using System.Diagnostics;
+using System.IO;
+using TerraFX.Interop.Windows;
+using Windows.System;
 using Windows.UI.Xaml.Controls;
+using Windows.UI.Xaml.Data;
 using Windows.UI.Xaml.Documents;
+using Windows.UI.Xaml.Media.Imaging;
+using WinRT;
 
 namespace Rebound.ControlPanel.Views;
 
+public partial class StringToUriConverter : IValueConverter
+{
+    public object Convert(object value, Type targetType, object parameter, string language)
+    {
+        if (value is string path && !string.IsNullOrEmpty(path))
+        {
+            return new Uri(path);
+        }
+        return null;
+    }
+
+    public object ConvertBack(object value, Type targetType, object parameter, string language)
+    {
+        throw new NotImplementedException();
+    }
+}
+
+[INotifyPropertyChanged]
 internal sealed partial class HomePage : Page
 {
     internal HomeViewModel ViewModel { get; } = new();
 
+    [ObservableProperty]
+    private partial string UserPicturePath { get; set; }
+
+    [ObservableProperty]
+    private partial string WallpaperPath { get; set; }
+
     public HomePage()
     {
         InitializeComponent();
+        UIThreadQueue.QueueAction(() =>
+        {
+            UserPicturePath = UserInformation.GetUserPicturePath() ?? string.Empty;
+            WallpaperPath = UserInformation.GetWallpaperPath() ?? string.Empty;
+        });
     }
 
     private void NavigationView_ItemInvoked(Microsoft.UI.Xaml.Controls.NavigationView sender, Microsoft.UI.Xaml.Controls.NavigationViewItemInvokedEventArgs args)
@@ -41,17 +79,12 @@ internal sealed partial class HomePage : Page
     }
 
     [RelayCommand]
-    public void LaunchReboundHub()
+    public unsafe void LaunchReboundHub()
     {
         try
         {
-            Process.Start(new ProcessStartInfo()
-            {
-                FileName = System.IO.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles), "ReboundHub", "Rebound Hub.exe"),
-                UseShellExecute = true,
-                WorkingDirectory = System.IO.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles), "ReboundHub"),
-                Verb = "runas"
-            });
+            var manager = new ApplicationActivationManager();
+            manager.As<IApplicationActivationManager>().ActivateApplication("Rebound.Hub_rcz2tbwv5qzb8!App".ToPointer(), null, ACTIVATEOPTIONS.AO_NONE, null);
         }
         catch
         {

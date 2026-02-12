@@ -10,17 +10,20 @@
     xmlns:local="using:Rebound.ControlPanel.Views"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:muxc="using:Microsoft.UI.Xaml.Controls"
+    xmlns:sysinfoHardware="using:Rebound.Core.SystemInformation.Hardware"
+    xmlns:sysinfoSoftware="using:Rebound.Core.SystemInformation.Software"
     xmlns:toolkit="using:CommunityToolkit.WinUI.Controls"
     xmlns:viewModels="using:Rebound.ControlPanel.ViewModels"
     mc:Ignorable="d">
-
+    <Page.Resources>
+        <local:StringToUriConverter x:Key="StringToUriConverter" />
+    </Page.Resources>
     <Grid>
         <muxc:NavigationView
             IsBackButtonVisible="Collapsed"
             IsSettingsVisible="False"
             ItemInvoked="NavigationView_ItemInvoked"
-            PaneTitle="Rebound"
-            Visibility="{x:Bind NavigationItem.IsChecked, Mode=OneWay}">
+            PaneTitle="Rebound">
             <muxc:NavigationView.MenuItems>
                 <muxc:NavigationViewItem Content="Home" IsSelected="True">
                     <muxc:NavigationViewItem.Icon>
@@ -284,24 +287,34 @@
                     <Grid>
                         <header:HomePageHeaderImage
                             x:Name="BKGImage"
-                            Height="250"
+                            Height="320"
                             MinWidth="100"
                             HorizontalAlignment="Stretch"
                             VerticalAlignment="Top"
-                            Image="{ThemeResource HeroBackgroundBitmapImage}"
-                            Opacity="0.8" />
-                        <StackPanel Margin="40,24" Spacing="8">
-                            <TextBlock
-                                FontSize="40"
-                                FontWeight="SemiBold"
-                                Text="{x:Bind ViewModel.ComputerName}" />
+                            Opacity="0.5">
+                            <header:HomePageHeaderImage.Image>
+                                <BitmapImage UriSource="{x:Bind WallpaperPath, Converter={StaticResource StringToUriConverter}}" />
+                            </header:HomePageHeaderImage.Image>
+                        </header:HomePageHeaderImage>
+                        <StackPanel Margin="32" Spacing="8">
+                            <StackPanel Orientation="Horizontal" Spacing="16">
+                                <muxc:PersonPicture Width="48">
+                                    <muxc:PersonPicture.ProfilePicture>
+                                        <BitmapImage UriSource="{x:Bind UserPicturePath, Converter={StaticResource StringToUriConverter}}" />
+                                    </muxc:PersonPicture.ProfilePicture>
+                                </muxc:PersonPicture>
+                                <TextBlock
+                                    FontSize="32"
+                                    FontWeight="SemiBold"
+                                    Text="{x:Bind sysinfoSoftware:UserInformation.GetDisplayName()}" />
+                            </StackPanel>
                             <StackPanel
                                 Margin="0,16,0,0"
                                 Orientation="Horizontal"
                                 Spacing="16">
                                 <FontIcon FontSize="16" Glyph="&#xE977;" />
                                 <TextBlock FontWeight="SemiBold" Text="OS" />
-                                <TextBlock Text="{x:Bind ViewModel.WindowsVersionTitle}" />
+                                <TextBlock Text="{x:Bind sysinfoSoftware:WindowsInformation.GetOSName()}" />
                                 <TextBlock>
                                     <Hyperlink Click="WinverHyperlink_Click">View more</Hyperlink>
                                 </TextBlock>
@@ -309,37 +322,37 @@
                             <StackPanel Orientation="Horizontal" Spacing="16">
                                 <FontIcon FontSize="16" Glyph="&#xEEA1;" />
                                 <TextBlock FontWeight="SemiBold" Text="CPU" />
-                                <TextBlock Text="{x:Bind viewModels:HomeViewModel.GetCpuName()}" />
+                                <TextBlock Text="{x:Bind sysinfoHardware:CPU.GetCPUName()}" />
+                            </StackPanel>
+                            <StackPanel Orientation="Horizontal" Spacing="16">
+                                <FontIcon FontSize="16" Glyph="&#xEEA1;" />
+                                <TextBlock FontWeight="SemiBold" Text="GPU" />
+                                <TextBlock Text="{x:Bind sysinfoHardware:GPU.GetGPUName()}" />
                             </StackPanel>
                             <StackPanel Orientation="Horizontal" Spacing="16">
                                 <FontIcon FontSize="16" Glyph="&#xEEA0;" />
                                 <TextBlock FontWeight="SemiBold" Text="Memory" />
-                                <TextBlock Text="{x:Bind viewModels:HomeViewModel.GetTotalRamWmi()}" />
-                            </StackPanel>
-                            <StackPanel Orientation="Horizontal" Spacing="16">
-                                <FontIcon FontSize="16" Glyph="&#xE77B;" />
-                                <TextBlock FontWeight="SemiBold" Text="Current user" />
-                                <TextBlock Text="{x:Bind viewModels:HomeViewModel.GetCurrentUser()}" />
+                                <TextBlock Text="{x:Bind sysinfoHardware:RAM.GetTotalRam()}" />
                             </StackPanel>
                         </StackPanel>
                     </Grid>
+                    <TextBlock
+                        Margin="40,-80,40,0"
+                        FontSize="32"
+                        FontWeight="SemiBold"
+                        Text="Welcome!" />
+                    <TextBlock
+                        Margin="40,-32,40,16"
+                        Text="This is your main dashboard from where you can manage your settings by using the built in tools from both Windows and Rebound, listed below. All verified 3rd party tools on this computer are included. Read the descriptions of each app to know where you need to go."
+                        TextWrapping="WrapWholeWords" />
+                    <TextBlock
+                        Margin="40,16,40,0"
+                        FontWeight="SemiBold"
+                        Text="Windows built-in" />
                     <toolkit:SettingsCard
                         Margin="40,0"
-                        Command="{x:Bind LaunchReboundHubCommand}"
-                        Description="Manage your Rebound installation."
-                        Header="Rebound Hub"
-                        IsClickEnabled="True">
-                        <toolkit:SettingsCard.HeaderIcon>
-                            <FontIcon Glyph="&#xE80F;" />
-                        </toolkit:SettingsCard.HeaderIcon>
-                        <toolkit:SettingsCard.ActionIcon>
-                            <FontIcon Glyph="&#xE8AD;" />
-                        </toolkit:SettingsCard.ActionIcon>
-                    </toolkit:SettingsCard>
-                    <toolkit:SettingsCard
-                        Margin="40,0"
-                        Description="Open Windows Settings."
-                        Header="Settings"
+                        Description="Main settings application for Windows. The majority of settings can be found here."
+                        Header="Windows Settings"
                         IsClickEnabled="True">
                         <toolkit:SettingsCard.HeaderIcon>
                             <FontIcon Glyph="&#xE713;" />
@@ -355,23 +368,13 @@
                     </toolkit:SettingsCard>
                     <toolkit:SettingsCard
                         Margin="40,0"
-                        Description="Turn on or off telemetry features in Windows."
-                        Header="Telemetry options"
-                        IsClickEnabled="True"
-                        IsEnabled="False">
-                        <toolkit:SettingsCard.HeaderIcon>
-                            <FontIcon Glyph="&#xE9D9;" />
-                        </toolkit:SettingsCard.HeaderIcon>
-                    </toolkit:SettingsCard>
-                    <toolkit:SettingsCard
-                        Margin="40,0"
                         Command="{x:Bind LaunchPathCommand}"
                         CommandParameter="cleanmgr"
-                        Description="Clean junk files on your PC."
-                        Header="Cleanup"
+                        Description="Launch the old Win32 Windows Control Panel."
+                        Header="Legacy Control Panel"
                         IsClickEnabled="True">
                         <toolkit:SettingsCard.HeaderIcon>
-                            <FontIcon Glyph="&#xEA99;" />
+                            <muxc:ImageIcon Source="/Assets/ControlPanelLegacy.ico" />
                         </toolkit:SettingsCard.HeaderIcon>
                         <toolkit:SettingsCard.ActionIcon>
                             <FontIcon Glyph="&#xE8AD;" />
@@ -379,257 +382,75 @@
                     </toolkit:SettingsCard>
                     <toolkit:SettingsCard
                         Margin="40,0"
-                        Description="Change modding options in Rebound and Windows."
-                        Header="Modding"
-                        IsClickEnabled="True"
-                        IsEnabled="False">
+                        Description="Manage system and poweruser related settings within Windows."
+                        Header="Management Console"
+                        IsClickEnabled="True">
+                        <toolkit:SettingsCard.ActionIcon>
+                            <FontIcon Glyph="&#xE8AD;" />
+                        </toolkit:SettingsCard.ActionIcon>
+                    </toolkit:SettingsCard>
+                    <TextBlock
+                        Margin="40,32,40,0"
+                        FontWeight="SemiBold"
+                        Text="Rebound specific" />
+                    <toolkit:SettingsCard
+                        Margin="40,0"
+                        Command="{x:Bind LaunchReboundHubCommand}"
+                        Description="Install, uninstall, and repair Rebound mods."
+                        Header="Rebound Hub"
+                        IsClickEnabled="True">
                         <toolkit:SettingsCard.HeaderIcon>
-                            <FontIcon Glyph="&#xE9E9;" />
+                            <FontIcon Glyph="&#xE80F;" />
                         </toolkit:SettingsCard.HeaderIcon>
+                        <toolkit:SettingsCard.ActionIcon>
+                            <FontIcon Glyph="&#xE8AD;" />
+                        </toolkit:SettingsCard.ActionIcon>
+                    </toolkit:SettingsCard>
+                    <toolkit:SettingsCard
+                        Margin="40,0"
+                        Description="Highly extended customization options can be found here. These are only available while Rebound is installed."
+                        Header="Rebound Shell Settings"
+                        IsClickEnabled="True">
+                        <toolkit:SettingsCard.ActionIcon>
+                            <FontIcon Glyph="&#xE8AD;" />
+                        </toolkit:SettingsCard.ActionIcon>
+                    </toolkit:SettingsCard>
+                    <TextBlock
+                        Margin="40,32,40,0"
+                        FontWeight="SemiBold"
+                        Text="3rd party" />
+                    <toolkit:SettingsCard
+                        Margin="40,0"
+                        Description="Tweak hidden Windows settings, telemetry, manage services, and more."
+                        Header="Wintoys"
+                        IsClickEnabled="True">
+                        <toolkit:SettingsCard.ActionIcon>
+                            <FontIcon Glyph="&#xE8AD;" />
+                        </toolkit:SettingsCard.ActionIcon>
+                    </toolkit:SettingsCard>
+                    <toolkit:SettingsCard
+                        Margin="40,0,40,40"
+                        Description="Launch PowerToys Settings to manage options for PowerToys tools."
+                        Header="PowerToys Settings"
+                        IsClickEnabled="True">
+                        <toolkit:SettingsCard.ActionIcon>
+                            <FontIcon Glyph="&#xE8AD;" />
+                        </toolkit:SettingsCard.ActionIcon>
+                    </toolkit:SettingsCard>
+                    <toolkit:SettingsCard
+                        Margin="40,0,40,40"
+                        Description="Open the Windows Tools page to see all the available tools."
+                        Header="View all Windows tools"
+                        IsClickEnabled="True">
+                        <toolkit:SettingsCard.HeaderIcon>
+                            <FontIcon Glyph="&#xE90F;" />
+                        </toolkit:SettingsCard.HeaderIcon>
+                        <toolkit:SettingsCard.ActionIcon>
+                            <FontIcon Glyph="&#xE8AD;" />
+                        </toolkit:SettingsCard.ActionIcon>
                     </toolkit:SettingsCard>
                 </StackPanel>
             </ScrollViewer>
         </muxc:NavigationView>
-        <Grid Visibility="{x:Bind CardsItem.IsChecked, Mode=OneWay}">
-            <Grid Width="648">
-                <TextBlock
-                    Margin="8,16"
-                    FontSize="20"
-                    FontWeight="SemiBold"
-                    Foreground="{ThemeResource AccentTextFillColorPrimaryBrush}"
-                    Text="Adjust your computer's settings" />
-            </Grid>
-            <ScrollViewer Margin="0,64,0,0">
-                <Grid HorizontalAlignment="Center" ColumnSpacing="8">
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="320" />
-                        <ColumnDefinition Width="320" />
-                    </Grid.ColumnDefinitions>
-                    <StackPanel>
-                        <Button
-                            Padding="8"
-                            HorizontalAlignment="Stretch"
-                            HorizontalContentAlignment="Stretch"
-                            Background="Transparent"
-                            BorderBrush="Transparent">
-                            <Grid>
-                                <Image
-                                    Width="64"
-                                    HorizontalAlignment="Left"
-                                    VerticalAlignment="Top"
-                                    Source="/Assets/SystemAndSecurity.ico" />
-                                <StackPanel Margin="80,0,0,0">
-                                    <TextBlock
-                                        Margin="12,0,0,0"
-                                        FontSize="16"
-                                        FontWeight="SemiBold"
-                                        Text="System and Security"
-                                        TextTrimming="CharacterEllipsis" />
-                                    <HyperlinkButton Margin="0,8,0,0">
-                                        <TextBlock Text="Review your computer's status" TextWrapping="WrapWholeWords" />
-                                    </HyperlinkButton>
-                                    <HyperlinkButton>
-                                        <TextBlock Text="Save backup copies of your files with File History" TextWrapping="WrapWholeWords" />
-                                    </HyperlinkButton>
-                                    <HyperlinkButton>
-                                        <TextBlock Text="Backup and Restore" TextWrapping="WrapWholeWords" />
-                                    </HyperlinkButton>
-                                </StackPanel>
-                            </Grid>
-                        </Button>
-                        <Button
-                            Padding="8"
-                            HorizontalAlignment="Stretch"
-                            HorizontalContentAlignment="Stretch"
-                            Background="Transparent"
-                            BorderBrush="Transparent">
-                            <Grid>
-                                <Image
-                                    Width="64"
-                                    HorizontalAlignment="Left"
-                                    VerticalAlignment="Top"
-                                    Source="/Assets/Internet.ico" />
-                                <StackPanel Margin="80,0,0,0">
-                                    <TextBlock
-                                        Margin="12,0,0,0"
-                                        FontSize="16"
-                                        FontWeight="SemiBold"
-                                        Text="Network and Internet"
-                                        TextTrimming="CharacterEllipsis" />
-                                    <HyperlinkButton Margin="0,8,0,0">
-                                        <TextBlock Text="View network status and tasks" TextWrapping="WrapWholeWords" />
-                                    </HyperlinkButton>
-                                </StackPanel>
-                            </Grid>
-                        </Button>
-                        <Button
-                            Padding="8"
-                            HorizontalAlignment="Stretch"
-                            HorizontalContentAlignment="Stretch"
-                            Background="Transparent"
-                            BorderBrush="Transparent">
-                            <Grid>
-                                <Image
-                                    Width="64"
-                                    HorizontalAlignment="Left"
-                                    VerticalAlignment="Top"
-                                    Source="/Assets/HardwareAndSound.ico" />
-                                <StackPanel Margin="80,0,0,0">
-                                    <TextBlock
-                                        Margin="12,0,0,0"
-                                        FontSize="16"
-                                        FontWeight="SemiBold"
-                                        Text="Hardware and Sound"
-                                        TextTrimming="CharacterEllipsis" />
-                                    <HyperlinkButton Margin="0,8,0,0">
-                                        <TextBlock Text="View devices and printers" TextWrapping="WrapWholeWords" />
-                                    </HyperlinkButton>
-                                    <HyperlinkButton>
-                                        <TextBlock Text="Add a device" TextWrapping="WrapWholeWords" />
-                                    </HyperlinkButton>
-                                </StackPanel>
-                            </Grid>
-                        </Button>
-                        <Button
-                            Padding="8"
-                            HorizontalAlignment="Stretch"
-                            HorizontalContentAlignment="Stretch"
-                            Background="Transparent"
-                            BorderBrush="Transparent">
-                            <Grid>
-                                <Image
-                                    Width="64"
-                                    HorizontalAlignment="Left"
-                                    VerticalAlignment="Top"
-                                    Source="/Assets/Programs.ico" />
-                                <StackPanel Margin="80,0,0,0">
-                                    <TextBlock
-                                        Margin="12,0,0,0"
-                                        FontSize="16"
-                                        FontWeight="SemiBold"
-                                        Text="Programs"
-                                        TextTrimming="CharacterEllipsis" />
-                                    <HyperlinkButton Margin="0,8,0,0">
-                                        <TextBlock Text="Uninstall a program" TextWrapping="WrapWholeWords" />
-                                    </HyperlinkButton>
-                                </StackPanel>
-                            </Grid>
-                        </Button>
-                    </StackPanel>
-                    <StackPanel Grid.Column="1">
-                        <Button
-                            Padding="8"
-                            HorizontalAlignment="Stretch"
-                            HorizontalContentAlignment="Stretch"
-                            Background="Transparent"
-                            BorderBrush="Transparent">
-                            <Grid>
-                                <Image
-                                    Width="64"
-                                    HorizontalAlignment="Left"
-                                    VerticalAlignment="Top"
-                                    Source="/Assets/User.ico" />
-                                <StackPanel Margin="80,0,0,0">
-                                    <TextBlock
-                                        Margin="12,0,0,0"
-                                        FontSize="16"
-                                        FontWeight="SemiBold"
-                                        Text="User Accounts"
-                                        TextTrimming="CharacterEllipsis" />
-                                    <HyperlinkButton Margin="0,8,0,0">
-                                        <TextBlock Text="Change account type" TextWrapping="WrapWholeWords" />
-                                    </HyperlinkButton>
-                                </StackPanel>
-                            </Grid>
-                        </Button>
-                        <Button
-                            Padding="8"
-                            HorizontalAlignment="Stretch"
-                            HorizontalContentAlignment="Stretch"
-                            Background="Transparent"
-                            BorderBrush="Transparent">
-                            <Grid>
-                                <Image
-                                    Width="64"
-                                    HorizontalAlignment="Left"
-                                    VerticalAlignment="Top"
-                                    Source="/Assets/Personalization.ico" />
-                                <TextBlock
-                                    Margin="92,0,0,8"
-                                    VerticalAlignment="Center"
-                                    FontSize="16"
-                                    FontWeight="SemiBold"
-                                    Text="Appearance and Personalization"
-                                    TextWrapping="WrapWholeWords" />
-                            </Grid>
-                        </Button>
-                        <Button
-                            Padding="8"
-                            HorizontalAlignment="Stretch"
-                            HorizontalContentAlignment="Stretch"
-                            Background="Transparent"
-                            BorderBrush="Transparent">
-                            <Grid>
-                                <Image
-                                    Width="64"
-                                    HorizontalAlignment="Left"
-                                    VerticalAlignment="Top"
-                                    Source="/Assets/ClockAndRegion.ico" />
-                                <StackPanel Margin="80,0,0,0">
-                                    <TextBlock
-                                        Margin="12,0,0,0"
-                                        FontSize="16"
-                                        FontWeight="SemiBold"
-                                        Text="Clock and Region"
-                                        TextTrimming="CharacterEllipsis" />
-                                    <HyperlinkButton Margin="0,8,0,0">
-                                        <TextBlock Text="Change date, time, or number formats" TextWrapping="WrapWholeWords" />
-                                    </HyperlinkButton>
-                                </StackPanel>
-                            </Grid>
-                        </Button>
-                        <Button
-                            Padding="8"
-                            HorizontalAlignment="Stretch"
-                            HorizontalContentAlignment="Stretch"
-                            Background="Transparent"
-                            BorderBrush="Transparent">
-                            <Grid>
-                                <Image
-                                    Width="64"
-                                    HorizontalAlignment="Left"
-                                    VerticalAlignment="Top"
-                                    Source="/Assets/Accessibility.ico" />
-                                <TextBlock
-                                    Margin="92,0,0,8"
-                                    VerticalAlignment="Center"
-                                    FontSize="16"
-                                    FontWeight="SemiBold"
-                                    Text="Accessibility"
-                                    TextWrapping="WrapWholeWords" />
-                            </Grid>
-                        </Button>
-                    </StackPanel>
-                </Grid>
-            </ScrollViewer>
-        </Grid>
-        <muxc:DropDownButton
-            Margin="16"
-            Padding="8"
-            HorizontalAlignment="Right"
-            VerticalAlignment="Top"
-            Background="Transparent"
-            BorderBrush="Transparent">
-            <FontIcon FontSize="16" Glyph="&#xF0E2;" />
-            <muxc:DropDownButton.Flyout>
-                <MenuFlyout>
-                    <muxc:RadioMenuFlyoutItem x:Name="CardsItem" Text="Cards" />
-                    <muxc:RadioMenuFlyoutItem
-                        x:Name="NavigationItem"
-                        IsChecked="True"
-                        Text="Navigation" />
-                </MenuFlyout>
-            </muxc:DropDownButton.Flyout>
-        </muxc:DropDownButton>
     </Grid>
 </Page>

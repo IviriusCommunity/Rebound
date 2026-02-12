@@ -22,6 +22,13 @@ public enum WindowsActivationType
 
 public static class WindowsInformation
 {
+    /// <summary>
+    /// Checks if the Server Shutdown Reason UI is enabled by reading the appropriate registry keys.
+    /// </summary>
+    /// <returns>
+    /// A boolean indicating whether the Server Shutdown Reason UI is enabled. It first checks the policy key,
+    /// and if not set, falls back to the general reliability key.
+    /// </returns>
     public static bool IsServerShutdownUIEnabled()
     {
         const string policyKey = @"SOFTWARE\Policies\Microsoft\Windows NT\Reliability";
@@ -73,11 +80,25 @@ public static class WindowsInformation
     // EOAC flags (objidlbase.h)
     const uint EOAC_NONE = 0x0;
 
-    public static string GetComputerName()
-    {
-        return Environment.MachineName;
-    }
+    /// <summary>
+    /// Gets the computer name of the current machine using Environment.MachineName, which retrieves the NetBIOS name of the local computer.
+    /// </summary>
+    /// <returns>
+    /// A string representing the computer name. This is typically the hostname assigned to the machine, 
+    /// and it may differ from the fully qualified domain name (FQDN) if the machine is part of a domain.
+    /// </returns>
+#pragma warning disable CA1024 // Use properties where appropriate
+    public static string GetComputerName() => Environment.MachineName;
+#pragma warning restore CA1024 // Use properties where appropriate
 
+    /// <summary>
+    /// Retrieves the installation date of the current Windows operating system by reading the "InstallDate" 
+    /// value from the registry key "SOFTWARE\Microsoft\Windows NT\CurrentVersion".
+    /// </summary>
+    /// <returns>
+    /// A DateTime object representing the installation date of Windows. If the registry key or value is not found,
+    /// it returns DateTime.MinValue.
+    /// </returns>
     public static unsafe DateTime GetInstalledOnDate()
     {
         const string keyPath = @"SOFTWARE\Microsoft\Windows NT\CurrentVersion";
@@ -104,6 +125,12 @@ public static class WindowsInformation
         }
     }
 
+    /// <summary>
+    /// Retrieves the Windows activation status by querying WMI for the "LicenseStatus" property of the "SoftwareLicensingProduct" class.
+    /// </summary>
+    /// <returns>
+    /// A WindowsActivationType enum value indicating the activation status of the current Windows installation.
+    /// </returns>
     public static unsafe WindowsActivationType GetWindowsActivationType()
     {
         HRESULT hr;
@@ -206,6 +233,12 @@ public static class WindowsInformation
         return result;
     }
 
+    /// <summary>
+    /// Retrieves the drive letter of the Windows installation by getting the system directory path and extracting the root drive from it.
+    /// </summary>
+    /// <returns>
+    /// A string representing the drive letter of the Windows installation (e.g., "C:\"). If the system directory path cannot be determined, it defaults to "C:\".
+    /// </returns>
     public static string GetWindowsInstallationDrivePath()
     {
         // Get the system directory path
@@ -251,6 +284,14 @@ public static class WindowsInformation
         return "Unknown";
     }
 
+    /// <summary>
+    /// Retrieves the registered owner and organization of the Windows license from the registry. It reads the "RegisteredOwner" and "RegisteredOrganization" 
+    /// values from the "SOFTWARE\Microsoft\Windows NT\CurrentVersion" registry key and combines them into a single string.
+    /// </summary>
+    /// <returns>
+    /// A string containing the registered owner and organization of the Windows license, formatted as "Owner, Organization". If the organization is not specified, 
+    /// it returns just the owner. If the registry keys are not found, it returns "UnknownLicenseHolders".
+    /// </returns>
     public static string GetLicenseOwners()
     {
         // Open the registry key
@@ -281,6 +322,13 @@ public static class WindowsInformation
         return "Unknown";
     }
 
+    /// <summary>
+    /// Retrieves the current build number of the Windows operating system by reading the "CurrentBuildNumber" value from the 
+    /// registry key "SOFTWARE\Microsoft\Windows NT\CurrentVersion".
+    /// </summary>
+    /// <returns>
+    /// A string representing the current build number of Windows. If the registry key or value is not found, it returns "Unknown".
+    /// </returns>
     public static string GetCurrentBuildNumber()
     {
         // Open the registry key
@@ -292,6 +340,12 @@ public static class WindowsInformation
         return "Unknown";
     }
 
+    /// <summary>
+    /// Retrieves the Update Build Revision (UBR) number of the current Windows installation by reading the "UBR" value from the registry key
+    /// </summary>
+    /// <returns>
+    /// A string representing the UBR number. If the registry key or value is not found, it returns "Unknown".
+    /// </returns>
     public static string GetUBR()
     {
         // Open the registry key

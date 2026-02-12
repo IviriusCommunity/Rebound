@@ -2,11 +2,9 @@
 // Licensed under the MIT License.
 
 using Microsoft.Win32;
-using System;
-using System.Collections.Generic;
 using System.Runtime.InteropServices;
 using System.Security.Principal;
-using System.Text;
+using TerraFX.Interop.Windows;
 using Windows.Win32.Foundation;
 
 namespace Rebound.Core.SystemInformation.Software;
@@ -32,7 +30,7 @@ internal struct USER_INFO_2
     public uint usri2_acct_expires;
     public uint usri2_max_storage;
     public uint usri2_units_per_week;
-    public TerraFX.Interop.Windows.HANDLE usri2_logon_hours;
+    public HANDLE usri2_logon_hours;
     public uint usri2_bad_pw_count;
     public uint usri2_num_logons;
     public PCWSTR usri2_logon_server;
@@ -50,6 +48,50 @@ public static class UserInformation
         }
     }
 
+    /// <summary>
+    /// Retrieves the current user's desktop wallpaper path using the IDesktopWallpaper COM interface.
+    /// </summary>
+    /// <returns>
+    /// A string corresponding to the wallpaper's full path on disk.
+    /// </returns>
+    public static string? GetWallpaperPath()
+    {
+        unsafe
+        {
+            fixed (Guid* clsid = &CLSID.CLSID_DesktopWallpaper)
+            fixed (Guid* iid = &IID.IID_IDesktopWallpaper)
+            {
+                ComPtr<IDesktopWallpaper> desktopWallpaper = default;
+                var hr = TerraFX.Interop.Windows.Windows.CoCreateInstance(
+                    clsid, null, 0x17, iid, (void**)desktopWallpaper.GetAddressOf());
+
+                if (TerraFX.Interop.Windows.Windows.FAILED(hr)) return null;
+
+                ushort* wallpaperPtr = null;
+                hr = desktopWallpaper.Get()->GetWallpaper(null, (char**)&wallpaperPtr);
+
+                if (TerraFX.Interop.Windows.Windows.FAILED(hr)) return null;
+
+                string wallpaperPath = new string((char*)wallpaperPtr);
+                TerraFX.Interop.Windows.Windows.CoTaskMemFree(wallpaperPtr);
+
+                if (!string.IsNullOrEmpty(wallpaperPath))
+                {
+                    return wallpaperPath;
+                }
+            }
+        }
+        return null;
+    }
+
+    /// <summary>
+    /// Retrieves the current user's profile picture path from the registry. It looks up the user's SID to find the corresponding registry key under
+    /// "SOFTWARE\Microsoft\Windows\CurrentVersion\AccountPicture\Users\<SID>" and attempts to retrieve the path of the profile picture (preferring 
+    /// higher resolution images if available).
+    /// </summary>
+    /// <returns>
+    /// A string representing the file path to the user's profile picture. If the path cannot be found or an error occurs, it returns null.
+    /// </returns>
     public static string? GetUserPicturePath()
     {
         try
@@ -67,7 +109,7 @@ public static class UserInformation
                                 ?? key.GetValue("Image192") as string
                                 ?? key.GetValue("Image64") as string;
 
-                if (!string.IsNullOrEmpty(imagePath) && System.IO.File.Exists(imagePath))
+                if (!string.IsNullOrEmpty(imagePath) && File.Exists(imagePath))
                 {
                     return imagePath;
                 }
@@ -81,11 +123,17 @@ public static class UserInformation
         return null;
     }
 
+    /// <summary>
+    /// Retrieves the current user's display name (full name) using the NetUserGetInfo API.
+    /// </summary>
+    /// <returns>
+    /// A string representing the user's display name. If the API call fails or the full name is not set, it falls back to the username.
+    /// </returns>
     public static unsafe string GetDisplayName()
     {
         try
         {
-            var userName = System.Environment.UserName;
+            var userName = Environment.UserName;
             byte* bufPtr;
 
             // Query full user info (level 2) via NetUserGetInfo
@@ -114,10 +162,10 @@ public static class UserInformation
         }
         catch
         {
-            // fallback
+
         }
 
         // fallback: username if NetUserGetInfo fails
-        return System.Environment.UserName;
+        return Environment.UserName;
     }
 }

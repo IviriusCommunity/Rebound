@@ -16,11 +16,33 @@ public static class GPU
             foreach (var subKeyName in videoKey?.GetSubKeyNames() ?? Array.Empty<string>())
             {
                 using var subKey = videoKey?.OpenSubKey($@"{subKeyName}\0000");
-                var name = subKey?.GetValue("DriverDesc")?.ToString();
-                if (!string.IsNullOrEmpty(name))
+                if (subKey == null) continue;
+
+                var deviceDesc = subKey.GetValue("Device Description")?.ToString();
+                var attachToDesktop = subKey.GetValue("Attach.ToDesktop");
+
+                if (attachToDesktop != null && attachToDesktop.ToString() == "1")
                 {
-                    gpuName = Normalizer.NormalizeTrademarkSymbols(name);
-                    break;
+                    var name = subKey.GetValue("DriverDesc")?.ToString();
+                    if (!string.IsNullOrEmpty(name))
+                    {
+                        gpuName = Normalizer.NormalizeTrademarkSymbols(name);
+                        break;
+                    }
+                }
+            }
+
+            if (gpuName == null)
+            {
+                foreach (var subKeyName in videoKey?.GetSubKeyNames() ?? Array.Empty<string>())
+                {
+                    using var subKey = videoKey?.OpenSubKey($@"{subKeyName}\0000");
+                    var name = subKey?.GetValue("DriverDesc")?.ToString();
+                    if (!string.IsNullOrEmpty(name))
+                    {
+                        gpuName = Normalizer.NormalizeTrademarkSymbols(name);
+                        break;
+                    }
                 }
             }
         }
