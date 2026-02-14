@@ -19,490 +19,226 @@
         <local:StringToUriConverter x:Key="StringToUriConverter" />
     </Page.Resources>
     <Grid>
-        <muxc:NavigationView
-            IsBackButtonVisible="Collapsed"
-            IsSettingsVisible="False"
-            ItemInvoked="NavigationView_ItemInvoked"
-            PaneTitle="Rebound">
-            <muxc:NavigationView.MenuItems>
-                <muxc:NavigationViewItem Content="Home" IsSelected="True">
-                    <muxc:NavigationViewItem.Icon>
-                        <FontIcon Glyph="&#xE80F;" />
-                    </muxc:NavigationViewItem.Icon>
-                </muxc:NavigationViewItem>
-                <muxc:NavigationViewItem Content="System and Security" SelectsOnInvoked="False">
-                    <muxc:NavigationViewItem.Icon>
-                        <muxc:ImageIcon Source="/Assets/SystemAndSecurity.ico" />
-                    </muxc:NavigationViewItem.Icon>
-                    <muxc:NavigationViewItem.MenuItems>
-                        <muxc:NavigationViewItem Content="Security and Maintenance" SelectsOnInvoked="False">
-                            <muxc:NavigationViewItem.Icon>
-                                <FontIcon Glyph="&#xEA18;" />
-                            </muxc:NavigationViewItem.Icon>
-                            <interactivity:Interaction.Behaviors>
-                                <interactivity:EventTriggerBehavior EventName="Tapped">
-                                    <behaviors:NavigateToUriAction NavigateUri="windowsdefender:" />
-                                </interactivity:EventTriggerBehavior>
-                            </interactivity:Interaction.Behaviors>
-                        </muxc:NavigationViewItem>
-                        <muxc:NavigationViewItem
-                            Content="Windows Security Firewall"
-                            SelectsOnInvoked="False"
-                            Tag="firewall">
-                            <muxc:NavigationViewItem.Icon>
-                                <FontIcon Glyph="&#xECAD;" />
-                            </muxc:NavigationViewItem.Icon>
-                        </muxc:NavigationViewItem>
-                        <muxc:NavigationViewItem Content="System" SelectsOnInvoked="False">
-                            <muxc:NavigationViewItem.Icon>
-                                <FontIcon Glyph="&#xE7F4;" />
-                            </muxc:NavigationViewItem.Icon>
-                            <interactivity:Interaction.Behaviors>
-                                <interactivity:EventTriggerBehavior EventName="Tapped">
-                                    <behaviors:NavigateToUriAction NavigateUri="ms-settings:system" />
-                                </interactivity:EventTriggerBehavior>
-                            </interactivity:Interaction.Behaviors>
-                        </muxc:NavigationViewItem>
-                        <muxc:NavigationViewItem
-                            Content="File History"
-                            IsEnabled="False"
-                            SelectsOnInvoked="False">
-                            <muxc:NavigationViewItem.Icon>
-                                <FontIcon Glyph="&#xE81C;" />
-                            </muxc:NavigationViewItem.Icon>
-                            <interactivity:Interaction.Behaviors>
-                                <interactivity:EventTriggerBehavior EventName="Tapped">
-                                    <behaviors:NavigateToUriAction NavigateUri="control.exe /name Microsoft.FileHistory" />
-                                </interactivity:EventTriggerBehavior>
-                            </interactivity:Interaction.Behaviors>
-                        </muxc:NavigationViewItem>
-                        <muxc:NavigationViewItem Content="Windows Backup" SelectsOnInvoked="False">
-                            <muxc:NavigationViewItem.Icon>
-                                <FontIcon Glyph="&#xE898;" />
-                            </muxc:NavigationViewItem.Icon>
-                            <interactivity:Interaction.Behaviors>
-                                <interactivity:EventTriggerBehavior EventName="Tapped">
-                                    <behaviors:NavigateToUriAction NavigateUri="ms-settings:backup" />
-                                </interactivity:EventTriggerBehavior>
-                            </interactivity:Interaction.Behaviors>
-                        </muxc:NavigationViewItem>
-                        <muxc:NavigationViewItem
-                            Content="BitLocker"
-                            IsEnabled="False"
-                            SelectsOnInvoked="False">
-                            <muxc:NavigationViewItem.Icon>
-                                <FontIcon Glyph="&#xEC19;" />
-                            </muxc:NavigationViewItem.Icon>
-                        </muxc:NavigationViewItem>
-                        <muxc:NavigationViewItem Content="Storage Spaces" SelectsOnInvoked="False">
-                            <muxc:NavigationViewItem.Icon>
-                                <FontIcon Glyph="&#xEDA2;" />
-                            </muxc:NavigationViewItem.Icon>
-                            <interactivity:Interaction.Behaviors>
-                                <interactivity:EventTriggerBehavior EventName="Tapped">
-                                    <behaviors:NavigateToUriAction NavigateUri="ms-settings:storagesense" />
-                                </interactivity:EventTriggerBehavior>
-                            </interactivity:Interaction.Behaviors>
-                        </muxc:NavigationViewItem>
-                        <muxc:NavigationViewItem
-                            Content="Work Folders"
-                            IsEnabled="False"
-                            SelectsOnInvoked="False">
-                            <muxc:NavigationViewItem.Icon>
-                                <FontIcon Glyph="&#xE838;" />
-                            </muxc:NavigationViewItem.Icon>
-                        </muxc:NavigationViewItem>
-                        <muxc:NavigationViewItem Content="Windows Tools" SelectsOnInvoked="False">
-                            <muxc:NavigationViewItem.Icon>
-                                <FontIcon Glyph="&#xE90F;" />
-                            </muxc:NavigationViewItem.Icon>
-                        </muxc:NavigationViewItem>
-                    </muxc:NavigationViewItem.MenuItems>
-                </muxc:NavigationViewItem>
-                <muxc:NavigationViewItem Content="Network and Internet" SelectsOnInvoked="False">
-                    <muxc:NavigationViewItem.Icon>
-                        <muxc:ImageIcon Source="/Assets/Internet.ico" />
-                    </muxc:NavigationViewItem.Icon>
-                    <interactivity:Interaction.Behaviors>
-                        <interactivity:EventTriggerBehavior EventName="Tapped">
-                            <behaviors:NavigateToUriAction NavigateUri="ms-settings:network" />
-                        </interactivity:EventTriggerBehavior>
-                    </interactivity:Interaction.Behaviors>
-                </muxc:NavigationViewItem>
-                <muxc:NavigationViewItem Content="Hardware and Sound" SelectsOnInvoked="False">
-                    <muxc:NavigationViewItem.Icon>
-                        <muxc:ImageIcon Source="/Assets/HardwareAndSound.ico" />
-                    </muxc:NavigationViewItem.Icon>
-                    <muxc:NavigationViewItem.MenuItems>
-                        <muxc:NavigationViewItem Content="Devices and Printers" SelectsOnInvoked="False">
-                            <muxc:NavigationViewItem.Icon>
-                                <FontIcon Glyph="&#xE749;" />
-                            </muxc:NavigationViewItem.Icon>
-                            <interactivity:Interaction.Behaviors>
-                                <interactivity:EventTriggerBehavior EventName="Tapped">
-                                    <behaviors:NavigateToUriAction NavigateUri="ms-settings:devices" />
-                                </interactivity:EventTriggerBehavior>
-                            </interactivity:Interaction.Behaviors>
-                        </muxc:NavigationViewItem>
-                        <muxc:NavigationViewItem Content="Autoplay" SelectsOnInvoked="False">
-                            <muxc:NavigationViewItem.Icon>
-                                <FontIcon Glyph="&#xEC57;" />
-                            </muxc:NavigationViewItem.Icon>
-                            <interactivity:Interaction.Behaviors>
-                                <interactivity:EventTriggerBehavior EventName="Tapped">
-                                    <behaviors:NavigateToUriAction NavigateUri="ms-settings:autoplay" />
-                                </interactivity:EventTriggerBehavior>
-                            </interactivity:Interaction.Behaviors>
-                        </muxc:NavigationViewItem>
-                        <muxc:NavigationViewItem Content="Sound" SelectsOnInvoked="False">
-                            <muxc:NavigationViewItem.Icon>
-                                <FontIcon Glyph="&#xE767;" />
-                            </muxc:NavigationViewItem.Icon>
-                            <interactivity:Interaction.Behaviors>
-                                <interactivity:EventTriggerBehavior EventName="Tapped">
-                                    <behaviors:NavigateToUriAction NavigateUri="ms-settings:sound" />
-                                </interactivity:EventTriggerBehavior>
-                            </interactivity:Interaction.Behaviors>
-                        </muxc:NavigationViewItem>
-                        <muxc:NavigationViewItem Content="Power Options" SelectsOnInvoked="False">
-                            <muxc:NavigationViewItem.Icon>
-                                <FontIcon Glyph="&#xEBA6;" />
-                            </muxc:NavigationViewItem.Icon>
-                            <interactivity:Interaction.Behaviors>
-                                <interactivity:EventTriggerBehavior EventName="Tapped">
-                                    <behaviors:NavigateToUriAction NavigateUri="ms-settings:powersleep" />
-                                </interactivity:EventTriggerBehavior>
-                            </interactivity:Interaction.Behaviors>
-                        </muxc:NavigationViewItem>
-                        <muxc:NavigationViewItem Content="Pen and Windows Ink" SelectsOnInvoked="False">
-                            <muxc:NavigationViewItem.Icon>
-                                <FontIcon Glyph="&#xEDC6;" />
-                            </muxc:NavigationViewItem.Icon>
-                            <interactivity:Interaction.Behaviors>
-                                <interactivity:EventTriggerBehavior EventName="Tapped">
-                                    <behaviors:NavigateToUriAction NavigateUri="ms-settings:pen" />
-                                </interactivity:EventTriggerBehavior>
-                            </interactivity:Interaction.Behaviors>
-                        </muxc:NavigationViewItem>
-                        <muxc:NavigationViewItem
-                            Content="Tablet PC Settings"
-                            IsEnabled="False"
-                            SelectsOnInvoked="False">
-                            <muxc:NavigationViewItem.Icon>
-                                <FontIcon Glyph="&#xE70A;" />
-                            </muxc:NavigationViewItem.Icon>
-                            <interactivity:Interaction.Behaviors>
-                                <interactivity:EventTriggerBehavior EventName="Tapped">
-                                    <behaviors:NavigateToUriAction NavigateUri="ms-settings:storagesense" />
-                                </interactivity:EventTriggerBehavior>
-                            </interactivity:Interaction.Behaviors>
-                        </muxc:NavigationViewItem>
-                    </muxc:NavigationViewItem.MenuItems>
-                </muxc:NavigationViewItem>
-                <muxc:NavigationViewItem Content="Apps and Programs" SelectsOnInvoked="False">
-                    <muxc:NavigationViewItem.Icon>
-                        <muxc:ImageIcon Source="/Assets/Programs.ico" />
-                    </muxc:NavigationViewItem.Icon>
-                    <interactivity:Interaction.Behaviors>
-                        <interactivity:EventTriggerBehavior EventName="Tapped">
-                            <behaviors:NavigateToUriAction NavigateUri="ms-settings:appsfeatures" />
-                        </interactivity:EventTriggerBehavior>
-                    </interactivity:Interaction.Behaviors>
-                </muxc:NavigationViewItem>
-                <muxc:NavigationViewItem Content="User Accounts" SelectsOnInvoked="False">
-                    <muxc:NavigationViewItem.Icon>
-                        <muxc:ImageIcon Source="/Assets/User.ico" />
-                    </muxc:NavigationViewItem.Icon>
-                    <muxc:NavigationViewItem.MenuItems>
-                        <muxc:NavigationViewItem Content="Manage" SelectsOnInvoked="False">
-                            <muxc:NavigationViewItem.Icon>
-                                <FontIcon Glyph="&#xE713;" />
-                            </muxc:NavigationViewItem.Icon>
-                            <interactivity:Interaction.Behaviors>
-                                <interactivity:EventTriggerBehavior EventName="Tapped">
-                                    <behaviors:NavigateToUriAction NavigateUri="ms-settings:accounts" />
-                                </interactivity:EventTriggerBehavior>
-                            </interactivity:Interaction.Behaviors>
-                        </muxc:NavigationViewItem>
-                        <muxc:NavigationViewItem
-                            Content="Credential Manager"
-                            IsEnabled="False"
-                            SelectsOnInvoked="False">
-                            <muxc:NavigationViewItem.Icon>
-                                <FontIcon Glyph="&#xF540;" />
-                            </muxc:NavigationViewItem.Icon>
-                            <interactivity:Interaction.Behaviors>
-                                <interactivity:EventTriggerBehavior EventName="Tapped">
-                                    <behaviors:NavigateToUriAction NavigateUri="ms-settings:storagesense" />
-                                </interactivity:EventTriggerBehavior>
-                            </interactivity:Interaction.Behaviors>
-                        </muxc:NavigationViewItem>
-                    </muxc:NavigationViewItem.MenuItems>
-                </muxc:NavigationViewItem>
-                <muxc:NavigationViewItem Content="Appearance and Personalization" SelectsOnInvoked="False">
-                    <muxc:NavigationViewItem.Icon>
-                        <muxc:ImageIcon Source="/Assets/Personalization.ico" />
-                    </muxc:NavigationViewItem.Icon>
-                </muxc:NavigationViewItem>
-                <muxc:NavigationViewItem Content="Clock and Region" SelectsOnInvoked="False">
-                    <muxc:NavigationViewItem.Icon>
-                        <muxc:ImageIcon Source="/Assets/ClockAndRegion.ico" />
-                    </muxc:NavigationViewItem.Icon>
-                    <muxc:NavigationViewItem.MenuItems>
-                        <muxc:NavigationViewItem Content="Date and Time" SelectsOnInvoked="False">
-                            <muxc:NavigationViewItem.Icon>
-                                <FontIcon Glyph="&#xE787;" />
-                            </muxc:NavigationViewItem.Icon>
-                            <interactivity:Interaction.Behaviors>
-                                <interactivity:EventTriggerBehavior EventName="Tapped">
-                                    <behaviors:NavigateToUriAction NavigateUri="ms-settings:dateandtime" />
-                                </interactivity:EventTriggerBehavior>
-                            </interactivity:Interaction.Behaviors>
-                        </muxc:NavigationViewItem>
-                        <muxc:NavigationViewItem Content="Region" SelectsOnInvoked="False">
-                            <muxc:NavigationViewItem.Icon>
-                                <FontIcon Glyph="&#xF49A;" />
-                            </muxc:NavigationViewItem.Icon>
-                            <interactivity:Interaction.Behaviors>
-                                <interactivity:EventTriggerBehavior EventName="Tapped">
-                                    <behaviors:NavigateToUriAction NavigateUri="ms-settings:regionformatting" />
-                                </interactivity:EventTriggerBehavior>
-                            </interactivity:Interaction.Behaviors>
-                        </muxc:NavigationViewItem>
-                    </muxc:NavigationViewItem.MenuItems>
-                </muxc:NavigationViewItem>
-                <muxc:NavigationViewItem Content="Accessibility" SelectsOnInvoked="False">
-                    <muxc:NavigationViewItem.Icon>
-                        <muxc:ImageIcon Source="/Assets/Accessibility.ico" />
-                    </muxc:NavigationViewItem.Icon>
-                    <interactivity:Interaction.Behaviors>
-                        <interactivity:EventTriggerBehavior EventName="Tapped">
-                            <behaviors:NavigateToUriAction NavigateUri="ms-settings:easeofaccess" />
-                        </interactivity:EventTriggerBehavior>
-                    </interactivity:Interaction.Behaviors>
-                </muxc:NavigationViewItem>
-            </muxc:NavigationView.MenuItems>
-            <ScrollViewer>
-                <StackPanel Spacing="4">
-                    <Grid>
-                        <header:HomePageHeaderImage
-                            x:Name="BKGImage"
-                            Height="320"
-                            MinWidth="100"
-                            HorizontalAlignment="Stretch"
-                            VerticalAlignment="Top"
-                            Opacity="0.5">
-                            <header:HomePageHeaderImage.Image>
-                                <BitmapImage UriSource="{x:Bind WallpaperPath, Converter={StaticResource StringToUriConverter}}" />
-                            </header:HomePageHeaderImage.Image>
-                        </header:HomePageHeaderImage>
-                        <StackPanel Margin="32" Spacing="8">
-                            <StackPanel Orientation="Horizontal" Spacing="16">
-                                <muxc:PersonPicture Width="48">
-                                    <muxc:PersonPicture.ProfilePicture>
-                                        <BitmapImage UriSource="{x:Bind UserPicturePath, Converter={StaticResource StringToUriConverter}}" />
-                                    </muxc:PersonPicture.ProfilePicture>
-                                </muxc:PersonPicture>
-                                <TextBlock
-                                    FontSize="32"
-                                    FontWeight="SemiBold"
-                                    Text="{x:Bind sysinfoSoftware:UserInformation.GetDisplayName()}" />
-                            </StackPanel>
-                            <Grid
-                                Margin="0,24"
-                                ColumnSpacing="16"
-                                RowSpacing="8">
-                                <Grid.RowDefinitions>
-                                    <RowDefinition Height="Auto" />
-                                    <RowDefinition Height="Auto" />
-                                    <RowDefinition Height="Auto" />
-                                    <RowDefinition Height="Auto" />
-                                </Grid.RowDefinitions>
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="Auto" />
-                                    <ColumnDefinition Width="Auto" />
-                                    <ColumnDefinition Width="Auto" />
-                                </Grid.ColumnDefinitions>
-
-                                <!--  OS name  -->
-                                <FontIcon FontSize="16" Glyph="&#xE977;" />
-                                <TextBlock
-                                    Grid.Column="1"
-                                    FontWeight="SemiBold"
-                                    Text="OS" />
-                                <StackPanel
-                                    Grid.Column="2"
-                                    Orientation="Horizontal"
-                                    Spacing="8">
-                                    <TextBlock Text="{x:Bind sysinfoSoftware:WindowsInformation.GetOSName()}" />
-                                    <TextBlock>
-                                        <Hyperlink Click="WinverHyperlink_Click">View more</Hyperlink>
-                                    </TextBlock>
-                                </StackPanel>
-
-                                <!--  CPU name  -->
-                                <FontIcon
-                                    Grid.Row="1"
-                                    FontSize="16"
-                                    Glyph="&#xEEA1;" />
-                                <TextBlock
-                                    Grid.Row="1"
-                                    Grid.Column="1"
-                                    FontWeight="SemiBold"
-                                    Text="CPU" />
-                                <TextBlock
-                                    Grid.Row="1"
-                                    Grid.Column="2"
-                                    Text="{x:Bind sysinfoHardware:CPU.GetCPUName()}" />
-
-                                <!--  GPU name  -->
-                                <PathIcon
-                                    Grid.Row="2"
-                                    Width="16"
-                                    Height="16"
-                                    Data="F1 M 0 5 C 0 4 1 3 2 3 L 14 3 C 15 3 16 4 16 5 L 16 9 C 16 10 15 11 14 11 L 2 11 C 1 11 0 10 0 9 M 1 5 L 1 9 C 1 9.5 1.5 10 2 10 L 14 10 C 14.5 10 15 9.5 15 9 L 15 5 C 15 4.5 14.5 4 14 4 L 2 4 C 1.5 4 1 4.5 1 5 M 14 11 L 14 13 L 6 13 L 6 11 M 7 11 L 7 12 L 13 12 L 13 11 M 4 5 A 1 1 0 0 0 4 9 A 1 1 0 0 0 4 5 M 4 6 A 1 1 0 0 1 4 8 A 1 1 0 0 1 4 6 M 12 5 A 1 1 0 0 0 12 9 A 1 1 0 0 0 12 5 M 12 6 A 1 1 0 0 1 12 8 A 1 1 0 0 1 12 6 M 8 6 A 1 1 0 0 1 8 8 A 1 1 0 0 1 8 6 M 8 5 A 1 1 0 0 0 8 9 A 1 1 0 0 0 8 5" />
-                                <TextBlock
-                                    Grid.Row="2"
-                                    Grid.Column="1"
-                                    FontWeight="SemiBold"
-                                    Text="GPU" />
-                                <TextBlock
-                                    Grid.Row="2"
-                                    Grid.Column="2"
-                                    Text="{x:Bind sysinfoHardware:GPU.GetGPUName()}" />
-
-                                <!--  RAM  -->
-                                <FontIcon
-                                    Grid.Row="3"
-                                    FontSize="16"
-                                    Glyph="&#xEEA0;" />
-                                <TextBlock
-                                    Grid.Row="3"
-                                    Grid.Column="1"
-                                    FontWeight="SemiBold"
-                                    Text="RAM" />
-                                <TextBlock
-                                    Grid.Row="3"
-                                    Grid.Column="2"
-                                    Text="{x:Bind sysinfoHardware:RAM.GetTotalRam()}" />
-                            </Grid>
+        <ScrollViewer>
+            <StackPanel Spacing="4">
+                <Grid>
+                    <header:HomePageHeaderImage
+                        x:Name="BKGImage"
+                        Height="320"
+                        MinWidth="100"
+                        HorizontalAlignment="Stretch"
+                        VerticalAlignment="Top"
+                        Opacity="0.5">
+                        <header:HomePageHeaderImage.Image>
+                            <BitmapImage UriSource="{x:Bind WallpaperPath, Converter={StaticResource StringToUriConverter}}" />
+                        </header:HomePageHeaderImage.Image>
+                    </header:HomePageHeaderImage>
+                    <StackPanel Margin="32" Spacing="8">
+                        <StackPanel Orientation="Horizontal" Spacing="16">
+                            <muxc:PersonPicture Width="48">
+                                <muxc:PersonPicture.ProfilePicture>
+                                    <BitmapImage UriSource="{x:Bind UserPicturePath, Converter={StaticResource StringToUriConverter}}" />
+                                </muxc:PersonPicture.ProfilePicture>
+                            </muxc:PersonPicture>
+                            <TextBlock
+                                FontSize="32"
+                                FontWeight="SemiBold"
+                                Text="{x:Bind sysinfoSoftware:UserInformation.GetDisplayName()}" />
                         </StackPanel>
-                    </Grid>
-                    <TextBlock
-                        Margin="40,-80,40,0"
-                        FontSize="28"
-                        FontWeight="SemiBold"
-                        Text="Welcome!" />
-                    <TextBlock
-                        Margin="40,-32,40,16"
-                        Text="This is your main dashboard from where you can manage your settings by using the built in tools from both Windows and Rebound, listed below. All verified 3rd party tools on this computer are included. Read the descriptions of each app to know where you need to go."
-                        TextWrapping="WrapWholeWords" />
-                    <TextBlock
-                        Margin="40,16,40,0"
-                        FontWeight="SemiBold"
-                        Text="Windows built-in" />
-                    <toolkit:SettingsCard
-                        Margin="40,0"
-                        Description="Main settings application for Windows. The majority of settings can be found here."
-                        Header="Windows Settings"
-                        IsClickEnabled="True">
-                        <toolkit:SettingsCard.HeaderIcon>
-                            <FontIcon Glyph="&#xE713;" />
-                        </toolkit:SettingsCard.HeaderIcon>
-                        <toolkit:SettingsCard.ActionIcon>
-                            <FontIcon Glyph="&#xE8AD;" />
-                        </toolkit:SettingsCard.ActionIcon>
-                        <interactivity:Interaction.Behaviors>
-                            <interactivity:EventTriggerBehavior EventName="Tapped">
-                                <behaviors:NavigateToUriAction NavigateUri="ms-settings:" />
-                            </interactivity:EventTriggerBehavior>
-                        </interactivity:Interaction.Behaviors>
-                    </toolkit:SettingsCard>
-                    <toolkit:SettingsCard
-                        Margin="40,0"
-                        Command="{x:Bind LaunchPathCommand}"
-                        CommandParameter="cleanmgr"
-                        Description="Launch the old Win32 Windows Control Panel."
-                        Header="Legacy Control Panel"
-                        IsClickEnabled="True">
-                        <toolkit:SettingsCard.HeaderIcon>
-                            <muxc:ImageIcon Source="/Assets/ControlPanelLegacy.ico" />
-                        </toolkit:SettingsCard.HeaderIcon>
-                        <toolkit:SettingsCard.ActionIcon>
-                            <FontIcon Glyph="&#xE8AD;" />
-                        </toolkit:SettingsCard.ActionIcon>
-                    </toolkit:SettingsCard>
-                    <toolkit:SettingsCard
-                        Margin="40,0"
-                        Description="Manage system and poweruser related settings within Windows."
-                        Header="Management Console"
-                        IsClickEnabled="True">
-                        <toolkit:SettingsCard.ActionIcon>
-                            <FontIcon Glyph="&#xE8AD;" />
-                        </toolkit:SettingsCard.ActionIcon>
-                    </toolkit:SettingsCard>
-                    <TextBlock
-                        Margin="40,32,40,0"
-                        FontWeight="SemiBold"
-                        Text="Rebound specific" />
-                    <toolkit:SettingsCard
-                        Margin="40,0"
-                        Command="{x:Bind LaunchReboundHubCommand}"
-                        Description="Install, uninstall, and repair Rebound mods."
-                        Header="Rebound Hub"
-                        IsClickEnabled="True">
-                        <toolkit:SettingsCard.HeaderIcon>
-                            <FontIcon Glyph="&#xE80F;" />
-                        </toolkit:SettingsCard.HeaderIcon>
-                        <toolkit:SettingsCard.ActionIcon>
-                            <FontIcon Glyph="&#xE8AD;" />
-                        </toolkit:SettingsCard.ActionIcon>
-                    </toolkit:SettingsCard>
-                    <toolkit:SettingsCard
-                        Margin="40,0"
-                        Description="Highly extended customization options can be found here. These are only available while Rebound is installed."
-                        Header="Rebound Shell Settings"
-                        IsClickEnabled="True">
-                        <toolkit:SettingsCard.ActionIcon>
-                            <FontIcon Glyph="&#xE8AD;" />
-                        </toolkit:SettingsCard.ActionIcon>
-                    </toolkit:SettingsCard>
-                    <TextBlock
-                        Margin="40,32,40,0"
-                        FontWeight="SemiBold"
-                        Text="3rd party" />
-                    <toolkit:SettingsCard
-                        Margin="40,0"
-                        Description="Tweak hidden Windows settings, telemetry, manage services, and more."
-                        Header="Wintoys"
-                        IsClickEnabled="True">
-                        <toolkit:SettingsCard.ActionIcon>
-                            <FontIcon Glyph="&#xE8AD;" />
-                        </toolkit:SettingsCard.ActionIcon>
-                    </toolkit:SettingsCard>
-                    <toolkit:SettingsCard
-                        Margin="40,0,40,40"
-                        Description="Launch PowerToys Settings to manage options for PowerToys tools."
-                        Header="PowerToys Settings"
-                        IsClickEnabled="True">
-                        <toolkit:SettingsCard.ActionIcon>
-                            <FontIcon Glyph="&#xE8AD;" />
-                        </toolkit:SettingsCard.ActionIcon>
-                    </toolkit:SettingsCard>
-                    <toolkit:SettingsCard
-                        Margin="40,0,40,40"
-                        Description="Open the Windows Tools page to see all the available tools."
-                        Header="View all Windows tools"
-                        IsClickEnabled="True">
-                        <toolkit:SettingsCard.HeaderIcon>
-                            <FontIcon Glyph="&#xE90F;" />
-                        </toolkit:SettingsCard.HeaderIcon>
-                        <toolkit:SettingsCard.ActionIcon>
-                            <FontIcon Glyph="&#xE8AD;" />
-                        </toolkit:SettingsCard.ActionIcon>
-                    </toolkit:SettingsCard>
-                </StackPanel>
-            </ScrollViewer>
-        </muxc:NavigationView>
+                        <Grid
+                            Margin="0,24"
+                            ColumnSpacing="16"
+                            RowSpacing="8">
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="Auto" />
+                            </Grid.RowDefinitions>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto" />
+                                <ColumnDefinition Width="Auto" />
+                                <ColumnDefinition Width="Auto" />
+                            </Grid.ColumnDefinitions>
+
+                            <!--  OS name  -->
+                            <FontIcon FontSize="16" Glyph="&#xE977;" />
+                            <TextBlock
+                                Grid.Column="1"
+                                FontWeight="SemiBold"
+                                Text="OS" />
+                            <StackPanel
+                                Grid.Column="2"
+                                Orientation="Horizontal"
+                                Spacing="8">
+                                <TextBlock Text="{x:Bind sysinfoSoftware:WindowsInformation.GetOSName()}" />
+                                <TextBlock>
+                                    <Hyperlink Click="WinverHyperlink_Click">View more</Hyperlink>
+                                </TextBlock>
+                            </StackPanel>
+
+                            <!--  CPU name  -->
+                            <FontIcon
+                                Grid.Row="1"
+                                FontSize="16"
+                                Glyph="&#xEEA1;" />
+                            <TextBlock
+                                Grid.Row="1"
+                                Grid.Column="1"
+                                FontWeight="SemiBold"
+                                Text="CPU" />
+                            <TextBlock
+                                Grid.Row="1"
+                                Grid.Column="2"
+                                Text="{x:Bind sysinfoHardware:CPU.GetCPUName()}" />
+
+                            <!--  GPU name  -->
+                            <PathIcon
+                                Grid.Row="2"
+                                Width="16"
+                                Height="16"
+                                Data="F1 M 0 5 C 0 4 1 3 2 3 L 14 3 C 15 3 16 4 16 5 L 16 9 C 16 10 15 11 14 11 L 2 11 C 1 11 0 10 0 9 M 1 5 L 1 9 C 1 9.5 1.5 10 2 10 L 14 10 C 14.5 10 15 9.5 15 9 L 15 5 C 15 4.5 14.5 4 14 4 L 2 4 C 1.5 4 1 4.5 1 5 M 14 11 L 14 13 L 6 13 L 6 11 M 7 11 L 7 12 L 13 12 L 13 11 M 4 5 A 1 1 0 0 0 4 9 A 1 1 0 0 0 4 5 M 4 6 A 1 1 0 0 1 4 8 A 1 1 0 0 1 4 6 M 12 5 A 1 1 0 0 0 12 9 A 1 1 0 0 0 12 5 M 12 6 A 1 1 0 0 1 12 8 A 1 1 0 0 1 12 6 M 8 6 A 1 1 0 0 1 8 8 A 1 1 0 0 1 8 6 M 8 5 A 1 1 0 0 0 8 9 A 1 1 0 0 0 8 5" />
+                            <TextBlock
+                                Grid.Row="2"
+                                Grid.Column="1"
+                                FontWeight="SemiBold"
+                                Text="GPU" />
+                            <TextBlock
+                                Grid.Row="2"
+                                Grid.Column="2"
+                                Text="{x:Bind sysinfoHardware:GPU.GetGPUName()}" />
+
+                            <!--  RAM  -->
+                            <FontIcon
+                                Grid.Row="3"
+                                FontSize="16"
+                                Glyph="&#xEEA0;" />
+                            <TextBlock
+                                Grid.Row="3"
+                                Grid.Column="1"
+                                FontWeight="SemiBold"
+                                Text="RAM" />
+                            <TextBlock
+                                Grid.Row="3"
+                                Grid.Column="2"
+                                Text="{x:Bind sysinfoHardware:RAM.GetTotalRam()}" />
+                        </Grid>
+                    </StackPanel>
+                </Grid>
+                <TextBlock
+                    Margin="40,-80,40,0"
+                    FontSize="28"
+                    FontWeight="SemiBold"
+                    Text="Welcome!" />
+                <TextBlock
+                    Margin="40,-32,40,16"
+                    Text="This is your main dashboard from where you can manage your settings by using the built in tools from both Windows and Rebound, listed below. All verified 3rd party tools on this computer are included. Read the descriptions of each app to know where you need to go."
+                    TextWrapping="WrapWholeWords" />
+                <TextBlock
+                    Margin="40,16,40,0"
+                    FontWeight="SemiBold"
+                    Text="Windows built-in" />
+                <toolkit:SettingsCard
+                    Margin="40,0"
+                    Description="Main settings application for Windows. The majority of settings can be found here."
+                    Header="Windows Settings"
+                    IsClickEnabled="True">
+                    <toolkit:SettingsCard.HeaderIcon>
+                        <FontIcon Glyph="&#xE713;" />
+                    </toolkit:SettingsCard.HeaderIcon>
+                    <toolkit:SettingsCard.ActionIcon>
+                        <FontIcon Glyph="&#xE8AD;" />
+                    </toolkit:SettingsCard.ActionIcon>
+                    <interactivity:Interaction.Behaviors>
+                        <interactivity:EventTriggerBehavior EventName="Tapped">
+                            <behaviors:NavigateToUriAction NavigateUri="ms-settings:" />
+                        </interactivity:EventTriggerBehavior>
+                    </interactivity:Interaction.Behaviors>
+                </toolkit:SettingsCard>
+                <toolkit:SettingsCard
+                    Margin="40,0"
+                    Command="{x:Bind LaunchPathCommand}"
+                    CommandParameter="cleanmgr"
+                    Description="Launch the old Win32 Windows Control Panel."
+                    Header="Legacy Control Panel"
+                    IsClickEnabled="True">
+                    <toolkit:SettingsCard.HeaderIcon>
+                        <muxc:ImageIcon Source="/Assets/ControlPanelLegacy.ico" />
+                    </toolkit:SettingsCard.HeaderIcon>
+                    <toolkit:SettingsCard.ActionIcon>
+                        <FontIcon Glyph="&#xE8AD;" />
+                    </toolkit:SettingsCard.ActionIcon>
+                </toolkit:SettingsCard>
+                <toolkit:SettingsCard
+                    Margin="40,0"
+                    Description="Manage system and poweruser related settings within Windows."
+                    Header="Management Console"
+                    IsClickEnabled="True">
+                    <toolkit:SettingsCard.ActionIcon>
+                        <FontIcon Glyph="&#xE8AD;" />
+                    </toolkit:SettingsCard.ActionIcon>
+                </toolkit:SettingsCard>
+                <TextBlock
+                    Margin="40,32,40,0"
+                    FontWeight="SemiBold"
+                    Text="Rebound specific" />
+                <toolkit:SettingsCard
+                    Margin="40,0"
+                    Command="{x:Bind LaunchReboundHubCommand}"
+                    Description="Install, uninstall, and repair Rebound mods."
+                    Header="Rebound Hub"
+                    IsClickEnabled="True">
+                    <toolkit:SettingsCard.HeaderIcon>
+                        <FontIcon Glyph="&#xE80F;" />
+                    </toolkit:SettingsCard.HeaderIcon>
+                    <toolkit:SettingsCard.ActionIcon>
+                        <FontIcon Glyph="&#xE8AD;" />
+                    </toolkit:SettingsCard.ActionIcon>
+                </toolkit:SettingsCard>
+                <toolkit:SettingsCard
+                    Margin="40,0"
+                    Description="Highly extended customization options can be found here. These are only available while Rebound is installed."
+                    Header="Rebound Shell Settings"
+                    IsClickEnabled="True">
+                    <toolkit:SettingsCard.ActionIcon>
+                        <FontIcon Glyph="&#xE8AD;" />
+                    </toolkit:SettingsCard.ActionIcon>
+                </toolkit:SettingsCard>
+                <TextBlock
+                    Margin="40,32,40,0"
+                    FontWeight="SemiBold"
+                    Text="3rd party" />
+                <toolkit:SettingsCard
+                    Margin="40,0"
+                    Description="Tweak hidden Windows settings, telemetry, manage services, and more."
+                    Header="Wintoys"
+                    IsClickEnabled="True">
+                    <toolkit:SettingsCard.ActionIcon>
+                        <FontIcon Glyph="&#xE8AD;" />
+                    </toolkit:SettingsCard.ActionIcon>
+                </toolkit:SettingsCard>
+                <toolkit:SettingsCard
+                    Margin="40,0,40,40"
+                    Description="Launch PowerToys Settings to manage options for PowerToys tools."
+                    Header="PowerToys Settings"
+                    IsClickEnabled="True">
+                    <toolkit:SettingsCard.ActionIcon>
+                        <FontIcon Glyph="&#xE8AD;" />
+                    </toolkit:SettingsCard.ActionIcon>
+                </toolkit:SettingsCard>
+                <toolkit:SettingsCard
+                    Margin="40,0,40,40"
+                    Description="Open the Windows Tools page to see all the available tools."
+                    Header="View all Windows tools"
+                    IsClickEnabled="True">
+                    <toolkit:SettingsCard.HeaderIcon>
+                        <FontIcon Glyph="&#xE90F;" />
+                    </toolkit:SettingsCard.HeaderIcon>
+                    <toolkit:SettingsCard.ActionIcon>
+                        <FontIcon Glyph="&#xE8AD;" />
+                    </toolkit:SettingsCard.ActionIcon>
+                </toolkit:SettingsCard>
+            </StackPanel>
+        </ScrollViewer>
     </Grid>
 </Page>

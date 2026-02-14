@@ -4,7 +4,9 @@
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:animatedvisuals="using:Microsoft.UI.Xaml.Controls.AnimatedVisuals"
+    xmlns:behaviors="using:CommunityToolkit.WinUI.Behaviors"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:interactivity="using:Microsoft.Xaml.Interactivity"
     xmlns:local="using:Rebound.ControlPanel.Views"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:muxc="using:Microsoft.UI.Xaml.Controls"
@@ -14,10 +16,6 @@
         <local:StringToUriConverter x:Key="StringToUriConverter" />
     </Page.Resources>
     <Grid>
-        <Frame
-            x:Name="RootFrame"
-            Margin="0,80,0,0"
-            x:FieldModifier="public" />
         <StackPanel
             Margin="12,8,12,0"
             VerticalAlignment="Top"
@@ -161,5 +159,271 @@
                 </Button>
             </StackPanel>
         </Grid>
+        <muxc:NavigationView
+            Margin="0,80,0,0"
+            IsBackButtonVisible="Collapsed"
+            IsSettingsVisible="False"
+            ItemInvoked="NavigationView_ItemInvoked"
+            PaneTitle="Rebound">
+            <muxc:NavigationView.MenuItems>
+                <muxc:NavigationViewItem Content="Home" IsSelected="True">
+                    <muxc:NavigationViewItem.Icon>
+                        <FontIcon Glyph="&#xE80F;" />
+                    </muxc:NavigationViewItem.Icon>
+                </muxc:NavigationViewItem>
+                <muxc:NavigationViewItem Content="System and Security" SelectsOnInvoked="False">
+                    <muxc:NavigationViewItem.Icon>
+                        <muxc:ImageIcon Source="/Assets/SystemAndSecurity.ico" />
+                    </muxc:NavigationViewItem.Icon>
+                    <muxc:NavigationViewItem.MenuItems>
+                        <muxc:NavigationViewItem Content="Security and Maintenance" SelectsOnInvoked="False">
+                            <muxc:NavigationViewItem.Icon>
+                                <FontIcon Glyph="&#xEA18;" />
+                            </muxc:NavigationViewItem.Icon>
+                            <interactivity:Interaction.Behaviors>
+                                <interactivity:EventTriggerBehavior EventName="Tapped">
+                                    <behaviors:NavigateToUriAction NavigateUri="windowsdefender:" />
+                                </interactivity:EventTriggerBehavior>
+                            </interactivity:Interaction.Behaviors>
+                        </muxc:NavigationViewItem>
+                        <muxc:NavigationViewItem
+                            Content="Windows Security Firewall"
+                            SelectsOnInvoked="False"
+                            Tag="firewall">
+                            <muxc:NavigationViewItem.Icon>
+                                <FontIcon Glyph="&#xECAD;" />
+                            </muxc:NavigationViewItem.Icon>
+                        </muxc:NavigationViewItem>
+                        <muxc:NavigationViewItem Content="System" SelectsOnInvoked="False">
+                            <muxc:NavigationViewItem.Icon>
+                                <FontIcon Glyph="&#xE7F4;" />
+                            </muxc:NavigationViewItem.Icon>
+                            <interactivity:Interaction.Behaviors>
+                                <interactivity:EventTriggerBehavior EventName="Tapped">
+                                    <behaviors:NavigateToUriAction NavigateUri="ms-settings:system" />
+                                </interactivity:EventTriggerBehavior>
+                            </interactivity:Interaction.Behaviors>
+                        </muxc:NavigationViewItem>
+                        <muxc:NavigationViewItem
+                            Content="File History"
+                            IsEnabled="False"
+                            SelectsOnInvoked="False">
+                            <muxc:NavigationViewItem.Icon>
+                                <FontIcon Glyph="&#xE81C;" />
+                            </muxc:NavigationViewItem.Icon>
+                            <interactivity:Interaction.Behaviors>
+                                <interactivity:EventTriggerBehavior EventName="Tapped">
+                                    <behaviors:NavigateToUriAction NavigateUri="control.exe /name Microsoft.FileHistory" />
+                                </interactivity:EventTriggerBehavior>
+                            </interactivity:Interaction.Behaviors>
+                        </muxc:NavigationViewItem>
+                        <muxc:NavigationViewItem Content="Windows Backup" SelectsOnInvoked="False">
+                            <muxc:NavigationViewItem.Icon>
+                                <FontIcon Glyph="&#xE898;" />
+                            </muxc:NavigationViewItem.Icon>
+                            <interactivity:Interaction.Behaviors>
+                                <interactivity:EventTriggerBehavior EventName="Tapped">
+                                    <behaviors:NavigateToUriAction NavigateUri="ms-settings:backup" />
+                                </interactivity:EventTriggerBehavior>
+                            </interactivity:Interaction.Behaviors>
+                        </muxc:NavigationViewItem>
+                        <muxc:NavigationViewItem
+                            Content="BitLocker"
+                            IsEnabled="False"
+                            SelectsOnInvoked="False">
+                            <muxc:NavigationViewItem.Icon>
+                                <FontIcon Glyph="&#xEC19;" />
+                            </muxc:NavigationViewItem.Icon>
+                        </muxc:NavigationViewItem>
+                        <muxc:NavigationViewItem Content="Storage Spaces" SelectsOnInvoked="False">
+                            <muxc:NavigationViewItem.Icon>
+                                <FontIcon Glyph="&#xEDA2;" />
+                            </muxc:NavigationViewItem.Icon>
+                            <interactivity:Interaction.Behaviors>
+                                <interactivity:EventTriggerBehavior EventName="Tapped">
+                                    <behaviors:NavigateToUriAction NavigateUri="ms-settings:storagesense" />
+                                </interactivity:EventTriggerBehavior>
+                            </interactivity:Interaction.Behaviors>
+                        </muxc:NavigationViewItem>
+                        <muxc:NavigationViewItem
+                            Content="Work Folders"
+                            IsEnabled="False"
+                            SelectsOnInvoked="False">
+                            <muxc:NavigationViewItem.Icon>
+                                <FontIcon Glyph="&#xE838;" />
+                            </muxc:NavigationViewItem.Icon>
+                        </muxc:NavigationViewItem>
+                        <muxc:NavigationViewItem Content="Windows Tools" SelectsOnInvoked="False">
+                            <muxc:NavigationViewItem.Icon>
+                                <FontIcon Glyph="&#xE90F;" />
+                            </muxc:NavigationViewItem.Icon>
+                        </muxc:NavigationViewItem>
+                    </muxc:NavigationViewItem.MenuItems>
+                </muxc:NavigationViewItem>
+                <muxc:NavigationViewItem Content="Network and Internet" SelectsOnInvoked="False">
+                    <muxc:NavigationViewItem.Icon>
+                        <muxc:ImageIcon Source="/Assets/Internet.ico" />
+                    </muxc:NavigationViewItem.Icon>
+                    <interactivity:Interaction.Behaviors>
+                        <interactivity:EventTriggerBehavior EventName="Tapped">
+                            <behaviors:NavigateToUriAction NavigateUri="ms-settings:network" />
+                        </interactivity:EventTriggerBehavior>
+                    </interactivity:Interaction.Behaviors>
+                </muxc:NavigationViewItem>
+                <muxc:NavigationViewItem Content="Hardware and Sound" SelectsOnInvoked="False">
+                    <muxc:NavigationViewItem.Icon>
+                        <muxc:ImageIcon Source="/Assets/HardwareAndSound.ico" />
+                    </muxc:NavigationViewItem.Icon>
+                    <muxc:NavigationViewItem.MenuItems>
+                        <muxc:NavigationViewItem Content="Devices and Printers" SelectsOnInvoked="False">
+                            <muxc:NavigationViewItem.Icon>
+                                <FontIcon Glyph="&#xE749;" />
+                            </muxc:NavigationViewItem.Icon>
+                            <interactivity:Interaction.Behaviors>
+                                <interactivity:EventTriggerBehavior EventName="Tapped">
+                                    <behaviors:NavigateToUriAction NavigateUri="ms-settings:devices" />
+                                </interactivity:EventTriggerBehavior>
+                            </interactivity:Interaction.Behaviors>
+                        </muxc:NavigationViewItem>
+                        <muxc:NavigationViewItem Content="Autoplay" SelectsOnInvoked="False">
+                            <muxc:NavigationViewItem.Icon>
+                                <FontIcon Glyph="&#xEC57;" />
+                            </muxc:NavigationViewItem.Icon>
+                            <interactivity:Interaction.Behaviors>
+                                <interactivity:EventTriggerBehavior EventName="Tapped">
+                                    <behaviors:NavigateToUriAction NavigateUri="ms-settings:autoplay" />
+                                </interactivity:EventTriggerBehavior>
+                            </interactivity:Interaction.Behaviors>
+                        </muxc:NavigationViewItem>
+                        <muxc:NavigationViewItem Content="Sound" SelectsOnInvoked="False">
+                            <muxc:NavigationViewItem.Icon>
+                                <FontIcon Glyph="&#xE767;" />
+                            </muxc:NavigationViewItem.Icon>
+                            <interactivity:Interaction.Behaviors>
+                                <interactivity:EventTriggerBehavior EventName="Tapped">
+                                    <behaviors:NavigateToUriAction NavigateUri="ms-settings:sound" />
+                                </interactivity:EventTriggerBehavior>
+                            </interactivity:Interaction.Behaviors>
+                        </muxc:NavigationViewItem>
+                        <muxc:NavigationViewItem Content="Power Options" SelectsOnInvoked="False">
+                            <muxc:NavigationViewItem.Icon>
+                                <FontIcon Glyph="&#xEBA6;" />
+                            </muxc:NavigationViewItem.Icon>
+                            <interactivity:Interaction.Behaviors>
+                                <interactivity:EventTriggerBehavior EventName="Tapped">
+                                    <behaviors:NavigateToUriAction NavigateUri="ms-settings:powersleep" />
+                                </interactivity:EventTriggerBehavior>
+                            </interactivity:Interaction.Behaviors>
+                        </muxc:NavigationViewItem>
+                        <muxc:NavigationViewItem Content="Pen and Windows Ink" SelectsOnInvoked="False">
+                            <muxc:NavigationViewItem.Icon>
+                                <FontIcon Glyph="&#xEDC6;" />
+                            </muxc:NavigationViewItem.Icon>
+                            <interactivity:Interaction.Behaviors>
+                                <interactivity:EventTriggerBehavior EventName="Tapped">
+                                    <behaviors:NavigateToUriAction NavigateUri="ms-settings:pen" />
+                                </interactivity:EventTriggerBehavior>
+                            </interactivity:Interaction.Behaviors>
+                        </muxc:NavigationViewItem>
+                        <muxc:NavigationViewItem
+                            Content="Tablet PC Settings"
+                            IsEnabled="False"
+                            SelectsOnInvoked="False">
+                            <muxc:NavigationViewItem.Icon>
+                                <FontIcon Glyph="&#xE70A;" />
+                            </muxc:NavigationViewItem.Icon>
+                            <interactivity:Interaction.Behaviors>
+                                <interactivity:EventTriggerBehavior EventName="Tapped">
+                                    <behaviors:NavigateToUriAction NavigateUri="ms-settings:storagesense" />
+                                </interactivity:EventTriggerBehavior>
+                            </interactivity:Interaction.Behaviors>
+                        </muxc:NavigationViewItem>
+                    </muxc:NavigationViewItem.MenuItems>
+                </muxc:NavigationViewItem>
+                <muxc:NavigationViewItem Content="Apps and Programs" SelectsOnInvoked="False">
+                    <muxc:NavigationViewItem.Icon>
+                        <muxc:ImageIcon Source="/Assets/Programs.ico" />
+                    </muxc:NavigationViewItem.Icon>
+                    <interactivity:Interaction.Behaviors>
+                        <interactivity:EventTriggerBehavior EventName="Tapped">
+                            <behaviors:NavigateToUriAction NavigateUri="ms-settings:appsfeatures" />
+                        </interactivity:EventTriggerBehavior>
+                    </interactivity:Interaction.Behaviors>
+                </muxc:NavigationViewItem>
+                <muxc:NavigationViewItem Content="User Accounts" SelectsOnInvoked="False">
+                    <muxc:NavigationViewItem.Icon>
+                        <muxc:ImageIcon Source="/Assets/User.ico" />
+                    </muxc:NavigationViewItem.Icon>
+                    <muxc:NavigationViewItem.MenuItems>
+                        <muxc:NavigationViewItem Content="Manage" SelectsOnInvoked="False">
+                            <muxc:NavigationViewItem.Icon>
+                                <FontIcon Glyph="&#xE713;" />
+                            </muxc:NavigationViewItem.Icon>
+                            <interactivity:Interaction.Behaviors>
+                                <interactivity:EventTriggerBehavior EventName="Tapped">
+                                    <behaviors:NavigateToUriAction NavigateUri="ms-settings:accounts" />
+                                </interactivity:EventTriggerBehavior>
+                            </interactivity:Interaction.Behaviors>
+                        </muxc:NavigationViewItem>
+                        <muxc:NavigationViewItem
+                            Content="Credential Manager"
+                            IsEnabled="False"
+                            SelectsOnInvoked="False">
+                            <muxc:NavigationViewItem.Icon>
+                                <FontIcon Glyph="&#xF540;" />
+                            </muxc:NavigationViewItem.Icon>
+                            <interactivity:Interaction.Behaviors>
+                                <interactivity:EventTriggerBehavior EventName="Tapped">
+                                    <behaviors:NavigateToUriAction NavigateUri="ms-settings:storagesense" />
+                                </interactivity:EventTriggerBehavior>
+                            </interactivity:Interaction.Behaviors>
+                        </muxc:NavigationViewItem>
+                    </muxc:NavigationViewItem.MenuItems>
+                </muxc:NavigationViewItem>
+                <muxc:NavigationViewItem Content="Appearance and Personalization" SelectsOnInvoked="False">
+                    <muxc:NavigationViewItem.Icon>
+                        <muxc:ImageIcon Source="/Assets/Personalization.ico" />
+                    </muxc:NavigationViewItem.Icon>
+                </muxc:NavigationViewItem>
+                <muxc:NavigationViewItem Content="Clock and Region" SelectsOnInvoked="False">
+                    <muxc:NavigationViewItem.Icon>
+                        <muxc:ImageIcon Source="/Assets/ClockAndRegion.ico" />
+                    </muxc:NavigationViewItem.Icon>
+                    <muxc:NavigationViewItem.MenuItems>
+                        <muxc:NavigationViewItem Content="Date and Time" SelectsOnInvoked="False">
+                            <muxc:NavigationViewItem.Icon>
+                                <FontIcon Glyph="&#xE787;" />
+                            </muxc:NavigationViewItem.Icon>
+                            <interactivity:Interaction.Behaviors>
+                                <interactivity:EventTriggerBehavior EventName="Tapped">
+                                    <behaviors:NavigateToUriAction NavigateUri="ms-settings:dateandtime" />
+                                </interactivity:EventTriggerBehavior>
+                            </interactivity:Interaction.Behaviors>
+                        </muxc:NavigationViewItem>
+                        <muxc:NavigationViewItem Content="Region" SelectsOnInvoked="False">
+                            <muxc:NavigationViewItem.Icon>
+                                <FontIcon Glyph="&#xF49A;" />
+                            </muxc:NavigationViewItem.Icon>
+                            <interactivity:Interaction.Behaviors>
+                                <interactivity:EventTriggerBehavior EventName="Tapped">
+                                    <behaviors:NavigateToUriAction NavigateUri="ms-settings:regionformatting" />
+                                </interactivity:EventTriggerBehavior>
+                            </interactivity:Interaction.Behaviors>
+                        </muxc:NavigationViewItem>
+                    </muxc:NavigationViewItem.MenuItems>
+                </muxc:NavigationViewItem>
+                <muxc:NavigationViewItem Content="Accessibility" SelectsOnInvoked="False">
+                    <muxc:NavigationViewItem.Icon>
+                        <muxc:ImageIcon Source="/Assets/Accessibility.ico" />
+                    </muxc:NavigationViewItem.Icon>
+                    <interactivity:Interaction.Behaviors>
+                        <interactivity:EventTriggerBehavior EventName="Tapped">
+                            <behaviors:NavigateToUriAction NavigateUri="ms-settings:easeofaccess" />
+                        </interactivity:EventTriggerBehavior>
+                    </interactivity:Interaction.Behaviors>
+                </muxc:NavigationViewItem>
+            </muxc:NavigationView.MenuItems>
+            <Frame x:Name="RootFrame" x:FieldModifier="public" />
+        </muxc:NavigationView>
     </Grid>
 </Page>

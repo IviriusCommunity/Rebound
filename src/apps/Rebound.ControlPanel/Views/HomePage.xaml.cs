@@ -56,28 +56,6 @@ internal sealed partial class HomePage : Page
         });
     }
 
-    private void NavigationView_ItemInvoked(Microsoft.UI.Xaml.Controls.NavigationView sender, Microsoft.UI.Xaml.Controls.NavigationViewItemInvokedEventArgs args)
-    {
-        switch (args.InvokedItem)
-        {
-            case "Windows Security Firewall":
-                {
-                    Process.Start("firewall.cpl");
-                    break;
-                }
-            case "Windows Tools":
-                {
-                    (Parent as Frame)?.Navigate(typeof(WindowsToolsPage));
-                    break;
-                }
-            case "Appearance and Personalization":
-                {
-                    (Parent as Frame)?.Navigate(typeof(Appearance));
-                    break;
-                }
-        }
-    }
-
     [RelayCommand]
     public unsafe void LaunchReboundHub()
     {

@@ -31,6 +31,7 @@
         </Grid>
         <ScrollViewer Margin="0,72,0,0" Padding="32">
             <StackPanel Spacing="8">
+                <TextBlock FontWeight="SemiBold" Text="Generic" />
                 <toolkit:SettingsCard
                     Description="Manage File Explorer settings."
                     Header="File Explorer Options"
@@ -39,6 +40,22 @@
                     Title="If you're using Files, change the settings of Files instead."
                     IsClosable="False"
                     IsOpen="True" />
+                <toolkit:SettingsCard
+                    Description="Open Windows Settings to change more appeareance settings."
+                    Header="View more"
+                    IsClickEnabled="True" />
+                <toolkit:SettingsCard
+                    Description="Manage extended customization options with Rebound Shell Settings."
+                    Header="Rebound Shell Settings"
+                    IsClickEnabled="True" />
+                <TextBlock
+                    Margin="0,32,0,0"
+                    FontWeight="SemiBold"
+                    Text="Fonts" />
+                <toolkit:SettingsCard
+                    Description="Manage installed fonts. If Rebound Font Manager isn't installed, Settings will be opened instead."
+                    Header="Rebound Font Manager"
+                    IsClickEnabled="True" />
             </StackPanel>
         </ScrollViewer>
     </Grid>
