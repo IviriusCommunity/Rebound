@@ -10,6 +10,9 @@
     xmlns:muxc="using:Microsoft.UI.Xaml.Controls"
     muxc:BackdropMaterial.ApplyToRootOrPageBackground="True"
     mc:Ignorable="d">
+    <Page.Resources>
+        <local:StringToUriConverter x:Key="StringToUriConverter" />
+    </Page.Resources>
     <Grid>
         <Frame
             x:Name="RootFrame"
@@ -47,7 +50,6 @@
             ColumnSpacing="4">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="Auto" />
-                <ColumnDefinition Width="3*" />
                 <ColumnDefinition Width="*" />
                 <ColumnDefinition Width="Auto" />
             </Grid.ColumnDefinitions>
@@ -62,7 +64,7 @@
                     Background="Transparent"
                     BorderBrush="Transparent"
                     Command="{x:Bind GoBackCommand}">
-                    <FontIcon FontSize="12" Glyph="&#xE72B;" />
+                    <FontIcon FontSize="16" Glyph="&#xE72B;" />
                 </Button>
                 <Button
                     Width="36"
@@ -70,7 +72,15 @@
                     Padding="8"
                     Background="Transparent"
                     BorderBrush="Transparent">
-                    <FontIcon FontSize="12" Glyph="&#xE72A;" />
+                    <FontIcon FontSize="16" Glyph="&#xE72A;" />
+                </Button>
+                <Button
+                    Width="36"
+                    Height="36"
+                    Padding="8"
+                    Background="Transparent"
+                    BorderBrush="Transparent">
+                    <FontIcon FontSize="16" Glyph="&#xE72C;" />
                 </Button>
                 <Button
                     Width="36"
@@ -80,39 +90,46 @@
                     BorderBrush="Transparent">
                     <FontIcon FontSize="16" Glyph="&#xE80F;" />
                 </Button>
-                <Button
-                    Width="36"
-                    Height="36"
-                    Padding="8"
-                    Background="Transparent"
-                    BorderBrush="Transparent">
-                    <FontIcon FontSize="16" Glyph="&#xE8A7;" />
-                </Button>
             </StackPanel>
             <ComboBox
                 Grid.Column="1"
                 HorizontalAlignment="Stretch"
-                VerticalAlignment="Top"
+                VerticalAlignment="Center"
                 FontWeight="SemiBold"
                 IsEditable="True"
                 Text="Home" />
-            <AutoSuggestBox
-                Grid.Column="2"
-                VerticalAlignment="Top"
-                PlaceholderText="Search"
-                QueryIcon="Find" />
             <StackPanel
-                Grid.Column="3"
+                Grid.Column="2"
                 VerticalAlignment="Top"
                 Orientation="Horizontal"
                 Spacing="4">
                 <Button
                     Width="36"
                     Height="36"
+                    Padding="0"
+                    Background="Transparent"
+                    BorderBrush="Transparent">
+                    <muxc:PersonPicture Width="24" Height="24">
+                        <muxc:PersonPicture.ProfilePicture>
+                            <BitmapImage UriSource="{x:Bind UserPicturePath, Converter={StaticResource StringToUriConverter}}" />
+                        </muxc:PersonPicture.ProfilePicture>
+                    </muxc:PersonPicture>
+                </Button>
+                <Button
+                    Width="36"
+                    Height="36"
                     Padding="8"
                     Background="Transparent"
                     BorderBrush="Transparent">
-                    <FontIcon FontSize="16" Glyph="&#xE897;" />
+                    <FontIcon FontSize="16" Glyph="&#xE713;" />
+                </Button>
+                <Button
+                    Width="36"
+                    Height="36"
+                    Padding="8"
+                    Background="Transparent"
+                    BorderBrush="Transparent">
+                    <FontIcon FontSize="16" Glyph="&#xED56;" />
                 </Button>
                 <Button
                     Width="36"
@@ -122,9 +139,14 @@
                     BorderBrush="Transparent">
                     <Button.Flyout>
                         <MenuFlyout>
-                            <MenuFlyoutItem Text="Legacy Control Panel">
+                            <MenuFlyoutItem Text="Read the docs for this page">
                                 <MenuFlyoutItem.Icon>
-                                    <FontIcon Glyph="&#xED56;" />
+                                    <FontIcon Glyph="&#xE897;" />
+                                </MenuFlyoutItem.Icon>
+                            </MenuFlyoutItem>
+                            <MenuFlyoutItem Text="Create shortcut on Desktop">
+                                <MenuFlyoutItem.Icon>
+                                    <FontIcon Glyph="&#xE8A7;" />
                                 </MenuFlyoutItem.Icon>
                             </MenuFlyoutItem>
                             <MenuFlyoutSeparator />
