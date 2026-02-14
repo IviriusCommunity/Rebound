@@ -32,27 +32,11 @@ internal partial class MainViewModel : ObservableObject
         }
     }
 
-    public static string WindowsEdition
-    {
-        get
-        {
-            return WindowsInformation.GetOSName();
-        }
-    }
-
     public static DateTime InstalledOn
     {
         get
         {
             return WindowsInformation.GetInstalledOnDate();
-        }
-    }
-
-    public static string ComputerName
-    {
-        get
-        {
-            return WindowsInformation.GetComputerName();
         }
     }
 
@@ -90,10 +74,6 @@ internal partial class MainViewModel : ObservableObject
     public static string WindowsVersionTitle => WindowsInformation.GetOSName();
     public static string LicenseOwners => WindowsInformation.GetLicenseOwners();
     public static string LegalInfo => string.Format(null, Windows.ApplicationModel.Resources.ResourceLoader.GetForCurrentView().GetString("LegalInfo"), WindowsInformation.GetOSName());
-    public static string CPUName => CPU.GetCPUName();
-    public static string GPUName => GPU.GetGPUName();
-    public static string RAM => Core.SystemInformation.Hardware.RAM.GetTotalRam();
-    public static string UsableRAM => Core.SystemInformation.Hardware.RAM.GetUsableRAM();
 
     // App settings
 
