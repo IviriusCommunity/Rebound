@@ -3,8 +3,10 @@
     x:Class="Rebound.About.Views.MainPage"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:animatedvisuals="using:Microsoft.UI.Xaml.Controls.AnimatedVisuals"
     xmlns:animations="using:CommunityToolkit.WinUI.Animations"
     xmlns:controls="using:CommunityToolkit.WinUI.Controls"
+    xmlns:converters="using:CommunityToolkit.WinUI.Converters"
     xmlns:core="using:Rebound.Core"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:local="using:Rebound.About"
@@ -18,6 +20,8 @@
     xmlns:viewModels="using:Rebound.About.ViewModels"
     d:DataContext="{d:DesignInstance Type=viewModels:MainViewModel}"
     muxc:BackdropMaterial.ApplyToRootOrPageBackground="True"
+    Loaded="Page_Loaded"
+    SizeChanged="Page_SizeChanged"
     mc:Ignorable="d">
 
     <Page.Resources>
@@ -25,6 +29,10 @@
             <ResourceDictionary.MergedDictionaries>
                 <ResourceDictionary Source="ms-appx:///CommunityToolkit.WinUI.Controls.Segmented/Segmented/Segmented.xaml" />
             </ResourceDictionary.MergedDictionaries>
+            <converters:BoolToVisibilityConverter
+                x:Key="BoolToInverseVisibilityConverter"
+                FalseValue="Visible"
+                TrueValue="Collapsed" />
             <Style x:Key="PanelStyle" TargetType="StackPanel">
                 <Setter Property="CornerRadius" Value="8" />
                 <Setter Property="Padding" Value="16" />
@@ -63,188 +71,790 @@
     </Page.Resources>
 
     <Grid>
-        <Grid.RowDefinitions>
-            <RowDefinition Height="Auto" />
-            <RowDefinition Height="*" />
-            <RowDefinition Height="Auto" />
-        </Grid.RowDefinitions>
 
-        <!--  Blur logo  -->
-        <StackPanel
-            Grid.Row="0"
-            Margin="0,52,0,24"
-            HorizontalAlignment="Center"
-            VerticalAlignment="Top"
-            Orientation="Horizontal"
-            Spacing="24">
-            <Grid VerticalAlignment="Center">
-                <Path Data="M 0 4 C 0 2 2 0 4 0 L 33 0 L 33 33 L 0 33 M 35 0 L 64 0 C 66 0 68 2 68 4 L 68 33 L 35 33 M 33 35 L 0 35 L 0 64 C 0 66 2 68 4 68 L 33 68 M 35 35 L 68 35 L 68 64 C 68 66 66 68 64 68 L 35 68">
-                    <Path.Fill>
-                        <LinearGradientBrush StartPoint="0, 0" EndPoint="1, 1">
-                            <LinearGradientBrush.GradientStops>
-                                <GradientStop Color="{ThemeResource SystemAccentColorLight3}" />
-                                <GradientStop Offset="1" Color="{ThemeResource SystemAccentColor}" />
-                            </LinearGradientBrush.GradientStops>
-                        </LinearGradientBrush>
-                    </Path.Fill>
-                </Path>
-            </Grid>
-            <TextBlock
-                Margin="0,-8,0,0"
-                VerticalAlignment="Center"
-                FontFamily="Segoe UI Variable"
-                FontSize="54"
-                FontWeight="SemiBold"
-                Text="{x:Bind viewModels:MainViewModel.WindowsVersionName}">
-                <TextBlock.Foreground>
-                    <LinearGradientBrush StartPoint="0, 0" EndPoint="1, 1">
-                        <LinearGradientBrush.GradientStops>
-                            <GradientStop Offset="1" Color="{ThemeResource SystemAccentColorLight3}" />
-                            <GradientStop Color="{ThemeResource SystemAccentColorLight1}" />
-                        </LinearGradientBrush.GradientStops>
-                    </LinearGradientBrush>
-                </TextBlock.Foreground>
-            </TextBlock>
-        </StackPanel>
-
-        <!--  Blur  -->
-        <Grid Visibility="{x:Bind ViewModel.ShowBlurAndGlow, Mode=OneWay}">
-            <Grid.Background>
-                <media:BackdropBlurBrush Amount="36.0" />
-            </Grid.Background>
-        </Grid>
-
-        <!--  Logo  -->
-        <StackPanel
-            Grid.Row="0"
-            Margin="0,52,0,24"
-            HorizontalAlignment="Center"
-            VerticalAlignment="Top"
-            Orientation="Horizontal"
-            Spacing="24">
-            <Grid VerticalAlignment="Center">
-                <Path Data="M 0 4 C 0 2 2 0 4 0 L 33 0 L 33 33 L 0 33 M 35 0 L 64 0 C 66 0 68 2 68 4 L 68 33 L 35 33 M 33 35 L 0 35 L 0 64 C 0 66 2 68 4 68 L 33 68 M 35 35 L 68 35 L 68 64 C 68 66 66 68 64 68 L 35 68">
-                    <Path.Fill>
-                        <LinearGradientBrush StartPoint="0, 0" EndPoint="1, 1">
-                            <LinearGradientBrush.GradientStops>
-                                <GradientStop Color="{ThemeResource SystemAccentColorLight3}" />
-                                <GradientStop Offset="1" Color="{ThemeResource SystemAccentColor}" />
-                            </LinearGradientBrush.GradientStops>
-                        </LinearGradientBrush>
-                    </Path.Fill>
-                </Path>
-            </Grid>
-            <TextBlock
-                Margin="0,-8,0,0"
-                VerticalAlignment="Center"
-                FontFamily="Segoe UI Variable"
-                FontSize="54"
-                FontWeight="SemiBold"
-                Text="{x:Bind viewModels:MainViewModel.WindowsVersionName}">
-                <TextBlock.Foreground>
-                    <LinearGradientBrush StartPoint="0, 0" EndPoint="1, 1">
-                        <LinearGradientBrush.GradientStops>
-                            <GradientStop Offset="1" Color="{ThemeResource SystemAccentColorLight3}" />
-                            <GradientStop Color="{ThemeResource SystemAccentColorLight1}" />
-                        </LinearGradientBrush.GradientStops>
-                    </LinearGradientBrush>
-                </TextBlock.Foreground>
-            </TextBlock>
-        </StackPanel>
-
-        <!--  Title bar  -->
-        <StackPanel
-            Margin="12,8"
-            VerticalAlignment="Top"
-            Orientation="Horizontal"
-            Spacing="8">
-            <TextBlock x:Uid="Title" FontSize="12" />
-            <Border
-                Padding="6,2,6,3"
-                VerticalAlignment="Center"
-                Background="{ThemeResource AccentFillColorDefaultBrush}"
-                CornerRadius="2"
-                Visibility="Collapsed">
-                <TextBlock
-                    FontSize="10"
-                    FontWeight="SemiBold"
-                    Foreground="{ThemeResource TextOnAccentFillColorPrimaryBrush}"
-                    Text="BETA" />
-            </Border>
-        </StackPanel>
-
-        <!--  Glow line  -->
-        <Grid Margin="0,142,0,0" Visibility="{x:Bind ViewModel.ShowBlurAndGlow, Mode=OneWay}">
-            <Grid.Background>
-                <LinearGradientBrush StartPoint="0, 0" EndPoint="1, 1">
-                    <LinearGradientBrush.GradientStops>
-                        <GradientStop Color="{ThemeResource SystemAccentColorLight2}" />
-                        <GradientStop Offset="1" Color="{ThemeResource SystemAccentColor}" />
-                    </LinearGradientBrush.GradientStops>
-                </LinearGradientBrush>
-            </Grid.Background>
-            <ui:Effects.Shadow>
-                <media:AttachedCardShadow Color="{ThemeResource SystemAccentColorLight2}" />
-            </ui:Effects.Shadow>
-        </Grid>
-
-        <!--  Tabs  -->
-        <Grid Grid.Row="1">
+        <!--  Compact layout  -->
+        <Grid Visibility="{x:Bind ViewModel.ShowExpandedView, Mode=OneWay, Converter={StaticResource BoolToInverseVisibilityConverter}}">
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto" />
                 <RowDefinition Height="*" />
+                <RowDefinition Height="Auto" />
             </Grid.RowDefinitions>
-            <controls:Segmented
-                x:Name="segmentedControl"
-                Padding="8"
-                HorizontalAlignment="Stretch"
-                Background="{ThemeResource ControlOnImageFillColorDefaultBrush}"
-                BorderBrush="{ThemeResource DividerStrokeColorDefaultBrush}"
-                BorderThickness="0,1,0,0"
-                CornerRadius="0"
-                SelectedIndex="0"
-                Style="{StaticResource PivotSegmentedStyle}"
-                Visibility="{x:Bind ViewModel.ShowTabs, Mode=OneWay}">
-                <controls:SegmentedItem
-                    Content="Information"
-                    Icon="{ui:FontIcon Glyph=&#xE946;}"
-                    Tag="information" />
-                <controls:SegmentedItem
-                    Content="License"
-                    Icon="{ui:FontIcon Glyph=&#xEB95;}"
-                    Tag="specifications" />
-            </controls:Segmented>
-            <controls:SwitchPresenter Grid.Row="1" Value="{Binding SelectedItem.Tag, ElementName=segmentedControl}">
-                <controls:Case Value="information">
-                    <Grid animations:Implicit.HideAnimations="{StaticResource HideTransitions}" animations:Implicit.ShowAnimations="{StaticResource ShowTransitions}">
-                        <Grid.RowDefinitions>
-                            <RowDefinition Height="*" />
-                            <RowDefinition Height="Auto" />
-                            <RowDefinition Height="Auto" />
-                        </Grid.RowDefinitions>
 
-                        <!--  Windows version  -->
-                        <Border
-                            Background="{ThemeResource LayerFillColorDefaultBrush}"
-                            BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
-                            BorderThickness="0,1,0,0">
-                            <Grid Padding="16">
+            <!--  Blur logo  -->
+            <StackPanel
+                Grid.Row="0"
+                Margin="0,52,0,24"
+                HorizontalAlignment="Center"
+                VerticalAlignment="Top"
+                Orientation="Horizontal"
+                Spacing="24">
+                <Grid VerticalAlignment="Center">
+                    <Path Data="M 0 4 C 0 2 2 0 4 0 L 33 0 L 33 33 L 0 33 M 35 0 L 64 0 C 66 0 68 2 68 4 L 68 33 L 35 33 M 33 35 L 0 35 L 0 64 C 0 66 2 68 4 68 L 33 68 M 35 35 L 68 35 L 68 64 C 68 66 66 68 64 68 L 35 68">
+                        <Path.Fill>
+                            <LinearGradientBrush StartPoint="0, 0" EndPoint="1, 1">
+                                <LinearGradientBrush.GradientStops>
+                                    <GradientStop Color="{ThemeResource SystemAccentColorLight3}" />
+                                    <GradientStop Offset="1" Color="{ThemeResource SystemAccentColor}" />
+                                </LinearGradientBrush.GradientStops>
+                            </LinearGradientBrush>
+                        </Path.Fill>
+                    </Path>
+                </Grid>
+                <TextBlock
+                    Margin="0,-8,0,0"
+                    VerticalAlignment="Center"
+                    FontFamily="Segoe UI Variable"
+                    FontSize="54"
+                    FontWeight="SemiBold"
+                    Text="{x:Bind viewModels:MainViewModel.WindowsVersionName}">
+                    <TextBlock.Foreground>
+                        <LinearGradientBrush StartPoint="0, 0" EndPoint="1, 1">
+                            <LinearGradientBrush.GradientStops>
+                                <GradientStop Offset="1" Color="{ThemeResource SystemAccentColorLight3}" />
+                                <GradientStop Color="{ThemeResource SystemAccentColorLight1}" />
+                            </LinearGradientBrush.GradientStops>
+                        </LinearGradientBrush>
+                    </TextBlock.Foreground>
+                </TextBlock>
+            </StackPanel>
+
+            <!--  Blur  -->
+            <Grid Visibility="{x:Bind ViewModel.ShowBlurAndGlow, Mode=OneWay}">
+                <Grid.Background>
+                    <media:BackdropBlurBrush Amount="36.0" />
+                </Grid.Background>
+            </Grid>
+
+            <!--  Logo  -->
+            <StackPanel
+                Grid.Row="0"
+                Margin="0,52,0,24"
+                HorizontalAlignment="Center"
+                VerticalAlignment="Top"
+                Orientation="Horizontal"
+                Spacing="24">
+                <Grid VerticalAlignment="Center">
+                    <Path Data="M 0 4 C 0 2 2 0 4 0 L 33 0 L 33 33 L 0 33 M 35 0 L 64 0 C 66 0 68 2 68 4 L 68 33 L 35 33 M 33 35 L 0 35 L 0 64 C 0 66 2 68 4 68 L 33 68 M 35 35 L 68 35 L 68 64 C 68 66 66 68 64 68 L 35 68">
+                        <Path.Fill>
+                            <LinearGradientBrush StartPoint="0, 0" EndPoint="1, 1">
+                                <LinearGradientBrush.GradientStops>
+                                    <GradientStop Color="{ThemeResource SystemAccentColorLight3}" />
+                                    <GradientStop Offset="1" Color="{ThemeResource SystemAccentColor}" />
+                                </LinearGradientBrush.GradientStops>
+                            </LinearGradientBrush>
+                        </Path.Fill>
+                    </Path>
+                </Grid>
+                <TextBlock
+                    Margin="0,-8,0,0"
+                    VerticalAlignment="Center"
+                    FontFamily="Segoe UI Variable"
+                    FontSize="54"
+                    FontWeight="SemiBold"
+                    Text="{x:Bind viewModels:MainViewModel.WindowsVersionName}">
+                    <TextBlock.Foreground>
+                        <LinearGradientBrush StartPoint="0, 0" EndPoint="1, 1">
+                            <LinearGradientBrush.GradientStops>
+                                <GradientStop Offset="1" Color="{ThemeResource SystemAccentColorLight3}" />
+                                <GradientStop Color="{ThemeResource SystemAccentColorLight1}" />
+                            </LinearGradientBrush.GradientStops>
+                        </LinearGradientBrush>
+                    </TextBlock.Foreground>
+                </TextBlock>
+            </StackPanel>
+
+            <!--  Title bar  -->
+            <StackPanel
+                Margin="12,8"
+                VerticalAlignment="Top"
+                Orientation="Horizontal"
+                Spacing="8">
+                <TextBlock x:Uid="Title" FontSize="12" />
+                <Border
+                    Padding="6,2,6,3"
+                    VerticalAlignment="Center"
+                    Background="{ThemeResource AccentFillColorDefaultBrush}"
+                    CornerRadius="2"
+                    Visibility="Collapsed">
+                    <TextBlock
+                        FontSize="10"
+                        FontWeight="SemiBold"
+                        Foreground="{ThemeResource TextOnAccentFillColorPrimaryBrush}"
+                        Text="BETA" />
+                </Border>
+            </StackPanel>
+
+            <!--  Glow line  -->
+            <Grid Margin="0,142,0,0" Visibility="{x:Bind ViewModel.ShowBlurAndGlow, Mode=OneWay}">
+                <Grid.Background>
+                    <LinearGradientBrush StartPoint="0, 0" EndPoint="1, 1">
+                        <LinearGradientBrush.GradientStops>
+                            <GradientStop Color="{ThemeResource SystemAccentColorLight2}" />
+                            <GradientStop Offset="1" Color="{ThemeResource SystemAccentColor}" />
+                        </LinearGradientBrush.GradientStops>
+                    </LinearGradientBrush>
+                </Grid.Background>
+                <ui:Effects.Shadow>
+                    <media:AttachedCardShadow Color="{ThemeResource SystemAccentColorLight2}" />
+                </ui:Effects.Shadow>
+            </Grid>
+
+            <!--  Tabs  -->
+            <Grid Grid.Row="1">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="*" />
+                </Grid.RowDefinitions>
+                <controls:Segmented
+                    x:Name="segmentedControl"
+                    Padding="8"
+                    HorizontalAlignment="Stretch"
+                    Background="{ThemeResource ControlOnImageFillColorDefaultBrush}"
+                    BorderBrush="{ThemeResource DividerStrokeColorDefaultBrush}"
+                    BorderThickness="0,1,0,0"
+                    CornerRadius="0"
+                    SelectedIndex="0"
+                    Style="{StaticResource PivotSegmentedStyle}"
+                    Visibility="{x:Bind ViewModel.ShowTabs, Mode=OneWay}">
+                    <controls:SegmentedItem
+                        Content="Information"
+                        Icon="{ui:FontIcon Glyph=&#xE946;}"
+                        Tag="information" />
+                    <controls:SegmentedItem
+                        Content="License"
+                        Icon="{ui:FontIcon Glyph=&#xEB95;}"
+                        Tag="specifications" />
+                </controls:Segmented>
+                <Button
+                    Margin="8,0"
+                    Padding="8"
+                    HorizontalAlignment="Right"
+                    VerticalAlignment="Center"
+                    Background="Transparent"
+                    BorderBrush="Transparent">
+                    <StackPanel Orientation="Horizontal" Spacing="8">
+                        <FontIcon FontSize="16" Glyph="&#xE8A7;" />
+                        <TextBlock Text="View more" />
+                    </StackPanel>
+                </Button>
+                <controls:SwitchPresenter Grid.Row="1" Value="{Binding SelectedItem.Tag, ElementName=segmentedControl}">
+                    <controls:Case Value="information">
+                        <Grid animations:Implicit.HideAnimations="{StaticResource HideTransitions}" animations:Implicit.ShowAnimations="{StaticResource ShowTransitions}">
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="*" />
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="Auto" />
+                            </Grid.RowDefinitions>
+
+                            <!--  Windows version  -->
+                            <Border
+                                Background="{ThemeResource LayerFillColorDefaultBrush}"
+                                BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                                BorderThickness="0,1,0,0">
+                                <Grid Padding="16">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="Auto" />
+                                        <ColumnDefinition Width="16" />
+                                        <ColumnDefinition Width="*" />
+                                    </Grid.ColumnDefinitions>
+                                    <FontIcon
+                                        VerticalAlignment="Top"
+                                        FontSize="16"
+                                        Foreground="{ThemeResource AccentTextFillColorPrimaryBrush}"
+                                        Glyph="&#xF167;" />
+                                    <StackPanel Grid.Column="2" Spacing="10">
+                                        <TextBlock
+                                            Margin="0,-3,0,8"
+                                            FontWeight="SemiBold"
+                                            Text="Microsoft Windows"
+                                            TextWrapping="WrapWholeWords" />
+                                        <Grid ColumnSpacing="16" RowSpacing="4">
+
+                                            <Grid.RowDefinitions>
+                                                <RowDefinition Height="Auto" />
+                                                <RowDefinition Height="Auto" />
+                                                <RowDefinition Height="Auto" />
+                                                <RowDefinition Height="Auto" />
+                                            </Grid.RowDefinitions>
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="Auto" />
+                                                <ColumnDefinition Width="Auto" />
+                                            </Grid.ColumnDefinitions>
+
+                                            <TextBlock Text="Version" TextWrapping="WrapWholeWords" />
+                                            <TextBlock
+                                                Grid.Row="1"
+                                                Text="Edition"
+                                                TextWrapping="WrapWholeWords" />
+                                            <TextBlock
+                                                Grid.Row="2"
+                                                Text="Installed on"
+                                                TextWrapping="WrapWholeWords" />
+                                            <TextBlock
+                                                Grid.Row="3"
+                                                Text="Computer name"
+                                                TextWrapping="WrapWholeWords" />
+
+                                            <TextBlock
+                                                Grid.Column="1"
+                                                Foreground="{ThemeResource TextFillColorDisabledBrush}"
+                                                IsTextSelectionEnabled="True"
+                                                Text="{x:Bind viewModels:MainViewModel.DetailedWindowsVersion}"
+                                                TextWrapping="WrapWholeWords" />
+                                            <TextBlock
+                                                Grid.Row="1"
+                                                Grid.Column="1"
+                                                Foreground="{ThemeResource TextFillColorDisabledBrush}"
+                                                IsTextSelectionEnabled="True"
+                                                Text="{x:Bind sysinfoSoftware:WindowsInformation.GetOSName()}"
+                                                TextWrapping="WrapWholeWords" />
+                                            <TextBlock
+                                                Grid.Row="2"
+                                                Grid.Column="1"
+                                                Foreground="{ThemeResource TextFillColorDisabledBrush}"
+                                                IsTextSelectionEnabled="True"
+                                                Text="{x:Bind viewModels:MainViewModel.InstalledOn}"
+                                                TextWrapping="WrapWholeWords" />
+                                            <TextBlock
+                                                Grid.Row="3"
+                                                Grid.Column="1"
+                                                Foreground="{ThemeResource TextFillColorDisabledBrush}"
+                                                IsTextSelectionEnabled="True"
+                                                Text="{x:Bind sysinfoSoftware:WindowsInformation.GetComputerName()}"
+                                                TextWrapping="WrapWholeWords" />
+
+                                        </Grid>
+                                    </StackPanel>
+                                    <Button
+                                        Grid.Column="2"
+                                        Margin="-8"
+                                        Padding="8"
+                                        HorizontalAlignment="Right"
+                                        VerticalAlignment="Top"
+                                        Background="Transparent"
+                                        BorderBrush="Transparent"
+                                        Command="{x:Bind CopyWindowsVersionCommand}">
+                                        <FontIcon FontSize="16" Glyph="&#xE8C8;" />
+                                    </Button>
+                                </Grid>
+                            </Border>
+
+                            <!--  Rebound version  -->
+                            <Border
+                                Grid.Row="2"
+                                BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                                BorderThickness="0"
+                                Visibility="{x:Bind ViewModel.IsReboundOn, Mode=OneWay}">
+                                <Grid Padding="16">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="Auto" />
+                                        <ColumnDefinition Width="16" />
+                                        <ColumnDefinition Width="*" />
+                                    </Grid.ColumnDefinitions>
+                                    <FontIcon
+                                        VerticalAlignment="Top"
+                                        FontSize="16"
+                                        Foreground="{ThemeResource AccentTextFillColorPrimaryBrush}"
+                                        Glyph="&#xF167;" />
+                                    <StackPanel Grid.Column="2" Spacing="10">
+                                        <TextBlock
+                                            Margin="0,-3,0,8"
+                                            FontWeight="SemiBold"
+                                            Text="Rebound"
+                                            TextWrapping="WrapWholeWords" />
+                                        <TextBlock Text="{x:Bind core:Variables.ReboundVersion}" />
+                                        <TextBlock x:Uid="ReboundInfo" TextWrapping="WrapWholeWords" />
+                                    </StackPanel>
+                                    <Button
+                                        Grid.Column="2"
+                                        Margin="-8"
+                                        Padding="8"
+                                        HorizontalAlignment="Right"
+                                        VerticalAlignment="Top"
+                                        Background="Transparent"
+                                        BorderBrush="Transparent"
+                                        Command="{x:Bind CopyReboundVersionCommand}">
+                                        <FontIcon FontSize="16" Glyph="&#xE8C8;" />
+                                    </Button>
+                                </Grid>
+                            </Border>
+
+                            <!--  Specs cards  -->
+                            <Grid
+                                Grid.Row="1"
+                                MinHeight="120"
+                                Padding="12"
+                                Background="{ThemeResource LayerOnMicaBaseAltFillColorDefaultBrush}"
+                                BorderBrush="{ThemeResource DividerStrokeColorDefaultBrush}"
+                                BorderThickness="0,1"
+                                ColumnSpacing="12"
+                                RowSpacing="12"
+                                Visibility="{x:Bind ViewModel.IsSidebarOn, Mode=OneWay}">
                                 <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*" />
                                     <ColumnDefinition Width="Auto" />
-                                    <ColumnDefinition Width="16" />
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="Auto" />
                                     <ColumnDefinition Width="*" />
                                 </Grid.ColumnDefinitions>
-                                <FontIcon
-                                    VerticalAlignment="Top"
-                                    FontSize="16"
-                                    Foreground="{ThemeResource AccentTextFillColorPrimaryBrush}"
-                                    Glyph="&#xF167;" />
-                                <StackPanel Grid.Column="2" Spacing="10">
+                                <Grid Padding="4">
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="Auto" />
+                                        <RowDefinition Height="*" />
+                                    </Grid.RowDefinitions>
+                                    <StackPanel
+                                        HorizontalAlignment="Center"
+                                        VerticalAlignment="Top"
+                                        Orientation="Horizontal"
+                                        Spacing="8">
+                                        <FontIcon FontSize="16" Glyph="&#xEEA1;" />
+                                        <TextBlock FontWeight="SemiBold" Text="CPU" />
+                                    </StackPanel>
                                     <TextBlock
-                                        Margin="0,-3,0,8"
+                                        Grid.Row="1"
+                                        HorizontalAlignment="Center"
+                                        VerticalAlignment="Center"
                                         FontWeight="SemiBold"
-                                        Text="Microsoft Windows"
+                                        HorizontalTextAlignment="Center"
+                                        Text="{x:Bind sysinfoHardware:CPU.GetCPUName()}"
                                         TextWrapping="WrapWholeWords" />
+                                </Grid>
+                                <Grid
+                                    Grid.Column="1"
+                                    Width="1"
+                                    Margin="4,8"
+                                    Background="{ThemeResource DividerStrokeColorDefaultBrush}"
+                                    CornerRadius="0.5" />
+                                <Grid Grid.Column="2" Padding="4">
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="Auto" />
+                                        <RowDefinition Height="*" />
+                                    </Grid.RowDefinitions>
+                                    <StackPanel
+                                        HorizontalAlignment="Center"
+                                        VerticalAlignment="Top"
+                                        Orientation="Horizontal"
+                                        Spacing="8">
+                                        <PathIcon
+                                            Width="16"
+                                            Height="16"
+                                            Data="F1 M 0 5 C 0 4 1 3 2 3 L 14 3 C 15 3 16 4 16 5 L 16 9 C 16 10 15 11 14 11 L 2 11 C 1 11 0 10 0 9 M 1 5 L 1 9 C 1 9.5 1.5 10 2 10 L 14 10 C 14.5 10 15 9.5 15 9 L 15 5 C 15 4.5 14.5 4 14 4 L 2 4 C 1.5 4 1 4.5 1 5 M 14 11 L 14 13 L 6 13 L 6 11 M 7 11 L 7 12 L 13 12 L 13 11 M 4 5 A 1 1 0 0 0 4 9 A 1 1 0 0 0 4 5 M 4 6 A 1 1 0 0 1 4 8 A 1 1 0 0 1 4 6 M 12 5 A 1 1 0 0 0 12 9 A 1 1 0 0 0 12 5 M 12 6 A 1 1 0 0 1 12 8 A 1 1 0 0 1 12 6 M 8 6 A 1 1 0 0 1 8 8 A 1 1 0 0 1 8 6 M 8 5 A 1 1 0 0 0 8 9 A 1 1 0 0 0 8 5" />
+                                        <TextBlock FontWeight="SemiBold" Text="GPU" />
+                                    </StackPanel>
+                                    <TextBlock
+                                        Grid.Row="1"
+                                        HorizontalAlignment="Center"
+                                        VerticalAlignment="Center"
+                                        FontWeight="SemiBold"
+                                        HorizontalTextAlignment="Center"
+                                        Text="{x:Bind sysinfoHardware:GPU.GetGPUName()}"
+                                        TextWrapping="WrapWholeWords" />
+                                </Grid>
+                                <Grid
+                                    Grid.Column="3"
+                                    Width="1"
+                                    Margin="4,8"
+                                    Background="{ThemeResource DividerStrokeColorDefaultBrush}"
+                                    CornerRadius="0.5" />
+                                <Grid Grid.Column="4" Padding="4">
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="Auto" />
+                                        <RowDefinition Height="*" />
+                                    </Grid.RowDefinitions>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="Auto" />
+                                        <ColumnDefinition Width="*" />
+                                    </Grid.ColumnDefinitions>
+                                    <StackPanel
+                                        Grid.ColumnSpan="3"
+                                        HorizontalAlignment="Center"
+                                        VerticalAlignment="Top"
+                                        Orientation="Horizontal"
+                                        Spacing="8">
+                                        <FontIcon FontSize="16" Glyph="&#xEEA0;" />
+                                        <TextBlock FontWeight="SemiBold" Text="RAM" />
+                                    </StackPanel>
+                                    <StackPanel
+                                        Grid.Row="1"
+                                        HorizontalAlignment="Center"
+                                        VerticalAlignment="Center"
+                                        Spacing="4">
+                                        <TextBlock
+                                            HorizontalAlignment="Center"
+                                            FontWeight="SemiBold"
+                                            Text="Physical" />
+                                        <TextBlock
+                                            HorizontalAlignment="Center"
+                                            FontSize="12"
+                                            Opacity="0.75"
+                                            Text="{x:Bind sysinfoHardware:RAM.GetTotalRam()}"
+                                            TextWrapping="WrapWholeWords" />
+                                    </StackPanel>
+                                    <StackPanel
+                                        Grid.Row="1"
+                                        Grid.Column="2"
+                                        HorizontalAlignment="Center"
+                                        VerticalAlignment="Center"
+                                        Spacing="4">
+                                        <TextBlock
+                                            HorizontalAlignment="Center"
+                                            FontWeight="SemiBold"
+                                            Text="Usable" />
+                                        <TextBlock
+                                            HorizontalAlignment="Center"
+                                            FontSize="12"
+                                            Opacity="0.75"
+                                            Text="{x:Bind sysinfoHardware:RAM.GetUsableRAM()}"
+                                            TextWrapping="WrapWholeWords" />
+                                    </StackPanel>
+                                </Grid>
+                            </Grid>
+
+                        </Grid>
+                    </controls:Case>
+                    <controls:Case Value="specifications">
+                        <Grid animations:Implicit.HideAnimations="{StaticResource HideTransitions}" animations:Implicit.ShowAnimations="{StaticResource ShowTransitions}">
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="*" />
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="Auto" />
+                            </Grid.RowDefinitions>
+
+                            <!--  License info  -->
+                            <Border
+                                Background="{ThemeResource LayerFillColorDefaultBrush}"
+                                BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                                BorderThickness="0,1,0,0">
+                                <Grid Padding="16">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="Auto" />
+                                        <ColumnDefinition Width="16" />
+                                        <ColumnDefinition Width="*" />
+                                    </Grid.ColumnDefinitions>
+                                    <FontIcon
+                                        VerticalAlignment="Top"
+                                        FontSize="16"
+                                        Foreground="{ThemeResource AccentTextFillColorPrimaryBrush}"
+                                        Glyph="&#xF167;" />
+                                    <StackPanel Grid.Column="2" Spacing="10">
+                                        <TextBlock
+                                            Margin="0,-3,0,8"
+                                            FontWeight="SemiBold"
+                                            Text="License information"
+                                            TextWrapping="WrapWholeWords" />
+                                        <TextBlock x:Uid="CopyrightLabel" />
+                                        <TextBlock Text="{x:Bind viewModels:MainViewModel.LegalInfo}" TextWrapping="WrapWholeWords" />
+                                        <TextBlock TextWrapping="WrapWholeWords">
+                                            <Run x:Uid="LicensedUnderLabel" />
+                                            <Hyperlink NavigateUri="https://support.microsoft.com/en-us/windows/microsoft-software-license-terms-e26eedad-97a2-5250-2670-aad156b654bd">
+                                                <Run x:Uid="MicrosoftLicenseTermsLabel" />
+                                            </Hyperlink>
+                                            <Run x:Uid="ToLabel" />
+                                        </TextBlock>
+                                        <TextBlock Text="{x:Bind viewModels:MainViewModel.LicenseOwners}" />
+                                    </StackPanel>
+                                    <Button
+                                        Grid.Column="2"
+                                        Margin="-8"
+                                        Padding="8"
+                                        HorizontalAlignment="Right"
+                                        VerticalAlignment="Top"
+                                        Background="Transparent"
+                                        BorderBrush="Transparent"
+                                        Command="{x:Bind CopyLicenseOwnersCommand}">
+                                        <FontIcon FontSize="16" Glyph="&#xE8C8;" />
+                                    </Button>
+                                </Grid>
+                            </Border>
+
+                            <!--  Activation info  -->
+                            <Border
+                                Grid.Row="2"
+                                BorderBrush="{ThemeResource DividerStrokeColorDefaultBrush}"
+                                BorderThickness="0,1,0,0"
+                                Visibility="{x:Bind ViewModel.ShowActivationInfo, Mode=OneWay}">
+                                <Grid Padding="16">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="Auto" />
+                                        <ColumnDefinition Width="16" />
+                                        <ColumnDefinition Width="*" />
+                                    </Grid.ColumnDefinitions>
+                                    <controls:SwitchPresenter TargetType="muxc:InfoBarSeverity" Value="{x:Bind WindowsActivationSeverity, Mode=OneWay}">
+                                        <controls:Case Value="Error">
+                                            <FontIcon
+                                                VerticalAlignment="Top"
+                                                FontSize="16"
+                                                Foreground="{ThemeResource AccentTextFillColorPrimaryBrush}"
+                                                Glyph="&#xEB90;" />
+                                        </controls:Case>
+                                        <controls:Case Value="Success">
+                                            <FontIcon
+                                                VerticalAlignment="Top"
+                                                FontSize="16"
+                                                Foreground="{ThemeResource SystemFillColorSuccessBrush}"
+                                                Glyph="&#xEC61;" />
+                                        </controls:Case>
+                                        <controls:Case Value="Warning">
+                                            <FontIcon
+                                                VerticalAlignment="Top"
+                                                FontSize="16"
+                                                Foreground="{ThemeResource SystemFillColorCautionBrush}"
+                                                Glyph="&#xF736;" />
+                                        </controls:Case>
+                                        <controls:Case Value="Informational">
+                                            <FontIcon
+                                                VerticalAlignment="Top"
+                                                FontSize="16"
+                                                Foreground="{ThemeResource SystemFillColorCriticalBrush}"
+                                                Glyph="&#xF167;" />
+                                        </controls:Case>
+                                    </controls:SwitchPresenter>
+
+                                    <StackPanel Grid.Column="2" Spacing="10">
+                                        <TextBlock
+                                            Margin="0,-3,0,8"
+                                            FontWeight="SemiBold"
+                                            Text="Activation state"
+                                            TextWrapping="WrapWholeWords" />
+                                        <TextBlock Text="{x:Bind viewModels:MainViewModel.WindowsActivationInfo, Mode=OneWay}" TextWrapping="WrapWholeWords" />
+                                        <Button
+                                            Margin="-8,0"
+                                            Padding="8"
+                                            Background="Transparent"
+                                            BorderBrush="Transparent"
+                                            Command="{x:Bind OpenActivationSettingsCommand}">
+                                            <StackPanel Orientation="Horizontal" Spacing="8">
+                                                <FontIcon FontSize="16" Glyph="&#xE8D7;" />
+                                                <TextBlock VerticalAlignment="Center" Text="Open Windows Activation Settings" />
+                                            </StackPanel>
+                                        </Button>
+                                    </StackPanel>
+                                </Grid>
+                            </Border>
+
+                        </Grid>
+                    </controls:Case>
+                </controls:SwitchPresenter>
+            </Grid>
+
+            <!--  Bottom bar  -->
+            <Grid
+                Grid.Row="4"
+                Grid.ColumnSpan="2"
+                Height="80"
+                Padding="24"
+                Background="{ThemeResource SystemControlBackgroundAltMediumLowBrush}"
+                BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                BorderThickness="0,1,0,0">
+                <StackPanel
+                    HorizontalAlignment="Right"
+                    VerticalAlignment="Center"
+                    Orientation="Horizontal"
+                    Spacing="8">
+                    <Button
+                        Width="36"
+                        Height="36"
+                        Margin="0,-8"
+                        Padding="8"
+                        VerticalAlignment="Center"
+                        Background="Transparent"
+                        BorderBrush="Transparent">
+                        <FontIcon FontSize="16" Glyph="&#xED56;" />
+                    </Button>
+                    <Button
+                        x:Uid="OKButton"
+                        Width="120"
+                        VerticalAlignment="Center"
+                        Command="{x:Bind CloseWindowCommand}"
+                        Style="{StaticResource AccentButtonStyle}">
+                        <Button.KeyboardAccelerators>
+                            <KeyboardAccelerator Key="Escape" />
+                        </Button.KeyboardAccelerators>
+                    </Button>
+                </StackPanel>
+                <muxc:PersonPicture
+                    Width="28"
+                    HorizontalAlignment="Left"
+                    ProfilePicture="{x:Bind UserPicture, Mode=OneWay}"
+                    Visibility="{x:Bind ViewModel.ShowHelloUser, Mode=OneWay}" />
+                <TextBlock
+                    Margin="40,0,180,0"
+                    HorizontalAlignment="Stretch"
+                    VerticalAlignment="Center"
+                    Text="{x:Bind viewModels:MainViewModel.CurrentUser, Mode=OneWay}"
+                    TextWrapping="WrapWholeWords"
+                    Visibility="{x:Bind ViewModel.ShowHelloUser, Mode=OneWay}" />
+            </Grid>
+
+        </Grid>
+
+        <!--  Extended layout  -->
+        <Grid Visibility="{x:Bind ViewModel.ShowExpandedView, Mode=OneWay}">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="*" />
+                <RowDefinition Height="Auto" />
+            </Grid.RowDefinitions>
+
+            <!--  Blur logo  -->
+            <StackPanel
+                Grid.Row="0"
+                Margin="40,52,0,24"
+                HorizontalAlignment="Left"
+                VerticalAlignment="Top"
+                Orientation="Horizontal"
+                Spacing="24">
+                <Grid VerticalAlignment="Center">
+                    <Path Data="M 0 4 C 0 2 2 0 4 0 L 33 0 L 33 33 L 0 33 M 35 0 L 64 0 C 66 0 68 2 68 4 L 68 33 L 35 33 M 33 35 L 0 35 L 0 64 C 0 66 2 68 4 68 L 33 68 M 35 35 L 68 35 L 68 64 C 68 66 66 68 64 68 L 35 68">
+                        <Path.Fill>
+                            <LinearGradientBrush StartPoint="0, 0" EndPoint="1, 1">
+                                <LinearGradientBrush.GradientStops>
+                                    <GradientStop Color="{ThemeResource SystemAccentColorLight3}" />
+                                    <GradientStop Offset="1" Color="{ThemeResource SystemAccentColor}" />
+                                </LinearGradientBrush.GradientStops>
+                            </LinearGradientBrush>
+                        </Path.Fill>
+                    </Path>
+                </Grid>
+                <TextBlock
+                    Margin="0,-8,0,0"
+                    VerticalAlignment="Center"
+                    FontFamily="Segoe UI Variable"
+                    FontSize="54"
+                    FontWeight="SemiBold"
+                    Text="{x:Bind viewModels:MainViewModel.WindowsVersionName}">
+                    <TextBlock.Foreground>
+                        <LinearGradientBrush StartPoint="0, 0" EndPoint="1, 1">
+                            <LinearGradientBrush.GradientStops>
+                                <GradientStop Offset="1" Color="{ThemeResource SystemAccentColorLight3}" />
+                                <GradientStop Color="{ThemeResource SystemAccentColorLight1}" />
+                            </LinearGradientBrush.GradientStops>
+                        </LinearGradientBrush>
+                    </TextBlock.Foreground>
+                </TextBlock>
+            </StackPanel>
+
+            <!--  Blur  -->
+            <Grid Visibility="{x:Bind ViewModel.ShowBlurAndGlow, Mode=OneWay}">
+                <Grid.Background>
+                    <media:BackdropBlurBrush Amount="36.0" />
+                </Grid.Background>
+            </Grid>
+
+            <!--  Logo  -->
+            <StackPanel
+                Grid.Row="0"
+                Margin="40,52,0,24"
+                HorizontalAlignment="Left"
+                VerticalAlignment="Top"
+                Orientation="Horizontal"
+                Spacing="24">
+                <Grid VerticalAlignment="Center">
+                    <Path Data="M 0 4 C 0 2 2 0 4 0 L 33 0 L 33 33 L 0 33 M 35 0 L 64 0 C 66 0 68 2 68 4 L 68 33 L 35 33 M 33 35 L 0 35 L 0 64 C 0 66 2 68 4 68 L 33 68 M 35 35 L 68 35 L 68 64 C 68 66 66 68 64 68 L 35 68">
+                        <Path.Fill>
+                            <LinearGradientBrush StartPoint="0, 0" EndPoint="1, 1">
+                                <LinearGradientBrush.GradientStops>
+                                    <GradientStop Color="{ThemeResource SystemAccentColorLight3}" />
+                                    <GradientStop Offset="1" Color="{ThemeResource SystemAccentColor}" />
+                                </LinearGradientBrush.GradientStops>
+                            </LinearGradientBrush>
+                        </Path.Fill>
+                    </Path>
+                </Grid>
+                <TextBlock
+                    Margin="0,-8,0,0"
+                    VerticalAlignment="Center"
+                    FontFamily="Segoe UI Variable"
+                    FontSize="54"
+                    FontWeight="SemiBold"
+                    Text="{x:Bind viewModels:MainViewModel.WindowsVersionName}">
+                    <TextBlock.Foreground>
+                        <LinearGradientBrush StartPoint="0, 0" EndPoint="1, 1">
+                            <LinearGradientBrush.GradientStops>
+                                <GradientStop Offset="1" Color="{ThemeResource SystemAccentColorLight3}" />
+                                <GradientStop Color="{ThemeResource SystemAccentColorLight1}" />
+                            </LinearGradientBrush.GradientStops>
+                        </LinearGradientBrush>
+                    </TextBlock.Foreground>
+                </TextBlock>
+            </StackPanel>
+
+            <!--  Title bar  -->
+            <StackPanel
+                Margin="12,8"
+                VerticalAlignment="Top"
+                Orientation="Horizontal"
+                Spacing="8">
+                <TextBlock x:Uid="Title" FontSize="12" />
+                <Border
+                    Padding="6,2,6,3"
+                    VerticalAlignment="Center"
+                    Background="{ThemeResource AccentFillColorDefaultBrush}"
+                    CornerRadius="2"
+                    Visibility="Collapsed">
+                    <TextBlock
+                        FontSize="10"
+                        FontWeight="SemiBold"
+                        Foreground="{ThemeResource TextOnAccentFillColorPrimaryBrush}"
+                        Text="BETA" />
+                </Border>
+            </StackPanel>
+
+            <!--  Glow line  -->
+            <Grid Margin="0,142,0,0" Visibility="{x:Bind ViewModel.ShowBlurAndGlow, Mode=OneWay}">
+                <Grid.Background>
+                    <LinearGradientBrush StartPoint="0, 0" EndPoint="1, 1">
+                        <LinearGradientBrush.GradientStops>
+                            <GradientStop Color="{ThemeResource SystemAccentColorLight2}" />
+                            <GradientStop Offset="1" Color="{ThemeResource SystemAccentColor}" />
+                        </LinearGradientBrush.GradientStops>
+                    </LinearGradientBrush>
+                </Grid.Background>
+                <ui:Effects.Shadow>
+                    <media:AttachedCardShadow Color="{ThemeResource SystemAccentColorLight2}" />
+                </ui:Effects.Shadow>
+            </Grid>
+
+            <!--  Tabs  -->
+            <Grid Grid.Row="1">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="*" />
+                </Grid.ColumnDefinitions>
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="*" />
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                    </Grid.RowDefinitions>
+
+                    <!--  Windows version  -->
+                    <Border
+                        Background="{ThemeResource LayerFillColorDefaultBrush}"
+                        BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                        BorderThickness="0,1,0,0">
+                        <Grid Padding="16">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto" />
+                                <ColumnDefinition Width="16" />
+                                <ColumnDefinition Width="*" />
+                            </Grid.ColumnDefinitions>
+                            <FontIcon
+                                VerticalAlignment="Top"
+                                FontSize="16"
+                                Foreground="{ThemeResource AccentTextFillColorPrimaryBrush}"
+                                Glyph="&#xF167;" />
+                            <Grid Grid.Column="2">
+                                <TextBlock
+                                    Margin="0,-3,0,8"
+                                    FontWeight="SemiBold"
+                                    Text="Microsoft Windows"
+                                    TextWrapping="WrapWholeWords" />
+                                <ScrollViewer
+                                    Margin="0,36,0,16"
+                                    Padding="0,0,16,0"
+                                    HorizontalScrollMode="Disabled">
                                     <Grid ColumnSpacing="16" RowSpacing="4">
 
                                         <Grid.RowDefinitions>
@@ -252,10 +862,20 @@
                                             <RowDefinition Height="Auto" />
                                             <RowDefinition Height="Auto" />
                                             <RowDefinition Height="Auto" />
+                                            <RowDefinition Height="Auto" />
+                                            <RowDefinition Height="Auto" />
+                                            <RowDefinition Height="Auto" />
+                                            <RowDefinition Height="Auto" />
+                                            <RowDefinition Height="Auto" />
+                                            <RowDefinition Height="Auto" />
+                                            <RowDefinition Height="Auto" />
+                                            <RowDefinition Height="Auto" />
+                                            <RowDefinition Height="Auto" />
+                                            <RowDefinition Height="Auto" />
                                         </Grid.RowDefinitions>
                                         <Grid.ColumnDefinitions>
                                             <ColumnDefinition Width="Auto" />
-                                            <ColumnDefinition Width="Auto" />
+                                            <ColumnDefinition Width="*" />
                                         </Grid.ColumnDefinitions>
 
                                         <TextBlock Text="Version" TextWrapping="WrapWholeWords" />
@@ -271,13 +891,53 @@
                                             Grid.Row="3"
                                             Text="Computer name"
                                             TextWrapping="WrapWholeWords" />
+                                        <TextBlock
+                                            Grid.Row="4"
+                                            Text="Architecture"
+                                            TextWrapping="WrapWholeWords" />
+                                        <TextBlock
+                                            Grid.Row="5"
+                                            Text="Pagefile"
+                                            TextWrapping="WrapWholeWords" />
+                                        <TextBlock
+                                            Grid.Row="6"
+                                            Text="Device manufacturer"
+                                            TextWrapping="WrapWholeWords" />
+                                        <TextBlock
+                                            Grid.Row="7"
+                                            Text="Device model"
+                                            TextWrapping="WrapWholeWords" />
+                                        <TextBlock
+                                            Grid.Row="8"
+                                            Text="Uptime"
+                                            TextWrapping="WrapWholeWords" />
+                                        <TextBlock
+                                            Grid.Row="9"
+                                            Text="Locale"
+                                            TextWrapping="WrapWholeWords" />
+                                        <TextBlock
+                                            Grid.Row="10"
+                                            Text="Local IP"
+                                            TextWrapping="WrapWholeWords" />
+                                        <TextBlock
+                                            Grid.Row="11"
+                                            Text="Display resolution"
+                                            TextWrapping="WrapWholeWords" />
+                                        <TextBlock
+                                            Grid.Row="12"
+                                            Text="Display refresh rate"
+                                            TextWrapping="WrapWholeWords" />
+                                        <TextBlock
+                                            Grid.Row="13"
+                                            Text="Scaling factor"
+                                            TextWrapping="WrapWholeWords" />
 
                                         <TextBlock
                                             Grid.Column="1"
                                             Foreground="{ThemeResource TextFillColorDisabledBrush}"
                                             IsTextSelectionEnabled="True"
                                             Text="{x:Bind viewModels:MainViewModel.DetailedWindowsVersion}"
-                                            TextWrapping="WrapWholeWords" />
+                                            TextWrapping="Wrap" />
                                         <TextBlock
                                             Grid.Row="1"
                                             Grid.Column="1"
@@ -299,369 +959,680 @@
                                             IsTextSelectionEnabled="True"
                                             Text="{x:Bind sysinfoSoftware:WindowsInformation.GetComputerName()}"
                                             TextWrapping="WrapWholeWords" />
+                                        <TextBlock
+                                            Grid.Row="4"
+                                            Grid.Column="1"
+                                            Foreground="{ThemeResource TextFillColorDisabledBrush}"
+                                            IsTextSelectionEnabled="True"
+                                            Text="x64"
+                                            TextWrapping="WrapWholeWords" />
+                                        <TextBlock
+                                            Grid.Row="5"
+                                            Grid.Column="1"
+                                            Foreground="{ThemeResource TextFillColorDisabledBrush}"
+                                            IsTextSelectionEnabled="True"
+                                            Text="4 GB"
+                                            TextWrapping="WrapWholeWords" />
+                                        <TextBlock
+                                            Grid.Row="6"
+                                            Grid.Column="1"
+                                            Foreground="{ThemeResource TextFillColorDisabledBrush}"
+                                            IsTextSelectionEnabled="True"
+                                            Text="LENOVO"
+                                            TextWrapping="WrapWholeWords" />
+                                        <TextBlock
+                                            Grid.Row="7"
+                                            Grid.Column="1"
+                                            Foreground="{ThemeResource TextFillColorDisabledBrush}"
+                                            IsTextSelectionEnabled="True"
+                                            Text="IdeaPad Slim 5 16IRH10R"
+                                            TextWrapping="WrapWholeWords" />
+                                        <TextBlock
+                                            Grid.Row="8"
+                                            Grid.Column="1"
+                                            Foreground="{ThemeResource TextFillColorDisabledBrush}"
+                                            IsTextSelectionEnabled="True"
+                                            Text="5h 30m 11s"
+                                            TextWrapping="WrapWholeWords" />
+                                        <TextBlock
+                                            Grid.Row="9"
+                                            Grid.Column="1"
+                                            Foreground="{ThemeResource TextFillColorDisabledBrush}"
+                                            IsTextSelectionEnabled="True"
+                                            Text="en-US"
+                                            TextWrapping="WrapWholeWords" />
+                                        <TextBlock
+                                            Grid.Row="10"
+                                            Grid.Column="1"
+                                            Foreground="{ThemeResource TextFillColorDisabledBrush}"
+                                            IsTextSelectionEnabled="True"
+                                            Text="192.168.1.67:24"
+                                            TextWrapping="WrapWholeWords" />
+                                        <TextBlock
+                                            Grid.Row="11"
+                                            Grid.Column="1"
+                                            Foreground="{ThemeResource TextFillColorDisabledBrush}"
+                                            IsTextSelectionEnabled="True"
+                                            Text="1920x1080"
+                                            TextWrapping="WrapWholeWords" />
+                                        <TextBlock
+                                            Grid.Row="12"
+                                            Grid.Column="1"
+                                            Foreground="{ThemeResource TextFillColorDisabledBrush}"
+                                            IsTextSelectionEnabled="True"
+                                            Text="120Hz"
+                                            TextWrapping="WrapWholeWords" />
+                                        <TextBlock
+                                            Grid.Row="13"
+                                            Grid.Column="1"
+                                            Foreground="{ThemeResource TextFillColorDisabledBrush}"
+                                            IsTextSelectionEnabled="True"
+                                            Text="150%"
+                                            TextWrapping="WrapWholeWords" />
 
                                     </Grid>
-                                </StackPanel>
-                                <Button
-                                    Grid.Column="2"
-                                    Margin="-8"
-                                    Padding="8"
-                                    HorizontalAlignment="Right"
-                                    VerticalAlignment="Top"
-                                    Background="Transparent"
-                                    BorderBrush="Transparent"
-                                    Command="{x:Bind CopyWindowsVersionCommand}">
-                                    <FontIcon FontSize="16" Glyph="&#xE8C8;" />
-                                </Button>
+                                </ScrollViewer>
                             </Grid>
-                        </Border>
+                            <muxc:SplitButton
+                                Grid.Column="2"
+                                Margin="-8"
+                                Padding="8"
+                                HorizontalAlignment="Right"
+                                VerticalAlignment="Top"
+                                BorderThickness="0">
+                                <FontIcon FontSize="16" Glyph="&#xE8C8;" />
+                                <muxc:SplitButton.Flyout>
+                                    <MenuFlyout>
+                                        <MenuFlyoutItem Text="Copy Windows version" />
+                                        <MenuFlyoutItem Text="Copy first four" />
+                                    </MenuFlyout>
+                                </muxc:SplitButton.Flyout>
+                            </muxc:SplitButton>
+                        </Grid>
+                    </Border>
 
-                        <!--  Rebound version  -->
-                        <Border
+                    <!--  Rebound version  -->
+                    <Border
+                        Grid.Row="2"
+                        BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                        BorderThickness="0"
+                        Visibility="{x:Bind ViewModel.IsReboundOn, Mode=OneWay}">
+                        <Grid Padding="16">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto" />
+                                <ColumnDefinition Width="16" />
+                                <ColumnDefinition Width="*" />
+                            </Grid.ColumnDefinitions>
+                            <FontIcon
+                                VerticalAlignment="Top"
+                                FontSize="16"
+                                Foreground="{ThemeResource AccentTextFillColorPrimaryBrush}"
+                                Glyph="&#xF167;" />
+                            <StackPanel Grid.Column="2" Spacing="10">
+                                <TextBlock
+                                    Margin="0,-3,0,8"
+                                    FontWeight="SemiBold"
+                                    Text="Rebound"
+                                    TextWrapping="WrapWholeWords" />
+                                <TextBlock Text="{x:Bind core:Variables.ReboundVersion}" />
+                                <TextBlock x:Uid="ReboundInfo" TextWrapping="WrapWholeWords" />
+                            </StackPanel>
+                            <Button
+                                Grid.Column="2"
+                                Margin="-8"
+                                Padding="8"
+                                HorizontalAlignment="Right"
+                                VerticalAlignment="Top"
+                                Background="Transparent"
+                                BorderBrush="Transparent"
+                                Command="{x:Bind CopyReboundVersionCommand}">
+                                <FontIcon FontSize="16" Glyph="&#xE8C8;" />
+                            </Button>
+                        </Grid>
+                    </Border>
+
+                    <!--  Specs cards  -->
+                    <Grid
+                        Grid.Row="1"
+                        MinHeight="120"
+                        Padding="12"
+                        Background="{ThemeResource LayerOnMicaBaseAltFillColorDefaultBrush}"
+                        BorderBrush="{ThemeResource DividerStrokeColorDefaultBrush}"
+                        BorderThickness="0,1"
+                        ColumnSpacing="12"
+                        RowSpacing="12"
+                        Visibility="{x:Bind ViewModel.IsSidebarOn, Mode=OneWay}">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="*" MinHeight="80" />
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="*" MinHeight="100" />
+                        </Grid.RowDefinitions>
+                        <Grid Padding="4">
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="*" />
+                                <RowDefinition Height="Auto" />
+                            </Grid.RowDefinitions>
+                            <StackPanel
+                                HorizontalAlignment="Center"
+                                VerticalAlignment="Top"
+                                Orientation="Horizontal"
+                                Spacing="8">
+                                <FontIcon FontSize="16" Glyph="&#xEEA1;" />
+                                <TextBlock FontWeight="SemiBold" Text="CPU" />
+                            </StackPanel>
+                            <TextBlock
+                                Grid.Row="1"
+                                HorizontalAlignment="Center"
+                                VerticalAlignment="Center"
+                                FontWeight="SemiBold"
+                                HorizontalTextAlignment="Center"
+                                Text="{x:Bind sysinfoHardware:CPU.GetCPUName()}"
+                                TextWrapping="WrapWholeWords" />
+                            <muxc:ProgressBar
+                                Grid.Row="2"
+                                Margin="48,0"
+                                ToolTipService.ToolTip="67%"
+                                Value="67" />
+                        </Grid>
+                        <Grid
+                            Grid.Column="1"
+                            Width="1"
+                            Margin="4,8"
+                            Background="{ThemeResource DividerStrokeColorDefaultBrush}"
+                            CornerRadius="0.5" />
+                        <Grid
                             Grid.Row="2"
-                            BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
-                            BorderThickness="0"
-                            Visibility="{x:Bind ViewModel.IsReboundOn, Mode=OneWay}">
-                            <Grid Padding="16">
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="Auto" />
-                                    <ColumnDefinition Width="16" />
-                                    <ColumnDefinition Width="*" />
-                                </Grid.ColumnDefinitions>
-                                <FontIcon
-                                    VerticalAlignment="Top"
-                                    FontSize="16"
-                                    Foreground="{ThemeResource AccentTextFillColorPrimaryBrush}"
-                                    Glyph="&#xF167;" />
-                                <StackPanel Grid.Column="2" Spacing="10">
-                                    <TextBlock
-                                        Margin="0,-3,0,8"
-                                        FontWeight="SemiBold"
-                                        Text="Rebound"
-                                        TextWrapping="WrapWholeWords" />
-                                    <TextBlock Text="{x:Bind core:Variables.ReboundVersion}" />
-                                    <TextBlock x:Uid="ReboundInfo" TextWrapping="WrapWholeWords" />
-                                </StackPanel>
-                                <Button
-                                    Grid.Column="2"
-                                    Margin="-8"
-                                    Padding="8"
-                                    HorizontalAlignment="Right"
-                                    VerticalAlignment="Top"
-                                    Background="Transparent"
-                                    BorderBrush="Transparent"
-                                    Command="{x:Bind CopyReboundVersionCommand}">
-                                    <FontIcon FontSize="16" Glyph="&#xE8C8;" />
-                                </Button>
-                            </Grid>
-                        </Border>
-
-                        <!--  Specs cards  -->
+                            Grid.Column="1"
+                            Width="1"
+                            Margin="4,8"
+                            Background="{ThemeResource DividerStrokeColorDefaultBrush}"
+                            CornerRadius="0.5" />
+                        <Grid Grid.Column="2" Padding="4">
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="*" />
+                                <RowDefinition Height="Auto" />
+                            </Grid.RowDefinitions>
+                            <StackPanel
+                                HorizontalAlignment="Center"
+                                VerticalAlignment="Top"
+                                Orientation="Horizontal"
+                                Spacing="8">
+                                <PathIcon
+                                    Width="16"
+                                    Height="16"
+                                    Data="F1 M 0 5 C 0 4 1 3 2 3 L 14 3 C 15 3 16 4 16 5 L 16 9 C 16 10 15 11 14 11 L 2 11 C 1 11 0 10 0 9 M 1 5 L 1 9 C 1 9.5 1.5 10 2 10 L 14 10 C 14.5 10 15 9.5 15 9 L 15 5 C 15 4.5 14.5 4 14 4 L 2 4 C 1.5 4 1 4.5 1 5 M 14 11 L 14 13 L 6 13 L 6 11 M 7 11 L 7 12 L 13 12 L 13 11 M 4 5 A 1 1 0 0 0 4 9 A 1 1 0 0 0 4 5 M 4 6 A 1 1 0 0 1 4 8 A 1 1 0 0 1 4 6 M 12 5 A 1 1 0 0 0 12 9 A 1 1 0 0 0 12 5 M 12 6 A 1 1 0 0 1 12 8 A 1 1 0 0 1 12 6 M 8 6 A 1 1 0 0 1 8 8 A 1 1 0 0 1 8 6 M 8 5 A 1 1 0 0 0 8 9 A 1 1 0 0 0 8 5" />
+                                <TextBlock FontWeight="SemiBold" Text="GPU" />
+                            </StackPanel>
+                            <TextBlock
+                                Grid.Row="1"
+                                HorizontalAlignment="Center"
+                                VerticalAlignment="Center"
+                                FontWeight="SemiBold"
+                                HorizontalTextAlignment="Center"
+                                Text="{x:Bind sysinfoHardware:GPU.GetGPUName()}"
+                                TextWrapping="WrapWholeWords" />
+                            <muxc:ProgressBar
+                                Grid.Row="2"
+                                Margin="48,0"
+                                ToolTipService.ToolTip="67%"
+                                Value="67" />
+                        </Grid>
                         <Grid
                             Grid.Row="1"
-                            MinHeight="120"
-                            Padding="12"
-                            Background="{ThemeResource LayerOnMicaBaseAltFillColorDefaultBrush}"
-                            BorderBrush="{ThemeResource DividerStrokeColorDefaultBrush}"
-                            BorderThickness="0,1"
-                            ColumnSpacing="12"
-                            RowSpacing="12"
-                            Visibility="{x:Bind ViewModel.IsSidebarOn, Mode=OneWay}">
+                            Height="1"
+                            Margin="8,4"
+                            Background="{ThemeResource DividerStrokeColorDefaultBrush}"
+                            CornerRadius="0.5" />
+                        <Grid Grid.Row="2" Padding="4">
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="*" />
+                                <RowDefinition Height="Auto" />
+                            </Grid.RowDefinitions>
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="*" />
                                 <ColumnDefinition Width="Auto" />
                                 <ColumnDefinition Width="*" />
+                            </Grid.ColumnDefinitions>
+                            <StackPanel
+                                Grid.ColumnSpan="3"
+                                HorizontalAlignment="Center"
+                                VerticalAlignment="Top"
+                                Orientation="Horizontal"
+                                Spacing="8">
+                                <FontIcon FontSize="16" Glyph="&#xEEA0;" />
+                                <TextBlock FontWeight="SemiBold" Text="RAM" />
+                            </StackPanel>
+                            <StackPanel
+                                Grid.Row="1"
+                                HorizontalAlignment="Center"
+                                VerticalAlignment="Center"
+                                Spacing="4">
+                                <TextBlock
+                                    HorizontalAlignment="Center"
+                                    FontWeight="SemiBold"
+                                    Text="Physical" />
+                                <TextBlock
+                                    HorizontalAlignment="Center"
+                                    FontSize="12"
+                                    Opacity="0.75"
+                                    Text="{x:Bind sysinfoHardware:RAM.GetTotalRam()}"
+                                    TextWrapping="WrapWholeWords" />
+                            </StackPanel>
+                            <StackPanel
+                                Grid.Row="1"
+                                Grid.Column="2"
+                                HorizontalAlignment="Center"
+                                VerticalAlignment="Center"
+                                Spacing="4">
+                                <TextBlock
+                                    HorizontalAlignment="Center"
+                                    FontWeight="SemiBold"
+                                    Text="Usable" />
+                                <TextBlock
+                                    HorizontalAlignment="Center"
+                                    FontSize="12"
+                                    Opacity="0.75"
+                                    Text="{x:Bind sysinfoHardware:RAM.GetUsableRAM()}"
+                                    TextWrapping="WrapWholeWords" />
+                            </StackPanel>
+                            <muxc:ProgressBar
+                                Grid.Row="2"
+                                Grid.ColumnSpan="3"
+                                Margin="48,0"
+                                ToolTipService.ToolTip="67%"
+                                Value="67" />
+                        </Grid>
+                        <Grid
+                            Grid.Row="1"
+                            Grid.Column="2"
+                            Height="1"
+                            Margin="8,4"
+                            Background="{ThemeResource DividerStrokeColorDefaultBrush}"
+                            CornerRadius="0.5" />
+                        <Grid
+                            Grid.Row="2"
+                            Grid.Column="2"
+                            Padding="4">
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="*" />
+                            </Grid.RowDefinitions>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*" />
                                 <ColumnDefinition Width="Auto" />
                                 <ColumnDefinition Width="*" />
                             </Grid.ColumnDefinitions>
-                            <Grid Padding="4">
-                                <Grid.RowDefinitions>
-                                    <RowDefinition Height="Auto" />
-                                    <RowDefinition Height="*" />
-                                </Grid.RowDefinitions>
-                                <StackPanel
-                                    HorizontalAlignment="Center"
-                                    VerticalAlignment="Top"
-                                    Orientation="Horizontal"
-                                    Spacing="8">
-                                    <FontIcon FontSize="16" Glyph="&#xEEA1;" />
-                                    <TextBlock FontWeight="SemiBold" Text="CPU" />
-                                </StackPanel>
+                            <StackPanel
+                                Grid.ColumnSpan="3"
+                                HorizontalAlignment="Center"
+                                VerticalAlignment="Top"
+                                Orientation="Horizontal"
+                                Spacing="8">
+                                <FontIcon FontSize="16" Glyph="&#xEDA2;" />
+                                <TextBlock FontWeight="SemiBold" Text="Storage" />
+                            </StackPanel>
+                            <StackPanel
+                                Grid.Row="1"
+                                HorizontalAlignment="Center"
+                                VerticalAlignment="Center"
+                                Spacing="8">
                                 <TextBlock
-                                    Grid.Row="1"
                                     HorizontalAlignment="Center"
-                                    VerticalAlignment="Center"
                                     FontWeight="SemiBold"
-                                    HorizontalTextAlignment="Center"
-                                    Text="{x:Bind sysinfoHardware:CPU.GetCPUName()}"
+                                    Text="Windows drive"
+                                    TextAlignment="Center"
                                     TextWrapping="WrapWholeWords" />
-                            </Grid>
-                            <Grid
-                                Grid.Column="1"
-                                Width="1"
-                                Margin="4,8"
-                                Background="{ThemeResource DividerStrokeColorDefaultBrush}"
-                                CornerRadius="0.5" />
-                            <Grid Grid.Column="2" Padding="4">
-                                <Grid.RowDefinitions>
-                                    <RowDefinition Height="Auto" />
-                                    <RowDefinition Height="*" />
-                                </Grid.RowDefinitions>
-                                <StackPanel
-                                    HorizontalAlignment="Center"
-                                    VerticalAlignment="Top"
-                                    Orientation="Horizontal"
-                                    Spacing="8">
-                                    <PathIcon
-                                        Width="16"
-                                        Height="16"
-                                        Data="F1 M 0 5 C 0 4 1 3 2 3 L 14 3 C 15 3 16 4 16 5 L 16 9 C 16 10 15 11 14 11 L 2 11 C 1 11 0 10 0 9 M 1 5 L 1 9 C 1 9.5 1.5 10 2 10 L 14 10 C 14.5 10 15 9.5 15 9 L 15 5 C 15 4.5 14.5 4 14 4 L 2 4 C 1.5 4 1 4.5 1 5 M 14 11 L 14 13 L 6 13 L 6 11 M 7 11 L 7 12 L 13 12 L 13 11 M 4 5 A 1 1 0 0 0 4 9 A 1 1 0 0 0 4 5 M 4 6 A 1 1 0 0 1 4 8 A 1 1 0 0 1 4 6 M 12 5 A 1 1 0 0 0 12 9 A 1 1 0 0 0 12 5 M 12 6 A 1 1 0 0 1 12 8 A 1 1 0 0 1 12 6 M 8 6 A 1 1 0 0 1 8 8 A 1 1 0 0 1 8 6 M 8 5 A 1 1 0 0 0 8 9 A 1 1 0 0 0 8 5" />
-                                    <TextBlock FontWeight="SemiBold" Text="GPU" />
-                                </StackPanel>
+                                <muxc:ProgressRing
+                                    Width="32"
+                                    Height="32"
+                                    IsIndeterminate="False"
+                                    Value="67" />
+                            </StackPanel>
+                            <StackPanel
+                                Grid.Row="1"
+                                Grid.Column="2"
+                                HorizontalAlignment="Center"
+                                VerticalAlignment="Center"
+                                Spacing="8">
                                 <TextBlock
-                                    Grid.Row="1"
                                     HorizontalAlignment="Center"
-                                    VerticalAlignment="Center"
                                     FontWeight="SemiBold"
-                                    HorizontalTextAlignment="Center"
-                                    Text="{x:Bind sysinfoHardware:GPU.GetGPUName()}"
-                                    TextWrapping="WrapWholeWords" />
-                            </Grid>
-                            <Grid
-                                Grid.Column="3"
-                                Width="1"
-                                Margin="4,8"
-                                Background="{ThemeResource DividerStrokeColorDefaultBrush}"
-                                CornerRadius="0.5" />
-                            <Grid Grid.Column="4" Padding="4">
-                                <Grid.RowDefinitions>
-                                    <RowDefinition Height="Auto" />
-                                    <RowDefinition Height="*" />
-                                </Grid.RowDefinitions>
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="*" />
-                                    <ColumnDefinition Width="Auto" />
-                                    <ColumnDefinition Width="*" />
-                                </Grid.ColumnDefinitions>
-                                <StackPanel
-                                    Grid.ColumnSpan="3"
-                                    HorizontalAlignment="Center"
-                                    VerticalAlignment="Top"
-                                    Orientation="Horizontal"
-                                    Spacing="8">
-                                    <FontIcon FontSize="16" Glyph="&#xEEA0;" />
-                                    <TextBlock FontWeight="SemiBold" Text="RAM" />
-                                </StackPanel>
-                                <StackPanel
-                                    Grid.Row="1"
-                                    HorizontalAlignment="Center"
-                                    VerticalAlignment="Center"
-                                    Spacing="4">
-                                    <TextBlock
-                                        HorizontalAlignment="Center"
-                                        FontWeight="SemiBold"
-                                        Text="Physical" />
-                                    <TextBlock
-                                        HorizontalAlignment="Center"
-                                        FontSize="12"
-                                        Opacity="0.75"
-                                        Text="{x:Bind sysinfoHardware:RAM.GetTotalRam()}"
-                                        TextWrapping="WrapWholeWords" />
-                                </StackPanel>
-                                <StackPanel
-                                    Grid.Row="1"
-                                    Grid.Column="2"
-                                    HorizontalAlignment="Center"
-                                    VerticalAlignment="Center"
-                                    Spacing="4">
-                                    <TextBlock
-                                        HorizontalAlignment="Center"
-                                        FontWeight="SemiBold"
-                                        Text="Usable" />
-                                    <TextBlock
-                                        HorizontalAlignment="Center"
-                                        FontSize="12"
-                                        Opacity="0.75"
-                                        Text="{x:Bind sysinfoHardware:RAM.GetUsableRAM()}"
-                                        TextWrapping="WrapWholeWords" />
-                                </StackPanel>
-                            </Grid>
+                                    Text="Total" />
+                                <muxc:ProgressRing
+                                    Width="32"
+                                    Height="32"
+                                    IsIndeterminate="False"
+                                    Value="67" />
+                            </StackPanel>
                         </Grid>
-
                     </Grid>
-                </controls:Case>
-                <controls:Case Value="specifications">
-                    <Grid animations:Implicit.HideAnimations="{StaticResource HideTransitions}" animations:Implicit.ShowAnimations="{StaticResource ShowTransitions}">
-                        <Grid.RowDefinitions>
-                            <RowDefinition Height="*" />
-                            <RowDefinition Height="Auto" />
-                            <RowDefinition Height="Auto" />
-                        </Grid.RowDefinitions>
 
-                        <!--  License info  -->
-                        <Border
-                            Background="{ThemeResource LayerFillColorDefaultBrush}"
-                            BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
-                            BorderThickness="0,1,0,0">
-                            <Grid Padding="16">
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="Auto" />
-                                    <ColumnDefinition Width="16" />
-                                    <ColumnDefinition Width="*" />
-                                </Grid.ColumnDefinitions>
-                                <FontIcon
-                                    VerticalAlignment="Top"
-                                    FontSize="16"
-                                    Foreground="{ThemeResource AccentTextFillColorPrimaryBrush}"
-                                    Glyph="&#xF167;" />
-                                <StackPanel Grid.Column="2" Spacing="10">
+                </Grid>
+                <Grid
+                    Grid.Column="1"
+                    BorderBrush="{ThemeResource DividerStrokeColorDefaultBrush}"
+                    BorderThickness="1,0,0,0">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="*" />
+                        <RowDefinition Height="Auto" />
+                    </Grid.RowDefinitions>
+
+                    <!--  License info  -->
+                    <Border
+                        Background="{ThemeResource LayerFillColorDefaultBrush}"
+                        BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                        BorderThickness="0,1,0,0">
+                        <Grid Padding="16">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto" />
+                                <ColumnDefinition Width="16" />
+                                <ColumnDefinition Width="*" />
+                            </Grid.ColumnDefinitions>
+                            <FontIcon
+                                VerticalAlignment="Top"
+                                FontSize="16"
+                                Foreground="{ThemeResource AccentTextFillColorPrimaryBrush}"
+                                Glyph="&#xF167;" />
+                            <StackPanel Grid.Column="2" Spacing="10">
+                                <TextBlock
+                                    Margin="0,-3,0,8"
+                                    FontWeight="SemiBold"
+                                    Text="License information"
+                                    TextWrapping="WrapWholeWords" />
+                                <TextBlock x:Uid="CopyrightLabel" />
+                                <TextBlock Text="{x:Bind viewModels:MainViewModel.LegalInfo}" TextWrapping="WrapWholeWords" />
+                                <TextBlock TextWrapping="WrapWholeWords">
+                                    <Run x:Uid="LicensedUnderLabel" />
+                                    <Hyperlink NavigateUri="https://support.microsoft.com/en-us/windows/microsoft-software-license-terms-e26eedad-97a2-5250-2670-aad156b654bd">
+                                        <Run x:Uid="MicrosoftLicenseTermsLabel" />
+                                    </Hyperlink>
+                                    <Run x:Uid="ToLabel" />
+                                </TextBlock>
+                                <TextBlock Text="{x:Bind viewModels:MainViewModel.LicenseOwners}" />
+                            </StackPanel>
+                            <Button
+                                Grid.Column="2"
+                                Margin="-8"
+                                Padding="8"
+                                HorizontalAlignment="Right"
+                                VerticalAlignment="Top"
+                                Background="Transparent"
+                                BorderBrush="Transparent"
+                                Command="{x:Bind CopyLicenseOwnersCommand}">
+                                <FontIcon FontSize="16" Glyph="&#xE8C8;" />
+                            </Button>
+                        </Grid>
+                    </Border>
+
+                    <!--  User account info  -->
+                    <Grid
+                        Grid.Row="1"
+                        MinHeight="120"
+                        Padding="12"
+                        Background="{ThemeResource LayerOnMicaBaseAltFillColorDefaultBrush}"
+                        BorderBrush="{ThemeResource DividerStrokeColorDefaultBrush}"
+                        BorderThickness="0,1"
+                        ColumnSpacing="12"
+                        RowSpacing="12">
+                        <Grid>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="*" />
+                            </Grid.RowDefinitions>
+                            <Grid VerticalAlignment="Top">
+                                <muxc:PersonPicture
+                                    Width="48"
+                                    Margin="4"
+                                    HorizontalAlignment="Left"
+                                    ProfilePicture="{x:Bind UserPicture, Mode=OneWay}" />
+                                <TextBlock
+                                    Margin="64,0,180,0"
+                                    HorizontalAlignment="Stretch"
+                                    VerticalAlignment="Center"
+                                    FontSize="24"
+                                    FontWeight="SemiBold"
+                                    Text="{x:Bind sysinfoSoftware:UserInformation.GetDisplayName(), Mode=OneWay}"
+                                    TextWrapping="WrapWholeWords" />
+                                <Grid Margin="0,0,8,0" HorizontalAlignment="Right">
+                                    <Grid
+                                        VerticalAlignment="Center"
+                                        ColumnSpacing="1"
+                                        RowSpacing="1">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="Auto" />
+                                            <ColumnDefinition Width="Auto" />
+                                        </Grid.ColumnDefinitions>
+                                        <Grid.RowDefinitions>
+                                            <RowDefinition Height="Auto" />
+                                            <RowDefinition Height="Auto" />
+                                        </Grid.RowDefinitions>
+                                        <Border
+                                            Width="10"
+                                            Height="10"
+                                            Background="{ThemeResource TextFillColorPrimaryBrush}" />
+                                        <Border
+                                            Grid.Column="1"
+                                            Width="10"
+                                            Height="10"
+                                            Background="{ThemeResource TextFillColorPrimaryBrush}" />
+                                        <Border
+                                            Grid.Row="1"
+                                            Width="10"
+                                            Height="10"
+                                            Background="{ThemeResource TextFillColorPrimaryBrush}" />
+                                        <Border
+                                            Grid.Row="1"
+                                            Grid.Column="1"
+                                            Width="10"
+                                            Height="10"
+                                            Background="{ThemeResource TextFillColorPrimaryBrush}" />
+                                    </Grid>
                                     <TextBlock
-                                        Margin="0,-3,0,8"
-                                        FontWeight="SemiBold"
-                                        Text="License information"
-                                        TextWrapping="WrapWholeWords" />
-                                    <TextBlock x:Uid="CopyrightLabel" />
-                                    <TextBlock Text="{x:Bind viewModels:MainViewModel.LegalInfo}" TextWrapping="WrapWholeWords" />
-                                    <TextBlock TextWrapping="WrapWholeWords">
-                                        <Run x:Uid="LicensedUnderLabel" />
-                                        <Hyperlink NavigateUri="https://support.microsoft.com/en-us/windows/microsoft-software-license-terms-e26eedad-97a2-5250-2670-aad156b654bd">
-                                            <Run x:Uid="MicrosoftLicenseTermsLabel" />
-                                        </Hyperlink>
-                                        <Run x:Uid="ToLabel" />
-                                    </TextBlock>
-                                    <TextBlock Text="{x:Bind viewModels:MainViewModel.LicenseOwners}" />
-                                </StackPanel>
-                                <Button
-                                    Grid.Column="2"
-                                    Margin="-8"
-                                    Padding="8"
+                                        Margin="32,0,0,0"
+                                        VerticalAlignment="Center"
+                                        FontSize="12"
+                                        Text="Microsoft&#10;account" />
+                                </Grid>
+                                <Grid
+                                    Margin="0,0,8,0"
                                     HorizontalAlignment="Right"
-                                    VerticalAlignment="Top"
-                                    Background="Transparent"
-                                    BorderBrush="Transparent"
-                                    Command="{x:Bind CopyLicenseOwnersCommand}">
-                                    <FontIcon FontSize="16" Glyph="&#xE8C8;" />
-                                </Button>
-                            </Grid>
-                        </Border>
-
-                        <!--  Activation info  -->
-                        <Border
-                            Grid.Row="2"
-                            BorderBrush="{ThemeResource DividerStrokeColorDefaultBrush}"
-                            BorderThickness="0,1,0,0"
-                            Visibility="{x:Bind ViewModel.ShowActivationInfo, Mode=OneWay}">
-                            <Grid Padding="16">
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="Auto" />
-                                    <ColumnDefinition Width="16" />
-                                    <ColumnDefinition Width="*" />
-                                </Grid.ColumnDefinitions>
-                                <controls:SwitchPresenter TargetType="muxc:InfoBarSeverity" Value="{x:Bind WindowsActivationSeverity, Mode=OneWay}">
-                                    <controls:Case Value="Error">
-                                        <FontIcon
-                                            VerticalAlignment="Top"
-                                            FontSize="16"
-                                            Foreground="{ThemeResource AccentTextFillColorPrimaryBrush}"
-                                            Glyph="&#xEB90;" />
-                                    </controls:Case>
-                                    <controls:Case Value="Success">
-                                        <FontIcon
-                                            VerticalAlignment="Top"
-                                            FontSize="16"
-                                            Foreground="{ThemeResource SystemFillColorSuccessBrush}"
-                                            Glyph="&#xEC61;" />
-                                    </controls:Case>
-                                    <controls:Case Value="Warning">
-                                        <FontIcon
-                                            VerticalAlignment="Top"
-                                            FontSize="16"
-                                            Foreground="{ThemeResource SystemFillColorCautionBrush}"
-                                            Glyph="&#xF736;" />
-                                    </controls:Case>
-                                    <controls:Case Value="Informational">
-                                        <FontIcon
-                                            VerticalAlignment="Top"
-                                            FontSize="16"
-                                            Foreground="{ThemeResource SystemFillColorCriticalBrush}"
-                                            Glyph="&#xF167;" />
-                                    </controls:Case>
-                                </controls:SwitchPresenter>
-
-                                <StackPanel Grid.Column="2" Spacing="10">
+                                    Visibility="Collapsed">
+                                    <FontIcon
+                                        HorizontalAlignment="Left"
+                                        FontSize="24"
+                                        Glyph="&#xE977;" />
                                     <TextBlock
-                                        Margin="0,-3,0,8"
-                                        FontWeight="SemiBold"
-                                        Text="Activation state"
-                                        TextWrapping="WrapWholeWords" />
-                                    <TextBlock Text="{x:Bind viewModels:MainViewModel.WindowsActivationInfo, Mode=OneWay}" TextWrapping="WrapWholeWords" />
-                                    <Button
-                                        Margin="-8,0"
-                                        Padding="8"
-                                        Background="Transparent"
-                                        BorderBrush="Transparent"
-                                        Command="{x:Bind OpenActivationSettingsCommand}">
+                                        Margin="40,0,0,0"
+                                        VerticalAlignment="Center"
+                                        FontSize="12"
+                                        Text="Local&#10;account" />
+                                </Grid>
+                            </Grid>
+                            <ScrollViewer
+                                Grid.Row="1"
+                                Margin="0,0,-8,0"
+                                Padding="0,0,8,0">
+                                <Grid>
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="Auto" />
+                                        <RowDefinition Height="*" />
+                                    </Grid.RowDefinitions>
+                                    <StackPanel Margin="8,0,0,0" Spacing="8">
+                                        <TextBlock
+                                            Margin="0,8,0,-8"
+                                            FontWeight="SemiBold"
+                                            Text="Information" />
+                                        <StackPanel
+                                            Orientation="Horizontal"
+                                            Spacing="8"
+                                            Visibility="Collapsed">
+                                            <FontIcon FontSize="16" Glyph="&#xE77B;" />
+                                            <TextBlock VerticalAlignment="Center" Text="User account" />
+                                        </StackPanel>
                                         <StackPanel Orientation="Horizontal" Spacing="8">
-                                            <FontIcon FontSize="16" Glyph="&#xE8D7;" />
-                                            <TextBlock VerticalAlignment="Center" Text="Open Windows Activation Settings" />
+                                            <FontIcon FontSize="16" Glyph="&#xEA18;" />
+                                            <TextBlock VerticalAlignment="Center" Text="Administrator account" />
+                                        </StackPanel>
+                                        <StackPanel Orientation="Horizontal" Spacing="8">
+                                            <FontIcon FontSize="16" Glyph="&#xE917;" />
+                                            <TextBlock VerticalAlignment="Center" Text="Created on: 12.07.2025" />
+                                        </StackPanel>
+                                    </StackPanel>
+                                    <Button
+                                        Padding="8"
+                                        HorizontalAlignment="Right"
+                                        VerticalAlignment="Top"
+                                        Background="Transparent"
+                                        BorderBrush="Transparent">
+                                        <StackPanel Orientation="Horizontal" Spacing="8">
+                                            <FontIcon FontSize="16" Glyph="&#xE838;" />
+                                            <TextBlock VerticalAlignment="Center" Text="Open User Folder" />
                                         </StackPanel>
                                     </Button>
-                                </StackPanel>
-                            </Grid>
-                        </Border>
-
+                                    <Grid Grid.Row="1" Margin="8">
+                                        <TextBlock
+                                            Margin="0,8"
+                                            FontWeight="SemiBold"
+                                            Text="Desktop wallpaper" />
+                                        <Grid
+                                            Margin="0,36,0,0"
+                                            ui:UIElementExtensions.ClipToBounds="True"
+                                            Background="Black"
+                                            CornerRadius="8">
+                                            <Image Stretch="UniformToFill">
+                                                <Image.Source>
+                                                    <BitmapImage UriSource="{x:Bind WallpaperPath, Mode=OneWay}" />
+                                                </Image.Source>
+                                            </Image>
+                                        </Grid>
+                                    </Grid>
+                                </Grid>
+                            </ScrollViewer>
+                        </Grid>
                     </Grid>
-                </controls:Case>
-            </controls:SwitchPresenter>
-        </Grid>
 
-        <!--  Bottom bar  -->
-        <Grid
-            Grid.Row="4"
-            Grid.ColumnSpan="2"
-            Height="80"
-            Padding="24"
-            Background="{ThemeResource SystemControlBackgroundAltMediumLowBrush}"
-            BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
-            BorderThickness="0,1,0,0">
-            <StackPanel
-                HorizontalAlignment="Right"
-                VerticalAlignment="Center"
-                Orientation="Horizontal"
-                Spacing="8">
+                    <!--  Activation info  -->
+                    <Border Grid.Row="2" Visibility="{x:Bind ViewModel.ShowActivationInfo, Mode=OneWay}">
+                        <Grid Padding="16">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto" />
+                                <ColumnDefinition Width="16" />
+                                <ColumnDefinition Width="*" />
+                            </Grid.ColumnDefinitions>
+                            <controls:SwitchPresenter TargetType="muxc:InfoBarSeverity" Value="{x:Bind WindowsActivationSeverity, Mode=OneWay}">
+                                <controls:Case Value="Error">
+                                    <FontIcon
+                                        VerticalAlignment="Top"
+                                        FontSize="16"
+                                        Foreground="{ThemeResource AccentTextFillColorPrimaryBrush}"
+                                        Glyph="&#xEB90;" />
+                                </controls:Case>
+                                <controls:Case Value="Success">
+                                    <FontIcon
+                                        VerticalAlignment="Top"
+                                        FontSize="16"
+                                        Foreground="{ThemeResource SystemFillColorSuccessBrush}"
+                                        Glyph="&#xEC61;" />
+                                </controls:Case>
+                                <controls:Case Value="Warning">
+                                    <FontIcon
+                                        VerticalAlignment="Top"
+                                        FontSize="16"
+                                        Foreground="{ThemeResource SystemFillColorCautionBrush}"
+                                        Glyph="&#xF736;" />
+                                </controls:Case>
+                                <controls:Case Value="Informational">
+                                    <FontIcon
+                                        VerticalAlignment="Top"
+                                        FontSize="16"
+                                        Foreground="{ThemeResource SystemFillColorCriticalBrush}"
+                                        Glyph="&#xF167;" />
+                                </controls:Case>
+                            </controls:SwitchPresenter>
+
+                            <StackPanel Grid.Column="2" Spacing="10">
+                                <TextBlock
+                                    Margin="0,-3,0,8"
+                                    FontWeight="SemiBold"
+                                    Text="Activation state"
+                                    TextWrapping="WrapWholeWords" />
+                                <TextBlock Text="{x:Bind viewModels:MainViewModel.WindowsActivationInfo, Mode=OneWay}" TextWrapping="WrapWholeWords" />
+                                <Button
+                                    Margin="-8,0"
+                                    Padding="8"
+                                    Background="Transparent"
+                                    BorderBrush="Transparent"
+                                    Command="{x:Bind OpenActivationSettingsCommand}">
+                                    <StackPanel Orientation="Horizontal" Spacing="8">
+                                        <FontIcon FontSize="16" Glyph="&#xE8D7;" />
+                                        <TextBlock VerticalAlignment="Center" Text="Open Windows Activation Settings" />
+                                    </StackPanel>
+                                </Button>
+                            </StackPanel>
+                        </Grid>
+                    </Border>
+
+                </Grid>
+            </Grid>
+
+            <!--  Bottom bar  -->
+            <Grid
+                Grid.Row="4"
+                Grid.ColumnSpan="2"
+                Height="80"
+                Padding="24"
+                Background="{ThemeResource SystemControlBackgroundAltMediumLowBrush}"
+                BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                BorderThickness="0,1,0,0">
                 <Button
-                    Width="36"
                     Height="36"
                     Margin="0,-8"
                     Padding="8"
                     VerticalAlignment="Center"
                     Background="Transparent"
                     BorderBrush="Transparent">
-                    <FontIcon FontSize="16" Glyph="&#xED56;" />
+                    <StackPanel Orientation="Horizontal" Spacing="8">
+                        <FontIcon FontSize="16" Glyph="&#xE8A7;" />
+                        <TextBlock Text="View more" />
+                    </StackPanel>
                 </Button>
-                <Button
-                    x:Uid="OKButton"
-                    Width="120"
+                <StackPanel
+                    HorizontalAlignment="Right"
                     VerticalAlignment="Center"
-                    Command="{x:Bind CloseWindowCommand}"
-                    Style="{StaticResource AccentButtonStyle}">
-                    <Button.KeyboardAccelerators>
-                        <KeyboardAccelerator Key="Escape" />
-                    </Button.KeyboardAccelerators>
-                </Button>
-            </StackPanel>
-            <muxc:PersonPicture
-                Width="28"
-                HorizontalAlignment="Left"
-                ProfilePicture="{x:Bind UserPicture, Mode=OneWay}"
-                Visibility="{x:Bind ViewModel.ShowHelloUser, Mode=OneWay}" />
-            <TextBlock
-                Margin="40,0,180,0"
-                HorizontalAlignment="Stretch"
-                VerticalAlignment="Center"
-                Text="{x:Bind viewModels:MainViewModel.CurrentUser, Mode=OneWay}"
-                TextWrapping="WrapWholeWords"
-                Visibility="{x:Bind ViewModel.ShowHelloUser, Mode=OneWay}" />
+                    Orientation="Horizontal"
+                    Spacing="8">
+                    <Button
+                        Width="36"
+                        Height="36"
+                        Margin="0,-8"
+                        Padding="8"
+                        VerticalAlignment="Center"
+                        Background="Transparent"
+                        BorderBrush="Transparent">
+                        <FontIcon FontSize="16" Glyph="&#xED56;" />
+                    </Button>
+                    <Button
+                        x:Uid="OKButton"
+                        Width="120"
+                        VerticalAlignment="Center"
+                        Command="{x:Bind CloseWindowCommand}"
+                        Style="{StaticResource AccentButtonStyle}">
+                        <Button.KeyboardAccelerators>
+                            <KeyboardAccelerator Key="Escape" />
+                        </Button.KeyboardAccelerators>
+                    </Button>
+                </StackPanel>
+            </Grid>
+
         </Grid>
 
     </Grid>

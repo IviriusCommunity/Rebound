@@ -9,19 +9,16 @@ using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 
 namespace Rebound.Generators;
 
-// Change 1: Implement IIncrementalGenerator
 [Generator]
 public class ReboundAppSourceGenerator : IIncrementalGenerator
 {
     public void Initialize(IncrementalGeneratorInitializationContext context)
     {
-        // 1. Define a provider for all ClassDeclarationSyntax nodes
         var classDeclarations = context.SyntaxProvider
             .CreateSyntaxProvider(
                 predicate: static (s, _) => s is ClassDeclarationSyntax,
                 transform: static (ctx, _) =>
                 {
-                    // Ensure we get the symbol from the syntax context
                     if (ctx.SemanticModel.GetDeclaredSymbol((ClassDeclarationSyntax)ctx.Node) is INamedTypeSymbol symbol)
                     {
                         return symbol;
@@ -29,41 +26,27 @@ public class ReboundAppSourceGenerator : IIncrementalGenerator
                     return null;
                 }
             )
-            // Filter: Only keep symbols that are classes and have the ReboundAppAttribute
-            // FIX: 's' is now directly an INamedTypeSymbol (or null) because of the transform above.
             .Where(static s => s is not null && s.GetAttributes()
                 .Any(attr => attr.AttributeClass?.Name == "ReboundAppAttribute" || attr.AttributeClass?.Name == "ReboundApp"));
 
-        // 2. Combine all found symbols into a single, post-filter item (if any exist)
-        // FIX: The type is directly INamedTypeSymbol?
         var classToGenerate = classDeclarations.Collect()
             .Select(static (items, _) => items.FirstOrDefault());
 
-
-        // 3. Register a source output
-        // FIX: Remove 'static' from the lambda here OR make all called methods static.
-        // We will make the called methods static.
         context.RegisterSourceOutput(classToGenerate, (ctx, classSymbol) =>
         {
             if (classSymbol is null) return;
 
             try
             {
-                // FIX: 'classSymbol' is now INamedTypeSymbol? and can directly use GetAttributes()
                 var attribute = classSymbol.GetAttributes()
                     .FirstOrDefault(attr => attr.AttributeClass?.Name == "ReboundAppAttribute" || attr.AttributeClass?.Name == "ReboundApp");
 
-                // FIX: Added safer check for ConstructorArguments
                 var singleInstanceTaskName = attribute?.ConstructorArguments.FirstOrDefault().Value?.ToString() ?? "";
-
-                // FIX: 'classSymbol' is INamedTypeSymbol? and can directly use ContainingNamespace
                 var namespaceName = classSymbol.ContainingNamespace.ToDisplayString();
 
-                // GenerateAppClass and GenerateProgramClass MUST now be static.
                 var appClass = GenerateAppClass(classSymbol, singleInstanceTaskName);
                 var programClass = GenerateProgramClass();
 
-                // ... (rest of the generation logic remains the same)
                 var namespaceDecl = NamespaceDeclaration(IdentifierName(namespaceName))
                     .AddMembers(appClass, programClass);
 
@@ -99,10 +82,8 @@ public class ReboundAppSourceGenerator : IIncrementalGenerator
         });
     }
 
-    // FIX: Must be 'static' to be called from the non-static RegisterSourceOutput lambda
     private static ClassDeclarationSyntax GenerateAppClass(INamedTypeSymbol classSymbol, string singleInstanceTaskName)
     {
-        // ... (implementation remains the same)
         var className = classSymbol.Name;
 
         var constructor = ConstructorDeclaration(className)
@@ -138,55 +119,601 @@ public class ReboundAppSourceGenerator : IIncrementalGenerator
 
     private static ClassDeclarationSyntax GenerateProgramClass()
     {
-        return ParseMemberDeclaration(@"
-internal static partial class Program
-{
-    [STAThread]
-    static unsafe void Main(string[] args)
-    {
-#if UNPACKAGED
-        Environment.SetEnvironmentVariable(""MICROSOFT_WINDOWSAPPRUNTIME_BASE_DIRECTORY"", AppContext.BaseDirectory);
-#endif
-
-        TerraFX.Interop.WinRT.WinRT.RoInitialize(
-            TerraFX.Interop.WinRT.RO_INIT_TYPE.RO_INIT_SINGLETHREADED);
-
-        // SET THE MAIN THREAD ID FOR UIThreadQueue
-        Rebound.Core.UI.UIThreadQueue.SetMainThreadId(
-            TerraFX.Interop.Windows.Windows.GetCurrentThreadId());
-
-        var app = new App();
-
-        Task.Run(() => app._singleInstanceAppService.Launch(string.Join("" "", args)));
-
-        MSG msg;
-        // CHANGED: Use GetMessage instead of the busy-wait loop
-        while (TerraFX.Interop.Windows.Windows.GetMessageW(&msg, default, 0, 0) > 0)
+        try
         {
-            foreach (var window in WindowList.OpenWindows.ToArray())
-            {
-                if (!window.Closed)
-                {
-                    if (!window.PreTranslateMessage(&msg))
-                    {
-                        TerraFX.Interop.Windows.Windows.TranslateMessage(&msg);
-                        TerraFX.Interop.Windows.Windows.DispatchMessageW(&msg);
-                    }
-                }
-            }
+            var mainMethod = MethodDeclaration(
+                    PredefinedType(Token(SyntaxKind.VoidKeyword)),
+                    "Main")
+                .AddModifiers(
+                    Token(SyntaxKind.StaticKeyword),
+                    Token(SyntaxKind.UnsafeKeyword))
+                .AddAttributeLists(
+                    AttributeList(
+                        SingletonSeparatedList(
+                            Attribute(IdentifierName("STAThread")))))
+                .WithParameterList(GenerateMainMethodParameters())
+                .WithBody(GenerateMainMethodBody());
 
-            // Process queued UI actions after each message
-            var actionsToRun = new System.Collections.Generic.List<System.Func<System.Threading.Tasks.Task>>();
-            while (Rebound.Core.UI.UIThreadQueue._actions.TryDequeue(out var action))
-                actionsToRun.Add(action);
+            var programClass = ClassDeclaration("Program")
+                .AddModifiers(
+                    Token(SyntaxKind.InternalKeyword),
+                    Token(SyntaxKind.StaticKeyword),
+                    Token(SyntaxKind.PartialKeyword))
+                .AddMembers(mainMethod);
 
-            foreach (var action in actionsToRun)
-            {
-                try { _ = action(); }
-                catch (Exception ex) { Rebound.Core.ReboundLogger.Log(""[UIThreadQueue] UI thread crash."", ex); }
-            }
+            return programClass;
+        }
+        catch (System.Exception ex)
+        {
+            throw new System.Exception($"[GenerateProgramClass] Failed to generate Program class: {ex.Message}", ex);
         }
     }
-}").NormalizeWhitespace() as ClassDeclarationSyntax ?? throw new System.Exception("Failed to generate Program class");
+
+    private static ParameterListSyntax GenerateMainMethodParameters()
+    {
+        try
+        {
+            return ParameterList(
+                SingletonSeparatedList(
+                    Parameter(Identifier("args"))
+                    .WithType(
+                        ArrayType(
+                            PredefinedType(Token(SyntaxKind.StringKeyword)))
+                        .WithRankSpecifiers(
+                            SingletonList(
+                                ArrayRankSpecifier(
+                                    SingletonSeparatedList<ExpressionSyntax>(
+                                        OmittedArraySizeExpression())))))));
+        }
+        catch (System.Exception ex)
+        {
+            throw new System.Exception($"[GenerateMainMethodParameters] Failed to generate parameters: {ex.Message}", ex);
+        }
+    }
+
+    private static BlockSyntax GenerateMainMethodBody()
+    {
+        try
+        {
+            return Block(
+                GenerateUnpackagedIfStatement(),
+                GenerateRoInitializeStatement(),
+                GenerateSetMainThreadIdStatement(),
+                GenerateAppCreationStatement(),
+                GenerateLaunchTaskStatement(),
+                GenerateMsgDeclaration(),
+                GenerateMessageLoop()
+            );
+        }
+        catch (System.Exception ex)
+        {
+            throw new System.Exception($"[GenerateMainMethodBody] Failed to generate method body: {ex.Message}", ex);
+        }
+    }
+
+    private static StatementSyntax GenerateUnpackagedIfStatement()
+    {
+        try
+        {
+            // Create the statement with preprocessor directives as trivia
+            var statement = ExpressionStatement(
+                InvocationExpression(
+                    MemberAccessExpression(
+                        SyntaxKind.SimpleMemberAccessExpression,
+                        IdentifierName("Environment"),
+                        IdentifierName("SetEnvironmentVariable")))
+                .WithArgumentList(
+                    ArgumentList(
+                        SeparatedList(new[]
+                        {
+                            Argument(LiteralExpression(SyntaxKind.StringLiteralExpression,
+                                Literal("MICROSOFT_WINDOWSAPPRUNTIME_BASE_DIRECTORY"))),
+                            Argument(MemberAccessExpression(
+                                SyntaxKind.SimpleMemberAccessExpression,
+                                IdentifierName("AppContext"),
+                                IdentifierName("BaseDirectory")))
+                        }))));
+
+            // Add #if UNPACKAGED as leading trivia
+            statement = statement.WithLeadingTrivia(
+                Trivia(IfDirectiveTrivia(IdentifierName("UNPACKAGED"), true, false, false)),
+                CarriageReturnLineFeed);
+
+            // Add #endif as trailing trivia
+            statement = statement.WithTrailingTrivia(
+                CarriageReturnLineFeed,
+                Trivia(EndIfDirectiveTrivia(true)));
+
+            return statement;
+        }
+        catch (System.Exception ex)
+        {
+            throw new System.Exception($"[GenerateUnpackagedIfStatement] Failed to generate UNPACKAGED conditional: {ex.Message}", ex);
+        }
+    }
+
+    private static StatementSyntax GenerateRoInitializeStatement()
+    {
+        try
+        {
+            return ExpressionStatement(
+                InvocationExpression(
+                    MemberAccessExpression(
+                        SyntaxKind.SimpleMemberAccessExpression,
+                        MemberAccessExpression(
+                            SyntaxKind.SimpleMemberAccessExpression,
+                            MemberAccessExpression(
+                                SyntaxKind.SimpleMemberAccessExpression,
+                                MemberAccessExpression(
+                                    SyntaxKind.SimpleMemberAccessExpression,
+                                    IdentifierName("TerraFX"),
+                                    IdentifierName("Interop")),
+                                IdentifierName("WinRT")),
+                            IdentifierName("WinRT")),
+                        IdentifierName("RoInitialize")))
+                .WithArgumentList(
+                    ArgumentList(
+                        SingletonSeparatedList(
+                            Argument(
+                                // FIX: Just use RO_INIT_SINGLETHREADED directly
+                                MemberAccessExpression(
+                                    SyntaxKind.SimpleMemberAccessExpression,
+                                    MemberAccessExpression(
+                                        SyntaxKind.SimpleMemberAccessExpression,
+                                        MemberAccessExpression(
+                                            SyntaxKind.SimpleMemberAccessExpression,
+                                            MemberAccessExpression(
+                                                SyntaxKind.SimpleMemberAccessExpression,
+                                                IdentifierName("TerraFX"),
+                                                IdentifierName("Interop")),
+                                            IdentifierName("WinRT")),
+                                        IdentifierName("RO_INIT_TYPE")),
+                                    IdentifierName("RO_INIT_SINGLETHREADED")))))));
+        }
+        catch (System.Exception ex)
+        {
+            throw new System.Exception($"[GenerateRoInitializeStatement] Failed to generate RoInitialize call: {ex.Message}", ex);
+        }
+    }
+
+    private static StatementSyntax GenerateSetMainThreadIdStatement()
+    {
+        try
+        {
+            return ExpressionStatement(
+                InvocationExpression(
+                    MemberAccessExpression(
+                        SyntaxKind.SimpleMemberAccessExpression,
+                        MemberAccessExpression(
+                            SyntaxKind.SimpleMemberAccessExpression,
+                            MemberAccessExpression(
+                                SyntaxKind.SimpleMemberAccessExpression,
+                                MemberAccessExpression(
+                                    SyntaxKind.SimpleMemberAccessExpression,
+                                    IdentifierName("Rebound"),
+                                    IdentifierName("Core")),
+                                IdentifierName("UI")),
+                            IdentifierName("UIThreadQueue")),
+                        IdentifierName("SetMainThreadId")))
+                .WithArgumentList(
+                    ArgumentList(
+                        SingletonSeparatedList(
+                            Argument(
+                                InvocationExpression(
+                                    MemberAccessExpression(
+                                        SyntaxKind.SimpleMemberAccessExpression,
+                                        MemberAccessExpression(
+                                            SyntaxKind.SimpleMemberAccessExpression,
+                                            MemberAccessExpression(
+                                                SyntaxKind.SimpleMemberAccessExpression,
+                                                MemberAccessExpression(
+                                                    SyntaxKind.SimpleMemberAccessExpression,
+                                                    IdentifierName("TerraFX"),
+                                                    IdentifierName("Interop")),
+                                                IdentifierName("Windows")),
+                                            IdentifierName("Windows")),
+                                        IdentifierName("GetCurrentThreadId"))))))));
+        }
+        catch (System.Exception ex)
+        {
+            throw new System.Exception($"[GenerateSetMainThreadIdStatement] Failed to generate SetMainThreadId call: {ex.Message}", ex);
+        }
+    }
+
+    private static StatementSyntax GenerateAppCreationStatement()
+    {
+        try
+        {
+            return LocalDeclarationStatement(
+                VariableDeclaration(
+                    IdentifierName("var"))
+                .WithVariables(
+                    SingletonSeparatedList(
+                        VariableDeclarator("app")
+                        .WithInitializer(
+                            EqualsValueClause(
+                                ObjectCreationExpression(IdentifierName("App"))
+                                .WithArgumentList(ArgumentList()))))));
+        }
+        catch (System.Exception ex)
+        {
+            throw new System.Exception($"[GenerateAppCreationStatement] Failed to generate app creation: {ex.Message}", ex);
+        }
+    }
+
+    private static StatementSyntax GenerateLaunchTaskStatement()
+    {
+        try
+        {
+            return ExpressionStatement(
+                InvocationExpression(
+                    MemberAccessExpression(
+                        SyntaxKind.SimpleMemberAccessExpression,
+                        IdentifierName("Task"),
+                        IdentifierName("Run")))
+                .WithArgumentList(
+                    ArgumentList(
+                        SingletonSeparatedList(
+                            Argument(
+                                ParenthesizedLambdaExpression()
+                                .WithExpressionBody(
+                                    InvocationExpression(
+                                        MemberAccessExpression(
+                                            SyntaxKind.SimpleMemberAccessExpression,
+                                            MemberAccessExpression(
+                                                SyntaxKind.SimpleMemberAccessExpression,
+                                                IdentifierName("app"),
+                                                IdentifierName("_singleInstanceAppService")),
+                                            IdentifierName("Launch")))
+                                    .WithArgumentList(
+                                        ArgumentList(
+                                            SingletonSeparatedList(
+                                                Argument(
+                                                    InvocationExpression(
+                                                        MemberAccessExpression(
+                                                            SyntaxKind.SimpleMemberAccessExpression,
+                                                            IdentifierName("string"),
+                                                            IdentifierName("Join")))
+                                                    .WithArgumentList(
+                                                        ArgumentList(
+                                                            SeparatedList(new[]
+                                                            {
+                                                            Argument(LiteralExpression(
+                                                                SyntaxKind.StringLiteralExpression,
+                                                                Literal(" "))),
+                                                            Argument(IdentifierName("args"))
+                                                            })))))))))))));
+        }
+        catch (System.Exception ex)
+        {
+            throw new System.Exception($"[GenerateLaunchTaskStatement] Failed to generate Task.Run launch: {ex.Message}", ex);
+        }
+    }
+
+    private static StatementSyntax GenerateMsgDeclaration()
+    {
+        try
+        {
+            return LocalDeclarationStatement(
+                VariableDeclaration(IdentifierName("MSG"))
+                .WithVariables(SingletonSeparatedList(VariableDeclarator("msg"))));
+        }
+        catch (System.Exception ex)
+        {
+            throw new System.Exception($"[GenerateMsgDeclaration] Failed to generate MSG declaration: {ex.Message}", ex);
+        }
+    }
+
+    private static StatementSyntax GenerateMessageLoop()
+    {
+        try
+        {
+            ExpressionSyntax condition;
+            StatementSyntax windowLoop;
+            StatementSyntax actionsDecl;
+            StatementSyntax dequeueLoop;
+            StatementSyntax executionLoop;
+
+            try { condition = GenerateWhileCondition(); }
+            catch (System.Exception ex) { throw new System.Exception($"Failed at GenerateWhileCondition: {ex.Message}", ex); }
+
+            try { windowLoop = GenerateWindowProcessingLoop(); }
+            catch (System.Exception ex) { throw new System.Exception($"Failed at GenerateWindowProcessingLoop: {ex.Message}", ex); }
+
+            try { actionsDecl = GenerateActionsDeclaration(); }
+            catch (System.Exception ex) { throw new System.Exception($"Failed at GenerateActionsDeclaration: {ex.Message}", ex); }
+
+            try { dequeueLoop = GenerateActionsDequeueLoop(); }
+            catch (System.Exception ex) { throw new System.Exception($"Failed at GenerateActionsDequeueLoop: {ex.Message}", ex); }
+
+            try { executionLoop = GenerateActionsExecutionLoop(); }
+            catch (System.Exception ex) { throw new System.Exception($"Failed at GenerateActionsExecutionLoop: {ex.Message}", ex); }
+
+            try
+            {
+                return WhileStatement(
+                    condition,
+                    Block(windowLoop, actionsDecl, dequeueLoop, executionLoop));
+            }
+            catch (System.Exception ex) { throw new System.Exception($"Failed at WhileStatement construction: {ex.Message}", ex); }
+        }
+        catch (System.Exception ex)
+        {
+            throw new System.Exception($"[GenerateMessageLoop] Failed to generate message loop: {ex.Message}", ex);
+        }
+    }
+
+    private static ExpressionSyntax GenerateWhileCondition()
+    {
+        try
+        {
+            return BinaryExpression(
+                SyntaxKind.GreaterThanExpression,
+                InvocationExpression(
+                    MemberAccessExpression(
+                        SyntaxKind.SimpleMemberAccessExpression,
+                        MemberAccessExpression(
+                            SyntaxKind.SimpleMemberAccessExpression,
+                            MemberAccessExpression(
+                                SyntaxKind.SimpleMemberAccessExpression,
+                                MemberAccessExpression(
+                                    SyntaxKind.SimpleMemberAccessExpression,
+                                    IdentifierName("TerraFX"),
+                                    IdentifierName("Interop")),
+                                IdentifierName("Windows")),
+                            IdentifierName("Windows")),
+                        IdentifierName("GetMessageW")))
+                .WithArgumentList(
+                    ArgumentList(
+                        SeparatedList(new[]
+                        {
+                        Argument(
+                            PrefixUnaryExpression(
+                                SyntaxKind.AddressOfExpression,
+                                IdentifierName("msg"))),
+                        Argument(LiteralExpression(SyntaxKind.DefaultLiteralExpression)),
+                        Argument(LiteralExpression(SyntaxKind.NumericLiteralExpression, Literal(0))),
+                        Argument(LiteralExpression(SyntaxKind.NumericLiteralExpression, Literal(0)))
+                        }))),
+                LiteralExpression(SyntaxKind.NumericLiteralExpression, Literal(0)));
+        }
+        catch (System.Exception ex)
+        {
+            throw new System.Exception($"[GenerateWhileCondition] Failed to generate while condition: {ex.Message}", ex);
+        }
+    }
+
+    private static StatementSyntax GenerateWindowProcessingLoop()
+    {
+        try
+        {
+            return ForEachStatement(
+                IdentifierName("var"),
+                Identifier("window"),
+                InvocationExpression(
+                    MemberAccessExpression(
+                        SyntaxKind.SimpleMemberAccessExpression,
+                        MemberAccessExpression(
+                            SyntaxKind.SimpleMemberAccessExpression,
+                            IdentifierName("WindowList"),
+                            IdentifierName("OpenWindows")),
+                        IdentifierName("ToArray"))),
+                Block(
+                    IfStatement(
+                        PrefixUnaryExpression(
+                            SyntaxKind.LogicalNotExpression,
+                            MemberAccessExpression(
+                                SyntaxKind.SimpleMemberAccessExpression,
+                                IdentifierName("window"),
+                                IdentifierName("Closed"))),
+                        Block(
+                            GeneratePreTranslateMessageCheck()))));
+        }
+        catch (System.Exception ex)
+        {
+            throw new System.Exception($"[GenerateWindowProcessingLoop] Failed to generate window processing loop: {ex.Message}", ex);
+        }
+    }
+
+    private static StatementSyntax GeneratePreTranslateMessageCheck()
+    {
+        try
+        {
+            return IfStatement(
+                PrefixUnaryExpression(
+                    SyntaxKind.LogicalNotExpression,
+                    InvocationExpression(
+                        MemberAccessExpression(
+                            SyntaxKind.SimpleMemberAccessExpression,
+                            IdentifierName("window"),
+                            IdentifierName("PreTranslateMessage")))
+                    .WithArgumentList(
+                        ArgumentList(
+                            SingletonSeparatedList(
+                                Argument(
+                                    PrefixUnaryExpression(
+                                        SyntaxKind.AddressOfExpression,
+                                        IdentifierName("msg"))))))),
+                Block(
+                    GenerateTranslateMessageCall(),
+                    GenerateDispatchMessageCall()));
+        }
+        catch (System.Exception ex)
+        {
+            throw new System.Exception($"[GeneratePreTranslateMessageCheck] Failed to generate PreTranslateMessage check: {ex.Message}", ex);
+        }
+    }
+
+    private static StatementSyntax GenerateTranslateMessageCall()
+    {
+        return ExpressionStatement(
+            InvocationExpression(
+                MemberAccessExpression(
+                    SyntaxKind.SimpleMemberAccessExpression,
+                    MemberAccessExpression(
+                        SyntaxKind.SimpleMemberAccessExpression,
+                        MemberAccessExpression(
+                            SyntaxKind.SimpleMemberAccessExpression,
+                            MemberAccessExpression(
+                                SyntaxKind.SimpleMemberAccessExpression,
+                                IdentifierName("TerraFX"),
+                                IdentifierName("Interop")),
+                            IdentifierName("Windows")),
+                        IdentifierName("Windows")),
+                    IdentifierName("TranslateMessage")))
+            .WithArgumentList(
+                ArgumentList(
+                    SingletonSeparatedList(
+                        Argument(
+                            PrefixUnaryExpression(
+                                SyntaxKind.AddressOfExpression,
+                                IdentifierName("msg")))))));
+    }
+
+    private static StatementSyntax GenerateDispatchMessageCall()
+    {
+        return ExpressionStatement(
+            InvocationExpression(
+                MemberAccessExpression(
+                    SyntaxKind.SimpleMemberAccessExpression,
+                    MemberAccessExpression(
+                        SyntaxKind.SimpleMemberAccessExpression,
+                        MemberAccessExpression(
+                            SyntaxKind.SimpleMemberAccessExpression,
+                            MemberAccessExpression(
+                                SyntaxKind.SimpleMemberAccessExpression,
+                                IdentifierName("TerraFX"),
+                                IdentifierName("Interop")),
+                            IdentifierName("Windows")),
+                        IdentifierName("Windows")),
+                    IdentifierName("DispatchMessageW")))
+            .WithArgumentList(
+                ArgumentList(
+                    SingletonSeparatedList(
+                        Argument(
+                            PrefixUnaryExpression(
+                                SyntaxKind.AddressOfExpression,
+                                IdentifierName("msg")))))));
+    }
+
+    private static StatementSyntax GenerateActionsDeclaration()
+    {
+        return LocalDeclarationStatement(
+            VariableDeclaration(IdentifierName("var"))
+            .WithVariables(
+                SingletonSeparatedList(
+                    VariableDeclarator("actionsToRun")
+                    .WithInitializer(
+                        EqualsValueClause(
+                            ObjectCreationExpression(
+                                GenericName("List")
+                                .WithTypeArgumentList(
+                                    TypeArgumentList(
+                                        SingletonSeparatedList<TypeSyntax>(
+                                            GenericName("Func")
+                                            .WithTypeArgumentList(
+                                                TypeArgumentList(
+                                                    SingletonSeparatedList<TypeSyntax>(
+                                                        IdentifierName("Task"))))))))
+                            .WithArgumentList(ArgumentList()))))));
+    }
+
+    private static StatementSyntax GenerateActionsDequeueLoop()
+    {
+        return WhileStatement(
+            InvocationExpression(
+                MemberAccessExpression(
+                    SyntaxKind.SimpleMemberAccessExpression,
+                    MemberAccessExpression(
+                        SyntaxKind.SimpleMemberAccessExpression,
+                        MemberAccessExpression(
+                            SyntaxKind.SimpleMemberAccessExpression,
+                            MemberAccessExpression(
+                                SyntaxKind.SimpleMemberAccessExpression,
+                                MemberAccessExpression(
+                                    SyntaxKind.SimpleMemberAccessExpression,
+                                    IdentifierName("Rebound"),
+                                    IdentifierName("Core")),
+                                IdentifierName("UI")),
+                            IdentifierName("UIThreadQueue")),
+                        IdentifierName("_actions")),
+                    IdentifierName("TryDequeue")))
+            .WithArgumentList(
+                ArgumentList(
+                    SingletonSeparatedList(
+                        Argument(
+                            DeclarationExpression(
+                                IdentifierName("var"),
+                                SingleVariableDesignation(Identifier("action"))))
+                        .WithRefKindKeyword(Token(SyntaxKind.OutKeyword))))),
+            ExpressionStatement(
+                InvocationExpression(
+                    MemberAccessExpression(
+                        SyntaxKind.SimpleMemberAccessExpression,
+                        IdentifierName("actionsToRun"),
+                        IdentifierName("Add")))
+                .WithArgumentList(
+                    ArgumentList(
+                        SingletonSeparatedList(
+                            Argument(IdentifierName("action")))))));
+    }
+
+    private static StatementSyntax GenerateActionsExecutionLoop()
+    {
+        try
+        {
+            // FIX: Just call action() without the suppression operator
+            var tryBlock = Block(
+                ExpressionStatement(
+                    AssignmentExpression(
+                        SyntaxKind.SimpleAssignmentExpression,
+                        IdentifierName("_"),
+                        InvocationExpression(IdentifierName("action")))));
+
+            var logCall = InvocationExpression(
+                MemberAccessExpression(
+                    SyntaxKind.SimpleMemberAccessExpression,
+                    MemberAccessExpression(
+                        SyntaxKind.SimpleMemberAccessExpression,
+                        MemberAccessExpression(
+                            SyntaxKind.SimpleMemberAccessExpression,
+                            IdentifierName("Rebound"),
+                            IdentifierName("Core")),
+                        IdentifierName("ReboundLogger")),
+                    IdentifierName("Log")))
+            .WithArgumentList(
+                ArgumentList(
+                    SeparatedList(new[]
+                    {
+                        Argument(LiteralExpression(
+                            SyntaxKind.StringLiteralExpression,
+                            Literal("[UIThreadQueue] UI thread crash."))),
+                        Argument(IdentifierName("ex"))
+                    })));
+
+            var catchBlock = Block(ExpressionStatement(logCall));
+
+            var catchClause = CatchClause()
+                .WithDeclaration(
+                    CatchDeclaration(IdentifierName("Exception"))
+                    .WithIdentifier(Identifier("ex")))
+                .WithBlock(catchBlock);
+
+            var tryStatement = TryStatement()
+                .WithBlock(tryBlock)
+                .WithCatches(SingletonList(catchClause));
+
+            var forEachBody = Block(tryStatement);
+
+            return ForEachStatement(
+                IdentifierName("var"),
+                Identifier("action"),
+                IdentifierName("actionsToRun"),
+                forEachBody);
+        }
+        catch (System.Exception ex)
+        {
+            throw new System.Exception($"[GenerateActionsExecutionLoop] {ex.Message}", ex);
+        }
     }
 }

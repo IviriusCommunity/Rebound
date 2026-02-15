@@ -83,6 +83,7 @@ internal partial class MainViewModel : ObservableObject
     [ObservableProperty] public partial bool ShowBlurAndGlow { get; set; }
     [ObservableProperty] public partial bool ShowTabs { get; set; }
     [ObservableProperty] public partial bool ShowActivationInfo { get; set; }
+    [ObservableProperty] public partial bool ShowExpandedView { get; set; }
 
     private readonly SettingsListener _listener;
 

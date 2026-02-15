@@ -4,7 +4,6 @@
 using Rebound.Core;
 using Rebound.Core.IPC;
 using Rebound.Core.UI;
-using Rebound.Forge;
 using Rebound.Forge.Engines;
 using Rebound.Generators;
 using System;
@@ -20,7 +19,7 @@ using Windows.UI.Xaml.Controls;
 
 namespace Rebound.About;
 
-[ReboundApp("Rebound.About", "Legacy winver*legacy*ms-appx:///Assets/Exe.ico")]
+[ReboundApp("Rebound.About")]
 public partial class App : Application
 {
     public static PipeClient? ReboundPipeClient { get; private set; }
@@ -42,9 +41,6 @@ public partial class App : Application
 
                 // Initialize pipe client if not already
                 ReboundPipeClient ??= new();
-
-                // Start listening (optional, for future messages)
-                ReboundPipeClient.MessageReceived += OnPipeMessageReceived;
 
                 // Service host watchdog thread
                 var serviceHostWatchdogThread = new Thread(async () =>
@@ -124,11 +120,6 @@ public partial class App : Application
         }
     }
 
-    private static void OnPipeMessageReceived(string message)
-    {
-
-    }
-
     public static unsafe void CreateMainWindow()
     {
         // Create the window
@@ -151,14 +142,12 @@ public partial class App : Application
             // Window metrics
             MainWindow.MinWidth = 440;
             MainWindow.MinHeight = 360;
-            MainWindow.MaxWidth = 920;
-            MainWindow.MaxHeight = 1000;
 
             // Window properties
-            MainWindow.IsMaximizable = false;
-            MainWindow.IsMinimizable = false;
             MainWindow.AppWindow?.TitleBar.ExtendsContentIntoTitleBar = true;
             MainWindow.AppWindow?.TitleBar.ButtonBackgroundColor = Colors.Transparent;
+            MainWindow.AppWindow?.TitleBar.ButtonHoverBackgroundColor = Color.FromArgb(40, 120, 120, 120);
+            MainWindow.AppWindow?.TitleBar.ButtonPressedBackgroundColor = Color.FromArgb(24, 120, 120, 120);
             MainWindow.AppWindow?.TitleBar.ButtonInactiveBackgroundColor = Colors.Transparent;
             MainWindow.AppWindow?.SetTaskbarIcon($"{AppContext.BaseDirectory}\\Assets\\AboutWindows.ico");
         };

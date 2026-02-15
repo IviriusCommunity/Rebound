@@ -7,14 +7,34 @@ using Microsoft.UI.Xaml.Controls;
 using Rebound.About.ViewModels;
 using Rebound.Core;
 using Rebound.Core.SystemInformation.Software;
+using Rebound.Core.UI;
 using System;
 using System.Threading.Tasks;
+using TerraFX.Interop.Windows;
 using Windows.ApplicationModel.DataTransfer;
 using Windows.System;
 using Windows.UI.Xaml.Controls;
+using Windows.UI.Xaml.Data;
 using Windows.UI.Xaml.Media.Imaging;
 
 namespace Rebound.About.Views;
+
+public partial class StringToUriConverter : IValueConverter
+{
+    public object Convert(object value, Type targetType, object parameter, string language)
+    {
+        if (value is string path && !string.IsNullOrEmpty(path))
+        {
+            return new Uri(path);
+        }
+        return null;
+    }
+
+    public object ConvertBack(object value, Type targetType, object parameter, string language)
+    {
+        throw new NotImplementedException();
+    }
+}
 
 [INotifyPropertyChanged]
 public sealed partial class MainPage : Page
@@ -39,6 +59,9 @@ public sealed partial class MainPage : Page
     [ObservableProperty]
     public partial BitmapImage UserPicture { get; set; }
 
+    [ObservableProperty]
+    private partial string WallpaperPath { get; set; }
+
     private static async Task<BitmapImage?> GetUserPictureAsync()
     {
         var picturePath = UserInformation.GetUserPicturePath();
@@ -52,6 +75,10 @@ public sealed partial class MainPage : Page
     {
         InitializeComponent();
         Load();
+        UIThreadQueue.QueueAction(() =>
+        {
+            WallpaperPath = UserInformation.GetWallpaperPath() ?? string.Empty;
+        });
     }
 
     [RelayCommand]
@@ -85,5 +112,27 @@ public sealed partial class MainPage : Page
         var package = new DataPackage();
         package.SetText(content);
         Clipboard.SetContent(package);
+    }
+
+    private void Page_SizeChanged(object sender, Windows.UI.Xaml.SizeChangedEventArgs e)
+    {
+        UpdateSize(e.NewSize);
+    }
+
+    public void UpdateSize(Windows.Foundation.Size size)
+    {
+        if (size.Width < 600 || size.Height < 800)
+        {
+            ViewModel.ShowExpandedView = false;
+        }
+        else
+        {
+            ViewModel.ShowExpandedView = true;
+        }
+    }
+
+    private void Page_Loaded(object sender, Windows.UI.Xaml.RoutedEventArgs e)
+    {
+        UpdateSize(new(ActualWidth, ActualHeight));
     }
 }
