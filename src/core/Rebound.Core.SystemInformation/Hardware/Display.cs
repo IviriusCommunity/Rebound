@@ -1,41 +1,86 @@
 // Copyright (C) Ivirius(TM) Community 2020 - 2026. All Rights Reserved.
 // Licensed under the MIT License.
 
+using System.Runtime.InteropServices;
 using TerraFX.Interop.Windows;
 
-namespace Rebound.Core.Helpers;
+namespace Rebound.Core.SystemInformation.Hardware;
 
 public static class Display
 {
+    private const uint ENUM_CURRENT_SETTINGS = unchecked((uint)-1);
+
     /// <summary>
-    /// Retrieves the available working area of the monitor that contains the specified window.
+    /// Retrieves the current display resolution by querying the system's display settings.
     /// </summary>
-    /// <remarks>This method determines the monitor nearest to the specified window and returns its working
-    /// area. The working area excludes system-reserved regions such as taskbars and docked toolbars. This is useful for
-    /// positioning or sizing windows to avoid overlapping with system UI elements.</remarks>
-    /// <param name="hwnd">A handle to the window for which to determine the available monitor working area.</param>
-    /// <returns>A RECT structure representing the portion of the monitor's area available to normal application windows,
-    /// excluding areas occupied by taskbars and docked windows.</returns>
-    /// <exception cref="InvalidOperationException">Thrown if monitor information cannot be retrieved for the specified window.</exception>
-    [Obsolete("Use GetDisplayWorkArea instead.")]
-    public unsafe static RECT GetAvailableRectForWindow(HWND hwnd)
+    /// <returns>
+    /// A <see cref="SIZE"/> structure containing the width (<see cref="SIZE.cx"/>) and height (<see cref="SIZE.cy"/>) of the current display resolution in pixels.
+    /// If the display settings cannot be retrieved, a <see cref="SIZE"/> with both dimensions set to 0 is returned.
+    /// </returns>
+    public static unsafe SIZE GetDisplayResolution()
     {
-        // Find which monitor the window is on
-        var hMonitor = TerraFX.Interop.Windows.Windows.MonitorFromWindow(hwnd, MONITOR.MONITOR_DEFAULTTONEAREST);
+        var dm = new DEVMODEW { dmSize = (ushort)sizeof(DEVMODEW) };
+        if (TerraFX.Interop.Windows.Windows.EnumDisplaySettingsExW(null, ENUM_CURRENT_SETTINGS, &dm, 0x00000002))
+            return new((int)dm.dmPelsWidth, (int)dm.dmPelsHeight);
+        return new(0, 0);
+    }
 
-        // Get info about that monitor
-        MONITORINFO mi = new()
-        {
-            cbSize = (uint)sizeof(MONITORINFO)
-        };
+    /// <summary>
+    /// Retrieves the current display resolution as a formatted string by querying the system's display settings.
+    /// </summary>
+    /// <returns>
+    /// A string in the format "WIDTHxHEIGHT" representing the current display resolution (e.g., "1920x1080"). 
+    /// If the display settings cannot be retrieved, "Unknown" is returned.
+    /// </returns>
+    public static string GetDisplayResolutionString()
+    {
+        var resolution = GetDisplayResolution();
+        if (resolution.cx == 0 || resolution.cy == 0)
+            return "Unknown";
+        return $"{resolution.cx}x{resolution.cy}";
+    }
 
-        if (TerraFX.Interop.Windows.Windows.GetMonitorInfo(hMonitor, &mi))
-        {
-            // rcWork is the area available to normal app windows
-            return mi.rcWork;
-        }
+    /// <summary>
+    /// Retrieves the current display refresh rate by querying the system's display settings.
+    /// </summary>
+    /// <returns>
+    /// A uint representing the current display refresh rate in hertz (Hz). If the display settings cannot be retrieved, 0 is returned.
+    /// </returns>
+    public static unsafe uint GetDisplayRefreshRate()
+    {
+        var dm = new DEVMODEW { dmSize = (ushort)sizeof(DEVMODEW) };
+        if (TerraFX.Interop.Windows.Windows.EnumDisplaySettingsExW(null, ENUM_CURRENT_SETTINGS, &dm, 0x00000002))
+            return dm.dmDisplayFrequency;
+        return 0;
+    }
 
-        throw new InvalidOperationException("Failed to get monitor info.");
+    /// <summary>
+    /// Retrieves the current display color depth (bits per pixel) by querying the system's display settings.
+    /// </summary>
+    /// <returns>
+    /// A uint representing the current display color depth in bits per pixel (e.g., 24, 32). 
+    /// If the display settings cannot be retrieved, 0 is returned.
+    /// </returns>
+    public static unsafe uint GetDisplayBitsPerPixel()
+    {
+        var dm = new DEVMODEW { dmSize = (ushort)sizeof(DEVMODEW) };
+        if (TerraFX.Interop.Windows.Windows.EnumDisplaySettingsW(null, ENUM_CURRENT_SETTINGS, &dm))
+            return dm.dmBitsPerPel;
+        return 0;
+    }
+
+    /// <summary>
+    /// Retrieves the current display refresh rate as a formatted string by querying the system's display settings.
+    /// </summary>
+    /// <returns>
+    /// A string representing the current display refresh rate in hertz (Hz) formatted as "{REFRESH_RATE} Hz" (e.g., "60 Hz").
+    /// </returns>
+    public static string GetDisplayRefreshRateString()
+    {
+        var refreshRate = GetDisplayRefreshRate();
+        if (refreshRate == 0)
+            return "Unknown";
+        return $"{refreshRate} Hz";
     }
 
     /// <summary>
@@ -94,23 +139,14 @@ public static class Display
         return dpiX / 96.0;
     }
 
-    [Obsolete("Use GetDisplayArea instead.")]
-    public static SIZE GetDisplayRect(HWND hWnd)
+    /// <summary>
+    /// Retrieves the current display scaling percentage as a formatted string by calculating the DPI scaling factor for the primary display.
+    /// </summary>
+    /// <returns>
+    /// A string representing the current display scaling percentage (e.g., "100%", "125%", "150%") based on the DPI scaling factor of the primary display.
+    /// </returns>
+    public static string GetScaleString()
     {
-        // Get the device context for the window
-        var hdc = TerraFX.Interop.Windows.Windows.GetDC(hWnd);
-
-        // Get the width and height of the display
-        var width = TerraFX.Interop.Windows.Windows.GetDeviceCaps(hdc, 8); // HORZRES
-        var height = TerraFX.Interop.Windows.Windows.GetDeviceCaps(hdc, 10); // VERTRES
-
-        // Release the device context
-        _ = TerraFX.Interop.Windows.Windows.ReleaseDC(hWnd, hdc);
-
-        return new()
-        {
-            cx = width,
-            cy = height
-        };
+        return GetScale(HWND.NULL) * 100 + "%";
     }
 }

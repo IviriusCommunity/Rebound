@@ -2,6 +2,10 @@
 // Licensed under the MIT License.
 
 using Microsoft.Win32;
+using System.Globalization;
+using System.Net;
+using System.Net.Sockets;
+using System.Runtime.InteropServices;
 using TerraFX.Interop.Windows;
 using static TerraFX.Interop.Windows.Windows;
 using HRESULT = TerraFX.Interop.Windows.HRESULT;
@@ -126,10 +130,90 @@ public static class WindowsInformation
     }
 
     /// <summary>
+    /// Retrieves the system uptime by using Environment.TickCount64, which returns the number of 
+    /// milliseconds that have elapsed since the system started.
+    /// </summary>
+    /// <returns>
+    /// A TimeSpan object representing the duration of time that has passed since the system was last
+    /// started. This value is derived from Environment.TickCount64,
+    /// </returns>
+    public static TimeSpan GetUptime()
+        => TimeSpan.FromMilliseconds(Environment.TickCount64);
+
+    /// <summary>
+    /// Retrieves the system uptime as a formatted string by calling <see cref="GetUptime"/> and 
+    /// formatting the resulting TimeSpan into a human-readable format of days, hours, and minutes.
+    /// </summary>
+    /// <returns>
+    /// A string representing the system uptime in the format of "Xd Yh Zm", where X is the number of 
+    /// days, Y is the number of hours, and Z is the number of minutes.
+    /// </returns>
+    public static string GetUptimeString()
+    {
+        var uptime = GetUptime();
+        return $"{(int)uptime.TotalDays}d {uptime.Hours}h {uptime.Minutes}m";
+    }
+
+    /// <summary>
+    /// Retrieves the current system locale by accessing CultureInfo.CurrentCulture.DisplayName, 
+    /// which provides a human-readable name for the current culture settings of the system.
+    /// </summary>
+    /// <returns>
+    /// A string representing the current system locale in a human-readable format (e.g., "English (United States)",
+    /// "French (France)", etc.). This value reflects the culture settings of the operating system 
+    /// and may influence how dates, times, numbers, and other culture-specific information are formatted and displayed.
+    /// </returns>
+    public static string GetLocale()
+        => CultureInfo.CurrentCulture.DisplayName;
+
+    /// <summary>
+    /// Retrieves the local IP address of the machine by creating a UDP socket and connecting to a dummy IP address.
+    /// </summary>
+    /// <returns>
+    /// A string representing the local IP address of the machine.
+    /// </returns>
+    public static string GetLocalIP()
+    {
+        try
+        {
+            using var socket = new Socket(AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Udp);
+            socket.Connect("8.8.8.8", 65530);
+            return (socket.LocalEndPoint as IPEndPoint)?.Address.ToString() ?? "Unknown";
+        }
+        catch { return "Unknown"; }
+    }
+
+    /// <summary>
+    /// Retrieves the CPU architecture of the current process using RuntimeInformation.ProcessArchitecture 
+    /// and maps it to a human-readable string.
+    /// </summary>
+    /// <returns>
+    /// A string representing the CPU architecture of the current process. Possible values include "x64", "x86",
+    /// "ARM64", "ARM", "WASM", "S390x", "LoongArch64", "ARMv6", "PPC64LE", or "Unknown" if the architecture cannot be determined.
+    /// </returns>
+    public static string GetCPUArchitecture()
+    {
+        return RuntimeInformation.ProcessArchitecture switch
+        {
+            Architecture.X64 => "x64",
+            Architecture.X86 => "x86",
+            Architecture.Arm64 => "ARM64",
+            Architecture.Arm => "ARM",
+            Architecture.Wasm => "WASM",
+            Architecture.S390x => "S390x",
+            Architecture.LoongArch64 => "LoongArch64",
+            Architecture.Armv6 => "ARMv6",
+            Architecture.Ppc64le => "PPC64LE",
+            _ => "Unknown"
+        };
+    }
+
+    /// <summary>
     /// Retrieves the installation date of Windows as a formatted string by calling <see cref="GetInstalledOnDate"/>.
     /// </summary>
     /// <returns>
-    /// A string representing the installation date of Windows in "yyyy-MM-dd" format. If the installation date cannot be determined, it returns "Unknown".
+    /// A string representing the installation date of Windows in "yyyy-MM-dd" format.
+    /// If the installation date cannot be determined, it returns "Unknown".
     /// </returns>
     public static string GetInstalledOnDateString()
     {

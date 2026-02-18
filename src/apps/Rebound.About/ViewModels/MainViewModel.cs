@@ -58,6 +58,8 @@ internal partial class MainViewModel : ObservableObject
 
     // App settings
 
+    public long pagefileSize { get; } = RAM.GetPageFileSize();
+
     [ObservableProperty] public partial bool IsSidebarOn { get; set; }
     [ObservableProperty] public partial bool IsReboundOn { get; set; }
     [ObservableProperty] public partial bool ShowHelloUser { get; set; }

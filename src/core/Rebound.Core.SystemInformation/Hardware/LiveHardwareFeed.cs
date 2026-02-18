@@ -45,7 +45,6 @@ public partial class LiveHardwareFeed : IDisposable
     private FILETIME _prevUserTime;
     private bool _firstCpuRead = true;
 
-    // COM Security constants (not in TerraFX)
     private const uint RPC_C_AUTHN_WINNT = 10;
     private const uint RPC_C_AUTHZ_NONE = 0;
     private const uint RPC_C_AUTHN_LEVEL_CALL = 3;

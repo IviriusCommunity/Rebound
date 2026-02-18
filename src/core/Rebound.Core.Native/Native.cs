@@ -36,7 +36,7 @@ public static unsafe partial class Shell32RE
     }
 }
 
-public static class Native
+public static class NativeMethods
 {
     public static bool ArgsMatchKnownEntries(this string appName, IEnumerable<string> matches, string args)
     {

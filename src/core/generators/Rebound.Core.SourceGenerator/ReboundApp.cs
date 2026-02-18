@@ -59,8 +59,7 @@ public class ReboundAppSourceGenerator : IIncrementalGenerator
                         UsingDirective(IdentifierName("System.Collections.Generic")),
                         UsingDirective(IdentifierName("TerraFX.Interop.Windows")),
                         UsingDirective(IdentifierName("Rebound.Core.UI")),
-                        UsingDirective(IdentifierName("Rebound.Core.IPC")),
-                        UsingDirective(IdentifierName("Rebound.Core.Helpers"))
+                        UsingDirective(IdentifierName("Rebound.Core.IPC"))
                     )
                     .AddMembers(namespaceDecl)
                     .NormalizeWhitespace();

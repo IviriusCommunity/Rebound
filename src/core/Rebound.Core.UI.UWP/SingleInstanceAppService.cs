@@ -1,13 +1,7 @@
 ﻿// Copyright (C) Ivirius(TM) Community 2020 - 2026. All Rights Reserved.
 // Licensed under the MIT License.
 
-using System;
 using System.Diagnostics;
-using System.IO;
-using System.IO.Pipes;
-using System.Threading;
-using System.Threading.Tasks;
-using Rebound.Core.Helpers;
 using Rebound.Core.IPC;
 
 namespace Rebound.Core.UI

@@ -29,6 +29,7 @@
             <ResourceDictionary.MergedDictionaries>
                 <ResourceDictionary Source="ms-appx:///CommunityToolkit.WinUI.Controls.Segmented/Segmented/Segmented.xaml" />
             </ResourceDictionary.MergedDictionaries>
+            <converters:FileSizeToFriendlyStringConverter x:Key="FileSizeToFriendlyStringConverter" />
             <converters:BoolToVisibilityConverter
                 x:Key="BoolToInverseVisibilityConverter"
                 FalseValue="Visible"
@@ -994,70 +995,70 @@
                                             Grid.Column="1"
                                             Foreground="{ThemeResource TextFillColorDisabledBrush}"
                                             IsTextSelectionEnabled="True"
-                                            Text="x64"
+                                            Text="{x:Bind sysinfoSoftware:WindowsInformation.GetCPUArchitecture()}"
                                             TextWrapping="WrapWholeWords" />
                                         <TextBlock
                                             Grid.Row="5"
                                             Grid.Column="1"
                                             Foreground="{ThemeResource TextFillColorDisabledBrush}"
                                             IsTextSelectionEnabled="True"
-                                            Text="4 GB"
+                                            Text="{x:Bind ViewModel.pagefileSize, Converter={StaticResource FileSizeToFriendlyStringConverter}}"
                                             TextWrapping="WrapWholeWords" />
                                         <TextBlock
                                             Grid.Row="6"
                                             Grid.Column="1"
                                             Foreground="{ThemeResource TextFillColorDisabledBrush}"
                                             IsTextSelectionEnabled="True"
-                                            Text="LENOVO"
+                                            Text="{x:Bind sysinfoHardware:Device.GetDeviceManufacturer()}"
                                             TextWrapping="WrapWholeWords" />
                                         <TextBlock
                                             Grid.Row="7"
                                             Grid.Column="1"
                                             Foreground="{ThemeResource TextFillColorDisabledBrush}"
                                             IsTextSelectionEnabled="True"
-                                            Text="IdeaPad Slim 5 16IRH10R"
+                                            Text="{x:Bind sysinfoHardware:Device.GetDeviceModel()}"
                                             TextWrapping="WrapWholeWords" />
                                         <TextBlock
                                             Grid.Row="8"
                                             Grid.Column="1"
                                             Foreground="{ThemeResource TextFillColorDisabledBrush}"
                                             IsTextSelectionEnabled="True"
-                                            Text="5h 30m 11s"
+                                            Text="{x:Bind sysinfoSoftware:WindowsInformation.GetUptimeString()}"
                                             TextWrapping="WrapWholeWords" />
                                         <TextBlock
                                             Grid.Row="9"
                                             Grid.Column="1"
                                             Foreground="{ThemeResource TextFillColorDisabledBrush}"
                                             IsTextSelectionEnabled="True"
-                                            Text="en-US"
+                                            Text="{x:Bind sysinfoSoftware:WindowsInformation.GetLocale()}"
                                             TextWrapping="WrapWholeWords" />
                                         <TextBlock
                                             Grid.Row="10"
                                             Grid.Column="1"
                                             Foreground="{ThemeResource TextFillColorDisabledBrush}"
                                             IsTextSelectionEnabled="True"
-                                            Text="192.168.1.67:24"
+                                            Text="{x:Bind sysinfoSoftware:WindowsInformation.GetLocalIP()}"
                                             TextWrapping="WrapWholeWords" />
                                         <TextBlock
                                             Grid.Row="11"
                                             Grid.Column="1"
                                             Foreground="{ThemeResource TextFillColorDisabledBrush}"
                                             IsTextSelectionEnabled="True"
-                                            Text="1920x1080"
+                                            Text="{x:Bind sysinfoHardware:Display.GetDisplayResolutionString()}"
                                             TextWrapping="WrapWholeWords" />
                                         <TextBlock
                                             Grid.Row="12"
                                             Grid.Column="1"
                                             Foreground="{ThemeResource TextFillColorDisabledBrush}"
                                             IsTextSelectionEnabled="True"
-                                            Text="120Hz"
+                                            Text="{x:Bind sysinfoHardware:Display.GetDisplayRefreshRateString()}"
                                             TextWrapping="WrapWholeWords" />
                                         <TextBlock
                                             Grid.Row="13"
                                             Grid.Column="1"
                                             Foreground="{ThemeResource TextFillColorDisabledBrush}"
                                             IsTextSelectionEnabled="True"
-                                            Text="150%"
+                                            Text="{x:Bind sysinfoHardware:Display.GetScaleString()}"
                                             TextWrapping="WrapWholeWords" />
 
                                     </Grid>
