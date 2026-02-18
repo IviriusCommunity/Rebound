@@ -7,6 +7,7 @@ using Rebound.Core.SystemInformation.Hardware;
 using Rebound.Core.SystemInformation.Software;
 using Rebound.Core.UI;
 using System;
+using System.Diagnostics;
 
 namespace Rebound.About.ViewModels;
 
@@ -14,29 +15,11 @@ internal partial class MainViewModel : ObservableObject
 {
     // Version information
 
-    public static string WindowsVersionName
-    {
-        get => 
-            WindowsInformation.GetOSName().Contains("10", StringComparison.InvariantCultureIgnoreCase) ? 
-            "Windows 10" :
-            WindowsInformation.GetOSName().Contains("Server", StringComparison.InvariantCultureIgnoreCase) ? 
-            "Windows Server" : 
-            "Windows 11";
-    }
-
     public static string DetailedWindowsVersion
     {
         get
         {
             return $"{WindowsInformation.GetDisplayVersion()} ({WindowsInformation.GetCurrentBuildNumber()}.{WindowsInformation.GetUBR()})";
-        }
-    }
-
-    public static DateTime InstalledOn
-    {
-        get
-        {
-            return WindowsInformation.GetInstalledOnDate();
         }
     }
 
@@ -71,8 +54,6 @@ internal partial class MainViewModel : ObservableObject
         }
     }
 
-    public static string WindowsVersionTitle => WindowsInformation.GetOSName();
-    public static string LicenseOwners => WindowsInformation.GetLicenseOwners();
     public static string LegalInfo => string.Format(null, Windows.ApplicationModel.Resources.ResourceLoader.GetForCurrentView().GetString("LegalInfo"), WindowsInformation.GetOSName());
 
     // App settings
@@ -84,16 +65,34 @@ internal partial class MainViewModel : ObservableObject
     [ObservableProperty] public partial bool ShowTabs { get; set; }
     [ObservableProperty] public partial bool ShowActivationInfo { get; set; }
     [ObservableProperty] public partial bool ShowExpandedView { get; set; }
+    [ObservableProperty] public partial int CPUUsage { get; set; }
+    [ObservableProperty] public partial int MemoryUsage { get; set; }
+    [ObservableProperty] public partial int GPUUsage { get; set; }
 
     private readonly SettingsListener _listener;
+
+    private readonly LiveHardwareFeed _liveHardwareFeed;
 
     public MainViewModel()
     {
         UpdateSettings();
         _listener = new SettingsListener();
         _listener.SettingChanged += Listener_SettingChanged;
+        _liveHardwareFeed = new LiveHardwareFeed();
+        _liveHardwareFeed.OnUpdate += LiveHardwareFeed_OnUpdate;
+        _liveHardwareFeed.Start();
     }
 
+    private void LiveHardwareFeed_OnUpdate(object? sender, HardwareFeedUpdateEventArgs e)
+    {
+        UIThreadQueue.QueueAction(() =>
+        {
+            Debug.WriteLine($"Received hardware update: CPU {e.CPUUsage}%, RAM {e.RAMUsagePercent}%, GPU {e.GPUUsage}%");
+            CPUUsage = e.CPUUsage;
+            MemoryUsage = e.RAMUsagePercent;
+            GPUUsage = e.GPUUsage;
+        });
+    }
     private void Listener_SettingChanged(object? sender, SettingChangedEventArgs e) => UpdateSettings();
 
     private void UpdateSettings()

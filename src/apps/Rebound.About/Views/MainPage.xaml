@@ -106,7 +106,7 @@
                     FontFamily="Segoe UI Variable"
                     FontSize="54"
                     FontWeight="SemiBold"
-                    Text="{x:Bind viewModels:MainViewModel.WindowsVersionName}">
+                    Text="{x:Bind sysinfoSoftware:WindowsInformation.GetOSDisplayName()}">
                     <TextBlock.Foreground>
                         <LinearGradientBrush StartPoint="0, 0" EndPoint="1, 1">
                             <LinearGradientBrush.GradientStops>
@@ -151,7 +151,7 @@
                     FontFamily="Segoe UI Variable"
                     FontSize="54"
                     FontWeight="SemiBold"
-                    Text="{x:Bind viewModels:MainViewModel.WindowsVersionName}">
+                    Text="{x:Bind sysinfoSoftware:WindowsInformation.GetOSDisplayName()}">
                     <TextBlock.Foreground>
                         <LinearGradientBrush StartPoint="0, 0" EndPoint="1, 1">
                             <LinearGradientBrush.GradientStops>
@@ -231,7 +231,8 @@
                     HorizontalAlignment="Right"
                     VerticalAlignment="Center"
                     Background="Transparent"
-                    BorderBrush="Transparent">
+                    BorderBrush="Transparent"
+                    Visibility="{x:Bind ViewModel.ShowTabs, Mode=OneWay}">
                     <StackPanel Orientation="Horizontal" Spacing="8">
                         <FontIcon FontSize="16" Glyph="&#xE8A7;" />
                         <TextBlock Text="View more" />
@@ -313,7 +314,7 @@
                                                 Grid.Column="1"
                                                 Foreground="{ThemeResource TextFillColorDisabledBrush}"
                                                 IsTextSelectionEnabled="True"
-                                                Text="{x:Bind viewModels:MainViewModel.InstalledOn}"
+                                                Text="{x:Bind sysinfoSoftware:WindowsInformation.GetInstalledOnDateString()}"
                                                 TextWrapping="WrapWholeWords" />
                                             <TextBlock
                                                 Grid.Row="3"
@@ -552,7 +553,7 @@
                                             </Hyperlink>
                                             <Run x:Uid="ToLabel" />
                                         </TextBlock>
-                                        <TextBlock Text="{x:Bind viewModels:MainViewModel.LicenseOwners}" />
+                                        <TextBlock Text="{x:Bind sysinfoSoftware:WindowsInformation.GetLicenseOwners()}" />
                                     </StackPanel>
                                     <Button
                                         Grid.Column="2"
@@ -700,8 +701,9 @@
             <!--  Blur logo  -->
             <StackPanel
                 Grid.Row="0"
+                MaxWidth="1200"
                 Margin="40,52,0,24"
-                HorizontalAlignment="Left"
+                HorizontalAlignment="Stretch"
                 VerticalAlignment="Top"
                 Orientation="Horizontal"
                 Spacing="24">
@@ -719,11 +721,12 @@
                 </Grid>
                 <TextBlock
                     Margin="0,-8,0,0"
+                    HorizontalAlignment="Left"
                     VerticalAlignment="Center"
                     FontFamily="Segoe UI Variable"
                     FontSize="54"
                     FontWeight="SemiBold"
-                    Text="{x:Bind viewModels:MainViewModel.WindowsVersionName}">
+                    Text="{x:Bind sysinfoSoftware:WindowsInformation.GetOSDisplayName()}">
                     <TextBlock.Foreground>
                         <LinearGradientBrush StartPoint="0, 0" EndPoint="1, 1">
                             <LinearGradientBrush.GradientStops>
@@ -735,6 +738,9 @@
                 </TextBlock>
             </StackPanel>
 
+            <!--  Fallback background  -->
+            <Grid Background="{ThemeResource SystemControlBackgroundAltMediumLowBrush}" Visibility="{x:Bind ViewModel.ShowBlurAndGlow, Mode=OneWay, Converter={StaticResource BoolToInverseVisibilityConverter}}" />
+
             <!--  Blur  -->
             <Grid Visibility="{x:Bind ViewModel.ShowBlurAndGlow, Mode=OneWay}">
                 <Grid.Background>
@@ -744,9 +750,9 @@
 
             <!--  Logo  -->
             <StackPanel
-                Grid.Row="0"
+                MaxWidth="1200"
                 Margin="40,52,0,24"
-                HorizontalAlignment="Left"
+                HorizontalAlignment="Stretch"
                 VerticalAlignment="Top"
                 Orientation="Horizontal"
                 Spacing="24">
@@ -764,11 +770,12 @@
                 </Grid>
                 <TextBlock
                     Margin="0,-8,0,0"
+                    HorizontalAlignment="Left"
                     VerticalAlignment="Center"
                     FontFamily="Segoe UI Variable"
                     FontSize="54"
                     FontWeight="SemiBold"
-                    Text="{x:Bind viewModels:MainViewModel.WindowsVersionName}">
+                    Text="{x:Bind sysinfoSoftware:WindowsInformation.GetOSDisplayName()}">
                     <TextBlock.Foreground>
                         <LinearGradientBrush StartPoint="0, 0" EndPoint="1, 1">
                             <LinearGradientBrush.GradientStops>
@@ -817,7 +824,33 @@
             </Grid>
 
             <!--  Tabs  -->
-            <Grid Grid.Row="1">
+            <Grid
+                Grid.Row="1"
+                MaxWidth="1264"
+                Margin="-32,0,-32,0">
+                <Grid Width="32" HorizontalAlignment="Left">
+                    <Grid.Background>
+                        <LinearGradientBrush StartPoint="0, 0" EndPoint="1, 0">
+                            <GradientStop Color="#00000000" />
+                            <GradientStop Offset="1" Color="#24000000" />
+                        </LinearGradientBrush>
+                    </Grid.Background>
+                </Grid>
+                <Grid Width="32" HorizontalAlignment="Right">
+                    <Grid.Background>
+                        <LinearGradientBrush StartPoint="0, 0" EndPoint="1, 0">
+                            <GradientStop Offset="1" Color="#00000000" />
+                            <GradientStop Color="#24000000" />
+                        </LinearGradientBrush>
+                    </Grid.Background>
+                </Grid>
+            </Grid>
+            <Grid
+                Grid.Row="1"
+                MaxWidth="1200"
+                Margin="-1,0"
+                BorderBrush="{ThemeResource DividerStrokeColorDefaultBrush}"
+                BorderThickness="1,0,1,0">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*" />
                     <ColumnDefinition Width="*" />
@@ -830,10 +863,7 @@
                     </Grid.RowDefinitions>
 
                     <!--  Windows version  -->
-                    <Border
-                        Background="{ThemeResource LayerFillColorDefaultBrush}"
-                        BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
-                        BorderThickness="0,1,0,0">
+                    <Border Background="{ThemeResource LayerFillColorDefaultBrush}">
                         <Grid Padding="16">
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="Auto" />
@@ -950,7 +980,7 @@
                                             Grid.Column="1"
                                             Foreground="{ThemeResource TextFillColorDisabledBrush}"
                                             IsTextSelectionEnabled="True"
-                                            Text="{x:Bind viewModels:MainViewModel.InstalledOn}"
+                                            Text="{x:Bind sysinfoSoftware:WindowsInformation.GetInstalledOnDateString()}"
                                             TextWrapping="WrapWholeWords" />
                                         <TextBlock
                                             Grid.Row="3"
@@ -1118,7 +1148,12 @@
                                 <RowDefinition Height="*" />
                                 <RowDefinition Height="Auto" />
                             </Grid.RowDefinitions>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="Auto" />
+                            </Grid.ColumnDefinitions>
                             <StackPanel
+                                Grid.ColumnSpan="2"
                                 HorizontalAlignment="Center"
                                 VerticalAlignment="Top"
                                 Orientation="Horizontal"
@@ -1128,6 +1163,7 @@
                             </StackPanel>
                             <TextBlock
                                 Grid.Row="1"
+                                Grid.ColumnSpan="2"
                                 HorizontalAlignment="Center"
                                 VerticalAlignment="Center"
                                 FontWeight="SemiBold"
@@ -1136,9 +1172,15 @@
                                 TextWrapping="WrapWholeWords" />
                             <muxc:ProgressBar
                                 Grid.Row="2"
-                                Margin="48,0"
-                                ToolTipService.ToolTip="67%"
-                                Value="67" />
+                                Margin="48,0,0,0"
+                                ToolTipService.ToolTip="{x:Bind ViewModel.CPUUsage, Mode=OneWay}"
+                                Value="{x:Bind ViewModel.CPUUsage, Mode=OneWay}" />
+                            <TextBlock
+                                Grid.Row="2"
+                                Grid.Column="1"
+                                Margin="16,0,48,0"
+                                FontSize="12">
+                                <Run Text="{x:Bind ViewModel.CPUUsage, Mode=OneWay}" /><Run Text="%" /></TextBlock>
                         </Grid>
                         <Grid
                             Grid.Column="1"
@@ -1159,7 +1201,12 @@
                                 <RowDefinition Height="*" />
                                 <RowDefinition Height="Auto" />
                             </Grid.RowDefinitions>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="Auto" />
+                            </Grid.ColumnDefinitions>
                             <StackPanel
+                                Grid.ColumnSpan="2"
                                 HorizontalAlignment="Center"
                                 VerticalAlignment="Top"
                                 Orientation="Horizontal"
@@ -1172,6 +1219,7 @@
                             </StackPanel>
                             <TextBlock
                                 Grid.Row="1"
+                                Grid.ColumnSpan="2"
                                 HorizontalAlignment="Center"
                                 VerticalAlignment="Center"
                                 FontWeight="SemiBold"
@@ -1180,9 +1228,15 @@
                                 TextWrapping="WrapWholeWords" />
                             <muxc:ProgressBar
                                 Grid.Row="2"
-                                Margin="48,0"
-                                ToolTipService.ToolTip="67%"
-                                Value="67" />
+                                Margin="48,0,0,0"
+                                ToolTipService.ToolTip="{x:Bind ViewModel.GPUUsage, Mode=OneWay}"
+                                Value="{x:Bind ViewModel.GPUUsage, Mode=OneWay}" />
+                            <TextBlock
+                                Grid.Row="2"
+                                Grid.Column="1"
+                                Margin="16,0,48,0"
+                                FontSize="12">
+                                <Run Text="{x:Bind ViewModel.GPUUsage, Mode=OneWay}" /><Run Text="%" /></TextBlock>
                         </Grid>
                         <Grid
                             Grid.Row="1"
@@ -1243,12 +1297,21 @@
                                     Text="{x:Bind sysinfoHardware:RAM.GetUsableRAM()}"
                                     TextWrapping="WrapWholeWords" />
                             </StackPanel>
-                            <muxc:ProgressBar
-                                Grid.Row="2"
-                                Grid.ColumnSpan="3"
-                                Margin="48,0"
-                                ToolTipService.ToolTip="67%"
-                                Value="67" />
+                            <Grid Grid.Row="2" Grid.ColumnSpan="3">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="Auto" />
+                                </Grid.ColumnDefinitions>
+                                <muxc:ProgressBar
+                                    Margin="48,0,0,0"
+                                    ToolTipService.ToolTip="{x:Bind ViewModel.MemoryUsage, Mode=OneWay}"
+                                    Value="{x:Bind ViewModel.MemoryUsage, Mode=OneWay}" />
+                                <TextBlock
+                                    Grid.Column="1"
+                                    Margin="16,0,48,0"
+                                    FontSize="12">
+                                    <Run Text="{x:Bind ViewModel.MemoryUsage, Mode=OneWay}" /><Run Text="%" /></TextBlock>
+                            </Grid>
                         </Grid>
                         <Grid
                             Grid.Row="1"
@@ -1290,11 +1353,21 @@
                                     Text="Windows drive"
                                     TextAlignment="Center"
                                     TextWrapping="WrapWholeWords" />
-                                <muxc:ProgressRing
-                                    Width="32"
-                                    Height="32"
-                                    IsIndeterminate="False"
-                                    Value="67" />
+                                <Grid>
+                                    <muxc:ProgressRing
+                                        Width="40"
+                                        Height="40"
+                                        Background="{ThemeResource SystemControlBackgroundAltMediumLowBrush}"
+                                        IsIndeterminate="False"
+                                        Value="{x:Bind sysinfoHardware:Storage.GetWindowsDriveOccupiedSpacePercentage()}" />
+                                    <TextBlock
+                                        HorizontalAlignment="Center"
+                                        VerticalAlignment="Center"
+                                        FontSize="12"
+                                        FontWeight="SemiBold"
+                                        Foreground="{ThemeResource AccentTextFillColorPrimaryBrush}">
+                                        <Run Text="{x:Bind sysinfoHardware:Storage.GetWindowsDriveOccupiedSpacePercentageString()}" /><Run Text="%" /></TextBlock>
+                                </Grid>
                             </StackPanel>
                             <StackPanel
                                 Grid.Row="1"
@@ -1306,11 +1379,21 @@
                                     HorizontalAlignment="Center"
                                     FontWeight="SemiBold"
                                     Text="Total" />
-                                <muxc:ProgressRing
-                                    Width="32"
-                                    Height="32"
-                                    IsIndeterminate="False"
-                                    Value="67" />
+                                <Grid>
+                                    <muxc:ProgressRing
+                                        Width="40"
+                                        Height="40"
+                                        Background="{ThemeResource SystemControlBackgroundAltMediumLowBrush}"
+                                        IsIndeterminate="False"
+                                        Value="{x:Bind sysinfoHardware:Storage.GetTotalOccupiedSpacePercentage()}" />
+                                    <TextBlock
+                                        HorizontalAlignment="Center"
+                                        VerticalAlignment="Center"
+                                        FontSize="12"
+                                        FontWeight="SemiBold"
+                                        Foreground="{ThemeResource AccentTextFillColorPrimaryBrush}">
+                                        <Run Text="{x:Bind sysinfoHardware:Storage.GetTotalOccupiedSpacePercentageString()}" /><Run Text="%" /></TextBlock>
+                                </Grid>
                             </StackPanel>
                         </Grid>
                     </Grid>
@@ -1327,10 +1410,7 @@
                     </Grid.RowDefinitions>
 
                     <!--  License info  -->
-                    <Border
-                        Background="{ThemeResource LayerFillColorDefaultBrush}"
-                        BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
-                        BorderThickness="0,1,0,0">
+                    <Border Background="{ThemeResource LayerFillColorDefaultBrush}">
                         <Grid Padding="16">
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="Auto" />
@@ -1357,7 +1437,7 @@
                                     </Hyperlink>
                                     <Run x:Uid="ToLabel" />
                                 </TextBlock>
-                                <TextBlock Text="{x:Bind viewModels:MainViewModel.LicenseOwners}" />
+                                <TextBlock Text="{x:Bind sysinfoSoftware:WindowsInformation.GetLicenseOwners()}" />
                             </StackPanel>
                             <Button
                                 Grid.Column="2"
@@ -1373,6 +1453,12 @@
                         </Grid>
                     </Border>
 
+                    <!--  Fallback grid  -->
+                    <Grid
+                        Grid.Row="1"
+                        Background="{ThemeResource LayerFillColorDefaultBrush}"
+                        Visibility="{x:Bind ViewModel.ShowHelloUser, Mode=OneWay, Converter={StaticResource BoolToInverseVisibilityConverter}}" />
+
                     <!--  User account info  -->
                     <Grid
                         Grid.Row="1"
@@ -1382,7 +1468,8 @@
                         BorderBrush="{ThemeResource DividerStrokeColorDefaultBrush}"
                         BorderThickness="0,1"
                         ColumnSpacing="12"
-                        RowSpacing="12">
+                        RowSpacing="12"
+                        Visibility="{x:Bind ViewModel.ShowHelloUser, Mode=OneWay}">
                         <Grid>
                             <Grid.RowDefinitions>
                                 <RowDefinition Height="Auto" />
@@ -1457,66 +1544,86 @@
                                         Text="Local&#10;account" />
                                 </Grid>
                             </Grid>
-                            <ScrollViewer
-                                Grid.Row="1"
-                                Margin="0,0,-8,0"
-                                Padding="0,0,8,0">
-                                <Grid>
-                                    <Grid.RowDefinitions>
-                                        <RowDefinition Height="Auto" />
-                                        <RowDefinition Height="*" />
-                                    </Grid.RowDefinitions>
-                                    <StackPanel Margin="8,0,0,0" Spacing="8">
-                                        <TextBlock
-                                            Margin="0,8,0,-8"
-                                            FontWeight="SemiBold"
-                                            Text="Information" />
-                                        <StackPanel
-                                            Orientation="Horizontal"
-                                            Spacing="8"
-                                            Visibility="Collapsed">
-                                            <FontIcon FontSize="16" Glyph="&#xE77B;" />
-                                            <TextBlock VerticalAlignment="Center" Text="User account" />
-                                        </StackPanel>
-                                        <StackPanel Orientation="Horizontal" Spacing="8">
-                                            <FontIcon FontSize="16" Glyph="&#xEA18;" />
-                                            <TextBlock VerticalAlignment="Center" Text="Administrator account" />
-                                        </StackPanel>
-                                        <StackPanel Orientation="Horizontal" Spacing="8">
-                                            <FontIcon FontSize="16" Glyph="&#xE917;" />
-                                            <TextBlock VerticalAlignment="Center" Text="Created on: 12.07.2025" />
-                                        </StackPanel>
+                            <Grid Grid.Row="1">
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto" />
+                                    <RowDefinition Height="*" />
+                                </Grid.RowDefinitions>
+                                <StackPanel Margin="8,0,0,0" Spacing="8">
+                                    <TextBlock
+                                        Margin="0,8,0,-8"
+                                        FontWeight="SemiBold"
+                                        Text="Information" />
+                                    <StackPanel
+                                        Orientation="Horizontal"
+                                        Spacing="8"
+                                        Visibility="Collapsed">
+                                        <FontIcon FontSize="16" Glyph="&#xE77B;" />
+                                        <TextBlock VerticalAlignment="Center" Text="User account" />
                                     </StackPanel>
-                                    <Button
-                                        Padding="8"
-                                        HorizontalAlignment="Right"
-                                        VerticalAlignment="Top"
-                                        Background="Transparent"
-                                        BorderBrush="Transparent">
-                                        <StackPanel Orientation="Horizontal" Spacing="8">
-                                            <FontIcon FontSize="16" Glyph="&#xE838;" />
-                                            <TextBlock VerticalAlignment="Center" Text="Open User Folder" />
-                                        </StackPanel>
-                                    </Button>
-                                    <Grid Grid.Row="1" Margin="8">
-                                        <TextBlock
-                                            Margin="0,8"
-                                            FontWeight="SemiBold"
-                                            Text="Desktop wallpaper" />
+                                    <StackPanel Orientation="Horizontal" Spacing="8">
+                                        <FontIcon FontSize="16" Glyph="&#xEA18;" />
+                                        <TextBlock VerticalAlignment="Center" Text="Administrator account" />
+                                    </StackPanel>
+                                    <StackPanel Orientation="Horizontal" Spacing="8">
+                                        <FontIcon FontSize="16" Glyph="&#xE917;" />
+                                        <TextBlock VerticalAlignment="Center" Text="Created on: 12.07.2025" />
+                                    </StackPanel>
+                                </StackPanel>
+                                <Button
+                                    Padding="8"
+                                    HorizontalAlignment="Right"
+                                    VerticalAlignment="Top"
+                                    Background="Transparent"
+                                    BorderBrush="Transparent">
+                                    <StackPanel Orientation="Horizontal" Spacing="8">
+                                        <FontIcon FontSize="16" Glyph="&#xE838;" />
+                                        <TextBlock VerticalAlignment="Center" Text="Open User Folder" />
+                                    </StackPanel>
+                                </Button>
+                                <Grid Grid.Row="1" Margin="8">
+                                    <TextBlock
+                                        Margin="0,8"
+                                        FontWeight="SemiBold"
+                                        Text="Desktop wallpaper" />
+                                    <Grid
+                                        Margin="0,36,0,0"
+                                        ui:UIElementExtensions.ClipToBounds="True"
+                                        Background="{ThemeResource SolidBackgroundFillColorBaseBrush}"
+                                        CornerRadius="8">
+                                        <Image Stretch="UniformToFill">
+                                            <Image.Source>
+                                                <BitmapImage UriSource="{x:Bind WallpaperPath, Mode=OneWay}" />
+                                            </Image.Source>
+                                        </Image>
                                         <Grid
-                                            Margin="0,36,0,0"
-                                            ui:UIElementExtensions.ClipToBounds="True"
-                                            Background="Black"
-                                            CornerRadius="8">
-                                            <Image Stretch="UniformToFill">
-                                                <Image.Source>
-                                                    <BitmapImage UriSource="{x:Bind WallpaperPath, Mode=OneWay}" />
-                                                </Image.Source>
-                                            </Image>
+                                            HorizontalAlignment="Right"
+                                            VerticalAlignment="Bottom"
+                                            BorderBrush="{ThemeResource ControlElevationBorderBrush}"
+                                            BorderThickness="1,1,0,0"
+                                            CornerRadius="4,0,0,0">
+                                            <Grid.Background>
+                                                <media:AcrylicBrush
+                                                    BlurAmount="12"
+                                                    TintColor="{ThemeResource SystemColorBackgroundColor}"
+                                                    TintOpacity="0.5" />
+                                            </Grid.Background>
+                                            <Button
+                                                Margin="-1,-1,0,0"
+                                                Padding="8"
+                                                Background="Transparent"
+                                                BorderBrush="Transparent"
+                                                BorderThickness="1,1,0,0"
+                                                CornerRadius="4,0,0,0">
+                                                <StackPanel Orientation="Horizontal" Spacing="8">
+                                                    <FontIcon FontSize="16" Glyph="&#xE838;" />
+                                                    <TextBlock VerticalAlignment="Center" Text="Open in File Explorer" />
+                                                </StackPanel>
+                                            </Button>
                                         </Grid>
                                     </Grid>
                                 </Grid>
-                            </ScrollViewer>
+                            </Grid>
                         </Grid>
                     </Grid>
 
@@ -1611,14 +1718,16 @@
                     Orientation="Horizontal"
                     Spacing="8">
                     <Button
-                        Width="36"
                         Height="36"
                         Margin="0,-8"
-                        Padding="8"
+                        Padding="8,0"
                         VerticalAlignment="Center"
                         Background="Transparent"
                         BorderBrush="Transparent">
-                        <FontIcon FontSize="16" Glyph="&#xED56;" />
+                        <StackPanel Orientation="Horizontal" Spacing="8">
+                            <FontIcon FontSize="16" Glyph="&#xED56;" />
+                            <TextBlock Text="Legacy winver" />
+                        </StackPanel>
                     </Button>
                     <Button
                         x:Uid="OKButton"

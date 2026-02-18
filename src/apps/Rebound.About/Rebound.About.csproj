@@ -64,7 +64,7 @@
 		<PackageReference Include="TerraFX.Interop.Windows" Version="10.0.26100.6" />
 
 		<!-- System and Management -->
-		<PackageReference Include="System.Diagnostics.PerformanceCounter" Version="10.0.1" />
+		<PackageReference Include="System.Diagnostics.PerformanceCounter" Version="10.0.3" />
 		<!--<PackageReference Include="System.ServiceProcess.ServiceController" Version="10.0.0-preview.5.25277.114" />-->
 		<PackageReference Include="System.IO.Pipes.AccessControl" Version="6.0.0-preview.5.21301.5" />
 		<PackageReference Include="OwlCore.Storage" Version="0.14.0" />

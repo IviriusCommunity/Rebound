@@ -30,7 +30,7 @@ internal struct USER_INFO_2
     public uint usri2_acct_expires;
     public uint usri2_max_storage;
     public uint usri2_units_per_week;
-    public HANDLE usri2_logon_hours;
+    public Windows.Win32.Foundation.HANDLE usri2_logon_hours;
     public uint usri2_bad_pw_count;
     public uint usri2_num_logons;
     public PCWSTR usri2_logon_server;

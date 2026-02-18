@@ -126,6 +126,18 @@ public static class WindowsInformation
     }
 
     /// <summary>
+    /// Retrieves the installation date of Windows as a formatted string by calling <see cref="GetInstalledOnDate"/>.
+    /// </summary>
+    /// <returns>
+    /// A string representing the installation date of Windows in "yyyy-MM-dd" format. If the installation date cannot be determined, it returns "Unknown".
+    /// </returns>
+    public static string GetInstalledOnDateString()
+    {
+        var installDate = GetInstalledOnDate();
+        return installDate == DateTime.MinValue ? "Unknown" : installDate.ToString((IFormatProvider?)null);
+    }
+
+    /// <summary>
     /// Retrieves the Windows activation status by querying WMI for the "LicenseStatus" property of the "SoftwareLicensingProduct" class.
     /// </summary>
     /// <returns>

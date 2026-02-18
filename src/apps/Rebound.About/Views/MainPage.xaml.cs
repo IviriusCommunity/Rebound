@@ -99,7 +99,7 @@ public sealed partial class MainPage : Page
     private void CopyWindowsVersion() => CopyToClipboard(MainViewModel.DetailedWindowsVersion);
 
     [RelayCommand]
-    private void CopyLicenseOwners() => CopyToClipboard(MainViewModel.LicenseOwners);
+    private void CopyLicenseOwners() => CopyToClipboard(WindowsInformation.GetLicenseOwners());
 
     [RelayCommand]
     private static void CopyReboundVersion() => CopyToClipboard(Variables.ReboundVersion);
