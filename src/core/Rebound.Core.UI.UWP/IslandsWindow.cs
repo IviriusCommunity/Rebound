@@ -2,11 +2,13 @@
 // Licensed under the MIT License.
 
 using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Input;
 using Microsoft.UI;
 using Microsoft.UI.Windowing;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.Win32;
 using Rebound.Core.SystemInformation.Hardware;
+using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
@@ -17,6 +19,7 @@ using Windows.Storage.Streams;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Hosting;
+using Windows.UI.Xaml.Input;
 using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Media.Imaging;
 using WinRT;
@@ -32,6 +35,67 @@ using WPARAM = TerraFX.Interop.Windows.WPARAM;
 
 namespace Rebound.Core.UI;
 
+public class TitleBarSnapshot
+{
+    public Windows.UI.Color? BackgroundColor;
+    public Windows.UI.Color? ForegroundColor;
+    public Windows.UI.Color? InactiveBackgroundColor;
+    public Windows.UI.Color? InactiveForegroundColor;
+    public Windows.UI.Color? ButtonBackgroundColor;
+    public Windows.UI.Color? ButtonForegroundColor;
+    public Windows.UI.Color? ButtonHoverBackgroundColor;
+    public Windows.UI.Color? ButtonHoverForegroundColor;
+    public Windows.UI.Color? ButtonInactiveBackgroundColor;
+    public Windows.UI.Color? ButtonInactiveForegroundColor;
+    public Windows.UI.Color? ButtonPressedBackgroundColor;
+    public Windows.UI.Color? ButtonPressedForegroundColor;
+    public IconShowOptions IconShowOptions;
+    public TitleBarHeightOption PreferredHeightOption;
+    public TitleBarTheme PreferredTheme;
+    public bool ExtendsContentIntoTitleBar;
+
+    public static TitleBarSnapshot Capture(AppWindowTitleBar tb) => new()
+    {
+        BackgroundColor = tb.BackgroundColor,
+        ForegroundColor = tb.ForegroundColor,
+        InactiveBackgroundColor = tb.InactiveBackgroundColor,
+        InactiveForegroundColor = tb.InactiveForegroundColor,
+        ButtonBackgroundColor = tb.ButtonBackgroundColor,
+        ButtonForegroundColor = tb.ButtonForegroundColor,
+        ButtonHoverBackgroundColor = tb.ButtonHoverBackgroundColor,
+        ButtonHoverForegroundColor = tb.ButtonHoverForegroundColor,
+        ButtonInactiveBackgroundColor = tb.ButtonInactiveBackgroundColor,
+        ButtonInactiveForegroundColor = tb.ButtonInactiveForegroundColor,
+        ButtonPressedBackgroundColor = tb.ButtonPressedBackgroundColor,
+        ButtonPressedForegroundColor = tb.ButtonPressedForegroundColor,
+        IconShowOptions = tb.IconShowOptions,
+        PreferredHeightOption = tb.PreferredHeightOption,
+        PreferredTheme = tb.PreferredTheme,
+        ExtendsContentIntoTitleBar = tb.ExtendsContentIntoTitleBar
+    };
+
+    public void Restore(AppWindowTitleBar tb)
+    {
+        tb.ExtendsContentIntoTitleBar = ExtendsContentIntoTitleBar;
+        tb.BackgroundColor = BackgroundColor;
+        tb.ForegroundColor = ForegroundColor;
+        tb.InactiveBackgroundColor = InactiveBackgroundColor;
+        tb.InactiveForegroundColor = InactiveForegroundColor;
+        tb.ButtonBackgroundColor = ButtonBackgroundColor;
+        tb.ButtonForegroundColor = ButtonForegroundColor;
+        tb.ButtonHoverBackgroundColor = ButtonHoverBackgroundColor;
+        tb.ButtonHoverForegroundColor = ButtonHoverForegroundColor;
+        tb.ButtonInactiveBackgroundColor = ButtonInactiveBackgroundColor;
+        tb.ButtonInactiveForegroundColor = ButtonInactiveForegroundColor;
+        tb.ButtonPressedBackgroundColor = ButtonPressedBackgroundColor;
+        tb.ButtonPressedForegroundColor = ButtonPressedForegroundColor;
+        tb.IconShowOptions = IconShowOptions;
+        tb.PreferredTheme = PreferredTheme;
+        if (!ExtendsContentIntoTitleBar) return;
+        tb.PreferredHeightOption = PreferredHeightOption;
+    }
+}
+
 public enum DialogIcon
 {
     None,
@@ -41,33 +105,41 @@ public enum DialogIcon
     Shield
 }
 
-public class ThemeRegistryListener : IDisposable
+public partial class ThemeRegistryListener(bool useShellTheme) : IDisposable
 {
+    // Registry notification flags
+#pragma warning disable CA1707
     public const int REG_NOTIFY_CHANGE_NAME = 0x00000001;
     public const int REG_NOTIFY_CHANGE_ATTRIBUTES = 0x00000002;
     public const int REG_NOTIFY_CHANGE_LAST_SET = 0x00000004;
     public const int REG_NOTIFY_CHANGE_SECURITY = 0x00000008;
+#pragma warning restore CA1707
 
+    // Constants
     private const string RegistryKeyPath = @"Software\Microsoft\Windows\CurrentVersion\Themes\Personalize";
     private const string ValueName = "AppsUseLightTheme";
-    private readonly RegistryKey registryKey;
+    private const string ValueNameShellTheme = "SystemUsesLightTheme";
+
+    // Variables
+    private readonly RegistryKey registryKey = Registry.CurrentUser.OpenSubKey(RegistryKeyPath, false)
+            ?? throw new InvalidOperationException("Failed to open registry key.");
+    private readonly bool _useShellTheme = useShellTheme;
     private Task? watchTask;
     private CancellationTokenSource? cts;
+    private bool _disposed;
 
-    public event Action<bool>? ThemeChanged; // true = dark mode, false = light mode
+#pragma warning disable CA1003
+    public event EventHandler<bool>? ThemeChanged;
 
-    public ThemeRegistryListener()
-    {
-        registryKey = Registry.CurrentUser.OpenSubKey(RegistryKeyPath, false) ?? throw new Exception("Failed to open registry key.");
-    }
+#pragma warning restore CA1003
 
     public void Start()
     {
         if (watchTask != null)
             throw new InvalidOperationException("Already started.");
-
-        cts = new CancellationTokenSource();
-        watchTask = Task.Run(() => WatchRegistry(cts.Token));
+        var tokenSource = new CancellationTokenSource();
+        cts = tokenSource;
+        watchTask = Task.Run(() => WatchRegistry(tokenSource.Token));
     }
 
     public void Stop()
@@ -82,44 +154,46 @@ public class ThemeRegistryListener : IDisposable
         var regHandle = registryKey.Handle;
         while (!token.IsCancellationRequested)
         {
-            try
-            {
-                // Wait for changes on the key or cancellation
-                Microsoft.Win32.SafeHandles.SafeRegistryHandle handle = regHandle;
-                var waitResult = TerraFX.Interop.Windows.Windows.RegNotifyChangeKeyValue(HKEY.HKEY_CURRENT_USER,
-                    true,
-                    REG_NOTIFY_CHANGE_LAST_SET,
-                    HANDLE.NULL,
-                    false);
+            var waitResult = RegNotifyChangeKeyValue(
+                (HKEY)regHandle.DangerousGetHandle(),
+                false,
+                REG_NOTIFY_CHANGE_LAST_SET,
+                HANDLE.NULL,
+                false);
 
-                if (waitResult == 0)
-                {
-                    var isDarkMode = !IsLightTheme();
-                    ThemeChanged?.Invoke(isDarkMode);
-                }
-
-                if (token.IsCancellationRequested)
-                    break;
-            }
-            catch
-            {
+            if (token.IsCancellationRequested)
                 break;
-            }
+
+            if (waitResult == 0)
+                ThemeChanged?.Invoke(this, !IsLightTheme());
         }
     }
 
     public bool IsLightTheme()
     {
-        var val = registryKey.GetValue(ValueName);
+        var val = registryKey.GetValue(_useShellTheme ? ValueNameShellTheme : ValueName);
         if (val is int intValue)
             return intValue != 0;
-        return true; // default to light if missing
+        return true;
+    }
+
+    protected virtual void Dispose(bool disposing)
+    {
+        if (_disposed) return;
+        if (disposing)
+        {
+            cts?.Cancel();
+            watchTask?.Wait();
+            cts?.Dispose();
+            registryKey.Dispose();
+        }
+        _disposed = true;
     }
 
     public void Dispose()
     {
-        Stop();
-        registryKey.Dispose();
+        Dispose(true);
+        GC.SuppressFinalize(this);
     }
 }
 
@@ -134,7 +208,7 @@ public class AppWindowInitializedEventArgs : EventArgs { }
 
 public static class WindowList
 {
-    public static readonly List<IslandsWindow> OpenWindows = [];
+    public static readonly Collection<IslandsWindow> OpenWindows = [];
     public static bool KeepAlive { get; set; }
 
     /// <summary>
@@ -422,16 +496,21 @@ public partial class IslandsWindow : ObservableObject, IDisposable
     private const string WindowClassName = "XamlIslandsClass";
     private static readonly ushort _classAtom;
     private static WindowsXamlManager? _xamlManager;
+    private ThemeRegistryListener? _themeListener;
 
     // Internal stuff
     private bool _disposed;
     private volatile bool _xamlInitialized;
     private bool _internalResize;
     private bool _isInitializing;
+    private nint _appWindowWndProcSubclass;
+    private TitleBarSnapshot? _titleBarSnapshot;
 
     // Native handles
     private GCHandle _thisHandle;
+#pragma warning disable IDE0044
     private HWND _xamlHwnd;
+#pragma warning restore IDE0044 
 
     // UWP
     private DesktopWindowXamlSource? _desktopWindowXamlSource;
@@ -474,6 +553,7 @@ public partial class IslandsWindow : ObservableObject, IDisposable
     [ObservableProperty] public partial bool IsPersistenceEnabled { get; set; } = false;
     [ObservableProperty] public partial string PersistenceKey { get; set; } = nameof(IslandsWindow);
     [ObservableProperty] public partial string PersistenceFileName { get; set; } = "rebound";
+    [ObservableProperty] public partial bool UseShellTheme { get; set; } = false;
 
     /// <summary>
     /// Triggered once when the XAML environment has been initialized for the current window.
@@ -510,12 +590,10 @@ public partial class IslandsWindow : ObservableObject, IDisposable
 
     ~IslandsWindow()
     {
-        Dispose();
+        Dispose(false);
     }
 
-#pragma warning disable CA1810 // Initialize reference type static fields inline
     static IslandsWindow()
-#pragma warning restore CA1810 // Initialize reference type static fields inline
     {
         unsafe
         {
@@ -554,6 +632,18 @@ public partial class IslandsWindow : ObservableObject, IDisposable
         var handle = GCHandle.FromIntPtr(ptr);
         var window = (IslandsWindow)handle.Target!;
         return window.WndProc(hwnd, msg, wParam, lParam);
+    }
+
+    [UnmanagedCallersOnly]
+    private static unsafe LRESULT WndProcOverlayStatic(HWND hwnd, uint msg, WPARAM wParam, LPARAM lParam)
+    {
+        var ptr = GetWindowLongPtr(hwnd, GWLP.GWLP_USERDATA);
+        if (ptr == IntPtr.Zero)
+            return DefWindowProc(hwnd, msg, wParam, lParam);
+
+        var handle = GCHandle.FromIntPtr(ptr);
+        var window = (IslandsWindow)handle.Target!;
+        return window.WndProcOverlay(hwnd, msg, wParam, lParam);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -621,6 +711,9 @@ public partial class IslandsWindow : ObservableObject, IDisposable
             AppWindow.Closing += OnAppWindowClosing;
             AppWindowInitialized?.Invoke(this, new AppWindowInitializedEventArgs());
 
+            // Resubclass WndProc
+            _appWindowWndProcSubclass = SetWindowLongPtrW(Handle, GWLP.GWLP_WNDPROC, (nint)(delegate* unmanaged<HWND, uint, WPARAM, LPARAM, LRESULT>)&WndProcOverlayStatic);
+
             // XAML
             InitializeXaml();
             _isInitializing = false;
@@ -668,19 +761,13 @@ public partial class IslandsWindow : ObservableObject, IDisposable
         var clientHeight = clientRect.bottom - clientRect.top;
         SetWindowPos(_xamlHwnd, HWND.NULL, 0, 0, clientWidth, clientHeight, SWP_SHOWWINDOW | SWP_NOACTIVATE | SWP_NOZORDER);
 
-        // Obtain the CoreWindow for the XAML island
-        //_coreWindow = CoreWindow.GetForCurrentThread();
-        //var coreRaw = ((IUnknown*)((IWinRTObject)_coreWindow).NativeObject.ThisPtr);
-        //ThrowIfFailed(coreRaw->QueryInterface(__uuidof<ICoreWindowInterop>(), (void**)_coreWindowInterop.GetAddressOf()));
-        //ThrowIfFailed(_coreWindowInterop.Get()->get_WindowHandle((HWND*)Unsafe.AsPointer(ref _coreHwnd)));
-
         // Trigger the XamlInitialized event and set the synchronization context
         _xamlInitialized = true;
         XamlInitialized?.Invoke(this, new XamlInitializedEventArgs());
 
         // Theme stuff for dark mode support on the window itself
-        using var themeListener = new ThemeRegistryListener();
-        themeListener.ThemeChanged += (args) =>
+        _themeListener = new ThemeRegistryListener(UseShellTheme);
+        _themeListener.ThemeChanged += (sender, args) =>
         {
             unsafe
             {
@@ -688,6 +775,7 @@ public partial class IslandsWindow : ObservableObject, IDisposable
                 DwmSetWindowAttribute(Handle,
                     (uint)DWMWINDOWATTRIBUTE.DWMWA_USE_IMMERSIVE_DARK_MODE,
                     &darkMode, sizeof(int));
+                AppWindow?.TitleBar.ButtonForegroundColor = args ? Colors.White : Colors.Black;
             }
         };
 
@@ -696,9 +784,10 @@ public partial class IslandsWindow : ObservableObject, IDisposable
         {
             var backdrop = (int)DWM_SYSTEMBACKDROP_TYPE.DWMSBT_MAINWINDOW;
             DwmSetWindowAttribute(Handle, (uint)DWMWINDOWATTRIBUTE.DWMWA_SYSTEMBACKDROP_TYPE, &backdrop, sizeof(int));
-            int dark = themeListener.IsLightTheme() ? 0 : 1;
+            int dark = _themeListener.IsLightTheme() ? 0 : 1;
             DwmSetWindowAttribute(Handle, (uint)DWMWINDOWATTRIBUTE.DWMWA_USE_IMMERSIVE_DARK_MODE, &dark, sizeof(int));
         }
+        _themeListener.Start();
     }
 
     private HBRUSH _backgroundBrush = HBRUSH.NULL;
@@ -723,7 +812,7 @@ public partial class IslandsWindow : ObservableObject, IDisposable
         DwmSetWindowAttribute(Handle, (uint)DWMWINDOWATTRIBUTE.DWMWA_SYSTEMBACKDROP_TYPE, &backdrop, sizeof(int));
 
         // Configure DWM for transparency
-        ConfigureDwmForTransparency((ulong)Handle.Value);
+        ConfigureDwmForTransparency();
     }
 
     /// <summary>
@@ -748,7 +837,7 @@ public partial class IslandsWindow : ObservableObject, IDisposable
         DwmSetWindowAttribute(Handle, (uint)DWMWINDOWATTRIBUTE.DWMWA_SYSTEMBACKDROP_TYPE, &backdrop, sizeof(int));
     }
 
-    private unsafe void ConfigureDwmForTransparency(ulong hWnd)
+    private unsafe void ConfigureDwmForTransparency()
     {
         var margins = new MARGINS()
         {
@@ -772,7 +861,7 @@ public partial class IslandsWindow : ObservableObject, IDisposable
         DwmEnableBlurBehindWindow(Handle, &config);
     }
 
-    private unsafe bool ClearTransparentBackground(nint hwnd, HDC hdc)
+    private unsafe bool ClearTransparentBackground(HDC hdc)
     {
         RECT lpRect;
         if (GetClientRect(Handle, &lpRect))
@@ -780,7 +869,9 @@ public partial class IslandsWindow : ObservableObject, IDisposable
             if (_backgroundBrush == HBRUSH.NULL)
                 _backgroundBrush = CreateSolidBrush(new COLORREF(0));
 
-            FillRect(hdc, &lpRect, _backgroundBrush);
+            var hr = FillRect(hdc, &lpRect, _backgroundBrush);
+            if (FAILED(hr))
+                return false;
             return true;
         }
         return false;
@@ -814,10 +905,9 @@ public partial class IslandsWindow : ObservableObject, IDisposable
         OnClosed?.Invoke(this, EventArgs.Empty);
     }
 
-    public void Dispose()
+    protected virtual void Dispose(bool disposing)
     {
         if (_disposed) return;
-        _disposed = true;
 
         if (AppWindow != null)
         {
@@ -830,16 +920,19 @@ public partial class IslandsWindow : ObservableObject, IDisposable
             _thisHandle.Free();
         }
 
-        _nativeSource.Dispose();
-        _nativeSource = default;
-        //_coreWindowInterop.Dispose();
-        //_coreWindowInterop = default;
+        if (disposing)
+        {
+            _themeListener?.Stop();
+            _themeListener?.Dispose();
+            _themeListener = null;
 
-        _desktopWindowXamlSource?.Dispose();
-        //_coreWindow = null;
+            _nativeSource.Dispose();
+            _nativeSource = default;
+            _desktopWindowXamlSource?.Dispose();
 
-        AppWindow?.Destroy();
-        AppWindow = null;
+            AppWindow?.Destroy();
+            AppWindow = null;
+        }
 
         if (Handle != HWND.NULL)
         {
@@ -852,6 +945,12 @@ public partial class IslandsWindow : ObservableObject, IDisposable
             DisableTransparency();
         }
 
+        _disposed = true;
+    }
+
+    public void Dispose()
+    {
+        Dispose(true);
         GC.SuppressFinalize(this);
     }
 
@@ -1310,10 +1409,310 @@ public partial class IslandsWindow : ObservableObject, IDisposable
         }
     }
 
+    bool _changeTitleBarVisibilityTriggered;
+
+    private unsafe LRESULT WndProcOverlay(HWND hwnd, uint msg, WPARAM wParam, LPARAM lParam)
+    {
+        switch (msg)
+        {
+            case WM_NCCALCSIZE when (uint)wParam == 1:
+                // Hiding path
+                if (IsTitleBarVisible() && _changeTitleBarVisibilityTriggered)
+                {
+                    _changeTitleBarVisibilityTriggered = false;
+                    var result = DefWindowProc(hwnd, msg, wParam, lParam);
+                    var pParams = (NCCALCSIZE_PARAMS*)lParam;
+                    pParams->rgrc[0].top -= GetSystemMetrics(SM.SM_CYCAPTION) + GetSystemMetrics(SM.SM_CYSIZEFRAME) + GetSystemMetrics(SM.SM_CYFRAME);
+
+                    if (_titleBarSnapshot != null)
+                    {
+                        PostMessage(hwnd, WM_USER + 2, 0, 0);
+                    }
+
+                    return result;
+                }
+                // Restoring path
+                else if (!IsTitleBarVisible() && _changeTitleBarVisibilityTriggered)
+                {
+                    _changeTitleBarVisibilityTriggered = false;
+                    var result = DefWindowProc(hwnd, msg, wParam, lParam);
+                    PostMessage(hwnd, WM_USER + 1, 0, 0);
+                    return result;
+                }
+                break;
+            case WM_USER + 1:
+                {
+                    UIThreadQueue.QueueAction(() =>
+                    {
+                        var windowId = Win32Interop.GetWindowIdFromWindow(hwnd);
+                        var appWindow = AppWindow.GetFromWindowId(windowId);
+                        appWindow.TitleBar.ResetToDefault();
+                    });
+                    return new LRESULT(0);
+                }
+            case WM_USER + 2:
+                {
+                    UIThreadQueue.QueueAction(() =>
+                    {
+                        var windowId = Win32Interop.GetWindowIdFromWindow(hwnd);
+                        var appWindow = AppWindow.GetFromWindowId(windowId);
+                        _titleBarSnapshot?.Restore(appWindow.TitleBar);
+                    });
+                    return new LRESULT(0);
+                }
+            case WM_NCRBUTTONUP:
+                {
+                    var scale = Display.GetScale(Handle);
+                    var x = (int)(lParam & 0xFFFF) / scale - X;
+                    var y = (int)((lParam >> 16) & 0xFFFF) / scale - Y;
+                    ShowWinUIMenu(x, y);
+                    return new LRESULT(0);
+                }
+
+            default:
+                return ((delegate* unmanaged<HWND, uint, WPARAM, LPARAM, LRESULT>)_appWindowWndProcSubclass)(hwnd, msg, wParam, lParam);
+        }
+        return ((delegate* unmanaged<HWND, uint, WPARAM, LPARAM, LRESULT>)_appWindowWndProcSubclass)(hwnd, msg, wParam, lParam);
+    }
+
+    private unsafe void ShowWinUIMenu(double x, double y)
+    {
+        UIThreadQueue.QueueAction(() =>
+        {
+            var menu = new MenuFlyout()
+            {
+                XamlRoot = _desktopWindowXamlSource?.Content.XamlRoot,
+                Items =
+                {
+                    new MenuFlyoutItem()
+                    {
+                        Text = "Restore",
+                        Icon = new FontIcon()
+                        {
+                            Glyph = "\uE923",
+                            Margin = new(2)
+                        },
+                        Command = new RelayCommand(Restore),
+                        IsEnabled = IsMaximizable && IsMaximized(Handle)
+                    },
+                    new MenuFlyoutItem()
+                    {
+                        Text = "Move",
+                        Icon = new FontIcon()
+                        {
+                            Glyph = "\uE7C2"
+                        },
+                        Command = new RelayCommand(() =>
+                        {
+                            PostMessage(Handle, WM_SYSCOMMAND, SC.SC_MOVE, 0);
+                        }),
+                    },
+                    new MenuFlyoutItem()
+                    {
+                        Text = "Resize",
+                        Icon = new FontIcon()
+                        {
+                            Glyph = "\uE7A8"
+                        },
+                        Command = new RelayCommand(() =>
+                        {
+                            PostMessage(Handle, WM_SYSCOMMAND, SC.SC_SIZE, 0);
+                        }),
+                        IsEnabled = IsResizable
+                    },
+                    new MenuFlyoutItem()
+                    {
+                        Text = "Minimize",
+                        Icon = new FontIcon()
+                        {
+                            Glyph = "\uE921",
+                            Margin = new(2)
+                        },
+                        Command = new RelayCommand(Minimize),
+                        IsEnabled = IsMinimizable
+                    },
+                    new MenuFlyoutItem()
+                    {
+                        Text = "Maximize",
+                        Icon = new FontIcon()
+                        {
+                            Glyph = "\uE922",
+                            Margin = new(2)
+                        },
+                        Command = new RelayCommand(Maximize),
+                        IsEnabled = IsMaximizable && !IsMaximized(Handle)
+                    },
+                    new MenuFlyoutSubItem()
+                    {
+                        Text = "More options",
+                        Icon = new FontIcon()
+                        {
+                            Glyph = "\uE712"
+                        },
+                        Items =
+                        {
+                            new ToggleMenuFlyoutItem()
+                            {
+                                Text = "Keep on top",
+                                Icon = new FontIcon()
+                                {
+                                    Glyph = "\uE74A"
+                                }
+                            },
+                            new ToggleMenuFlyoutItem()
+                            {
+                                Text = "Keep below",
+                                Icon = new FontIcon()
+                                {
+                                    Glyph = "\uE74B"
+                                }
+                            },
+                            new ToggleMenuFlyoutItem()
+                            {
+                                Text = "Fullscreen",
+                                Icon = new FontIcon()
+                                {
+                                    Glyph = "\uE740"
+                                }
+                            },
+                            new ToggleMenuFlyoutItem()
+                            {
+                                Text = "Show title bar",
+                                Icon = new FontIcon()
+                                {
+                                    Glyph = "\uE737"
+                                },
+                                Command = new RelayCommand(() => SetTitleBarVisible(!IsTitleBarVisible())),
+                                IsChecked = IsTitleBarVisible()
+                            },
+                            new ToggleMenuFlyoutItem()
+                            {
+                                Text = "Show window frame",
+                                Icon = new FontIcon()
+                                {
+                                    Glyph = "\uE65C"
+                                },
+                                Command = new RelayCommand(() => SetWindowFrameVisible(!IsWindowFrameVisible())),
+                                IsChecked = IsWindowFrameVisible()
+                            },
+                        }
+                    },
+                    new MenuFlyoutSeparator(),
+                    new MenuFlyoutItem()
+                    {
+                        Text = "Close",
+                        Icon = new FontIcon() { Glyph = "\uE8BB", Margin = new(2) },
+                        Command = new RelayCommand(Close),
+                        KeyboardAccelerators =
+                        {
+                            new KeyboardAccelerator()
+                            {
+                                Key = Windows.System.VirtualKey.F4,
+                                Modifiers = Windows.System.VirtualKeyModifiers.Menu
+                            }
+                        }
+                    }
+                }
+            };
+            menu.ShowAt(_desktopWindowXamlSource?.Content, new Windows.Foundation.Point(x, y));
+        });
+    }
+
+    unsafe bool IsTitleBarVisible()
+    {
+        RECT window, client;
+        GetWindowRect(Handle, &window);
+        GetClientRect(Handle, &client);
+
+        // Map client origin to screen coords
+        POINT pt = new() { x = client.left, y = client.top };
+        ClientToScreen(Handle, &pt);
+
+        int actualTopInset = pt.y - window.top;
+        int borderOnly = GetSystemMetrics(SM.SM_CYCAPTION) + GetSystemMetrics(SM.SM_CYSIZEFRAME) + GetSystemMetrics(SM.SM_CYFRAME); // or SM_CYSIZEFRAME if resizable
+
+        return actualTopInset > borderOnly;
+    }
+
+    unsafe void SetTitleBarVisible(bool visible)
+    {
+        if (visible && _titleBarSnapshot == null)
+        {
+            UIThreadQueue.QueueAction(() =>
+            {
+                _titleBarSnapshot = TitleBarSnapshot.Capture(AppWindow!.TitleBar);
+                Debug.WriteLine(_titleBarSnapshot.ExtendsContentIntoTitleBar);
+            });
+        }
+
+        _changeTitleBarVisibilityTriggered = true;
+
+        SetWindowPos(
+            Handle,
+            HWND.NULL,
+            0, 0, 0, 0,
+            SWP_NOMOVE | SWP_NOSIZE | SWP_NOZORDER |
+            SWP_FRAMECHANGED | SWP_NOACTIVATE
+        );
+
+        if (!visible) _changeTitleBarVisibilityTriggered = false;
+    }
+
+    unsafe bool IsWindowFrameVisible()
+    {
+        var style = GetWindowLongPtr(Handle, GWL.GWL_STYLE);
+
+        const nint FRAME_BITS =
+            WS_CAPTION |
+            WS_THICKFRAME |
+            WS_BORDER |
+            WS_DLGFRAME;
+
+        return (style & FRAME_BITS) != 0;
+    }
+
+    unsafe void SetWindowFrameVisible(bool visible)
+    {
+        var style = GetWindowLongPtr(Handle, GWL.GWL_STYLE);
+
+        const nint FRAME_BITS =
+            WS_CAPTION |
+            WS_THICKFRAME |
+            WS_BORDER |
+            WS_DLGFRAME;
+
+        if (visible)
+            style |= FRAME_BITS;
+        else
+            style &= ~FRAME_BITS;
+
+        SetWindowLongPtr(Handle, GWL.GWL_STYLE, style);
+
+        SetWindowPos(
+            Handle,
+            HWND.NULL,
+            0, 0, 0, 0,
+            SWP_NOMOVE |
+            SWP_NOSIZE |
+            SWP_NOZORDER |
+            SWP_FRAMECHANGED
+        );
+    }
+
     private unsafe LRESULT WndProc(HWND hwnd, uint msg, WPARAM wParam, LPARAM lParam)
     {
         switch (msg)
         {
+            case WM_SYSCOMMAND:
+                if ((wParam & 0xFFF0) == SC.SC_MAXIMIZE && !IsMaximizable)
+                    return new LRESULT(0);
+                if ((wParam & 0xFFF0) == SC.SC_KEYMENU)
+                {
+                    ShowWinUIMenu(0, 0);
+                    return new LRESULT(0);
+                }
+                break;
+
             case WM_CREATE:
                 if (!_xamlInitialized)
                     InitializeXaml();
@@ -1350,7 +1749,7 @@ public partial class IslandsWindow : ObservableObject, IDisposable
             case WM_ERASEBKGND:
                 if (_isTransparent)
                 {
-                    if (ClearTransparentBackground((nint)hwnd, (HDC)wParam))
+                    if (ClearTransparentBackground((HDC)wParam))
                     {
                         return new LRESULT(1);
                     }
@@ -1360,18 +1759,13 @@ public partial class IslandsWindow : ObservableObject, IDisposable
             case WM_DWMCOMPOSITIONCHANGED:
                 if (_isTransparent)
                 {
-                    ConfigureDwmForTransparency((ulong)hwnd);
+                    ConfigureDwmForTransparency();
                     return new LRESULT(0);
                 }
                 break;
             case WM_SETTINGCHANGE:
             case WM_THEMECHANGED:
                 ProcessCoreWindowMessage(msg, wParam, lParam);
-                break;
-
-            case WM_NCLBUTTONDBLCLK:
-                if (!IsMaximizable)
-                    return new LRESULT(0);
                 break;
 
             case WM_SETFOCUS:
@@ -1386,7 +1780,7 @@ public partial class IslandsWindow : ObservableObject, IDisposable
                 return DefWindowProc(hwnd, msg, wParam, lParam);
         }
 
-        return new LRESULT(0);
+        return DefWindowProc(hwnd, msg, wParam, lParam);
     }
 
     private unsafe void OnDpiChanged(float newScale)
@@ -1422,7 +1816,7 @@ public partial class IslandsWindow : ObservableObject, IDisposable
         SetWindowPos(_xamlHwnd, HWND.NULL, 0, 0, clientWidth, clientHeight, SWP_SHOWWINDOW | SWP_NOACTIVATE | SWP_NOZORDER);
     }
 
-    internal void ProcessCoreWindowMessage(uint message, WPARAM wParam, LPARAM lParam)
+    internal static void ProcessCoreWindowMessage(uint message, WPARAM wParam, LPARAM lParam)
     {
         if (CoreWindowPriv._coreHwnd != default)
             SendMessageW(CoreWindowPriv._coreHwnd, message, wParam, lParam);

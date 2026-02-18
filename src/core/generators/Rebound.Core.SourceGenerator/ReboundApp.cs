@@ -54,6 +54,7 @@ public class ReboundAppSourceGenerator : IIncrementalGenerator
                     .AddUsings(
                         UsingDirective(IdentifierName("System")),
                         UsingDirective(IdentifierName("System.Threading")),
+                        UsingDirective(IdentifierName("System.Linq")),
                         UsingDirective(IdentifierName("System.Threading.Tasks")),
                         UsingDirective(IdentifierName("System.Collections.Concurrent")),
                         UsingDirective(IdentifierName("System.Collections.Generic")),
@@ -491,11 +492,11 @@ public class ReboundAppSourceGenerator : IIncrementalGenerator
                 Identifier("window"),
                 InvocationExpression(
                     MemberAccessExpression(
-                        SyntaxKind.SimpleMemberAccessExpression,
-                        MemberAccessExpression(
                             SyntaxKind.SimpleMemberAccessExpression,
-                            IdentifierName("WindowList"),
-                            IdentifierName("OpenWindows")),
+                            MemberAccessExpression(
+                                SyntaxKind.SimpleMemberAccessExpression,
+                                IdentifierName("WindowList"),
+                                IdentifierName("OpenWindows")),
                         IdentifierName("ToArray"))),
                 Block(
                     IfStatement(
