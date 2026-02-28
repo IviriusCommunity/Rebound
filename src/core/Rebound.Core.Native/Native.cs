@@ -6,6 +6,52 @@ using TerraFX.Interop.Windows;
 
 namespace Rebound.Core;
 
+/// <summary>
+/// Wraps a managed value in unmanaged memory, exposing a raw pointer for native interop. Automatically frees the allocation when disposed.
+/// </summary>
+/// <typeparam name="T">
+/// The type of the pointer used.
+/// </typeparam>
+public unsafe struct ManagedPtr<T> : IEquatable<ManagedPtr<T>>, IDisposable where T : unmanaged
+{
+    private nint _ptr;
+    public readonly void* ObjectPointer => (void*)_ptr;
+
+    public ManagedPtr(T value)
+    {
+        _ptr = Marshal.AllocHGlobal(sizeof(T));
+        *(T*)_ptr = value;
+    }
+
+    public ManagedPtr(string value)
+    {
+        _ptr = Marshal.StringToHGlobalUni(value);
+    }
+
+    public void Dispose()
+    {
+        if (_ptr != 0)
+        {
+            Marshal.FreeHGlobal(_ptr);
+            _ptr = 0;
+        }
+    }
+
+    public readonly bool Equals(ManagedPtr<T> other) => _ptr == other._ptr;
+    public readonly override bool Equals(object? obj) => obj is ManagedPtr<T> other && Equals(other);
+    public readonly override int GetHashCode() => _ptr.GetHashCode();
+    public static bool operator ==(ManagedPtr<T> left, ManagedPtr<T> right) => left._ptr == right._ptr;
+    public static bool operator !=(ManagedPtr<T> left, ManagedPtr<T> right) => left._ptr != right._ptr;
+
+#pragma warning disable CA2225 // Operator overloads have named alternates
+    public static implicit operator char*(ManagedPtr<T> pinned) => (char*)pinned.ObjectPointer;
+    public readonly char* ToCharPtr() => (char*)ObjectPointer;
+
+    public static implicit operator Guid*(ManagedPtr<T> pinned) => (Guid*)pinned.ObjectPointer;
+    public readonly Guid* ToGuidPtr() => (Guid*)ObjectPointer;
+#pragma warning restore CA2225 // Operator overloads have named alternates
+}
+
 public static unsafe partial class Shell32RE
 {
     [LibraryImport("shell32.dll", EntryPoint = "#61")]
@@ -59,6 +105,7 @@ public static class NativeMethods
         return *(TerraFX.Interop.Windows.HWND*)hwnd.Value;
     }
 
+    [Obsolete("Dangerous code.")]
     public static unsafe Windows.Win32.Foundation.PCWSTR ToPCWSTR(this string value)
     {
         fixed (char* valueCharPtr = value)
@@ -67,6 +114,7 @@ public static class NativeMethods
         }
     }
 
+    [Obsolete("Dangerous code.")]
     public static unsafe char* ToPointer(this string value)
     {
         fixed (char* valueCharPtr = value)

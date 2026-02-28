@@ -242,7 +242,6 @@ public partial class LiveHardwareFeed : IDisposable
                 }
             }
 
-            Debug.WriteLine(maxUsage);
             result = (int)Math.Clamp(maxUsage, 0, 100);
         }
         catch

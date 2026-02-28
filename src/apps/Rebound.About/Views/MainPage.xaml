@@ -5,10 +5,13 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:animatedvisuals="using:Microsoft.UI.Xaml.Controls.AnimatedVisuals"
     xmlns:animations="using:CommunityToolkit.WinUI.Animations"
+    xmlns:behaviors="using:CommunityToolkit.WinUI.Behaviors"
     xmlns:controls="using:CommunityToolkit.WinUI.Controls"
     xmlns:converters="using:CommunityToolkit.WinUI.Converters"
     xmlns:core="using:Rebound.Core"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:header="using:WinUIGallery.Controls"
+    xmlns:interactivity="using:Microsoft.Xaml.Interactivity"
     xmlns:local="using:Rebound.About"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:media="using:CommunityToolkit.WinUI.Media"
@@ -20,8 +23,6 @@
     xmlns:viewModels="using:Rebound.About.ViewModels"
     d:DataContext="{d:DesignInstance Type=viewModels:MainViewModel}"
     muxc:BackdropMaterial.ApplyToRootOrPageBackground="True"
-    Loaded="Page_Loaded"
-    SizeChanged="Page_SizeChanged"
     mc:Ignorable="d">
 
     <Page.Resources>
@@ -233,6 +234,7 @@
                     VerticalAlignment="Center"
                     Background="Transparent"
                     BorderBrush="Transparent"
+                    Command="{x:Bind ViewMoreCommand}"
                     Visibility="{x:Bind ViewModel.ShowTabs, Mode=OneWay}">
                     <StackPanel Orientation="Horizontal" Spacing="8">
                         <FontIcon FontSize="16" Glyph="&#xE8A7;" />
@@ -301,7 +303,7 @@
                                                 Grid.Column="1"
                                                 Foreground="{ThemeResource TextFillColorDisabledBrush}"
                                                 IsTextSelectionEnabled="True"
-                                                Text="{x:Bind viewModels:MainViewModel.DetailedWindowsVersion}"
+                                                Text="{x:Bind sysinfoSoftware:WindowsInformation.GetDetailedWindowsVersion()}"
                                                 TextWrapping="WrapWholeWords" />
                                             <TextBlock
                                                 Grid.Row="1"
@@ -336,46 +338,6 @@
                                         Background="Transparent"
                                         BorderBrush="Transparent"
                                         Command="{x:Bind CopyWindowsVersionCommand}">
-                                        <FontIcon FontSize="16" Glyph="&#xE8C8;" />
-                                    </Button>
-                                </Grid>
-                            </Border>
-
-                            <!--  Rebound version  -->
-                            <Border
-                                Grid.Row="2"
-                                BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
-                                BorderThickness="0"
-                                Visibility="{x:Bind ViewModel.IsReboundOn, Mode=OneWay}">
-                                <Grid Padding="16">
-                                    <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="Auto" />
-                                        <ColumnDefinition Width="16" />
-                                        <ColumnDefinition Width="*" />
-                                    </Grid.ColumnDefinitions>
-                                    <FontIcon
-                                        VerticalAlignment="Top"
-                                        FontSize="16"
-                                        Foreground="{ThemeResource AccentTextFillColorPrimaryBrush}"
-                                        Glyph="&#xF167;" />
-                                    <StackPanel Grid.Column="2" Spacing="10">
-                                        <TextBlock
-                                            Margin="0,-3,0,8"
-                                            FontWeight="SemiBold"
-                                            Text="Rebound"
-                                            TextWrapping="WrapWholeWords" />
-                                        <TextBlock Text="{x:Bind core:Variables.ReboundVersion}" />
-                                        <TextBlock x:Uid="ReboundInfo" TextWrapping="WrapWholeWords" />
-                                    </StackPanel>
-                                    <Button
-                                        Grid.Column="2"
-                                        Margin="-8"
-                                        Padding="8"
-                                        HorizontalAlignment="Right"
-                                        VerticalAlignment="Top"
-                                        Background="Transparent"
-                                        BorderBrush="Transparent"
-                                        Command="{x:Bind CopyReboundVersionCommand}">
                                         <FontIcon FontSize="16" Glyph="&#xE8C8;" />
                                     </Button>
                                 </Grid>
@@ -513,6 +475,46 @@
                                 </Grid>
                             </Grid>
 
+                            <!--  Rebound version  -->
+                            <Border
+                                Grid.Row="2"
+                                BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                                BorderThickness="0"
+                                Visibility="{x:Bind ViewModel.IsReboundOn, Mode=OneWay}">
+                                <Grid Padding="16">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="Auto" />
+                                        <ColumnDefinition Width="16" />
+                                        <ColumnDefinition Width="*" />
+                                    </Grid.ColumnDefinitions>
+                                    <FontIcon
+                                        VerticalAlignment="Top"
+                                        FontSize="16"
+                                        Foreground="{ThemeResource AccentTextFillColorPrimaryBrush}"
+                                        Glyph="&#xF167;" />
+                                    <StackPanel Grid.Column="2" Spacing="10">
+                                        <TextBlock
+                                            Margin="0,-3,0,8"
+                                            FontWeight="SemiBold"
+                                            Text="Rebound"
+                                            TextWrapping="WrapWholeWords" />
+                                        <TextBlock Text="{x:Bind core:Variables.ReboundVersion}" />
+                                        <TextBlock x:Uid="ReboundInfo" TextWrapping="WrapWholeWords" />
+                                    </StackPanel>
+                                    <Button
+                                        Grid.Column="2"
+                                        Margin="-8"
+                                        Padding="8"
+                                        HorizontalAlignment="Right"
+                                        VerticalAlignment="Top"
+                                        Background="Transparent"
+                                        BorderBrush="Transparent"
+                                        Command="{x:Bind CopyReboundVersionCommand}">
+                                        <FontIcon FontSize="16" Glyph="&#xE8C8;" />
+                                    </Button>
+                                </Grid>
+                            </Border>
+
                         </Grid>
                     </controls:Case>
                     <controls:Case Value="specifications">
@@ -624,8 +626,12 @@
                                             Margin="-8,0"
                                             Padding="8"
                                             Background="Transparent"
-                                            BorderBrush="Transparent"
-                                            Command="{x:Bind OpenActivationSettingsCommand}">
+                                            BorderBrush="Transparent">
+                                            <interactivity:Interaction.Behaviors>
+                                                <interactivity:EventTriggerBehavior EventName="Click">
+                                                    <behaviors:NavigateToUriAction NavigateUri="ms-settings:activation" />
+                                                </interactivity:EventTriggerBehavior>
+                                            </interactivity:Interaction.Behaviors>
                                             <StackPanel Orientation="Horizontal" Spacing="8">
                                                 <FontIcon FontSize="16" Glyph="&#xE8D7;" />
                                                 <TextBlock VerticalAlignment="Center" Text="Open Windows Activation Settings" />
@@ -661,7 +667,8 @@
                         Padding="8"
                         VerticalAlignment="Center"
                         Background="Transparent"
-                        BorderBrush="Transparent">
+                        BorderBrush="Transparent"
+                        Command="{x:Bind LegacyLaunchCommand}">
                         <FontIcon FontSize="16" Glyph="&#xED56;" />
                     </Button>
                     <Button
@@ -671,15 +678,18 @@
                         Command="{x:Bind CloseWindowCommand}"
                         Style="{StaticResource AccentButtonStyle}">
                         <Button.KeyboardAccelerators>
-                            <KeyboardAccelerator Key="Escape" />
+                            <KeyboardAccelerator Key="Escape" ToolTipService.PlacementTarget="{x:Null}" />
                         </Button.KeyboardAccelerators>
                     </Button>
                 </StackPanel>
                 <muxc:PersonPicture
                     Width="28"
                     HorizontalAlignment="Left"
-                    ProfilePicture="{x:Bind UserPicture, Mode=OneWay}"
-                    Visibility="{x:Bind ViewModel.ShowHelloUser, Mode=OneWay}" />
+                    Visibility="{x:Bind ViewModel.ShowHelloUser, Mode=OneWay}">
+                    <muxc:PersonPicture.ProfilePicture>
+                        <BitmapImage UriSource="{x:Bind UserPicturePath, Mode=OneWay}" />
+                    </muxc:PersonPicture.ProfilePicture>
+                </muxc:PersonPicture>
                 <TextBlock
                     Margin="40,0,180,0"
                     HorizontalAlignment="Stretch"
@@ -698,10 +708,15 @@
                 <RowDefinition Height="*" />
                 <RowDefinition Height="Auto" />
             </Grid.RowDefinitions>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="*" />
+            </Grid.ColumnDefinitions>
 
             <!--  Blur logo  -->
             <StackPanel
                 Grid.Row="0"
+                Grid.ColumnSpan="2"
                 MaxWidth="1200"
                 Margin="40,52,0,24"
                 HorizontalAlignment="Stretch"
@@ -740,10 +755,13 @@
             </StackPanel>
 
             <!--  Fallback background  -->
-            <Grid Background="{ThemeResource SystemControlBackgroundAltMediumLowBrush}" Visibility="{x:Bind ViewModel.ShowBlurAndGlow, Mode=OneWay, Converter={StaticResource BoolToInverseVisibilityConverter}}" />
+            <Grid
+                Grid.ColumnSpan="2"
+                Background="{ThemeResource SystemControlBackgroundAltMediumLowBrush}"
+                Visibility="{x:Bind ViewModel.ShowBlurAndGlow, Mode=OneWay, Converter={StaticResource BoolToInverseVisibilityConverter}}" />
 
             <!--  Blur  -->
-            <Grid Visibility="{x:Bind ViewModel.ShowBlurAndGlow, Mode=OneWay}">
+            <Grid Grid.ColumnSpan="2" Visibility="{x:Bind ViewModel.ShowBlurAndGlow, Mode=OneWay}">
                 <Grid.Background>
                     <media:BackdropBlurBrush Amount="36.0" />
                 </Grid.Background>
@@ -751,6 +769,7 @@
 
             <!--  Logo  -->
             <StackPanel
+                Grid.ColumnSpan="2"
                 MaxWidth="1200"
                 Margin="40,52,0,24"
                 HorizontalAlignment="Stretch"
@@ -790,6 +809,7 @@
 
             <!--  Title bar  -->
             <StackPanel
+                Grid.ColumnSpan="2"
                 Margin="12,8"
                 VerticalAlignment="Top"
                 Orientation="Horizontal"
@@ -810,7 +830,10 @@
             </StackPanel>
 
             <!--  Glow line  -->
-            <Grid Margin="0,142,0,0" Visibility="{x:Bind ViewModel.ShowBlurAndGlow, Mode=OneWay}">
+            <Grid
+                Grid.ColumnSpan="2"
+                Margin="0,142,0,0"
+                Visibility="{x:Bind ViewModel.ShowBlurAndGlow, Mode=OneWay}">
                 <Grid.Background>
                     <LinearGradientBrush StartPoint="0, 0" EndPoint="1, 1">
                         <LinearGradientBrush.GradientStops>
@@ -824,9 +847,41 @@
                 </ui:Effects.Shadow>
             </Grid>
 
-            <!--  Tabs  -->
+            <!--  Effects  -->
+            <header:HomePageHeaderImage
+                Grid.Row="1"
+                Height="320"
+                Margin="0,100,600,0"
+                VerticalAlignment="Top"
+                Opacity="0.3">
+                <header:HomePageHeaderImage.Image>
+                    <BitmapImage UriSource="{x:Bind WallpaperPath, Mode=OneWay}" />
+                </header:HomePageHeaderImage.Image>
+            </header:HomePageHeaderImage>
+            <header:HomePageHeaderImage
+                Grid.Row="1"
+                Grid.Column="2"
+                Height="320"
+                Margin="600,100,0,0"
+                HorizontalAlignment="Right"
+                VerticalAlignment="Top"
+                ImageHorizontalAlignment="Right"
+                Opacity="0.3">
+                <header:HomePageHeaderImage.Image>
+                    <BitmapImage UriSource="{x:Bind WallpaperPath, Mode=OneWay}" />
+                </header:HomePageHeaderImage.Image>
+            </header:HomePageHeaderImage>
             <Grid
                 Grid.Row="1"
+                Grid.ColumnSpan="2"
+                MaxWidth="1200">
+                <Grid.Background>
+                    <media:BackdropBlurBrush Amount="128" />
+                </Grid.Background>
+            </Grid>
+            <Grid
+                Grid.Row="1"
+                Grid.ColumnSpan="2"
                 MaxWidth="1264"
                 Margin="-32,0,-32,0">
                 <Grid Width="32" HorizontalAlignment="Left">
@@ -846,8 +901,11 @@
                     </Grid.Background>
                 </Grid>
             </Grid>
+
+            <!--  Tabs  -->
             <Grid
                 Grid.Row="1"
+                Grid.ColumnSpan="2"
                 MaxWidth="1200"
                 Margin="-1,0"
                 BorderBrush="{ThemeResource DividerStrokeColorDefaultBrush}"
@@ -967,7 +1025,7 @@
                                             Grid.Column="1"
                                             Foreground="{ThemeResource TextFillColorDisabledBrush}"
                                             IsTextSelectionEnabled="True"
-                                            Text="{x:Bind viewModels:MainViewModel.DetailedWindowsVersion}"
+                                            Text="{x:Bind sysinfoSoftware:WindowsInformation.GetDetailedWindowsVersion()}"
                                             TextWrapping="Wrap" />
                                         <TextBlock
                                             Grid.Row="1"
@@ -1070,55 +1128,16 @@
                                 Padding="8"
                                 HorizontalAlignment="Right"
                                 VerticalAlignment="Top"
-                                BorderThickness="0">
+                                BorderThickness="0"
+                                Command="{x:Bind CopyWindowsVersionCommand}">
                                 <FontIcon FontSize="16" Glyph="&#xE8C8;" />
                                 <muxc:SplitButton.Flyout>
                                     <MenuFlyout>
-                                        <MenuFlyoutItem Text="Copy Windows version" />
-                                        <MenuFlyoutItem Text="Copy first four" />
+                                        <MenuFlyoutItem Command="{x:Bind CopyWindowsVersionCommand}" Text="Copy Windows version" />
+                                        <MenuFlyoutItem Command="{x:Bind CopyFirstFourCommand}" Text="Copy first four" />
                                     </MenuFlyout>
                                 </muxc:SplitButton.Flyout>
                             </muxc:SplitButton>
-                        </Grid>
-                    </Border>
-
-                    <!--  Rebound version  -->
-                    <Border
-                        Grid.Row="2"
-                        BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
-                        BorderThickness="0"
-                        Visibility="{x:Bind ViewModel.IsReboundOn, Mode=OneWay}">
-                        <Grid Padding="16">
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="Auto" />
-                                <ColumnDefinition Width="16" />
-                                <ColumnDefinition Width="*" />
-                            </Grid.ColumnDefinitions>
-                            <FontIcon
-                                VerticalAlignment="Top"
-                                FontSize="16"
-                                Foreground="{ThemeResource AccentTextFillColorPrimaryBrush}"
-                                Glyph="&#xF167;" />
-                            <StackPanel Grid.Column="2" Spacing="10">
-                                <TextBlock
-                                    Margin="0,-3,0,8"
-                                    FontWeight="SemiBold"
-                                    Text="Rebound"
-                                    TextWrapping="WrapWholeWords" />
-                                <TextBlock Text="{x:Bind core:Variables.ReboundVersion}" />
-                                <TextBlock x:Uid="ReboundInfo" TextWrapping="WrapWholeWords" />
-                            </StackPanel>
-                            <Button
-                                Grid.Column="2"
-                                Margin="-8"
-                                Padding="8"
-                                HorizontalAlignment="Right"
-                                VerticalAlignment="Top"
-                                Background="Transparent"
-                                BorderBrush="Transparent"
-                                Command="{x:Bind CopyReboundVersionCommand}">
-                                <FontIcon FontSize="16" Glyph="&#xE8C8;" />
-                            </Button>
                         </Grid>
                     </Border>
 
@@ -1399,6 +1418,46 @@
                         </Grid>
                     </Grid>
 
+                    <!--  Rebound version  -->
+                    <Border
+                        Grid.Row="2"
+                        BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                        BorderThickness="0"
+                        Visibility="{x:Bind ViewModel.IsReboundOn, Mode=OneWay}">
+                        <Grid Padding="16">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto" />
+                                <ColumnDefinition Width="16" />
+                                <ColumnDefinition Width="*" />
+                            </Grid.ColumnDefinitions>
+                            <FontIcon
+                                VerticalAlignment="Top"
+                                FontSize="16"
+                                Foreground="{ThemeResource AccentTextFillColorPrimaryBrush}"
+                                Glyph="&#xF167;" />
+                            <StackPanel Grid.Column="2" Spacing="10">
+                                <TextBlock
+                                    Margin="0,-3,0,8"
+                                    FontWeight="SemiBold"
+                                    Text="Rebound"
+                                    TextWrapping="WrapWholeWords" />
+                                <TextBlock Text="{x:Bind core:Variables.ReboundVersion}" />
+                                <TextBlock x:Uid="ReboundInfo" TextWrapping="WrapWholeWords" />
+                            </StackPanel>
+                            <Button
+                                Grid.Column="2"
+                                Margin="-8"
+                                Padding="8"
+                                HorizontalAlignment="Right"
+                                VerticalAlignment="Top"
+                                Background="Transparent"
+                                BorderBrush="Transparent"
+                                Command="{x:Bind CopyReboundVersionCommand}">
+                                <FontIcon FontSize="16" Glyph="&#xE8C8;" />
+                            </Button>
+                        </Grid>
+                    </Border>
+
                 </Grid>
                 <Grid
                     Grid.Column="1"
@@ -1480,8 +1539,11 @@
                                 <muxc:PersonPicture
                                     Width="48"
                                     Margin="4"
-                                    HorizontalAlignment="Left"
-                                    ProfilePicture="{x:Bind UserPicture, Mode=OneWay}" />
+                                    HorizontalAlignment="Left">
+                                    <muxc:PersonPicture.ProfilePicture>
+                                        <BitmapImage UriSource="{x:Bind UserPicturePath, Mode=OneWay}" />
+                                    </muxc:PersonPicture.ProfilePicture>
+                                </muxc:PersonPicture>
                                 <TextBlock
                                     Margin="64,0,180,0"
                                     HorizontalAlignment="Stretch"
@@ -1490,7 +1552,10 @@
                                     FontWeight="SemiBold"
                                     Text="{x:Bind sysinfoSoftware:UserInformation.GetDisplayName(), Mode=OneWay}"
                                     TextWrapping="WrapWholeWords" />
-                                <Grid Margin="0,0,8,0" HorizontalAlignment="Right">
+                                <Grid
+                                    Margin="0,0,8,0"
+                                    HorizontalAlignment="Right"
+                                    Visibility="{x:Bind viewModels:MainViewModel.IsMicrosoftAccount}">
                                     <Grid
                                         VerticalAlignment="Center"
                                         ColumnSpacing="1"
@@ -1533,7 +1598,7 @@
                                 <Grid
                                     Margin="0,0,8,0"
                                     HorizontalAlignment="Right"
-                                    Visibility="Collapsed">
+                                    Visibility="{x:Bind viewModels:MainViewModel.IsMicrosoftAccount, Converter={StaticResource BoolToInverseVisibilityConverter}}">
                                     <FontIcon
                                         HorizontalAlignment="Left"
                                         FontSize="24"
@@ -1545,86 +1610,120 @@
                                         Text="Local&#10;account" />
                                 </Grid>
                             </Grid>
-                            <Grid Grid.Row="1">
-                                <Grid.RowDefinitions>
-                                    <RowDefinition Height="Auto" />
-                                    <RowDefinition Height="*" />
-                                </Grid.RowDefinitions>
-                                <StackPanel Margin="8,0,0,0" Spacing="8">
-                                    <TextBlock
-                                        Margin="0,8,0,-8"
-                                        FontWeight="SemiBold"
-                                        Text="Information" />
-                                    <StackPanel
-                                        Orientation="Horizontal"
-                                        Spacing="8"
-                                        Visibility="Collapsed">
-                                        <FontIcon FontSize="16" Glyph="&#xE77B;" />
-                                        <TextBlock VerticalAlignment="Center" Text="User account" />
-                                    </StackPanel>
-                                    <StackPanel Orientation="Horizontal" Spacing="8">
-                                        <FontIcon FontSize="16" Glyph="&#xEA18;" />
-                                        <TextBlock VerticalAlignment="Center" Text="Administrator account" />
-                                    </StackPanel>
-                                    <StackPanel Orientation="Horizontal" Spacing="8">
-                                        <FontIcon FontSize="16" Glyph="&#xE917;" />
-                                        <TextBlock VerticalAlignment="Center" Text="Created on: 12.07.2025" />
-                                    </StackPanel>
-                                </StackPanel>
-                                <Button
-                                    Padding="8"
-                                    HorizontalAlignment="Right"
-                                    VerticalAlignment="Top"
-                                    Background="Transparent"
-                                    BorderBrush="Transparent">
-                                    <StackPanel Orientation="Horizontal" Spacing="8">
-                                        <FontIcon FontSize="16" Glyph="&#xE838;" />
-                                        <TextBlock VerticalAlignment="Center" Text="Open User Folder" />
-                                    </StackPanel>
-                                </Button>
-                                <Grid Grid.Row="1" Margin="8">
-                                    <TextBlock
-                                        Margin="0,8"
-                                        FontWeight="SemiBold"
-                                        Text="Desktop wallpaper" />
-                                    <Grid
-                                        Margin="0,36,0,0"
-                                        ui:UIElementExtensions.ClipToBounds="True"
-                                        Background="{ThemeResource SolidBackgroundFillColorBaseBrush}"
-                                        CornerRadius="8">
-                                        <Image Stretch="UniformToFill">
-                                            <Image.Source>
-                                                <BitmapImage UriSource="{x:Bind WallpaperPath, Mode=OneWay}" />
-                                            </Image.Source>
-                                        </Image>
-                                        <Grid
-                                            HorizontalAlignment="Right"
-                                            VerticalAlignment="Bottom"
-                                            BorderBrush="{ThemeResource ControlElevationBorderBrush}"
-                                            BorderThickness="1,1,0,0"
-                                            CornerRadius="4,0,0,0">
-                                            <Grid.Background>
-                                                <media:AcrylicBrush
-                                                    BlurAmount="12"
-                                                    TintColor="{ThemeResource SystemColorBackgroundColor}"
-                                                    TintOpacity="0.5" />
-                                            </Grid.Background>
-                                            <Button
-                                                Margin="-1,-1,0,0"
-                                                Padding="8"
-                                                Background="Transparent"
-                                                BorderBrush="Transparent"
-                                                BorderThickness="1,1,0,0"
-                                                CornerRadius="4,0,0,0">
-                                                <StackPanel Orientation="Horizontal" Spacing="8">
-                                                    <FontIcon FontSize="16" Glyph="&#xE838;" />
-                                                    <TextBlock VerticalAlignment="Center" Text="Open in File Explorer" />
-                                                </StackPanel>
-                                            </Button>
+                            <ScrollViewer Grid.Row="1">
+                                <Grid Grid.Row="1">
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="Auto" />
+                                        <RowDefinition Height="*" />
+                                        <RowDefinition Height="Auto" />
+                                    </Grid.RowDefinitions>
+                                    <StackPanel Margin="8,0,0,0" Spacing="8">
+                                        <TextBlock
+                                            Margin="0,8,0,8"
+                                            FontWeight="SemiBold"
+                                            Text="Information" />
+                                        <Grid>
+                                            <StackPanel
+                                                Orientation="Horizontal"
+                                                Spacing="8"
+                                                Visibility="{x:Bind viewModels:MainViewModel.IsAdmin, Converter={StaticResource BoolToInverseVisibilityConverter}}">
+                                                <FontIcon FontSize="16" Glyph="&#xE77B;" />
+                                                <TextBlock VerticalAlignment="Center" Text="User account" />
+                                            </StackPanel>
+                                            <StackPanel
+                                                Orientation="Horizontal"
+                                                Spacing="8"
+                                                Visibility="{x:Bind viewModels:MainViewModel.IsAdmin}">
+                                                <FontIcon FontSize="16" Glyph="&#xEA18;" />
+                                                <TextBlock VerticalAlignment="Center" Text="Administrator account" />
+                                            </StackPanel>
                                         </Grid>
+                                        <StackPanel Orientation="Horizontal" Spacing="8">
+                                            <FontIcon FontSize="16" Glyph="&#xE917;" />
+                                            <TextBlock VerticalAlignment="Center">
+                                                <Run Text="Password expires on: " />
+                                                <Run Text="{x:Bind sysinfoSoftware:UserInformation.GetPasswordExpiry()}" />
+                                            </TextBlock>
+                                        </StackPanel>
+                                    </StackPanel>
+                                    <Button
+                                        Padding="8"
+                                        HorizontalAlignment="Right"
+                                        VerticalAlignment="Top"
+                                        Background="Transparent"
+                                        BorderBrush="Transparent"
+                                        Command="{x:Bind OpenUserFolderCommand}">
+                                        <StackPanel Orientation="Horizontal" Spacing="8">
+                                            <FontIcon FontSize="16" Glyph="&#xE838;" />
+                                            <TextBlock VerticalAlignment="Center" Text="Open User Folder" />
+                                        </StackPanel>
+                                    </Button>
+                                    <Grid Grid.Row="2" Margin="0,0,0,8">
+                                        <StackPanel>
+                                            <TextBlock
+                                                Margin="8,16,0,0"
+                                                FontWeight="SemiBold"
+                                                Text="Accent color palette" />
+                                            <Grid Height="32" Margin="8,8,8,16">
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="*" />
+                                                    <ColumnDefinition Width="*" />
+                                                    <ColumnDefinition Width="*" />
+                                                    <ColumnDefinition Width="*" />
+                                                    <ColumnDefinition Width="*" />
+                                                    <ColumnDefinition Width="*" />
+                                                    <ColumnDefinition Width="*" />
+                                                </Grid.ColumnDefinitions>
+                                                <Border Background="{ThemeResource SystemAccentColorLight3}" CornerRadius="4, 0, 0, 4" />
+                                                <Border Grid.Column="1" Background="{ThemeResource SystemAccentColorLight2}" />
+                                                <Border Grid.Column="2" Background="{ThemeResource SystemAccentColorLight1}" />
+                                                <Border Grid.Column="4" Background="{ThemeResource SystemAccentColorDark1}" />
+                                                <Border Grid.Column="5" Background="{ThemeResource SystemAccentColorDark2}" />
+                                                <Border
+                                                    Grid.Column="6"
+                                                    Background="{ThemeResource SystemAccentColorDark3}"
+                                                    CornerRadius="0,4,4,0" />
+                                                <Border
+                                                    Grid.Column="3"
+                                                    Margin="-4"
+                                                    Background="{ThemeResource SystemAccentColor}"
+                                                    CornerRadius="4" />
+                                            </Grid>
+                                            <TextBlock
+                                                Margin="8,4,0,8"
+                                                FontWeight="SemiBold"
+                                                Text="Saturation gradient" />
+                                            <Border
+                                                Height="16"
+                                                Margin="8,0"
+                                                CornerRadius="4">
+                                                <Border.Background>
+                                                    <LinearGradientBrush>
+                                                        <GradientStop Color="{ThemeResource SystemAccentColorLight3}" />
+                                                        <GradientStop Offset="0.5" Color="{ThemeResource SystemAccentColor}" />
+                                                        <GradientStop Offset="1" Color="{ThemeResource SystemAccentColorDark3}" />
+                                                    </LinearGradientBrush>
+                                                </Border.Background>
+                                            </Border>
+                                            <TextBlock
+                                                Margin="8,16,0,8"
+                                                FontWeight="SemiBold"
+                                                Text="Brightness gradient" />
+                                            <Border
+                                                Height="16"
+                                                Margin="8,0"
+                                                CornerRadius="4">
+                                                <Border.Background>
+                                                    <LinearGradientBrush>
+                                                        <GradientStop Color="{ThemeResource SystemAccentColorLight3}" />
+                                                        <GradientStop Offset="1" Color="{ThemeResource SystemAccentColorDark3}" />
+                                                    </LinearGradientBrush>
+                                                </Border.Background>
+                                            </Border>
+                                        </StackPanel>
                                     </Grid>
                                 </Grid>
-                            </Grid>
+                            </ScrollViewer>
                         </Grid>
                     </Grid>
 
@@ -1678,8 +1777,12 @@
                                     Margin="-8,0"
                                     Padding="8"
                                     Background="Transparent"
-                                    BorderBrush="Transparent"
-                                    Command="{x:Bind OpenActivationSettingsCommand}">
+                                    BorderBrush="Transparent">
+                                    <interactivity:Interaction.Behaviors>
+                                        <interactivity:EventTriggerBehavior EventName="Click">
+                                            <behaviors:NavigateToUriAction NavigateUri="ms-settings:activation" />
+                                        </interactivity:EventTriggerBehavior>
+                                    </interactivity:Interaction.Behaviors>
                                     <StackPanel Orientation="Horizontal" Spacing="8">
                                         <FontIcon FontSize="16" Glyph="&#xE8D7;" />
                                         <TextBlock VerticalAlignment="Center" Text="Open Windows Activation Settings" />
@@ -1707,7 +1810,8 @@
                     Padding="8"
                     VerticalAlignment="Center"
                     Background="Transparent"
-                    BorderBrush="Transparent">
+                    BorderBrush="Transparent"
+                    Command="{x:Bind ViewMoreCommand}">
                     <StackPanel Orientation="Horizontal" Spacing="8">
                         <FontIcon FontSize="16" Glyph="&#xE8A7;" />
                         <TextBlock Text="View more" />
@@ -1724,7 +1828,8 @@
                         Padding="8,0"
                         VerticalAlignment="Center"
                         Background="Transparent"
-                        BorderBrush="Transparent">
+                        BorderBrush="Transparent"
+                        Command="{x:Bind LegacyLaunchCommand}">
                         <StackPanel Orientation="Horizontal" Spacing="8">
                             <FontIcon FontSize="16" Glyph="&#xED56;" />
                             <TextBlock Text="Legacy winver" />

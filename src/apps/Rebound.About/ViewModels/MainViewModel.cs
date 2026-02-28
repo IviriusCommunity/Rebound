@@ -6,22 +6,17 @@ using Rebound.Core;
 using Rebound.Core.SystemInformation.Hardware;
 using Rebound.Core.SystemInformation.Software;
 using Rebound.Core.UI;
-using System;
 using System.Diagnostics;
 
 namespace Rebound.About.ViewModels;
 
+#pragma warning disable CA1001 // Types that own disposable fields should be disposable
 internal partial class MainViewModel : ObservableObject
+#pragma warning restore CA1001 // Types that own disposable fields should be disposable
 {
-    // Version information
+    public static bool IsAdmin { get => UserInformation.IsAdmin(); }
 
-    public static string DetailedWindowsVersion
-    {
-        get
-        {
-            return $"{WindowsInformation.GetDisplayVersion()} ({WindowsInformation.GetCurrentBuildNumber()}.{WindowsInformation.GetUBR()})";
-        }
-    }
+    public static bool IsMicrosoftAccount { get => UserInformation.IsMicrosoftAccount(); }
 
     public static string CurrentUser
     {
@@ -30,8 +25,6 @@ internal partial class MainViewModel : ObservableObject
             var fullName = UserInformation.GetDisplayName();
             var resourceLoader = Windows.ApplicationModel.Resources.ResourceLoader.GetForCurrentView();
             string template = resourceLoader.GetString("HelloUser");
-
-            // Use InvariantCulture explicitly for string.Format
             return string.Format(System.Globalization.CultureInfo.InvariantCulture, template, fullName);
         }
     }

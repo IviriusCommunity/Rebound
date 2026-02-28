@@ -4,11 +4,13 @@
 using Rebound.Core;
 using Rebound.Core.IPC;
 using Rebound.Core.UI;
+using Rebound.Core.UI.UWP;
 using Rebound.Forge.Engines;
 using Rebound.Generators;
 using System;
 using System.Diagnostics;
 using System.Threading;
+using System.Threading.Tasks;
 using Windows.UI;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
@@ -20,57 +22,67 @@ using Windows.UI.Xaml.Controls;
 namespace Rebound.About;
 
 [ReboundApp("Rebound.About")]
-public partial class App : Application
+public partial class App : Application, IReboundLegacySupportApp, IReboundPipeClientApp
 {
-    public static PipeClient? ReboundPipeClient { get; private set; }
+    public PipeClient? ReboundPipeClient { get; private set; }
+
+    public string LegacyExecutableName { get; } = "winver.exe";
 
     private async void OnSingleInstanceLaunched(object sender, SingleInstanceLaunchEventArgs e)
     {
         try
         {
+            // Legacy launch
+            // with arguments
+            if (e.Arguments.StartsWith(Variables.LegacyLaunchArgument, StringComparison.InvariantCultureIgnoreCase)
+                // without arguments
+                || e.Arguments.StartsWith(Variables.LegacyLaunchArgument.Trim(), StringComparison.InvariantCultureIgnoreCase))
+            {
+                LaunchLegacy(e.Arguments.Length > Variables.LegacyLaunchArgument.Length - 1 ?
+                    // with arguments
+                    e.Arguments[Variables.LegacyLaunchArgument.Length..] :
+                    // without arguments
+                    string.Empty);
+
+                // If this is the app's first launch, simply close it.
+                if (e.IsFirstLaunch)
+                    return;
+            }
+
+            // If this is the application's initial launch, handle the required environment
             if (e.IsFirstLaunch)
             {
+                // FRONTEND
+                // Spawn or activate the main window immediately
                 UIThreadQueue.QueueAction(async () =>
                 {
-                    // Spawn or activate the main window immediately
                     if (MainWindow != null)
                         MainWindow.BringToFront();
                     else
                         CreateMainWindow();
                 });
 
-                // Initialize pipe client if not already
-                ReboundPipeClient ??= new();
-
-                // Service host watchdog thread
-                var serviceHostWatchdogThread = new Thread(async () =>
-                {
-                    ServiceHostWatchdogEngine.Start();
-                })
-                {
-                    IsBackground = true,
-                    Name = "Service Host Watchdog Thread"
-                };
-                serviceHostWatchdogThread.SetApartmentState(ApartmentState.STA);
-                serviceHostWatchdogThread.Start();
-
+                // BACKEND
                 // Pipe server thread
                 var pipeThread = new Thread(async () =>
                 {
                     try
                     {
+                        // Initialize pipe client if not already initialized
+                        ReboundPipeClient ??= new();
+
+                        // Make sure Rebound Service Host exists
+                        var started = ServiceHostEngine.StartServiceHost();
+                        if (!started)
+                            throw new InvalidOperationException("Rebound Service Host couldn't be started.");
+
+                        // Connect to it
                         await ReboundPipeClient.ConnectAsync().ConfigureAwait(false);
                     }
                     catch
                     {
-                        UIThreadQueue.QueueAction(async () =>
-                        {
-                            await ReboundDialog.ShowAsync(
-                                "Rebound Service Host not found.",
-                                "Could not find Rebound Service Host.\nPlease ensure it is running in the background.",
-                                DialogIcon.Warning
-                            ).ConfigureAwait(false);
-                        });
+                        // Rebound Service Host doesn't exist, fall back to UI solutions
+                        RunServiceHostFailedToLaunchFallback();
                     }
                 })
                 {
@@ -79,89 +91,163 @@ public partial class App : Application
                 };
                 pipeThread.SetApartmentState(ApartmentState.STA);
                 pipeThread.Start();
+
+                // Service host watchdog thread
+                // This ensures Rebound Service Host can't die randomly
+                var watchdogThread = new Thread(ServiceHostEngine.StartWatchdog)
+                {
+                    IsBackground = true,
+                    Name = "Service Host Watchdog Thread"
+                };
+                watchdogThread.SetApartmentState(ApartmentState.STA);
+                watchdogThread.Start();
             }
+
+            // The application has been launched again, simply bring the main window forward
             else
-            {
-                if (MainWindow != null)
-                    MainWindow.BringToFront();
-            }
-
-            // Handle legacy launch
-            if (e.Arguments == "legacy")
-            {
-                try
-                {
-                    await (ReboundPipeClient?.SendAsync("IFEOEngine::Pause#winver.exe"))!.ConfigureAwait(false);
-
-                    Process.Start(new ProcessStartInfo
-                    {
-                        FileName = "winver.exe",
-                        UseShellExecute = true,
-                    });
-
-                    await (ReboundPipeClient?.SendAsync("IFEOEngine::Resume#winver.exe"))!.ConfigureAwait(false);
-                }
-                catch
-                {
-                    UIThreadQueue.QueueAction(async () =>
-                    {
-                        await ReboundDialog.ShowAsync(
-                            "Legacy Launch Failed",
-                            "Could not communicate with Rebound Service Host.\nPlease ensure it is running and try again.",
-                            DialogIcon.Warning
-                        ).ConfigureAwait(false);
-                    });
-                }
-            }
+                UIThreadQueue.QueueAction(MainWindow!.BringToFront);
         }
         catch (Exception ex)
         {
-            ReboundLogger.Log("[Rebound About] Single instance launch error", ex);
+            ReboundLogger.WriteToLog(
+                "Application Launch",
+                "Single instance launcher error - the application couldn't be launched.",
+                LogMessageSeverity.Error,
+                ex);
+
+            // The environment is too unstable for execution to continue
+            Current.Exit();
         }
     }
 
-    public static unsafe void CreateMainWindow()
+    public void RunServiceHostFailedToLaunchFallback()
     {
-        // Create the window
-        MainWindow = new()
+        UIThreadQueue.QueueAction(async () =>
         {
-            IsPersistenceEnabled = true,
-            PersistenceKey = "Rebound.About.MainWindow",
-            PersistenceFileName = "winver",
-            Width = 520,
-            Height = 740,
-            X = 50,
-            Y = 50
-        };
+            // Request an action from the user
+            var result = await ReboundDialog.ShowAsync(
+                "Rebound About",
+                "Rebound Service Host not found.",
+                "Could not find Rebound Service Host. This process is required for the \"Legacy winver\" feature to work.",
+                [
+                    new("Launch", true, '\uEA18'),
+                    new("Ok", false)
+                ],
+                DialogIcon.Warning
+                ).ConfigureAwait(false);
+            switch (result)
+            {
+                // Button index 0 (Launch)
+                case 0:
+                    {
+                        // Make sure Rebound Service Host exists
+                        var launched = ServiceHostEngine.StartServiceHost();
 
-        // AppWindow init
-        MainWindow.AppWindowInitialized += (s, e) =>
+                        // If it still doesn't, it's possible that Rebound is corrupted - inform the user
+                        if (!launched)
+                        {
+                            await ReboundDialog.ShowAsync(
+                                "Rebound About",
+                                "Couldn't launch Rebound Service Host.",
+                                "Your Rebound installation might be corrupted. Please open Rebound Hub and check.",
+                                null,
+                                DialogIcon.Warning
+                                ).ConfigureAwait(false);
+                        }
+                        break;
+                    }
+
+                // Ok and close buttons
+                default:
+                    break;
+            }
+        });
+    }
+
+    public void LaunchLegacy(string args)
+    {
+        Task.Run(async () =>
         {
-            MainWindow.Title = "About Windows";
-            
-            // Window metrics
-            MainWindow.MinWidth = 440;
-            MainWindow.MinHeight = 360;
+            try
+            {
+                // Disable the IFEO entry via Rebound Service Host
+                await (ReboundPipeClient?.SendAsync($"IFEOEngine::Pause#{LegacyExecutableName}"))!.ConfigureAwait(false);
 
-            // Window properties
-            MainWindow.AppWindow?.TitleBar.ExtendsContentIntoTitleBar = true;
-            MainWindow.AppWindow?.TitleBar.ButtonBackgroundColor = Colors.Transparent;
-            MainWindow.AppWindow?.TitleBar.ButtonHoverBackgroundColor = Color.FromArgb(40, 120, 120, 120);
-            MainWindow.AppWindow?.TitleBar.ButtonPressedBackgroundColor = Color.FromArgb(24, 120, 120, 120);
-            MainWindow.AppWindow?.TitleBar.ButtonInactiveBackgroundColor = Colors.Transparent;
-            MainWindow.AppWindow?.SetTaskbarIcon($"{AppContext.BaseDirectory}\\Assets\\AboutWindows.ico");
-        };
+                // Launch the original application
+                Process.Start(new ProcessStartInfo
+                {
+                    FileName = LegacyExecutableName,
+                    UseShellExecute = true,
+                    Arguments = args
+                });
 
-        // Load main page
-        MainWindow.XamlInitialized += (s, e) =>
+                // Resume the IFEO entry
+                await (ReboundPipeClient?.SendAsync($"IFEOEngine::Resume#{LegacyExecutableName}"))!.ConfigureAwait(false);
+            }
+            catch
+            {
+                // Rebound Service Host doesn't exist, fall back to UI solutions
+                RunServiceHostFailedToLaunchFallback();
+            }
+        });
+    }
+
+    public static void CreateMainWindow()
+    {
+        try
         {
-            var frame = new Frame();
-            frame.Navigate(typeof(Views.MainPage));
-            MainWindow.Content = frame;
-        };
+            // Create the window
+            MainWindow = new()
+            {
+                IsPersistenceEnabled = true,
+                PersistenceKey = "Rebound.About.MainWindow",
+                PersistenceFileName = "winver",
+                Width = 520,
+                Height = 740,
+                X = 50,
+                Y = 50
+            };
 
-        // Spawn the window
-        MainWindow.Create();
+            // AppWindow init
+            MainWindow.AppWindowInitialized += (s, e) =>
+            {
+                MainWindow.Title = "About Windows";
+
+                // Window metrics
+                MainWindow.MinWidth = 440;
+                MainWindow.MinHeight = 360;
+
+                // Window properties
+                MainWindow.AppWindow?.TitleBar.ExtendsContentIntoTitleBar = true;
+                MainWindow.AppWindow?.TitleBar.ButtonBackgroundColor =
+                MainWindow.AppWindow?.TitleBar.ButtonInactiveBackgroundColor = Colors.Transparent;
+                MainWindow.AppWindow?.TitleBar.ButtonHoverBackgroundColor = IslandsWindow.ButtonHoverBackgroundColor;
+                MainWindow.AppWindow?.TitleBar.ButtonPressedBackgroundColor = IslandsWindow.ButtonPressedBackgroundColor;
+                MainWindow.AppWindow?.SetTaskbarIcon($"{AppContext.BaseDirectory}\\Assets\\AboutWindows.ico");
+            };
+
+            // Load main page
+            MainWindow.XamlInitialized += (s, e) =>
+            {
+                var frame = new Frame();
+                frame.Navigate(typeof(Views.MainPage));
+                MainWindow.Content = frame;
+            };
+
+            // Spawn the window
+            MainWindow.Create();
+        }
+        catch (Exception ex)
+        {
+            ReboundLogger.WriteToLog(
+                "Application Launch",
+                "Window creation error - the application couldn't create a main window.",
+                LogMessageSeverity.Error,
+                ex);
+
+            // The environment is too unstable for execution to continue
+            Current.Exit();
+        }
     }
 
     public static IslandsWindow? MainWindow { get; set; }

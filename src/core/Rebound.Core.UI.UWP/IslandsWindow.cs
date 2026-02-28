@@ -12,6 +12,7 @@ using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
+using System.Runtime.InteropServices.JavaScript;
 using TerraFX.Interop.Windows;
 using TerraFX.Interop.WinRT;
 using Windows.Graphics.Imaging;
@@ -37,62 +38,62 @@ namespace Rebound.Core.UI;
 
 public class TitleBarSnapshot
 {
-    public Windows.UI.Color? BackgroundColor;
-    public Windows.UI.Color? ForegroundColor;
-    public Windows.UI.Color? InactiveBackgroundColor;
-    public Windows.UI.Color? InactiveForegroundColor;
-    public Windows.UI.Color? ButtonBackgroundColor;
-    public Windows.UI.Color? ButtonForegroundColor;
-    public Windows.UI.Color? ButtonHoverBackgroundColor;
-    public Windows.UI.Color? ButtonHoverForegroundColor;
-    public Windows.UI.Color? ButtonInactiveBackgroundColor;
-    public Windows.UI.Color? ButtonInactiveForegroundColor;
-    public Windows.UI.Color? ButtonPressedBackgroundColor;
-    public Windows.UI.Color? ButtonPressedForegroundColor;
-    public IconShowOptions IconShowOptions;
-    public TitleBarHeightOption PreferredHeightOption;
-    public TitleBarTheme PreferredTheme;
-    public bool ExtendsContentIntoTitleBar;
+    public Windows.UI.Color? BackgroundColor { get; set; }
+    public Windows.UI.Color? ForegroundColor { get; set; }
+    public Windows.UI.Color? InactiveBackgroundColor { get; set; }
+    public Windows.UI.Color? InactiveForegroundColor { get; set; }
+    public Windows.UI.Color? ButtonBackgroundColor { get; set; }
+    public Windows.UI.Color? ButtonForegroundColor { get; set; }
+    public Windows.UI.Color? ButtonHoverBackgroundColor { get; set; }
+    public Windows.UI.Color? ButtonHoverForegroundColor { get; set; }
+    public Windows.UI.Color? ButtonInactiveBackgroundColor { get; set; }
+    public Windows.UI.Color? ButtonInactiveForegroundColor { get; set; }
+    public Windows.UI.Color? ButtonPressedBackgroundColor { get; set; }
+    public Windows.UI.Color? ButtonPressedForegroundColor { get; set; }
+    public IconShowOptions IconShowOptions { get; set; }
+    public TitleBarHeightOption PreferredHeightOption { get; set; }
+    public TitleBarTheme PreferredTheme { get; set; }
+    public bool ExtendsContentIntoTitleBar { get; set; }
 
     public static TitleBarSnapshot Capture(AppWindowTitleBar tb) => new()
     {
-        BackgroundColor = tb.BackgroundColor,
-        ForegroundColor = tb.ForegroundColor,
-        InactiveBackgroundColor = tb.InactiveBackgroundColor,
-        InactiveForegroundColor = tb.InactiveForegroundColor,
-        ButtonBackgroundColor = tb.ButtonBackgroundColor,
-        ButtonForegroundColor = tb.ButtonForegroundColor,
-        ButtonHoverBackgroundColor = tb.ButtonHoverBackgroundColor,
-        ButtonHoverForegroundColor = tb.ButtonHoverForegroundColor,
-        ButtonInactiveBackgroundColor = tb.ButtonInactiveBackgroundColor,
-        ButtonInactiveForegroundColor = tb.ButtonInactiveForegroundColor,
-        ButtonPressedBackgroundColor = tb.ButtonPressedBackgroundColor,
-        ButtonPressedForegroundColor = tb.ButtonPressedForegroundColor,
-        IconShowOptions = tb.IconShowOptions,
-        PreferredHeightOption = tb.PreferredHeightOption,
-        PreferredTheme = tb.PreferredTheme,
-        ExtendsContentIntoTitleBar = tb.ExtendsContentIntoTitleBar
+        BackgroundColor = tb?.BackgroundColor,
+        ForegroundColor = tb?.ForegroundColor,
+        InactiveBackgroundColor = tb?.InactiveBackgroundColor,
+        InactiveForegroundColor = tb?.InactiveForegroundColor,
+        ButtonBackgroundColor = tb?.ButtonBackgroundColor,
+        ButtonForegroundColor = tb?.ButtonForegroundColor,
+        ButtonHoverBackgroundColor = tb?.ButtonHoverBackgroundColor,
+        ButtonHoverForegroundColor = tb?.ButtonHoverForegroundColor,
+        ButtonInactiveBackgroundColor = tb?.ButtonInactiveBackgroundColor,
+        ButtonInactiveForegroundColor = tb?.ButtonInactiveForegroundColor,
+        ButtonPressedBackgroundColor = tb?.ButtonPressedBackgroundColor,
+        ButtonPressedForegroundColor = tb?.ButtonPressedForegroundColor,
+        IconShowOptions = tb!.IconShowOptions,
+        PreferredHeightOption = tb!.PreferredHeightOption,
+        PreferredTheme = tb!.PreferredTheme,
+        ExtendsContentIntoTitleBar = tb!.ExtendsContentIntoTitleBar
     };
 
     public void Restore(AppWindowTitleBar tb)
     {
-        tb.ExtendsContentIntoTitleBar = ExtendsContentIntoTitleBar;
-        tb.BackgroundColor = BackgroundColor;
-        tb.ForegroundColor = ForegroundColor;
-        tb.InactiveBackgroundColor = InactiveBackgroundColor;
-        tb.InactiveForegroundColor = InactiveForegroundColor;
-        tb.ButtonBackgroundColor = ButtonBackgroundColor;
-        tb.ButtonForegroundColor = ButtonForegroundColor;
-        tb.ButtonHoverBackgroundColor = ButtonHoverBackgroundColor;
-        tb.ButtonHoverForegroundColor = ButtonHoverForegroundColor;
-        tb.ButtonInactiveBackgroundColor = ButtonInactiveBackgroundColor;
-        tb.ButtonInactiveForegroundColor = ButtonInactiveForegroundColor;
-        tb.ButtonPressedBackgroundColor = ButtonPressedBackgroundColor;
-        tb.ButtonPressedForegroundColor = ButtonPressedForegroundColor;
-        tb.IconShowOptions = IconShowOptions;
-        tb.PreferredTheme = PreferredTheme;
+        tb?.ExtendsContentIntoTitleBar = ExtendsContentIntoTitleBar;
+        tb?.BackgroundColor = BackgroundColor;
+        tb?.ForegroundColor = ForegroundColor;
+        tb?.InactiveBackgroundColor = InactiveBackgroundColor;
+        tb?.InactiveForegroundColor = InactiveForegroundColor;
+        tb?.ButtonBackgroundColor = ButtonBackgroundColor;
+        tb?.ButtonForegroundColor = ButtonForegroundColor;
+        tb?.ButtonHoverBackgroundColor = ButtonHoverBackgroundColor;
+        tb?.ButtonHoverForegroundColor = ButtonHoverForegroundColor;
+        tb?.ButtonInactiveBackgroundColor = ButtonInactiveBackgroundColor;
+        tb?.ButtonInactiveForegroundColor = ButtonInactiveForegroundColor;
+        tb?.ButtonPressedBackgroundColor = ButtonPressedBackgroundColor;
+        tb?.ButtonPressedForegroundColor = ButtonPressedForegroundColor;
+        tb?.IconShowOptions = IconShowOptions;
+        tb?.PreferredTheme = PreferredTheme;
         if (!ExtendsContentIntoTitleBar) return;
-        tb.PreferredHeightOption = PreferredHeightOption;
+        tb?.PreferredHeightOption = PreferredHeightOption;
     }
 }
 
@@ -105,7 +106,13 @@ public enum DialogIcon
     Shield
 }
 
-public partial class ThemeRegistryListener(bool useShellTheme) : IDisposable
+public partial class ThemeRegistryListenerEventArgs(ApplicationTheme applicationTheme, ApplicationTheme shellTheme)
+{
+    public ApplicationTheme ApplicationTheme { get; } = applicationTheme;
+    public ApplicationTheme ShellTheme { get; } = shellTheme;
+}
+
+public partial class ThemeRegistryListener() : IDisposable
 {
     // Registry notification flags
 #pragma warning disable CA1707
@@ -123,13 +130,12 @@ public partial class ThemeRegistryListener(bool useShellTheme) : IDisposable
     // Variables
     private readonly RegistryKey registryKey = Registry.CurrentUser.OpenSubKey(RegistryKeyPath, false)
             ?? throw new InvalidOperationException("Failed to open registry key.");
-    private readonly bool _useShellTheme = useShellTheme;
     private Task? watchTask;
     private CancellationTokenSource? cts;
     private bool _disposed;
 
 #pragma warning disable CA1003
-    public event EventHandler<bool>? ThemeChanged;
+    public event EventHandler<ThemeRegistryListenerEventArgs>? ThemeChanged;
 
 #pragma warning restore CA1003
 
@@ -165,16 +171,20 @@ public partial class ThemeRegistryListener(bool useShellTheme) : IDisposable
                 break;
 
             if (waitResult == 0)
-                ThemeChanged?.Invoke(this, !IsLightTheme());
+                ThemeChanged?.Invoke(this, new(GetTheme(false), GetTheme(true)));
         }
     }
 
-    public bool IsLightTheme()
+    public ApplicationTheme GetTheme(bool useShellTheme)
     {
-        var val = registryKey.GetValue(_useShellTheme ? ValueNameShellTheme : ValueName);
+        var val = registryKey.GetValue(useShellTheme ? ValueNameShellTheme : ValueName);
         if (val is int intValue)
-            return intValue != 0;
-        return true;
+            return intValue switch
+            {
+                0 => ApplicationTheme.Dark,
+                _ => ApplicationTheme.Light
+            };
+        return ApplicationTheme.Dark;
     }
 
     protected virtual void Dispose(bool disposing)
@@ -231,9 +241,24 @@ public static class WindowList
     }
 }
 
+public class ReboundDialogButton(string content, bool isAccent = false, char? icon = null)
+{
+    public string Content { get; } = content;
+    public bool IsAccent { get; } = isAccent;
+    public char? Icon { get; } = icon;
+}
+
 public sealed partial class ReboundDialog : IslandsWindow
 {
-    private readonly TaskCompletionSource<bool> _tcs = new();
+    private const int DialogWidth = 480;
+    private const int IconSize = 48;
+    private const int ContentPadding = 20;
+    private const int ContentToFooterSpacing = 24;
+    private const int TitleBarHeight = 32;
+    private const int MinDialogHeight = 180;
+    private const int MaxDialogHeight = 640;
+
+    private readonly TaskCompletionSource<int> _tcs = new();
 
     private bool _resultSet;
 
@@ -245,12 +270,13 @@ public sealed partial class ReboundDialog : IslandsWindow
     /// <param name="title">The title of the window. Appears in the title bar, taskbar, and header.</param>
     /// <param name="message">Message content for the dialog.</param>
     /// <param name="icon">The icon used by the dialog. Queried from the system.</param>
-    /// <returns>A task corresponding to the object.</returns>
-    public static async Task ShowAsync(string title, string message, DialogIcon icon = DialogIcon.Info, int height = 256)
+    /// <returns>The index of the pressed button. If the window was closed without a button press, -1 is returned.</returns>
+    public static async Task<int> ShowAsync(string title, string header, string message, Collection<ReboundDialogButton>? buttons = null, DialogIcon icon = DialogIcon.Info, int height = 256)
     {
-        using var dlg = new ReboundDialog(title, message, icon, height);
+        buttons ??= [new ReboundDialogButton("Ok", true)];
+        using var dlg = new ReboundDialog(title, header, message, buttons, icon, height);
         dlg.Create();
-        await dlg._tcs.Task.ConfigureAwait(false);
+        return await dlg._tcs.Task.ConfigureAwait(false);
     }
 
     /// <summary>
@@ -261,7 +287,7 @@ public sealed partial class ReboundDialog : IslandsWindow
     /// <param name="title">The title of the window. Appears in the title bar, taskbar, and header.</param>
     /// <param name="message">Message content for the dialog.</param>
     /// <param name="icon">The icon used by the dialog. Queried from the system.</param>
-    public ReboundDialog(string title, string message, DialogIcon icon, int height)
+    private ReboundDialog(string title, string header, string message, Collection<ReboundDialogButton> buttons, DialogIcon icon, int height)
     {
         Title = title;
         IsPersistenceEnabled = false;
@@ -269,121 +295,206 @@ public sealed partial class ReboundDialog : IslandsWindow
         XamlInitialized += (_, _) =>
         {
             var page = new Page();
-
-            // Mica (mandatory as always)
             BackdropMaterial.SetApplyToRootOrPageBackground(page, true);
 
+            // Root: TitleBar row | Content row
             var rootGrid = new Grid
             {
+                CornerRadius = new CornerRadius(8),
                 RowDefinitions =
-                {
-                    new RowDefinition { Height = GridLength.Auto },
-                    new RowDefinition { Height = new GridLength(1, GridUnitType.Star) }
-                },
-                CornerRadius = new CornerRadius(8)
+            {
+                new RowDefinition { Height = GridLength.Auto },
+                new RowDefinition { Height = new GridLength(1, GridUnitType.Star) }
+            }
             };
 
             // Title bar
-            var titleBar = new Border
-            {
-                Padding = new Thickness(12, 8, 0, 0),
-            };
-
-            var titleText = new TextBlock
+            var titleBar = new Border { Padding = new Thickness(12, 8, 0, 0) };
+            titleBar.Child = new TextBlock
             {
                 Text = title,
                 FontSize = 12,
                 VerticalAlignment = VerticalAlignment.Center
             };
-
-            titleBar.Child = titleText;
             rootGrid.Children.Add(titleBar);
 
-            // Content area
+            // Content area: Icon col | Text col
+            // Rows: Content | Spacer | Footer
             var contentGrid = new Grid
             {
-                Padding = new Thickness(20, 20, 20, 0),
+                Padding = new Thickness(ContentPadding, ContentPadding, ContentPadding, 0),
                 RowDefinitions =
-                {
-                    new RowDefinition { Height = GridLength.Auto },
-                    new RowDefinition { Height = GridLength.Auto },
-                    new RowDefinition { Height = new GridLength(1, GridUnitType.Star) },
-                    new RowDefinition { Height = GridLength.Auto }
-                }
+            {
+                new RowDefinition { Height = GridLength.Auto },
+                new RowDefinition { Height = new GridLength(1, GridUnitType.Star) },
+                new RowDefinition { Height = GridLength.Auto }
+            },
+                ColumnDefinitions =
+            {
+                new ColumnDefinition { Width = GridLength.Auto },                          // icon
+                new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) }      // text
+            }
             };
             Grid.SetRow(contentGrid, 1);
 
-            var stack = new StackPanel { Orientation = Orientation.Horizontal };
-
-            var iconImg = new Windows.UI.Xaml.Controls.Image
+            // Icon
+            var iconImg = new Image
             {
                 Source = LoadSystemIcon(icon),
-                Width = 48,
-                Height = 48,
+                Width = IconSize,
+                Height = IconSize,
                 Margin = new Thickness(0, 0, 16, 0),
-                VerticalAlignment = VerticalAlignment.Top
+                VerticalAlignment = VerticalAlignment.Top,
+                HorizontalAlignment = HorizontalAlignment.Left
             };
+            Grid.SetRow(iconImg, 0);
+            Grid.SetColumn(iconImg, 0);
+            contentGrid.Children.Add(iconImg);
 
-            stack.Children.Add(iconImg);
-
-            var textStack = new StackPanel();
-            textStack.Children.Add(new TextBlock
+            // Text block: Header row | Message row
+            var textGrid = new Grid
             {
-                Text = title,
+                RowDefinitions =
+            {
+                new RowDefinition { Height = GridLength.Auto },
+                new RowDefinition { Height = GridLength.Auto }
+            },
+                // Derive max text width from window width minus icon, its margin, and both paddings
+                MaxWidth = DialogWidth - IconSize - 16 - (ContentPadding * 2)
+            };
+            Grid.SetRow(textGrid, 0);
+            Grid.SetColumn(textGrid, 1);
+
+            var headerText = new TextBlock
+            {
+                Text = header,
                 FontSize = 20,
                 FontWeight = Windows.UI.Text.FontWeights.SemiBold,
-                Margin = new Thickness(0, 0, 0, 8)
-            });
-            textStack.Children.Add(new TextBlock
+                Margin = new Thickness(0, 0, 0, 8),
+                TextWrapping = TextWrapping.WrapWholeWords
+            };
+            Grid.SetRow(headerText, 0);
+            textGrid.Children.Add(headerText);
+
+            var messageText = new TextBlock
             {
                 Text = message,
-                TextWrapping = TextWrapping.WrapWholeWords,
-                MaxWidth = 320
-            });
+                TextWrapping = TextWrapping.WrapWholeWords
+            };
+            Grid.SetRow(messageText, 1);
+            textGrid.Children.Add(messageText);
 
-            stack.Children.Add(textStack);
-            contentGrid.Children.Add(stack);
+            contentGrid.Children.Add(textGrid);
 
             // Footer bar
             var footerBar = new Border
             {
                 Background = (Brush)Application.Current.Resources["SystemControlBackgroundAltMediumLowBrush"],
                 Padding = new Thickness(24),
-                Margin = new(-20, 0, -20, 0)
+                Margin = new Thickness(-ContentPadding, 0, -ContentPadding, 0)
             };
-            Grid.SetRow(footerBar, 3);
+            Grid.SetRow(footerBar, 2);
+            Grid.SetColumnSpan(footerBar, 2);
 
             var footerGrid = new Grid();
-            var okButton = new Button
-            {
-                Content = "OK",
-                Style = (Style)Application.Current.Resources["AccentButtonStyle"],
-                HorizontalAlignment = HorizontalAlignment.Right,
-                Width = 100
-            };
 
-            okButton.Click += (_, _) =>
+            if (buttons.Count >= 3)
             {
-                _tcs.TrySetResult(true);
-                _resultSet = true;
-                Close();
-            };
+                for (int i = 0; i < buttons.Count; i++)
+                    footerGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
+            }
+
+            for (int i = 0; i < buttons.Count; i++)
+            {
+                var buttonDef = buttons[i];
+                var index = i;
+
+                var btn = new Button
+                {
+                    MinWidth = 100,
+                    HorizontalAlignment = buttons.Count >= 3
+                        ? HorizontalAlignment.Stretch
+                        : HorizontalAlignment.Right
+                };
+
+                if (buttonDef.Icon is char glyph)
+                {
+                    var btnContent = new Grid
+                    {
+                        ColumnDefinitions =
+                    {
+                        new ColumnDefinition { Width = GridLength.Auto },
+                        new ColumnDefinition { Width = GridLength.Auto }
+                    }
+                    };
+                    var fi = new FontIcon { Glyph = glyph.ToString(), FontSize = 16 };
+                    Grid.SetColumn(fi, 0);
+                    var tb = new TextBlock { Text = buttonDef.Content, Margin = new Thickness(8, 0, 0, 0) };
+                    Grid.SetColumn(tb, 1);
+                    btnContent.Children.Add(fi);
+                    btnContent.Children.Add(tb);
+                    btn.Content = btnContent;
+                }
+                else
+                {
+                    btn.Content = buttonDef.Content;
+                }
+
+                if (buttonDef.IsAccent)
+                    btn.Style = (Style)Application.Current.Resources["AccentButtonStyle"];
+
+                if (buttons.Count >= 3)
+                {
+                    Grid.SetColumn(btn, i);
+                    if (i > 0) btn.Margin = new Thickness(4, 0, 0, 0);
+                    footerGrid.Children.Add(btn);
+                }
+                else
+                {
+                    var stackPanel = footerGrid.Children.OfType<StackPanel>().FirstOrDefault();
+                    if (stackPanel == null)
+                    {
+                        stackPanel = new StackPanel
+                        {
+                            Orientation = Orientation.Horizontal,
+                            HorizontalAlignment = HorizontalAlignment.Right,
+                            Spacing = 8
+                        };
+                        footerGrid.Children.Add(stackPanel);
+                    }
+                    stackPanel.Children.Add(btn);
+                }
+
+                btn.Click += (_, _) =>
+                {
+                    _tcs.TrySetResult(index);
+                    _resultSet = true;
+                    Close();
+                };
+            }
+
             AppWindow?.Closing += (_, _) =>
             {
                 if (!_resultSet)
-                {
-                    _tcs.TrySetResult(true);
-                }
+                    _tcs.TrySetResult(-1);
             };
 
-            footerGrid.Children.Add(okButton);
             footerBar.Child = footerGrid;
             contentGrid.Children.Add(footerBar);
-
             rootGrid.Children.Add(contentGrid);
-
             page.Content = rootGrid;
             Content = page;
+
+            // Measure content after layout pass and resize window to fit
+            page.Loaded += (_, _) =>
+            {
+                contentGrid.Measure(new Windows.Foundation.Size(DialogWidth, double.PositiveInfinity));
+                var measuredHeight = contentGrid.DesiredSize.Height;
+                var totalHeight = (int)Math.Ceiling(measuredHeight) + TitleBarHeight;
+                totalHeight = Math.Clamp(totalHeight, MinDialogHeight, MaxDialogHeight);
+                Height = totalHeight + ContentToFooterSpacing;
+                CenterWindow();
+            };
         };
 
         AppWindowInitialized += (_, _) =>
@@ -392,8 +503,8 @@ public sealed partial class ReboundDialog : IslandsWindow
             AppWindow?.TitleBar.ExtendsContentIntoTitleBar = true;
             AppWindow?.TitleBar.ButtonBackgroundColor = Windows.UI.Colors.Transparent;
             AppWindow?.TitleBar.ButtonInactiveBackgroundColor = Windows.UI.Colors.Transparent;
-            Width = 480;
-            Height = height;
+            Width = DialogWidth;
+            Height = MinDialogHeight; // temporary until Loaded measures
             IsMaximizable = false;
             IsMinimizable = false;
             IsResizable = false;
@@ -414,10 +525,8 @@ public sealed partial class ReboundDialog : IslandsWindow
         };
 
         HICON largeIcon = default;
-        fixed (char* dllPtr = dll)
-        {
-            ExtractIconEx(dllPtr, iconIndex, &largeIcon, null, 1);
-        }
+        using var dllPath = new ManagedPtr<char>(dll);
+        _ = ExtractIconExW(dllPath, iconIndex, &largeIcon, null, 1);
 
         ICONINFO iconInfo;
         if (!GetIconInfo(largeIcon, &iconInfo))
@@ -437,26 +546,23 @@ public sealed partial class ReboundDialog : IslandsWindow
 
         DrawIconEx(hdcMem, 0, 0, largeIcon, width, height, 0, new(), (uint)Windows.Win32.UI.WindowsAndMessaging.DI_FLAGS.DI_NORMAL);
 
-        int bytesPerPixel = 4;
-        int stride = width * bytesPerPixel;
-        int bufferSize = stride * height;
-        byte[] pixelData = new byte[bufferSize];
+        int stride = width * 4;
+        byte[] pixelData = new byte[stride * height];
 
         fixed (byte* pPixels = pixelData)
         {
             BITMAPINFO bmi = new()
             {
                 bmiHeader =
-                {
-                    biSize = (uint)sizeof(BITMAPINFOHEADER),
-                    biWidth = width,
-                    biHeight = -height,
-                    biPlanes = 1,
-                    biBitCount = 32,
-                    biCompression = (uint)BI.BI_RGB
-                }
+            {
+                biSize = (uint)sizeof(BITMAPINFOHEADER),
+                biWidth = width,
+                biHeight = -height,
+                biPlanes = 1,
+                biBitCount = 32,
+                biCompression = BI.BI_RGB
+            }
             };
-
             _ = GetDIBits(hdcMem, hBitmap, 0, (uint)height, pPixels, &bmi, (uint)Windows.Win32.Graphics.Gdi.DIB_USAGE.DIB_RGB_COLORS);
         }
 
@@ -468,35 +574,49 @@ public sealed partial class ReboundDialog : IslandsWindow
         DeleteObject(iconInfo.hbmMask);
         DestroyIcon(largeIcon);
 
+        var scale = Display.GetScale(new((void*)Process.GetCurrentProcess().MainWindowHandle));
+
         using var stream = new InMemoryRandomAccessStream();
-        var encoder = BitmapEncoder.CreateAsync(BitmapEncoder.PngEncoderId, stream).AsTask().Result;
-        {
-            encoder.SetPixelData(
-                Windows.Graphics.Imaging.BitmapPixelFormat.Bgra8,
-                Windows.Graphics.Imaging.BitmapAlphaMode.Premultiplied,
-                (uint)width,
-                (uint)height,
-                96, 96,
-                pixelData
-            );
-            encoder.FlushAsync().AsTask().Wait();
-        }
+        var encoder = BitmapEncoder.CreateAsync(BitmapEncoder.PngEncoderId, stream).GetAwaiter().GetResult();
+        encoder.SetPixelData(
+            Windows.Graphics.Imaging.BitmapPixelFormat.Bgra8,
+            Windows.Graphics.Imaging.BitmapAlphaMode.Premultiplied,
+            (uint)width, (uint)height,
+            96 * scale, 96 * scale,
+            pixelData);
+        encoder.FlushAsync().GetAwaiter().GetResult();
 
         var image = new BitmapImage();
         stream.Seek(0);
         image.SetSource(stream);
-
         return image;
     }
 }
 
 public partial class IslandsWindow : ObservableObject, IDisposable
 {
+    public static readonly Windows.UI.Color ButtonHoverBackgroundColor = Windows.UI.Color.FromArgb(40, 120, 120, 120);
+    public static readonly Windows.UI.Color ButtonPressedBackgroundColor = Windows.UI.Color.FromArgb(24, 120, 120, 120);
+
+    public enum TitleBarMode
+    {
+        ApplicationDefault,
+        None,
+        Win32,
+        WindowsAppSdk,
+        WindowsAppSdkExtended,
+        WindowsAppSdkExtendedTall
+    }
+
+    // In IslandsWindow class fields:
+    private TitleBarMode _currentTitleBarMode = TitleBarMode.ApplicationDefault;
+    private bool _dwmExtendedActive;
+
     // Constants and static fields
     private const string WindowClassName = "XamlIslandsClass";
     private static readonly ushort _classAtom;
     private static WindowsXamlManager? _xamlManager;
-    private ThemeRegistryListener? _themeListener;
+    private static ThemeRegistryListener? _themeListener;
 
     // Internal stuff
     private bool _disposed;
@@ -759,23 +879,26 @@ public partial class IslandsWindow : ObservableObject, IDisposable
         GetClientRect(Handle, &clientRect);
         var clientWidth = clientRect.right - clientRect.left;
         var clientHeight = clientRect.bottom - clientRect.top;
-        SetWindowPos(_xamlHwnd, HWND.NULL, 0, 0, clientWidth, clientHeight, SWP_SHOWWINDOW | SWP_NOACTIVATE | SWP_NOZORDER);
+        SetWindowPos(_xamlHwnd, HWND.NULL, 0, 0,
+            clientWidth, clientHeight,
+            SWP_SHOWWINDOW | SWP_NOACTIVATE | SWP_NOZORDER);
 
         // Trigger the XamlInitialized event and set the synchronization context
         _xamlInitialized = true;
         XamlInitialized?.Invoke(this, new XamlInitializedEventArgs());
 
         // Theme stuff for dark mode support on the window itself
-        _themeListener = new ThemeRegistryListener(UseShellTheme);
+        bool themeListenerNull = _themeListener == null;
+        _themeListener ??= new ThemeRegistryListener();
         _themeListener.ThemeChanged += (sender, args) =>
         {
             unsafe
             {
-                int darkMode = args ? 1 : 0;
+                int darkMode = (UseShellTheme ? args.ShellTheme : args.ApplicationTheme) == ApplicationTheme.Dark ? 1 : 0;
                 DwmSetWindowAttribute(Handle,
                     (uint)DWMWINDOWATTRIBUTE.DWMWA_USE_IMMERSIVE_DARK_MODE,
                     &darkMode, sizeof(int));
-                AppWindow?.TitleBar.ButtonForegroundColor = args ? Colors.White : Colors.Black;
+                AppWindow?.TitleBar.ButtonForegroundColor = (UseShellTheme ? args.ShellTheme : args.ApplicationTheme) == ApplicationTheme.Dark ? Colors.White : Colors.Black;
             }
         };
 
@@ -784,10 +907,10 @@ public partial class IslandsWindow : ObservableObject, IDisposable
         {
             var backdrop = (int)DWM_SYSTEMBACKDROP_TYPE.DWMSBT_MAINWINDOW;
             DwmSetWindowAttribute(Handle, (uint)DWMWINDOWATTRIBUTE.DWMWA_SYSTEMBACKDROP_TYPE, &backdrop, sizeof(int));
-            int dark = _themeListener.IsLightTheme() ? 0 : 1;
+            int dark = _themeListener.GetTheme(UseShellTheme) == ApplicationTheme.Dark ? 1 : 0;
             DwmSetWindowAttribute(Handle, (uint)DWMWINDOWATTRIBUTE.DWMWA_USE_IMMERSIVE_DARK_MODE, &dark, sizeof(int));
         }
-        _themeListener.Start();
+        if (themeListenerNull) _themeListener.Start();
     }
 
     private HBRUSH _backgroundBrush = HBRUSH.NULL;
@@ -1362,7 +1485,9 @@ public partial class IslandsWindow : ObservableObject, IDisposable
     {
         if (_xamlHwnd != default)
         {
-            SetWindowPos(_xamlHwnd, HWND.NULL, 0, 0, physicalWidth, physicalHeight,
+            SetWindowPos(_xamlHwnd, HWND.NULL,
+                0, 0,
+                physicalWidth, physicalHeight,
                 SWP_SHOWWINDOW | SWP_NOACTIVATE | SWP_NOZORDER);
         }
 
@@ -1415,20 +1540,26 @@ public partial class IslandsWindow : ObservableObject, IDisposable
     {
         switch (msg)
         {
-            case WM_NCCALCSIZE when (uint)wParam == 1:
-                // Hiding path
+            case WM_ACTIVATE when _dwmExtendedActive:
+                {
+                    return DefWindowProc(hwnd, msg, wParam, lParam);
+                }
+            case WM_NCHITTEST when _dwmExtendedActive:
+                {
+                    LRESULT dwmRes = new(0);
+                    if (DwmDefWindowProc(hwnd, msg, wParam, lParam, &dwmRes) == BOOL.TRUE)
+                        return dwmRes;
+                    return DefWindowProc(hwnd, msg, wParam, lParam);
+                }
+            case WM_NCCALCSIZE when (uint)wParam == BOOL.TRUE:
                 if (IsTitleBarVisible() && _changeTitleBarVisibilityTriggered)
                 {
                     _changeTitleBarVisibilityTriggered = false;
                     var result = DefWindowProc(hwnd, msg, wParam, lParam);
                     var pParams = (NCCALCSIZE_PARAMS*)lParam;
                     pParams->rgrc[0].top -= GetSystemMetrics(SM.SM_CYCAPTION) + GetSystemMetrics(SM.SM_CYSIZEFRAME) + GetSystemMetrics(SM.SM_CYFRAME);
-
                     if (_titleBarSnapshot != null)
-                    {
                         PostMessage(hwnd, WM_USER + 2, 0, 0);
-                    }
-
                     return result;
                 }
                 // Restoring path
@@ -1440,6 +1571,7 @@ public partial class IslandsWindow : ObservableObject, IDisposable
                     return result;
                 }
                 break;
+
             case WM_USER + 1:
                 {
                     UIThreadQueue.QueueAction(() =>
@@ -1450,6 +1582,7 @@ public partial class IslandsWindow : ObservableObject, IDisposable
                     });
                     return new LRESULT(0);
                 }
+
             case WM_USER + 2:
                 {
                     UIThreadQueue.QueueAction(() =>
@@ -1460,11 +1593,12 @@ public partial class IslandsWindow : ObservableObject, IDisposable
                     });
                     return new LRESULT(0);
                 }
+
             case WM_NCRBUTTONUP:
                 {
                     var scale = Display.GetScale(Handle);
-                    var x = (int)(lParam & 0xFFFF) / scale - X;
-                    var y = (int)((lParam >> 16) & 0xFFFF) / scale - Y;
+                    int x = GET_X_LPARAM(lParam);
+                    int y = GET_Y_LPARAM(lParam);
                     ShowWinUIMenu(x, y);
                     return new LRESULT(0);
                 }
@@ -1472,7 +1606,24 @@ public partial class IslandsWindow : ObservableObject, IDisposable
             default:
                 return ((delegate* unmanaged<HWND, uint, WPARAM, LPARAM, LRESULT>)_appWindowWndProcSubclass)(hwnd, msg, wParam, lParam);
         }
+
         return ((delegate* unmanaged<HWND, uint, WPARAM, LPARAM, LRESULT>)_appWindowWndProcSubclass)(hwnd, msg, wParam, lParam);
+    }
+
+    unsafe bool IsTitleBarVisible()
+    {
+        RECT window, client;
+        GetWindowRect(Handle, &window);
+        GetClientRect(Handle, &client);
+
+        // Map client origin to screen coords
+        POINT pt = new() { x = client.left, y = client.top };
+        ClientToScreen(Handle, &pt);
+
+        int actualTopInset = pt.y - window.top;
+        int borderOnly = GetSystemMetrics(SM.SM_CYCAPTION) + GetSystemMetrics(SM.SM_CYSIZEFRAME) + GetSystemMetrics(SM.SM_CYFRAME);
+
+        return actualTopInset > borderOnly;
     }
 
     private unsafe void ShowWinUIMenu(double x, double y)
@@ -1575,15 +1726,51 @@ public partial class IslandsWindow : ObservableObject, IDisposable
                                     Glyph = "\uE740"
                                 }
                             },
-                            new ToggleMenuFlyoutItem()
+                            new MenuFlyoutSubItem()
                             {
-                                Text = "Show title bar",
-                                Icon = new FontIcon()
+                                Text = "Title bar",
+                                Icon = new FontIcon() { Glyph = "\uE712" },
+                                Items =
                                 {
-                                    Glyph = "\uE737"
-                                },
-                                Command = new RelayCommand(() => SetTitleBarVisible(!IsTitleBarVisible())),
-                                IsChecked = IsTitleBarVisible()
+                                    new RadioMenuFlyoutItem()
+                                    {
+                                        Text = "Application default",
+                                        IsChecked = _currentTitleBarMode == TitleBarMode.ApplicationDefault,
+                                        Command = new RelayCommand(() => SetTitleBarMode(TitleBarMode.ApplicationDefault))
+                                    },
+                                    new RadioMenuFlyoutItem()
+                                    {
+                                        Text = "None",
+                                        IsChecked = _currentTitleBarMode == TitleBarMode.None,
+                                        Command = new RelayCommand(() => SetTitleBarMode(TitleBarMode.None))
+                                    },
+                                    new MenuFlyoutSeparator(),
+                                    new RadioMenuFlyoutItem()
+                                    {
+                                        Text = "Win32",
+                                        IsChecked = _currentTitleBarMode == TitleBarMode.Win32,
+                                        Command = new RelayCommand(() => SetTitleBarMode(TitleBarMode.Win32))
+                                    },
+                                    new MenuFlyoutSeparator(),
+                                    new RadioMenuFlyoutItem()
+                                    {
+                                        Text = "Windows App SDK",
+                                        IsChecked = _currentTitleBarMode == TitleBarMode.WindowsAppSdk,
+                                        Command = new RelayCommand(() => SetTitleBarMode(TitleBarMode.WindowsAppSdk))
+                                    },
+                                    new RadioMenuFlyoutItem()
+                                    {
+                                        Text = "Windows App SDK extended",
+                                        IsChecked = _currentTitleBarMode == TitleBarMode.WindowsAppSdkExtended,
+                                        Command = new RelayCommand(() => SetTitleBarMode(TitleBarMode.WindowsAppSdkExtended))
+                                    },
+                                    new RadioMenuFlyoutItem()
+                                    {
+                                        Text = "Windows App SDK extended (tall)",
+                                        IsChecked = _currentTitleBarMode == TitleBarMode.WindowsAppSdkExtendedTall,
+                                        Command = new RelayCommand(() => SetTitleBarMode(TitleBarMode.WindowsAppSdkExtendedTall))
+                                    },
+                                }
                             },
                             new ToggleMenuFlyoutItem()
                             {
@@ -1592,7 +1779,7 @@ public partial class IslandsWindow : ObservableObject, IDisposable
                                 {
                                     Glyph = "\uE65C"
                                 },
-                                Command = new RelayCommand(() => SetWindowFrameVisible(!IsWindowFrameVisible())),
+                                Command = new RelayCommand(() => _SetWin32FrameVisible(!IsWindowFrameVisible())),
                                 IsChecked = IsWindowFrameVisible()
                             },
                         }
@@ -1618,44 +1805,163 @@ public partial class IslandsWindow : ObservableObject, IDisposable
         });
     }
 
-    unsafe bool IsTitleBarVisible()
+    public TitleBarMode GetTitleBarMode() => _currentTitleBarMode;
+
+    public void SetTitleBarMode(TitleBarMode mode)
     {
-        RECT window, client;
-        GetWindowRect(Handle, &window);
-        GetClientRect(Handle, &client);
-
-        // Map client origin to screen coords
-        POINT pt = new() { x = client.left, y = client.top };
-        ClientToScreen(Handle, &pt);
-
-        int actualTopInset = pt.y - window.top;
-        int borderOnly = GetSystemMetrics(SM.SM_CYCAPTION) + GetSystemMetrics(SM.SM_CYSIZEFRAME) + GetSystemMetrics(SM.SM_CYFRAME); // or SM_CYSIZEFRAME if resizable
-
-        return actualTopInset > borderOnly;
-    }
-
-    unsafe void SetTitleBarVisible(bool visible)
-    {
-        if (visible && _titleBarSnapshot == null)
+        // Cache the app default on first departure from it
+        if (_currentTitleBarMode == TitleBarMode.ApplicationDefault && mode != TitleBarMode.ApplicationDefault)
         {
             UIThreadQueue.QueueAction(() =>
             {
-                _titleBarSnapshot = TitleBarSnapshot.Capture(AppWindow!.TitleBar);
-                Debug.WriteLine(_titleBarSnapshot.ExtendsContentIntoTitleBar);
+                if (_titleBarSnapshot == null && AppWindow != null)
+                    _titleBarSnapshot = TitleBarSnapshot.Capture(AppWindow.TitleBar);
+            });
+        }
+
+        _currentTitleBarMode = mode;
+
+        switch (mode)
+        {
+            case TitleBarMode.ApplicationDefault:
+                _ApplyApplicationDefault();
+                break;
+            case TitleBarMode.None:
+                _ApplyNone();
+                break;
+            case TitleBarMode.Win32:
+                _ApplyWin32();
+                break;
+            case TitleBarMode.WindowsAppSdk:
+                _ApplyWindowsAppSdk();
+                break;
+            case TitleBarMode.WindowsAppSdkExtended:
+                _ApplyWindowsAppSdkExtended(TitleBarHeightOption.Standard);
+                break;
+            case TitleBarMode.WindowsAppSdkExtendedTall:
+                _ApplyWindowsAppSdkExtended(TitleBarHeightOption.Tall);
+                break;
+        }
+    }
+
+    private void _ApplyApplicationDefault()
+    {
+        UIThreadQueue.QueueAction(() =>
+        {
+            if (AppWindow == null) return;
+            if (_titleBarSnapshot != null)
+                _titleBarSnapshot.Restore(AppWindow.TitleBar);
+            else
+                AppWindow.TitleBar.ResetToDefault();
+        });
+
+        Task.Delay(100);
+
+        // Ensure Win32 frame is visible
+        _SetWin32FrameVisible(true);
+        _SetWin32TitleBarVisible(true);
+    }
+
+    private void _ApplyNone()
+    {
+        UIThreadQueue.QueueAction(() =>
+        {
+            if (AppWindow == null) return;
+            AppWindow.TitleBar.ResetToDefault();
+            Task.Delay(100);
+            AppWindow.TitleBar.ExtendsContentIntoTitleBar = true;
+            AppWindow.TitleBar.PreferredHeightOption = TitleBarHeightOption.Collapsed;
+        });
+    }
+
+    private void _ApplyWin32()
+    {
+        // Restore Win32 frame + title bar, remove WinAppSDK extension
+        UIThreadQueue.QueueAction(() =>
+        {
+            if (AppWindow == null) return;
+            AppWindow.TitleBar.ResetToDefault();
+        });
+        Task.Delay(100);
+        _SetWin32TitleBarVisible(true);
+        _SetWin32FrameVisible(true);
+    }
+
+    private void _RemoveDwmExtension()
+    {
+        if (!_dwmExtendedActive) return;
+        _dwmExtendedActive = false;
+        unsafe
+        {
+            var margins = new MARGINS { cxLeftWidth = 0, cxRightWidth = 0, cyTopHeight = 0, cyBottomHeight = 0 };
+            DwmExtendFrameIntoClientArea(Handle, &margins);
+        }
+        // Force repaint so the zeroed margins take effect
+        SetWindowPos(Handle, HWND.NULL, 0, 0, 0, 0,
+            SWP_NOMOVE | SWP_NOSIZE | SWP_NOZORDER | SWP_FRAMECHANGED | SWP_NOACTIVATE);
+    }
+
+    private void _ApplyWindowsAppSdk()
+    {
+        // Ensure Win32 frame is intact, no DWM tricks
+        _SetWin32FrameVisible(true);
+
+        UIThreadQueue.QueueAction(() =>
+        {
+            if (AppWindow == null) return;
+            AppWindow.TitleBar.ResetToDefault();
+            Task.Delay(100);
+            AppWindow.TitleBar.ExtendsContentIntoTitleBar = false;
+
+            // Set explicit theme so WASDK is visibly in control
+            // (distinguishes it from plain Win32 which has no AppWindow involvement)
+            var isDark = _themeListener?.GetTheme(UseShellTheme) == ApplicationTheme.Dark;
+            AppWindow.TitleBar.PreferredTheme = isDark ? TitleBarTheme.Dark : TitleBarTheme.Light;
+        });
+    }
+
+    private void _ApplyWindowsAppSdkExtended(TitleBarHeightOption heightOption)
+    {
+        // Ensure Win32 frame is intact, no DWM tricks
+        _SetWin32FrameVisible(true);
+
+        UIThreadQueue.QueueAction(() =>
+        {
+            if (AppWindow == null) return;
+            AppWindow.TitleBar.ResetToDefault();
+            AppWindow.TitleBar.ExtendsContentIntoTitleBar = true;
+            AppWindow.TitleBar.PreferredHeightOption = heightOption;
+            AppWindow.TitleBar.ButtonBackgroundColor = Windows.UI.Colors.Transparent;
+            AppWindow.TitleBar.ButtonInactiveBackgroundColor = Windows.UI.Colors.Transparent;
+        });
+    }
+
+    // Low-level helpers — these are the building blocks used above
+
+    private unsafe void _SetWin32TitleBarVisible(bool visible)
+    {
+        if (visible && _titleBarSnapshot == null && _currentTitleBarMode == TitleBarMode.ApplicationDefault)
+        {
+            UIThreadQueue.QueueAction(() =>
+            {
+                if (AppWindow != null) _titleBarSnapshot = TitleBarSnapshot.Capture(AppWindow.TitleBar);
             });
         }
 
         _changeTitleBarVisibilityTriggered = true;
-
-        SetWindowPos(
-            Handle,
-            HWND.NULL,
-            0, 0, 0, 0,
-            SWP_NOMOVE | SWP_NOSIZE | SWP_NOZORDER |
-            SWP_FRAMECHANGED | SWP_NOACTIVATE
-        );
-
+        SetWindowPos(Handle, HWND.NULL, 0, 0, 0, 0,
+            SWP_NOMOVE | SWP_NOSIZE | SWP_NOZORDER | SWP_FRAMECHANGED | SWP_NOACTIVATE);
         if (!visible) _changeTitleBarVisibilityTriggered = false;
+    }
+
+    private unsafe void _SetWin32FrameVisible(bool visible)
+    {
+        var style = GetWindowLongPtr(Handle, GWL.GWL_STYLE);
+        const nint FRAME_BITS = WS_CAPTION | WS_THICKFRAME | WS_BORDER | WS_DLGFRAME;
+        style = visible ? style | FRAME_BITS : style & ~FRAME_BITS;
+        SetWindowLongPtr(Handle, GWL.GWL_STYLE, style);
+        SetWindowPos(Handle, HWND.NULL, 0, 0, 0, 0,
+            SWP_NOMOVE | SWP_NOSIZE | SWP_NOZORDER | SWP_FRAMECHANGED);
     }
 
     unsafe bool IsWindowFrameVisible()
@@ -1669,34 +1975,6 @@ public partial class IslandsWindow : ObservableObject, IDisposable
             WS_DLGFRAME;
 
         return (style & FRAME_BITS) != 0;
-    }
-
-    unsafe void SetWindowFrameVisible(bool visible)
-    {
-        var style = GetWindowLongPtr(Handle, GWL.GWL_STYLE);
-
-        const nint FRAME_BITS =
-            WS_CAPTION |
-            WS_THICKFRAME |
-            WS_BORDER |
-            WS_DLGFRAME;
-
-        if (visible)
-            style |= FRAME_BITS;
-        else
-            style &= ~FRAME_BITS;
-
-        SetWindowLongPtr(Handle, GWL.GWL_STYLE, style);
-
-        SetWindowPos(
-            Handle,
-            HWND.NULL,
-            0, 0, 0, 0,
-            SWP_NOMOVE |
-            SWP_NOSIZE |
-            SWP_NOZORDER |
-            SWP_FRAMECHANGED
-        );
     }
 
     private unsafe LRESULT WndProc(HWND hwnd, uint msg, WPARAM wParam, LPARAM lParam)

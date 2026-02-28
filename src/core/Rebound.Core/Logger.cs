@@ -1,61 +1,76 @@
 ﻿// Copyright (C) Ivirius(TM) Community 2020 - 2026. All Rights Reserved.
 // Licensed under the MIT License.
 
-using Rebound.Core;
-using System;
 using System.Diagnostics;
-using System.IO;
-using System.Threading;
 
 namespace Rebound.Core;
 
+/// <summary>
+/// The severity of a log message.
+/// </summary>
+public enum LogMessageSeverity
+{
+    /// <summary>
+    /// Minimum severity. Verbose status and debugging only. These are only saved if Rebound verbosity is enabled.
+    /// </summary>
+    Message,
+
+    /// <summary>
+    /// Everything that would require attention but is not fatal.
+    /// </summary>
+    Warning,
+
+    /// <summary>
+    /// Everything fatal for the mod or program in question.
+    /// </summary>
+    Error
+}
+
 public static class ReboundLogger
 {
-    private static readonly object _lock = new();
+    private static readonly string _processName = Process.GetCurrentProcess().ProcessName;
 
-    public static void Log(string message, Exception? ex = null)
+    private static readonly Lock _lock = new();
+
+    [Obsolete("Old log method. Use WriteToLog instead.")]
+    public static void Log(string msg, Exception? ex = null)
+    {
+        WriteToLog("Old Log", msg, LogMessageSeverity.Message, ex);
+    }
+
+    public static void WriteToLog(string actionType, string message, LogMessageSeverity messageSeverity = LogMessageSeverity.Message, Exception? ex = null)
     {
         try
         {
-            var line = $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss.fff}] " +
-                       $"[T{Thread.CurrentThread.ManagedThreadId}] {message}";
+            if (!SettingsManager.GetValue("Verbose", "rebound", false) && messageSeverity == LogMessageSeverity.Message)
+                return;
 
+            var line = $"[{messageSeverity}] [{_processName}] [{actionType}] [{DateTime.Now:yyyy-MM-dd HH:mm:ss.fff}] {message}";
             if (ex != null)
             {
-                line += $"{Environment.NewLine}    EXCEPTION: {ex}";
+                line += $" ***** {ex}";
             }
-
             lock (_lock)
             {
                 try
                 {
-                    // Defensive: ensure directory still exists (someone may have deleted it).
                     var dir = Path.GetDirectoryName(Variables.ReboundLogFile);
-                    var dir2 = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData) + "\\Rebound";
-                    if (!string.IsNullOrEmpty(dir2))
-                    {
-                        Directory.CreateDirectory(dir2);
-                    }
-                    File.SetAttributes(dir2, FileAttributes.Directory);
                     if (!string.IsNullOrEmpty(dir))
                     {
                         Directory.CreateDirectory(dir);
+                        File.SetAttributes(dir, FileAttributes.Directory);
                     }
-                    File.SetAttributes(dir, FileAttributes.Directory);
-
                     File.AppendAllText(Variables.ReboundLogFile, line + Environment.NewLine);
                 }
                 catch (IOException ioEx)
                 {
-                    // Could be file locked or disk issue — at least surface to debug output.
                     Debug.WriteLine("ReboundLogger IO error: " + ioEx);
                 }
             }
         }
         catch (Exception outerEx)
         {
-            // If logging itself fails, at least write to debug output
-            Debug.WriteLine("ReboundLogger: Logging failed: " + message + " — " + outerEx);
+            Debug.WriteLine("ReboundLogger: Logging failed: " + message + " - " + outerEx);
         }
     }
 }

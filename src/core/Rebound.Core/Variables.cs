@@ -87,4 +87,9 @@ public static partial class Variables
     /// </summary>
     public static readonly string ReboundCurrentVersionPath =
         Path.Combine(ReboundDataFolder, "version.txt");
+
+    /// <summary>
+    /// Argument used to launch the legacy versions of Rebound apps.
+    /// </summary>
+    public static readonly string LegacyLaunchArgument = "legacy ";
 }

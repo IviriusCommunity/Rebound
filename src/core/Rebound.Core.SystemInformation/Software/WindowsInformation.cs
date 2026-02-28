@@ -404,6 +404,17 @@ public static class WindowsInformation
     }
 
     /// <summary>
+    /// Retrieves the current Windows version, in detail.
+    /// </summary>
+    /// <returns>
+    /// 25H2 (26200.7840) and similar.
+    /// </returns>
+    public static string GetDetailedWindowsVersion()
+    {
+        return $"{GetDisplayVersion()} ({GetCurrentBuildNumber()}.{GetUBR()})";
+    }
+
+    /// <summary>
     /// Gets the current Windows display version.
     /// </summary>
     /// <returns>24H2, 25H2, etc.</returns>

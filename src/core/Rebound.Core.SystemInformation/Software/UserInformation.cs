@@ -2,50 +2,145 @@
 // Licensed under the MIT License.
 
 using Microsoft.Win32;
-using System.Runtime.InteropServices;
+using Rebound.Core.Native;
+using System.Diagnostics;
+using System.Globalization;
 using System.Security.Principal;
 using TerraFX.Interop.Windows;
-using Windows.Win32.Foundation;
+using static Rebound.Core.Native.NetApi;
+using static TerraFX.Interop.Windows.Windows;
 
 namespace Rebound.Core.SystemInformation.Software;
 
-[StructLayout(LayoutKind.Sequential)]
-internal struct USER_INFO_2
-{
-    public PCWSTR usri2_name;
-    public PCWSTR usri2_password;
-    public uint usri2_password_age;
-    public uint usri2_priv;
-    public PCWSTR usri2_home_dir;
-    public PCWSTR usri2_comment;
-    public uint usri2_flags;
-    public PCWSTR usri2_script_path;
-    public uint usri2_auth_flags;
-    public PCWSTR usri2_full_name;
-    public PCWSTR usri2_usr_comment;
-    public PCWSTR usri2_parms;
-    public PCWSTR usri2_workstations;
-    public uint usri2_last_logon;
-    public uint usri2_last_logoff;
-    public uint usri2_acct_expires;
-    public uint usri2_max_storage;
-    public uint usri2_units_per_week;
-    public Windows.Win32.Foundation.HANDLE usri2_logon_hours;
-    public uint usri2_bad_pw_count;
-    public uint usri2_num_logons;
-    public PCWSTR usri2_logon_server;
-    public uint usri2_country_code;
-    public uint usri2_code_page;
-}
-
 public static class UserInformation
 {
-    private static unsafe char* ToPointer(this string value)
+    /// <summary>
+    /// Checks if the current user is an admin or not.
+    /// </summary>
+    /// <returns>
+    /// <see langword="true"/> if the user is an admin. Otherwise <see langword="false"/>.
+    /// </returns>
+    public static bool IsAdmin()
     {
-        fixed (char* valueCharPtr = value)
+        using WindowsIdentity identity = WindowsIdentity.GetCurrent();
+
+        // If not elevated, the current check is already accurate
+        if (!new WindowsPrincipal(identity).IsInRole(WindowsBuiltInRole.Administrator))
         {
-            return valueCharPtr;
+            // Could still be admin but running unelevated — check via group membership
+            using WindowsIdentity? linked = GetLinkedToken(identity);
+            if (linked != null)
+                return new WindowsPrincipal(linked).IsInRole(WindowsBuiltInRole.Administrator);
         }
+
+        return true;
+    }
+
+    private static unsafe WindowsIdentity? GetLinkedToken(WindowsIdentity identity)
+    {
+        try
+        {
+            nint linkedToken;
+            if (!GetTokenInformation(new((void*)identity.Token), TOKEN_INFORMATION_CLASS.TokenLinkedToken,
+                    &linkedToken, (uint)sizeof(nint), null))
+                return null;
+
+            return new WindowsIdentity(linkedToken);
+        }
+        catch { return null; }
+    }
+
+    /// <summary>
+    /// Gets the date and time the current user's password was last set.
+    /// </summary>
+    public static unsafe string GetPasswordLastSet()
+    {
+        using var userName = new ManagedPtr<char>(Environment.UserName);
+        USER_INFO_2* info;
+        HRESULT hr = NetUserGetInfo(null, userName, 2, (byte**)&info);
+
+        if (hr != S.S_OK) return "Never";
+
+        long ticks = info->usri2_password_age;
+        hr = NetApiBufferFree(info);
+
+        if (FAILED(hr)) return "Something went wrong.";
+
+        return DateTimeOffset.UtcNow
+            .AddSeconds(-ticks)
+            .ToLocalTime()
+            .ToString("g", CultureInfo.CurrentCulture);
+    }
+
+    /// <summary>
+    /// Gets the date and time the current user's password will expire,
+    /// or "Never" if it never expires.
+    /// </summary>
+    public static unsafe string GetPasswordExpiry()
+    {
+        using var userName = new ManagedPtr<char>(Environment.UserName);
+        USER_INFO_2* info;
+        HRESULT hr = NetUserGetInfo(null, userName, 2, (byte**)&info);
+
+        if (hr != S.S_OK) return "Never";
+
+        uint passwordAge = info->usri2_password_age;
+        hr = NetApiBufferFree(info);
+
+        if (FAILED(hr)) return "Something went wrong.";
+
+        USER_MODALS_INFO_0* modals;
+        NetUserModalsGet(null, 0, (byte**)&modals);
+        uint maxPasswordAge = modals->usrmod0_max_passwd_age;
+        hr = NetApiBufferFree(modals);
+
+        if (FAILED(hr)) return "Something went wrong.";
+        if (maxPasswordAge == uint.MaxValue) return "Never";
+
+        return DateTimeOffset.UtcNow
+            .AddSeconds(-passwordAge)
+            .AddSeconds(maxPasswordAge)
+            .ToLocalTime()
+            .ToString("g", CultureInfo.CurrentCulture);
+    }
+
+    /// <summary>
+    /// Checks if the current user is logged in with a Microsoft account for the entire user profile or not.
+    /// </summary>
+    /// <returns>
+    /// <see langword="true"/> if the current user is tied to a Microsoft account. Otherwise <see langword="false"/>. 
+    /// </returns>
+    public static bool IsMicrosoftAccount()
+    {
+        using var key = Registry.LocalMachine.OpenSubKey(@"SOFTWARE\Microsoft\IdentityStore\LogonCache");
+        if (key == null) return false;
+
+        foreach (var guid in key.GetSubKeyNames())
+        {
+            using var sid2name = Registry.LocalMachine.OpenSubKey($@"SOFTWARE\Microsoft\IdentityStore\LogonCache\{guid}\Sid2Name");
+            if (sid2name == null) continue;
+
+            foreach (var sid in sid2name.GetSubKeyNames())
+            {
+                using var sidKey = sid2name.OpenSubKey(sid);
+                var authority = sidKey?.GetValue("AuthenticatingAuthority") as string;
+                if (authority?.Equals("MicrosoftAccount", StringComparison.OrdinalIgnoreCase) == true)
+                    return true;
+            }
+        }
+
+        return false;
+    }
+
+    /// <summary>
+    /// Retrieves the current user's folder.
+    /// </summary>
+    /// <returns>
+    /// A <see langword="string"/> representing the full path to the current user's folder.
+    /// </returns>
+    public static string GetUserFolder()
+    {
+        return Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
     }
 
     /// <summary>
@@ -58,27 +153,30 @@ public static class UserInformation
     {
         unsafe
         {
-            fixed (Guid* clsid = &CLSID.CLSID_DesktopWallpaper)
-            fixed (Guid* iid = &IID.IID_IDesktopWallpaper)
+            using var clsid = new ManagedPtr<Guid>(CLSID.CLSID_DesktopWallpaper);
+            using var iid = new ManagedPtr<Guid>(IID.IID_IDesktopWallpaper);
+            using ComPtr<IDesktopWallpaper> desktopWallpaper = default;
+
+            var hr = CoCreateInstance(
+                clsid, 
+                null, 
+                0x17, 
+                iid, 
+                (void**)desktopWallpaper.GetAddressOf());
+
+            if (FAILED(hr)) return null;
+
+            ushort* wallpaperPtr = null;
+            hr = desktopWallpaper.Get()->GetWallpaper(null, (char**)&wallpaperPtr);
+
+            if (FAILED(hr)) return null;
+
+            string wallpaperPath = new string((char*)wallpaperPtr);
+            CoTaskMemFree(wallpaperPtr);
+
+            if (!string.IsNullOrEmpty(wallpaperPath))
             {
-                ComPtr<IDesktopWallpaper> desktopWallpaper = default;
-                var hr = TerraFX.Interop.Windows.Windows.CoCreateInstance(
-                    clsid, null, 0x17, iid, (void**)desktopWallpaper.GetAddressOf());
-
-                if (TerraFX.Interop.Windows.Windows.FAILED(hr)) return null;
-
-                ushort* wallpaperPtr = null;
-                hr = desktopWallpaper.Get()->GetWallpaper(null, (char**)&wallpaperPtr);
-
-                if (TerraFX.Interop.Windows.Windows.FAILED(hr)) return null;
-
-                string wallpaperPath = new string((char*)wallpaperPtr);
-                TerraFX.Interop.Windows.Windows.CoTaskMemFree(wallpaperPtr);
-
-                if (!string.IsNullOrEmpty(wallpaperPath))
-                {
-                    return wallpaperPath;
-                }
+                return wallpaperPath;
             }
         }
         return null;
@@ -96,7 +194,8 @@ public static class UserInformation
     {
         try
         {
-            var sid = WindowsIdentity.GetCurrent().User?.Value;
+            using var identity = WindowsIdentity.GetCurrent();
+            var sid = identity.User?.Value;
             if (sid == null) return null;
 
             string regPath = $@"SOFTWARE\Microsoft\Windows\CurrentVersion\AccountPicture\Users\{sid}";
@@ -133,26 +232,30 @@ public static class UserInformation
     {
         try
         {
-            var userName = Environment.UserName;
+            HRESULT hr;
+            using var userName = new ManagedPtr<char>(Environment.UserName);
             byte* bufPtr;
 
             // Query full user info (level 2) via NetUserGetInfo
-            var result = Windows.Win32.PInvoke.NetUserGetInfo(
-                servername: null,
-                username: new PCWSTR(userName.ToPointer()),
-                level: 2,
-                bufptr: &bufPtr);
+            hr = NetUserGetInfo(
+                null,
+                userName,
+                2,
+                &bufPtr);
 
-            if (result == 0 && bufPtr != null)
+            if (SUCCEEDED(hr) && bufPtr != null)
             {
                 // Cast unmanaged buffer to blittable struct
                 var info = *(USER_INFO_2*)(nint)bufPtr;
 
                 // Convert PCWSTR -> managed string safely
-                string fullName = info.usri2_full_name.ToString() ?? string.Empty;
+                string fullName = new string(info.usri2_full_name);
 
                 // Free the unmanaged buffer
-                _ = Windows.Win32.PInvoke.NetApiBufferFree(bufPtr);
+                hr = NetApiBufferFree(bufPtr);
+
+                if (FAILED(hr))
+                    return "Something went wrong.";
 
                 if (!string.IsNullOrEmpty(fullName))
                 {

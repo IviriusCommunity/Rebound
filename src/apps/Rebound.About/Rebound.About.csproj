@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
 	<!-- Application and library only - These will apply to everything that isn't a source code generator -->
 	<PropertyGroup>
@@ -42,6 +42,8 @@
 	<ItemGroup>
 
 		<Manifest Include="$(ApplicationManifest)" />
+
+		<PackageReference Include="CommunityToolkit.Labs.Uwp.DependencyPropertyGenerator" Version="0.1.260203-build.2518"/>
 
 		<!-- Windows SDK and WinUI -->
 		<PackageReference Include="Microsoft.UI.Xaml" Version="2.8.7" />
