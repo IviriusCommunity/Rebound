@@ -52,10 +52,10 @@ public static class Storage
         if (physicalDriveNumber < 0)
             return false;
 
-        string devicePath = $@"\\.\PhysicalDrive{physicalDriveNumber}";
+        ManagedPtr<char> devicePath = $@"\\.\PhysicalDrive{physicalDriveNumber}";
 
         HANDLE hDevice = CreateFileW(
-            devicePath.ToPointer(),
+            devicePath,
             GENERIC_READ | GENERIC_WRITE,
             FILE.FILE_SHARE_READ | FILE.FILE_SHARE_WRITE,
             null,
@@ -196,10 +196,10 @@ public static class Storage
     {
         // Normalise to "C:" form
         char letter = driveLetterOrPath.Trim().TrimEnd('\\', '/').TrimEnd(':')[0];
-        string volumePath = $@"\\.\{letter}:";
+        ManagedPtr<char> volumePath = $@"\\.\{letter}:";
 
         HANDLE hVolume = CreateFileW(
-            volumePath.ToPointer(),
+            volumePath,
             0,                                       // no read/write needed for IOCTL
             FILE.FILE_SHARE_READ | FILE.FILE_SHARE_WRITE,
             null,
@@ -303,14 +303,6 @@ public static class Storage
     }
 
     /// <summary>
-    /// Gets the percentage of occupied space on the Windows drive as a string formatted with the current culture's number formatting.
-    /// </summary>
-    public static string GetWindowsDriveOccupiedSpacePercentageString()
-    {
-        return ((int)GetWindowsDriveOccupiedSpacePercentage()).ToString((IFormatProvider?)null);
-    }
-
-    /// <summary>
     /// Gets the percentage of occupied space across all drives combined (0.0 to 100.0).
     /// </summary>
     public static double GetTotalOccupiedSpacePercentage()
@@ -319,14 +311,6 @@ public static class Storage
         if (totalSize == 0) return 0;
         long totalOccupied = GetTotalOccupiedSpace();
         return (double)totalOccupied / totalSize * 100.0;
-    }
-
-    /// <summary>
-    /// Gets the percentage of occupied space across all drives combined as a string formatted with the current culture's number formatting.
-    /// </summary>
-    public static string GetTotalOccupiedSpacePercentageString()
-    {
-        return ((int)GetTotalOccupiedSpacePercentage()).ToString((IFormatProvider?)null);
     }
 
     private static DriveInfo? GetWindowsDriveInfo()

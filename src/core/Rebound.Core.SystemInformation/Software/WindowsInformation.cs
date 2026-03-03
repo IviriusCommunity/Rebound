@@ -141,20 +141,6 @@ public static class WindowsInformation
         => TimeSpan.FromMilliseconds(Environment.TickCount64);
 
     /// <summary>
-    /// Retrieves the system uptime as a formatted string by calling <see cref="GetUptime"/> and 
-    /// formatting the resulting TimeSpan into a human-readable format of days, hours, and minutes.
-    /// </summary>
-    /// <returns>
-    /// A string representing the system uptime in the format of "Xd Yh Zm", where X is the number of 
-    /// days, Y is the number of hours, and Z is the number of minutes.
-    /// </returns>
-    public static string GetUptimeString()
-    {
-        var uptime = GetUptime();
-        return $"{(int)uptime.TotalDays}d {uptime.Hours}h {uptime.Minutes}m";
-    }
-
-    /// <summary>
     /// Retrieves the current system locale by accessing CultureInfo.CurrentCulture.DisplayName, 
     /// which provides a human-readable name for the current culture settings of the system.
     /// </summary>
@@ -181,44 +167,6 @@ public static class WindowsInformation
             return (socket.LocalEndPoint as IPEndPoint)?.Address.ToString() ?? "Unknown";
         }
         catch { return "Unknown"; }
-    }
-
-    /// <summary>
-    /// Retrieves the CPU architecture of the current process using RuntimeInformation.ProcessArchitecture 
-    /// and maps it to a human-readable string.
-    /// </summary>
-    /// <returns>
-    /// A string representing the CPU architecture of the current process. Possible values include "x64", "x86",
-    /// "ARM64", "ARM", "WASM", "S390x", "LoongArch64", "ARMv6", "PPC64LE", or "Unknown" if the architecture cannot be determined.
-    /// </returns>
-    public static string GetCPUArchitecture()
-    {
-        return RuntimeInformation.ProcessArchitecture switch
-        {
-            Architecture.X64 => "x64",
-            Architecture.X86 => "x86",
-            Architecture.Arm64 => "ARM64",
-            Architecture.Arm => "ARM",
-            Architecture.Wasm => "WASM",
-            Architecture.S390x => "S390x",
-            Architecture.LoongArch64 => "LoongArch64",
-            Architecture.Armv6 => "ARMv6",
-            Architecture.Ppc64le => "PPC64LE",
-            _ => "Unknown"
-        };
-    }
-
-    /// <summary>
-    /// Retrieves the installation date of Windows as a formatted string by calling <see cref="GetInstalledOnDate"/>.
-    /// </summary>
-    /// <returns>
-    /// A string representing the installation date of Windows in "yyyy-MM-dd" format.
-    /// If the installation date cannot be determined, it returns "Unknown".
-    /// </returns>
-    public static string GetInstalledOnDateString()
-    {
-        var installDate = GetInstalledOnDate();
-        return installDate == DateTime.MinValue ? "Unknown" : installDate.ToString((IFormatProvider?)null);
     }
 
     /// <summary>

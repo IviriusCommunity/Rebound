@@ -2,51 +2,49 @@
 // Licensed under the MIT License.
 
 using Microsoft.Win32;
+using Rebound.Core.Native;
+using System.Xml.Linq;
+using TerraFX.Interop.DirectX;
+using TerraFX.Interop.Windows;
 
 namespace Rebound.Core.SystemInformation.Hardware;
 
 public static class GPU
 {
-    public static string GetGPUName()
+    /// <returns>
+    /// The current GPU usage, in percentage.
+    /// </returns>
+    public static unsafe int GetUsage()
     {
-        string? gpuName = null;
+        double maxUsage = 0;
 
-        using (var videoKey = Registry.LocalMachine.OpenSubKey(@"SYSTEM\CurrentControlSet\Control\Video"))
-        {
-            foreach (var subKeyName in videoKey?.GetSubKeyNames() ?? Array.Empty<string>())
+        WmiConnection.Shared.ExecuteWmiQuery(
+            "SELECT UtilizationPercentage FROM Win32_PerfFormattedData_GPUPerformanceCounters_GPUEngine WHERE Name LIKE '%engtype_3D%'",
+            ptr =>
             {
-                using var subKey = videoKey?.OpenSubKey($@"{subKeyName}\0000");
-                if (subKey == null) continue;
+                var usage = WmiConnection.GetDouble((IWbemClassObject*)ptr, "UtilizationPercentage");
+                if (usage > maxUsage) maxUsage = usage;
+            });
 
-                var deviceDesc = subKey.GetValue("Device Description")?.ToString();
-                var attachToDesktop = subKey.GetValue("Attach.ToDesktop");
+        return (int)Math.Clamp(maxUsage, 0, 100);
+    }
 
-                if (attachToDesktop != null && attachToDesktop.ToString() == "1")
-                {
-                    var name = subKey.GetValue("DriverDesc")?.ToString();
-                    if (!string.IsNullOrEmpty(name))
-                    {
-                        gpuName = Normalizer.NormalizeTrademarkSymbols(name);
-                        break;
-                    }
-                }
-            }
+    /// <summary>
+    /// Queries the current GPU name via registry.
+    /// </summary>
+    /// <returns>
+    /// The current GPU name. If none, Unknown.
+    /// </returns>
+    public static unsafe string GetName()
+    {
+        using ComPtr<IDXGIFactory> factory = default;
+        using ComPtr<IDXGIAdapter> adapter = default;
+        using ManagedPtr<Guid> iid = IID.IID_IDXGIFactory;
 
-            if (gpuName == null)
-            {
-                foreach (var subKeyName in videoKey?.GetSubKeyNames() ?? Array.Empty<string>())
-                {
-                    using var subKey = videoKey?.OpenSubKey($@"{subKeyName}\0000");
-                    var name = subKey?.GetValue("DriverDesc")?.ToString();
-                    if (!string.IsNullOrEmpty(name))
-                    {
-                        gpuName = Normalizer.NormalizeTrademarkSymbols(name);
-                        break;
-                    }
-                }
-            }
-        }
-
-        return gpuName ?? "Unknown";
+        DirectX.CreateDXGIFactory(iid, (void**)&factory);
+        factory.Get()->EnumAdapters(0, adapter.GetAddressOf());
+        DXGI_ADAPTER_DESC desc;
+        adapter.Get()->GetDesc(&desc);
+        return Normalizer.NormalizeTrademarkSymbols(new string(&desc.Description.e0));
     }
 }

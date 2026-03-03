@@ -10,10 +10,10 @@ using Rebound.Core.SystemInformation.Software;
 using Rebound.Core.UI;
 using System;
 using System.Diagnostics;
-using System.IO;
 using System.Threading.Tasks;
 using Windows.ApplicationModel.DataTransfer;
 using Windows.System;
+using Windows.UI.Core;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 
@@ -26,6 +26,7 @@ internal sealed partial class MainPage : Page
     [GeneratedDependencyProperty(DefaultValue = InfoBarSeverity.Informational)] public partial InfoBarSeverity WindowsActivationSeverity { get; set; }
 
     // The \\\\ is a workaround for this thing: https://github.com/CommunityToolkit/Labs-Windows/issues/788
+    // Remove once fixed
     [GeneratedDependencyProperty(DefaultValue = "C:\\\\")] public partial string UserPicturePath { get; set; }
 
     [GeneratedDependencyProperty(DefaultValue = "C:\\\\")] public partial string WallpaperPath { get; set; }
@@ -34,41 +35,19 @@ internal sealed partial class MainPage : Page
 
     public MainPage()
     {
-        // Run upon loading
-        Loaded += (s, e) =>
-        {
-            // Populate fields with data
-            WindowsActivationSeverity = WindowsInformation.GetWindowsActivationType() switch
-            {
-                WindowsActivationType.Unlicensed => InfoBarSeverity.Error,
-                WindowsActivationType.Activated => InfoBarSeverity.Success,
-                WindowsActivationType.GracePeriod => InfoBarSeverity.Warning,
-                WindowsActivationType.NonGenuine => InfoBarSeverity.Error,
-                WindowsActivationType.ExtendedGracePeriod => InfoBarSeverity.Warning,
-                WindowsActivationType.Unknown => InfoBarSeverity.Informational,
-                _ => InfoBarSeverity.Informational
-            };
-            WallpaperPath = UserInformation.GetWallpaperPath() ?? string.Empty;
-            UserPicturePath = UserInformation.GetUserPicturePath() ?? string.Empty;
-
-            // Dynamic view code
-            SizeChanged += (s, e) => { UpdateSize(e.NewSize); };
-            UpdateSize(new(ActualWidth, ActualHeight));
-        };
-
         InitializeComponent();
     }
 
     private void UpdateSize(Windows.Foundation.Size size) => ViewModel.ShowExpandedView = !(size.Width < 600 || size.Height < 800);
 
-    [RelayCommand] private static void CopyWindowsVersion() 
-        => CopyToClipboard(WindowsInformation.GetDetailedWindowsVersion());
+    [RelayCommand] private void CopyWindowsVersion() 
+        => CopyToClipboard(ViewModel.DetailedWindowsVersion);
 
-    [RelayCommand] private static void CopyFirstFour()
-        => CopyToClipboard($"{WindowsInformation.GetDetailedWindowsVersion()}\n{WindowsInformation.GetOSName()}\n{WindowsInformation.GetInstalledOnDateString()}\n{WindowsInformation.GetComputerName()}");
+    [RelayCommand] private void CopyFirstFour()
+        => CopyToClipboard($"{WindowsInformation.GetDetailedWindowsVersion()}\n{ViewModel.OSName}\n{ViewModel.InstalledOnDate}\n{ViewModel.ComputerName}");
 
-    [RelayCommand] private static void CopyLicenseOwners()
-        => CopyToClipboard(WindowsInformation.GetLicenseOwners());
+    [RelayCommand] private void CopyLicenseOwners()
+        => CopyToClipboard(ViewModel.LicenseOwners);
 
     [RelayCommand] private static void CopyReboundVersion()
         => CopyToClipboard(Variables.ReboundVersion);
@@ -112,4 +91,27 @@ internal sealed partial class MainPage : Page
 
     [RelayCommand] private static void CloseWindow()
         => App.MainWindow?.Close();
+
+    private void Button_Loaded(object sender, RoutedEventArgs e)
+    {
+        SizeChanged += (s, e) => { UpdateSize(e.NewSize); };
+        UpdateSize(new(ActualWidth, ActualHeight));
+
+        _ = Dispatcher.RunAsync(CoreDispatcherPriority.Low, async () =>
+        {
+            WindowsActivationSeverity = WindowsInformation.GetWindowsActivationType() switch
+            {
+                WindowsActivationType.Unlicensed => InfoBarSeverity.Error,
+                WindowsActivationType.Activated => InfoBarSeverity.Success,
+                WindowsActivationType.GracePeriod => InfoBarSeverity.Warning,
+                WindowsActivationType.NonGenuine => InfoBarSeverity.Error,
+                WindowsActivationType.ExtendedGracePeriod => InfoBarSeverity.Warning,
+                WindowsActivationType.Unknown => InfoBarSeverity.Informational,
+                _ => InfoBarSeverity.Informational
+            };
+            WallpaperPath = UserInformation.GetWallpaperPath() ?? string.Empty;
+            UserPicturePath = UserInformation.GetUserPicturePath() ?? string.Empty;
+            await ViewModel.InitializeAsync().ConfigureAwait(false);
+        });
+    }
 }

@@ -1032,10 +1032,7 @@ public partial class IslandsWindow : ObservableObject, IDisposable
     {
         if (_disposed) return;
 
-        if (AppWindow != null)
-        {
-            AppWindow.Closing -= OnAppWindowClosing;
-        }
+        AppWindow?.Closing -= OnAppWindowClosing;
 
         if (_thisHandle.IsAllocated)
         {

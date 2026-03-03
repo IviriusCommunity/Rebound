@@ -23,6 +23,12 @@ public unsafe struct ManagedPtr<T> : IEquatable<ManagedPtr<T>>, IDisposable wher
         *(T*)_ptr = value;
     }
 
+    public ManagedPtr(Guid value)
+    {
+        _ptr = Marshal.AllocHGlobal(sizeof(T));
+        *(Guid*)_ptr = value;
+    }
+
     public ManagedPtr(string value)
     {
         _ptr = Marshal.StringToHGlobalUni(value);
@@ -44,6 +50,10 @@ public unsafe struct ManagedPtr<T> : IEquatable<ManagedPtr<T>>, IDisposable wher
     public static bool operator !=(ManagedPtr<T> left, ManagedPtr<T> right) => left._ptr != right._ptr;
 
 #pragma warning disable CA2225 // Operator overloads have named alternates
+    public static implicit operator ManagedPtr<T>(string value) => new(value);
+
+    public static implicit operator ManagedPtr<T>(Guid value) => new(value);
+
     public static implicit operator char*(ManagedPtr<T> pinned) => (char*)pinned.ObjectPointer;
     public readonly char* ToCharPtr() => (char*)ObjectPointer;
 
@@ -84,6 +94,9 @@ public static unsafe partial class Shell32RE
 
 public static class NativeMethods
 {
+    public static ulong FileTimeToUlong(FILETIME ft)
+        => ((ulong)ft.dwHighDateTime << 32) | ft.dwLowDateTime;
+
     public static bool ArgsMatchKnownEntries(this string appName, IEnumerable<string> matches, string args)
     {
         List<string> items = [];
@@ -98,11 +111,6 @@ public static class NativeMethods
     public static unsafe HWND ToCsWin32HWND(this TerraFX.Interop.Windows.HWND hwnd)
     {
         return *(HWND*)hwnd.Value;
-    }
-
-    public static unsafe TerraFX.Interop.Windows.HWND ToTerraFXHWND(this HWND hwnd)
-    {
-        return *(TerraFX.Interop.Windows.HWND*)hwnd.Value;
     }
 
     [Obsolete("Dangerous code.")]
@@ -120,14 +128,6 @@ public static class NativeMethods
         fixed (char* valueCharPtr = value)
         {
             return valueCharPtr;
-        }
-    }
-
-    public static unsafe Windows.Win32.Foundation.PWSTR ToPWSTR(this string value)
-    {
-        fixed (char* valueCharPtr = value)
-        {
-            return new Windows.Win32.Foundation.PWSTR(valueCharPtr);
         }
     }
 }

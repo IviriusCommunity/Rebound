@@ -1,7 +1,6 @@
 // Copyright (C) Ivirius(TM) Community 2020 - 2026. All Rights Reserved.
 // Licensed under the MIT License.
 
-using System.Runtime.InteropServices;
 using TerraFX.Interop.Windows;
 
 namespace Rebound.Core.SystemInformation.Hardware;
@@ -23,21 +22,6 @@ public static class Display
         if (TerraFX.Interop.Windows.Windows.EnumDisplaySettingsExW(null, ENUM_CURRENT_SETTINGS, &dm, 0x00000002))
             return new((int)dm.dmPelsWidth, (int)dm.dmPelsHeight);
         return new(0, 0);
-    }
-
-    /// <summary>
-    /// Retrieves the current display resolution as a formatted string by querying the system's display settings.
-    /// </summary>
-    /// <returns>
-    /// A string in the format "WIDTHxHEIGHT" representing the current display resolution (e.g., "1920x1080"). 
-    /// If the display settings cannot be retrieved, "Unknown" is returned.
-    /// </returns>
-    public static string GetDisplayResolutionString()
-    {
-        var resolution = GetDisplayResolution();
-        if (resolution.cx == 0 || resolution.cy == 0)
-            return "Unknown";
-        return $"{resolution.cx}x{resolution.cy}";
     }
 
     /// <summary>
@@ -67,20 +51,6 @@ public static class Display
         if (TerraFX.Interop.Windows.Windows.EnumDisplaySettingsW(null, ENUM_CURRENT_SETTINGS, &dm))
             return dm.dmBitsPerPel;
         return 0;
-    }
-
-    /// <summary>
-    /// Retrieves the current display refresh rate as a formatted string by querying the system's display settings.
-    /// </summary>
-    /// <returns>
-    /// A string representing the current display refresh rate in hertz (Hz) formatted as "{REFRESH_RATE} Hz" (e.g., "60 Hz").
-    /// </returns>
-    public static string GetDisplayRefreshRateString()
-    {
-        var refreshRate = GetDisplayRefreshRate();
-        if (refreshRate == 0)
-            return "Unknown";
-        return $"{refreshRate} Hz";
     }
 
     /// <summary>
@@ -137,16 +107,5 @@ public static class Display
         _ = TerraFX.Interop.Windows.Windows.ReleaseDC(hwnd, hdc);
 
         return dpiX / 96.0;
-    }
-
-    /// <summary>
-    /// Retrieves the current display scaling percentage as a formatted string by calculating the DPI scaling factor for the primary display.
-    /// </summary>
-    /// <returns>
-    /// A string representing the current display scaling percentage (e.g., "100%", "125%", "150%") based on the DPI scaling factor of the primary display.
-    /// </returns>
-    public static string GetScaleString()
-    {
-        return GetScale(HWND.NULL) * 100 + "%";
     }
 }

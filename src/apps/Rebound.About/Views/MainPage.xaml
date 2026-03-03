@@ -108,7 +108,7 @@
                     FontFamily="Segoe UI Variable"
                     FontSize="54"
                     FontWeight="SemiBold"
-                    Text="{x:Bind sysinfoSoftware:WindowsInformation.GetOSDisplayName()}">
+                    Text="{x:Bind ViewModel.OSDisplayName, Mode=OneWay}">
                     <TextBlock.Foreground>
                         <LinearGradientBrush StartPoint="0, 0" EndPoint="1, 1">
                             <LinearGradientBrush.GradientStops>
@@ -153,7 +153,7 @@
                     FontFamily="Segoe UI Variable"
                     FontSize="54"
                     FontWeight="SemiBold"
-                    Text="{x:Bind sysinfoSoftware:WindowsInformation.GetOSDisplayName()}">
+                    Text="{x:Bind ViewModel.OSDisplayName, Mode=OneWay}">
                     <TextBlock.Foreground>
                         <LinearGradientBrush StartPoint="0, 0" EndPoint="1, 1">
                             <LinearGradientBrush.GradientStops>
@@ -303,28 +303,28 @@
                                                 Grid.Column="1"
                                                 Foreground="{ThemeResource TextFillColorDisabledBrush}"
                                                 IsTextSelectionEnabled="True"
-                                                Text="{x:Bind sysinfoSoftware:WindowsInformation.GetDetailedWindowsVersion()}"
+                                                Text="{x:Bind ViewModel.DetailedWindowsVersion, Mode=OneWay}"
                                                 TextWrapping="WrapWholeWords" />
                                             <TextBlock
                                                 Grid.Row="1"
                                                 Grid.Column="1"
                                                 Foreground="{ThemeResource TextFillColorDisabledBrush}"
                                                 IsTextSelectionEnabled="True"
-                                                Text="{x:Bind sysinfoSoftware:WindowsInformation.GetOSName()}"
+                                                Text="{x:Bind ViewModel.OSName, Mode=OneWay}"
                                                 TextWrapping="WrapWholeWords" />
                                             <TextBlock
                                                 Grid.Row="2"
                                                 Grid.Column="1"
                                                 Foreground="{ThemeResource TextFillColorDisabledBrush}"
                                                 IsTextSelectionEnabled="True"
-                                                Text="{x:Bind sysinfoSoftware:WindowsInformation.GetInstalledOnDateString()}"
+                                                Text="{x:Bind ViewModel.InstalledOnDate, Mode=OneWay}"
                                                 TextWrapping="WrapWholeWords" />
                                             <TextBlock
                                                 Grid.Row="3"
                                                 Grid.Column="1"
                                                 Foreground="{ThemeResource TextFillColorDisabledBrush}"
                                                 IsTextSelectionEnabled="True"
-                                                Text="{x:Bind sysinfoSoftware:WindowsInformation.GetComputerName()}"
+                                                Text="{x:Bind ViewModel.ComputerName, Mode=OneWay}"
                                                 TextWrapping="WrapWholeWords" />
 
                                         </Grid>
@@ -380,7 +380,7 @@
                                         VerticalAlignment="Center"
                                         FontWeight="SemiBold"
                                         HorizontalTextAlignment="Center"
-                                        Text="{x:Bind sysinfoHardware:CPU.GetCPUName()}"
+                                        Text="{x:Bind ViewModel.CpuName, Mode=OneWay}"
                                         TextWrapping="WrapWholeWords" />
                                 </Grid>
                                 <Grid
@@ -411,7 +411,7 @@
                                         VerticalAlignment="Center"
                                         FontWeight="SemiBold"
                                         HorizontalTextAlignment="Center"
-                                        Text="{x:Bind sysinfoHardware:GPU.GetGPUName()}"
+                                        Text="{x:Bind ViewModel.GpuName, Mode=OneWay}"
                                         TextWrapping="WrapWholeWords" />
                                 </Grid>
                                 <Grid
@@ -452,7 +452,7 @@
                                             HorizontalAlignment="Center"
                                             FontSize="12"
                                             Opacity="0.75"
-                                            Text="{x:Bind sysinfoHardware:RAM.GetTotalRam()}"
+                                            Text="{x:Bind ViewModel.InstalledRam, Mode=OneWay, Converter={StaticResource FileSizeToFriendlyStringConverter}}"
                                             TextWrapping="WrapWholeWords" />
                                     </StackPanel>
                                     <StackPanel
@@ -469,7 +469,7 @@
                                             HorizontalAlignment="Center"
                                             FontSize="12"
                                             Opacity="0.75"
-                                            Text="{x:Bind sysinfoHardware:RAM.GetUsableRAM()}"
+                                            Text="{x:Bind ViewModel.UsableRam, Mode=OneWay, Converter={StaticResource FileSizeToFriendlyStringConverter}}"
                                             TextWrapping="WrapWholeWords" />
                                     </StackPanel>
                                 </Grid>
@@ -548,7 +548,7 @@
                                             Text="License information"
                                             TextWrapping="WrapWholeWords" />
                                         <TextBlock x:Uid="CopyrightLabel" />
-                                        <TextBlock Text="{x:Bind viewModels:MainViewModel.LegalInfo}" TextWrapping="WrapWholeWords" />
+                                        <TextBlock Text="{x:Bind ViewModel.LegalInfo, Mode=OneWay}" TextWrapping="WrapWholeWords" />
                                         <TextBlock TextWrapping="WrapWholeWords">
                                             <Run x:Uid="LicensedUnderLabel" />
                                             <Hyperlink NavigateUri="https://support.microsoft.com/en-us/windows/microsoft-software-license-terms-e26eedad-97a2-5250-2670-aad156b654bd">
@@ -556,7 +556,7 @@
                                             </Hyperlink>
                                             <Run x:Uid="ToLabel" />
                                         </TextBlock>
-                                        <TextBlock Text="{x:Bind sysinfoSoftware:WindowsInformation.GetLicenseOwners()}" />
+                                        <TextBlock Text="{x:Bind ViewModel.LicenseOwners, Mode=OneWay}" />
                                     </StackPanel>
                                     <Button
                                         Grid.Column="2"
@@ -621,7 +621,7 @@
                                             FontWeight="SemiBold"
                                             Text="Activation state"
                                             TextWrapping="WrapWholeWords" />
-                                        <TextBlock Text="{x:Bind viewModels:MainViewModel.WindowsActivationInfo, Mode=OneWay}" TextWrapping="WrapWholeWords" />
+                                        <TextBlock Text="{x:Bind ViewModel.WindowsActivationInfo, Mode=OneWay}" TextWrapping="WrapWholeWords" />
                                         <Button
                                             Margin="-8,0"
                                             Padding="8"
@@ -694,7 +694,7 @@
                     Margin="40,0,180,0"
                     HorizontalAlignment="Stretch"
                     VerticalAlignment="Center"
-                    Text="{x:Bind viewModels:MainViewModel.CurrentUser, Mode=OneWay}"
+                    Text="{x:Bind ViewModel.GreetingsMessage, Mode=OneWay}"
                     TextWrapping="WrapWholeWords"
                     Visibility="{x:Bind ViewModel.ShowHelloUser, Mode=OneWay}" />
             </Grid>
@@ -742,7 +742,7 @@
                     FontFamily="Segoe UI Variable"
                     FontSize="54"
                     FontWeight="SemiBold"
-                    Text="{x:Bind sysinfoSoftware:WindowsInformation.GetOSDisplayName()}">
+                    Text="{x:Bind ViewModel.OSDisplayName, Mode=OneWay}">
                     <TextBlock.Foreground>
                         <LinearGradientBrush StartPoint="0, 0" EndPoint="1, 1">
                             <LinearGradientBrush.GradientStops>
@@ -795,7 +795,7 @@
                     FontFamily="Segoe UI Variable"
                     FontSize="54"
                     FontWeight="SemiBold"
-                    Text="{x:Bind sysinfoSoftware:WindowsInformation.GetOSDisplayName()}">
+                    Text="{x:Bind ViewModel.OSDisplayName, Mode=OneWay}">
                     <TextBlock.Foreground>
                         <LinearGradientBrush StartPoint="0, 0" EndPoint="1, 1">
                             <LinearGradientBrush.GradientStops>
@@ -1025,98 +1025,98 @@
                                             Grid.Column="1"
                                             Foreground="{ThemeResource TextFillColorDisabledBrush}"
                                             IsTextSelectionEnabled="True"
-                                            Text="{x:Bind sysinfoSoftware:WindowsInformation.GetDetailedWindowsVersion()}"
+                                            Text="{x:Bind ViewModel.DetailedWindowsVersion, Mode=OneWay}"
                                             TextWrapping="Wrap" />
                                         <TextBlock
                                             Grid.Row="1"
                                             Grid.Column="1"
                                             Foreground="{ThemeResource TextFillColorDisabledBrush}"
                                             IsTextSelectionEnabled="True"
-                                            Text="{x:Bind sysinfoSoftware:WindowsInformation.GetOSName()}"
+                                            Text="{x:Bind ViewModel.OSName, Mode=OneWay}"
                                             TextWrapping="WrapWholeWords" />
                                         <TextBlock
                                             Grid.Row="2"
                                             Grid.Column="1"
                                             Foreground="{ThemeResource TextFillColorDisabledBrush}"
                                             IsTextSelectionEnabled="True"
-                                            Text="{x:Bind sysinfoSoftware:WindowsInformation.GetInstalledOnDateString()}"
+                                            Text="{x:Bind ViewModel.InstalledOnDate, Mode=OneWay}"
                                             TextWrapping="WrapWholeWords" />
                                         <TextBlock
                                             Grid.Row="3"
                                             Grid.Column="1"
                                             Foreground="{ThemeResource TextFillColorDisabledBrush}"
                                             IsTextSelectionEnabled="True"
-                                            Text="{x:Bind sysinfoSoftware:WindowsInformation.GetComputerName()}"
+                                            Text="{x:Bind ViewModel.ComputerName, Mode=OneWay}"
                                             TextWrapping="WrapWholeWords" />
                                         <TextBlock
                                             Grid.Row="4"
                                             Grid.Column="1"
                                             Foreground="{ThemeResource TextFillColorDisabledBrush}"
                                             IsTextSelectionEnabled="True"
-                                            Text="{x:Bind sysinfoSoftware:WindowsInformation.GetCPUArchitecture()}"
+                                            Text="{x:Bind ViewModel.CpuArchitecture, Mode=OneWay}"
                                             TextWrapping="WrapWholeWords" />
                                         <TextBlock
                                             Grid.Row="5"
                                             Grid.Column="1"
                                             Foreground="{ThemeResource TextFillColorDisabledBrush}"
                                             IsTextSelectionEnabled="True"
-                                            Text="{x:Bind ViewModel.pagefileSize, Converter={StaticResource FileSizeToFriendlyStringConverter}}"
+                                            Text="{x:Bind ViewModel.PagefileSize, Mode=OneWay, Converter={StaticResource FileSizeToFriendlyStringConverter}}"
                                             TextWrapping="WrapWholeWords" />
                                         <TextBlock
                                             Grid.Row="6"
                                             Grid.Column="1"
                                             Foreground="{ThemeResource TextFillColorDisabledBrush}"
                                             IsTextSelectionEnabled="True"
-                                            Text="{x:Bind sysinfoHardware:Device.GetDeviceManufacturer()}"
+                                            Text="{x:Bind ViewModel.DeviceManufacturer, Mode=OneWay}"
                                             TextWrapping="WrapWholeWords" />
                                         <TextBlock
                                             Grid.Row="7"
                                             Grid.Column="1"
                                             Foreground="{ThemeResource TextFillColorDisabledBrush}"
                                             IsTextSelectionEnabled="True"
-                                            Text="{x:Bind sysinfoHardware:Device.GetDeviceModel()}"
+                                            Text="{x:Bind ViewModel.DeviceModel, Mode=OneWay}"
                                             TextWrapping="WrapWholeWords" />
                                         <TextBlock
                                             Grid.Row="8"
                                             Grid.Column="1"
                                             Foreground="{ThemeResource TextFillColorDisabledBrush}"
                                             IsTextSelectionEnabled="True"
-                                            Text="{x:Bind sysinfoSoftware:WindowsInformation.GetUptimeString()}"
+                                            Text="{x:Bind ViewModel.Uptime, Mode=OneWay}"
                                             TextWrapping="WrapWholeWords" />
                                         <TextBlock
                                             Grid.Row="9"
                                             Grid.Column="1"
                                             Foreground="{ThemeResource TextFillColorDisabledBrush}"
                                             IsTextSelectionEnabled="True"
-                                            Text="{x:Bind sysinfoSoftware:WindowsInformation.GetLocale()}"
+                                            Text="{x:Bind ViewModel.Locale, Mode=OneWay}"
                                             TextWrapping="WrapWholeWords" />
                                         <TextBlock
                                             Grid.Row="10"
                                             Grid.Column="1"
                                             Foreground="{ThemeResource TextFillColorDisabledBrush}"
                                             IsTextSelectionEnabled="True"
-                                            Text="{x:Bind sysinfoSoftware:WindowsInformation.GetLocalIP()}"
+                                            Text="{x:Bind ViewModel.LocalIP, Mode=OneWay}"
                                             TextWrapping="WrapWholeWords" />
                                         <TextBlock
                                             Grid.Row="11"
                                             Grid.Column="1"
                                             Foreground="{ThemeResource TextFillColorDisabledBrush}"
                                             IsTextSelectionEnabled="True"
-                                            Text="{x:Bind sysinfoHardware:Display.GetDisplayResolutionString()}"
+                                            Text="{x:Bind ViewModel.DisplayResolution, Mode=OneWay}"
                                             TextWrapping="WrapWholeWords" />
                                         <TextBlock
                                             Grid.Row="12"
                                             Grid.Column="1"
                                             Foreground="{ThemeResource TextFillColorDisabledBrush}"
                                             IsTextSelectionEnabled="True"
-                                            Text="{x:Bind sysinfoHardware:Display.GetDisplayRefreshRateString()}"
+                                            Text="{x:Bind ViewModel.DisplayRefreshRate, Mode=OneWay}"
                                             TextWrapping="WrapWholeWords" />
                                         <TextBlock
                                             Grid.Row="13"
                                             Grid.Column="1"
                                             Foreground="{ThemeResource TextFillColorDisabledBrush}"
                                             IsTextSelectionEnabled="True"
-                                            Text="{x:Bind sysinfoHardware:Display.GetScaleString()}"
+                                            Text="{x:Bind ViewModel.Scale, Mode=OneWay}"
                                             TextWrapping="WrapWholeWords" />
 
                                     </Grid>
@@ -1188,19 +1188,18 @@
                                 VerticalAlignment="Center"
                                 FontWeight="SemiBold"
                                 HorizontalTextAlignment="Center"
-                                Text="{x:Bind sysinfoHardware:CPU.GetCPUName()}"
+                                Text="{x:Bind ViewModel.CpuName, Mode=OneWay}"
                                 TextWrapping="WrapWholeWords" />
                             <muxc:ProgressBar
                                 Grid.Row="2"
                                 Margin="48,0,0,0"
-                                ToolTipService.ToolTip="{x:Bind ViewModel.CPUUsage, Mode=OneWay}"
-                                Value="{x:Bind ViewModel.CPUUsage, Mode=OneWay}" />
+                                Value="{x:Bind ViewModel.CpuUsage, Mode=OneWay}" />
                             <TextBlock
                                 Grid.Row="2"
                                 Grid.Column="1"
                                 Margin="16,0,48,0"
                                 FontSize="12">
-                                <Run Text="{x:Bind ViewModel.CPUUsage, Mode=OneWay}" /><Run Text="%" /></TextBlock>
+                                <Run Text="{x:Bind ViewModel.CpuUsage, Mode=OneWay}" /><Run Text="%" /></TextBlock>
                         </Grid>
                         <Grid
                             Grid.Column="1"
@@ -1244,19 +1243,18 @@
                                 VerticalAlignment="Center"
                                 FontWeight="SemiBold"
                                 HorizontalTextAlignment="Center"
-                                Text="{x:Bind sysinfoHardware:GPU.GetGPUName()}"
+                                Text="{x:Bind ViewModel.GpuName, Mode=OneWay}"
                                 TextWrapping="WrapWholeWords" />
                             <muxc:ProgressBar
                                 Grid.Row="2"
                                 Margin="48,0,0,0"
-                                ToolTipService.ToolTip="{x:Bind ViewModel.GPUUsage, Mode=OneWay}"
-                                Value="{x:Bind ViewModel.GPUUsage, Mode=OneWay}" />
+                                Value="{x:Bind ViewModel.GpuUsage, Mode=OneWay}" />
                             <TextBlock
                                 Grid.Row="2"
                                 Grid.Column="1"
                                 Margin="16,0,48,0"
                                 FontSize="12">
-                                <Run Text="{x:Bind ViewModel.GPUUsage, Mode=OneWay}" /><Run Text="%" /></TextBlock>
+                                <Run Text="{x:Bind ViewModel.GpuUsage, Mode=OneWay}" /><Run Text="%" /></TextBlock>
                         </Grid>
                         <Grid
                             Grid.Row="1"
@@ -1297,7 +1295,7 @@
                                     HorizontalAlignment="Center"
                                     FontSize="12"
                                     Opacity="0.75"
-                                    Text="{x:Bind sysinfoHardware:RAM.GetTotalRam()}"
+                                    Text="{x:Bind ViewModel.InstalledRam, Mode=OneWay, Converter={StaticResource FileSizeToFriendlyStringConverter}}"
                                     TextWrapping="WrapWholeWords" />
                             </StackPanel>
                             <StackPanel
@@ -1314,7 +1312,7 @@
                                     HorizontalAlignment="Center"
                                     FontSize="12"
                                     Opacity="0.75"
-                                    Text="{x:Bind sysinfoHardware:RAM.GetUsableRAM()}"
+                                    Text="{x:Bind ViewModel.UsableRam, Mode=OneWay, Converter={StaticResource FileSizeToFriendlyStringConverter}}"
                                     TextWrapping="WrapWholeWords" />
                             </StackPanel>
                             <Grid Grid.Row="2" Grid.ColumnSpan="3">
@@ -1322,15 +1320,12 @@
                                     <ColumnDefinition Width="*" />
                                     <ColumnDefinition Width="Auto" />
                                 </Grid.ColumnDefinitions>
-                                <muxc:ProgressBar
-                                    Margin="48,0,0,0"
-                                    ToolTipService.ToolTip="{x:Bind ViewModel.MemoryUsage, Mode=OneWay}"
-                                    Value="{x:Bind ViewModel.MemoryUsage, Mode=OneWay}" />
+                                <muxc:ProgressBar Margin="48,0,0,0" Value="{x:Bind ViewModel.RamUsage, Mode=OneWay}" />
                                 <TextBlock
                                     Grid.Column="1"
                                     Margin="16,0,48,0"
                                     FontSize="12">
-                                    <Run Text="{x:Bind ViewModel.MemoryUsage, Mode=OneWay}" /><Run Text="%" /></TextBlock>
+                                    <Run Text="{x:Bind ViewModel.RamUsage, Mode=OneWay}" /><Run Text="%" /></TextBlock>
                             </Grid>
                         </Grid>
                         <Grid
@@ -1379,14 +1374,14 @@
                                         Height="40"
                                         Background="{ThemeResource SystemControlBackgroundAltMediumLowBrush}"
                                         IsIndeterminate="False"
-                                        Value="{x:Bind sysinfoHardware:Storage.GetWindowsDriveOccupiedSpacePercentage()}" />
+                                        Value="{x:Bind ViewModel.WindowsOccupiedSpace, Mode=OneWay}" />
                                     <TextBlock
                                         HorizontalAlignment="Center"
                                         VerticalAlignment="Center"
                                         FontSize="12"
                                         FontWeight="SemiBold"
                                         Foreground="{ThemeResource AccentTextFillColorPrimaryBrush}">
-                                        <Run Text="{x:Bind sysinfoHardware:Storage.GetWindowsDriveOccupiedSpacePercentageString()}" /><Run Text="%" /></TextBlock>
+                                        <Run Text="{x:Bind ViewModel.WindowsOccupiedSpaceString, Mode=OneWay}" /><Run Text="%" /></TextBlock>
                                 </Grid>
                             </StackPanel>
                             <StackPanel
@@ -1405,14 +1400,14 @@
                                         Height="40"
                                         Background="{ThemeResource SystemControlBackgroundAltMediumLowBrush}"
                                         IsIndeterminate="False"
-                                        Value="{x:Bind sysinfoHardware:Storage.GetTotalOccupiedSpacePercentage()}" />
+                                        Value="{x:Bind ViewModel.TotalOccupiedSpace, Mode=OneWay}" />
                                     <TextBlock
                                         HorizontalAlignment="Center"
                                         VerticalAlignment="Center"
                                         FontSize="12"
                                         FontWeight="SemiBold"
                                         Foreground="{ThemeResource AccentTextFillColorPrimaryBrush}">
-                                        <Run Text="{x:Bind sysinfoHardware:Storage.GetTotalOccupiedSpacePercentageString()}" /><Run Text="%" /></TextBlock>
+                                        <Run Text="{x:Bind ViewModel.TotalOccupiedSpaceString, Mode=OneWay}" /><Run Text="%" /></TextBlock>
                                 </Grid>
                             </StackPanel>
                         </Grid>
@@ -1489,7 +1484,7 @@
                                     Text="License information"
                                     TextWrapping="WrapWholeWords" />
                                 <TextBlock x:Uid="CopyrightLabel" />
-                                <TextBlock Text="{x:Bind viewModels:MainViewModel.LegalInfo}" TextWrapping="WrapWholeWords" />
+                                <TextBlock Text="{x:Bind ViewModel.LegalInfo, Mode=OneWay}" TextWrapping="WrapWholeWords" />
                                 <TextBlock TextWrapping="WrapWholeWords">
                                     <Run x:Uid="LicensedUnderLabel" />
                                     <Hyperlink NavigateUri="https://support.microsoft.com/en-us/windows/microsoft-software-license-terms-e26eedad-97a2-5250-2670-aad156b654bd">
@@ -1497,7 +1492,7 @@
                                     </Hyperlink>
                                     <Run x:Uid="ToLabel" />
                                 </TextBlock>
-                                <TextBlock Text="{x:Bind sysinfoSoftware:WindowsInformation.GetLicenseOwners()}" />
+                                <TextBlock Text="{x:Bind ViewModel.LicenseOwners, Mode=OneWay}" />
                             </StackPanel>
                             <Button
                                 Grid.Column="2"
@@ -1550,12 +1545,12 @@
                                     VerticalAlignment="Center"
                                     FontSize="24"
                                     FontWeight="SemiBold"
-                                    Text="{x:Bind sysinfoSoftware:UserInformation.GetDisplayName(), Mode=OneWay}"
+                                    Text="{x:Bind ViewModel.GreetingsMessage, Mode=OneWay}"
                                     TextWrapping="WrapWholeWords" />
                                 <Grid
                                     Margin="0,0,8,0"
                                     HorizontalAlignment="Right"
-                                    Visibility="{x:Bind viewModels:MainViewModel.IsMicrosoftAccount}">
+                                    Visibility="{x:Bind ViewModel.IsMicrosoftAccount, Mode=OneWay}">
                                     <Grid
                                         VerticalAlignment="Center"
                                         ColumnSpacing="1"
@@ -1598,7 +1593,7 @@
                                 <Grid
                                     Margin="0,0,8,0"
                                     HorizontalAlignment="Right"
-                                    Visibility="{x:Bind viewModels:MainViewModel.IsMicrosoftAccount, Converter={StaticResource BoolToInverseVisibilityConverter}}">
+                                    Visibility="{x:Bind ViewModel.IsMicrosoftAccount, Mode=OneWay, Converter={StaticResource BoolToInverseVisibilityConverter}}">
                                     <FontIcon
                                         HorizontalAlignment="Left"
                                         FontSize="24"
@@ -1626,14 +1621,14 @@
                                             <StackPanel
                                                 Orientation="Horizontal"
                                                 Spacing="8"
-                                                Visibility="{x:Bind viewModels:MainViewModel.IsAdmin, Converter={StaticResource BoolToInverseVisibilityConverter}}">
+                                                Visibility="{x:Bind ViewModel.IsAdmin, Mode=OneWay, Converter={StaticResource BoolToInverseVisibilityConverter}}">
                                                 <FontIcon FontSize="16" Glyph="&#xE77B;" />
                                                 <TextBlock VerticalAlignment="Center" Text="User account" />
                                             </StackPanel>
                                             <StackPanel
                                                 Orientation="Horizontal"
                                                 Spacing="8"
-                                                Visibility="{x:Bind viewModels:MainViewModel.IsAdmin}">
+                                                Visibility="{x:Bind ViewModel.IsAdmin, Mode=OneWay}">
                                                 <FontIcon FontSize="16" Glyph="&#xEA18;" />
                                                 <TextBlock VerticalAlignment="Center" Text="Administrator account" />
                                             </StackPanel>
@@ -1642,7 +1637,7 @@
                                             <FontIcon FontSize="16" Glyph="&#xE917;" />
                                             <TextBlock VerticalAlignment="Center">
                                                 <Run Text="Password expires on: " />
-                                                <Run Text="{x:Bind sysinfoSoftware:UserInformation.GetPasswordExpiry()}" />
+                                                <Run Text="{x:Bind ViewModel.PasswordExpiryDate, Mode=OneWay}" />
                                             </TextBlock>
                                         </StackPanel>
                                     </StackPanel>
@@ -1772,7 +1767,7 @@
                                     FontWeight="SemiBold"
                                     Text="Activation state"
                                     TextWrapping="WrapWholeWords" />
-                                <TextBlock Text="{x:Bind viewModels:MainViewModel.WindowsActivationInfo, Mode=OneWay}" TextWrapping="WrapWholeWords" />
+                                <TextBlock Text="{x:Bind ViewModel.WindowsActivationInfo, Mode=OneWay}" TextWrapping="WrapWholeWords" />
                                 <Button
                                     Margin="-8,0"
                                     Padding="8"
@@ -1840,6 +1835,7 @@
                         Width="120"
                         VerticalAlignment="Center"
                         Command="{x:Bind CloseWindowCommand}"
+                        Loaded="Button_Loaded"
                         Style="{StaticResource AccentButtonStyle}">
                         <Button.KeyboardAccelerators>
                             <KeyboardAccelerator Key="Escape" />
@@ -1849,6 +1845,15 @@
             </Grid>
 
         </Grid>
-
+        <Grid Background="{ThemeResource SolidBackgroundFillColorBaseBrush}" Visibility="{x:Bind ViewModel.Loaded, Mode=OneWay, Converter={StaticResource BoolToInverseVisibilityConverter}}">
+            <Image
+                Width="80"
+                HorizontalAlignment="Center"
+                VerticalAlignment="Center"
+                Source="/Assets/AboutWindows.ico" />
+            <animations:Implicit.HideAnimations>
+                <animations:OpacityAnimation To="0" Duration="0:0:0.5" />
+            </animations:Implicit.HideAnimations>
+        </Grid>
     </Grid>
 </Page>
