@@ -1852,6 +1852,14 @@
                 VerticalAlignment="Center"
                 Source="/Assets/AboutWindows.ico"
                 Visibility="{x:Bind ViewModel.Loaded, Mode=OneWay, Converter={StaticResource BoolToInverseVisibilityConverter}}" />
+            <muxc:ProgressRing
+                Width="32"
+                Height="32"
+                Margin="0,160,0,0"
+                Foreground="{ThemeResource TextFillColorPrimaryBrush}"
+                IsActive="True"
+                IsIndeterminate="True"
+                Visibility="{x:Bind ViewModel.Loaded, Mode=OneWay, Converter={StaticResource BoolToInverseVisibilityConverter}}" />
             <animations:Implicit.HideAnimations>
                 <animations:OpacityAnimation To="0" Duration="0:0:0.5" />
             </animations:Implicit.HideAnimations>
