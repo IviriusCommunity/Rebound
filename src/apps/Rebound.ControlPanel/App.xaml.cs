@@ -22,7 +22,7 @@ using Windows.UI.Xaml.Controls;
 
 namespace Rebound.ControlPanel;
 
-[ReboundApp("Rebound.Control", "Legacy Control Panel*legacy*ms-appx:///Assets/ControlPanelLegacy.ico")]
+[ReboundApp("Rebound.Control")]
 public partial class App : Application
 {
     public static PipeClient? ReboundPipeClient { get; private set; }
@@ -59,7 +59,7 @@ public partial class App : Application
                 // Service host watchdog thread
                 var serviceHostWatchdogThread = new Thread(async () =>
                 {
-                    ServiceHostWatchdogEngine.Start();
+                    ServiceHostEngine.StartWatchdog();
                 })
                 {
                     IsBackground = true,
@@ -79,11 +79,11 @@ public partial class App : Application
                     {
                         UIThreadQueue.QueueAction(async () =>
                         {
-                            await ReboundDialog.ShowAsync(
+                            /*await ReboundDialog.ShowAsync(
                                 "Rebound Service Host not found.",
                                 "Could not find Rebound Service Host.\nPlease ensure it is running in the background.",
                                 DialogIcon.Warning
-                            ).ConfigureAwait(false);
+                            ).ConfigureAwait(false);*/
                         });
                     }
                 })
@@ -117,14 +117,14 @@ public partial class App : Application
                 }
                 catch
                 {
-                    UIThreadQueue.QueueAction(async () =>
+                    /*UIThreadQueue.QueueAction(async () =>
                     {
                         await ReboundDialog.ShowAsync(
                             "Legacy Launch Failed",
                             "Could not communicate with Rebound Service Host.\nPlease ensure it is running and try again.",
                             DialogIcon.Warning
                         ).ConfigureAwait(false);
-                    });
+                    });*/
                 }
             }
         }
