@@ -89,8 +89,7 @@
                                 Text="CPU" />
                             <TextBlock
                                 Grid.Row="1"
-                                Grid.Column="2"
-                                Text="{x:Bind sysinfoHardware:CPU.GetCPUName()}" />
+                                Grid.Column="2" />
 
                             <!--  GPU name  -->
                             <PathIcon
@@ -105,8 +104,7 @@
                                 Text="GPU" />
                             <TextBlock
                                 Grid.Row="2"
-                                Grid.Column="2"
-                                Text="{x:Bind sysinfoHardware:GPU.GetGPUName()}" />
+                                Grid.Column="2" />
 
                             <!--  RAM  -->
                             <FontIcon
@@ -120,8 +118,7 @@
                                 Text="RAM" />
                             <TextBlock
                                 Grid.Row="3"
-                                Grid.Column="2"
-                                Text="{x:Bind sysinfoHardware:RAM.GetTotalRam()}" />
+                                Grid.Column="2" />
                         </Grid>
                     </StackPanel>
                 </Grid>
