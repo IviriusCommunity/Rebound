@@ -113,7 +113,7 @@
 
 	<!-- System & Management -->
 	<ItemGroup Label="System Libraries">
-		<PackageReference Include="System.Diagnostics.PerformanceCounter" Version="10.0.1" />
+		<PackageReference Include="System.Diagnostics.PerformanceCounter" Version="10.0.3" />
 		<PackageReference Include="System.IO.Pipes.AccessControl" Version="6.0.0-preview.5.21301.5" />
 		<PackageReference Include="OwlCore.Storage" Version="0.14.0" />
 		<PackageReference Include="TaskScheduler" Version="2.12.2" />
