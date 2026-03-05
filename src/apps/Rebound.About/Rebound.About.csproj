@@ -43,7 +43,7 @@
 
 		<Manifest Include="$(ApplicationManifest)" />
 
-		<PackageReference Include="CommunityToolkit.Labs.Uwp.DependencyPropertyGenerator" Version="0.1.260203-build.2518"/>
+		<PackageReference Include="CommunityToolkit.Labs.Uwp.DependencyPropertyGenerator" Version="0.1.260203-build.2518" />
 
 		<!-- Windows SDK and WinUI -->
 		<PackageReference Include="Microsoft.UI.Xaml" Version="2.8.7" />
@@ -134,9 +134,6 @@
 		<None Include="README.md" Pack="true" PackagePath="\" />
 
 		<Content Update="Assets\AboutWindows.ico">
-			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
-		</Content>
-		<Content Update="Assets\Exe.ico">
 			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
 		</Content>
 		<Content Update="Strings\zh-CN\Resources.resw">
