@@ -32,37 +32,9 @@ public partial class App : Application, IReboundLegacySupportApp, IReboundPipeCl
     {
         try
         {
-            // Legacy launch
-            // with arguments
-            if (e.Arguments.StartsWith(Variables.LegacyLaunchArgument, StringComparison.InvariantCultureIgnoreCase)
-                // without arguments
-                || e.Arguments.StartsWith(Variables.LegacyLaunchArgument.Trim(), StringComparison.InvariantCultureIgnoreCase))
-            {
-                LaunchLegacy(e.Arguments.Length > Variables.LegacyLaunchArgument.Length - 1 ?
-                    // with arguments
-                    e.Arguments[Variables.LegacyLaunchArgument.Length..] :
-                    // without arguments
-                    string.Empty);
-
-                // If this is the app's first launch, simply close it.
-                if (e.IsFirstLaunch)
-                    return;
-            }
-
             // If this is the application's initial launch, handle the required environment
             if (e.IsFirstLaunch)
             {
-                // FRONTEND
-                // Spawn or activate the main window immediately
-                UIThreadQueue.QueueAction(async () =>
-                {
-                    if (MainWindow != null)
-                        MainWindow.BringToFront();
-                    else
-                        CreateMainWindow();
-                });
-
-                // BACKEND
                 // Pipe server thread
                 var pipeThread = new Thread(async () =>
                 {
@@ -101,6 +73,35 @@ public partial class App : Application, IReboundLegacySupportApp, IReboundPipeCl
                 };
                 watchdogThread.SetApartmentState(ApartmentState.STA);
                 watchdogThread.Start();
+            }
+
+            // Legacy launch
+            // with arguments
+            if (e.Arguments.StartsWith(Variables.LegacyLaunchArgument, StringComparison.InvariantCultureIgnoreCase)
+                // without arguments
+                || e.Arguments.StartsWith(Variables.LegacyLaunchArgument.Trim(), StringComparison.InvariantCultureIgnoreCase))
+            {
+                LaunchLegacy(e.Arguments.Length > Variables.LegacyLaunchArgument.Length - 1 ?
+                    // with arguments
+                    e.Arguments[Variables.LegacyLaunchArgument.Length..] :
+                    // without arguments
+                    string.Empty);
+
+                // The application itself shouldn't handle more logic from here
+                return;
+            }
+
+            // If this is the application's initial launch and not a legacy launch, handle the UI
+            if (e.IsFirstLaunch)
+            {
+                // Spawn or activate the main window immediately
+                UIThreadQueue.QueueAction(async () =>
+                {
+                    if (MainWindow != null)
+                        MainWindow.BringToFront();
+                    else
+                        CreateMainWindow();
+                });
             }
 
             // The application has been launched again, simply bring the main window forward
