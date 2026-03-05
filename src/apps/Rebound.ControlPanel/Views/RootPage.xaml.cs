@@ -69,4 +69,10 @@ public sealed partial class RootPage : Page
 
         }
     }
+
+    [RelayCommand]
+    public void TogglePane()
+    {
+        NavView.IsPaneOpen = !NavView.IsPaneOpen;
+    }
 }

@@ -61,6 +61,19 @@
                     Padding="8"
                     Background="Transparent"
                     BorderBrush="Transparent"
+                    Command="{x:Bind TogglePaneCommand}">
+                    <muxc:AnimatedIcon>
+                        <muxc:AnimatedIcon.Source>
+                            <animatedvisuals:AnimatedGlobalNavigationButtonVisualSource />
+                        </muxc:AnimatedIcon.Source>
+                    </muxc:AnimatedIcon>
+                </Button>
+                <Button
+                    Width="36"
+                    Height="36"
+                    Padding="8"
+                    Background="Transparent"
+                    BorderBrush="Transparent"
                     Command="{x:Bind GoBackCommand}">
                     <FontIcon FontSize="16" Glyph="&#xE72B;" />
                 </Button>
@@ -160,11 +173,12 @@
             </StackPanel>
         </Grid>
         <muxc:NavigationView
+            x:Name="NavView"
             Margin="0,80,0,0"
             IsBackButtonVisible="Collapsed"
+            IsPaneToggleButtonVisible="False"
             IsSettingsVisible="False"
-            ItemInvoked="NavigationView_ItemInvoked"
-            PaneTitle="Rebound">
+            ItemInvoked="NavigationView_ItemInvoked">
             <muxc:NavigationView.MenuItems>
                 <muxc:NavigationViewItem Content="Home" IsSelected="True">
                     <muxc:NavigationViewItem.Icon>
