@@ -1,50 +1,28 @@
-using CommunityToolkit.Mvvm.ComponentModel;
+// Copyright (C) Ivirius(TM) Community 2020 - 2026. All Rights Reserved.
+// Licensed under the MIT License.
+
 using CommunityToolkit.Mvvm.Input;
-using Microsoft.UI.Xaml.Controls;
+using CommunityToolkit.WinUI;
 using Rebound.ControlPanel.ViewModels;
 using Rebound.Core;
 using Rebound.Core.SystemInformation.Software;
 using Rebound.Core.UI;
+using Rebound.Forge.Engines;
 using System;
 using System.Diagnostics;
-using System.IO;
-using TerraFX.Interop.Windows;
-using Windows.System;
 using Windows.UI.Xaml.Controls;
-using Windows.UI.Xaml.Data;
-using Windows.UI.Xaml.Documents;
-using Windows.UI.Xaml.Media.Imaging;
-using WinRT;
 
 namespace Rebound.ControlPanel.Views;
 
-public partial class StringToUriConverter : IValueConverter
-{
-    public object Convert(object value, Type targetType, object parameter, string language)
-    {
-        if (value is string path && !string.IsNullOrEmpty(path))
-        {
-            return new Uri(path);
-        }
-        return null;
-    }
-
-    public object ConvertBack(object value, Type targetType, object parameter, string language)
-    {
-        throw new NotImplementedException();
-    }
-}
-
-[INotifyPropertyChanged]
 internal sealed partial class HomePage : Page
 {
+    // The \\\\ is a workaround for this thing: https://github.com/CommunityToolkit/Labs-Windows/issues/788
+    // Remove once fixed
+    [GeneratedDependencyProperty(DefaultValue = "C:\\\\")] public partial string UserPicturePath { get; set; }
+
+    [GeneratedDependencyProperty(DefaultValue = "C:\\\\")] public partial string WallpaperPath { get; set; }
+
     internal HomeViewModel ViewModel { get; } = new();
-
-    [ObservableProperty]
-    private partial string UserPicturePath { get; set; }
-
-    [ObservableProperty]
-    private partial string WallpaperPath { get; set; }
 
     public HomePage()
     {
@@ -57,34 +35,33 @@ internal sealed partial class HomePage : Page
     }
 
     [RelayCommand]
-    public unsafe void LaunchReboundHub()
+    public static void LaunchReboundHub()
     {
         try
         {
-            var manager = new ApplicationActivationManager();
-            manager.As<IApplicationActivationManager>().ActivateApplication("Rebound.Hub_rcz2tbwv5qzb8!App".ToPointer(), null, ACTIVATEOPTIONS.AO_NONE, null);
+            ApplicationLaunchEngine.LaunchApp("Rebound.Hub_rcz2tbwv5qzb8");
         }
-        catch
+        catch (Exception ex)
         {
-
+            ReboundLogger.WriteToLog("Launch Rebound Hub", "Couldn't launch Rebound Hub.", LogMessageSeverity.Error, ex);
         }
     }
 
     [RelayCommand]
-    public void LaunchPath(string path)
+    public static void LaunchPath(string path)
     {
         try
         {
             Process.Start(path);
         }
-        catch
+        catch (Exception ex)
         {
-
+            ReboundLogger.WriteToLog($"Launch {path}", $"Couldn't launch {path}.", LogMessageSeverity.Error, ex);
         }
     }
 
-    private void WinverHyperlink_Click(Hyperlink sender, HyperlinkClickEventArgs args)
+    private void Hyperlink_Click(Windows.UI.Xaml.Documents.Hyperlink sender, Windows.UI.Xaml.Documents.HyperlinkClickEventArgs args)
     {
-        Process.Start("winver.exe");
+        LaunchPath("winver.exe");
     }
 }

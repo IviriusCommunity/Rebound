@@ -83,6 +83,9 @@
     <Project Path="src/core/Rebound.Core.DLLInjection/Rebound.Core.DLLInjection.csproj" Id="0ebdf941-ee7e-4cc8-bf8b-65dd9361af3e">
       <Platform Project="x64" />
     </Project>
+    <Project Path="src/core/Rebound.Core.ICC/Rebound.Core.ICC.csproj" Id="fc0e2257-780b-487c-969f-24ebfd41c3be">
+      <Platform Project="x64" />
+    </Project>
     <Project Path="src/core/Rebound.Core.IPC/Rebound.Core.IPC.csproj" Id="0a697d0f-62d0-483e-93f1-a0db734f2a78">
       <Platform Project="x64" />
     </Project>

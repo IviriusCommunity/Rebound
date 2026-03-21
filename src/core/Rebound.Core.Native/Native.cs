@@ -97,17 +97,6 @@ public static class NativeMethods
     public static ulong FileTimeToUlong(FILETIME ft)
         => ((ulong)ft.dwHighDateTime << 32) | ft.dwLowDateTime;
 
-    public static bool ArgsMatchKnownEntries(this string appName, IEnumerable<string> matches, string args)
-    {
-        List<string> items = [];
-        foreach (var match in matches)
-        {
-            items.Add(match);
-            items.Add($"{appName} {match}");
-        }
-        return items.Contains(args, StringComparer.InvariantCultureIgnoreCase);
-    }
-
     public static unsafe HWND ToCsWin32HWND(this TerraFX.Interop.Windows.HWND hwnd)
     {
         return *(HWND*)hwnd.Value;

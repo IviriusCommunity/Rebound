@@ -53,7 +53,8 @@ public sealed unsafe class WmiConnection(string wmiNamespace = "ROOT\\CIMV2")
     {
         lock (_lock)
         {
-            if (!EnsureConnected()) return false;
+            if (!EnsureConnected())
+                return false;
 
             ComPtr<IEnumWbemClassObject> enumerator = default;
 

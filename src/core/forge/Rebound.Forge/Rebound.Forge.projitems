@@ -26,6 +26,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)Cogs\StartupTaskCog.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Cogs\StorePackageCog.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Cogs\TaskFolderCog.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)engines\ApplicationLaunchEngine.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Engines\DistributionEngine.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Engines\IFEOEngine.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Engines\ServiceHostEngine.cs" />
@@ -37,5 +38,10 @@
     <Compile Include="$(MSBuildThisFileDirectory)Mod.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ModParser.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ModSetting.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Engines\RegistrySettingsEngine.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)RegistrySettingsCatalog.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="$(MSBuildThisFileDirectory)Directory.Build.props" />
   </ItemGroup>
 </Project>

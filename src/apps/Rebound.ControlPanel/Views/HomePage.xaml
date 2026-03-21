@@ -4,19 +4,22 @@
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:behaviors="using:CommunityToolkit.WinUI.Behaviors"
+    xmlns:converters="using:CommunityToolkit.WinUI.Converters"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:header="using:WinUIGallery.Controls"
     xmlns:interactivity="using:Microsoft.Xaml.Interactivity"
     xmlns:local="using:Rebound.ControlPanel.Views"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:muxc="using:Microsoft.UI.Xaml.Controls"
+    xmlns:rconverters="using:Rebound.Core.UI.UWP.Converters"
     xmlns:sysinfoHardware="using:Rebound.Core.SystemInformation.Hardware"
     xmlns:sysinfoSoftware="using:Rebound.Core.SystemInformation.Software"
     xmlns:toolkit="using:CommunityToolkit.WinUI.Controls"
     xmlns:viewModels="using:Rebound.ControlPanel.ViewModels"
     mc:Ignorable="d">
     <Page.Resources>
-        <local:StringToUriConverter x:Key="StringToUriConverter" />
+        <converters:FileSizeToFriendlyStringConverter x:Key="FileSizeToFriendlyStringConverter" />
+        <rconverters:StringToUriConverter x:Key="StringToUriConverter" />
     </Page.Resources>
     <Grid>
         <ScrollViewer>
@@ -43,7 +46,7 @@
                             <TextBlock
                                 FontSize="32"
                                 FontWeight="SemiBold"
-                                Text="{x:Bind sysinfoSoftware:UserInformation.GetDisplayName()}" />
+                                Text="{x:Bind ViewModel.Username, Mode=OneWay}" />
                         </StackPanel>
                         <Grid
                             Margin="0,24"
@@ -71,9 +74,9 @@
                                 Grid.Column="2"
                                 Orientation="Horizontal"
                                 Spacing="8">
-                                <TextBlock Text="{x:Bind sysinfoSoftware:WindowsInformation.GetOSName()}" />
+                                <TextBlock Text="{x:Bind ViewModel.WindowsVersionTitle, Mode=OneWay}" />
                                 <TextBlock>
-                                    <Hyperlink Click="WinverHyperlink_Click">View more</Hyperlink>
+                                    <Hyperlink Click="Hyperlink_Click">View more</Hyperlink>
                                 </TextBlock>
                             </StackPanel>
 
@@ -89,7 +92,8 @@
                                 Text="CPU" />
                             <TextBlock
                                 Grid.Row="1"
-                                Grid.Column="2" />
+                                Grid.Column="2"
+                                Text="{x:Bind ViewModel.CpuName, Mode=OneWay}" />
 
                             <!--  GPU name  -->
                             <PathIcon
@@ -104,7 +108,8 @@
                                 Text="GPU" />
                             <TextBlock
                                 Grid.Row="2"
-                                Grid.Column="2" />
+                                Grid.Column="2"
+                                Text="{x:Bind ViewModel.GpuName, Mode=OneWay}" />
 
                             <!--  RAM  -->
                             <FontIcon
@@ -118,7 +123,8 @@
                                 Text="RAM" />
                             <TextBlock
                                 Grid.Row="3"
-                                Grid.Column="2" />
+                                Grid.Column="2"
+                                Text="{x:Bind ViewModel.RamCapacity, Mode=OneWay, Converter={StaticResource FileSizeToFriendlyStringConverter}}" />
                         </Grid>
                     </StackPanel>
                 </Grid>
@@ -160,7 +166,7 @@
                     Header="Legacy Control Panel"
                     IsClickEnabled="True">
                     <toolkit:SettingsCard.HeaderIcon>
-                        <muxc:ImageIcon Source="/Assets/ControlPanelLegacy.ico" />
+                        <muxc:ImageIcon Source="/Assets/Apps/ControlPanelLegacy.ico" />
                     </toolkit:SettingsCard.HeaderIcon>
                     <toolkit:SettingsCard.ActionIcon>
                         <FontIcon Glyph="&#xE8AD;" />
@@ -171,6 +177,9 @@
                     Description="Manage system and poweruser related settings within Windows."
                     Header="Management Console"
                     IsClickEnabled="True">
+                    <toolkit:SettingsCard.HeaderIcon>
+                        <muxc:ImageIcon Source="/Assets/Apps/ManagementConsole.png" />
+                    </toolkit:SettingsCard.HeaderIcon>
                     <toolkit:SettingsCard.ActionIcon>
                         <FontIcon Glyph="&#xE8AD;" />
                     </toolkit:SettingsCard.ActionIcon>
@@ -186,7 +195,7 @@
                     Header="Rebound Hub"
                     IsClickEnabled="True">
                     <toolkit:SettingsCard.HeaderIcon>
-                        <FontIcon Glyph="&#xE80F;" />
+                        <muxc:ImageIcon Source="/Assets/Apps/ReboundHub.ico" />
                     </toolkit:SettingsCard.HeaderIcon>
                     <toolkit:SettingsCard.ActionIcon>
                         <FontIcon Glyph="&#xE8AD;" />
@@ -197,6 +206,9 @@
                     Description="Highly extended customization options can be found here. These are only available while Rebound is installed."
                     Header="Rebound Shell Settings"
                     IsClickEnabled="True">
+                    <toolkit:SettingsCard.HeaderIcon>
+                        <muxc:ImageIcon Source="/Assets/Apps/ReboundShell.ico" />
+                    </toolkit:SettingsCard.HeaderIcon>
                     <toolkit:SettingsCard.ActionIcon>
                         <FontIcon Glyph="&#xE8AD;" />
                     </toolkit:SettingsCard.ActionIcon>
@@ -210,21 +222,15 @@
                     Description="Tweak hidden Windows settings, telemetry, manage services, and more."
                     Header="Wintoys"
                     IsClickEnabled="True">
+                    <toolkit:SettingsCard.HeaderIcon>
+                        <muxc:ImageIcon Source="/Assets/Apps/Wintoys.ico" />
+                    </toolkit:SettingsCard.HeaderIcon>
                     <toolkit:SettingsCard.ActionIcon>
                         <FontIcon Glyph="&#xE8AD;" />
                     </toolkit:SettingsCard.ActionIcon>
                 </toolkit:SettingsCard>
                 <toolkit:SettingsCard
-                    Margin="40,0,40,40"
-                    Description="Launch PowerToys Settings to manage options for PowerToys tools."
-                    Header="PowerToys Settings"
-                    IsClickEnabled="True">
-                    <toolkit:SettingsCard.ActionIcon>
-                        <FontIcon Glyph="&#xE8AD;" />
-                    </toolkit:SettingsCard.ActionIcon>
-                </toolkit:SettingsCard>
-                <toolkit:SettingsCard
-                    Margin="40,0,40,40"
+                    Margin="40,40,40,40"
                     Description="Open the Windows Tools page to see all the available tools."
                     Header="View all Windows tools"
                     IsClickEnabled="True">

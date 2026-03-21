@@ -1,22 +1,29 @@
-﻿using System.Collections.Generic;
-using System.Diagnostics;
+﻿// Copyright (C) Ivirius(TM) Community 2020 - 2026. All Rights Reserved.
+// Licensed under the MIT License.
+
 using CommunityToolkit.Mvvm.Input;
 using Microsoft.UI.Xaml.Controls;
 using Rebound.Core;
+using Rebound.Core.IPC;
+using System;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.Diagnostics;
+using System.Threading.Tasks;
 using TerraFX.Interop.Windows;
 using Windows.UI.Xaml.Controls;
 
 namespace Rebound.ControlPanel.Views;
 
-public partial class Tool
+internal partial class Tool
 {
-    public string Name { get; set; }
-    public string DisplayName { get; set; }
-    public string Description { get; set; }
-    public string Icon { get; set; }
+    public string Name { get; set; } = string.Empty;
+    public string DisplayName { get; set; } = string.Empty;
+    public string Description { get; set; } = string.Empty;
+    public string Icon { get; set; } = string.Empty;
 
     [RelayCommand]
-    private void LaunchApp(string name)
+    private static async Task LaunchAppAsync(string name)
     {
         if (name == "taskmgr")
         {
@@ -34,27 +41,34 @@ public partial class Tool
 
             }
         }
+        else if (name == "run")
+        {
+            if (Process.GetProcessesByName("Rebound Shell").Length > 0)
+            {
+                using var reboundShellClient = new PipeClient("REBOUND_SHELL");
+                await reboundShellClient.ConnectAsync().ConfigureAwait(false);
+                await reboundShellClient.SendAsync("Shell::SpawnRunWindow").ConfigureAwait(false);
+            }
+            else unsafe { Shell32RE.RunFileDlg(App.MainWindow!.Handle, HICON.NULL, null, null, null, 0); }
+        }
         else
         {
             try
             {
-                Process.Start(name);
+                Process.Start(new ProcessStartInfo()
+                {
+                    FileName = name,
+                    UseShellExecute = true
+                });
             }
             catch
             {
-                try
+                Process.Start(new ProcessStartInfo()
                 {
-                    Process.Start(new ProcessStartInfo()
-                    {
-                        FileName = name,
-                        UseShellExecute = true,
-                        Verb = "runas"
-                    });
-                }
-                catch
-                {
-
-                }
+                    FileName = name,
+                    UseShellExecute = true,
+                    Verb = "runas"
+                });
             }
         }
     }
@@ -62,7 +76,7 @@ public partial class Tool
 
 public sealed partial class WindowsToolsPage : Page
 {
-    List<Tool> Tools =
+    readonly List<Tool> Tools =
     [
         new() { Name = "winver.exe", DisplayName = "About Windows", Description = "View details about your Windows version.", Icon = "ms-appx:///Assets/winver.ico" },
         new() { Name = "charmap.exe", DisplayName = "Character Map", Description = "Browse and copy special characters from installed fonts.", Icon = "ms-appx:///Assets/CharacterMap.png" },
@@ -97,55 +111,11 @@ public sealed partial class WindowsToolsPage : Page
         new() { Name = "powershell", DisplayName = "Windows PowerShell", Description = "Run command‑line tasks and scripts in PowerShell.", Icon = "ms-appx:///Assets/executable.ico" },
         new() { Name = "powershell_ise", DisplayName = "Windows PowerShell ISE", Description = "Integrated Scripting Environment for PowerShell.", Icon = "ms-appx:///Assets/executable.ico" },
         new() { Name = "wordpad", DisplayName = "WordPad", Description = "Edit RTF documents.", Icon = "ms-appx:///Assets/wordpad.png" },
-        new () { Name = "run", DisplayName = "Run", Description = "Launch programs, files, and URLs.", Icon = "ms-appx:///Assets/RunBox.ico" }
+        new() { Name = "run", DisplayName = "Run", Description = "Launch programs, files, and URLs.", Icon = "ms-appx:///Assets/RunBox.ico" }
     ];
 
     public WindowsToolsPage()
     {
         InitializeComponent();
-    }
-
-    [RelayCommand]
-    private void LaunchApp(string name)
-    {
-        if (name == "taskmgr")
-        {
-            try
-            {
-                Process.Start(new ProcessStartInfo()
-                {
-                    FileName = "taskmgr",
-                    UseShellExecute = true,
-                    Verb = "runas"
-                });
-            }
-            catch
-            {
-
-            }
-        }
-        else if (name == "run")
-        {
-            unsafe
-            {
-                Shell32RE.RunFileDlg(App.MainWindow!.Handle, HICON.NULL, null, null, null, 0);
-            }
-        }
-        else
-        {
-            try
-            {
-                Process.Start(name);
-            }
-            catch
-            {
-                Process.Start(new ProcessStartInfo()
-                {
-                    FileName = name,
-                    UseShellExecute = true,
-                    Verb = "runas"
-                });
-            }
-        }
     }
 }

@@ -37,6 +37,13 @@ namespace Rebound.Core.UI
 
         public void Launch(string arguments)
         {
+            if (arguments.Contains("--newinstance"))
+            {
+                arguments = arguments.Replace("--newinstance", "").Trim();
+                Launched?.Invoke(this, new SingleInstanceLaunchEventArgs(arguments, true));
+                return;
+            }
+
             if (_mutex == null)
             {
                 try

@@ -1,72 +1,43 @@
-﻿using System;
-using System.Linq;
-using System.Runtime.InteropServices;
+﻿// Copyright (C) Ivirius(TM) Community 2020 - 2026. All Rights Reserved.
+// Licensed under the MIT License.
+
 using CommunityToolkit.Mvvm.ComponentModel;
-using Microsoft.Win32;
-using Windows.Win32;
-using Windows.Win32.System.SystemInformation;
+using Rebound.Core.SystemInformation.Hardware;
+using Rebound.Core.SystemInformation.Software;
+using Rebound.Core.UI;
 
 namespace Rebound.ControlPanel.ViewModels;
 
 internal partial class HomeViewModel : ObservableObject
 {
     [ObservableProperty]
-    public partial string WindowsVersionTitle { get; set; } = GetProductName();
+    public partial string WindowsVersionTitle { get; set; } = "Loading...";
 
     [ObservableProperty]
-    public partial string ComputerName { get; set; } = Environment.MachineName;
+    public partial string CpuName { get; set; } = "Loading...";
 
-    public static string GetCpuName()
-    {
-        return (Registry.GetValue(@"HKEY_LOCAL_MACHINE\HARDWARE\DESCRIPTION\System\CentralProcessor\0", "ProcessorNameString", "") ?? "").ToString() ?? "Unknown";
-    }
+    [ObservableProperty]
+    public partial string GpuName { get; set; } = "Loading...";
 
-    private static string GetProductName()
+    [ObservableProperty]
+    public partial long RamCapacity { get; set; } = 0;
+
+    [ObservableProperty]
+    public partial string ComputerName { get; set; } = "Loading...";
+
+    [ObservableProperty]
+    public partial string Username { get; set; } = "Loading...";
+
+    public HomeViewModel()
     {
-        // Open the registry key
-        using var key = Registry.LocalMachine.OpenSubKey(@"SOFTWARE\Microsoft\Windows NT\CurrentVersion");
-        if (key != null)
+        UIThreadQueue.QueueAction(() =>
         {
-            // Retrieve build number and revision
-            var productName = key.GetValue("ProductName", "Unknown") as string;
-            var buildNumber = key.GetValue("CurrentBuildNumber", "Unknown") as string;
-            if (int.Parse(buildNumber ?? "") >= 22000)
-            {
-                return productName.Replace("10", "11");
-            }
-            return productName;
-        }
-        return "Unknown version";
-    }
-
-    public static string GetTotalRamWmi()
-    {
-        var lpBuffer = new MEMORYSTATUSEX
-        {
-            dwLength = (uint)Marshal.SizeOf<MEMORYSTATUSEX>()
-        };
-
-        PInvoke.GlobalMemoryStatusEx(ref lpBuffer);
-
-        // Mimic Windows' display logic
-        int displayedSize;
-        var totalGb = lpBuffer.ullTotalPhys / 1024.0 / 1024 / 1024;
-
-        // Common marketed RAM sizes in ascending order
-        int[] commonSizes = { 1, 2, 4, 6, 8, 12, 16, 24, 32, 48, 64, 96, 128, 256 };
-
-        displayedSize = commonSizes.FirstOrDefault(size => totalGb < size);
-        if (displayedSize == 0)
-        {
-            // If it's larger than all predefined sizes, round to nearest multiple of 8
-            displayedSize = (int)Math.Round(totalGb / 8) * 8;
-        }
-
-        return $"{displayedSize} GB";
-    }
-
-    public static string GetCurrentUser()
-    {
-        return Environment.UserName;
+            WindowsVersionTitle = WindowsInformation.GetOSName();
+            CpuName = CPU.GetName();
+            GpuName = GPU.GetName();
+            RamCapacity = RAM.GetInstalledRam();
+            ComputerName = WindowsInformation.GetComputerName();
+            Username = UserInformation.GetDisplayName();
+        });
     }
 }

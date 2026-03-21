@@ -55,12 +55,35 @@ public static class WindowsInformation
         return fallbackValue.HasValue && fallbackValue.Value != 0;
     }
 
+    [Obsolete]
     private static unsafe char* ToPointer(this string value)
     {
         fixed (char* valueCharPtr = value)
         {
             return valueCharPtr;
         }
+    }
+    
+    /// <returns>
+    /// The computer description as a string.
+    /// </returns>
+    public static string GetComputerDescription()
+    {
+        using var key = Registry.LocalMachine.OpenSubKey(
+            @"SYSTEM\CurrentControlSet\Services\LanmanServer\Parameters");
+        return key?.GetValue("srvcomment", "") as string ?? "";
+    }
+
+    /// <summary>
+    /// Sets the computer description in the LanmanServer registry key.
+    /// Requires elevation.
+    /// </summary>
+    public static void SetComputerDescription(string description)
+    {
+        using var key = Registry.LocalMachine.OpenSubKey(
+            @"SYSTEM\CurrentControlSet\Services\LanmanServer\Parameters",
+            writable: true);
+        key?.SetValue("srvcomment", description, RegistryValueKind.String);
     }
 
     // COM CLSIDs / IIDs
@@ -94,6 +117,46 @@ public static class WindowsInformation
 #pragma warning disable CA1024 // Use properties where appropriate
     public static string GetComputerName() => Environment.MachineName;
 #pragma warning restore CA1024 // Use properties where appropriate
+
+    /// <summary>
+    /// Renames the computer using SetComputerNameExW. Requires elevation and a restart to take effect.
+    /// </summary>
+    /// <returns>True if successful.</returns>
+    public static unsafe bool SetComputerName(string newName)
+    {
+        using ManagedPtr<char> pName = newName;
+        return SetComputerNameExW(COMPUTER_NAME_FORMAT.ComputerNamePhysicalNetBIOS, pName) != BOOL.FALSE;
+    }
+
+    /// <summary>
+    /// Determines whether the specified computer name is valid according to defined criteria.
+    /// </summary>
+    /// <remarks>A valid computer name must be 1 to 15 characters long, cannot start or end with a hyphen, and
+    /// may only contain ASCII letters, digits, and hyphens.</remarks>
+    /// <param name="name">The name of the computer to validate. It must not be null, empty, or whitespace, and must adhere to specific
+    /// formatting rules.</param>
+    /// <returns>true if the computer name is valid; otherwise, false.</returns>
+    public static bool IsValidComputerName(string name)
+    {
+        // Can't be empty
+        if (string.IsNullOrWhiteSpace(name)) return false;
+        // Must be shorter than 15 chaaracters
+        if (name.Length > 15) return false;
+        // Cannot start or end with hyphens
+        if (name.StartsWith('-') || name.EndsWith('-')) return false;
+        // Only ASCII stuff and only some of it
+        return name.All(c => char.IsLetterOrDigit(c) || c == '-');
+    }
+
+    /// <summary>
+    /// Determines whether the specified computer description is valid based on its length.
+    /// </summary>
+    /// <param name="desc">The computer description to validate. The description must not exceed 48 characters in length.</param>
+    /// <returns>true if the description is valid (48 characters or fewer); otherwise, false.</returns>
+    public static bool IsValidComputerDescription(string desc)
+    {
+        return desc?.Length <= 255;
+    }
 
     /// <summary>
     /// Retrieves the installation date of the current Windows operating system by reading the "InstallDate" 
