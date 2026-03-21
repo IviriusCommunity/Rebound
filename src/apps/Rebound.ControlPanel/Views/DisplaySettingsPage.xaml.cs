@@ -2,34 +2,31 @@
 // Licensed under the MIT License.
 
 using CommunityToolkit.Mvvm.Input;
-using CommunityToolkit.WinUI;
 using Rebound.ControlPanel.Brushes;
 using Rebound.ControlPanel.ViewModels;
-using Rebound.Core.ICC.Curves;
-using Rebound.Core.ICC.Display;
 using Rebound.Core.ICC.Profiles;
 using Rebound.Core.UI;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Threading.Tasks;
-using Windows.Storage;
 using Windows.Storage.Pickers;
+using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using WinRT.Interop;
 
 namespace Rebound.ControlPanel.Views;
 
-internal sealed partial class DisplaySettingsPage : Page
+internal sealed partial class DisplaySettingsPage : Page, IDisposable
 {
-    private SDRCalibrationBackdropBrush _brush;
+    private readonly SDRCalibrationBackdropBrush _brush;
 
     private DisplayViewModel ViewModel { get; } = new();
 
     public DisplaySettingsPage()
     {
         InitializeComponent();
-        _brush = new SDRCalibrationBackdropBrush(this.GetVisual().Compositor);
+        _brush = new SDRCalibrationBackdropBrush();
         BrushSurface.Background = _brush;
         ViewModel.PropertyChanged += ViewModel_PropertyChanged;
     }
@@ -67,14 +64,16 @@ internal sealed partial class DisplaySettingsPage : Page
                 ViewModel.Gamma,
                 ViewModel.Brightness,
                 ViewModel.Contrast);
+
             if (bytes == null) return;
 
+            // Create the file picker
             var picker = new FileSavePicker
             {
                 SuggestedStartLocation = PickerLocationId.DocumentsLibrary,
                 SuggestedFileName = "New Calibration"
             };
-            picker.FileTypeChoices.Add("ICC Profile", new List<string> { ".icc", ".icm" });
+            picker.FileTypeChoices.Add("ICC Profile", new List<string> { ".icc", ".icm" }); // These are the supported formats currently
             InitializeWithWindow.Initialize(picker, App.MainWindow!.Handle);
             var file = await picker.PickSaveFileAsync();
             if (file == null) return;
@@ -83,14 +82,32 @@ internal sealed partial class DisplaySettingsPage : Page
             await Task.Run(() =>
             {
                 File.WriteAllBytes(path, bytes);
-            });
+            }).ConfigureAwait(false);
         }
 
         UIThreadQueue.QueueAction(() => ViewModel.SelectedPage = "0");
     }
 
-    private void StackPanel_SizeChanged(object sender, Windows.UI.Xaml.SizeChangedEventArgs e)
+    [RelayCommand]
+    private async Task CancelAsync()
     {
-        ViewModel.IsExpandedLayout = e.NewSize.Width > 560;
+        UIThreadQueue.QueueAction(() =>
+        {
+            ViewModel.SelectedPage = "0";
+            ViewModel.ResetToDefault();
+        });
+        
+    }
+
+    [RelayCommand]
+    private static void LaunchLegacy(string exe)
+        => ((App)Application.Current).LaunchLegacy(exe, string.Empty);
+
+    private void StackPanel_SizeChanged(object sender, SizeChangedEventArgs e)
+        => ViewModel.IsExpandedLayout = e.NewSize.Width > 560;
+
+    public void Dispose()
+    {
+        _brush.Dispose();
     }
 }

@@ -30,6 +30,13 @@ public static class RegistrySettingsEngine
     public static bool SetBool(RegistryHive hive, string keyPath, string valueName, bool value)
         => SetValue(hive, keyPath, valueName, value ? 1 : 0);
 
+    public static void EnsureKeyExists(RegistryHive hive, string keyPath)
+    {
+        using var key = OpenHive(hive).OpenSubKey(keyPath, writable: true);
+        if (key == null)
+            OpenHive(hive).CreateSubKey(keyPath);
+    }
+
     private static RegistryKey OpenHive(RegistryHive hive) => hive switch
     {
         RegistryHive.LocalMachine => Registry.LocalMachine,

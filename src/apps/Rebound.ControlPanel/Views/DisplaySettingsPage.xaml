@@ -65,10 +65,15 @@
                 <TextBlock
                     Margin="0,32,0,0"
                     FontWeight="SemiBold"
-                    Text="Visuals" />
+                    Text="Color profiles" />
+                <muxc:InfoBar
+                    Title="Display Color Calibration is in beta and may not always work as expected."
+                    IsClosable="False"
+                    IsOpen="True"
+                    Severity="Warning" />
                 <toolkit:SettingsExpander Description="Create a new color profile for your display. Adjust brightness, saturation, and gamma." Header="Display Color Calibration">
                     <toolkit:SettingsExpander.HeaderIcon>
-                        <FontIcon Glyph="&#xE8AC;" />
+                        <muxc:ImageIcon Source="/Assets/Apps/DisplayColorCalibration.ico" />
                     </toolkit:SettingsExpander.HeaderIcon>
                     <toolkit:SettingsExpander.ItemsHeader>
                         <toolkit:SwitchPresenter Background="{ThemeResource CardBackgroundFillColorDefaultBrush}" Value="{x:Bind ViewModel.SelectedPage, Mode=OneWay}">
@@ -82,7 +87,7 @@
                                         IsOpen="True"
                                         Message="This utility will help you calibrate the colors on your monitor by creating a color profile that you then apply in Settings.&#x0A;&#x0A;To begin, move this window to the display you want to calibrate.&#x0A;&#x0A;If your device has a monitor with physical buttons (usually desktop PCs), select &quot;Hardware calibration&quot;. If you're on a device that doesn't have such buttons and the display is embedded into the computer itself, select &quot;Software calibration&quot;." />
                                     <StackPanel
-                                        Margin="12"
+                                        Margin="16"
                                         HorizontalAlignment="Right"
                                         Orientation="Horizontal"
                                         Spacing="8">
@@ -108,13 +113,17 @@
                                         IsClosable="False"
                                         IsOpen="True"
                                         Message="The images below are rendered on your display's native color profile. Adjust the sliders until the images look right to you. Scroll through the images using your mouse wheel or slide left and right if you're on a touch screen." />
-                                    <FlipView Height="480" Background="Transparent">
+                                    <FlipView
+                                        Height="480"
+                                        Padding="0,0,0,16"
+                                        Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
                                         <FlipViewItem>
                                             <Grid RowSpacing="12">
                                                 <Grid.RowDefinitions>
                                                     <RowDefinition Height="*" />
                                                     <RowDefinition Height="Auto" />
                                                 </Grid.RowDefinitions>
+                                                <Grid Background="Black" />
                                                 <Image Source="/Assets/Photos/ColorCalibration1.png" />
                                                 <Grid Background="{x:Bind BrushSurface.Background, Mode=OneWay}" />
                                                 <StackPanel
@@ -128,6 +137,7 @@
                                                         Foreground="{ThemeResource TextFillColorSecondaryBrush}"
                                                         Text="Image by Erhan Üstünbaş on pexels.com" />
                                                     <TextBlock
+                                                        MaxWidth="640"
                                                         Margin="16,0"
                                                         FontSize="12"
                                                         Text="The sky should be an unsaturated mid-blue, the evergreen foliage a muted olive-grey and not a vivid green, and the shadowed trees on the right should retain some visible detail."
@@ -142,6 +152,7 @@
                                                     <RowDefinition Height="*" />
                                                     <RowDefinition Height="Auto" />
                                                 </Grid.RowDefinitions>
+                                                <Grid Background="Black" />
                                                 <Image Source="/Assets/Photos/ColorCalibration2.png" />
                                                 <Grid Background="{x:Bind BrushSurface.Background, Mode=OneWay}" />
                                                 <StackPanel
@@ -155,6 +166,7 @@
                                                         Foreground="{ThemeResource TextFillColorSecondaryBrush}"
                                                         Text="Image by Gerbert Voortman on pexels.com" />
                                                     <TextBlock
+                                                        MaxWidth="640"
                                                         Margin="16,0"
                                                         FontSize="12"
                                                         Text="The bird's head should be a rich cyan-teal, transitioning to vivid blue toward the tail, light blue feathers on the back, warm brick tones visible beneath the eyes, with the background reflecting a bright golden-yellow at the center fading to soft olive-green at the edges."
@@ -169,6 +181,7 @@
                                                     <RowDefinition Height="*" />
                                                     <RowDefinition Height="Auto" />
                                                 </Grid.RowDefinitions>
+                                                <Grid Background="Black" />
                                                 <Image Source="/Assets/Photos/ColorCalibration3.png" />
                                                 <Grid Background="{x:Bind BrushSurface.Background, Mode=OneWay}" />
                                                 <StackPanel
@@ -182,6 +195,7 @@
                                                         Foreground="{ThemeResource TextFillColorSecondaryBrush}"
                                                         Text="Image by Ahmet Yüksek on pexels.com" />
                                                     <TextBlock
+                                                        MaxWidth="640"
                                                         Margin="16,0"
                                                         FontSize="12"
                                                         Text="The foreground dandelions should be a bright, partially saturated yellow &amp; gold standing out clearly against the vivid green field, while the distant mountain edges should be crisp and well-defined against the pale blue-grey sky, with snow patches appearing clean white."
@@ -196,6 +210,7 @@
                                                     <RowDefinition Height="*" />
                                                     <RowDefinition Height="Auto" />
                                                 </Grid.RowDefinitions>
+                                                <Grid Background="Black" />
                                                 <Image Source="/Assets/Photos/ColorCalibration4.png" />
                                                 <Grid Background="{x:Bind BrushSurface.Background, Mode=OneWay}" />
                                                 <StackPanel
@@ -209,6 +224,7 @@
                                                         Foreground="{ThemeResource TextFillColorSecondaryBrush}"
                                                         Text="Image by Calvin Seng on pexels.com" />
                                                     <TextBlock
+                                                        MaxWidth="640"
                                                         Margin="16,0"
                                                         FontSize="12"
                                                         Text="The overhead canopies should appear vibrant and distinctly colored - teal, red, and yellow - with only slight translucency where sunlight shines through, while the sky above remains a flat, overcast white with no blue pushing through, except for one dim patch at the very top."
@@ -223,6 +239,7 @@
                                                     <RowDefinition Height="*" />
                                                     <RowDefinition Height="Auto" />
                                                 </Grid.RowDefinitions>
+                                                <Grid Background="Black" />
                                                 <Image Source="/Assets/Photos/ColorCalibration5.png" />
                                                 <Grid Background="{x:Bind BrushSurface.Background, Mode=OneWay}" />
                                                 <StackPanel
@@ -236,6 +253,7 @@
                                                         Foreground="{ThemeResource TextFillColorSecondaryBrush}"
                                                         Text="Image by Sergio Scandroglio on pexels.com" />
                                                     <TextBlock
+                                                        MaxWidth="640"
                                                         Margin="16,0"
                                                         FontSize="12"
                                                         Text="Use this image to calibrate contrast and brightness - shadows on figures and vehicles should be deep but not clipped, building facades should show fine architectural detail in the midtones, and the tram's surface texture and lettering should remain sharp and legible."
@@ -250,6 +268,7 @@
                                                     <RowDefinition Height="*" />
                                                     <RowDefinition Height="Auto" />
                                                 </Grid.RowDefinitions>
+                                                <Grid Background="Black" />
                                                 <Image Source="/Assets/Photos/ColorCalibration6.png" />
                                                 <Grid Background="{x:Bind BrushSurface.Background, Mode=OneWay}" />
                                                 <StackPanel
@@ -263,6 +282,7 @@
                                                         Foreground="{ThemeResource TextFillColorSecondaryBrush}"
                                                         Text="Image by Sóc Năng Động on pexels.com" />
                                                     <TextBlock
+                                                        MaxWidth="640"
                                                         Margin="16,0"
                                                         FontSize="12"
                                                         Text="The lantern cloth should be a rich, fully saturated red with the gold and dark ink decorations clearly visible against it, while the background beige fades to dim, desaturated greens with soft red accents from the surrounding decorations."
@@ -277,6 +297,7 @@
                                                     <RowDefinition Height="*" />
                                                     <RowDefinition Height="Auto" />
                                                 </Grid.RowDefinitions>
+                                                <Grid Background="Black" />
                                                 <Image Source="/Assets/Photos/ColorCalibration7.png" />
                                                 <Grid Background="{x:Bind BrushSurface.Background, Mode=OneWay}" />
                                                 <StackPanel
@@ -290,6 +311,7 @@
                                                         Foreground="{ThemeResource TextFillColorSecondaryBrush}"
                                                         Text="Image by Pixabay on pexels.com" />
                                                     <TextBlock
+                                                        MaxWidth="640"
                                                         Margin="16,0"
                                                         FontSize="12"
                                                         Text="The snow-covered ground should show soft, cool-toned shadows cast by the tree canopy above rather than appearing as a flat white surface, while each frost-laden branch should remain individually distinguishable against the pale lavender-grey sky."
@@ -304,6 +326,7 @@
                                                     <RowDefinition Height="*" />
                                                     <RowDefinition Height="Auto" />
                                                 </Grid.RowDefinitions>
+                                                <Grid Background="Black" />
                                                 <Image Source="/Assets/Photos/ColorCalibration8.png" />
                                                 <Grid Background="{x:Bind BrushSurface.Background, Mode=OneWay}" />
                                                 <StackPanel
@@ -317,6 +340,7 @@
                                                         Foreground="{ThemeResource TextFillColorSecondaryBrush}"
                                                         Text="Image by Jae Park on pexels.com" />
                                                     <TextBlock
+                                                        MaxWidth="640"
                                                         Margin="16,0"
                                                         FontSize="12"
                                                         Text="The matte black bodywork should show subtle contour highlights along the hood and doors without appearing glossy, the grille and wheel spokes should remain distinguishable from the body, and the reflective floor should carry a faint mirror image of the car with visible panel lines."
@@ -331,6 +355,7 @@
                                                     <RowDefinition Height="*" />
                                                     <RowDefinition Height="Auto" />
                                                 </Grid.RowDefinitions>
+                                                <Grid Background="Black" />
                                                 <Image Source="/Assets/Photos/ColorCalibration9.png" />
                                                 <Grid Background="{x:Bind BrushSurface.Background, Mode=OneWay}" />
                                                 <StackPanel
@@ -344,6 +369,7 @@
                                                         Foreground="{ThemeResource TextFillColorSecondaryBrush}"
                                                         Text="Image by Ian Taylor on pexels.com" />
                                                     <TextBlock
+                                                        MaxWidth="640"
                                                         Margin="16,0"
                                                         FontSize="12"
                                                         Text="The man's skin should display a warm, natural mid-tone with wrinkle detail clearly visible on his face, while his robe should be a very dark, desaturated purple with the vivid orange collar and sash providing sharp contrast against it."
@@ -353,12 +379,12 @@
                                             </Grid>
                                         </FlipViewItem>
                                     </FlipView>
-                                    <muxc:InfoBar
+                                    <!--<muxc:InfoBar
                                         Title="Invalid configuration. Please lower gamma or brightness."
                                         Margin="16"
                                         IsClosable="False"
                                         IsOpen="{x:Bind ViewModel.InvalidCombination, Mode=OneWay}"
-                                        Severity="Error" />
+                                        Severity="Error" />-->
                                     <StackPanel Visibility="{x:Bind ViewModel.IsExpandedLayout, Mode=OneWay}">
                                         <Grid ColumnSpacing="8">
                                             <Grid.ColumnDefinitions>
@@ -373,6 +399,7 @@
                                                 Minimum="0.5"
                                                 StepFrequency="0.01"
                                                 TickFrequency="0.125"
+                                                TickPlacement="Outside"
                                                 Visibility="{x:Bind ViewModel.DoSoftwareCalibration, Mode=OneWay}"
                                                 Value="{x:Bind ViewModel.Gamma, Mode=TwoWay}" />
                                             <Slider
@@ -383,6 +410,7 @@
                                                 Minimum="0"
                                                 StepFrequency="0.01"
                                                 TickFrequency="0.125"
+                                                TickPlacement="Outside"
                                                 Visibility="{x:Bind ViewModel.DoSoftwareCalibration, Mode=OneWay}"
                                                 Value="{x:Bind ViewModel.Brightness, Mode=TwoWay}" />
                                             <Slider
@@ -393,6 +421,7 @@
                                                 Minimum="0.5"
                                                 StepFrequency="0.01"
                                                 TickFrequency="0.125"
+                                                TickPlacement="Outside"
                                                 Visibility="{x:Bind ViewModel.DoSoftwareCalibration, Mode=OneWay}"
                                                 Value="{x:Bind ViewModel.Contrast, Mode=TwoWay}" />
                                         </Grid>
@@ -420,6 +449,7 @@
                                             Minimum="0.5"
                                             StepFrequency="0.01"
                                             TickFrequency="0.125"
+                                            TickPlacement="Outside"
                                             Visibility="{x:Bind ViewModel.DoSoftwareCalibration, Mode=OneWay}"
                                             Value="{x:Bind ViewModel.Gamma, Mode=TwoWay}" />
                                         <Slider
@@ -429,6 +459,7 @@
                                             Minimum="0"
                                             StepFrequency="0.01"
                                             TickFrequency="0.125"
+                                            TickPlacement="Outside"
                                             Visibility="{x:Bind ViewModel.DoSoftwareCalibration, Mode=OneWay}"
                                             Value="{x:Bind ViewModel.Brightness, Mode=TwoWay}" />
                                         <Slider
@@ -438,6 +469,7 @@
                                             Minimum="0.5"
                                             StepFrequency="0.01"
                                             TickFrequency="0.125"
+                                            TickPlacement="Outside"
                                             Visibility="{x:Bind ViewModel.DoSoftwareCalibration, Mode=OneWay}"
                                             Value="{x:Bind ViewModel.Contrast, Mode=TwoWay}" />
                                         <TextBox
@@ -450,10 +482,15 @@
                                             Text="{x:Bind ViewModel.ProfileDescription, Mode=TwoWay}" />
                                     </StackPanel>
                                     <StackPanel
-                                        Margin="12"
+                                        Margin="16"
                                         HorizontalAlignment="Right"
                                         Orientation="Horizontal"
                                         Spacing="8">
+                                        <Button
+                                            Width="120"
+                                            HorizontalAlignment="Right"
+                                            Command="{x:Bind CancelCommand}"
+                                            Content="Cancel" />
                                         <Button
                                             Width="120"
                                             HorizontalAlignment="Right"
@@ -467,6 +504,88 @@
                         </toolkit:SwitchPresenter>
                     </toolkit:SettingsExpander.ItemsHeader>
                 </toolkit:SettingsExpander>
+                <toolkit:SettingsCard
+                    Command="{x:Bind LaunchLegacyCommand}"
+                    CommandParameter="dccw.exe"
+                    Description="Launch the legacy Display Color Calibration Wizard (dccw.exe)."
+                    Header="Legacy Display Color Calibration Wizard"
+                    IsClickEnabled="True">
+                    <toolkit:SettingsCard.HeaderIcon>
+                        <FontIcon Glyph="&#xED56;" />
+                    </toolkit:SettingsCard.HeaderIcon>
+                    <toolkit:SettingsCard.ActionIcon>
+                        <FontIcon Glyph="&#xE8A7;" />
+                    </toolkit:SettingsCard.ActionIcon>
+                </toolkit:SettingsCard>
+                <muxc:InfoBar
+                    Title="To add or remove color profiles, head to Settings &gt; Display &gt; Color profiles."
+                    IsClosable="False"
+                    IsOpen="True" />
+                <TextBlock
+                    Margin="0,32,0,0"
+                    FontWeight="SemiBold"
+                    Text="Font settings" />
+                <toolkit:SettingsCard Description="Controls the antialiasing method applied to text in Win32 applications. ClearType uses subpixel rendering for sharper text on LCD displays." Header="Font smoothing">
+                    <toolkit:SettingsCard.HeaderIcon>
+                        <FontIcon Glyph="&#xF17F;" />
+                    </toolkit:SettingsCard.HeaderIcon>
+                    <ComboBox SelectedIndex="{x:Bind ViewModel.FontSmoothingType, Mode=TwoWay}">
+                        <ComboBoxItem>None</ComboBoxItem>
+                        <ComboBoxItem>Standard</ComboBoxItem>
+                        <ComboBoxItem>ClearType</ComboBoxItem>
+                    </ComboBox>
+                </toolkit:SettingsCard>
+                <toolkit:SettingsCard
+                    Description="Adjusts the intensity of ClearType subpixel rendering. Higher values produce stronger color fringing on text edges, lower values produce a more neutral appearance."
+                    Header="ClearType level"
+                    Visibility="{x:Bind ViewModel.IsClearTypeEnabled, Mode=OneWay}">
+                    <toolkit:SettingsCard.HeaderIcon>
+                        <muxc:ImageIcon Source="/Assets/Apps/ClearType.ico" />
+                    </toolkit:SettingsCard.HeaderIcon>
+                    <Slider
+                        Maximum="100"
+                        Minimum="0"
+                        StepFrequency="1"
+                        Value="{x:Bind ViewModel.ClearTypeLevel, Mode=TwoWay}" />
+                </toolkit:SettingsCard>
+                <toolkit:SettingsCard
+                    Description="Controls the gamma correction applied to font rendering. Lower values produce lighter text, higher values produce darker text. The default of 1400 is suitable for most displays."
+                    Header="Gamma"
+                    Visibility="{x:Bind ViewModel.IsClearTypeEnabled, Mode=OneWay}">
+                    <toolkit:SettingsCard.HeaderIcon>
+                        <FontIcon Glyph="&#xE7A1;" />
+                    </toolkit:SettingsCard.HeaderIcon>
+                    <Slider
+                        Maximum="2200"
+                        Minimum="1000"
+                        StepFrequency="10"
+                        Value="{x:Bind ViewModel.ClearTypeGamma, Mode=TwoWay}" />
+                </toolkit:SettingsCard>
+                <toolkit:SettingsCard
+                    Description="Specifies the physical arrangement of color elements on your display. RGB is standard for most monitors. Select BGR if text appears with colored fringes after enabling ClearType."
+                    Header="Subpixel layout"
+                    Visibility="{x:Bind ViewModel.IsClearTypeEnabled, Mode=OneWay}">
+                    <toolkit:SettingsCard.HeaderIcon>
+                        <FontIcon Glyph="&#xE790;" />
+                    </toolkit:SettingsCard.HeaderIcon>
+                    <ComboBox SelectedIndex="{x:Bind ViewModel.SubpixelLayout, Mode=TwoWay}">
+                        <ComboBoxItem>RGB</ComboBoxItem>
+                        <ComboBoxItem>BGR</ComboBoxItem>
+                    </ComboBox>
+                </toolkit:SettingsCard>
+                <toolkit:SettingsCard
+                    Command="{x:Bind LaunchLegacyCommand}"
+                    CommandParameter="cttune.exe"
+                    Description="Launch the legacy ClearType Text Tuner utility."
+                    Header="Legacy ClearType Text Tuner"
+                    IsClickEnabled="True">
+                    <toolkit:SettingsCard.HeaderIcon>
+                        <FontIcon Glyph="&#xED56;" />
+                    </toolkit:SettingsCard.HeaderIcon>
+                    <toolkit:SettingsCard.ActionIcon>
+                        <FontIcon Glyph="&#xE8A7;" />
+                    </toolkit:SettingsCard.ActionIcon>
+                </toolkit:SettingsCard>
             </StackPanel>
         </ScrollViewer>
     </Grid>

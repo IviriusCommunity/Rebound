@@ -232,24 +232,27 @@ public partial class App : Application, IReboundLegacySupportApp, IReboundPipeCl
     }
 
     public void LaunchLegacy(string args)
+        => LaunchLegacy(LegacyExecutableName, args);
+
+    public void LaunchLegacy(string executable, string args)
     {
         Task.Run(async () =>
         {
             try
             {
                 // Disable the IFEO entry via Rebound Service Host
-                await (ReboundPipeClient?.SendAsync($"IFEOEngine::Pause#{LegacyExecutableName}"))!.ConfigureAwait(false);
+                await (ReboundPipeClient?.SendAsync($"IFEOEngine::Pause#{executable}"))!.ConfigureAwait(false);
 
                 // Launch the original application
                 Process.Start(new ProcessStartInfo
                 {
-                    FileName = LegacyExecutableName,
+                    FileName = executable,
                     UseShellExecute = true,
                     Arguments = args
                 });
 
                 // Resume the IFEO entry
-                await (ReboundPipeClient?.SendAsync($"IFEOEngine::Resume#{LegacyExecutableName}"))!.ConfigureAwait(false);
+                await (ReboundPipeClient?.SendAsync($"IFEOEngine::Resume#{executable}"))!.ConfigureAwait(false);
             }
             catch
             {

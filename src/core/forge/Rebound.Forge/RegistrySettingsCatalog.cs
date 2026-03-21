@@ -35,5 +35,59 @@ namespace Rebound.Forge
             KeyPath = @"SOFTWARE\Microsoft\Windows\CurrentVersion\Device Metadata", 
             ValueName = "PreventDeviceMetadataFromNetwork"
         };
+
+        /// <summary>
+        /// Whether font smoothing is enabled. Stored as string "0" or "2".
+        /// </summary>
+        public static readonly RegistrySetting FontSmoothing = new()
+        {
+            KeyPath = @"Control Panel\Desktop",
+            ValueName = "FontSmoothing"
+        };
+
+        /// <summary>
+        /// Font smoothing type. 1 = standard antialiasing, 2 = ClearType.
+        /// </summary>
+        public static readonly RegistrySetting FontSmoothingType = new()
+        {
+            KeyPath = @"Control Panel\Desktop",
+            ValueName = "FontSmoothingType"
+        };
+
+        /// <summary>
+        /// Font smoothing gamma. Range 1000–2200, default 1400.
+        /// </summary>
+        public static readonly RegistrySetting FontSmoothingGamma = new()
+        {
+            KeyPath = @"Control Panel\Desktop",
+            ValueName = "FontSmoothingGamma"
+        };
+
+        /// <summary>
+        /// Subpixel layout for ClearType. 0 = RGB, 1 = BGR.
+        /// </summary>
+        public static readonly RegistrySetting FontSmoothingOrientation = new()
+        {
+            KeyPath = @"Control Panel\Desktop",
+            ValueName = "FontSmoothingOrientation"
+        };
+
+        /// <summary>
+        /// ClearType level for WPF/Avalon. Range 0–100, default 100.
+        /// </summary>
+        public static readonly RegistrySetting AvalonClearTypeLevel = new()
+        {
+            KeyPath = @"SOFTWARE\Microsoft\Avalon.Graphics",
+            ValueName = "ClearTypeLevel"
+        };
+
+        /// <summary>
+        /// Gamma level for WPF/Avalon. Range 1000–2200, default 1400.
+        /// </summary>
+        public static readonly RegistrySetting AvalonGammaLevel = new()
+        {
+            KeyPath = @"SOFTWARE\Microsoft\Avalon.Graphics",
+            ValueName = "GammaLevel"
+        };
     }
 }
