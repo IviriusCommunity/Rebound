@@ -32,8 +32,8 @@ internal static partial class CplItemPairs
             [
                 new() { Name = "Configuration", Tag = "configuration", Icon = "glyph:\uE90F", Page = typeof(SystemConfigurationPage), Args = [CplArgs.SystemPropertiesComputerNameExePath] },
                 new() { Name = "Display", Tag = "display", Page = typeof(DisplaySettingsPage), Icon = "glyph:\uE7F4" },
-                new() { Name = "Power and Battery", Tag = "powerandbattery", Icon = "glyph:\uEBA5" },
-                new() { Name = "DirectX", Tag = "directx", Icon = "glyph:\uE967" },
+                //new() { Name = "Power and Battery", Tag = "powerandbattery", Icon = "glyph:\uEBA5" },
+                new() { Name = "DirectX", Tag = "directx", Page = typeof(DirectXPage), Icon = "glyph:\uE967", Args = [CplArgs.DirectXControlPanelExePath] },
                 new() { Name = "Backup and Restore", Tag = "backupandrestore", Icon = "glyph:\uE896" },
                 new() { Name = "Environment Variables", Tag = "environmentvariables", Icon = "glyph:\uE83B" },
                 new() { Name = "Reliability Monitor", Tag = "reliabilitymonitor", Icon = "glyph:\uEBE8" },

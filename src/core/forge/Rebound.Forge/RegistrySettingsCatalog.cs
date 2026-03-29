@@ -27,12 +27,10 @@ namespace Rebound.Forge
         /// <summary>
         /// Controls whether Windows automatically downloads device metadata and OEM apps
         /// from the Windows Metadata and Internet Services (WMIS) server for connected devices.
-        /// When enabled, Windows will silently install manufacturer apps (e.g. Lenovo Vantage)
-        /// upon connecting hardware. Disable to prevent unsolicited OEM software installation.
         /// </summary>
         public static readonly RegistrySetting InstallOemApps = new()
         {
-            KeyPath = @"SOFTWARE\Microsoft\Windows\CurrentVersion\Device Metadata", 
+            KeyPath = @"SOFTWARE\Microsoft\Windows\CurrentVersion\Device Metadata",
             ValueName = "PreventDeviceMetadataFromNetwork"
         };
 
@@ -88,6 +86,189 @@ namespace Rebound.Forge
         {
             KeyPath = @"SOFTWARE\Microsoft\Avalon.Graphics",
             ValueName = "GammaLevel"
+        };
+
+        /// <summary>
+        /// Controls the Direct3D/DXGI debug layer. 0 = app controlled, 1 = force on, 2 = force off.
+        /// </summary>
+        public static readonly RegistrySetting LoadDebugLayerDlls = new()
+        {
+            KeyPath = @"SOFTWARE\Microsoft\Direct3D",
+            ValueName = "LoadDebugLayerDlls"
+        };
+
+        /// <summary>
+        /// Disables conservative resource state tracking in the debug layer.
+        /// Stored inverted: 0 = tracking enabled, 1 = tracking disabled.
+        /// </summary>
+        public static readonly RegistrySetting DisableConservativeResourceStateTracking = new()
+        {
+            KeyPath = @"SOFTWARE\Microsoft\Direct3D",
+            ValueName = "DisableConservativeResourceStateTracking"
+        };
+
+        /// <summary>
+        /// GPU slowdown factor percentage applied by the debug layer.
+        /// </summary>
+        public static readonly RegistrySetting GPUSlowdownFactor = new()
+        {
+            KeyPath = @"SOFTWARE\Microsoft\Direct3D",
+            ValueName = "GPUSlowdownFactor"
+        };
+
+        /// <summary>
+        /// Controls GPU-based validation. 0 = app controlled, 1 = force on, 2 = force off.
+        /// </summary>
+        public static readonly RegistrySetting EnableGpuBasedValidation = new()
+        {
+            KeyPath = @"SOFTWARE\Microsoft\Direct3D",
+            ValueName = "EnableGpuBasedValidation"
+        };
+
+        /// <summary>
+        /// Enables PSO create front load for GPU-based validation.
+        /// </summary>
+        public static readonly RegistrySetting GpuBasedValidationPsoCreateFrontLoad = new()
+        {
+            KeyPath = @"SOFTWARE\Microsoft\Direct3D",
+            ValueName = "GpuBasedValidationPsoCreateFrontLoad"
+        };
+
+        /// <summary>
+        /// Shader patch mode for GPU-based validation. 0 = app controlled, 1 = force on, 2 = force off.
+        /// </summary>
+        public static readonly RegistrySetting GpuBasedValidationShaderPatchMode = new()
+        {
+            KeyPath = @"SOFTWARE\Microsoft\Direct3D",
+            ValueName = "GpuBasedValidationShaderPatchMode"
+        };
+
+        /// <summary>
+        /// Disables synchronized command queue validation.
+        /// Stored inverted: 0 = validation enabled, 1 = validation disabled.
+        /// </summary>
+        public static readonly RegistrySetting DisableSynchronizedCommandQueueValidation = new()
+        {
+            KeyPath = @"SOFTWARE\Microsoft\Direct3D",
+            ValueName = "DisableSynchronizedCommandQueueValidation"
+        };
+
+        /// <summary>
+        /// Mutes all Direct3D debug output when set to 1.
+        /// </summary>
+        public static readonly RegistrySetting MuteDebugOutput = new()
+        {
+            KeyPath = @"SOFTWARE\Microsoft\Direct3D",
+            ValueName = "MuteDebugOutput"
+        };
+
+        /// <summary>
+        /// Packed bitmask of severity/category flags for message muting.
+        /// </summary>
+        public static readonly RegistrySetting MuteFlags = new()
+        {
+            KeyPath = @"SOFTWARE\Microsoft\Direct3D",
+            ValueName = "MuteFlags"
+        };
+
+        /// <summary>
+        /// Subkey under which custom muted message IDs are stored as value names.
+        /// </summary>
+        public static readonly RegistrySetting MuteList = new()
+        {
+            KeyPath = @"SOFTWARE\Microsoft\Direct3D\MuteList",
+            ValueName = string.Empty
+        };
+
+        /// <summary>
+        /// Enables breaking on API errors.
+        /// </summary>
+        public static readonly RegistrySetting EnableBreakOnApiError = new()
+        {
+            KeyPath = @"SOFTWARE\Microsoft\Direct3D",
+            ValueName = "EnableBreakOnApiError"
+        };
+
+        /// <summary>
+        /// Packed bitmask of severity/category flags for break-on-message.
+        /// </summary>
+        public static readonly RegistrySetting BreakFlags = new()
+        {
+            KeyPath = @"SOFTWARE\Microsoft\Direct3D",
+            ValueName = "BreakFlags"
+        };
+
+        /// <summary>
+        /// Subkey under which custom break message IDs are stored as value names.
+        /// </summary>
+        public static readonly RegistrySetting BreakList = new()
+        {
+            KeyPath = @"SOFTWARE\Microsoft\Direct3D\BreakList",
+            ValueName = string.Empty
+        };
+
+        /// <summary>
+        /// Subkey under which Direct3D scope app paths are stored.
+        /// </summary>
+        public static readonly RegistrySetting D3DScopeDrivers = new()
+        {
+            KeyPath = @"SOFTWARE\Microsoft\Direct3D\Drivers",
+            ValueName = string.Empty
+        };
+
+        /// <summary>
+        /// Maximum Direct3D feature level. 0 = no limit.
+        /// Maps: 0xb000 = DX11, 0xb100 = DX11.1, 0xc000 = DX12, 0xc100 = DX12.1.
+        /// </summary>
+        public static readonly RegistrySetting MaxFeatureLevel = new()
+        {
+            KeyPath = @"SOFTWARE\Microsoft\Direct3D",
+            ValueName = "MaxFeatureLevel"
+        };
+
+        /// <summary>
+        /// Prevents the runtime from upgrading the feature level beyond what was requested.
+        /// </summary>
+        public static readonly RegistrySetting DisableFeatureLevelUpgrade = new()
+        {
+            KeyPath = @"SOFTWARE\Microsoft\Direct3D",
+            ValueName = "DisableFeatureLevelUpgrade"
+        };
+
+        /// <summary>
+        /// Forces all Direct3D rendering through the WARP software rasterizer.
+        /// </summary>
+        public static readonly RegistrySetting ForceWARP = new()
+        {
+            KeyPath = @"SOFTWARE\Microsoft\Direct3D",
+            ValueName = "ForceWARP"
+        };
+
+        /// <summary>
+        /// Controls the Direct2D debug layer. 0 = app controlled, 1 = force on, 2 = force off.
+        /// </summary>
+        public static readonly RegistrySetting D2DEnableDebugLayer = new()
+        {
+            KeyPath = @"SOFTWARE\Microsoft\Direct2D",
+            ValueName = "EnableDebugLayer"
+        };
+
+        /// <summary>
+        /// Debug verbosity level for Direct2D. 0 = low, 1 = medium, 2 = high.
+        /// </summary>
+        public static readonly RegistrySetting D2DDebugLevel = new()
+        {
+            KeyPath = @"SOFTWARE\Microsoft\Direct2D",
+            ValueName = "DebugLevel"
+        };
+
+        /// <summary>
+        /// Subkey under which Direct2D scope app paths are stored.
+        /// </summary>
+        public static readonly RegistrySetting D2DScopeDrivers = new()
+        {
+            KeyPath = @"SOFTWARE\Microsoft\Direct2D\Drivers",
+            ValueName = string.Empty
         };
     }
 }

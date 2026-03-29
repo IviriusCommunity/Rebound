@@ -33,7 +33,7 @@
                 FontSize="20"
                 FontWeight="SemiBold"
                 Foreground="{ThemeResource AccentTextFillColorPrimaryBrush}"
-                Text="System" />
+                Text="System Configuration" />
             <TextBlock Margin="48,40,0,0" Text="System configuration and properties." />
         </Grid>
         <ScrollViewer Margin="0,72,0,0" Padding="40,0,40,0">

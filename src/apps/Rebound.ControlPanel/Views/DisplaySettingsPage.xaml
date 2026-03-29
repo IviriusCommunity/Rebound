@@ -32,7 +32,7 @@
                 Margin="16"
                 HorizontalAlignment="Left"
                 VerticalAlignment="Top"
-                Source="/Assets/Apps/SystemConfiguration.ico" />
+                Source="/Assets/Glyphs/Display.ico" />
             <TextBlock
                 Margin="48,10"
                 FontSize="20"

@@ -34,6 +34,13 @@ public unsafe struct ManagedPtr<T> : IEquatable<ManagedPtr<T>>, IDisposable wher
         _ptr = Marshal.StringToHGlobalUni(value);
     }
 
+    public ManagedPtr(T[] values)
+    {
+        _ptr = Marshal.AllocHGlobal((int)(sizeof(T) * values?.Length)!);
+        for (var i = 0; i < values?.Length; i++)
+            *((T*)_ptr + i) = values[i];
+    }
+
     public void Dispose()
     {
         if (_ptr != 0)
@@ -54,10 +61,12 @@ public unsafe struct ManagedPtr<T> : IEquatable<ManagedPtr<T>>, IDisposable wher
 
     public static implicit operator ManagedPtr<T>(Guid value) => new(value);
 
-    public static implicit operator char*(ManagedPtr<T> pinned) => (char*)pinned.ObjectPointer;
+    public static implicit operator ManagedPtr<T>(T[] values) => new(values);
+
+    public static implicit operator T*(ManagedPtr<T> pinned) => (T*)pinned.ObjectPointer;
+
     public readonly char* ToCharPtr() => (char*)ObjectPointer;
 
-    public static implicit operator Guid*(ManagedPtr<T> pinned) => (Guid*)pinned.ObjectPointer;
     public readonly Guid* ToGuidPtr() => (Guid*)ObjectPointer;
 #pragma warning restore CA2225 // Operator overloads have named alternates
 }

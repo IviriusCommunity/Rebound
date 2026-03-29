@@ -6,6 +6,7 @@ using Rebound.ControlPanel.Brushes;
 using Rebound.ControlPanel.ViewModels;
 using Rebound.Core.ICC.Profiles;
 using Rebound.Core.UI;
+using Rebound.Core.UI.UWP.Storage;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -68,20 +69,21 @@ internal sealed partial class DisplaySettingsPage : Page, IDisposable
             if (bytes == null) return;
 
             // Create the file picker
-            var picker = new FileSavePicker
-            {
-                SuggestedStartLocation = PickerLocationId.DocumentsLibrary,
-                SuggestedFileName = "New Calibration"
-            };
-            picker.FileTypeChoices.Add("ICC Profile", new List<string> { ".icc", ".icm" }); // These are the supported formats currently
-            InitializeWithWindow.Initialize(picker, App.MainWindow!.Handle);
-            var file = await picker.PickSaveFileAsync();
-            if (file == null) return;
+            var result = FilePickers.PickSaveFile(
+                App.MainWindow!,
+                "Save Calibration Profile",
+                "New Calibration.icc",
+                [
+                    new("ICC Profile", ".icc;.icm" ),
+                    new("All files", "*" )
+                ]);
 
-            var path = file.Path;
+            if (result.IsCancelled == true) return;
+
+            var path = result.Path;
             await Task.Run(() =>
             {
-                File.WriteAllBytes(path, bytes);
+                File.WriteAllBytes(path!, bytes);
             }).ConfigureAwait(false);
         }
 

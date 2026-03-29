@@ -22,6 +22,7 @@ internal class CplArgs
     public static readonly string intlCplPath = Path.Combine(systemFolder, "intl.cpl");
     public static readonly string appWizCplPath = Path.Combine(systemFolder, "appwiz.cpl");
     public static readonly string SystemPropertiesComputerNameExePath = Path.Combine(systemFolder, "SystemPropertiesComputerName.exe");
+    public static readonly string DirectXControlPanelExePath = Path.Combine(systemFolder, "dxcpl.exe");
 
     public const string ADMINISTRATIVE_TOOLS_UTIL = @"/name Microsoft.AdministrativeTools";
     public const string ADMINISTRATIVE_TOOLS = @"admintools";

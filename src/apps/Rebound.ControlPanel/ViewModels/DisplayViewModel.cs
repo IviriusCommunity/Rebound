@@ -180,11 +180,18 @@ internal partial class DisplayViewModel : ObservableObject
         // Needed to reload fonts for all Win32 apps
         unsafe
         {
-            TerraFX.Interop.Windows.Windows.SystemParametersInfoW(
+            try
+            {
+                TerraFX.Interop.Windows.Windows.SystemParametersInfoW(
                 0x004A,
                 FontSmoothingType != 0 ? 1u : 0u,
                 null,
                 0x0003);
+            }
+            catch
+            {
+
+            }
         }
     }
 }
