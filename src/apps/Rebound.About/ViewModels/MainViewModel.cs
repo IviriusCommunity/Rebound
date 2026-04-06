@@ -35,12 +35,10 @@ internal partial class MainViewModel : ObservableObject
 
     public async Task InitializeAsync()
     {
-        await InitializeHardwareInformationAsync().ConfigureAwait(false);
-        await Task.Yield();
         await InitializeSoftwareInformationAsync().ConfigureAwait(false);
-        await Task.Yield();
-        await InitializeUserInformationAsync().ConfigureAwait(false);
         UIThreadQueue.QueueAction(() => Loaded = true);
+        await InitializeHardwareInformationAsync().ConfigureAwait(false);
+        await InitializeUserInformationAsync().ConfigureAwait(false);
     }
 
     // Hardware information
