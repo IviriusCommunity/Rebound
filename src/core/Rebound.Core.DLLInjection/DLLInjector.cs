@@ -1,6 +1,7 @@
 ﻿// Copyright (C) Ivirius(TM) Community 2020 - 2026. All Rights Reserved.
 // Licensed under the MIT License.
 
+using Rebound.Core.Native.Wrappers;
 using System.Collections.Concurrent;
 using System.Diagnostics;
 using System.Runtime.InteropServices;
@@ -90,7 +91,8 @@ public static class DLLInjectionAPI
 
             try
             {
-                if (!TerraFX.Interop.Windows.Windows.LookupPrivilegeValue(null, SE.SE_DEBUG_NAME.ToPCWSTR().Value, &luid))
+                using ManagedPtr<char> seDebugName = SE.SE_DEBUG_NAME;
+                if (!TerraFX.Interop.Windows.Windows.LookupPrivilegeValue(null, seDebugName, &luid))
                 {
                     error = $"LookupPrivilegeValue failed: {Marshal.GetLastWin32Error()}";
                     Debug.WriteLine($"[Privilege] ERROR: {error}");
@@ -677,7 +679,8 @@ public static class DLLInjectionAPI
                 return false;
             }
 
-            var hKernel32 = TerraFX.Interop.Windows.Windows.GetModuleHandleW("kernel32.dll".ToPCWSTR().Value);
+            using ManagedPtr<char> kernel32 = "kernel32.dll";
+            var hKernel32 = TerraFX.Interop.Windows.Windows.GetModuleHandleW(kernel32);
             if (hKernel32 == IntPtr.Zero)
             {
                 Debug.WriteLine("[Inject] GetModuleHandleW failed for kernel32.dll.");

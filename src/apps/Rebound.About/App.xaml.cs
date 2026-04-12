@@ -4,7 +4,9 @@
 using Rebound.Core;
 using Rebound.Core.IPC;
 using Rebound.Core.UI;
-using Rebound.Core.UI.UWP;
+using Rebound.Core.UI.Application;
+using Rebound.Core.UI.Threading;
+using Rebound.Core.UI.Windowing;
 using Rebound.Forge.Engines;
 using Rebound.Generators;
 using System;
@@ -32,6 +34,11 @@ public partial class App : Application, IReboundLegacySupportApp, IReboundPipeCl
     {
         try
         {
+            ReboundLogger.WriteToLog(
+                "Application Launch",
+                $"Hello",
+                LogMessageSeverity.Error);
+
             // If this is the application's initial launch, handle the required environment
             if (e.IsFirstLaunch)
             {
@@ -95,7 +102,7 @@ public partial class App : Application, IReboundLegacySupportApp, IReboundPipeCl
             if (e.IsFirstLaunch)
             {
                 // Spawn or activate the main window immediately
-                UIThreadQueue.QueueAction(async () =>
+                UIThread.QueueAction(async () =>
                 {
                     if (MainWindow != null)
                         MainWindow.BringToFront();
@@ -106,7 +113,7 @@ public partial class App : Application, IReboundLegacySupportApp, IReboundPipeCl
 
             // The application has been launched again, simply bring the main window forward
             else
-                UIThreadQueue.QueueAction(MainWindow!.BringToFront);
+                UIThread.QueueAction(MainWindow!.BringToFront);
         }
         catch (Exception ex)
         {
@@ -123,7 +130,7 @@ public partial class App : Application, IReboundLegacySupportApp, IReboundPipeCl
 
     public void RunServiceHostFailedToLaunchFallback()
     {
-        UIThreadQueue.QueueAction(async () =>
+        UIThread.QueueAction(async () =>
         {
             // Request an action from the user
             var result = await ReboundDialog.ShowAsync(

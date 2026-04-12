@@ -2,12 +2,9 @@
 // Licensed under the MIT License.
 
 using Rebound.Core;
-using Rebound.Core.Storage;
+using Rebound.Core.Settings;
 namespace Rebound.Forge.Cogs;
 
-/// <summary>
-/// Registers a DLL for injection.
-/// </summary>
 public class BoolSettingCog : ICog
 {
     /// <summary>
@@ -41,7 +38,11 @@ public class BoolSettingCog : ICog
         }
         catch (Exception ex)
         {
-            ReboundLogger.Log("[BoolSettingCog] Apply failed with exception.", ex);
+            ReboundLogger.WriteToLog(
+                "BoolSettingCog apply",
+                "Couldn't apply the bool setting cog.",
+                LogMessageSeverity.Error,
+                ex);
         }
     }
 
@@ -54,7 +55,11 @@ public class BoolSettingCog : ICog
         }
         catch (Exception ex)
         {
-            ReboundLogger.Log("[BoolSettingCog] Remove failed with exception.", ex);
+            ReboundLogger.WriteToLog(
+                "BoolSettingCog apply",
+                "Couldn't remove the bool setting cog.",
+                LogMessageSeverity.Error,
+                ex);
         }
     }
 
@@ -67,7 +72,11 @@ public class BoolSettingCog : ICog
         }
         catch (Exception ex)
         {
-            ReboundLogger.Log("[BoolSettingCog] IsApplied failed with exception.", ex);
+            ReboundLogger.WriteToLog(
+                "BoolSettingCog apply",
+                "Couldn't check if the bool setting cog is applied.",
+                LogMessageSeverity.Error,
+                ex);
             return false;
         }
     }

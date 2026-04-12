@@ -1,11 +1,16 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Package xmlns="http://schemas.microsoft.com/appx/manifest/foundation/windows10" xmlns:mp="http://schemas.microsoft.com/appx/2014/phone/manifest" xmlns:uap="http://schemas.microsoft.com/appx/manifest/uap/windows10" xmlns:uap3="http://schemas.microsoft.com/appx/manifest/uap/windows10/3" xmlns:uap5="http://schemas.microsoft.com/appx/manifest/uap/windows10/5" xmlns:uap8="http://schemas.microsoft.com/appx/manifest/uap/windows10/8" xmlns:desktop="http://schemas.microsoft.com/appx/manifest/desktop/windows10" xmlns:rescap="http://schemas.microsoft.com/appx/manifest/foundation/windows10/restrictedcapabilities" IgnorableNamespaces="uap uap3 uap5 mp desktop rescap">
+<Package xmlns:virtualization="http://schemas.microsoft.com/appx/manifest/virtualization/windows10" xmlns:desktop6="http://schemas.microsoft.com/appx/manifest/desktop/windows10/6" xmlns="http://schemas.microsoft.com/appx/manifest/foundation/windows10" xmlns:mp="http://schemas.microsoft.com/appx/2014/phone/manifest" xmlns:uap="http://schemas.microsoft.com/appx/manifest/uap/windows10" xmlns:uap3="http://schemas.microsoft.com/appx/manifest/uap/windows10/3" xmlns:uap5="http://schemas.microsoft.com/appx/manifest/uap/windows10/5" xmlns:uap8="http://schemas.microsoft.com/appx/manifest/uap/windows10/8" xmlns:desktop="http://schemas.microsoft.com/appx/manifest/desktop/windows10" xmlns:rescap="http://schemas.microsoft.com/appx/manifest/foundation/windows10/restrictedcapabilities" IgnorableNamespaces="uap uap3 uap5 mp desktop desktop6 virtualization rescap">
 	<Identity Name="Rebound.About" Publisher="CN=Ivirius Community" Version="0.0.10.6" />
 	<mp:PhoneIdentity PhoneProductId="039b9731-7b33-49de-bb09-5b81d5978d1c" PhonePublisherId="00000000-0000-0000-0000-000000000000" />
 	<Properties>
 		<DisplayName>Rebound About</DisplayName>
 		<PublisherDisplayName>Ivirius Community</PublisherDisplayName>
 		<Logo>Assets\Package\StoreLogo.png</Logo>
+		<virtualization:FileSystemWriteVirtualization>
+			<virtualization:ExcludedDirectories>
+				<virtualization:ExcludedDirectory>$(KnownFolder:LocalAppData)\Rebound</virtualization:ExcludedDirectory>
+			</virtualization:ExcludedDirectories>
+		</virtualization:FileSystemWriteVirtualization>
 	</Properties>
 	<Dependencies>
 		<TargetDeviceFamily Name="Windows.Universal" MinVersion="10.0.17763.0" MaxVersionTested="10.0.19041.0" />

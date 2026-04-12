@@ -93,7 +93,7 @@
 
 	<!-- CommunityToolkit -->
 	<ItemGroup Label="CommunityToolkit">
-		<PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.0" />
+		<PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.2" />
 	</ItemGroup>
 
 	<!-- Content -->
@@ -118,9 +118,6 @@
 	</ItemGroup>
 
 	<!-- Project references -->
-	<ItemGroup>
-		<ProjectReference Include="..\..\..\..\src\core\forge\Rebound.Forge.WinUI\Rebound.Forge.WinUI.csproj" />
-	</ItemGroup>
 
 	<!-- Shared imports -->
 	<Import Project="..\..\..\..\src\core\forge\Rebound.Forge.Assets\Rebound.Forge.Assets.projitems" Label="Shared" />

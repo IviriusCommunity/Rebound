@@ -3,7 +3,9 @@
 
 namespace Rebound.Core.Storage;
 
+#pragma warning disable CA1711 // Identifiers should not have incorrect suffix
 public static class DirectoryEx
+#pragma warning restore CA1711 // Identifiers should not have incorrect suffix
 {
     private static readonly char[] separator = ['\\', '/'];
 
@@ -60,7 +62,7 @@ public static class DirectoryEx
 
         for (int i = 0; i < parts.Count; i++)
         {
-            string currentPath = Path.Combine(parts.Take(i + 1).ToArray());
+            string currentPath = Path.Combine([.. parts.Take(i + 1)]);
             if (!Directory.Exists(currentPath))
             {
                 Directory.CreateDirectory(currentPath);

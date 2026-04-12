@@ -36,4 +36,7 @@
   <ItemGroup>
     <Library Include="libMinHook.x64.lib" />
   </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
+  </ItemGroup>
 </Project>

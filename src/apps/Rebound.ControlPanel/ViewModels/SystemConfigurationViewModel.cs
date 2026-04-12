@@ -4,9 +4,9 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Microsoft.Win32;
-using Rebound.Core.Native;
+using Rebound.Core.Native.Windows;
 using Rebound.Core.SystemInformation.Software;
-using Rebound.Core.UI;
+using Rebound.Core.UI.UWP.Application;
 using Rebound.Forge;
 using Rebound.Forge.Engines;
 using System.Diagnostics;

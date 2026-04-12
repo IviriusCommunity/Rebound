@@ -1,0 +1,2220 @@
+﻿// Copyright (C) Ivirius(TM) Community 2020 - 2026. All Rights Reserved.
+// Licensed under the MIT License.
+
+using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Input;
+using Microsoft.UI;
+using Microsoft.UI.Windowing;
+using Microsoft.UI.Xaml.Controls;
+using Microsoft.Win32;
+using Rebound.Core.Native.Wrappers;
+using Rebound.Core.Settings;
+using Rebound.Core.SystemInformation.Hardware;
+using Rebound.Core.UI.Threading;
+using System.Collections.ObjectModel;
+using System.Diagnostics;
+using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices;
+using TerraFX.Interop.Windows;
+using TerraFX.Interop.WinRT;
+using Windows.Graphics.Imaging;
+using Windows.Storage.Streams;
+using Windows.UI.Xaml;
+using Windows.UI.Xaml.Controls;
+using Windows.UI.Xaml.Hosting;
+using Windows.UI.Xaml.Input;
+using Windows.UI.Xaml.Media;
+using Windows.UI.Xaml.Media.Imaging;
+using WinRT;
+using static TerraFX.Interop.Windows.SWP;
+using static TerraFX.Interop.Windows.Windows;
+using static TerraFX.Interop.Windows.WM;
+using static TerraFX.Interop.Windows.WS;
+using BOOL = TerraFX.Interop.Windows.BOOL;
+using HWND = TerraFX.Interop.Windows.HWND;
+using LPARAM = TerraFX.Interop.Windows.LPARAM;
+using LRESULT = TerraFX.Interop.Windows.LRESULT;
+using WPARAM = TerraFX.Interop.Windows.WPARAM;
+
+namespace Rebound.Core.UI.Windowing;
+
+public class TitleBarSnapshot
+{
+    public Windows.UI.Color? BackgroundColor { get; set; }
+    public Windows.UI.Color? ForegroundColor { get; set; }
+    public Windows.UI.Color? InactiveBackgroundColor { get; set; }
+    public Windows.UI.Color? InactiveForegroundColor { get; set; }
+    public Windows.UI.Color? ButtonBackgroundColor { get; set; }
+    public Windows.UI.Color? ButtonForegroundColor { get; set; }
+    public Windows.UI.Color? ButtonHoverBackgroundColor { get; set; }
+    public Windows.UI.Color? ButtonHoverForegroundColor { get; set; }
+    public Windows.UI.Color? ButtonInactiveBackgroundColor { get; set; }
+    public Windows.UI.Color? ButtonInactiveForegroundColor { get; set; }
+    public Windows.UI.Color? ButtonPressedBackgroundColor { get; set; }
+    public Windows.UI.Color? ButtonPressedForegroundColor { get; set; }
+    public IconShowOptions IconShowOptions { get; set; }
+    public TitleBarHeightOption PreferredHeightOption { get; set; }
+    public TitleBarTheme PreferredTheme { get; set; }
+    public bool ExtendsContentIntoTitleBar { get; set; }
+
+    public static TitleBarSnapshot Capture(AppWindowTitleBar tb) => new()
+    {
+        BackgroundColor = tb?.BackgroundColor,
+        ForegroundColor = tb?.ForegroundColor,
+        InactiveBackgroundColor = tb?.InactiveBackgroundColor,
+        InactiveForegroundColor = tb?.InactiveForegroundColor,
+        ButtonBackgroundColor = tb?.ButtonBackgroundColor,
+        ButtonForegroundColor = tb?.ButtonForegroundColor,
+        ButtonHoverBackgroundColor = tb?.ButtonHoverBackgroundColor,
+        ButtonHoverForegroundColor = tb?.ButtonHoverForegroundColor,
+        ButtonInactiveBackgroundColor = tb?.ButtonInactiveBackgroundColor,
+        ButtonInactiveForegroundColor = tb?.ButtonInactiveForegroundColor,
+        ButtonPressedBackgroundColor = tb?.ButtonPressedBackgroundColor,
+        ButtonPressedForegroundColor = tb?.ButtonPressedForegroundColor,
+        IconShowOptions = tb!.IconShowOptions,
+        PreferredHeightOption = tb!.PreferredHeightOption,
+        PreferredTheme = tb!.PreferredTheme,
+        ExtendsContentIntoTitleBar = tb!.ExtendsContentIntoTitleBar
+    };
+
+    public void Restore(AppWindowTitleBar tb)
+    {
+        tb?.ExtendsContentIntoTitleBar = ExtendsContentIntoTitleBar;
+        tb?.BackgroundColor = BackgroundColor;
+        tb?.ForegroundColor = ForegroundColor;
+        tb?.InactiveBackgroundColor = InactiveBackgroundColor;
+        tb?.InactiveForegroundColor = InactiveForegroundColor;
+        tb?.ButtonBackgroundColor = ButtonBackgroundColor;
+        tb?.ButtonForegroundColor = ButtonForegroundColor;
+        tb?.ButtonHoverBackgroundColor = ButtonHoverBackgroundColor;
+        tb?.ButtonHoverForegroundColor = ButtonHoverForegroundColor;
+        tb?.ButtonInactiveBackgroundColor = ButtonInactiveBackgroundColor;
+        tb?.ButtonInactiveForegroundColor = ButtonInactiveForegroundColor;
+        tb?.ButtonPressedBackgroundColor = ButtonPressedBackgroundColor;
+        tb?.ButtonPressedForegroundColor = ButtonPressedForegroundColor;
+        tb?.IconShowOptions = IconShowOptions;
+        tb?.PreferredTheme = PreferredTheme;
+        if (!ExtendsContentIntoTitleBar) return;
+        tb?.PreferredHeightOption = PreferredHeightOption;
+    }
+}
+
+public enum DialogIcon
+{
+    None,
+    Info,
+    Warning,
+    Error,
+    Shield
+}
+
+public partial class ThemeRegistryListenerEventArgs(ApplicationTheme applicationTheme, ApplicationTheme shellTheme)
+{
+    public ApplicationTheme ApplicationTheme { get; } = applicationTheme;
+    public ApplicationTheme ShellTheme { get; } = shellTheme;
+}
+
+public partial class ThemeRegistryListener() : IDisposable
+{
+    // Registry notification flags
+#pragma warning disable CA1707
+    public const int REG_NOTIFY_CHANGE_NAME = 0x00000001;
+    public const int REG_NOTIFY_CHANGE_ATTRIBUTES = 0x00000002;
+    public const int REG_NOTIFY_CHANGE_LAST_SET = 0x00000004;
+    public const int REG_NOTIFY_CHANGE_SECURITY = 0x00000008;
+#pragma warning restore CA1707
+
+    // Constants
+    private const string RegistryKeyPath = @"Software\Microsoft\Windows\CurrentVersion\Themes\Personalize";
+    private const string ValueName = "AppsUseLightTheme";
+    private const string ValueNameShellTheme = "SystemUsesLightTheme";
+
+    // Variables
+    private readonly RegistryKey registryKey = Registry.CurrentUser.OpenSubKey(RegistryKeyPath, false)
+            ?? throw new InvalidOperationException("Failed to open registry key.");
+    private Task? watchTask;
+    private CancellationTokenSource? cts;
+    private bool _disposed;
+
+#pragma warning disable CA1003
+    public event EventHandler<ThemeRegistryListenerEventArgs>? ThemeChanged;
+
+#pragma warning restore CA1003
+
+    public void Start()
+    {
+        if (watchTask != null)
+            throw new InvalidOperationException("Already started.");
+        var tokenSource = new CancellationTokenSource();
+        cts = tokenSource;
+        watchTask = Task.Run(() => WatchRegistry(tokenSource.Token));
+    }
+
+    public void Stop()
+    {
+        cts?.Cancel();
+        watchTask = null;
+        cts = null;
+    }
+
+    private void WatchRegistry(CancellationToken token)
+    {
+        var regHandle = registryKey.Handle;
+        while (!token.IsCancellationRequested)
+        {
+            var waitResult = RegNotifyChangeKeyValue(
+                (HKEY)regHandle.DangerousGetHandle(),
+                false,
+                REG_NOTIFY_CHANGE_LAST_SET,
+                HANDLE.NULL,
+                false);
+
+            if (token.IsCancellationRequested)
+                break;
+
+            if (waitResult == 0)
+                ThemeChanged?.Invoke(this, new(GetTheme(false), GetTheme(true)));
+        }
+    }
+
+    public ApplicationTheme GetTheme(bool useShellTheme)
+    {
+        var val = registryKey.GetValue(useShellTheme ? ValueNameShellTheme : ValueName);
+        if (val is int intValue)
+            return intValue switch
+            {
+                0 => ApplicationTheme.Dark,
+                _ => ApplicationTheme.Light
+            };
+        return ApplicationTheme.Dark;
+    }
+
+    protected virtual void Dispose(bool disposing)
+    {
+        if (_disposed) return;
+        if (disposing)
+        {
+            cts?.Cancel();
+            watchTask?.Wait();
+            cts?.Dispose();
+            registryKey.Dispose();
+        }
+        _disposed = true;
+    }
+
+    public void Dispose()
+    {
+        Dispose(true);
+        GC.SuppressFinalize(this);
+    }
+}
+
+public class IslandsWindowClosingEventArgs : EventArgs
+{
+    public bool Handled { get; set; }
+}
+
+public class XamlInitializedEventArgs : EventArgs { }
+
+public class AppWindowInitializedEventArgs : EventArgs { }
+
+public static class WindowList
+{
+    public static readonly Collection<IslandsWindow> OpenWindows = [];
+    public static bool KeepAlive { get; set; }
+
+    /// <summary>
+    /// Register the window to the global open windows list. Used for tracking how many windows are open
+    /// in an app for automatic closing. To override automatic app closing, set <see cref="KeepAlive"/> to true.
+    /// </summary>
+    /// <param name="window">The window to add to the collection.</param>
+    internal static void RegisterWindow(IslandsWindow window)
+    {
+        OpenWindows.Add(window);
+        window.OnClosed += (s, e) =>
+        {
+            OpenWindows.Remove(window);
+            if (OpenWindows.Count == 0 && !KeepAlive)
+            {
+                Windows.UI.Xaml.Application.Current.Exit();
+                Process.GetCurrentProcess().Kill();
+            }
+        };
+    }
+}
+
+public class ReboundDialogButton(string content, bool isAccent = false, char? icon = null)
+{
+    public string Content { get; } = content;
+    public bool IsAccent { get; } = isAccent;
+    public char? Icon { get; } = icon;
+}
+
+public sealed partial class ReboundDialog : IslandsWindow
+{
+    private const int DialogWidth = 480;
+    private const int IconSize = 48;
+    private const int ContentPadding = 20;
+    private const int ContentToFooterSpacing = 24;
+    private const int TitleBarHeight = 32;
+    private const int MinDialogHeight = 180;
+    private const int MaxDialogHeight = 640;
+
+    private readonly TaskCompletionSource<int> _tcs = new();
+
+    private bool _resultSet;
+
+    /// <summary>
+    /// Shows a simple dialog window in WinUI 2 XAML islands, based on the Win32 message box. For quick usage
+    /// of a disposable dialog used for notifying the user of various things, use this method instead of
+    /// creating an instance of the <see cref="ReboundDialog"/> class.
+    /// </summary>
+    /// <param name="title">The title of the window. Appears in the title bar, taskbar, and header.</param>
+    /// <param name="message">Message content for the dialog.</param>
+    /// <param name="icon">The icon used by the dialog. Queried from the system.</param>
+    /// <returns>The index of the pressed button. If the window was closed without a button press, -1 is returned.</returns>
+    public static async Task<int> ShowAsync(string title, string header, string message, Collection<ReboundDialogButton>? buttons = null, DialogIcon icon = DialogIcon.Info, int height = 256)
+    {
+        buttons ??= [new ReboundDialogButton("Ok", true)];
+        using var dlg = new ReboundDialog(title, header, message, buttons, icon, height);
+        dlg.Create();
+        return await dlg._tcs.Task.ConfigureAwait(false);
+    }
+
+    /// <summary>
+    /// Initializes an instance of the <see cref="ReboundDialog"/> class: a simple dialog window in WinUI 2 XAML islands,
+    /// based on the Win32 message box. For a quick usage of a disposable dialog used for notifying the user of various things,
+    /// use the <see cref="ShowAsync"/> method instead of creating an instance of this class.
+    /// </summary>
+    /// <param name="title">The title of the window. Appears in the title bar, taskbar, and header.</param>
+    /// <param name="message">Message content for the dialog.</param>
+    /// <param name="icon">The icon used by the dialog. Queried from the system.</param>
+    private ReboundDialog(string title, string header, string message, Collection<ReboundDialogButton> buttons, DialogIcon icon, int height)
+    {
+        Title = title;
+        IsPersistenceEnabled = false;
+
+        XamlInitialized += (_, _) =>
+        {
+            var page = new Page();
+            BackdropMaterial.SetApplyToRootOrPageBackground(page, true);
+
+            // Root: TitleBar row | Content row
+            var rootGrid = new Grid
+            {
+                CornerRadius = new CornerRadius(8),
+                RowDefinitions =
+            {
+                new RowDefinition { Height = GridLength.Auto },
+                new RowDefinition { Height = new GridLength(1, GridUnitType.Star) }
+            }
+            };
+
+            // Title bar
+            var titleBar = new Border { Padding = new Thickness(12, 8, 0, 0) };
+            titleBar.Child = new TextBlock
+            {
+                Text = title,
+                FontSize = 12,
+                VerticalAlignment = VerticalAlignment.Center
+            };
+            rootGrid.Children.Add(titleBar);
+
+            // Content area: Icon col | Text col
+            // Rows: Content | Spacer | Footer
+            var contentGrid = new Grid
+            {
+                Padding = new Thickness(ContentPadding, ContentPadding, ContentPadding, 0),
+                RowDefinitions =
+            {
+                new RowDefinition { Height = GridLength.Auto },
+                new RowDefinition { Height = new GridLength(1, GridUnitType.Star) },
+                new RowDefinition { Height = GridLength.Auto }
+            },
+                ColumnDefinitions =
+            {
+                new ColumnDefinition { Width = GridLength.Auto },                          // icon
+                new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) }      // text
+            }
+            };
+            Grid.SetRow(contentGrid, 1);
+
+            // Icon
+            var iconImg = new Image
+            {
+                Source = LoadSystemIcon(icon),
+                Width = IconSize,
+                Height = IconSize,
+                Margin = new Thickness(0, 0, 16, 0),
+                VerticalAlignment = VerticalAlignment.Top,
+                HorizontalAlignment = HorizontalAlignment.Left
+            };
+            Grid.SetRow(iconImg, 0);
+            Grid.SetColumn(iconImg, 0);
+            contentGrid.Children.Add(iconImg);
+
+            // Text block: Header row | Message row
+            var textGrid = new Grid
+            {
+                RowDefinitions =
+            {
+                new RowDefinition { Height = GridLength.Auto },
+                new RowDefinition { Height = GridLength.Auto }
+            },
+                // Derive max text width from window width minus icon, its margin, and both paddings
+                MaxWidth = DialogWidth - IconSize - 16 - (ContentPadding * 2)
+            };
+            Grid.SetRow(textGrid, 0);
+            Grid.SetColumn(textGrid, 1);
+
+            var headerText = new TextBlock
+            {
+                Text = header,
+                FontSize = 20,
+                FontWeight = Windows.UI.Text.FontWeights.SemiBold,
+                Margin = new Thickness(0, 0, 0, 8),
+                TextWrapping = TextWrapping.WrapWholeWords
+            };
+            Grid.SetRow(headerText, 0);
+            textGrid.Children.Add(headerText);
+
+            var messageText = new TextBlock
+            {
+                Text = message,
+                TextWrapping = TextWrapping.WrapWholeWords
+            };
+            Grid.SetRow(messageText, 1);
+            textGrid.Children.Add(messageText);
+
+            contentGrid.Children.Add(textGrid);
+
+            // Footer bar
+            var footerBar = new Border
+            {
+                Background = (Brush)Windows.UI.Xaml.Application.Current.Resources["SystemControlBackgroundAltMediumLowBrush"],
+                Padding = new Thickness(24),
+                Margin = new Thickness(-ContentPadding, 0, -ContentPadding, 0)
+            };
+            Grid.SetRow(footerBar, 2);
+            Grid.SetColumnSpan(footerBar, 2);
+
+            var footerGrid = new Grid();
+
+            if (buttons.Count >= 3)
+            {
+                for (int i = 0; i < buttons.Count; i++)
+                    footerGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
+            }
+
+            for (int i = 0; i < buttons.Count; i++)
+            {
+                var buttonDef = buttons[i];
+                var index = i;
+
+                var btn = new Button
+                {
+                    MinWidth = 100,
+                    HorizontalAlignment = buttons.Count >= 3
+                        ? HorizontalAlignment.Stretch
+                        : HorizontalAlignment.Right
+                };
+
+                if (buttonDef.Icon is char glyph)
+                {
+                    var btnContent = new Grid
+                    {
+                        ColumnDefinitions =
+                    {
+                        new ColumnDefinition { Width = GridLength.Auto },
+                        new ColumnDefinition { Width = GridLength.Auto }
+                    }
+                    };
+                    var fi = new FontIcon { Glyph = glyph.ToString(), FontSize = 16 };
+                    Grid.SetColumn(fi, 0);
+                    var tb = new TextBlock { Text = buttonDef.Content, Margin = new Thickness(8, 0, 0, 0) };
+                    Grid.SetColumn(tb, 1);
+                    btnContent.Children.Add(fi);
+                    btnContent.Children.Add(tb);
+                    btn.Content = btnContent;
+                }
+                else
+                {
+                    btn.Content = buttonDef.Content;
+                }
+
+                if (buttonDef.IsAccent)
+                    btn.Style = (Style)Windows.UI.Xaml.Application.Current.Resources["AccentButtonStyle"];
+
+                if (buttons.Count >= 3)
+                {
+                    Grid.SetColumn(btn, i);
+                    if (i > 0) btn.Margin = new Thickness(4, 0, 0, 0);
+                    footerGrid.Children.Add(btn);
+                }
+                else
+                {
+                    var stackPanel = footerGrid.Children.OfType<StackPanel>().FirstOrDefault();
+                    if (stackPanel == null)
+                    {
+                        stackPanel = new StackPanel
+                        {
+                            Orientation = Orientation.Horizontal,
+                            HorizontalAlignment = HorizontalAlignment.Right,
+                            Spacing = 8
+                        };
+                        footerGrid.Children.Add(stackPanel);
+                    }
+                    stackPanel.Children.Add(btn);
+                }
+
+                btn.Click += (_, _) =>
+                {
+                    _tcs.TrySetResult(index);
+                    _resultSet = true;
+                    Close();
+                };
+            }
+
+            AppWindow?.Closing += (_, _) =>
+            {
+                if (!_resultSet)
+                    _tcs.TrySetResult(-1);
+            };
+
+            footerBar.Child = footerGrid;
+            contentGrid.Children.Add(footerBar);
+            rootGrid.Children.Add(contentGrid);
+            page.Content = rootGrid;
+            Content = page;
+
+            // Measure content after layout pass and resize window to fit
+            page.Loaded += (_, _) =>
+            {
+                contentGrid.Measure(new Windows.Foundation.Size(DialogWidth, double.PositiveInfinity));
+                var measuredHeight = contentGrid.DesiredSize.Height;
+                var totalHeight = (int)Math.Ceiling(measuredHeight) + TitleBarHeight;
+                totalHeight = Math.Clamp(totalHeight, MinDialogHeight, MaxDialogHeight);
+                Height = totalHeight + ContentToFooterSpacing;
+                CenterWindow();
+            };
+        };
+
+        AppWindowInitialized += (_, _) =>
+        {
+            Title = title;
+            AppWindow?.TitleBar.ExtendsContentIntoTitleBar = true;
+            AppWindow?.TitleBar.ButtonBackgroundColor = Windows.UI.Colors.Transparent;
+            AppWindow?.TitleBar.ButtonInactiveBackgroundColor = Windows.UI.Colors.Transparent;
+            Width = DialogWidth;
+            Height = MinDialogHeight; // temporary until Loaded measures
+            IsMaximizable = false;
+            IsMinimizable = false;
+            IsResizable = false;
+            CenterWindow();
+        };
+    }
+
+    private static unsafe BitmapImage? LoadSystemIcon(DialogIcon icon)
+    {
+        string dll = Environment.SystemDirectory + "\\imageres.dll";
+        int iconIndex = icon switch
+        {
+            DialogIcon.Warning => 79,
+            DialogIcon.Error => 98,
+            DialogIcon.Info => 81,
+            DialogIcon.Shield => 1028,
+            _ => 277
+        };
+
+        HICON largeIcon = default;
+        using var dllPath = new ManagedPtr<char>(dll);
+        _ = ExtractIconExW(dllPath, iconIndex, &largeIcon, null, 1);
+
+        ICONINFO iconInfo;
+        if (!GetIconInfo(largeIcon, &iconInfo))
+            return null;
+
+        BITMAP bmp;
+        if (GetObjectW(iconInfo.hbmColor, sizeof(BITMAP), &bmp) == 0)
+            return null;
+
+        int width = bmp.bmWidth;
+        int height = Math.Abs(bmp.bmHeight);
+
+        var hdcScreen = GetDC(new());
+        var hdcMem = CreateCompatibleDC(hdcScreen);
+        var hBitmap = CreateCompatibleBitmap(hdcScreen, width, height);
+        var old = SelectObject(hdcMem, hBitmap);
+
+        DrawIconEx(hdcMem, 0, 0, largeIcon, width, height, 0, new(), (uint)DI.DI_NORMAL);
+
+        int stride = width * 4;
+        byte[] pixelData = new byte[stride * height];
+
+        fixed (byte* pPixels = pixelData)
+        {
+            BITMAPINFO bmi = new()
+            {
+                bmiHeader =
+            {
+                biSize = (uint)sizeof(BITMAPINFOHEADER),
+                biWidth = width,
+                biHeight = -height,
+                biPlanes = 1,
+                biBitCount = 32,
+                biCompression = BI.BI_RGB
+            }
+            };
+            _ = GetDIBits(hdcMem, hBitmap, 0, (uint)height, pPixels, &bmi, (uint)DIB_RGB_COLORS);
+        }
+
+        SelectObject(hdcMem, old);
+        DeleteDC(hdcMem);
+        _ = ReleaseDC(new(), hdcScreen);
+        DeleteObject(hBitmap);
+        DeleteObject(iconInfo.hbmColor);
+        DeleteObject(iconInfo.hbmMask);
+        DestroyIcon(largeIcon);
+
+        var scale = Display.GetScale(new((void*)Process.GetCurrentProcess().MainWindowHandle));
+
+        using var stream = new InMemoryRandomAccessStream();
+        var encoder = BitmapEncoder.CreateAsync(BitmapEncoder.PngEncoderId, stream).GetAwaiter().GetResult();
+        encoder.SetPixelData(
+            Windows.Graphics.Imaging.BitmapPixelFormat.Bgra8,
+            Windows.Graphics.Imaging.BitmapAlphaMode.Premultiplied,
+            (uint)width, (uint)height,
+            96 * scale, 96 * scale,
+            pixelData);
+        encoder.FlushAsync().GetAwaiter().GetResult();
+
+        var image = new BitmapImage();
+        stream.Seek(0);
+        image.SetSource(stream);
+        return image;
+    }
+}
+
+public partial class IslandsWindow : ObservableObject, IDisposable
+{
+    public static readonly Windows.UI.Color ButtonHoverBackgroundColor = Windows.UI.Color.FromArgb(40, 120, 120, 120);
+    public static readonly Windows.UI.Color ButtonPressedBackgroundColor = Windows.UI.Color.FromArgb(24, 120, 120, 120);
+
+    public enum TitleBarMode
+    {
+        ApplicationDefault,
+        None,
+        Win32,
+        WindowsAppSdk,
+        WindowsAppSdkExtended,
+        WindowsAppSdkExtendedTall
+    }
+
+    // In IslandsWindow class fields:
+    private TitleBarMode _currentTitleBarMode = TitleBarMode.ApplicationDefault;
+    private bool _dwmExtendedActive;
+
+    // Constants and static fields
+    private const string WindowClassName = "XamlIslandsClass";
+    private static readonly ushort _classAtom;
+    private static WindowsXamlManager? _xamlManager;
+    private static ThemeRegistryListener? _themeListener;
+
+    // Internal stuff
+    private bool _disposed;
+    private volatile bool _xamlInitialized;
+    private bool _internalResize;
+    private bool _isInitializing;
+    private nint _appWindowWndProcSubclass;
+    private TitleBarSnapshot? _titleBarSnapshot;
+
+    // Native handles
+    private GCHandle _thisHandle;
+#pragma warning disable IDE0044
+    private HWND _xamlHwnd;
+#pragma warning restore IDE0044 
+
+    // UWP
+    private DesktopWindowXamlSource? _desktopWindowXamlSource;
+
+    // WinRT
+    private ComPtr<IDesktopWindowXamlSourceNative2> _nativeSource;
+
+    /// <summary>
+    /// Indicates if the window has been closed. Use this property to check if the window is still open in case
+    /// you need to do operations in contexts when you are not sure if the window is still alive.
+    /// </summary>
+    public bool Closed { get; private set; }
+
+    /// <summary>
+    /// The Win32 handle for the current window. Once the window has been created, this property can no longer
+    /// be changed.
+    /// </summary>
+    public HWND Handle { get; private set; }
+
+    /// <summary>
+    /// AppWindow object for the current window. To append AppWindow tasks, subscribe to the 
+    /// <see cref="AppWindowInitialized"/> event to ensure the AppWindow is ready for the
+    /// requested operations.
+    /// </summary>
+    public AppWindow? AppWindow { get; private set; }
+
+    [ObservableProperty] public partial UIElement? Content { get; set; }
+    [ObservableProperty] public partial bool IsMaximizable { get; set; } = true;
+    [ObservableProperty] public partial bool IsMinimizable { get; set; } = true;
+    [ObservableProperty] public partial bool IsResizable { get; set; } = true;
+    [ObservableProperty] public partial int MinWidth { get; set; } = 0;
+    [ObservableProperty] public partial int MinHeight { get; set; } = 0;
+    [ObservableProperty] public partial int MaxWidth { get; set; } = int.MaxValue;
+    [ObservableProperty] public partial int MaxHeight { get; set; } = int.MaxValue;
+    [ObservableProperty] public partial string Title { get; set; } = "UWP XAML Islands Window";
+    [ObservableProperty] public partial int Width { get; set; } = int.MinValue;
+    [ObservableProperty] public partial int Height { get; set; } = int.MinValue;
+    [ObservableProperty] public partial int X { get; set; } = int.MinValue;
+    [ObservableProperty] public partial int Y { get; set; } = int.MinValue;
+    [ObservableProperty] public partial bool IsPersistenceEnabled { get; set; } = false;
+    [ObservableProperty] public partial string PersistenceKey { get; set; } = nameof(IslandsWindow);
+    [ObservableProperty] public partial string PersistenceFileName { get; set; } = "rebound";
+    [ObservableProperty] public partial bool UseShellTheme { get; set; } = false;
+
+    /// <summary>
+    /// Triggered once when the XAML environment has been initialized for the current window.
+    /// Subscribe to this event in order to set the <see cref="Content"/> of the current window to
+    /// avoid race conditions.
+    /// </summary>
+    public event EventHandler<XamlInitializedEventArgs>? XamlInitialized;
+
+    /// <summary>
+    /// Triggered once when the <see cref="AppWindow"/> has been initialized for the current
+    /// window. Subscribe to this event in order to perform AppWindow operations to prevent
+    /// race conditions.
+    /// </summary>
+    public event EventHandler<AppWindowInitializedEventArgs>? AppWindowInitialized;
+
+    /// <summary>
+    /// Triggered whenever the window is about to be closed. If you want to display a confirmation
+    /// dialog, for example, use this event instead of <see cref="OnClosed"/> and set 
+    /// <see cref="IslandsWindowClosingEventArgs.Handled"/> to <see langword="true"/>.
+    /// </summary>
+    public event EventHandler<IslandsWindowClosingEventArgs>? OnClosing;
+
+    /// <summary>
+    /// Triggered whenever the window is fully closed. Use this event for cleanup and other
+    /// post-closing operations.
+    /// </summary>
+    public event EventHandler? OnClosed;
+
+    /// <summary>
+    /// An object that defines a UWP XAML Islands window with the <see cref="AppWindow"/> property
+    /// for convenience. To show the window, call the <see cref="Create"/> method.
+    /// </summary>
+    public IslandsWindow() { }
+
+    ~IslandsWindow()
+    {
+        Dispose(false);
+    }
+
+    static IslandsWindow()
+    {
+        unsafe
+        {
+            fixed (char* className = WindowClassName)
+            {
+                WNDCLASSW wc = new()
+                {
+                    lpfnWndProc = &WndProcStatic,
+                    lpszClassName = className,
+                    hInstance = GetModuleHandleW(null)
+                };
+
+                _classAtom = RegisterClassW(&wc);
+            }
+        }
+
+        unsafe
+        {
+            InternalLoadLibrary("twinapi.appcore.dll");
+            InternalLoadLibrary("threadpoolwinrt.dll");
+        }
+
+        UIThread.QueueAction(() =>
+        {
+            _xamlManager = WindowsXamlManager.InitializeForCurrentThread();
+        });
+    }
+
+    [UnmanagedCallersOnly]
+    private static unsafe LRESULT WndProcStatic(HWND hwnd, uint msg, WPARAM wParam, LPARAM lParam)
+    {
+        var ptr = GetWindowLongPtr(hwnd, GWLP.GWLP_USERDATA);
+        if (ptr == IntPtr.Zero)
+            return DefWindowProc(hwnd, msg, wParam, lParam);
+
+        var handle = GCHandle.FromIntPtr(ptr);
+        var window = (IslandsWindow)handle.Target!;
+        return window.WndProc(hwnd, msg, wParam, lParam);
+    }
+
+    [UnmanagedCallersOnly]
+    private static unsafe LRESULT WndProcOverlayStatic(HWND hwnd, uint msg, WPARAM wParam, LPARAM lParam)
+    {
+        var ptr = GetWindowLongPtr(hwnd, GWLP.GWLP_USERDATA);
+        if (ptr == IntPtr.Zero)
+            return DefWindowProc(hwnd, msg, wParam, lParam);
+
+        var handle = GCHandle.FromIntPtr(ptr);
+        var window = (IslandsWindow)handle.Target!;
+        return window.WndProcOverlay(hwnd, msg, wParam, lParam);
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private static unsafe void InternalLoadLibrary(string lib)
+    {
+        fixed (char* libName = lib)
+            LoadLibraryW(libName);
+    }
+
+    /// <summary>
+    /// Creates and shows the current window. When calling this, the <see cref="XamlInitialized"/> 
+    /// and <see cref="AppWindowInitialized"/> events will be triggered.
+    /// </summary>
+    /// <exception cref="InvalidOperationException"></exception>
+    public unsafe void Create()
+    {
+        ThrowIfDisposed();
+
+        _isInitializing = true;
+        _thisHandle = GCHandle.Alloc(this, GCHandleType.Normal);
+        var gcPtr = GCHandle.ToIntPtr(_thisHandle);
+
+        fixed (char* className = WindowClassName)
+        fixed (char* windowName = Title)
+        {
+            // Create window
+            // For the best UX, the window is created hidden, sized, initialized,
+            // and only then shown and activated
+            Handle = CreateWindowExW(
+                WS_EX_APPWINDOW | WS_EX_NOREDIRECTIONBITMAP,
+                className,
+                windowName,
+                WS_OVERLAPPEDWINDOW,
+                CW_USEDEFAULT, CW_USEDEFAULT,
+                CW_USEDEFAULT, CW_USEDEFAULT,
+                HWND.NULL,
+                HMENU.NULL,
+                GetModuleHandleW(null),
+                null);
+
+            // Something went seriously wrong
+            if (Handle == HWND.NULL)
+                throw new InvalidOperationException("Failed to create window");
+
+            // Save the current object to the window's
+            // user data for retrieval in the static WndProc
+            SetWindowLongPtrW(Handle, GWLP.GWLP_USERDATA, gcPtr);
+
+            // Sizing logic
+            var (x, y, width, height) = GetDefaultUwpLikeSize();
+
+            // If the raw values are still set to MinValue, it means
+            // the window isn't created with explicit default size
+            // and position values, so the window defaults can be applied
+            if (Width == int.MinValue) Width = width;
+            if (Height == int.MinValue) Height = height;
+            if (X == int.MinValue) X = x;
+            if (Y == int.MinValue) Y = y;
+
+            SetWindowPos(Handle, HWND.HWND_TOP, X, Y, Width, Height,
+                SWP_NOZORDER | SWP_NOACTIVATE);
+
+            // AppWindow
+            AppWindow = AppWindow.GetFromWindowId(Win32Interop.GetWindowIdFromWindow(Handle));
+            AppWindow.Closing += OnAppWindowClosing;
+            AppWindowInitialized?.Invoke(this, new AppWindowInitializedEventArgs());
+
+            // Resubclass WndProc
+            _appWindowWndProcSubclass = SetWindowLongPtrW(Handle, GWLP.GWLP_WNDPROC, (nint)(delegate* unmanaged<HWND, uint, WPARAM, LPARAM, LRESULT>)&WndProcOverlayStatic);
+
+            // XAML
+            InitializeXaml();
+            _isInitializing = false;
+
+            // Window persistence
+            ApplyInitialPlacement();
+
+            // Register the window in the global list
+            WindowList.RegisterWindow(this);
+
+            // Show the window and activate it now that all the properties
+            // have been set
+            ShowWindow(Handle, SW.SW_SHOW);
+            AllowSetForegroundWindow(ASFW_ANY);
+            BringWindowToTop(Handle);
+            SetForegroundWindow(Handle);
+            SetActiveWindow(Handle);
+            SetFocus(Handle);
+        }
+    }
+
+    public unsafe void InitializeXaml()
+    {
+        ThrowIfDisposed();
+
+        // If XAML is already initialized, it shouldn't
+        // be initialized again
+        if (_xamlInitialized) return;
+
+        // Create the UWP DesktopWindowXamlSource
+        _desktopWindowXamlSource = new DesktopWindowXamlSource();
+
+        // Get the raw native interop object for the XAML source
+        var raw = ((IUnknown*)((IWinRTObject)_desktopWindowXamlSource).NativeObject.ThisPtr);
+        ThrowIfFailed(raw->QueryInterface(__uuidof<IDesktopWindowXamlSourceNative2>(), (void**)_nativeSource.GetAddressOf()));
+
+        // Attach to the current window and get the XAML HWND
+        ThrowIfFailed(_nativeSource.Get()->AttachToWindow(Handle));
+        ThrowIfFailed(_nativeSource.Get()->get_WindowHandle((HWND*)Unsafe.AsPointer(ref _xamlHwnd)));
+
+        // Set the initial size of the XAML island to fill the window
+        RECT clientRect;
+        GetClientRect(Handle, &clientRect);
+        var clientWidth = clientRect.right - clientRect.left;
+        var clientHeight = clientRect.bottom - clientRect.top;
+        SetWindowPos(_xamlHwnd, HWND.NULL, 0, 0,
+            clientWidth, clientHeight,
+            SWP_SHOWWINDOW | SWP_NOACTIVATE | SWP_NOZORDER);
+
+        // Trigger the XamlInitialized event and set the synchronization context
+        _xamlInitialized = true;
+        XamlInitialized?.Invoke(this, new XamlInitializedEventArgs());
+
+        // Theme stuff for dark mode support on the window itself
+        bool themeListenerNull = _themeListener == null;
+        _themeListener ??= new ThemeRegistryListener();
+        _themeListener.ThemeChanged += (sender, args) =>
+        {
+            unsafe
+            {
+                int darkMode = (UseShellTheme ? args.ShellTheme : args.ApplicationTheme) == ApplicationTheme.Dark ? 1 : 0;
+                DwmSetWindowAttribute(Handle,
+                    (uint)DWMWINDOWATTRIBUTE.DWMWA_USE_IMMERSIVE_DARK_MODE,
+                    &darkMode, sizeof(int));
+                AppWindow?.TitleBar.ButtonForegroundColor = (UseShellTheme ? args.ShellTheme : args.ApplicationTheme) == ApplicationTheme.Dark ? Colors.White : Colors.Black;
+            }
+        };
+
+        // Mica (mandatory)
+        unsafe
+        {
+            var backdrop = (int)DWM_SYSTEMBACKDROP_TYPE.DWMSBT_MAINWINDOW;
+            DwmSetWindowAttribute(Handle, (uint)DWMWINDOWATTRIBUTE.DWMWA_SYSTEMBACKDROP_TYPE, &backdrop, sizeof(int));
+            int dark = _themeListener.GetTheme(UseShellTheme) == ApplicationTheme.Dark ? 1 : 0;
+            DwmSetWindowAttribute(Handle, (uint)DWMWINDOWATTRIBUTE.DWMWA_USE_IMMERSIVE_DARK_MODE, &dark, sizeof(int));
+        }
+        if (themeListenerNull) _themeListener.Start();
+    }
+
+    private HBRUSH _backgroundBrush = HBRUSH.NULL;
+    private bool _isTransparent;
+
+    /// <summary>
+    /// Makes the window transparent by configuring DWM and handling window messages.
+    /// This will disable the Mica backdrop to prevent conflicts.
+    /// </summary>
+    public unsafe void MakeWindowTransparent()
+    {
+        if (Handle == HWND.NULL)
+            throw new InvalidOperationException("Window must be created before making it transparent.");
+
+        if (_isTransparent)
+            return;
+
+        _isTransparent = true;
+
+        // Disable Mica backdrop to prevent conflicts
+        var backdrop = (int)DWM_SYSTEMBACKDROP_TYPE.DWMSBT_NONE;
+        DwmSetWindowAttribute(Handle, (uint)DWMWINDOWATTRIBUTE.DWMWA_SYSTEMBACKDROP_TYPE, &backdrop, sizeof(int));
+
+        // Configure DWM for transparency
+        ConfigureDwmForTransparency();
+    }
+
+    /// <summary>
+    /// Reverts the transparency settings and re-enables Mica backdrop.
+    /// </summary>
+    public unsafe void DisableTransparency()
+    {
+        if (!_isTransparent)
+            return;
+
+        _isTransparent = false;
+
+        // Clean up brush
+        if (_backgroundBrush != HBRUSH.NULL)
+        {
+            DeleteObject(_backgroundBrush);
+            _backgroundBrush = HBRUSH.NULL;
+        }
+
+        // Re-enable Mica backdrop
+        var backdrop = (int)DWM_SYSTEMBACKDROP_TYPE.DWMSBT_MAINWINDOW;
+        DwmSetWindowAttribute(Handle, (uint)DWMWINDOWATTRIBUTE.DWMWA_SYSTEMBACKDROP_TYPE, &backdrop, sizeof(int));
+    }
+
+    private unsafe void ConfigureDwmForTransparency()
+    {
+        var margins = new MARGINS()
+        {
+            cxLeftWidth = -1,
+            cxRightWidth = -1,
+            cyTopHeight = -1,
+            cyBottomHeight = -1,
+        };
+
+        // Extend frame into client area
+        DwmExtendFrameIntoClientArea(Handle, &margins);
+
+        var config = new DWM_BLURBEHIND()
+        {
+            dwFlags = 3,
+            fEnable = true,
+            hRgnBlur = CreateRectRgn(-2, -2, -1, -1),
+        };
+
+        // Enable blur behind
+        DwmEnableBlurBehindWindow(Handle, &config);
+    }
+
+    private unsafe bool ClearTransparentBackground(HDC hdc)
+    {
+        RECT lpRect;
+        if (GetClientRect(Handle, &lpRect))
+        {
+            if (_backgroundBrush == HBRUSH.NULL)
+                _backgroundBrush = CreateSolidBrush(new COLORREF(0));
+
+            var hr = FillRect(hdc, &lpRect, _backgroundBrush);
+            if (FAILED(hr))
+                return false;
+            return true;
+        }
+        return false;
+    }
+
+    /// <summary>
+    /// Closes the current window. If you want to intercept the closing process,
+    /// subscribe to the <see cref="OnClosing"/> event.
+    /// </summary>
+    public void Close()
+    {
+        if (Closed) return;
+
+        // Trigger the closing event and handle cancellation
+        var args = new IslandsWindowClosingEventArgs();
+        OnClosing?.Invoke(this, args);
+        if (args.Handled) return;
+
+        // Persistence
+        SaveWindowState();
+        Closed = true;
+
+        // Unsubscribe from leftover events
+        if (AppWindow != null)
+        {
+            AppWindow.Closing -= OnAppWindowClosing;
+        }
+
+        // Dispose and trigger the final close event
+        Dispose();
+        OnClosed?.Invoke(this, EventArgs.Empty);
+    }
+
+    protected virtual void Dispose(bool disposing)
+    {
+        if (_disposed) return;
+
+        AppWindow?.Closing -= OnAppWindowClosing;
+
+        if (_thisHandle.IsAllocated)
+        {
+            SetWindowLongPtrW(Handle, GWLP.GWLP_USERDATA, IntPtr.Zero);
+            _thisHandle.Free();
+        }
+
+        if (disposing)
+        {
+            _themeListener?.Stop();
+            _themeListener?.Dispose();
+            _themeListener = null;
+
+            _nativeSource.Dispose();
+            _nativeSource = default;
+            _desktopWindowXamlSource?.Dispose();
+
+            AppWindow?.Destroy();
+            AppWindow = null;
+        }
+
+        if (Handle != HWND.NULL)
+        {
+            DestroyWindow(Handle);
+            Handle = HWND.NULL;
+        }
+
+        if (_isTransparent)
+        {
+            DisableTransparency();
+        }
+
+        _disposed = true;
+    }
+
+    public void Dispose()
+    {
+        Dispose(true);
+        GC.SuppressFinalize(this);
+    }
+
+    /// <summary>
+    /// Activates the current window.
+    /// </summary>
+    public void Activate()
+    {
+        if (AppWindow != null)
+        {
+            if (IsIconic(Handle) != 0)
+            {
+                ShowWindow(Handle, SW.SW_RESTORE);
+            }
+            SetForegroundWindow(Handle);
+        }
+        else
+        {
+            Create();
+        }
+    }
+
+    /// <summary>
+    /// Minimizes the current window.
+    /// </summary>
+    public void Minimize()
+    {
+        if (AppWindow != null && AppWindow.Presenter.Kind is AppWindowPresenterKind.Overlapped)
+            (AppWindow.Presenter.As<OverlappedPresenter>()).Minimize();
+    }
+
+    /// <summary>
+    /// Maximizes the current window.
+    /// </summary>
+    public void Maximize()
+    {
+        if (AppWindow != null && AppWindow.Presenter.Kind is AppWindowPresenterKind.Overlapped)
+            (AppWindow.Presenter.As<OverlappedPresenter>()).Maximize();
+    }
+
+    /// <summary>
+    /// Restores the current window.
+    /// </summary>
+    public void Restore()
+    {
+        if (AppWindow != null && AppWindow.Presenter.Kind is AppWindowPresenterKind.Overlapped)
+            (AppWindow.Presenter.As<OverlappedPresenter>()).Restore();
+    }
+
+    /// <summary>
+    /// Brings the current window to the front.
+    /// </summary>
+    public void BringToFront()
+    {
+        ShowWindow(Handle, SW.SW_SHOW);
+        SetForegroundWindow(Handle);
+        SetActiveWindow(Handle);
+    }
+
+    /// <summary>
+    /// Moves and resizes the window.
+    /// </summary>
+    /// <param name="x">Horizontal position</param>
+    /// <param name="y">Vertical position</param>
+    /// <param name="width">Width</param>
+    /// <param name="height">Height</param>
+    public void MoveAndResize(int x, int y, int width, int height)
+    {
+        X = x;
+        Y = y;
+        Width = width;
+        Height = height;
+    }
+
+    /// <summary>
+    /// Moves the window.
+    /// </summary>
+    /// <param name="x">Horizontal position</param>
+    /// <param name="y">Vertical position</param>
+    public void Move(int x, int y)
+    {
+        X = x;
+        Y = y;
+    }
+
+    /// <summary>
+    /// Resizes the window.
+    /// </summary>
+    /// <param name="width">Width</param>
+    /// <param name="height">Height</param>
+    public void Resize(int width, int height)
+    {
+        Width = width;
+        Height = height;
+    }
+
+    /// <summary>
+    /// Centers the window to the working area of the current display.
+    /// </summary>
+    public void CenterWindow()
+    {
+        if (AppWindow == null) return;
+
+        var displayArea = DisplayArea.GetFromWindowId(AppWindow.Id, DisplayAreaFallback.Primary);
+        var workArea = displayArea.WorkArea;
+        var size = AppWindow.Size;
+
+        int centerX = workArea.X + (workArea.Width - size.Width) / 2;
+        int centerY = workArea.Y + (workArea.Height - size.Height) / 2;
+
+        AppWindow.Move(new Windows.Graphics.PointInt32(centerX, centerY));
+
+        var scale = Display.GetScale(Handle);
+        X = (int)(centerX / scale);
+        Y = (int)(centerY / scale);
+    }
+
+    /// <summary>
+    /// Sets whether the window should remain above all non-topmost windows.
+    /// </summary>
+    /// <remarks>This method has no effect if the window handle is not valid. A topmost window stays above all
+    /// non-topmost windows, even when the window is deactivated.</remarks>
+    /// <param name="alwaysOnTop">true to make the window topmost; otherwise, false to restore normal window z-order.</param>
+    public void SetAlwaysOnTop(bool alwaysOnTop)
+    {
+        if (Handle == HWND.NULL) return;
+        SetWindowPos(
+            Handle,
+            alwaysOnTop ? HWND.HWND_TOPMOST : HWND.HWND_NOTOPMOST,
+            0, 0, 0, 0,
+            SWP.SWP_NOMOVE | SWP.SWP_NOSIZE);
+    }
+
+    /// <summary>
+    /// Set extended window style bits.
+    /// </summary>
+    /// <param name="style">Extended window style flags</param>
+    public void SetExtendedWindowStyle(nint style)
+    {
+        var exStyle = GetWindowLongPtrW(Handle, GWL.GWL_EXSTYLE);
+        exStyle |= style;
+        SetWindowLongPtrW(Handle, GWL.GWL_EXSTYLE, (nint)exStyle);
+        SetWindowPos(
+            Handle,
+            HWND.NULL,
+            0, 0, 0, 0,
+            SWP.SWP_NOMOVE | SWP.SWP_NOSIZE | SWP.SWP_NOZORDER | SWP.SWP_FRAMECHANGED
+        );
+    }
+
+    /// <summary>
+    /// Set window style bits.
+    /// </summary>
+    /// <param name="style">Window style flags</param>
+    public void SetWindowStyle(nint style)
+    {
+        var ws = GetWindowLongPtrW(Handle, GWL.GWL_STYLE);
+        ws |= style;
+        SetWindowLongPtrW(Handle, GWL.GWL_STYLE, (nint)ws);
+        SetWindowPos(
+            Handle,
+            HWND.NULL,
+            0, 0, 0, 0,
+            SWP.SWP_NOMOVE | SWP.SWP_NOSIZE | SWP.SWP_NOZORDER | SWP.SWP_FRAMECHANGED
+        );
+    }
+
+    /// <summary>
+    /// Set the window opacity (0-255).
+    /// </summary>
+    /// <param name="opacity">Value between 0 and 255 that indicates the window opacity. 0 is invisible and 255 is fully opaque.</param>
+    public void SetWindowOpacity(byte opacity)
+    {
+        SetExtendedWindowStyle(WS.WS_EX_LAYERED);
+        SetLayeredWindowAttributes(Handle, 0, opacity, LWA.LWA_ALPHA);
+    }
+    
+    /// <summary>
+    /// Native message pump for the current window object.
+    /// </summary>
+    /// <param name="msg">Win32 message</param>
+    /// <returns></returns>
+    public unsafe bool PreTranslateMessage(MSG* msg)
+    {
+        if (!_xamlInitialized) return false;
+        BOOL outResult = false;
+        if (!Closed && _nativeSource.Get() != null)
+            ThrowIfFailed(_nativeSource.Get()->PreTranslateMessage(msg, &outResult));
+        return outResult;
+    }
+
+    private unsafe void ForceActivateWindow()
+    {
+        if (Handle == HWND.NULL) return;
+
+        // Make sure window is visible and up-to-date
+        ShowWindow(Handle, SW.SW_SHOW);
+        BringWindowToTop(Handle);
+
+        // Get the current foreground window and thread ids
+        HWND fgWnd = GetForegroundWindow();
+        uint fgThread = GetWindowThreadProcessId(fgWnd, null);
+        uint curThread = GetCurrentThreadId();
+
+        // If there is no foreground window or it's the same thread, just try normally
+        if (fgWnd == HWND.NULL || fgThread == curThread)
+        {
+            // Try the usual sequence first
+            AllowSetForegroundWindow(ASFW_ANY);
+            SetForegroundWindow(Handle);
+            SetActiveWindow(Handle);
+            SetFocus(Handle);
+            return;
+        }
+
+        // Attach input queues so we can temporarily act as the foreground thread
+        BOOL attached = AttachThreadInput(curThread, fgThread, true);
+
+        if (attached != 0)
+        {
+            try
+            {
+                // Now perform the activation calls while input queues are attached
+                AllowSetForegroundWindow(ASFW_ANY);
+                SetForegroundWindow(Handle);
+                SetActiveWindow(Handle);
+                SetFocus(Handle);
+
+                // Ensure window is shown and topmost in z-order for a moment
+                BringWindowToTop(Handle);
+                SetWindowPos(Handle, HWND.HWND_TOP, 0, 0, 0, 0,
+                    SWP.SWP_NOMOVE | SWP.SWP_NOSIZE | SWP.SWP_NOACTIVATE);
+            }
+            finally
+            {
+                // Detach the input queues
+                AttachThreadInput(curThread, fgThread, false);
+            }
+        }
+        else
+        {
+            // fallback: try the normal calls (some systems may still honor these)
+            AllowSetForegroundWindow(ASFW_ANY);
+            SetForegroundWindow(Handle);
+            SetActiveWindow(Handle);
+            SetFocus(Handle);
+        }
+    }
+
+    private unsafe (int X, int Y, int Width, int Height) GetDefaultUwpLikeSize()
+    {
+        if (Handle == HWND.NULL)
+            return (0, 0, 800, 600); // fallback in case Handle isn't valid yet
+
+        // Logical default (from UWP defaults at 150% scale)
+        const double baseWidth = 1215.0;
+        const double baseHeight = 940.0;
+
+        // Get working area (not full monitor bounds)
+        var monitor = MonitorFromWindow(Handle, 2); // MONITOR_DEFAULTTONEAREST
+        MONITORINFO info = new() { cbSize = (uint)Marshal.SizeOf<MONITORINFO>() };
+        GetMonitorInfoW(monitor, &info);
+
+        int workWidth = info.rcWork.right - info.rcWork.left;
+        int workHeight = info.rcWork.bottom - info.rcWork.top;
+
+        // Convert logical to physical
+        double desiredWidth = baseWidth;
+        double desiredHeight = baseHeight;
+
+        // Shrink if needed to fit in work area (keep aspect)
+        double widthRatio = desiredWidth / workWidth;
+        double heightRatio = desiredHeight / workHeight;
+        double scaleDown = Math.Max(widthRatio, heightRatio);
+
+        if (scaleDown > 1.0)
+        {
+            desiredWidth /= scaleDown;
+            desiredHeight /= scaleDown;
+        }
+
+        int finalWidth = (int)Math.Round(desiredWidth);
+        int finalHeight = (int)Math.Round(desiredHeight);
+
+        // Center in work area
+        int x = info.rcWork.left + 50;
+        int y = info.rcWork.top + 50;
+
+        return (x, y, finalWidth, finalHeight);
+    }
+
+    private unsafe void ApplyInitialPlacement()
+    {
+        if (Handle == HWND.NULL) return;
+
+        WINDOWPLACEMENT placement = new()
+        {
+            length = (uint)sizeof(WINDOWPLACEMENT)
+        };
+
+        if (IsPersistenceEnabled)
+        {
+            // Try to load persisted placement
+            var flags = SettingsManager.GetValue($"{PersistenceKey}_Flags", PersistenceFileName, 0u);
+            var showCmd = SettingsManager.GetValue($"{PersistenceKey}_ShowCmd", PersistenceFileName, 0u);
+            var left = SettingsManager.GetValue($"{PersistenceKey}_Left", PersistenceFileName, -1);
+            var top = SettingsManager.GetValue($"{PersistenceKey}_Top", PersistenceFileName, -1);
+            var right = SettingsManager.GetValue($"{PersistenceKey}_Right", PersistenceFileName, -1);
+            var bottom = SettingsManager.GetValue($"{PersistenceKey}_Bottom", PersistenceFileName, -1);
+
+            // If we have valid persisted data, use it
+            if (left >= 0 && top >= 0 && right > left && bottom > top)
+            {
+                placement.flags = flags;
+                placement.showCmd = showCmd;
+                placement.rcNormalPosition = new RECT
+                {
+                    left = left,
+                    top = top,
+                    right = right,
+                    bottom = bottom
+                };
+
+                // Apply window placement (this will restore maximized state too)
+                SetWindowPlacement(Handle, &placement);
+
+                // If window was maximized, we stop here — Windows will handle sizing/pos
+                if (showCmd == (uint)SW.SW_MAXIMIZE)
+                {
+                    ShowWindow(Handle, SW.SW_MAXIMIZE);
+                    return;
+                }
+
+                // Otherwise update logical props
+                var scale = Display.GetScale(Handle);
+                Width = (int)((right - left) / scale);
+                Height = (int)((bottom - top) / scale);
+                X = (int)(left / scale);
+                Y = (int)(top / scale);
+                return;
+            }
+        }
+
+        // No persisted data or first launch - use default size
+        var currentScale = Display.GetScale(Handle);
+        int physicalWidth = (int)(Width * currentScale);
+        int physicalHeight = (int)(Height * currentScale);
+
+        if (X >= 0 && Y >= 0)
+        {
+            // User specified position
+            int physicalX = (int)(X * currentScale);
+            int physicalY = (int)(Y * currentScale);
+            SetWindowPos(Handle, HWND.NULL, physicalX, physicalY, physicalWidth, physicalHeight,
+                SWP_NOZORDER | SWP_NOACTIVATE);
+        }
+        else
+        {
+            // Center window
+            SetWindowPos(Handle, HWND.NULL, 0, 0, physicalWidth, physicalHeight,
+                SWP_NOZORDER | SWP_NOACTIVATE | SWP_NOMOVE);
+            CenterWindow();
+        }
+
+        ShowWindow(Handle, SW.SW_SHOWNORMAL);
+    }
+
+    private unsafe void SaveWindowState()
+    {
+        if (!IsPersistenceEnabled || Handle == HWND.NULL) return;
+
+        WINDOWPLACEMENT placement = new()
+        {
+            length = (uint)sizeof(WINDOWPLACEMENT)
+        };
+
+        if (GetWindowPlacement(Handle, &placement) == 0)
+            return;
+
+        // Save the complete WINDOWPLACEMENT structure
+        // rcNormalPosition always contains the restored window position, even when maximized
+        SettingsManager.SetValue($"{PersistenceKey}_Flags", PersistenceFileName, placement.flags);
+        SettingsManager.SetValue($"{PersistenceKey}_ShowCmd", PersistenceFileName, placement.showCmd);
+        SettingsManager.SetValue($"{PersistenceKey}_Left", PersistenceFileName, placement.rcNormalPosition.left);
+        SettingsManager.SetValue($"{PersistenceKey}_Top", PersistenceFileName, placement.rcNormalPosition.top);
+        SettingsManager.SetValue($"{PersistenceKey}_Right", PersistenceFileName, placement.rcNormalPosition.right);
+        SettingsManager.SetValue($"{PersistenceKey}_Bottom", PersistenceFileName, placement.rcNormalPosition.bottom);
+    }
+
+    private void OnAppWindowClosing(AppWindow sender, AppWindowClosingEventArgs args)
+    {
+        var closingArgs = new IslandsWindowClosingEventArgs();
+        OnClosing?.Invoke(this, closingArgs);
+
+        if (closingArgs.Handled)
+        {
+            args.Cancel = true;
+            return;
+        }
+
+        SaveWindowState();
+
+        Closed = true;
+        Dispose();
+        OnClosed?.Invoke(this, EventArgs.Empty);
+    }
+
+    internal void OnResize(int physicalWidth, int physicalHeight)
+    {
+        if (_xamlHwnd != default)
+        {
+            SetWindowPos(_xamlHwnd, HWND.NULL,
+                0, 0,
+                physicalWidth, physicalHeight,
+                SWP_SHOWWINDOW | SWP_NOACTIVATE | SWP_NOZORDER);
+        }
+
+        if (CoreWindowPriv._coreHwnd != default)
+        {
+            SendMessageW(CoreWindowPriv._coreHwnd, WM_SIZE, (WPARAM)physicalWidth, (LPARAM)physicalHeight);
+        }
+
+        if (AppWindow != null && !_isInitializing)
+        {
+            var scale = Display.GetScale(Handle);
+            var logicalWidth = (int)(physicalWidth / scale);
+            var logicalHeight = (int)(physicalHeight / scale);
+
+            _internalResize = true;
+            try
+            {
+                Width = logicalWidth;
+                Height = logicalHeight;
+            }
+            finally
+            {
+                _internalResize = false;
+            }
+        }
+    }
+
+    private void UpdatePositionFromAppWindow()
+    {
+        if (AppWindow == null || _internalResize) return;
+
+        var scale = Display.GetScale(Handle);
+        var position = AppWindow.Position;
+
+        _internalResize = true;
+        try
+        {
+            X = (int)(position.X / scale);
+            Y = (int)(position.Y / scale);
+        }
+        finally
+        {
+            _internalResize = false;
+        }
+    }
+
+    bool _changeTitleBarVisibilityTriggered;
+
+    private unsafe LRESULT WndProcOverlay(HWND hwnd, uint msg, WPARAM wParam, LPARAM lParam)
+    {
+        switch (msg)
+        {
+            case WM_ACTIVATE when _dwmExtendedActive:
+                {
+                    return DefWindowProc(hwnd, msg, wParam, lParam);
+                }
+            case WM_NCHITTEST when _dwmExtendedActive:
+                {
+                    LRESULT dwmRes = new(0);
+                    if (DwmDefWindowProc(hwnd, msg, wParam, lParam, &dwmRes) == BOOL.TRUE)
+                        return dwmRes;
+                    return DefWindowProc(hwnd, msg, wParam, lParam);
+                }
+            case WM_NCCALCSIZE when (uint)wParam == BOOL.TRUE:
+                if (IsTitleBarVisible() && _changeTitleBarVisibilityTriggered)
+                {
+                    _changeTitleBarVisibilityTriggered = false;
+                    var result = DefWindowProc(hwnd, msg, wParam, lParam);
+                    var pParams = (NCCALCSIZE_PARAMS*)lParam;
+                    pParams->rgrc[0].top -= GetSystemMetrics(SM.SM_CYCAPTION) + GetSystemMetrics(SM.SM_CYSIZEFRAME) + GetSystemMetrics(SM.SM_CYFRAME);
+                    if (_titleBarSnapshot != null)
+                        PostMessage(hwnd, WM_USER + 2, 0, 0);
+                    return result;
+                }
+                // Restoring path
+                else if (!IsTitleBarVisible() && _changeTitleBarVisibilityTriggered)
+                {
+                    _changeTitleBarVisibilityTriggered = false;
+                    var result = DefWindowProc(hwnd, msg, wParam, lParam);
+                    PostMessage(hwnd, WM_USER + 1, 0, 0);
+                    return result;
+                }
+                break;
+
+            case WM_USER + 1:
+                {
+                    UIThread.QueueAction(() =>
+                    {
+                        var windowId = Win32Interop.GetWindowIdFromWindow(hwnd);
+                        var appWindow = AppWindow.GetFromWindowId(windowId);
+                        appWindow.TitleBar.ResetToDefault();
+                    });
+                    return new LRESULT(0);
+                }
+
+            case WM_USER + 2:
+                {
+                    UIThread.QueueAction(() =>
+                    {
+                        var windowId = Win32Interop.GetWindowIdFromWindow(hwnd);
+                        var appWindow = AppWindow.GetFromWindowId(windowId);
+                        _titleBarSnapshot?.Restore(appWindow.TitleBar);
+                    });
+                    return new LRESULT(0);
+                }
+
+            case WM_NCRBUTTONUP:
+                {
+                    var scale = Display.GetScale(Handle);
+                    int x = GET_X_LPARAM(lParam);
+                    int y = GET_Y_LPARAM(lParam);
+                    ShowWinUIMenu(x, y);
+                    return new LRESULT(0);
+                }
+
+            default:
+                return ((delegate* unmanaged<HWND, uint, WPARAM, LPARAM, LRESULT>)_appWindowWndProcSubclass)(hwnd, msg, wParam, lParam);
+        }
+
+        return ((delegate* unmanaged<HWND, uint, WPARAM, LPARAM, LRESULT>)_appWindowWndProcSubclass)(hwnd, msg, wParam, lParam);
+    }
+
+    unsafe bool IsTitleBarVisible()
+    {
+        RECT window, client;
+        GetWindowRect(Handle, &window);
+        GetClientRect(Handle, &client);
+
+        // Map client origin to screen coords
+        POINT pt = new() { x = client.left, y = client.top };
+        ClientToScreen(Handle, &pt);
+
+        int actualTopInset = pt.y - window.top;
+        int borderOnly = GetSystemMetrics(SM.SM_CYCAPTION) + GetSystemMetrics(SM.SM_CYSIZEFRAME) + GetSystemMetrics(SM.SM_CYFRAME);
+
+        return actualTopInset > borderOnly;
+    }
+
+    private unsafe void ShowWinUIMenu(double x, double y)
+    {
+        UIThread.QueueAction(() =>
+        {
+            var menu = new MenuFlyout()
+            {
+                XamlRoot = _desktopWindowXamlSource?.Content.XamlRoot,
+                Items =
+                {
+                    new MenuFlyoutItem()
+                    {
+                        Text = "Restore",
+                        Icon = new FontIcon()
+                        {
+                            Glyph = "\uE923",
+                            Margin = new(2)
+                        },
+                        Command = new RelayCommand(Restore),
+                        IsEnabled = IsMaximizable && IsMaximized(Handle)
+                    },
+                    new MenuFlyoutItem()
+                    {
+                        Text = "Move",
+                        Icon = new FontIcon()
+                        {
+                            Glyph = "\uE7C2"
+                        },
+                        Command = new RelayCommand(() =>
+                        {
+                            PostMessage(Handle, WM_SYSCOMMAND, SC.SC_MOVE, 0);
+                        }),
+                    },
+                    new MenuFlyoutItem()
+                    {
+                        Text = "Resize",
+                        Icon = new FontIcon()
+                        {
+                            Glyph = "\uE7A8"
+                        },
+                        Command = new RelayCommand(() =>
+                        {
+                            PostMessage(Handle, WM_SYSCOMMAND, SC.SC_SIZE, 0);
+                        }),
+                        IsEnabled = IsResizable
+                    },
+                    new MenuFlyoutItem()
+                    {
+                        Text = "Minimize",
+                        Icon = new FontIcon()
+                        {
+                            Glyph = "\uE921",
+                            Margin = new(2)
+                        },
+                        Command = new RelayCommand(Minimize),
+                        IsEnabled = IsMinimizable
+                    },
+                    new MenuFlyoutItem()
+                    {
+                        Text = "Maximize",
+                        Icon = new FontIcon()
+                        {
+                            Glyph = "\uE922",
+                            Margin = new(2)
+                        },
+                        Command = new RelayCommand(Maximize),
+                        IsEnabled = IsMaximizable && !IsMaximized(Handle)
+                    },
+                    new MenuFlyoutSubItem()
+                    {
+                        Text = "More options",
+                        Icon = new FontIcon()
+                        {
+                            Glyph = "\uE712"
+                        },
+                        Items =
+                        {
+                            new ToggleMenuFlyoutItem()
+                            {
+                                Text = "Keep on top",
+                                Icon = new FontIcon()
+                                {
+                                    Glyph = "\uE74A"
+                                }
+                            },
+                            new ToggleMenuFlyoutItem()
+                            {
+                                Text = "Keep below",
+                                Icon = new FontIcon()
+                                {
+                                    Glyph = "\uE74B"
+                                }
+                            },
+                            new ToggleMenuFlyoutItem()
+                            {
+                                Text = "Fullscreen",
+                                Icon = new FontIcon()
+                                {
+                                    Glyph = "\uE740"
+                                }
+                            },
+                            new MenuFlyoutSubItem()
+                            {
+                                Text = "Title bar",
+                                Icon = new FontIcon() { Glyph = "\uE712" },
+                                Items =
+                                {
+                                    new RadioMenuFlyoutItem()
+                                    {
+                                        Text = "Application default",
+                                        IsChecked = _currentTitleBarMode == TitleBarMode.ApplicationDefault,
+                                        Command = new RelayCommand(() => SetTitleBarMode(TitleBarMode.ApplicationDefault))
+                                    },
+                                    new RadioMenuFlyoutItem()
+                                    {
+                                        Text = "None",
+                                        IsChecked = _currentTitleBarMode == TitleBarMode.None,
+                                        Command = new RelayCommand(() => SetTitleBarMode(TitleBarMode.None))
+                                    },
+                                    new MenuFlyoutSeparator(),
+                                    new RadioMenuFlyoutItem()
+                                    {
+                                        Text = "Win32",
+                                        IsChecked = _currentTitleBarMode == TitleBarMode.Win32,
+                                        Command = new RelayCommand(() => SetTitleBarMode(TitleBarMode.Win32))
+                                    },
+                                    new MenuFlyoutSeparator(),
+                                    new RadioMenuFlyoutItem()
+                                    {
+                                        Text = "Windows App SDK",
+                                        IsChecked = _currentTitleBarMode == TitleBarMode.WindowsAppSdk,
+                                        Command = new RelayCommand(() => SetTitleBarMode(TitleBarMode.WindowsAppSdk))
+                                    },
+                                    new RadioMenuFlyoutItem()
+                                    {
+                                        Text = "Windows App SDK extended",
+                                        IsChecked = _currentTitleBarMode == TitleBarMode.WindowsAppSdkExtended,
+                                        Command = new RelayCommand(() => SetTitleBarMode(TitleBarMode.WindowsAppSdkExtended))
+                                    },
+                                    new RadioMenuFlyoutItem()
+                                    {
+                                        Text = "Windows App SDK extended (tall)",
+                                        IsChecked = _currentTitleBarMode == TitleBarMode.WindowsAppSdkExtendedTall,
+                                        Command = new RelayCommand(() => SetTitleBarMode(TitleBarMode.WindowsAppSdkExtendedTall))
+                                    },
+                                }
+                            },
+                            new ToggleMenuFlyoutItem()
+                            {
+                                Text = "Show window frame",
+                                Icon = new FontIcon()
+                                {
+                                    Glyph = "\uE65C"
+                                },
+                                Command = new RelayCommand(() => _SetWin32FrameVisible(!IsWindowFrameVisible())),
+                                IsChecked = IsWindowFrameVisible()
+                            },
+                        }
+                    },
+                    new MenuFlyoutSeparator(),
+                    new MenuFlyoutItem()
+                    {
+                        Text = "Close",
+                        Icon = new FontIcon() { Glyph = "\uE8BB", Margin = new(2) },
+                        Command = new RelayCommand(Close),
+                        KeyboardAccelerators =
+                        {
+                            new KeyboardAccelerator()
+                            {
+                                Key = Windows.System.VirtualKey.F4,
+                                Modifiers = Windows.System.VirtualKeyModifiers.Menu
+                            }
+                        }
+                    }
+                }
+            };
+            menu.ShowAt(_desktopWindowXamlSource?.Content, new Windows.Foundation.Point(x, y));
+        });
+    }
+
+    public TitleBarMode GetTitleBarMode() => _currentTitleBarMode;
+
+    public void SetTitleBarMode(TitleBarMode mode)
+    {
+        // Cache the app default on first departure from it
+        if (_currentTitleBarMode == TitleBarMode.ApplicationDefault && mode != TitleBarMode.ApplicationDefault)
+        {
+            UIThread.QueueAction(() =>
+            {
+                if (_titleBarSnapshot == null && AppWindow != null)
+                    _titleBarSnapshot = TitleBarSnapshot.Capture(AppWindow.TitleBar);
+            });
+        }
+
+        _currentTitleBarMode = mode;
+
+        switch (mode)
+        {
+            case TitleBarMode.ApplicationDefault:
+                _ApplyApplicationDefault();
+                break;
+            case TitleBarMode.None:
+                _ApplyNone();
+                break;
+            case TitleBarMode.Win32:
+                _ApplyWin32();
+                break;
+            case TitleBarMode.WindowsAppSdk:
+                _ApplyWindowsAppSdk();
+                break;
+            case TitleBarMode.WindowsAppSdkExtended:
+                _ApplyWindowsAppSdkExtended(TitleBarHeightOption.Standard);
+                break;
+            case TitleBarMode.WindowsAppSdkExtendedTall:
+                _ApplyWindowsAppSdkExtended(TitleBarHeightOption.Tall);
+                break;
+        }
+    }
+
+    private void _ApplyApplicationDefault()
+    {
+        UIThread.QueueAction(() =>
+        {
+            if (AppWindow == null) return;
+            if (_titleBarSnapshot != null)
+                _titleBarSnapshot.Restore(AppWindow.TitleBar);
+            else
+                AppWindow.TitleBar.ResetToDefault();
+        });
+
+        Task.Delay(100);
+
+        // Ensure Win32 frame is visible
+        _SetWin32FrameVisible(true);
+        _SetWin32TitleBarVisible(true);
+    }
+
+    private void _ApplyNone()
+    {
+        UIThread.QueueAction(() =>
+        {
+            if (AppWindow == null) return;
+            AppWindow.TitleBar.ResetToDefault();
+            Task.Delay(100);
+            AppWindow.TitleBar.ExtendsContentIntoTitleBar = true;
+            AppWindow.TitleBar.PreferredHeightOption = TitleBarHeightOption.Collapsed;
+        });
+    }
+
+    private void _ApplyWin32()
+    {
+        // Restore Win32 frame + title bar, remove WinAppSDK extension
+        UIThread.QueueAction(() =>
+        {
+            if (AppWindow == null) return;
+            AppWindow.TitleBar.ResetToDefault();
+        });
+        Task.Delay(100);
+        _SetWin32TitleBarVisible(true);
+        _SetWin32FrameVisible(true);
+    }
+
+    private void _RemoveDwmExtension()
+    {
+        if (!_dwmExtendedActive) return;
+        _dwmExtendedActive = false;
+        unsafe
+        {
+            var margins = new MARGINS { cxLeftWidth = 0, cxRightWidth = 0, cyTopHeight = 0, cyBottomHeight = 0 };
+            DwmExtendFrameIntoClientArea(Handle, &margins);
+        }
+        // Force repaint so the zeroed margins take effect
+        SetWindowPos(Handle, HWND.NULL, 0, 0, 0, 0,
+            SWP_NOMOVE | SWP_NOSIZE | SWP_NOZORDER | SWP_FRAMECHANGED | SWP_NOACTIVATE);
+    }
+
+    private void _ApplyWindowsAppSdk()
+    {
+        // Ensure Win32 frame is intact, no DWM tricks
+        _SetWin32FrameVisible(true);
+
+        UIThread.QueueAction(() =>
+        {
+            if (AppWindow == null) return;
+            AppWindow.TitleBar.ResetToDefault();
+            Task.Delay(100);
+            AppWindow.TitleBar.ExtendsContentIntoTitleBar = false;
+
+            // Set explicit theme so WASDK is visibly in control
+            // (distinguishes it from plain Win32 which has no AppWindow involvement)
+            var isDark = _themeListener?.GetTheme(UseShellTheme) == ApplicationTheme.Dark;
+            AppWindow.TitleBar.PreferredTheme = isDark ? TitleBarTheme.Dark : TitleBarTheme.Light;
+        });
+    }
+
+    private void _ApplyWindowsAppSdkExtended(TitleBarHeightOption heightOption)
+    {
+        // Ensure Win32 frame is intact, no DWM tricks
+        _SetWin32FrameVisible(true);
+
+        UIThread.QueueAction(() =>
+        {
+            if (AppWindow == null) return;
+            AppWindow.TitleBar.ResetToDefault();
+            AppWindow.TitleBar.ExtendsContentIntoTitleBar = true;
+            AppWindow.TitleBar.PreferredHeightOption = heightOption;
+            AppWindow.TitleBar.ButtonBackgroundColor = Windows.UI.Colors.Transparent;
+            AppWindow.TitleBar.ButtonInactiveBackgroundColor = Windows.UI.Colors.Transparent;
+        });
+    }
+
+    // Low-level helpers — these are the building blocks used above
+
+    private unsafe void _SetWin32TitleBarVisible(bool visible)
+    {
+        if (visible && _titleBarSnapshot == null && _currentTitleBarMode == TitleBarMode.ApplicationDefault)
+        {
+            UIThread.QueueAction(() =>
+            {
+                if (AppWindow != null) _titleBarSnapshot = TitleBarSnapshot.Capture(AppWindow.TitleBar);
+            });
+        }
+
+        _changeTitleBarVisibilityTriggered = true;
+        SetWindowPos(Handle, HWND.NULL, 0, 0, 0, 0,
+            SWP_NOMOVE | SWP_NOSIZE | SWP_NOZORDER | SWP_FRAMECHANGED | SWP_NOACTIVATE);
+        if (!visible) _changeTitleBarVisibilityTriggered = false;
+    }
+
+    private unsafe void _SetWin32FrameVisible(bool visible)
+    {
+        var style = GetWindowLongPtr(Handle, GWL.GWL_STYLE);
+        const nint FRAME_BITS = WS_CAPTION | WS_THICKFRAME | WS_BORDER | WS_DLGFRAME;
+        style = visible ? style | FRAME_BITS : style & ~FRAME_BITS;
+        SetWindowLongPtr(Handle, GWL.GWL_STYLE, style);
+        SetWindowPos(Handle, HWND.NULL, 0, 0, 0, 0,
+            SWP_NOMOVE | SWP_NOSIZE | SWP_NOZORDER | SWP_FRAMECHANGED);
+    }
+
+    unsafe bool IsWindowFrameVisible()
+    {
+        var style = GetWindowLongPtr(Handle, GWL.GWL_STYLE);
+
+        const nint FRAME_BITS =
+            WS_CAPTION |
+            WS_THICKFRAME |
+            WS_BORDER |
+            WS_DLGFRAME;
+
+        return (style & FRAME_BITS) != 0;
+    }
+
+    private unsafe LRESULT WndProc(HWND hwnd, uint msg, WPARAM wParam, LPARAM lParam)
+    {
+        switch (msg)
+        {
+            case WM_SYSCOMMAND:
+                if ((wParam & 0xFFF0) == SC.SC_MAXIMIZE && !IsMaximizable)
+                    return new LRESULT(0);
+                if ((wParam & 0xFFF0) == SC.SC_KEYMENU)
+                {
+                    ShowWinUIMenu(0, 0);
+                    return new LRESULT(0);
+                }
+                break;
+
+            case WM_CREATE:
+                if (!_xamlInitialized)
+                    InitializeXaml();
+                break;
+
+            case WM_MOVE:
+                UpdatePositionFromAppWindow();
+                break;
+
+            case WM_SIZE:
+                {
+                    int width = LOWORD(lParam);
+                    int height = HIWORD(lParam);
+                    OnResize(width, height);
+                    break;
+                }
+
+            case WM_DPICHANGED:
+                {
+                    int newDpi = (int)(wParam & 0xFFFF);
+                    float newScale = newDpi / 96.0f;
+
+                    OnDpiChanged(newScale);
+
+                    RECT* suggestedRect = (RECT*)lParam;
+                    SetWindowPos(hwnd, HWND.NULL,
+                        suggestedRect->left, suggestedRect->top,
+                        suggestedRect->right - suggestedRect->left,
+                        suggestedRect->bottom - suggestedRect->top,
+                        SWP_NOZORDER | SWP_NOACTIVATE);
+
+                    return 0;
+                }
+            case WM_ERASEBKGND:
+                if (_isTransparent)
+                {
+                    if (ClearTransparentBackground((HDC)wParam))
+                    {
+                        return new LRESULT(1);
+                    }
+                }
+                break;
+
+            case WM_DWMCOMPOSITIONCHANGED:
+                if (_isTransparent)
+                {
+                    ConfigureDwmForTransparency();
+                    return new LRESULT(0);
+                }
+                break;
+            case WM_SETTINGCHANGE:
+            case WM_THEMECHANGED:
+                ProcessCoreWindowMessage(msg, wParam, lParam);
+                break;
+
+            case WM_SETFOCUS:
+                OnSetFocus();
+                break;
+
+            case WM_DESTROY:
+                PostQuitMessage(0);
+                break;
+
+            default:
+                return DefWindowProc(hwnd, msg, wParam, lParam);
+        }
+
+        return DefWindowProc(hwnd, msg, wParam, lParam);
+    }
+
+    private unsafe void OnDpiChanged(float newScale)
+    {
+        if (AppWindow is null || AppWindow.Presenter is not OverlappedPresenter presenter)
+            return;
+
+        presenter.PreferredMinimumWidth = (int)(MinWidth * newScale);
+        presenter.PreferredMaximumWidth = (int)(MaxWidth * newScale);
+        presenter.PreferredMinimumHeight = (int)(MinHeight * newScale);
+        presenter.PreferredMaximumHeight = (int)(MaxHeight * newScale);
+
+        int scaledX = (int)(X * newScale);
+        int scaledY = (int)(Y * newScale);
+        int scaledWidth = (int)(Width * newScale);
+        int scaledHeight = (int)(Height * newScale);
+
+        _internalResize = true;
+        try
+        {
+            AppWindow.Move(new Windows.Graphics.PointInt32(scaledX, scaledY));
+            AppWindow.Resize(new Windows.Graphics.SizeInt32(scaledWidth, scaledHeight));
+        }
+        finally
+        {
+            _internalResize = false;
+        }
+
+        RECT clientRect;
+        GetClientRect(Handle, &clientRect);
+        int clientWidth = clientRect.right - clientRect.left;
+        int clientHeight = clientRect.bottom - clientRect.top;
+        SetWindowPos(_xamlHwnd, HWND.NULL, 0, 0, clientWidth, clientHeight, SWP_SHOWWINDOW | SWP_NOACTIVATE | SWP_NOZORDER);
+    }
+
+    internal static void ProcessCoreWindowMessage(uint message, WPARAM wParam, LPARAM lParam)
+    {
+        if (CoreWindowPriv._coreHwnd != default)
+            SendMessageW(CoreWindowPriv._coreHwnd, message, wParam, lParam);
+    }
+
+    internal void OnSetFocus()
+    {
+        if (_xamlHwnd != default)
+            SetFocus(_xamlHwnd);
+    }
+
+    partial void OnTitleChanged(string oldValue, string newValue)
+    {
+        if (AppWindow != null)
+            AppWindow.Title = newValue;
+    }
+
+    partial void OnContentChanged(UIElement? value)
+    {
+        if (_xamlInitialized && _desktopWindowXamlSource != null && value != null)
+        {
+            _desktopWindowXamlSource.Content = value;
+        }
+    }
+
+    partial void OnXChanged(int value)
+    {
+        if (!_internalResize && AppWindow != null)
+        {
+            var scale = Display.GetScale(Handle);
+            int physicalX = (int)(value * scale);
+            AppWindow.Move(new Windows.Graphics.PointInt32(physicalX, AppWindow.Position.Y));
+        }
+    }
+
+    partial void OnYChanged(int value)
+    {
+        if (!_internalResize && AppWindow != null)
+        {
+            var scale = Display.GetScale(Handle);
+            int physicalY = (int)(value * scale);
+            AppWindow.Move(new Windows.Graphics.PointInt32(AppWindow.Position.X, physicalY));
+        }
+    }
+
+    partial void OnWidthChanged(int value)
+    {
+        if (!_internalResize && AppWindow != null)
+        {
+            var currentSize = AppWindow.Size;
+            var physicalWidth = (int)(value * Display.GetScale(Handle));
+            AppWindow.Resize(new(physicalWidth, currentSize.Height));
+        }
+    }
+
+    partial void OnHeightChanged(int value)
+    {
+        if (!_internalResize && AppWindow != null)
+        {
+            var currentSize = AppWindow.Size;
+            var physicalHeight = (int)(value * Display.GetScale(Handle));
+            AppWindow.Resize(new(currentSize.Width, physicalHeight));
+        }
+    }
+
+    partial void OnMinWidthChanged(int value)
+    {
+        if (AppWindow is not null && AppWindow.Presenter is OverlappedPresenter presenter)
+        {
+            var scale = Display.GetScale(Handle);
+            presenter.PreferredMinimumWidth = (int)(value * scale);
+        }
+    }
+
+    partial void OnMaxWidthChanged(int value)
+    {
+        if (AppWindow is not null && AppWindow.Presenter is OverlappedPresenter presenter)
+        {
+            var scale = Display.GetScale(Handle);
+            presenter.PreferredMaximumWidth = (int)(value * scale);
+        }
+    }
+
+    partial void OnMinHeightChanged(int value)
+    {
+        if (AppWindow is not null && AppWindow.Presenter is OverlappedPresenter presenter)
+        {
+            var scale = Display.GetScale(Handle);
+            presenter.PreferredMinimumHeight = (int)(value * scale);
+        }
+    }
+
+    partial void OnMaxHeightChanged(int value)
+    {
+        if (AppWindow is not null && AppWindow.Presenter is OverlappedPresenter presenter)
+        {
+            var scale = Display.GetScale(Handle);
+            presenter.PreferredMaximumHeight = (int)(value * scale);
+        }
+    }
+
+    partial void OnIsResizableChanged(bool value)
+    {
+        if (AppWindow != null && AppWindow.Presenter.Kind is AppWindowPresenterKind.Overlapped)
+            (AppWindow.Presenter.As<OverlappedPresenter>()).IsResizable = value;
+    }
+
+    partial void OnIsMaximizableChanged(bool value)
+    {
+        if (AppWindow != null && AppWindow.Presenter.Kind is AppWindowPresenterKind.Overlapped)
+            (AppWindow.Presenter.As<OverlappedPresenter>()).IsMaximizable = value;
+    }
+
+    partial void OnIsMinimizableChanged(bool value)
+    {
+        if (AppWindow != null && AppWindow.Presenter.Kind is AppWindowPresenterKind.Overlapped)
+            (AppWindow.Presenter.As<OverlappedPresenter>()).IsMinimizable = value;
+    }
+
+    private void ThrowIfDisposed()
+    {
+        ObjectDisposedException.ThrowIf(_disposed, nameof(IslandsWindow));
+    }
+}

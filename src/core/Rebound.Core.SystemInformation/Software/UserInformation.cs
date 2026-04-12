@@ -2,12 +2,11 @@
 // Licensed under the MIT License.
 
 using Microsoft.Win32;
-using Rebound.Core.Native;
-using System.Diagnostics;
+using Rebound.Core.Native.Windows;
+using Rebound.Core.Native.Wrappers;
 using System.Globalization;
 using System.Security.Principal;
 using TerraFX.Interop.Windows;
-using static Rebound.Core.Native.NetApi;
 using static TerraFX.Interop.Windows.Windows;
 
 namespace Rebound.Core.SystemInformation.Software;
@@ -57,12 +56,12 @@ public static class UserInformation
     {
         using var userName = new ManagedPtr<char>(Environment.UserName);
         USER_INFO_2* info;
-        HRESULT hr = NetUserGetInfo(null, userName, 2, (byte**)&info);
+        HRESULT hr = NetApi.NetUserGetInfo(null, userName, 2, (byte**)&info);
 
         if (hr != S.S_OK) return "Never";
 
         long ticks = info->usri2_password_age;
-        hr = NetApiBufferFree(info);
+        hr = NetApi.NetApiBufferFree(info);
 
         if (FAILED(hr)) return "Something went wrong.";
 
@@ -80,19 +79,19 @@ public static class UserInformation
     {
         using var userName = new ManagedPtr<char>(Environment.UserName);
         USER_INFO_2* info;
-        HRESULT hr = NetUserGetInfo(null, userName, 2, (byte**)&info);
+        HRESULT hr = NetApi.NetUserGetInfo(null, userName, 2, (byte**)&info);
 
         if (hr != S.S_OK) return "Never";
 
         uint passwordAge = info->usri2_password_age;
-        hr = NetApiBufferFree(info);
+        hr = NetApi.NetApiBufferFree(info);
 
         if (FAILED(hr)) return "Something went wrong.";
 
         USER_MODALS_INFO_0* modals;
-        NetUserModalsGet(null, 0, (byte**)&modals);
+        NetApi.NetUserModalsGet(null, 0, (byte**)&modals);
         uint maxPasswordAge = modals->usrmod0_max_passwd_age;
-        hr = NetApiBufferFree(modals);
+        hr = NetApi.NetApiBufferFree(modals);
 
         if (FAILED(hr)) return "Something went wrong.";
         if (maxPasswordAge == uint.MaxValue) return "Never";
@@ -190,13 +189,13 @@ public static class UserInformation
     /// <returns>
     /// A string representing the file path to the user's profile picture. If the path cannot be found or an error occurs, it returns null.
     /// </returns>
-    public static string? GetUserPicturePath()
+    public static string GetUserPicturePath()
     {
         try
         {
             using var identity = WindowsIdentity.GetCurrent();
             var sid = identity.User?.Value;
-            if (sid == null) return null;
+            if (sid == null) return Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData), "Microsoft", "User Account Pictures", "user.png");
 
             string regPath = $@"SOFTWARE\Microsoft\Windows\CurrentVersion\AccountPicture\Users\{sid}";
 
@@ -219,7 +218,7 @@ public static class UserInformation
 
         }
 
-        return null;
+        return Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData), "Microsoft", "User Account Pictures", "user.png");
     }
 
     /// <summary>
@@ -237,7 +236,7 @@ public static class UserInformation
             byte* bufPtr;
 
             // Query full user info (level 2) via NetUserGetInfo
-            hr = NetUserGetInfo(
+            hr = NetApi.NetUserGetInfo(
                 null,
                 userName,
                 2,
@@ -252,7 +251,7 @@ public static class UserInformation
                 string fullName = new string(info.usri2_full_name);
 
                 // Free the unmanaged buffer
-                hr = NetApiBufferFree(bufPtr);
+                hr = NetApi.NetApiBufferFree(bufPtr);
 
                 if (FAILED(hr))
                     return "Something went wrong.";

@@ -329,17 +329,22 @@
 
                                         </Grid>
                                     </StackPanel>
-                                    <Button
+                                    <muxc:SplitButton
                                         Grid.Column="2"
                                         Margin="-8"
                                         Padding="8"
                                         HorizontalAlignment="Right"
                                         VerticalAlignment="Top"
-                                        Background="Transparent"
-                                        BorderBrush="Transparent"
+                                        BorderThickness="0"
                                         Command="{x:Bind CopyWindowsVersionCommand}">
                                         <FontIcon FontSize="16" Glyph="&#xE8C8;" />
-                                    </Button>
+                                        <muxc:SplitButton.Flyout>
+                                            <MenuFlyout>
+                                                <MenuFlyoutItem Command="{x:Bind CopyWindowsVersionCommand}" Text="Copy Windows version" />
+                                                <MenuFlyoutItem Command="{x:Bind CopyFirstFourCommand}" Text="Copy first four" />
+                                            </MenuFlyout>
+                                        </muxc:SplitButton.Flyout>
+                                    </muxc:SplitButton>
                                 </Grid>
                             </Border>
 
@@ -685,11 +690,8 @@
                 <muxc:PersonPicture
                     Width="28"
                     HorizontalAlignment="Left"
-                    Visibility="{x:Bind ViewModel.ShowHelloUser, Mode=OneWay}">
-                    <muxc:PersonPicture.ProfilePicture>
-                        <BitmapImage UriSource="{x:Bind UserPicturePath, Mode=OneWay}" />
-                    </muxc:PersonPicture.ProfilePicture>
-                </muxc:PersonPicture>
+                    ProfilePicture="{x:Bind UserPicturePath, Mode=OneWay}"
+                    Visibility="{x:Bind ViewModel.ShowHelloUser, Mode=OneWay}" />
                 <TextBlock
                     Margin="40,0,180,0"
                     HorizontalAlignment="Stretch"
@@ -853,11 +855,8 @@
                 Height="320"
                 Margin="0,100,600,0"
                 VerticalAlignment="Top"
-                Opacity="0.3">
-                <header:HomePageHeaderImage.Image>
-                    <BitmapImage UriSource="{x:Bind WallpaperPath, Mode=OneWay}" />
-                </header:HomePageHeaderImage.Image>
-            </header:HomePageHeaderImage>
+                Image="{x:Bind WallpaperPath, Mode=OneWay, TargetNullValue=''}"
+                Opacity="0.3" />
             <header:HomePageHeaderImage
                 Grid.Row="1"
                 Grid.Column="2"
@@ -865,12 +864,9 @@
                 Margin="600,100,0,0"
                 HorizontalAlignment="Right"
                 VerticalAlignment="Top"
+                Image="{x:Bind WallpaperPath, Mode=OneWay}"
                 ImageHorizontalAlignment="Right"
-                Opacity="0.3">
-                <header:HomePageHeaderImage.Image>
-                    <BitmapImage UriSource="{x:Bind WallpaperPath, Mode=OneWay}" />
-                </header:HomePageHeaderImage.Image>
-            </header:HomePageHeaderImage>
+                Opacity="0.3" />
             <Grid
                 Grid.Row="1"
                 Grid.ColumnSpan="2"
@@ -1534,11 +1530,8 @@
                                 <muxc:PersonPicture
                                     Width="48"
                                     Margin="4"
-                                    HorizontalAlignment="Left">
-                                    <muxc:PersonPicture.ProfilePicture>
-                                        <BitmapImage UriSource="{x:Bind UserPicturePath, Mode=OneWay}" />
-                                    </muxc:PersonPicture.ProfilePicture>
-                                </muxc:PersonPicture>
+                                    HorizontalAlignment="Left"
+                                    ProfilePicture="{x:Bind UserPicturePath, Mode=OneWay, TargetNullValue=''}" />
                                 <TextBlock
                                     Margin="64,0,180,0"
                                     HorizontalAlignment="Stretch"

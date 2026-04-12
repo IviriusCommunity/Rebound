@@ -1,4 +1,7 @@
-﻿using System.IO.Pipes;
+﻿// Copyright (C) Ivirius(TM) Community 2020 - 2026. All Rights Reserved.
+// Licensed under the MIT License.
+
+using System.IO.Pipes;
 using System.Text;
 
 namespace Rebound.Core.IPC;

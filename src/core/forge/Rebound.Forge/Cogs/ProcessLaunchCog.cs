@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using Rebound.Core;
+using Rebound.Core.Native.Wrappers;
 using Rebound.Core.UI;
 using System.Runtime.InteropServices;
 using TerraFX.Interop.Windows;
@@ -70,11 +71,13 @@ public class ProcessLaunchCog : ICog
 
     private static unsafe bool TryShellExecute(string path, bool elevate)
     {
+        using ManagedPtr<char> pathPtr = path;
+        using ManagedPtr<char> runasPtr = "runas";
         var sei = new SHELLEXECUTEINFOW
         {
             cbSize = (uint)sizeof(SHELLEXECUTEINFOW),
-            lpFile = path.ToPointer(),
-            lpVerb = elevate ? "runas".ToPointer() : null,
+            lpFile = pathPtr,
+            lpVerb = elevate ? runasPtr : (char*)null,
             nShow = SW.SW_SHOWNORMAL,
             fMask = SEE_MASK_NOCLOSEPROCESS | SEE_MASK_FLAG_NO_UI
         };

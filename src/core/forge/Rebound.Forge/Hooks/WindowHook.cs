@@ -7,8 +7,6 @@ using System.Diagnostics;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using Windows.Win32;
-using Windows.Win32.Foundation;
-using Windows.Win32.UI.Accessibility;
 
 namespace Rebound.Forge.Hooks;
 
@@ -36,7 +34,7 @@ public class WindowDetectedEventArgs(IntPtr handle) : EventArgs
     public IntPtr Handle { get; private set; } = handle;
 }
 
-public unsafe class WindowHook
+/*public unsafe class WindowHook
 {
     private readonly string? ClassName;
     private readonly string? Name;
@@ -154,4 +152,4 @@ public unsafe class WindowHook
 
     private const uint EVENT_OBJECT_SHOW = 0x8002;
     private const uint WINEVENT_OUTOFCONTEXT = 0;
-}
+}*/

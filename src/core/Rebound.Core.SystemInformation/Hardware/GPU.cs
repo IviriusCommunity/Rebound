@@ -1,9 +1,8 @@
 ﻿// Copyright (C) Ivirius(TM) Community 2020 - 2026. All Rights Reserved.
 // Licensed under the MIT License.
 
-using Microsoft.Win32;
-using Rebound.Core.Native;
-using System.Xml.Linq;
+using Rebound.Core.Native.Windows;
+using Rebound.Core.Native.Wrappers;
 using TerraFX.Interop.DirectX;
 using TerraFX.Interop.Windows;
 

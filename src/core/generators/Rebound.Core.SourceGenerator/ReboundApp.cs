@@ -59,6 +59,7 @@ public class ReboundAppSourceGenerator : IIncrementalGenerator
                         UsingDirective(IdentifierName("System.Collections.Concurrent")),
                         UsingDirective(IdentifierName("System.Collections.Generic")),
                         UsingDirective(IdentifierName("TerraFX.Interop.Windows")),
+                        UsingDirective(IdentifierName("Rebound.Core.UI.Windowing")),
                         UsingDirective(IdentifierName("Rebound.Core.UI")),
                         UsingDirective(IdentifierName("Rebound.Core.IPC"))
                     )
@@ -290,10 +291,13 @@ public class ReboundAppSourceGenerator : IIncrementalGenerator
                                 SyntaxKind.SimpleMemberAccessExpression,
                                 MemberAccessExpression(
                                     SyntaxKind.SimpleMemberAccessExpression,
-                                    IdentifierName("Rebound"),
-                                    IdentifierName("Core")),
-                                IdentifierName("UI")),
-                            IdentifierName("UIThreadQueue")),
+                                    MemberAccessExpression(
+                                        SyntaxKind.SimpleMemberAccessExpression,
+                                        IdentifierName("Rebound"),
+                                        IdentifierName("Core")),
+                                    IdentifierName("UI")),
+                                IdentifierName("Threading")),
+                            IdentifierName("UIThread")),
                         IdentifierName("SetMainThreadId")))
                 .WithArgumentList(
                     ArgumentList(
@@ -632,10 +636,13 @@ public class ReboundAppSourceGenerator : IIncrementalGenerator
                                 SyntaxKind.SimpleMemberAccessExpression,
                                 MemberAccessExpression(
                                     SyntaxKind.SimpleMemberAccessExpression,
-                                    IdentifierName("Rebound"),
-                                    IdentifierName("Core")),
-                                IdentifierName("UI")),
-                            IdentifierName("UIThreadQueue")),
+                                    MemberAccessExpression(
+                                        SyntaxKind.SimpleMemberAccessExpression,
+                                        IdentifierName("Rebound"),
+                                        IdentifierName("Core")),
+                                    IdentifierName("UI")),
+                                IdentifierName("Threading")),
+                            IdentifierName("UIThread")),
                         IdentifierName("_actions")),
                     IdentifierName("TryDequeue")))
             .WithArgumentList(

@@ -36,4 +36,7 @@
   <ItemGroup>
     <Library Include="$(SolutionDir)src\core\forge\hooks\Rebound.Forge.Hooks.Run\libMinHook.x64.lib" />
   </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
+  </ItemGroup>
 </Project>

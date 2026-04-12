@@ -3,7 +3,9 @@
 
 namespace Rebound.Core.Storage;
 
+#pragma warning disable CA1711 // Identifiers should not have incorrect suffix
 public static class FileEx
+#pragma warning restore CA1711 // Identifiers should not have incorrect suffix
 {
     /// <summary>
     /// Copies a file to a destination, creating the destination folder if it does not exist.

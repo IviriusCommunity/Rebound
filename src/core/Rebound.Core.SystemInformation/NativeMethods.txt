@@ -1,3 +1,0 @@
-PCWSTR
-NetUserGetInfo
-NetApiBufferFree

@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using Microsoft.Win32;
+using Rebound.Core.Native.Helpers;
 using System.Runtime.InteropServices;
 using TerraFX.Interop.Windows;
 using static TerraFX.Interop.Windows.Windows;
@@ -53,9 +54,9 @@ public static class CPU
             return 0;
         }
 
-        ulong idleDelta = NativeMethods.FileTimeToUlong(idle) - NativeMethods.FileTimeToUlong(_prevIdleTime);
-        ulong kernelDelta = NativeMethods.FileTimeToUlong(kernel) - NativeMethods.FileTimeToUlong(_prevKernelTime);
-        ulong userDelta = NativeMethods.FileTimeToUlong(user) - NativeMethods.FileTimeToUlong(_prevUserTime);
+        ulong idleDelta = FileTimeHelpers.FileTimeToUlong(idle) - FileTimeHelpers.FileTimeToUlong(_prevIdleTime);
+        ulong kernelDelta = FileTimeHelpers.FileTimeToUlong(kernel) - FileTimeHelpers.FileTimeToUlong(_prevKernelTime);
+        ulong userDelta = FileTimeHelpers.FileTimeToUlong(user) - FileTimeHelpers.FileTimeToUlong(_prevUserTime);
         ulong total = kernelDelta + userDelta;
 
         (_prevIdleTime, _prevKernelTime, _prevUserTime) = (idle, kernel, user);

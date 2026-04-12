@@ -5,7 +5,7 @@ using Rebound.ControlPanel.Views;
 using Rebound.Core;
 using Rebound.Core.IPC;
 using Rebound.Core.UI;
-using Rebound.Core.UI.UWP;
+using Rebound.Core.UI.UWP.Application;
 using Rebound.Forge.Engines;
 using Rebound.Generators;
 using System;

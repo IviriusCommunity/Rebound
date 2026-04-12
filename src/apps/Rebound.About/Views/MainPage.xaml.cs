@@ -7,7 +7,7 @@ using Microsoft.UI.Xaml.Controls;
 using Rebound.About.ViewModels;
 using Rebound.Core;
 using Rebound.Core.SystemInformation.Software;
-using Rebound.Core.UI;
+using Rebound.Core.UI.Windowing;
 using System;
 using System.Diagnostics;
 using System.Threading.Tasks;
@@ -25,11 +25,9 @@ internal sealed partial class MainPage : Page
 {
     [GeneratedDependencyProperty(DefaultValue = InfoBarSeverity.Informational)] public partial InfoBarSeverity WindowsActivationSeverity { get; set; }
 
-    // The \\\\ is a workaround for this thing: https://github.com/CommunityToolkit/Labs-Windows/issues/788
-    // Remove once fixed
-    [GeneratedDependencyProperty(DefaultValue = "C:\\\\")] public partial string UserPicturePath { get; set; }
+    [GeneratedDependencyProperty(DefaultValue = "ms-appx:///")] public partial string? UserPicturePath { get; set; }
 
-    [GeneratedDependencyProperty(DefaultValue = "C:\\\\")] public partial string WallpaperPath { get; set; }
+    [GeneratedDependencyProperty(DefaultValue = "ms-appx:///")] public partial string? WallpaperPath { get; set; }
 
     private MainViewModel ViewModel { get; } = new();
 
@@ -109,8 +107,30 @@ internal sealed partial class MainPage : Page
                 WindowsActivationType.Unknown => InfoBarSeverity.Informational,
                 _ => InfoBarSeverity.Informational
             };
-            WallpaperPath = UserInformation.GetWallpaperPath() ?? string.Empty;
-            UserPicturePath = UserInformation.GetUserPicturePath() ?? string.Empty;
+            try
+            {
+                WallpaperPath = UserInformation.GetWallpaperPath();
+            }
+            catch (Exception ex) 
+            {
+                ReboundLogger.WriteToLog(
+                "Wallpaper Retrieval", 
+                "The user does not appear to have a picture wallpaper.",
+                LogMessageSeverity.Warning,
+                ex);
+            }
+            try
+            {
+                UserPicturePath = UserInformation.GetUserPicturePath();
+            }
+            catch (Exception ex)
+            {
+                ReboundLogger.WriteToLog(
+                "User Picture Retrieval",
+                "The user does not appear to have a profile picture.",
+                LogMessageSeverity.Warning,
+                ex);
+            }
             await ViewModel.InitializeAsync().ConfigureAwait(false);
         });
     }

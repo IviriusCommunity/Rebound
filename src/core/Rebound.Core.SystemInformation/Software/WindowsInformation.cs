@@ -2,10 +2,10 @@
 // Licensed under the MIT License.
 
 using Microsoft.Win32;
+using Rebound.Core.Native.Wrappers;
 using System.Globalization;
 using System.Net;
 using System.Net.Sockets;
-using System.Runtime.InteropServices;
 using TerraFX.Interop.Windows;
 using static TerraFX.Interop.Windows.Windows;
 using HRESULT = TerraFX.Interop.Windows.HRESULT;

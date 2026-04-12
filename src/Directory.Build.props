@@ -11,10 +11,6 @@
 		<Nullable>enable</Nullable>
 		<AllowUnsafeBlocks>true</AllowUnsafeBlocks>
 
-		<!-- Runtime Identifiers and Platform Targeting -->
-		<RuntimeIdentifier>win-x64</RuntimeIdentifier>
-		<Platforms>x64</Platforms>
-
 	</PropertyGroup>
 
 	<!-- Target Platforms -->

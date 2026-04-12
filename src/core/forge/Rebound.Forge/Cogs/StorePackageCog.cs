@@ -3,6 +3,7 @@
 
 using CommunityToolkit.Mvvm.ComponentModel;
 using Rebound.Core;
+using Rebound.Core.Settings;
 using System.Diagnostics;
 using System.Security.Principal;
 using Windows.Management.Deployment;

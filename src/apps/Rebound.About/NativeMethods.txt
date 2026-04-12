@@ -1,6 +1,0 @@
-﻿GlobalMemoryStatusEx
-NetUserGetInfo
-NetApiBufferFree
-CoInitializeEx
-CoCreateInstance
-CoInitializeSecurity

@@ -2,11 +2,11 @@
 // Licensed under the MIT License.
 
 using CommunityToolkit.Mvvm.ComponentModel;
-using Rebound.Core;
+using Rebound.Core.Settings;
 using Rebound.Core.SystemInformation.Hardware;
 using Rebound.Core.SystemInformation.Software;
-using Rebound.Core.UI;
-using Rebound.Core.UI.UWP;
+using Rebound.Core.UI.Localizer;
+using Rebound.Core.UI.Threading;
 using System;
 using System.Diagnostics;
 using System.Threading.Tasks;
@@ -35,10 +35,19 @@ internal partial class MainViewModel : ObservableObject
 
     public async Task InitializeAsync()
     {
-        await InitializeSoftwareInformationAsync().ConfigureAwait(false);
-        UIThreadQueue.QueueAction(() => Loaded = true);
-        await InitializeHardwareInformationAsync().ConfigureAwait(false);
-        await InitializeUserInformationAsync().ConfigureAwait(false);
+        await Task.WhenAll(
+            InitializePrimarySoftwareAsync(),
+            InitializePrimaryHardwareAsync(),
+            InitializePrimaryUserAsync()
+        ).ConfigureAwait(false);
+
+        UIThread.QueueAction(() => Loaded = true);
+
+        await Task.WhenAll(
+            InitializeSecondarySoftwareAsync(),
+            InitializeSecondaryHardwareAsync(),
+            InitializeSecondaryUserAsync()
+        ).ConfigureAwait(false);
     }
 
     // Hardware information
@@ -67,32 +76,9 @@ internal partial class MainViewModel : ObservableObject
     [ObservableProperty] public partial string DeviceModel { get; private set; } = "Loading...";
     [ObservableProperty] public partial string Uptime { get; private set; } = "Loading...";
 
-    public async Task InitializeHardwareInformationAsync()
-    {
-        UIThreadQueue.QueueAction(() => { CpuName = CPU.GetName(); CpuArchitecture = CPU.GetArchitecture(); });
-        await Task.Yield();
-        UIThreadQueue.QueueAction(() => { GpuName = GPU.GetName(); });
-        await Task.Yield();
-        UIThreadQueue.QueueAction(() => { InstalledRam = RAM.GetInstalledRam(); UsableRam = RAM.GetUsableRam(); PagefileSize = RAM.GetPageFileSize(); });
-        await Task.Yield();
-        UIThreadQueue.QueueAction(() => { var res = Display.GetDisplayResolution(); DisplayResolution = $"{res.cx}x{res.cy}"; DisplayRefreshRate = $"{Display.GetDisplayRefreshRate()} Hz"; });
-        await Task.Yield();
-        UIThreadQueue.QueueAction(() =>
-        {
-            var w = Storage.GetWindowsDriveOccupiedSpacePercentage();
-            WindowsOccupiedSpace = w;
-            WindowsOccupiedSpaceString = ((int)w).ToString((IFormatProvider?)null);
-            var t = Storage.GetTotalOccupiedSpacePercentage();
-            TotalOccupiedSpace = t;
-            TotalOccupiedSpaceString = ((int)t).ToString((IFormatProvider?)null);
-        });
-        await Task.Yield();
-        UIThreadQueue.QueueAction(() => { DeviceManufacturer = Device.GetDeviceManufacturer(); DeviceModel = Device.GetDeviceModel(); });
-    }
-
     private void LiveHardwareFeed_OnUpdate(object? sender, HardwareFeedUpdateEventArgs e)
     {
-        UIThreadQueue.QueueAction(() =>
+        UIThread.QueueAction(() =>
         {
             CpuUsage = e.CpuUsage;
             RamUsage = e.RamUsagePercent;
@@ -112,33 +98,6 @@ internal partial class MainViewModel : ObservableObject
     [ObservableProperty] public partial string LocalIP { get; private set; } = "Loading...";
     [ObservableProperty] public partial string Scale { get; private set; } = "Loading...";
 
-    public async Task InitializeSoftwareInformationAsync()
-    {
-        UIThreadQueue.QueueAction(() =>
-        {
-            WindowsActivationInfo = LocalizedResource.GetLocalizedString(WindowsInformation.GetWindowsActivationType() switch
-            {
-                WindowsActivationType.Unlicensed => "ActivationStatusUnlicensed",
-                WindowsActivationType.Activated => "ActivationStatusActivated",
-                WindowsActivationType.GracePeriod => "ActivationStatusGracePeriod",
-                WindowsActivationType.NonGenuine => "ActivationStatusNonGenuine",
-                WindowsActivationType.ExtendedGracePeriod => "ActivationStatusExtendedGracePeriod",
-                WindowsActivationType.Unknown => "ActivationStatusUnknown",
-                _ => "ActivationStatusUnknown"
-            });
-        });
-        await Task.Yield();
-        UIThreadQueue.QueueAction(() => { OSDisplayName = WindowsInformation.GetOSDisplayName(); DetailedWindowsVersion = WindowsInformation.GetDetailedWindowsVersion(); });
-        await Task.Yield();
-        UIThreadQueue.QueueAction(() => { OSName = WindowsInformation.GetOSName(); InstalledOnDate = WindowsInformation.GetInstalledOnDate().ToString((IFormatProvider?)null); });
-        await Task.Yield();
-        UIThreadQueue.QueueAction(() => { ComputerName = WindowsInformation.GetComputerName(); Locale = WindowsInformation.GetLocale(); });
-        await Task.Yield();
-        UIThreadQueue.QueueAction(() => { LocalIP = WindowsInformation.GetLocalIP(); });
-        await Task.Yield();
-        UIThreadQueue.QueueAction(() => { LoadScale(); });
-    }
-
     private unsafe void LoadScale()
     {
         Scale = (Display.GetScale(new((void*)Process.GetCurrentProcess().MainWindowHandle)) * 100).ToString((IFormatProvider?)null) + "%";
@@ -151,19 +110,6 @@ internal partial class MainViewModel : ObservableObject
     [ObservableProperty] public partial string LegalInfo { get; private set; } = "Loading...";
     [ObservableProperty] public partial string LicenseOwners { get; private set; } = "Loading...";
     [ObservableProperty] public partial string PasswordExpiryDate { get; private set; } = "Loading...";
-
-    public async Task InitializeUserInformationAsync()
-    {
-        UIThreadQueue.QueueAction(() => { GreetingsMessage = LocalizedResource.GetLocalizedStringFromTemplate("HelloUser", UserInformation.GetDisplayName()); });
-        await Task.Yield();
-        UIThreadQueue.QueueAction(() => { IsAdmin = UserInformation.IsAdmin(); IsMicrosoftAccount = UserInformation.IsMicrosoftAccount(); });
-        await Task.Yield();
-        UIThreadQueue.QueueAction(() => { LegalInfo = LocalizedResource.GetLocalizedStringFromTemplate("LegalInfo", WindowsInformation.GetOSName()); });
-        await Task.Yield();
-        UIThreadQueue.QueueAction(() => { LicenseOwners = WindowsInformation.GetLicenseOwners(); });
-        await Task.Yield();
-        UIThreadQueue.QueueAction(() => { PasswordExpiryDate = UserInformation.GetPasswordExpiry(); });
-    }
 
     // App settings
     [ObservableProperty] public partial bool IsSidebarOn { get; set; }
@@ -178,7 +124,7 @@ internal partial class MainViewModel : ObservableObject
 
     private void UpdateSettings()
     {
-        UIThreadQueue.QueueAction(() =>
+        UIThread.QueueAction(() =>
         {
             IsSidebarOn = SettingsManager.GetValue("IsSidebarOn", "winver", true);
             IsReboundOn = SettingsManager.GetValue("IsReboundOn", "winver", true);
@@ -186,6 +132,140 @@ internal partial class MainViewModel : ObservableObject
             ShowHelloUser = SettingsManager.GetValue("ShowHelloUser", "winver", true);
             ShowTabs = SettingsManager.GetValue("ShowTabs", "winver", true);
             ShowActivationInfo = SettingsManager.GetValue("ShowActivationInfo", "winver", true);
+        });
+    }
+
+    // Init
+
+    // Primary
+
+    public async Task InitializePrimarySoftwareAsync()
+    {
+        var osDisplayName = Task.Run(WindowsInformation.GetOSDisplayName);
+        var detailedVersion = Task.Run(WindowsInformation.GetDetailedWindowsVersion);
+        var osName = Task.Run(WindowsInformation.GetOSName);
+        var computerName = Task.Run(WindowsInformation.GetComputerName);
+
+        await Task.WhenAll(osDisplayName, detailedVersion, osName, computerName).ConfigureAwait(false);
+
+        UIThread.QueueAction(() =>
+        {
+            OSDisplayName = osDisplayName.Result;
+            DetailedWindowsVersion = detailedVersion.Result;
+            OSName = osName.Result;
+            ComputerName = computerName.Result;
+        });
+    }
+
+    public async Task InitializePrimaryHardwareAsync()
+    {
+        var installedRam = Task.Run(RAM.GetInstalledRam);
+        var usableRam = Task.Run(RAM.GetUsableRam);
+
+        await Task.WhenAll(installedRam, usableRam).ConfigureAwait(false);
+
+        UIThread.QueueAction(() =>
+        {
+            InstalledRam = installedRam.Result;
+            UsableRam = usableRam.Result;
+        });
+    }
+
+    public async Task InitializePrimaryUserAsync()
+    {
+        var greetings = LocalizedResource.GetLocalizedStringFromTemplate("HelloUser", UserInformation.GetDisplayName());
+        var isAdmin = Task.Run(UserInformation.IsAdmin);
+        var legalInfo = LocalizedResource.GetLocalizedStringFromTemplate("LegalInfo", WindowsInformation.GetOSName());
+
+        await Task.WhenAll(isAdmin).ConfigureAwait(false);
+
+        UIThread.QueueAction(() =>
+        {
+            GreetingsMessage = greetings;
+            IsAdmin = isAdmin.Result;
+            LegalInfo = legalInfo;
+        });
+    }
+
+    // Secondary
+
+    public async Task InitializeSecondarySoftwareAsync()
+    {
+        var activationType = Task.Run(WindowsInformation.GetWindowsActivationType);
+        var installedOn = Task.Run(() => WindowsInformation.GetInstalledOnDate().ToString((IFormatProvider?)null));
+        var locale = Task.Run(WindowsInformation.GetLocale);
+        var localIP = Task.Run(WindowsInformation.GetLocalIP);
+
+        await Task.WhenAll(activationType, installedOn, locale, localIP).ConfigureAwait(false);
+
+        UIThread.QueueAction(() =>
+        {
+            WindowsActivationInfo = LocalizedResource.GetLocalizedString(activationType.Result switch
+            {
+                WindowsActivationType.Unlicensed => "ActivationStatusUnlicensed",
+                WindowsActivationType.Activated => "ActivationStatusActivated",
+                WindowsActivationType.GracePeriod => "ActivationStatusGracePeriod",
+                WindowsActivationType.NonGenuine => "ActivationStatusNonGenuine",
+                WindowsActivationType.ExtendedGracePeriod => "ActivationStatusExtendedGracePeriod",
+                _ => "ActivationStatusUnknown"
+            });
+            InstalledOnDate = installedOn.Result;
+            Locale = locale.Result;
+            LocalIP = localIP.Result;
+            LoadScale();
+        });
+    }
+
+    public async Task InitializeSecondaryHardwareAsync()
+    {
+        var cpuName = Task.Run(CPU.GetName);
+        var cpuArch = Task.Run(CPU.GetArchitecture);
+        var gpuName = Task.Run(GPU.GetName);
+        var pagefileSize = Task.Run(RAM.GetPageFileSize);
+        var res = Task.Run(Display.GetDisplayResolution);
+        var refreshRate = Task.Run(Display.GetDisplayRefreshRate);
+        var winSpace = Task.Run(Storage.GetWindowsDriveOccupiedSpacePercentage);
+        var totalSpace = Task.Run(Storage.GetTotalOccupiedSpacePercentage);
+        var manufacturer = Task.Run(Device.GetDeviceManufacturer);
+        var model = Task.Run(Device.GetDeviceModel);
+
+        await Task.WhenAll(cpuName, cpuArch, gpuName, pagefileSize, res,
+            refreshRate, winSpace, totalSpace, manufacturer, model).ConfigureAwait(false);
+
+        var resResult = res.Result;
+        var winSpaceResult = winSpace.Result;
+        var totalSpaceResult = totalSpace.Result;
+
+        UIThread.QueueAction(() =>
+        {
+            CpuName = cpuName.Result;
+            CpuArchitecture = cpuArch.Result;
+            GpuName = gpuName.Result;
+            PagefileSize = pagefileSize.Result;
+            DisplayResolution = $"{resResult.cx}x{resResult.cy}";
+            DisplayRefreshRate = $"{refreshRate.Result} Hz";
+            WindowsOccupiedSpace = winSpaceResult;
+            WindowsOccupiedSpaceString = ((int)winSpaceResult).ToString((IFormatProvider?)null);
+            TotalOccupiedSpace = totalSpaceResult;
+            TotalOccupiedSpaceString = ((int)totalSpaceResult).ToString((IFormatProvider?)null);
+            DeviceManufacturer = manufacturer.Result;
+            DeviceModel = model.Result;
+        });
+    }
+
+    public async Task InitializeSecondaryUserAsync()
+    {
+        var isMsAccount = Task.Run(UserInformation.IsMicrosoftAccount);
+        var licenseOwners = Task.Run(WindowsInformation.GetLicenseOwners);
+        var passwordExpiry = Task.Run(UserInformation.GetPasswordExpiry);
+
+        await Task.WhenAll(isMsAccount, licenseOwners, passwordExpiry).ConfigureAwait(false);
+
+        UIThread.QueueAction(() =>
+        {
+            IsMicrosoftAccount = isMsAccount.Result;
+            LicenseOwners = licenseOwners.Result;
+            PasswordExpiryDate = passwordExpiry.Result;
         });
     }
 }

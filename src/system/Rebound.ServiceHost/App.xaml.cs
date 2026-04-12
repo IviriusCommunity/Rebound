@@ -5,7 +5,7 @@ using Rebound.Core;
 using Rebound.Core.DLLInjection;
 using Rebound.Core.Helpers;
 using Rebound.Core.IPC;
-using Rebound.Core.UI;
+using Rebound.Core.Native.Helpers;
 using Rebound.Forge;
 using Rebound.Forge.Cogs;
 using Rebound.Forge.Engines;

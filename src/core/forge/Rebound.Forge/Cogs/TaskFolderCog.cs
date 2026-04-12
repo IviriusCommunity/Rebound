@@ -3,9 +3,6 @@
 
 using Rebound.Core;
 using Windows.Win32;
-using Windows.Win32.Foundation;
-using Windows.Win32.System.Com;
-using Windows.Win32.System.TaskScheduler;
 
 namespace Rebound.Forge.Cogs
 {
@@ -28,7 +25,7 @@ namespace Rebound.Forge.Cogs
         /// <inheritdoc/>
         public async unsafe Task ApplyAsync()
         {
-            try
+            /*try
             {
                 HRESULT hr;
                 using ComPtr<ITaskService> taskService = default;
@@ -82,13 +79,13 @@ namespace Rebound.Forge.Cogs
             catch (Exception ex)
             {
                 ReboundLogger.Log("[TaskFolderCog] ApplyAsync failed with exception.", ex);
-            }
+            }*/
         }
 
         /// <inheritdoc/>
         public async unsafe Task RemoveAsync()
         {
-            try
+            /*try
             {
                 HRESULT hr;
                 using ComPtr<ITaskService> taskService = default;
@@ -141,13 +138,13 @@ namespace Rebound.Forge.Cogs
             catch (Exception ex)
             {
                 ReboundLogger.Log("[TaskFolderCog] RemoveAsync failed with exception.", ex);
-            }
+            }*/
         }
 
         /// <inheritdoc/>
         public async unsafe Task<bool> IsAppliedAsync()
         {
-            try
+            /*try
             {
                 HRESULT hr;
                 using ComPtr<ITaskService> taskService = default;
@@ -183,7 +180,8 @@ namespace Rebound.Forge.Cogs
             {
                 ReboundLogger.Log("[TaskFolderCog] IsAppliedAsync failed with exception.", ex);
                 return false;
-            }
+            }*/
+            return false;
         }
     }
 }

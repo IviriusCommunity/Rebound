@@ -7,7 +7,6 @@ using System.IO.Pipes;
 using System.Security.AccessControl;
 using System.Security.Principal;
 using System.Text;
-using Windows.Win32;
 
 namespace Rebound.Core.IPC;
 
@@ -305,10 +304,11 @@ public class PipeHost : IPipeHost, IDisposable
     /// <param name="process">When this method returns, contains the client process associated with the pipe if successful; otherwise, <see
     /// langword="null"/>.</param>
     /// <returns>true if the client process was successfully retrieved; otherwise, false.</returns>
-    private bool TryGetClientProcess(NamedPipeServerStream pipe, out Process? process)
+    private unsafe bool TryGetClientProcess(NamedPipeServerStream pipe, out Process? process)
     {
         process = null;
-        if (!PInvoke.GetNamedPipeClientProcessId(pipe.SafePipeHandle, out uint pid))
+        uint pid;
+        if (!TerraFX.Interop.Windows.Windows.GetNamedPipeClientProcessId(new((void*)pipe.SafePipeHandle.DangerousGetHandle()), &pid))
         {
             return false;
         }

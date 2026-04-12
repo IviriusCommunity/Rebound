@@ -55,10 +55,7 @@ namespace Rebound.Forge.Cogs
                 deployment.Progress += (sender, progress) =>
                     ReboundLogger.Log($"[PackageCog] Deployment progress: {progress.percentage}%");
 
-                UIThreadQueue.QueueAction(async () =>
-                {
                     await deployment;
-                });
 
                 ReboundLogger.Log($"[PackageCog] Successfully installed package: {PackageFamilyName}");
             }
@@ -84,10 +81,7 @@ namespace Rebound.Forge.Cogs
 
                 foreach (var package in packages)
                 {
-                    UIThreadQueue.QueueAction(async () =>
-                    {
                         await packageManager.RemovePackageAsync(package.Id.FullName);
-                    });
 
                     //await packageManager.RemovePackageAsync(package.Id.FullName);
                 }
@@ -121,8 +115,6 @@ namespace Rebound.Forge.Cogs
                     IEnumerable<Package> packages = [];
                     var signal = new TaskCompletionSource<bool>();
 
-                    UIThreadQueue.QueueAction(() =>
-                    {
                         try
                         {
                             packages = packageManager.FindPackagesForUser(sid, PackageFamilyName);
@@ -132,8 +124,6 @@ namespace Rebound.Forge.Cogs
                         {
                             signal.SetException(ex);
                         }
-                        return Task.CompletedTask;
-                    });
 
                     await signal.Task.ConfigureAwait(false);
                     bool installed = packages.Any();
@@ -152,8 +142,6 @@ namespace Rebound.Forge.Cogs
                     IEnumerable<Package> packages = [];
                     var signal = new TaskCompletionSource<bool>();
 
-                    UIThreadQueue.QueueAction(() =>
-                    {
                         try
                         {
                             packages = packageManager.FindPackagesForUser(sid, PackageFamilyName);
@@ -163,8 +151,6 @@ namespace Rebound.Forge.Cogs
                         {
                             signal.SetException(ex);
                         }
-                        return Task.CompletedTask;
-                    });
 
                     await signal.Task.ConfigureAwait(false);
                     bool installed = packages.Any();

@@ -2,7 +2,7 @@
 // Licensed under the MIT License.
 
 using Microsoft.Win32;
-using Rebound.Core.Native;
+using Rebound.Core.Native.Windows;
 using TerraFX.Interop.Windows;
 
 namespace Rebound.Core.SystemInformation.Hardware;

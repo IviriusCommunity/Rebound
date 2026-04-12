@@ -2,9 +2,9 @@
 // Licensed under the MIT License.
 
 using Rebound.Core;
+using Rebound.Core.Native.Wrappers;
 using System.Text;
-using Windows.Win32.System.Registry;
-using HKEY = TerraFX.Interop.Windows.HKEY;
+using TerraFX.Interop.Windows;
 
 namespace Rebound.Forge.Cogs;
 
@@ -41,14 +41,14 @@ public class IFEOCog : ICog
 
             HKEY phkResult;
 
-            string subKey = $@"{BaseRegistryPath}\{OriginalExecutableName}";
+            using ManagedPtr<char> subKey = $@"{BaseRegistryPath}\{OriginalExecutableName}";
             var result = TerraFX.Interop.Windows.Windows.RegCreateKeyExW(
                 HKEY.HKEY_LOCAL_MACHINE,
-                subKey.ToPointer(),
+                subKey,
                 0,
                 null,
-                (uint)REG_OPEN_CREATE_OPTIONS.REG_OPTION_NON_VOLATILE,
-                (uint)(REG_SAM_FLAGS.KEY_WRITE | REG_SAM_FLAGS.KEY_WOW64_64KEY),
+                (uint)REG.REG_OPTION_NON_VOLATILE,
+                (uint)(KEY.KEY_WRITE | KEY.KEY_WOW64_64KEY),
                 null,
                 &phkResult,
                 null);
@@ -59,11 +59,12 @@ public class IFEOCog : ICog
                 ReboundLogger.Log($"[IFEOCog] Writing {bytes.Length} bytes to registry.");
                 fixed (byte* pBytes = bytes)
                 {
+                    using ManagedPtr<char> debugger = "Debugger";
                     _ = TerraFX.Interop.Windows.Windows.RegSetValueExW(
                         phkResult,
-                        "Debugger".ToPointer(),
+                        debugger,
                         0,
-                        (uint)REG_VALUE_TYPE.REG_SZ,
+                        (uint)REG.REG_SZ,
                         pBytes,
                         (uint)bytes.Length);
                 }
@@ -88,9 +89,9 @@ public class IFEOCog : ICog
         {
             ReboundLogger.Log("[IFEOCog] Remove started.");
 
-            string subKey = $@"{BaseRegistryPath}\{OriginalExecutableName}";
+            using ManagedPtr<char> subKey = $@"{BaseRegistryPath}\{OriginalExecutableName}";
 
-            var result = TerraFX.Interop.Windows.Windows.RegDeleteKeyW(HKEY.HKEY_LOCAL_MACHINE, subKey.ToPointer());
+            var result = TerraFX.Interop.Windows.Windows.RegDeleteKeyW(HKEY.HKEY_LOCAL_MACHINE, subKey);
             if (result == 0)
             {
                 ReboundLogger.Log($"[IFEOCog] Deleted registry key {subKey}");
@@ -111,14 +112,14 @@ public class IFEOCog : ICog
     {
         try
         {
-            string subKey = $@"{BaseRegistryPath}\{OriginalExecutableName}";
+            using ManagedPtr<char> subKey = $@"{BaseRegistryPath}\{OriginalExecutableName}";
 
             HKEY hKey;
             var result = TerraFX.Interop.Windows.Windows.RegOpenKeyExW(
                 HKEY.HKEY_LOCAL_MACHINE,
-                subKey.ToPointer(),
+                subKey,
                 0,
-                (uint)(REG_SAM_FLAGS.KEY_READ | REG_SAM_FLAGS.KEY_WOW64_64KEY),
+                (uint)(KEY.KEY_READ | KEY.KEY_WOW64_64KEY),
                 &hKey);
 
             if (result != 0)
@@ -132,9 +133,10 @@ public class IFEOCog : ICog
             fixed (byte* pBuffer = buffer)
             {
                 uint type;
+                using ManagedPtr<char> debugger = "Debugger";
                 var queryResult = TerraFX.Interop.Windows.Windows.RegQueryValueExW(
                     hKey,
-                    "Debugger".ToPointer(),
+                    debugger,
                     null,
                     &type,
                     pBuffer,

@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using Rebound.Core;
+using Rebound.Core.Native.Wrappers;
 using TerraFX.Interop.Windows;
 using WinRT;
 
