@@ -12,11 +12,23 @@ public static class Device
     public static unsafe string GetDeviceManufacturer()
     {
         string? result = null;
-        var success = new WmiConnection().ExecuteWmiQuery("SELECT Manufacturer FROM Win32_ComputerSystem", obj =>
+        try
         {
-            result = WmiConnection.GetString((IWbemClassObject*)obj, "Manufacturer");
-        });
-        return result ?? $"Unknown (query success: {success})";
+            using var key = Registry.LocalMachine.OpenSubKey(@"HARDWARE\DESCRIPTION\System\BIOS");
+            if (key != null)
+            {
+                string? board = key.GetValue("BaseBoardManufacturer") as string;
+                string? system = key.GetValue("SystemManufacturer") as string;
+
+                result =
+                    string.IsNullOrWhiteSpace(board) ? system :
+                    string.IsNullOrWhiteSpace(system) ? board :
+                    system;
+            }
+        }
+        catch { }
+
+        return result ?? "Unknown";
     }
 
     public static string GetDeviceModel()
@@ -34,6 +46,24 @@ public static class Device
                     string.IsNullOrWhiteSpace(product) ? family :
                     string.IsNullOrWhiteSpace(family) ? product :
                     $"{product} ({family})";
+            }
+        }
+        catch { }
+
+        return result ?? "Unknown";
+    }
+
+    public static string GetMotherboardModel()
+    {
+        string? result = null;
+        try
+        {
+            using var key = Registry.LocalMachine.OpenSubKey(@"HARDWARE\DESCRIPTION\System\BIOS");
+            if (key != null)
+            {
+                string? product = key.GetValue("BaseBoardProduct") as string;
+
+                result = product;
             }
         }
         catch { }

@@ -834,7 +834,7 @@ public partial class IslandsWindow : ObservableObject, IDisposable
             AppWindowInitialized?.Invoke(this, new AppWindowInitializedEventArgs());
 
             // Resubclass WndProc
-            _appWindowWndProcSubclass = SetWindowLongPtrW(Handle, GWLP.GWLP_WNDPROC, (nint)(delegate* unmanaged<HWND, uint, WPARAM, LPARAM, LRESULT>)&WndProcOverlayStatic);
+            //_appWindowWndProcSubclass = SetWindowLongPtrW(Handle, GWLP.GWLP_WNDPROC, (nint)(delegate* unmanaged<HWND, uint, WPARAM, LPARAM, LRESULT>)&WndProcOverlayStatic);
 
             // XAML
             InitializeXaml();
@@ -911,6 +911,7 @@ public partial class IslandsWindow : ObservableObject, IDisposable
             DwmSetWindowAttribute(Handle, (uint)DWMWINDOWATTRIBUTE.DWMWA_SYSTEMBACKDROP_TYPE, &backdrop, sizeof(int));
             int dark = _themeListener.GetTheme(UseShellTheme) == ApplicationTheme.Dark ? 1 : 0;
             DwmSetWindowAttribute(Handle, (uint)DWMWINDOWATTRIBUTE.DWMWA_USE_IMMERSIVE_DARK_MODE, &dark, sizeof(int));
+            AppWindow?.TitleBar.ButtonForegroundColor = dark == 1 ? Colors.White : Colors.Black;
         }
         if (themeListenerNull) _themeListener.Start();
     }
@@ -1980,7 +1981,7 @@ public partial class IslandsWindow : ObservableObject, IDisposable
     {
         switch (msg)
         {
-            case WM_SYSCOMMAND:
+            /*case WM_SYSCOMMAND:
                 if ((wParam & 0xFFF0) == SC.SC_MAXIMIZE && !IsMaximizable)
                     return new LRESULT(0);
                 if ((wParam & 0xFFF0) == SC.SC_KEYMENU)
@@ -1988,7 +1989,7 @@ public partial class IslandsWindow : ObservableObject, IDisposable
                     ShowWinUIMenu(0, 0);
                     return new LRESULT(0);
                 }
-                break;
+                break;*/
 
             case WM_CREATE:
                 if (!_xamlInitialized)

@@ -117,23 +117,47 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
+  <data name="AccentColorPalette.Text" xml:space="preserve">
+    <value>Paleta culorii de accent</value>
+  </data>
+  <data name="ActivationState.Text" xml:space="preserve">
+    <value>Stare de activare</value>
+  </data>
   <data name="ActivationStatusActivated" xml:space="preserve">
-    <value>The current installation of Windows is activated with a valid product key.</value>
+    <value>Instalarea curentă de Windows este activată cu o cheie de produs validă.</value>
   </data>
   <data name="ActivationStatusExtendedGracePeriod" xml:space="preserve">
-    <value>This installation is in the activation extended grace period. Please activate Windows before the grace period ends to keep using your PC.</value>
+    <value>Această instalare se află în perioada de grație extinsă de activare. Vă rugăm să activați Windows înainte de expirarea perioadei de grație pentru a continua să utilizați PC-ul.</value>
   </data>
   <data name="ActivationStatusGracePeriod" xml:space="preserve">
-    <value>This installation is in the activation grace period. Please activate Windows before the grace period ends to keep using your PC.</value>
+    <value>Această instalare se află în perioada de grație de activare. Vă rugăm să activați Windows înainte de expirarea perioadei de grație pentru a continua să utilizați PC-ul.</value>
   </data>
   <data name="ActivationStatusNonGenuine" xml:space="preserve">
-    <value>This installation of Windows is not genuine. Please purchase a Windows product key from microsoft.com or the Microsoft Store.</value>
+    <value>Această instalare de Windows nu este autentică. Vă rugăm să achiziționați o cheie de produs Windows de la microsoft.com sau din Microsoft Store.</value>
   </data>
   <data name="ActivationStatusUnknown" xml:space="preserve">
-    <value>Couldn't retrieve activation status.</value>
+    <value>Nu s-a putut recupera starea de activare.</value>
   </data>
   <data name="ActivationStatusUnlicensed" xml:space="preserve">
-    <value>Windows is not activated. Consider purchasing a Windows product key to unlock every feature.</value>
+    <value>Windows nu este activat. Luați în considerare achiziționarea unei chei de produs Windows pentru a debloca fiecare funcție.</value>
+  </data>
+  <data name="AdministratorAccount.Text" xml:space="preserve">
+    <value>Cont de administrator</value>
+  </data>
+  <data name="ArchitectureLabel.Text" xml:space="preserve">
+    <value>Arhitectură</value>
+  </data>
+  <data name="Beta.Text" xml:space="preserve">
+    <value>BETA</value>
+  </data>
+  <data name="BrightnessGradient.Text" xml:space="preserve">
+    <value>Gradient de luminozitate</value>
+  </data>
+  <data name="ComputerNameLabel.Text" xml:space="preserve">
+    <value>Numele calculatorului</value>
+  </data>
+  <data name="CopyFirstFour.Text" xml:space="preserve">
+    <value>Copiază primele patru</value>
   </data>
   <data name="CopyLicenseOwners.Text" xml:space="preserve">
     <value>Copiază deținătorii de licență</value>
@@ -144,11 +168,44 @@
   <data name="CopyWindowsVer.Text" xml:space="preserve">
     <value>Copiază versiunea Windows</value>
   </data>
+  <data name="CPULabel.Text" xml:space="preserve">
+    <value>Procesor</value>
+  </data>
   <data name="CurrentUser" xml:space="preserve">
     <value>Utilizator curent</value>
   </data>
+  <data name="DeviceManufacturerLabel.Text" xml:space="preserve">
+    <value>Producătorul dispozitivului</value>
+  </data>
+  <data name="DeviceModelLabel.Text" xml:space="preserve">
+    <value>Modelul dispozitivului</value>
+  </data>
+  <data name="DisplayRefreshRateLabel.Text" xml:space="preserve">
+    <value>Rata de refresh</value>
+  </data>
+  <data name="DisplayResLabel.Text" xml:space="preserve">
+    <value>Rezoluția ecranului</value>
+  </data>
+  <data name="EditionLabel.Text" xml:space="preserve">
+    <value>Ediție</value>
+  </data>
+  <data name="GPULabel.Text" xml:space="preserve">
+    <value>Placă video</value>
+  </data>
   <data name="HelloUser" xml:space="preserve">
     <value>Salut, {0}!</value>
+  </data>
+  <data name="InformationLabel.Text" xml:space="preserve">
+    <value>Informații</value>
+  </data>
+  <data name="InformationSegmentedItem.Content" xml:space="preserve">
+    <value>Informații</value>
+  </data>
+  <data name="InstalledOnLabel.Text" xml:space="preserve">
+    <value>Instalat pe data de</value>
+  </data>
+  <data name="LegacyWinver.Text" xml:space="preserve">
+    <value>winver clasic</value>
   </data>
   <data name="LegalInfo" xml:space="preserve">
     <value>Sistemul de operare {0} și interfața sa de utilizator sunt protejate de mărci comerciale și alte drepturi de proprietate intelectuală existente sau în curs de obținere în Statele Unite și în alte țări/regiuni.</value>
@@ -156,14 +213,71 @@
   <data name="LicensedUnderLabel.Text" xml:space="preserve">
     <value>Acest produs este licențiat sub</value>
   </data>
+  <data name="LicenseInformation.Text" xml:space="preserve">
+    <value>Informații despre licență</value>
+  </data>
+  <data name="LicenseSegmentedItem.Content" xml:space="preserve">
+    <value>Licență</value>
+  </data>
+  <data name="LocalAccount.Text" xml:space="preserve">
+    <value>Cont local</value>
+  </data>
+  <data name="LocaleLabel.Text" xml:space="preserve">
+    <value>Limbă</value>
+  </data>
+  <data name="LocalIPLabel.Text" xml:space="preserve">
+    <value>IP local</value>
+  </data>
+  <data name="MicrosoftAccount.Text" xml:space="preserve">
+    <value>Cont Microsoft</value>
+  </data>
   <data name="MicrosoftLicenseTermsLabel.Text" xml:space="preserve">
     <value>Termenii Licenței Software Microsoft</value>
+  </data>
+  <data name="MoreInformation.Content" xml:space="preserve">
+    <value>Mai multe informații</value>
+  </data>
+  <data name="MotherboardModelLabel.Text" xml:space="preserve">
+    <value>Modelul plăcii de bază</value>
   </data>
   <data name="OKButton.Content" xml:space="preserve">
     <value>OK</value>
   </data>
+  <data name="OpenUserFolder.Text" xml:space="preserve">
+    <value>Deschide folderul de utilizator</value>
+  </data>
+  <data name="OpenWinActivation.Text" xml:space="preserve">
+    <value>Deschide setările de activare Windows</value>
+  </data>
+  <data name="PasswordExpiresOn.Text" xml:space="preserve">
+    <value>Parola expiră pe data de: </value>
+  </data>
+  <data name="PhysicalRam.Text" xml:space="preserve">
+    <value>Fizică</value>
+  </data>
+  <data name="RAMLabel.Text" xml:space="preserve">
+    <value>Memorie</value>
+  </data>
   <data name="ReboundInfo.Text" xml:space="preserve">
     <value>Rebound este un mod pentru Windows care nu modifică fișierele de sistem. Instalarea curentă de Windows conține aplicații suplimentare pentru a rula Rebound.</value>
+  </data>
+  <data name="ReboundInstalledText" xml:space="preserve">
+    <value>Rebound este un metamod pentru Windows care nu modifică fișierele de sistem. Instalarea curentă de Windows conține aplicații și servicii suplimentare pentru a rula Rebound.</value>
+  </data>
+  <data name="ReboundNotInstalledText" xml:space="preserve">
+    <value>Rebound este un metamod pentru Windows care nu modifică fișierele de sistem. Rebound nu este instalat în prezent pe sistemul dvs.</value>
+  </data>
+  <data name="SaturationGradient.Text" xml:space="preserve">
+    <value>Gradient de saturație</value>
+  </data>
+  <data name="ScalingFactorLabel.Text" xml:space="preserve">
+    <value>Factor de scalare</value>
+  </data>
+  <data name="StorageLabel.Text" xml:space="preserve">
+    <value>Stocare</value>
+  </data>
+  <data name="WindowTitle" xml:space="preserve">
+    <value>Despre Windows</value>
   </data>
   <data name="Title.Text" xml:space="preserve">
     <value>Despre Windows</value>
@@ -171,13 +285,46 @@
   <data name="ToLabel.Text" xml:space="preserve">
     <value>către:</value>
   </data>
+  <data name="TotalLabel.Text" xml:space="preserve">
+    <value>Total</value>
+  </data>
   <data name="Unknown" xml:space="preserve">
     <value>Necunoscut</value>
   </data>
   <data name="UnknownLicenseHolders" xml:space="preserve">
     <value>Deținători de licență necunoscuți</value>
   </data>
+  <data name="UptimeLabel.Text" xml:space="preserve">
+    <value>Timp de funcționare</value>
+  </data>
+  <data name="UsableRam.Text" xml:space="preserve">
+    <value>Utilizabilă</value>
+  </data>
+  <data name="UserAccount.Text" xml:space="preserve">
+    <value>Cont de utilizator</value>
+  </data>
+  <data name="VersionLabel.Text" xml:space="preserve">
+    <value>Versiune</value>
+  </data>
   <data name="VersionOSBuild" xml:space="preserve">
     <value>Versiunea {0} (Compilație S.O. {1}.{2})</value>
+  </data>
+  <data name="ViewMore.Text" xml:space="preserve">
+    <value>Vezi mai mult</value>
+  </data>
+  <data name="WindowsDriveLabel.Text" xml:space="preserve">
+    <value>Unitate Windows</value>
+  </data>
+  <data name="ServiceHostNotFound" xml:space="preserve">
+    <value>Rebound Service Host nu a fost găsit.</value>
+  </data>
+  <data name="ServiceHostNotFoundInfo" xml:space="preserve">
+    <value>Nu s-a putut găsi Rebound Service Host. Acest process este necesar pentru ca acțiunes "winver original" să funcționeze.</value>
+  </data>
+  <data name="CouldntLaunchServiceHost" xml:space="preserve">
+    <value>Nu s-a putut lansa Rebound Service Host.</value>
+  </data>
+  <data name="CouldntLaunchServiceHostInfo" xml:space="preserve">
+    <value>Este posibil ca instalarea Rebound să fie coruptă. Deschideți Rebound Hub și verificați.</value>
   </data>
 </root>

@@ -117,6 +117,12 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
+  <data name="AccentColorPalette.Text" xml:space="preserve">
+    <value>Accent color palette</value>
+  </data>
+  <data name="ActivationState.Text" xml:space="preserve">
+    <value>Activation state</value>
+  </data>
   <data name="ActivationStatusActivated" xml:space="preserve">
     <value>The current installation of Windows is activated with a valid product key.</value>
   </data>
@@ -135,6 +141,24 @@
   <data name="ActivationStatusUnlicensed" xml:space="preserve">
     <value>Windows is not activated. Consider purchasing a Windows product key to unlock every feature.</value>
   </data>
+  <data name="AdministratorAccount.Text" xml:space="preserve">
+    <value>Administrator account</value>
+  </data>
+  <data name="ArchitectureLabel.Text" xml:space="preserve">
+    <value>Architecture</value>
+  </data>
+  <data name="Beta.Text" xml:space="preserve">
+    <value>BETA</value>
+  </data>
+  <data name="BrightnessGradient.Text" xml:space="preserve">
+    <value>Brightness gradient</value>
+  </data>
+  <data name="ComputerNameLabel.Text" xml:space="preserve">
+    <value>Computer name</value>
+  </data>
+  <data name="CopyFirstFour.Text" xml:space="preserve">
+    <value>Copy first four</value>
+  </data>
   <data name="CopyLicenseOwners.Text" xml:space="preserve">
     <value>Copy license owners</value>
   </data>
@@ -144,11 +168,44 @@
   <data name="CopyWindowsVer.Text" xml:space="preserve">
     <value>Copy Windows version</value>
   </data>
+  <data name="CPULabel.Text" xml:space="preserve">
+    <value>CPU</value>
+  </data>
   <data name="CurrentUser" xml:space="preserve">
     <value>Current user</value>
   </data>
+  <data name="DeviceManufacturerLabel.Text" xml:space="preserve">
+    <value>Device manufacturer</value>
+  </data>
+  <data name="DeviceModelLabel.Text" xml:space="preserve">
+    <value>Device model</value>
+  </data>
+  <data name="DisplayRefreshRateLabel.Text" xml:space="preserve">
+    <value>Display refresh rate</value>
+  </data>
+  <data name="DisplayResLabel.Text" xml:space="preserve">
+    <value>Display resolution</value>
+  </data>
+  <data name="EditionLabel.Text" xml:space="preserve">
+    <value>Edition</value>
+  </data>
+  <data name="GPULabel.Text" xml:space="preserve">
+    <value>GPU</value>
+  </data>
   <data name="HelloUser" xml:space="preserve">
     <value>Hello, {0}!</value>
+  </data>
+  <data name="InformationLabel.Text" xml:space="preserve">
+    <value>Information</value>
+  </data>
+  <data name="InformationSegmentedItem.Content" xml:space="preserve">
+    <value>Information</value>
+  </data>
+  <data name="InstalledOnLabel.Text" xml:space="preserve">
+    <value>Installed on</value>
+  </data>
+  <data name="LegacyWinver.Text" xml:space="preserve">
+    <value>Legacy winver</value>
   </data>
   <data name="LegalInfo" xml:space="preserve">
     <value>The {0} operating system and its user interface are protected by trademark and other pending or existing intellectual property rights in the United States and other countries/regions.</value>
@@ -156,14 +213,71 @@
   <data name="LicensedUnderLabel.Text" xml:space="preserve">
     <value>This product is licensed under the</value>
   </data>
+  <data name="LicenseInformation.Text" xml:space="preserve">
+    <value>License information</value>
+  </data>
+  <data name="LicenseSegmentedItem.Content" xml:space="preserve">
+    <value>License</value>
+  </data>
+  <data name="LocalAccount.Text" xml:space="preserve">
+    <value>Local account</value>
+  </data>
+  <data name="LocaleLabel.Text" xml:space="preserve">
+    <value>Locale</value>
+  </data>
+  <data name="LocalIPLabel.Text" xml:space="preserve">
+    <value>Local IP</value>
+  </data>
+  <data name="MicrosoftAccount.Text" xml:space="preserve">
+    <value>Microsoft account</value>
+  </data>
   <data name="MicrosoftLicenseTermsLabel.Text" xml:space="preserve">
     <value>Microsoft Software License Terms</value>
+  </data>
+  <data name="MoreInformation.Content" xml:space="preserve">
+    <value>More information</value>
+  </data>
+  <data name="MotherboardModelLabel.Text" xml:space="preserve">
+    <value>Motherboard model</value>
   </data>
   <data name="OKButton.Content" xml:space="preserve">
     <value>OK</value>
   </data>
+  <data name="OpenUserFolder.Text" xml:space="preserve">
+    <value>Open User Folder</value>
+  </data>
+  <data name="OpenWinActivation.Text" xml:space="preserve">
+    <value>Open Windows Activation Settings</value>
+  </data>
+  <data name="PasswordExpiresOn.Text" xml:space="preserve">
+    <value>Password expires on: </value>
+  </data>
+  <data name="PhysicalRam.Text" xml:space="preserve">
+    <value>Physical</value>
+  </data>
+  <data name="RAMLabel.Text" xml:space="preserve">
+    <value>RAM</value>
+  </data>
   <data name="ReboundInfo.Text" xml:space="preserve">
     <value>Rebound is a Windows mod that does not modify system files. The current Windows installation contains additional apps to run Rebound.</value>
+  </data>
+  <data name="ReboundInstalledText" xml:space="preserve">
+    <value>Rebound is a Windows metamod that does not modify system files. The current Windows installation contains additional apps and services to run Rebound.</value>
+  </data>
+  <data name="ReboundNotInstalledText" xml:space="preserve">
+    <value>Rebound is a Windows metamod that does not modify system files. Rebound is not currently installed on your system.</value>
+  </data>
+  <data name="SaturationGradient.Text" xml:space="preserve">
+    <value>Saturation gradient</value>
+  </data>
+  <data name="ScalingFactorLabel.Text" xml:space="preserve">
+    <value>Scaling factor</value>
+  </data>
+  <data name="StorageLabel.Text" xml:space="preserve">
+    <value>Storage</value>
+  </data>
+  <data name="WindowTitle" xml:space="preserve">
+    <value>About Windows</value>
   </data>
   <data name="Title.Text" xml:space="preserve">
     <value>About Windows</value>
@@ -171,13 +285,46 @@
   <data name="ToLabel.Text" xml:space="preserve">
     <value>to:</value>
   </data>
+  <data name="TotalLabel.Text" xml:space="preserve">
+    <value>Total</value>
+  </data>
   <data name="Unknown" xml:space="preserve">
     <value>Unknown</value>
   </data>
   <data name="UnknownLicenseHolders" xml:space="preserve">
     <value>Unknown license holders</value>
   </data>
+  <data name="UptimeLabel.Text" xml:space="preserve">
+    <value>Uptime</value>
+  </data>
+  <data name="UsableRam.Text" xml:space="preserve">
+    <value>Usable</value>
+  </data>
+  <data name="UserAccount.Text" xml:space="preserve">
+    <value>User account</value>
+  </data>
+  <data name="VersionLabel.Text" xml:space="preserve">
+    <value>Version</value>
+  </data>
   <data name="VersionOSBuild" xml:space="preserve">
     <value>Version {0} (OS Build {1}.{2})</value>
+  </data>
+  <data name="ViewMore.Text" xml:space="preserve">
+    <value>View more</value>
+  </data>
+  <data name="WindowsDriveLabel.Text" xml:space="preserve">
+    <value>Windows drive</value>
+  </data>
+  <data name="ServiceHostNotFound" xml:space="preserve">
+    <value>Rebound Service Host not found.</value>
+  </data>
+  <data name="ServiceHostNotFoundInfo" xml:space="preserve">
+    <value>Could not find Rebound Service Host. This process is required for the "Legacy winver" feature to work.</value>
+  </data>
+  <data name="CouldntLaunchServiceHost" xml:space="preserve">
+    <value>Couldn't launch Rebound Service Host.</value>
+  </data>
+  <data name="CouldntLaunchServiceHostInfo" xml:space="preserve">
+    <value>Your Rebound installation might be corrupted. Please open Rebound Hub and check.</value>
   </data>
 </root>

@@ -5,6 +5,7 @@ using Microsoft.Win32;
 using Rebound.Core.Native.Wrappers;
 using System.Globalization;
 using System.Net;
+using System.Net.NetworkInformation;
 using System.Net.Sockets;
 using TerraFX.Interop.Windows;
 using static TerraFX.Interop.Windows.Windows;
@@ -225,9 +226,17 @@ public static class WindowsInformation
     {
         try
         {
-            using var socket = new Socket(AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Udp);
-            socket.Connect("8.8.8.8", 65530);
-            return (socket.LocalEndPoint as IPEndPoint)?.Address.ToString() ?? "Unknown";
+            return NetworkInterface.GetAllNetworkInterfaces()
+                .Where(ni => ni.OperationalStatus == OperationalStatus.Up
+                          && ni.NetworkInterfaceType != NetworkInterfaceType.Loopback
+                          && ni.NetworkInterfaceType != NetworkInterfaceType.Tunnel)
+                .SelectMany(ni => ni.GetIPProperties().UnicastAddresses)
+                .Where(addr => addr.Address.AddressFamily == AddressFamily.InterNetwork
+                            && !IPAddress.IsLoopback(addr.Address)
+                            && addr.IsDnsEligible)
+                .OrderByDescending(addr => addr.PrefixOrigin == PrefixOrigin.Dhcp)
+                .Select(addr => addr.Address.ToString())
+                .FirstOrDefault() ?? "Unknown";
         }
         catch { return "Unknown"; }
     }

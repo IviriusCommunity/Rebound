@@ -5,6 +5,7 @@ using Rebound.Core;
 using Rebound.Core.IPC;
 using Rebound.Core.UI;
 using Rebound.Core.UI.Application;
+using Rebound.Core.UI.Localizer;
 using Rebound.Core.UI.Threading;
 using Rebound.Core.UI.Windowing;
 using Rebound.Forge.Engines;
@@ -36,12 +37,31 @@ public partial class App : Application, IReboundLegacySupportApp, IReboundPipeCl
         {
             ReboundLogger.WriteToLog(
                 "Application Launch",
-                $"Hello",
-                LogMessageSeverity.Error);
+                "The application is starting.",
+                LogMessageSeverity.Message);
+
+            // Set locale
+            Windows.Globalization.ApplicationLanguages.PrimaryLanguageOverride = string.Empty;
+
+            // Check if Rebound is installed or not
+            if (!ReboundPresenceEngine.IsReboundInstalled())
+            {
+                ReboundLogger.WriteToLog(
+                    "Rebound Installation Check",
+                    "Rebound is not installed. The app will continue execution as undocked.",
+                    LogMessageSeverity.Message);
+
+                goto DirectStartup;
+            }
 
             // If this is the application's initial launch, handle the required environment
             if (e.IsFirstLaunch)
             {
+                ReboundLogger.WriteToLog(
+                    "Rebound Environment Initialization",
+                    "Initializing the Rebound environment for the current app...",
+                    LogMessageSeverity.Message);
+
                 // Pipe server thread
                 var pipeThread = new Thread(async () =>
                 {
@@ -53,13 +73,24 @@ public partial class App : Application, IReboundLegacySupportApp, IReboundPipeCl
                         // Make sure Rebound Service Host exists
                         var started = ServiceHostEngine.StartServiceHost();
                         if (!started)
+                        {
+                            ReboundLogger.WriteToLog(
+                                "Rebound Environment Initialization",
+                                "Could not initialize Rebound Service Host.",
+                                LogMessageSeverity.Error);
                             throw new InvalidOperationException("Rebound Service Host couldn't be started.");
+                        }
 
                         // Connect to it
                         await ReboundPipeClient.ConnectAsync().ConfigureAwait(false);
                     }
                     catch
                     {
+                        ReboundLogger.WriteToLog(
+                            "Rebound Environment Initialization",
+                            "Notifying the user of Rebound Service Host failure.",
+                            LogMessageSeverity.Message);
+
                         // Rebound Service Host doesn't exist, fall back to UI solutions
                         RunServiceHostFailedToLaunchFallback();
                     }
@@ -70,6 +101,11 @@ public partial class App : Application, IReboundLegacySupportApp, IReboundPipeCl
                 };
                 pipeThread.SetApartmentState(ApartmentState.STA);
                 pipeThread.Start();
+
+                ReboundLogger.WriteToLog(
+                    "Rebound Environment Initialization",
+                    "Initializing the Rebound Service Host watchdog...",
+                    LogMessageSeverity.Message);
 
                 // Service host watchdog thread
                 // This ensures Rebound Service Host can't die randomly
@@ -88,15 +124,29 @@ public partial class App : Application, IReboundLegacySupportApp, IReboundPipeCl
                 // without arguments
                 || e.Arguments.StartsWith(Variables.LegacyLaunchArgument.Trim(), StringComparison.InvariantCultureIgnoreCase))
             {
-                LaunchLegacy(e.Arguments.Length > Variables.LegacyLaunchArgument.Length - 1 ?
+                var trimmedArgs = e.Arguments.Length > Variables.LegacyLaunchArgument.Length - 1 ?
                     // with arguments
                     e.Arguments[Variables.LegacyLaunchArgument.Length..] :
                     // without arguments
-                    string.Empty);
+                    string.Empty;
+
+                ReboundLogger.WriteToLog(
+                    "Legacy Launch",
+                    $"Launching the legacy app with arguments (raw: {e.Arguments}) (trimmed: {trimmedArgs}).",
+                    LogMessageSeverity.Message);
+
+                LaunchLegacy(trimmedArgs);
 
                 // The application itself shouldn't handle more logic from here
                 return;
             }
+
+            DirectStartup:
+
+            ReboundLogger.WriteToLog(
+                "Application Launch",
+                "Displaying the UI...",
+                LogMessageSeverity.Message);
 
             // If this is the application's initial launch and not a legacy launch, handle the UI
             if (e.IsFirstLaunch)
@@ -135,8 +185,8 @@ public partial class App : Application, IReboundLegacySupportApp, IReboundPipeCl
             // Request an action from the user
             var result = await ReboundDialog.ShowAsync(
                 "Rebound About",
-                "Rebound Service Host not found.",
-                "Could not find Rebound Service Host. This process is required for the \"Legacy winver\" feature to work.",
+                LocalizedResource.GetLocalizedString("ServiceHostNotFound"),
+                LocalizedResource.GetLocalizedString("ServiceHostNotFoundInfo"),
                 [
                     new("Launch", true, '\uEA18'),
                     new("Ok", false)
@@ -156,8 +206,8 @@ public partial class App : Application, IReboundLegacySupportApp, IReboundPipeCl
                         {
                             await ReboundDialog.ShowAsync(
                                 "Rebound About",
-                                "Couldn't launch Rebound Service Host.",
-                                "Your Rebound installation might be corrupted. Please open Rebound Hub and check.",
+                                LocalizedResource.GetLocalizedString("CouldntLaunchServiceHost"),
+                                LocalizedResource.GetLocalizedString("CouldntLaunchServiceHostInfo"),
                                 null,
                                 DialogIcon.Warning
                                 ).ConfigureAwait(false);
@@ -219,8 +269,6 @@ public partial class App : Application, IReboundLegacySupportApp, IReboundPipeCl
             // AppWindow init
             MainWindow.AppWindowInitialized += (s, e) =>
             {
-                MainWindow.Title = "About Windows";
-
                 // Window metrics
                 MainWindow.MinWidth = 440;
                 MainWindow.MinHeight = 360;
@@ -237,6 +285,8 @@ public partial class App : Application, IReboundLegacySupportApp, IReboundPipeCl
             // Load main page
             MainWindow.XamlInitialized += (s, e) =>
             {
+                MainWindow.Title = LocalizedResource.GetLocalizedString("WindowTitle");
+
                 var frame = new Frame();
                 frame.Navigate(typeof(Views.MainPage));
                 MainWindow.Content = frame;

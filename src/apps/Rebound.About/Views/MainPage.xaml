@@ -179,10 +179,10 @@
                     CornerRadius="2"
                     Visibility="Collapsed">
                     <TextBlock
+                        x:Uid="Beta"
                         FontSize="10"
                         FontWeight="SemiBold"
-                        Foreground="{ThemeResource TextOnAccentFillColorPrimaryBrush}"
-                        Text="BETA" />
+                        Foreground="{ThemeResource TextOnAccentFillColorPrimaryBrush}" />
                 </Border>
             </StackPanel>
 
@@ -219,13 +219,13 @@
                     Style="{StaticResource PivotSegmentedStyle}"
                     Visibility="{x:Bind ViewModel.ShowTabs, Mode=OneWay}">
                     <controls:SegmentedItem
-                        Content="Information"
+                        x:Uid="InformationSegmentedItem"
                         Icon="{ui:FontIcon Glyph=&#xE946;}"
                         Tag="information" />
                     <controls:SegmentedItem
-                        Content="License"
+                        x:Uid="LicenseSegmentedItem"
                         Icon="{ui:FontIcon Glyph=&#xEB95;}"
-                        Tag="specifications" />
+                        Tag="license" />
                 </controls:Segmented>
                 <Button
                     Margin="8,0"
@@ -238,7 +238,7 @@
                     Visibility="{x:Bind ViewModel.ShowTabs, Mode=OneWay}">
                     <StackPanel Orientation="Horizontal" Spacing="8">
                         <FontIcon FontSize="16" Glyph="&#xE8A7;" />
-                        <TextBlock Text="View more" />
+                        <TextBlock x:Uid="ViewMore" />
                     </StackPanel>
                 </Button>
                 <controls:SwitchPresenter Grid.Row="1" Value="{Binding SelectedItem.Tag, ElementName=segmentedControl}">
@@ -285,18 +285,18 @@
                                                 <ColumnDefinition Width="Auto" />
                                             </Grid.ColumnDefinitions>
 
-                                            <TextBlock Text="Version" TextWrapping="WrapWholeWords" />
+                                            <TextBlock x:Uid="VersionLabel" TextWrapping="WrapWholeWords" />
                                             <TextBlock
+                                                x:Uid="EditionLabel"
                                                 Grid.Row="1"
-                                                Text="Edition"
                                                 TextWrapping="WrapWholeWords" />
                                             <TextBlock
+                                                x:Uid="InstalledOnLabel"
                                                 Grid.Row="2"
-                                                Text="Installed on"
                                                 TextWrapping="WrapWholeWords" />
                                             <TextBlock
+                                                x:Uid="ComputerNameLabel"
                                                 Grid.Row="3"
-                                                Text="Computer name"
                                                 TextWrapping="WrapWholeWords" />
 
                                             <TextBlock
@@ -340,8 +340,8 @@
                                         <FontIcon FontSize="16" Glyph="&#xE8C8;" />
                                         <muxc:SplitButton.Flyout>
                                             <MenuFlyout>
-                                                <MenuFlyoutItem Command="{x:Bind CopyWindowsVersionCommand}" Text="Copy Windows version" />
-                                                <MenuFlyoutItem Command="{x:Bind CopyFirstFourCommand}" Text="Copy first four" />
+                                                <MenuFlyoutItem x:Uid="CopyWindowsVer" Command="{x:Bind CopyWindowsVersionCommand}" />
+                                                <MenuFlyoutItem x:Uid="CopyFirstFour" Command="{x:Bind CopyFirstFourCommand}" />
                                             </MenuFlyout>
                                         </muxc:SplitButton.Flyout>
                                     </muxc:SplitButton>
@@ -377,7 +377,7 @@
                                         Orientation="Horizontal"
                                         Spacing="8">
                                         <FontIcon FontSize="16" Glyph="&#xEEA1;" />
-                                        <TextBlock FontWeight="SemiBold" Text="CPU" />
+                                        <TextBlock x:Uid="CPULabel" FontWeight="SemiBold" />
                                     </StackPanel>
                                     <TextBlock
                                         Grid.Row="1"
@@ -408,7 +408,7 @@
                                             Width="16"
                                             Height="16"
                                             Data="F1 M 0 5 C 0 4 1 3 2 3 L 14 3 C 15 3 16 4 16 5 L 16 9 C 16 10 15 11 14 11 L 2 11 C 1 11 0 10 0 9 M 1 5 L 1 9 C 1 9.5 1.5 10 2 10 L 14 10 C 14.5 10 15 9.5 15 9 L 15 5 C 15 4.5 14.5 4 14 4 L 2 4 C 1.5 4 1 4.5 1 5 M 14 11 L 14 13 L 6 13 L 6 11 M 7 11 L 7 12 L 13 12 L 13 11 M 4 5 A 1 1 0 0 0 4 9 A 1 1 0 0 0 4 5 M 4 6 A 1 1 0 0 1 4 8 A 1 1 0 0 1 4 6 M 12 5 A 1 1 0 0 0 12 9 A 1 1 0 0 0 12 5 M 12 6 A 1 1 0 0 1 12 8 A 1 1 0 0 1 12 6 M 8 6 A 1 1 0 0 1 8 8 A 1 1 0 0 1 8 6 M 8 5 A 1 1 0 0 0 8 9 A 1 1 0 0 0 8 5" />
-                                        <TextBlock FontWeight="SemiBold" Text="GPU" />
+                                        <TextBlock x:Uid="GPULabel" FontWeight="SemiBold" />
                                     </StackPanel>
                                     <TextBlock
                                         Grid.Row="1"
@@ -442,7 +442,7 @@
                                         Orientation="Horizontal"
                                         Spacing="8">
                                         <FontIcon FontSize="16" Glyph="&#xEEA0;" />
-                                        <TextBlock FontWeight="SemiBold" Text="RAM" />
+                                        <TextBlock x:Uid="RAMLabel" FontWeight="SemiBold" />
                                     </StackPanel>
                                     <StackPanel
                                         Grid.Row="1"
@@ -450,9 +450,9 @@
                                         VerticalAlignment="Center"
                                         Spacing="4">
                                         <TextBlock
+                                            x:Uid="PhysicalRam"
                                             HorizontalAlignment="Center"
-                                            FontWeight="SemiBold"
-                                            Text="Physical" />
+                                            FontWeight="SemiBold" />
                                         <TextBlock
                                             HorizontalAlignment="Center"
                                             FontSize="12"
@@ -467,9 +467,9 @@
                                         VerticalAlignment="Center"
                                         Spacing="4">
                                         <TextBlock
+                                            x:Uid="UsableRam"
                                             HorizontalAlignment="Center"
-                                            FontWeight="SemiBold"
-                                            Text="Usable" />
+                                            FontWeight="SemiBold" />
                                         <TextBlock
                                             HorizontalAlignment="Center"
                                             FontSize="12"
@@ -504,7 +504,14 @@
                                             Text="Rebound"
                                             TextWrapping="WrapWholeWords" />
                                         <TextBlock Text="{x:Bind core:Variables.ReboundVersion}" />
-                                        <TextBlock x:Uid="ReboundInfo" TextWrapping="WrapWholeWords" />
+                                        <TextBlock Text="{x:Bind ViewModel.ReboundText, Mode=OneWay}" TextWrapping="WrapWholeWords" />
+                                        <HyperlinkButton
+                                            x:Uid="MoreInformation"
+                                            Margin="-8,0"
+                                            Padding="8"
+                                            HorizontalAlignment="Left"
+                                            VerticalAlignment="Top"
+                                            NavigateUri="https://ivirius.com/rebound/" />
                                     </StackPanel>
                                     <Button
                                         Grid.Column="2"
@@ -522,7 +529,7 @@
 
                         </Grid>
                     </controls:Case>
-                    <controls:Case Value="specifications">
+                    <controls:Case Value="license">
                         <Grid animations:Implicit.HideAnimations="{StaticResource HideTransitions}" animations:Implicit.ShowAnimations="{StaticResource ShowTransitions}">
                             <Grid.RowDefinitions>
                                 <RowDefinition Height="*" />
@@ -548,9 +555,9 @@
                                         Glyph="&#xF167;" />
                                     <StackPanel Grid.Column="2" Spacing="10">
                                         <TextBlock
+                                            x:Uid="LicenseInformation"
                                             Margin="0,-3,0,8"
                                             FontWeight="SemiBold"
-                                            Text="License information"
                                             TextWrapping="WrapWholeWords" />
                                         <TextBlock x:Uid="CopyrightLabel" />
                                         <TextBlock Text="{x:Bind ViewModel.LegalInfo, Mode=OneWay}" TextWrapping="WrapWholeWords" />
@@ -622,9 +629,9 @@
 
                                     <StackPanel Grid.Column="2" Spacing="10">
                                         <TextBlock
+                                            x:Uid="ActivationState"
                                             Margin="0,-3,0,8"
                                             FontWeight="SemiBold"
-                                            Text="Activation state"
                                             TextWrapping="WrapWholeWords" />
                                         <TextBlock Text="{x:Bind ViewModel.WindowsActivationInfo, Mode=OneWay}" TextWrapping="WrapWholeWords" />
                                         <Button
@@ -639,7 +646,7 @@
                                             </interactivity:Interaction.Behaviors>
                                             <StackPanel Orientation="Horizontal" Spacing="8">
                                                 <FontIcon FontSize="16" Glyph="&#xE8D7;" />
-                                                <TextBlock VerticalAlignment="Center" Text="Open Windows Activation Settings" />
+                                                <TextBlock x:Uid="OpenWinActivation" VerticalAlignment="Center" />
                                             </StackPanel>
                                         </Button>
                                     </StackPanel>
@@ -673,7 +680,8 @@
                         VerticalAlignment="Center"
                         Background="Transparent"
                         BorderBrush="Transparent"
-                        Command="{x:Bind LegacyLaunchCommand}">
+                        Command="{x:Bind LegacyLaunchCommand}"
+                        Visibility="{x:Bind ViewModel.IsReboundInstalled, Mode=OneWay}">
                         <FontIcon FontSize="16" Glyph="&#xED56;" />
                     </Button>
                     <Button
@@ -824,10 +832,10 @@
                     CornerRadius="2"
                     Visibility="Collapsed">
                     <TextBlock
+                        x:Uid="Beta"
                         FontSize="10"
                         FontWeight="SemiBold"
-                        Foreground="{ThemeResource TextOnAccentFillColorPrimaryBrush}"
-                        Text="BETA" />
+                        Foreground="{ThemeResource TextOnAccentFillColorPrimaryBrush}" />
                 </Border>
             </StackPanel>
 
@@ -957,64 +965,69 @@
                                             <RowDefinition Height="Auto" />
                                             <RowDefinition Height="Auto" />
                                             <RowDefinition Height="Auto" />
+                                            <RowDefinition Height="Auto" />
                                         </Grid.RowDefinitions>
                                         <Grid.ColumnDefinitions>
                                             <ColumnDefinition Width="Auto" />
                                             <ColumnDefinition Width="*" />
                                         </Grid.ColumnDefinitions>
 
-                                        <TextBlock Text="Version" TextWrapping="WrapWholeWords" />
+                                        <TextBlock x:Uid="VersionLabel" TextWrapping="WrapWholeWords" />
                                         <TextBlock
+                                            x:Uid="EditionLabel"
                                             Grid.Row="1"
-                                            Text="Edition"
                                             TextWrapping="WrapWholeWords" />
                                         <TextBlock
+                                            x:Uid="InstalledOnLabel"
                                             Grid.Row="2"
-                                            Text="Installed on"
                                             TextWrapping="WrapWholeWords" />
                                         <TextBlock
+                                            x:Uid="ComputerNameLabel"
                                             Grid.Row="3"
-                                            Text="Computer name"
                                             TextWrapping="WrapWholeWords" />
                                         <TextBlock
+                                            x:Uid="ArchitectureLabel"
                                             Grid.Row="4"
-                                            Text="Architecture"
                                             TextWrapping="WrapWholeWords" />
                                         <TextBlock
                                             Grid.Row="5"
                                             Text="Pagefile"
                                             TextWrapping="WrapWholeWords" />
                                         <TextBlock
+                                            x:Uid="DeviceManufacturerLabel"
                                             Grid.Row="6"
-                                            Text="Device manufacturer"
                                             TextWrapping="WrapWholeWords" />
                                         <TextBlock
+                                            x:Uid="DeviceModelLabel"
                                             Grid.Row="7"
-                                            Text="Device model"
                                             TextWrapping="WrapWholeWords" />
                                         <TextBlock
+                                            x:Uid="MotherboardModelLabel"
                                             Grid.Row="8"
-                                            Text="Uptime"
                                             TextWrapping="WrapWholeWords" />
                                         <TextBlock
+                                            x:Uid="UptimeLabel"
                                             Grid.Row="9"
-                                            Text="Locale"
                                             TextWrapping="WrapWholeWords" />
                                         <TextBlock
+                                            x:Uid="LocaleLabel"
                                             Grid.Row="10"
-                                            Text="Local IP"
                                             TextWrapping="WrapWholeWords" />
                                         <TextBlock
+                                            x:Uid="LocalIPLabel"
                                             Grid.Row="11"
-                                            Text="Display resolution"
                                             TextWrapping="WrapWholeWords" />
                                         <TextBlock
+                                            x:Uid="DisplayResLabel"
                                             Grid.Row="12"
-                                            Text="Display refresh rate"
                                             TextWrapping="WrapWholeWords" />
                                         <TextBlock
+                                            x:Uid="DisplayRefreshRateLabel"
                                             Grid.Row="13"
-                                            Text="Scaling factor"
+                                            TextWrapping="WrapWholeWords" />
+                                        <TextBlock
+                                            x:Uid="ScalingFactorLabel"
+                                            Grid.Row="14"
                                             TextWrapping="WrapWholeWords" />
 
                                         <TextBlock
@@ -1077,38 +1090,45 @@
                                             Grid.Column="1"
                                             Foreground="{ThemeResource TextFillColorDisabledBrush}"
                                             IsTextSelectionEnabled="True"
-                                            Text="{x:Bind ViewModel.Uptime, Mode=OneWay}"
+                                            Text="{x:Bind ViewModel.MotherboardModel, Mode=OneWay}"
                                             TextWrapping="WrapWholeWords" />
                                         <TextBlock
                                             Grid.Row="9"
                                             Grid.Column="1"
                                             Foreground="{ThemeResource TextFillColorDisabledBrush}"
                                             IsTextSelectionEnabled="True"
-                                            Text="{x:Bind ViewModel.Locale, Mode=OneWay}"
+                                            Text="{x:Bind ViewModel.Uptime, Mode=OneWay}"
                                             TextWrapping="WrapWholeWords" />
                                         <TextBlock
                                             Grid.Row="10"
                                             Grid.Column="1"
                                             Foreground="{ThemeResource TextFillColorDisabledBrush}"
                                             IsTextSelectionEnabled="True"
-                                            Text="{x:Bind ViewModel.LocalIP, Mode=OneWay}"
+                                            Text="{x:Bind ViewModel.Locale, Mode=OneWay}"
                                             TextWrapping="WrapWholeWords" />
                                         <TextBlock
                                             Grid.Row="11"
                                             Grid.Column="1"
                                             Foreground="{ThemeResource TextFillColorDisabledBrush}"
                                             IsTextSelectionEnabled="True"
-                                            Text="{x:Bind ViewModel.DisplayResolution, Mode=OneWay}"
+                                            Text="{x:Bind ViewModel.LocalIP, Mode=OneWay}"
                                             TextWrapping="WrapWholeWords" />
                                         <TextBlock
                                             Grid.Row="12"
                                             Grid.Column="1"
                                             Foreground="{ThemeResource TextFillColorDisabledBrush}"
                                             IsTextSelectionEnabled="True"
-                                            Text="{x:Bind ViewModel.DisplayRefreshRate, Mode=OneWay}"
+                                            Text="{x:Bind ViewModel.DisplayResolution, Mode=OneWay}"
                                             TextWrapping="WrapWholeWords" />
                                         <TextBlock
                                             Grid.Row="13"
+                                            Grid.Column="1"
+                                            Foreground="{ThemeResource TextFillColorDisabledBrush}"
+                                            IsTextSelectionEnabled="True"
+                                            Text="{x:Bind ViewModel.DisplayRefreshRate, Mode=OneWay}"
+                                            TextWrapping="WrapWholeWords" />
+                                        <TextBlock
+                                            Grid.Row="14"
                                             Grid.Column="1"
                                             Foreground="{ThemeResource TextFillColorDisabledBrush}"
                                             IsTextSelectionEnabled="True"
@@ -1129,8 +1149,8 @@
                                 <FontIcon FontSize="16" Glyph="&#xE8C8;" />
                                 <muxc:SplitButton.Flyout>
                                     <MenuFlyout>
-                                        <MenuFlyoutItem Command="{x:Bind CopyWindowsVersionCommand}" Text="Copy Windows version" />
-                                        <MenuFlyoutItem Command="{x:Bind CopyFirstFourCommand}" Text="Copy first four" />
+                                        <MenuFlyoutItem x:Uid="CopyWindowsVer" Command="{x:Bind CopyWindowsVersionCommand}" />
+                                        <MenuFlyoutItem x:Uid="CopyFirstFour" Command="{x:Bind CopyFirstFourCommand}" />
                                     </MenuFlyout>
                                 </muxc:SplitButton.Flyout>
                             </muxc:SplitButton>
@@ -1175,7 +1195,7 @@
                                 Orientation="Horizontal"
                                 Spacing="8">
                                 <FontIcon FontSize="16" Glyph="&#xEEA1;" />
-                                <TextBlock FontWeight="SemiBold" Text="CPU" />
+                                <TextBlock x:Uid="CPULabel" FontWeight="SemiBold" />
                             </StackPanel>
                             <TextBlock
                                 Grid.Row="1"
@@ -1230,7 +1250,7 @@
                                     Width="16"
                                     Height="16"
                                     Data="F1 M 0 5 C 0 4 1 3 2 3 L 14 3 C 15 3 16 4 16 5 L 16 9 C 16 10 15 11 14 11 L 2 11 C 1 11 0 10 0 9 M 1 5 L 1 9 C 1 9.5 1.5 10 2 10 L 14 10 C 14.5 10 15 9.5 15 9 L 15 5 C 15 4.5 14.5 4 14 4 L 2 4 C 1.5 4 1 4.5 1 5 M 14 11 L 14 13 L 6 13 L 6 11 M 7 11 L 7 12 L 13 12 L 13 11 M 4 5 A 1 1 0 0 0 4 9 A 1 1 0 0 0 4 5 M 4 6 A 1 1 0 0 1 4 8 A 1 1 0 0 1 4 6 M 12 5 A 1 1 0 0 0 12 9 A 1 1 0 0 0 12 5 M 12 6 A 1 1 0 0 1 12 8 A 1 1 0 0 1 12 6 M 8 6 A 1 1 0 0 1 8 8 A 1 1 0 0 1 8 6 M 8 5 A 1 1 0 0 0 8 9 A 1 1 0 0 0 8 5" />
-                                <TextBlock FontWeight="SemiBold" Text="GPU" />
+                                <TextBlock x:Uid="GPULabel" FontWeight="SemiBold" />
                             </StackPanel>
                             <TextBlock
                                 Grid.Row="1"
@@ -1276,7 +1296,7 @@
                                 Orientation="Horizontal"
                                 Spacing="8">
                                 <FontIcon FontSize="16" Glyph="&#xEEA0;" />
-                                <TextBlock FontWeight="SemiBold" Text="RAM" />
+                                <TextBlock x:Uid="RAMLabel" FontWeight="SemiBold" />
                             </StackPanel>
                             <StackPanel
                                 Grid.Row="1"
@@ -1284,9 +1304,9 @@
                                 VerticalAlignment="Center"
                                 Spacing="4">
                                 <TextBlock
+                                    x:Uid="PhysicalRam"
                                     HorizontalAlignment="Center"
-                                    FontWeight="SemiBold"
-                                    Text="Physical" />
+                                    FontWeight="SemiBold" />
                                 <TextBlock
                                     HorizontalAlignment="Center"
                                     FontSize="12"
@@ -1301,9 +1321,9 @@
                                 VerticalAlignment="Center"
                                 Spacing="4">
                                 <TextBlock
+                                    x:Uid="UsableRam"
                                     HorizontalAlignment="Center"
-                                    FontWeight="SemiBold"
-                                    Text="Usable" />
+                                    FontWeight="SemiBold" />
                                 <TextBlock
                                     HorizontalAlignment="Center"
                                     FontSize="12"
@@ -1351,7 +1371,7 @@
                                 Orientation="Horizontal"
                                 Spacing="8">
                                 <FontIcon FontSize="16" Glyph="&#xEDA2;" />
-                                <TextBlock FontWeight="SemiBold" Text="Storage" />
+                                <TextBlock x:Uid="StorageLabel" FontWeight="SemiBold" />
                             </StackPanel>
                             <StackPanel
                                 Grid.Row="1"
@@ -1359,9 +1379,9 @@
                                 VerticalAlignment="Center"
                                 Spacing="8">
                                 <TextBlock
+                                    x:Uid="WindowsDriveLabel"
                                     HorizontalAlignment="Center"
                                     FontWeight="SemiBold"
-                                    Text="Windows drive"
                                     TextAlignment="Center"
                                     TextWrapping="WrapWholeWords" />
                                 <Grid>
@@ -1387,9 +1407,9 @@
                                 VerticalAlignment="Center"
                                 Spacing="8">
                                 <TextBlock
+                                    x:Uid="TotalLabel"
                                     HorizontalAlignment="Center"
-                                    FontWeight="SemiBold"
-                                    Text="Total" />
+                                    FontWeight="SemiBold" />
                                 <Grid>
                                     <muxc:ProgressRing
                                         Width="40"
@@ -1433,7 +1453,14 @@
                                     Text="Rebound"
                                     TextWrapping="WrapWholeWords" />
                                 <TextBlock Text="{x:Bind core:Variables.ReboundVersion}" />
-                                <TextBlock x:Uid="ReboundInfo" TextWrapping="WrapWholeWords" />
+                                <TextBlock Text="{x:Bind ViewModel.ReboundText, Mode=OneWay}" TextWrapping="WrapWholeWords" />
+                                <HyperlinkButton
+                                    x:Uid="MoreInformation"
+                                    Margin="-8,0"
+                                    Padding="8"
+                                    HorizontalAlignment="Left"
+                                    VerticalAlignment="Top"
+                                    NavigateUri="https://ivirius.com/rebound/" />
                             </StackPanel>
                             <Button
                                 Grid.Column="2"
@@ -1475,9 +1502,9 @@
                                 Glyph="&#xF167;" />
                             <StackPanel Grid.Column="2" Spacing="10">
                                 <TextBlock
+                                    x:Uid="LicenseInformation"
                                     Margin="0,-3,0,8"
                                     FontWeight="SemiBold"
-                                    Text="License information"
                                     TextWrapping="WrapWholeWords" />
                                 <TextBlock x:Uid="CopyrightLabel" />
                                 <TextBlock Text="{x:Bind ViewModel.LegalInfo, Mode=OneWay}" TextWrapping="WrapWholeWords" />
@@ -1578,10 +1605,10 @@
                                             Background="{ThemeResource TextFillColorPrimaryBrush}" />
                                     </Grid>
                                     <TextBlock
+                                        x:Uid="MicrosoftAccount"
                                         Margin="32,0,0,0"
                                         VerticalAlignment="Center"
-                                        FontSize="12"
-                                        Text="Microsoft&#10;account" />
+                                        FontSize="12" />
                                 </Grid>
                                 <Grid
                                     Margin="0,0,8,0"
@@ -1592,10 +1619,10 @@
                                         FontSize="24"
                                         Glyph="&#xE977;" />
                                     <TextBlock
+                                        x:Uid="LocalAccount"
                                         Margin="40,0,0,0"
                                         VerticalAlignment="Center"
-                                        FontSize="12"
-                                        Text="Local&#10;account" />
+                                        FontSize="12" />
                                 </Grid>
                             </Grid>
                             <ScrollViewer Grid.Row="1">
@@ -1607,29 +1634,29 @@
                                     </Grid.RowDefinitions>
                                     <StackPanel Margin="8,0,0,0" Spacing="8">
                                         <TextBlock
+                                            x:Uid="InformationLabel"
                                             Margin="0,8,0,8"
-                                            FontWeight="SemiBold"
-                                            Text="Information" />
+                                            FontWeight="SemiBold" />
                                         <Grid>
                                             <StackPanel
                                                 Orientation="Horizontal"
                                                 Spacing="8"
                                                 Visibility="{x:Bind ViewModel.IsAdmin, Mode=OneWay, Converter={StaticResource BoolToInverseVisibilityConverter}}">
                                                 <FontIcon FontSize="16" Glyph="&#xE77B;" />
-                                                <TextBlock VerticalAlignment="Center" Text="User account" />
+                                                <TextBlock x:Uid="UserAccount" VerticalAlignment="Center" />
                                             </StackPanel>
                                             <StackPanel
                                                 Orientation="Horizontal"
                                                 Spacing="8"
                                                 Visibility="{x:Bind ViewModel.IsAdmin, Mode=OneWay}">
                                                 <FontIcon FontSize="16" Glyph="&#xEA18;" />
-                                                <TextBlock VerticalAlignment="Center" Text="Administrator account" />
+                                                <TextBlock x:Uid="AdministratorAccount" VerticalAlignment="Center" />
                                             </StackPanel>
                                         </Grid>
                                         <StackPanel Orientation="Horizontal" Spacing="8">
                                             <FontIcon FontSize="16" Glyph="&#xE917;" />
                                             <TextBlock VerticalAlignment="Center">
-                                                <Run Text="Password expires on: " />
+                                                <Run x:Uid="PasswordExpiresOn" />
                                                 <Run Text="{x:Bind ViewModel.PasswordExpiryDate, Mode=OneWay}" />
                                             </TextBlock>
                                         </StackPanel>
@@ -1643,15 +1670,15 @@
                                         Command="{x:Bind OpenUserFolderCommand}">
                                         <StackPanel Orientation="Horizontal" Spacing="8">
                                             <FontIcon FontSize="16" Glyph="&#xE838;" />
-                                            <TextBlock VerticalAlignment="Center" Text="Open User Folder" />
+                                            <TextBlock x:Uid="OpenUserFolder" VerticalAlignment="Center" />
                                         </StackPanel>
                                     </Button>
                                     <Grid Grid.Row="2" Margin="0,0,0,8">
                                         <StackPanel>
                                             <TextBlock
+                                                x:Uid="AccentColorPalette"
                                                 Margin="8,16,0,0"
-                                                FontWeight="SemiBold"
-                                                Text="Accent color palette" />
+                                                FontWeight="SemiBold" />
                                             <Grid Height="32" Margin="8,8,8,16">
                                                 <Grid.ColumnDefinitions>
                                                     <ColumnDefinition Width="*" />
@@ -1678,9 +1705,9 @@
                                                     CornerRadius="4" />
                                             </Grid>
                                             <TextBlock
+                                                x:Uid="SaturationGradient"
                                                 Margin="8,4,0,8"
-                                                FontWeight="SemiBold"
-                                                Text="Saturation gradient" />
+                                                FontWeight="SemiBold" />
                                             <Border
                                                 Height="16"
                                                 Margin="8,0"
@@ -1694,9 +1721,9 @@
                                                 </Border.Background>
                                             </Border>
                                             <TextBlock
+                                                x:Uid="BrightnessGradient"
                                                 Margin="8,16,0,8"
-                                                FontWeight="SemiBold"
-                                                Text="Brightness gradient" />
+                                                FontWeight="SemiBold" />
                                             <Border
                                                 Height="16"
                                                 Margin="8,0"
@@ -1756,9 +1783,9 @@
 
                             <StackPanel Grid.Column="2" Spacing="10">
                                 <TextBlock
+                                    x:Uid="ActivationState"
                                     Margin="0,-3,0,8"
                                     FontWeight="SemiBold"
-                                    Text="Activation state"
                                     TextWrapping="WrapWholeWords" />
                                 <TextBlock Text="{x:Bind ViewModel.WindowsActivationInfo, Mode=OneWay}" TextWrapping="WrapWholeWords" />
                                 <Button
@@ -1773,7 +1800,7 @@
                                     </interactivity:Interaction.Behaviors>
                                     <StackPanel Orientation="Horizontal" Spacing="8">
                                         <FontIcon FontSize="16" Glyph="&#xE8D7;" />
-                                        <TextBlock VerticalAlignment="Center" Text="Open Windows Activation Settings" />
+                                        <TextBlock x:Uid="OpenWinActivation" VerticalAlignment="Center" />
                                     </StackPanel>
                                 </Button>
                             </StackPanel>
@@ -1802,7 +1829,7 @@
                     Command="{x:Bind ViewMoreCommand}">
                     <StackPanel Orientation="Horizontal" Spacing="8">
                         <FontIcon FontSize="16" Glyph="&#xE8A7;" />
-                        <TextBlock Text="View more" />
+                        <TextBlock x:Uid="ViewMore" />
                     </StackPanel>
                 </Button>
                 <StackPanel
@@ -1817,10 +1844,11 @@
                         VerticalAlignment="Center"
                         Background="Transparent"
                         BorderBrush="Transparent"
-                        Command="{x:Bind LegacyLaunchCommand}">
+                        Command="{x:Bind LegacyLaunchCommand}"
+                        Visibility="{x:Bind ViewModel.IsReboundInstalled, Mode=OneWay}">
                         <StackPanel Orientation="Horizontal" Spacing="8">
                             <FontIcon FontSize="16" Glyph="&#xED56;" />
-                            <TextBlock Text="Legacy winver" />
+                            <TextBlock x:Uid="LegacyWinver" />
                         </StackPanel>
                     </Button>
                     <Button
@@ -1828,7 +1856,6 @@
                         Width="120"
                         VerticalAlignment="Center"
                         Command="{x:Bind CloseWindowCommand}"
-                        Loaded="Button_Loaded"
                         Style="{StaticResource AccentButtonStyle}">
                         <Button.KeyboardAccelerators>
                             <KeyboardAccelerator Key="Escape" />

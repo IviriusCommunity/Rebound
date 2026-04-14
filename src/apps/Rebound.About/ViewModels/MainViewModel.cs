@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using CommunityToolkit.Mvvm.ComponentModel;
+using Rebound.Core;
 using Rebound.Core.Settings;
 using Rebound.Core.SystemInformation.Hardware;
 using Rebound.Core.SystemInformation.Software;
@@ -9,6 +10,7 @@ using Rebound.Core.UI.Localizer;
 using Rebound.Core.UI.Threading;
 using System;
 using System.Diagnostics;
+using System.IO;
 using System.Threading.Tasks;
 
 namespace Rebound.About.ViewModels;
@@ -23,8 +25,13 @@ internal partial class MainViewModel : ObservableObject
 
     [ObservableProperty] public partial bool Loaded { get; set; } = false;
 
+    [ObservableProperty] public partial bool IsReboundInstalled { get; set; }
+
+    [ObservableProperty] public partial string ReboundText { get; set; } = "Loading...";
+
     public MainViewModel()
     {
+        IsReboundInstalled = File.Exists(Variables.ReboundCurrentVersionPath);
         UpdateSettings();
         _listener = new SettingsListener();
         _listener.SettingChanged += Listener_SettingChanged;
@@ -74,6 +81,7 @@ internal partial class MainViewModel : ObservableObject
 
     [ObservableProperty] public partial string DeviceManufacturer { get; private set; } = "Loading...";
     [ObservableProperty] public partial string DeviceModel { get; private set; } = "Loading...";
+    [ObservableProperty] public partial string MotherboardModel { get; private set; } = "Loading...";
     [ObservableProperty] public partial string Uptime { get; private set; } = "Loading...";
 
     private void LiveHardwareFeed_OnUpdate(object? sender, HardwareFeedUpdateEventArgs e)
@@ -145,6 +153,9 @@ internal partial class MainViewModel : ObservableObject
         var detailedVersion = Task.Run(WindowsInformation.GetDetailedWindowsVersion);
         var osName = Task.Run(WindowsInformation.GetOSName);
         var computerName = Task.Run(WindowsInformation.GetComputerName);
+        var reboundText = IsReboundInstalled
+            ? LocalizedResource.GetLocalizedString("ReboundInstalledText")
+            : LocalizedResource.GetLocalizedString("ReboundNotInstalledText");
 
         await Task.WhenAll(osDisplayName, detailedVersion, osName, computerName).ConfigureAwait(false);
 
@@ -154,6 +165,7 @@ internal partial class MainViewModel : ObservableObject
             DetailedWindowsVersion = detailedVersion.Result;
             OSName = osName.Result;
             ComputerName = computerName.Result;
+            ReboundText = reboundText;
         });
     }
 
@@ -228,6 +240,7 @@ internal partial class MainViewModel : ObservableObject
         var totalSpace = Task.Run(Storage.GetTotalOccupiedSpacePercentage);
         var manufacturer = Task.Run(Device.GetDeviceManufacturer);
         var model = Task.Run(Device.GetDeviceModel);
+        var motherboardModel = Task.Run(Device.GetMotherboardModel);
 
         await Task.WhenAll(cpuName, cpuArch, gpuName, pagefileSize, res,
             refreshRate, winSpace, totalSpace, manufacturer, model).ConfigureAwait(false);
@@ -250,6 +263,7 @@ internal partial class MainViewModel : ObservableObject
             TotalOccupiedSpaceString = ((int)totalSpaceResult).ToString((IFormatProvider?)null);
             DeviceManufacturer = manufacturer.Result;
             DeviceModel = model.Result;
+            MotherboardModel = motherboardModel.Result;
         });
     }
 

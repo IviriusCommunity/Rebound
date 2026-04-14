@@ -34,9 +34,50 @@ internal sealed partial class MainPage : Page
     public MainPage()
     {
         InitializeComponent();
+        SizeChanged += (s, e) => { UpdateSize(e.NewSize); };
+        UpdateSize(new(ActualWidth, ActualHeight));
+
+        _ = Dispatcher.RunAsync(CoreDispatcherPriority.Low, async () =>
+        {
+            WindowsActivationSeverity = WindowsInformation.GetWindowsActivationType() switch
+            {
+                WindowsActivationType.Unlicensed => InfoBarSeverity.Error,
+                WindowsActivationType.Activated => InfoBarSeverity.Success,
+                WindowsActivationType.GracePeriod => InfoBarSeverity.Warning,
+                WindowsActivationType.NonGenuine => InfoBarSeverity.Error,
+                WindowsActivationType.ExtendedGracePeriod => InfoBarSeverity.Warning,
+                WindowsActivationType.Unknown => InfoBarSeverity.Informational,
+                _ => InfoBarSeverity.Informational
+            };
+            try
+            {
+                WallpaperPath = UserInformation.GetWallpaperPath();
+            }
+            catch (Exception ex)
+            {
+                ReboundLogger.WriteToLog(
+                "Wallpaper Retrieval",
+                "The user does not appear to have a picture wallpaper.",
+                LogMessageSeverity.Warning,
+                ex);
+            }
+            try
+            {
+                UserPicturePath = UserInformation.GetUserPicturePath();
+            }
+            catch (Exception ex)
+            {
+                ReboundLogger.WriteToLog(
+                "User Picture Retrieval",
+                "The user does not appear to have a profile picture.",
+                LogMessageSeverity.Warning,
+                ex);
+            }
+            await ViewModel.InitializeAsync().ConfigureAwait(false);
+        });
     }
 
-    private void UpdateSize(Windows.Foundation.Size size) => ViewModel.ShowExpandedView = !(size.Width < 600 || size.Height < 800);
+    private void UpdateSize(Windows.Foundation.Size size) => ViewModel.ShowExpandedView = !(size.Width < 680 || size.Height < 680);
 
     [RelayCommand] private void CopyWindowsVersion() 
         => CopyToClipboard(ViewModel.DetailedWindowsVersion);
@@ -89,49 +130,4 @@ internal sealed partial class MainPage : Page
 
     [RelayCommand] private static void CloseWindow()
         => App.MainWindow?.Close();
-
-    private void Button_Loaded(object sender, RoutedEventArgs e)
-    {
-        SizeChanged += (s, e) => { UpdateSize(e.NewSize); };
-        UpdateSize(new(ActualWidth, ActualHeight));
-
-        _ = Dispatcher.RunAsync(CoreDispatcherPriority.Low, async () =>
-        {
-            WindowsActivationSeverity = WindowsInformation.GetWindowsActivationType() switch
-            {
-                WindowsActivationType.Unlicensed => InfoBarSeverity.Error,
-                WindowsActivationType.Activated => InfoBarSeverity.Success,
-                WindowsActivationType.GracePeriod => InfoBarSeverity.Warning,
-                WindowsActivationType.NonGenuine => InfoBarSeverity.Error,
-                WindowsActivationType.ExtendedGracePeriod => InfoBarSeverity.Warning,
-                WindowsActivationType.Unknown => InfoBarSeverity.Informational,
-                _ => InfoBarSeverity.Informational
-            };
-            try
-            {
-                WallpaperPath = UserInformation.GetWallpaperPath();
-            }
-            catch (Exception ex) 
-            {
-                ReboundLogger.WriteToLog(
-                "Wallpaper Retrieval", 
-                "The user does not appear to have a picture wallpaper.",
-                LogMessageSeverity.Warning,
-                ex);
-            }
-            try
-            {
-                UserPicturePath = UserInformation.GetUserPicturePath();
-            }
-            catch (Exception ex)
-            {
-                ReboundLogger.WriteToLog(
-                "User Picture Retrieval",
-                "The user does not appear to have a profile picture.",
-                LogMessageSeverity.Warning,
-                ex);
-            }
-            await ViewModel.InitializeAsync().ConfigureAwait(false);
-        });
-    }
 }
