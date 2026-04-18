@@ -1,61 +1,20 @@
 ﻿// Copyright (C) Ivirius(TM) Community 2020 - 2026. All Rights Reserved.
 // Licensed under the MIT License.
 
-using Rebound.Forge.Mods;
-
 namespace Rebound.Forge.Cogs;
 
-/// <summary>
-/// The state in which a Rebound mod is found.
-/// </summary>
-public enum ModIntegrity
+public enum CogState
 {
-    /// <summary>
-    /// Every cog of the mod is installed and configured properly.
-    /// </summary>
+    NotInstalled,
     Installed,
-
-    /// <summary>
-    /// One or more cogs of the mod are missing, while the rest are installed.
-    /// </summary>
-    Corrupt,
-
-    /// <summary>
-    /// None of the mod's cogs are installed.
-    /// </summary>
-    NotInstalled
+    PartiallyInstalled,
+    Ignorable,
+    Unknown
 }
 
-/// <summary>
-/// Installation presets for quick configuration.
-/// </summary>
-public enum InstallationTemplate
-{
-    /// <summary>
-    /// Must be used for every item in <see cref="Catalog.MandatoryMods"/>.
-    /// </summary>
-    Mandatory,
+public record CogStatus(CogState State, string? Message = null);
 
-    /// <summary>
-    /// Mods that represent the core Rebound experience.
-    /// </summary>
-    Basic,
-    
-    /// <summary>
-    /// Recommended configuration of Rebound mods.
-    /// </summary>
-    Recommended,
-
-    /// <summary>
-    /// The complete set of Rebound mods.
-    /// </summary>
-    Complete,
-
-    /// <summary>
-    /// Includes additional mods that are not essential.
-    /// </summary>
-    Extras
-}
+public record CogOperationResult(bool Success, string? Error, bool SafeToContinue, bool Ignorable = false);
 
 /// <summary>
 /// Common interface for Rebound modding cogs, used to define a set of
@@ -66,35 +25,27 @@ public interface ICog
     /// <summary>
     /// Applies the current cog.
     /// </summary>
-    Task ApplyAsync();
+    Task<CogOperationResult> ApplyAsync(CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Removes the current cog.
     /// </summary>
-    Task RemoveAsync();
+    Task<CogOperationResult> RemoveAsync(CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Checks if the current cog is applied.
     /// </summary>
     /// <returns>A bool determining if the cog is applied or not.</returns>
-    Task<bool> IsAppliedAsync();
+    Task<CogStatus> GetStatusAsync(); // Post edit note: returns bool for yes, and uhh... ig operation result for no? idk it doesn't make sense tbh
 
-    /// <summary>
-    /// Gets or sets a value indicating whether the cog can be ignored during installation integrity checks.
-    /// When set to <see langword="true"/>, the cog's integrity will be excluded from the
-    /// overall integrity calculation of the associated <see cref="Mod"/>.
-    /// </summary>
-    /// <remarks>
-    /// It is recommended to set this property to <see langword="true"/> only if
-    /// <see cref="IsAppliedAsync"/> can return either <see langword="true"/> or
-    /// <see langword="false"/> regardless of the <see cref="Mod"/>'s state.
-    /// For example, mods that serve solely as static actions.
-    /// </remarks>
-    bool Ignorable { get; }
+    string CogName { get; }
 
     /// <summary>
     /// The description of what this cog does. Used for automating the tasks list description instead of
     /// writing what a mod does manually.
     /// </summary>
-    string TaskDescription { get; }
+    string CogDescription { get; }
+
+    Guid CogId { get; }
+    bool RequiresElevation { get; }
 }

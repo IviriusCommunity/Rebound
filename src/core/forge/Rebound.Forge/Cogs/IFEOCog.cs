@@ -14,6 +14,18 @@ namespace Rebound.Forge.Cogs;
 /// </summary>
 public class IFEOCog : ICog
 {
+    /// <inheritdoc/>
+    public required string CogName { get; set; }
+
+    /// <inheritdoc/>
+    public required Guid CogId { get; set; }
+
+    /// <inheritdoc/>
+    public required bool RequiresElevation { get; set; }
+
+    /// <inheritdoc/>
+    public required string CogDescription { get; set; }
+
     private const string BaseRegistryPath = @"SOFTWARE\Microsoft\Windows NT\CurrentVersion\Image File Execution Options";
 
     /// <summary>
@@ -33,133 +45,167 @@ public class IFEOCog : ICog
     public string TaskDescription { get => $"Register an IFEO entry for {OriginalExecutableName}"; }
 
     /// <inheritdoc/>
-    public unsafe async Task ApplyAsync()
+    public unsafe async Task<CogOperationResult> ApplyAsync(CancellationToken cancellationToken)
     {
         try
         {
-            ReboundLogger.Log("[IFEOCog] Apply started.");
+            ReboundLogger.WriteToLog("IFEOCog Apply", "Apply started.");
 
+            // Bunch of PInvoke
             HKEY phkResult;
-
             using ManagedPtr<char> subKey = $@"{BaseRegistryPath}\{OriginalExecutableName}";
+
+            // Open the key if it exists, otherwise create it
             var result = TerraFX.Interop.Windows.Windows.RegCreateKeyExW(
                 HKEY.HKEY_LOCAL_MACHINE,
                 subKey,
                 0,
                 null,
-                (uint)REG.REG_OPTION_NON_VOLATILE,
-                (uint)(KEY.KEY_WRITE | KEY.KEY_WOW64_64KEY),
+                REG.REG_OPTION_NON_VOLATILE,
+                KEY.KEY_WRITE | KEY.KEY_WOW64_64KEY,
                 null,
+#pragma warning disable CS9123 // Shush I don't wanna hear it
                 &phkResult,
+#pragma warning restore CS9123
                 null);
 
-            if (result == 0) // ERROR_SUCCESS
+            // Success
+            if (result is 0)
             {
-                byte[] bytes = Encoding.Unicode.GetBytes(LauncherPath + "\0");
-                ReboundLogger.Log($"[IFEOCog] Writing {bytes.Length} bytes to registry.");
-                fixed (byte* pBytes = bytes)
-                {
-                    using ManagedPtr<char> debugger = "Debugger";
-                    _ = TerraFX.Interop.Windows.Windows.RegSetValueExW(
-                        phkResult,
-                        debugger,
-                        0,
-                        (uint)REG.REG_SZ,
-                        pBytes,
-                        (uint)bytes.Length);
-                }
+                using ManagedArrayPtr<byte> bytesPtr = Encoding.Unicode.GetBytes(LauncherPath + "\0");
+                using ManagedPtr<char> debugger = "Debugger";
 
-                ReboundLogger.Log($"[IFEOCog] Set Debugger value for {subKey} → {LauncherPath}");
+                ReboundLogger.WriteToLog("IFEOCog Apply", "Writing to registry.");
+
+                _ = TerraFX.Interop.Windows.Windows.RegSetValueExW(
+                    phkResult,
+                    debugger,
+                    0,
+                    REG.REG_SZ,
+                    bytesPtr,
+                    (uint)bytesPtr.ByteLength);
+
+                ReboundLogger.WriteToLog("IFEOCog Apply", $"Set Debugger value for {subKey} -> {LauncherPath}");
+                return new(true, null, true);
             }
+
+            // Failed to create/open key (most likely because of missing privileges)
             else
             {
-                ReboundLogger.Log($"[IFEOCog] Failed to create registry key {subKey}. Error code: {result}");
+                ReboundLogger.WriteToLog(
+                    "IFEOCog Apply", 
+                    $"Failed to create registry key {subKey}. Error code: {result}", 
+                    LogMessageSeverity.Error);
+                return new(false, $"Failed to create registry key. Error code: {result}", false);
             }
         }
         catch (Exception ex)
         {
-            ReboundLogger.Log("[IFEOCog] Apply failed with exception.", ex);
+            ReboundLogger.WriteToLog(
+                "IFEOCog Apply", 
+                "Apply failed with exception.", 
+                LogMessageSeverity.Error, 
+                ex);
+            return new(false, "Apply failed with exception: " + ex.Message, false);
         }
     }
 
     /// <inheritdoc/>
-    public unsafe async Task RemoveAsync()
+    public unsafe async Task<CogOperationResult> RemoveAsync(CancellationToken cancellationToken)
     {
         try
         {
-            ReboundLogger.Log("[IFEOCog] Remove started.");
+            ReboundLogger.WriteToLog("IFEOCog Remove", "Remove started.");
 
+            // More PInvoke stuff
             using ManagedPtr<char> subKey = $@"{BaseRegistryPath}\{OriginalExecutableName}";
-
             var result = TerraFX.Interop.Windows.Windows.RegDeleteKeyW(HKEY.HKEY_LOCAL_MACHINE, subKey);
-            if (result == 0)
+
+            // Success
+            if (result is 0)
             {
-                ReboundLogger.Log($"[IFEOCog] Deleted registry key {subKey}");
+                ReboundLogger.WriteToLog("IFEOCog Remove", $"Deleted registry key {subKey}");
+                return new(true, null, true);
             }
+
+            // Failure
             else
             {
-                ReboundLogger.Log($"[IFEOCog] Failed to delete registry key {subKey}. Error code: {result}");
+                ReboundLogger.WriteToLog("IFEOCog Remove", $"Failed to delete registry key {subKey}. Error code: {result}", LogMessageSeverity.Error);
+                return new(false, $"Failed to delete registry key. Error code: {result}", false);
             }
         }
         catch (Exception ex)
         {
-            ReboundLogger.Log("[IFEOCog] Remove failed with exception.", ex);
+            ReboundLogger.WriteToLog("IFEOCog Remove", "Remove failed with exception.", LogMessageSeverity.Error, ex);
+            return new(false, "Remove failed with exception: " + ex.Message, false);
         }
     }
 
     /// <inheritdoc/>
-    public unsafe async Task<bool> IsAppliedAsync()
+    public unsafe async Task<CogStatus> GetStatusAsync()
     {
         try
         {
-            using ManagedPtr<char> subKey = $@"{BaseRegistryPath}\{OriginalExecutableName}";
+            ReboundLogger.WriteToLog("IFEOCog Get Status", "Get Status check started.");
 
+            // More PInvoke
+            using ManagedPtr<char> subKey = $@"{BaseRegistryPath}\{OriginalExecutableName}";
             HKEY hKey;
+
             var result = TerraFX.Interop.Windows.Windows.RegOpenKeyExW(
                 HKEY.HKEY_LOCAL_MACHINE,
                 subKey,
                 0,
-                (uint)(KEY.KEY_READ | KEY.KEY_WOW64_64KEY),
+                KEY.KEY_READ | KEY.KEY_WOW64_64KEY,
+#pragma warning disable CS9123 // Shhhh
                 &hKey);
+#pragma warning restore CS9123
 
-            if (result != 0)
+            // Error opening key (most likely doesn't exist)
+            if (result is not 0)
             {
-                ReboundLogger.Log($"[IFEOCog] Registry key {subKey} not found.");
-                return false;
+                ReboundLogger.WriteToLog("IFEOCog Get Status", $"Registry key {subKey} not found. Error code: {result}", LogMessageSeverity.Warning);
+                return new(CogState.NotInstalled, null);
             }
 
-            byte[] buffer = new byte[1024];
-            uint size = (uint)buffer.Length;
-            fixed (byte* pBuffer = buffer)
+            // Variables
+            using ManagedArrayPtr<byte> buffer = new byte[1024];
+            uint bufferSize = (uint)buffer.ByteLength;
+            using ManagedPtr<char> debugger = "Debugger";
+            uint type;
+
+            var queryResult = TerraFX.Interop.Windows.Windows.RegQueryValueExW(
+                hKey,
+                debugger,
+                null,
+#pragma warning disable CS9123 // No
+                &type,
+                buffer,
+                &bufferSize);
+#pragma warning restore CS9123
+
+            _ = TerraFX.Interop.Windows.Windows.RegCloseKey(hKey);
+
+            // Failure
+            if (queryResult is not 0)
             {
-                uint type;
-                using ManagedPtr<char> debugger = "Debugger";
-                var queryResult = TerraFX.Interop.Windows.Windows.RegQueryValueExW(
-                    hKey,
-                    debugger,
-                    null,
-                    &type,
-                    pBuffer,
-                    &size);
-
-                _ = TerraFX.Interop.Windows.Windows.RegCloseKey(hKey);
-
-                if (queryResult != 0)
-                {
-                    ReboundLogger.Log($"[IFEOCog] Debugger value not found in {subKey}.");
-                    return false;
-                }
-
-                string value = Encoding.Unicode.GetString(buffer, 0, (int)size).TrimEnd('\0');
-                bool applied = value == LauncherPath;
-                ReboundLogger.Log($"[IFEOCog] IsApplied check for {subKey} → {applied}");
-                return applied;
+                ReboundLogger.WriteToLog("IFEOCog Get Status", $"Failed to query Debugger value for {subKey}. Error code: {queryResult}", LogMessageSeverity.Error);
+                return new(CogState.PartiallyInstalled, $"Failed to query Debugger value. Error code: {queryResult}");
             }
+
+            // Get the string value and trim null terminators
+            int bytesWritten = (int)bufferSize;
+            string value = Encoding.Unicode.GetString((byte*)buffer.ObjectPointer, bytesWritten / sizeof(char)).TrimEnd('\0');
+            bool applied = value == LauncherPath;
+
+            ReboundLogger.WriteToLog("IFEOCog Get Status", $"Queried Debugger value for {subKey}: {value}. Expected: {LauncherPath}. Applied: {applied}");
+            return new(applied ? CogState.Installed : CogState.PartiallyInstalled, null);
         }
         catch (Exception ex)
         {
-            ReboundLogger.Log("[IFEOCog] IsApplied failed with exception.", ex);
-            return false;
+            ReboundLogger.WriteToLog("IFEOCog Get Status", "Get Status check failed with exception.", LogMessageSeverity.Error, ex);
+            return new(CogState.Unknown, "Get Status check failed with exception: " + ex.Message);
         }
     }
 }
