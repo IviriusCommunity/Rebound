@@ -12,7 +12,7 @@ using WinRT.Interop;
 
 namespace Rebound.Forge.Cogs
 {
-    public enum PackageManagementTrigggeredOn
+    public enum PackageManagementTriggeredOn
     {
         Apply,
         Remove,
@@ -53,17 +53,17 @@ namespace Rebound.Forge.Cogs
         /// <summary>
         /// Whether to launch on apply, remove, or both.
         /// </summary>
-        public PackageManagementTrigggeredOn DoPackageManagementOn { get; set; } = PackageManagementTrigggeredOn.Both;
+        public PackageManagementTriggeredOn DoPackageManagementOn { get; set; } = PackageManagementTriggeredOn.Both;
 
         public async Task<CogOperationResult> ApplyAsync(CancellationToken cancellationToken = default)
         {
             // Check if managing Store apps is enabled in settings. If Rebound shouldn't manage Store apps, mark this cog as ignorable to skip it in the workflow.
             var ignorable = DoPackageManagementOn switch
             {
-                PackageManagementTrigggeredOn.Apply => false,
-                PackageManagementTrigggeredOn.Remove => true,
-                PackageManagementTrigggeredOn.Both => false,
-                PackageManagementTrigggeredOn.FollowConfiguration => !SettingsManager.GetValue("ManageStoreApps", "rebound", true),
+                PackageManagementTriggeredOn.Apply => false,
+                PackageManagementTriggeredOn.Remove => true,
+                PackageManagementTriggeredOn.Both => false,
+                PackageManagementTriggeredOn.FollowConfiguration => !SettingsManager.GetValue("ManageStoreApps", "rebound", true),
                 _ => throw new InvalidOperationException($"Unexpected DoPackageManagementOn value: {DoPackageManagementOn}")
             };
 
@@ -286,10 +286,10 @@ namespace Rebound.Forge.Cogs
             // Check if managing Store apps is enabled in settings. If Rebound shouldn't manage Store apps, mark this cog as ignorable to skip it in the workflow.
             var ignorable = DoPackageManagementOn switch
             {
-                PackageManagementTrigggeredOn.Apply => false,
-                PackageManagementTrigggeredOn.Remove => true,
-                PackageManagementTrigggeredOn.Both => false,
-                PackageManagementTrigggeredOn.FollowConfiguration => !SettingsManager.GetValue("ManageStoreApps", "rebound", true),
+                PackageManagementTriggeredOn.Apply => false,
+                PackageManagementTriggeredOn.Remove => true,
+                PackageManagementTriggeredOn.Both => false,
+                PackageManagementTriggeredOn.FollowConfiguration => !SettingsManager.GetValue("ManageStoreApps", "rebound", true),
                 _ => throw new InvalidOperationException($"Unexpected DoPackageManagementOn value: {DoPackageManagementOn}")
             };
 
@@ -412,7 +412,7 @@ namespace Rebound.Forge.Cogs
             // Check if managing Store apps is enabled in settings. If Rebound shouldn't manage Store apps, mark this cog as ignorable to skip it in the workflow.
             var ignorable = DoPackageManagementOn switch
             {
-                PackageManagementTrigggeredOn.FollowConfiguration => !SettingsManager.GetValue("ManageStoreApps", "rebound", true),
+                PackageManagementTriggeredOn.FollowConfiguration => !SettingsManager.GetValue("ManageStoreApps", "rebound", true),
                 _ => false
             };
 

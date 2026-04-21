@@ -7,6 +7,18 @@ namespace Rebound.Forge.Cogs;
 
 public class BoolSettingCog : ICog
 {
+    /// <inheritdoc/>
+    public required string CogName { get; set; }
+
+    /// <inheritdoc/>
+    public required Guid CogId { get; set; }
+
+    /// <inheritdoc/>
+    public required bool RequiresElevation { get; set; }
+
+    /// <inheritdoc/>
+    public required string CogDescription { get; set; }
+
     /// <summary>
     /// The name of the application the setting applies to.
     /// </summary>
@@ -24,17 +36,15 @@ public class BoolSettingCog : ICog
     public required bool AppliedValue { get; set; }
 
     /// <inheritdoc/>
-    public bool Ignorable { get; }
-
-    /// <inheritdoc/>
     public string TaskDescription { get => $"Set {Key} to {AppliedValue}"; }
 
     /// <inheritdoc/>
-    public async Task ApplyAsync()
+    public async Task<CogOperationResult> ApplyAsync(CancellationToken cancellationToken = default)
     {
         try
         {
             SettingsManager.SetValue(Key, AppName, AppliedValue);
+            return new CogOperationResult(true, null, true);
         }
         catch (Exception ex)
         {
@@ -43,15 +53,18 @@ public class BoolSettingCog : ICog
                 "Couldn't apply the bool setting cog.",
                 LogMessageSeverity.Error,
                 ex);
+
+            return new CogOperationResult(false, "Couldn't apply the bool setting cog.", true);
         }
     }
 
     /// <inheritdoc/>
-    public async Task RemoveAsync()
+    public async Task<CogOperationResult> RemoveAsync(CancellationToken cancellationToken = default)
     {
         try
         {
             SettingsManager.SetValue(Key, AppName, !AppliedValue);
+            return new CogOperationResult(true, null, true);
         }
         catch (Exception ex)
         {
@@ -60,15 +73,17 @@ public class BoolSettingCog : ICog
                 "Couldn't remove the bool setting cog.",
                 LogMessageSeverity.Error,
                 ex);
+
+            return new CogOperationResult(false, "Couldn't remove the bool setting cog.", true);
         }
     }
 
     /// <inheritdoc/>
-    public async Task<bool> IsAppliedAsync()
+    public async Task<CogStatus> GetStatusAsync()
     {
         try
         {
-            return AppliedValue == SettingsManager.GetValue(Key, AppName, !AppliedValue);
+            return new(AppliedValue == SettingsManager.GetValue(Key, AppName, !AppliedValue) ? CogState.Installed : CogState.NotInstalled);
         }
         catch (Exception ex)
         {
@@ -77,7 +92,7 @@ public class BoolSettingCog : ICog
                 "Couldn't check if the bool setting cog is applied.",
                 LogMessageSeverity.Error,
                 ex);
-            return false;
+            return new CogStatus(CogState.Unknown, "Couldn't check the status of the cog.");
         }
     }
 }
