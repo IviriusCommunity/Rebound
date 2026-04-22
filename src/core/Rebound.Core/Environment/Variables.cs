@@ -69,6 +69,12 @@ public static partial class Variables
         Path.Combine(ReboundSharedDataFolder, "DLLs");
 
     /// <summary>
+    /// Represents the full path to the launcher associations folder within the application's program data directory.
+    /// </summary>
+    public static readonly string ReboundLauncherAssociationsFolder =
+        Path.Combine(ReboundSharedDataFolder, "LauncherAssociations");
+
+    /// <summary>
     /// Represents the full file system path to the Rebound Launcher executable.
     /// </summary>
     public static readonly string ReboundLauncherPath =
