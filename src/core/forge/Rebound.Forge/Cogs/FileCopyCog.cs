@@ -11,6 +11,18 @@ namespace Rebound.Forge.Cogs;
 /// </summary>
 public class FileCopyCog : ICog
 {
+    /// <inheritdoc/>
+    public required string CogName { get; set; }
+
+    /// <inheritdoc/>
+    public required Guid CogId { get; set; }
+
+    /// <inheritdoc/>
+    public required bool RequiresElevation { get; set; }
+
+    /// <inheritdoc/>
+    public required string CogDescription { get; set; }
+
     /// <summary>
     /// The path to the original file.
     /// </summary>
@@ -22,62 +34,76 @@ public class FileCopyCog : ICog
     public required string TargetPath { get; set; }
 
     /// <inheritdoc/>
-    public bool Ignorable { get; }
-
-    /// <inheritdoc/>
-    public string TaskDescription { get => $"Copy {Path} to {TargetPath}"; }
-
-    /// <inheritdoc/>
-    public async Task ApplyAsync()
+    public async Task<CogOperationResult> ApplyAsync(CancellationToken cancellationToken = default)
     {
         try
         {
-            ReboundLogger.Log("[LauncherCog] Apply started.");
-            FileEx.Copy(Path, TargetPath);
-            ReboundLogger.Log($"[LauncherCog] Copied file from {Path} to {TargetPath}.");
+            ReboundLogger.WriteToLog("LauncherCog", "Apply started.");
+
+            // The actual file copy operation (with overwrite)
+            FileEx.Copy(Path, TargetPath, true);
+
+            ReboundLogger.WriteToLog("LauncherCog", $"Copied file from {Path} to {TargetPath}.");
+            return new(true, null, true);
         }
         catch (Exception ex)
         {
-            ReboundLogger.Log("[LauncherCog] Apply failed with exception.", ex);
+            ReboundLogger.WriteToLog(
+                "LauncherCog", 
+                $"Apply failed with exception.",
+                LogMessageSeverity.Error,
+                ex);
+            return new(false, "EXCEPTION", false);
         }
     }
 
     /// <inheritdoc/>
-    public async Task RemoveAsync()
+    public async Task<CogOperationResult> RemoveAsync(CancellationToken cancellationToken = default)
     {
         try
         {
-            ReboundLogger.Log("[LauncherCog] Remove started.");
+            ReboundLogger.WriteToLog("LauncherCog", "Remove started.");
 
             if (File.Exists(TargetPath))
             {
                 File.Delete(TargetPath);
-                ReboundLogger.Log($"[LauncherCog] Deleted file at {TargetPath}.");
+                ReboundLogger.WriteToLog("LauncherCog", $"Deleted file at {TargetPath}.");
+                return new(true, null, true);
             }
             else
             {
-                ReboundLogger.Log("[LauncherCog] No file found to delete.");
+                ReboundLogger.WriteToLog("LauncherCog", "No file found to delete.");
+                return new(false, "FILE_NOT_FOUND", true, true);
             }
         }
         catch (Exception ex)
         {
-            ReboundLogger.Log("[LauncherCog] Remove failed with exception.", ex);
+            ReboundLogger.WriteToLog(
+                "LauncherCog", 
+                "Remove failed with exception.", 
+                LogMessageSeverity.Error, 
+                ex);
+            return new(false, "EXCEPTION", false);
         }
     }
 
     /// <inheritdoc/>
-    public async Task<bool> IsAppliedAsync()
+    public async Task<CogStatus> GetStatusAsync()
     {
         try
         {
             bool exists = File.Exists(TargetPath);
-            ReboundLogger.Log($"[LauncherCog] IsApplied check: {TargetPath} exists? {exists}");
-            return exists;
+            ReboundLogger.WriteToLog("LauncherCog", $"IsApplied check: {TargetPath} exists? {exists}");
+            return new(exists ? CogState.Installed : CogState.NotInstalled);
         }
         catch (Exception ex)
         {
-            ReboundLogger.Log("[LauncherCog] IsApplied failed with exception.", ex);
-            return false;
+            ReboundLogger.WriteToLog(
+                "LauncherCog", 
+                "IsApplied failed with exception.",
+                LogMessageSeverity.Error,
+                ex);
+            return new(CogState.Unknown, ex.Message);
         }
     }
 }

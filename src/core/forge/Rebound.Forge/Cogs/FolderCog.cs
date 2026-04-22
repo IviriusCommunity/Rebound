@@ -1,6 +1,7 @@
 ﻿// Copyright (C) Ivirius(TM) Community 2020 - 2026. All Rights Reserved.
 // Licensed under the MIT License.
 
+using Rebound.Core;
 using Rebound.Core.Storage;
 
 namespace Rebound.Forge.Cogs;
@@ -10,6 +11,18 @@ namespace Rebound.Forge.Cogs;
 /// </summary>
 public partial class FolderCog : ICog
 {
+    /// <inheritdoc/>
+    public required string CogName { get; set; }
+
+    /// <inheritdoc/>
+    public required Guid CogId { get; set; }
+
+    /// <inheritdoc/>
+    public required bool RequiresElevation { get; set; }
+
+    /// <inheritdoc/>
+    public required string CogDescription { get; set; }
+
     /// <summary>
     /// The full path to the directory.
     /// </summary>
@@ -22,34 +35,83 @@ public partial class FolderCog : ICog
     /// Not to be confused with <see cref="Ignorable"/>. It is recommended to set <see cref="Ignorable"/>
     /// to <see langword="true"/> if this is also set to <see langword="true"/>.
     /// </remarks>
-    public required bool AllowPersistence { get; set; }
+    public required bool PersistAfterRemoving { get; set; }
 
     /// <inheritdoc/>
-    public bool Ignorable { get; }
-
-    /// <inheritdoc/>
-    public string TaskDescription { get => $"Create folder {Path}"; }
-
-    /// <summary>
-    /// Creates a new instance of the <see cref="FolderCog"/> class.
-    /// </summary>
-    public FolderCog() { }
-
-    /// <inheritdoc/>
-    public async Task ApplyAsync()
+    public async Task<CogOperationResult> ApplyAsync(CancellationToken cancellationToken = default)
     {
-        DirectoryEx.Create(Path);
+        try
+        {
+            ReboundLogger.WriteToLog("FolderCog", $"Creating folder at {Path}...");
+
+            DirectoryEx.Create(Path);
+
+            ReboundLogger.WriteToLog("FolderCog", $"Folder created at {Path}.");
+            return new(true, null, true);
+        }
+        catch (Exception ex)
+        {
+            ReboundLogger.WriteToLog(
+                "FolderCog",
+                $"Failed to create folder at {Path}.",
+                LogMessageSeverity.Error,
+                ex);
+
+            return new CogOperationResult(false, "EXCEPTION", false);
+        }
     }
 
     /// <inheritdoc/>
-    public async Task RemoveAsync()
+    public async Task<CogOperationResult> RemoveAsync(CancellationToken cancellationToken = default)
     {
-        if (!AllowPersistence) Directory.Delete(Path);
+        try
+        {
+            ReboundLogger.WriteToLog("FolderCog", $"Deleting folder at {Path}...");
+
+            // Persistence is enabled, skip deletion
+            if (PersistAfterRemoving)
+            {
+                ReboundLogger.WriteToLog("FolderCog", $"Skipping deletion of folder at {Path} due to PersistAfterRemoving being set to true.");
+                return new(false, null, true, true);
+            }
+
+            Directory.Delete(Path);
+
+            ReboundLogger.WriteToLog("FolderCog", $"Folder deleted at {Path}.");
+            return new(true, null, true);
+        }
+        catch (Exception ex)
+        {
+            ReboundLogger.WriteToLog(
+                "FolderCog",
+                $"Failed to delete folder at {Path}.",
+                LogMessageSeverity.Error,
+                ex);
+
+            return new CogOperationResult(false, "EXCEPTION", false);
+        }
     }
 
     /// <inheritdoc/>
-    public async Task<bool> IsAppliedAsync()
+    public async Task<CogStatus> GetStatusAsync()
     {
-        return Directory.Exists(Path);
+        try
+        {
+            ReboundLogger.WriteToLog("FolderCog", $"Checking status of folder at {Path}...");
+
+            bool exists = Directory.Exists(Path);
+            ReboundLogger.WriteToLog("FolderCog", $"Folder at {Path} {(exists ? "exists" : "does not exist")}.");
+            return new(exists ? CogState.Installed : CogState.NotInstalled);
+        }
+        catch (Exception ex)
+        {
+            ReboundLogger.WriteToLog(
+                "FolderCog",
+                $"Failed to check status of folder at {Path}.",
+                LogMessageSeverity.Error,
+                ex);
+
+            return new CogStatus(CogState.Unknown, ex.Message);
+        }
     }
 }
