@@ -12,10 +12,10 @@ public static class FileEx
     /// </summary>
     /// <param name="source">Path to the original file</param>
     /// <param name="destination">Target path for the file to be copied to</param>
-    public static void Copy(string source, string destination)
+    public static void Copy(string source, string destination, bool overwrite = false)
     {
         var destinationFolderPath = Path.GetDirectoryName(destination);
         DirectoryEx.Create(destinationFolderPath!);
-        File.Copy(source, destination);
+        File.Copy(source, destination, overwrite);
     }
 }
