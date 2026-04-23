@@ -33,6 +33,8 @@ public class FileCopyCog : ICog
     /// </summary>
     public required string TargetPath { get; set; }
 
+
+    public required bool IsDirectory { get; set; }
     /// <inheritdoc/>
     public async Task<CogOperationResult> ApplyAsync(CancellationToken cancellationToken = default)
     {
@@ -40,10 +42,17 @@ public class FileCopyCog : ICog
         {
             ReboundLogger.WriteToLog("LauncherCog", "Apply started.");
 
-            // The actual file copy operation (with overwrite)
-            FileEx.Copy(Path, TargetPath, true);
-
-            ReboundLogger.WriteToLog("LauncherCog", $"Copied file from {Path} to {TargetPath}.");
+            if (IsDirectory)
+            {
+                DirectoryEx.Copy(Path, TargetPath);
+                ReboundLogger.WriteToLog("LauncherCog", $"Copied directory from {Path} to {TargetPath}.");
+            }
+            else
+            {
+                // The actual file copy operation (with overwrite)
+                FileEx.Copy(Path, TargetPath, true);
+                ReboundLogger.WriteToLog("LauncherCog", $"Copied file from {Path} to {TargetPath}.");
+            }
             return new(true, null, true);
         }
         catch (Exception ex)
@@ -64,16 +73,33 @@ public class FileCopyCog : ICog
         {
             ReboundLogger.WriteToLog("LauncherCog", "Remove started.");
 
-            if (File.Exists(TargetPath))
+            if (IsDirectory)
             {
-                File.Delete(TargetPath);
-                ReboundLogger.WriteToLog("LauncherCog", $"Deleted file at {TargetPath}.");
-                return new(true, null, true);
+                if (Directory.Exists(TargetPath))
+                {
+                    Directory.Delete(TargetPath, true);
+                    ReboundLogger.WriteToLog("LauncherCog", $"Deleted directory at {TargetPath}.");
+                    return new(true, null, true);
+                }
+                else
+                {
+                    ReboundLogger.WriteToLog("LauncherCog", "No directory found to delete.");
+                    return new(false, "DIRECTORY_NOT_FOUND", true, true);
+                }
             }
             else
             {
-                ReboundLogger.WriteToLog("LauncherCog", "No file found to delete.");
-                return new(false, "FILE_NOT_FOUND", true, true);
+                if (File.Exists(TargetPath))
+                {
+                    File.Delete(TargetPath);
+                    ReboundLogger.WriteToLog("LauncherCog", $"Deleted file at {TargetPath}.");
+                    return new(true, null, true);
+                }
+                else
+                {
+                    ReboundLogger.WriteToLog("LauncherCog", "No file found to delete.");
+                    return new(false, "FILE_NOT_FOUND", true, true);
+                }
             }
         }
         catch (Exception ex)
@@ -92,7 +118,7 @@ public class FileCopyCog : ICog
     {
         try
         {
-            bool exists = File.Exists(TargetPath);
+            bool exists = IsDirectory ? Directory.Exists(TargetPath) : File.Exists(TargetPath);
             ReboundLogger.WriteToLog("LauncherCog", $"IsApplied check: {TargetPath} exists? {exists}");
             return new(exists ? CogState.Installed : CogState.NotInstalled);
         }

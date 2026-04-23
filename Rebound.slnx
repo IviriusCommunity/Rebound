@@ -107,9 +107,10 @@
       <Platform Solution="*|ARM64" Project="ARM64" />
       <Platform Solution="*|x64" Project="x64" />
     </Project>
+    <Project Path="src/core/Rebound.Core.TaskScheduler/Rebound.Core.TaskScheduler.csproj" Id="e4df9307-ef97-406e-9f59-d23bdcd2313a" />
     <Project Path="src/core/Rebound.Core.UI/Rebound.Core.UI.csproj">
-  <Platform Solution="*|ARM64" Project="ARM64" />
-  <Platform Solution="*|x64" Project="x64" />
+      <Platform Solution="*|ARM64" Project="ARM64" />
+      <Platform Solution="*|x64" Project="x64" />
     </Project>
     <Project Path="src/core/Rebound.Core/Rebound.Core.csproj" Id="74219c55-d31d-4364-935b-169a8f8fd03b">
       <Platform Solution="*|ARM64" Project="ARM64" />
@@ -181,10 +182,7 @@
       <Platform Solution="*|x64" Project="x64" />
       <Deploy />
     </Project>
-    <Project Path="src/system/Rebound.Launcher/Rebound.Launcher.vcxproj" Id="d771123e-cef3-4055-8a95-9c9930e06cd3">
-      <Platform Solution="*|ARM64" Project="ARM64" />
-      <Platform Solution="*|x64" Project="x64" />
-    </Project>
+    <Project Path="src/system/Rebound.Launcher/Rebound.Launcher.vcxproj" Id="d771123e-cef3-4055-8a95-9c9930e06cd3" />
     <Project Path="src/system/Rebound.ServiceHost/Rebound.ServiceHost.csproj">
       <Platform Solution="*|ARM64" Project="ARM64" />
       <Platform Solution="*|x64" Project="x64" />

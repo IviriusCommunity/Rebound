@@ -15,6 +15,18 @@ namespace Rebound.Forge.Cogs;
 /// </summary>
 public class ShortcutCog : ICog
 {
+    /// <inheritdoc/>
+    public required string CogName { get; set; }
+
+    /// <inheritdoc/>
+    public required Guid CogId { get; set; }
+
+    /// <inheritdoc/>
+    public required bool RequiresElevation { get; set; }
+
+    /// <inheritdoc/>
+    public required string CogDescription { get; set; }
+
     /// <summary>
     /// Path of the target executable to be launched.
     /// </summary>
@@ -30,12 +42,6 @@ public class ShortcutCog : ICog
     /// </summary>
     public string? IconLocation { get; set; }
 
-    /// <inheritdoc/>
-    public bool Ignorable { get; }
-
-    /// <inheritdoc/>
-    public string TaskDescription => $"Create a shortcut to {ExePath} at {GetShortcutPath(ShortcutName)}";
-
     /// <summary>
     /// Returns the full path to a Start Menu shortcut with the specified name.
     /// </summary>
@@ -43,7 +49,7 @@ public class ShortcutCog : ICog
         Path.Combine(Variables.ReboundStartMenuFolder, $"{shortcutName}.lnk");
 
     /// <inheritdoc/>
-    public unsafe Task ApplyAsync()
+    public unsafe Task<CogOperationResult> ApplyAsync(CancellationToken cancellationToken = default)
     {
         try
         {
@@ -69,7 +75,7 @@ public class ShortcutCog : ICog
                     "ShortcutCog apply",
                     $"CoCreateInstance failed. HRESULT=0x{hr.Value:X}, pointer null? {shellLink.Get() is null}",
                     LogMessageSeverity.Error);
-                return Task.CompletedTask;
+                return Task.FromResult(new CogOperationResult(false, "COM_EXCEPTION", false));
             }
 
             // Set executable path
@@ -99,11 +105,13 @@ public class ShortcutCog : ICog
                     "ShortcutCog apply",
                     $"QueryInterface(IPersistFile) failed. HRESULT=0x{hr.Value:X}",
                     LogMessageSeverity.Error);
-                return Task.CompletedTask;
+                return Task.FromResult(new CogOperationResult(false, "COM_EXCEPTION", false));
             }
 
             using ManagedPtr<char> shortcutPathPtr = shortcutPath;
             persistFile.Get()->Save(shortcutPathPtr, true);
+
+            return Task.FromResult(new CogOperationResult(true, null, true));
         }
         catch (Exception ex)
         {
@@ -112,23 +120,24 @@ public class ShortcutCog : ICog
                 "An exception occurred while applying the shortcut cog.",
                 LogMessageSeverity.Error,
                 ex);
+            return Task.FromResult(new CogOperationResult(false, "EXCEPTION", false));
         }
-
-        return Task.CompletedTask;
     }
 
     /// <inheritdoc/>
-    public Task RemoveAsync()
+    public Task<CogOperationResult> RemoveAsync(CancellationToken cancellationToken)
     {
         try
         {
             var shortcutPath = GetShortcutPath(ShortcutName);
 
             if (!SettingsManager.GetValue("InstallShortcuts", "rebound", true))
-                return Task.CompletedTask;
+                return Task.FromResult(new CogOperationResult(false, "COM_EXCEPTION", false));
 
             if (File.Exists(shortcutPath))
                 File.Delete(shortcutPath);
+
+            return Task.FromResult(new CogOperationResult(true, null, true));
         }
         catch (Exception ex)
         {
@@ -137,20 +146,19 @@ public class ShortcutCog : ICog
                 "An exception occurred while removing the shortcut cog.",
                 LogMessageSeverity.Error,
                 ex);
+            return Task.FromResult(new CogOperationResult(false, "EXCEPTION", false));
         }
-
-        return Task.CompletedTask;
     }
 
     /// <inheritdoc/>
-    public Task<bool> IsAppliedAsync()
+    public Task<CogStatus> GetStatusAsync()
     {
         try
         {
             if (!SettingsManager.GetValue("InstallShortcuts", "rebound", true))
-                return Task.FromResult(true);
-
-            return Task.FromResult(File.Exists(GetShortcutPath(ShortcutName)));
+                return Task.FromResult(new CogStatus(CogState.NotInstalled, "Shortcuts are disabled."));
+                
+            return Task.FromResult(new CogStatus(File.Exists(GetShortcutPath(ShortcutName)) ? CogState.Installed : CogState.NotInstalled));
         }
         catch (Exception ex)
         {
@@ -159,7 +167,7 @@ public class ShortcutCog : ICog
                 "An exception occurred while checking the shortcut cog.",
                 LogMessageSeverity.Error,
                 ex);
-            return Task.FromResult(false);
+            return Task.FromResult(new CogStatus(CogState.Unknown, "Failed to get status."));
         }
     }
 }

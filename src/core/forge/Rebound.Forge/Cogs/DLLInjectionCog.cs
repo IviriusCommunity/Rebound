@@ -134,7 +134,7 @@ public class DLLInjectionCog : ICog
         var meta = await TryReadMetaAsync(cancellationToken).ConfigureAwait(false);
         var targetProcessNames = meta?.TargetProcesses ?? TargetProcesses;
 
-        var uninjectResults = await UnijectFromRunningProcessesAsync(
+        var uninjectResults = await UninjectFromRunningProcessesAsync(
             targetProcessNames,
             DLLPath,
             cancellationToken).ConfigureAwait(false);
@@ -366,7 +366,7 @@ public class DLLInjectionCog : ICog
     /// For each target process name, finds all running instances and attempts
     /// COM uninject via the ROT. Returns one result tuple per process instance found.
     /// </summary>
-    private static async Task<List<(uint Pid, string ProcessName, int Hr)>> UnijectFromRunningProcessesAsync(
+    private static async Task<List<(uint Pid, string ProcessName, int Hr)>> UninjectFromRunningProcessesAsync(
         IEnumerable<string> targetProcessNames,
         string dllPath,
         CancellationToken cancellationToken)
