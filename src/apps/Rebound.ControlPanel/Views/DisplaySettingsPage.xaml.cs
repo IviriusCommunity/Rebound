@@ -7,6 +7,7 @@ using Rebound.ControlPanel.ViewModels;
 using Rebound.Core.ICC.Profiles;
 using Rebound.Core.Native.Storage;
 using Rebound.Core.UI;
+using Rebound.Core.UI.Threading;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -70,7 +71,7 @@ internal sealed partial class DisplaySettingsPage : Page, IDisposable
 
             // Create the file picker
             var result = FilePickers.PickSaveFile(
-                App.MainWindow!,
+                App.MainWindow!.Handle,
                 "Save Calibration Profile",
                 "New Calibration.icc",
                 [
@@ -87,13 +88,13 @@ internal sealed partial class DisplaySettingsPage : Page, IDisposable
             }).ConfigureAwait(false);
         }
 
-        UIThreadQueue.QueueAction(() => ViewModel.SelectedPage = "0");
+        UIThread.QueueAction(() => ViewModel.SelectedPage = "0");
     }
 
     [RelayCommand]
     private async Task CancelAsync()
     {
-        UIThreadQueue.QueueAction(() =>
+        UIThread.QueueAction(() =>
         {
             ViewModel.SelectedPage = "0";
             ViewModel.ResetToDefault();

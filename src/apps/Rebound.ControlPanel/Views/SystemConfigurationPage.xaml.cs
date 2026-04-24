@@ -6,6 +6,7 @@ using CommunityToolkit.WinUI;
 using Rebound.ControlPanel.Brushes;
 using Rebound.ControlPanel.ViewModels;
 using Rebound.Core.UI;
+using Rebound.Core.UI.Windowing;
 using System;
 using System.Diagnostics;
 using System.Threading.Tasks;

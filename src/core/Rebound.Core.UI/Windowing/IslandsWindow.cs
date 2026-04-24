@@ -1483,54 +1483,42 @@ public partial class IslandsWindow : ObservableObject, IDisposable
 
     internal void OnResize(int physicalWidth, int physicalHeight)
     {
+        // Only resize the XAML island child hwnd — nothing else
         if (_xamlHwnd != default)
         {
-            SetWindowPos(_xamlHwnd, HWND.NULL,
-                0, 0,
+            SetWindowPos(_xamlHwnd, HWND.NULL, 0, 0,
                 physicalWidth, physicalHeight,
-                SWP_SHOWWINDOW | SWP_NOACTIVATE | SWP_NOZORDER);
+                SWP_NOACTIVATE | SWP_NOZORDER); // drop SWP_SHOWWINDOW — causes invalidation
         }
 
         if (CoreWindowPriv._coreHwnd != default)
-        {
             SendMessageW(CoreWindowPriv._coreHwnd, WM_SIZE, (WPARAM)physicalWidth, (LPARAM)physicalHeight);
-        }
 
+        // Update logical props silently — no AppWindow.Resize call ever
         if (AppWindow != null && !_isInitializing)
         {
             var scale = Display.GetScale(Handle);
-            var logicalWidth = (int)(physicalWidth / scale);
-            var logicalHeight = (int)(physicalHeight / scale);
-
-            _internalResize = true;
+            _suppressResizeDepth++;
             try
             {
-                Width = logicalWidth;
-                Height = logicalHeight;
+                Width = (int)(physicalWidth / scale);
+                Height = (int)(physicalHeight / scale);
             }
-            finally
-            {
-                _internalResize = false;
-            }
+            finally { _suppressResizeDepth--; }
         }
     }
 
     private void UpdatePositionFromAppWindow()
     {
-        if (AppWindow == null || _internalResize) return;
+        if (AppWindow == null || IsResizeSuppressed) return;
 
         var scale = Display.GetScale(Handle);
         var position = AppWindow.Position;
 
-        _internalResize = true;
-        try
+        using (SuppressResize())
         {
             X = (int)(position.X / scale);
             Y = (int)(position.Y / scale);
-        }
-        finally
-        {
-            _internalResize = false;
         }
     }
 
@@ -1996,24 +1984,44 @@ public partial class IslandsWindow : ObservableObject, IDisposable
                     InitializeXaml();
                 break;
 
-            case WM_MOVE:
-                UpdatePositionFromAppWindow();
-                break;
-
             case WM_SIZE:
                 {
+                    if (_processingSize) return DefWindowProc(hwnd, msg, wParam, lParam); // hard re-entrancy break
+
                     int width = LOWORD(lParam);
                     int height = HIWORD(lParam);
-                    OnResize(width, height);
+
+                    // Skip if nothing actually changed (virtual desktop sends duplicate WM_SIZE)
+                    if (width == _lastPhysicalWidth && height == _lastPhysicalHeight)
+                        return DefWindowProc(hwnd, msg, wParam, lParam);
+
+                    _lastPhysicalWidth = width;
+                    _lastPhysicalHeight = height;
+                    _processingSize = true;
+                    try { OnResize(width, height); }
+                    finally { _processingSize = false; }
+                    break;
+                }
+
+            case WM_MOVE:
+                {
+                    if (_processingMove) return DefWindowProc(hwnd, msg, wParam, lParam);
+                    _processingMove = true;
+                    try { UpdatePositionFromAppWindow(); }
+                    finally { _processingMove = false; }
                     break;
                 }
 
             case WM_DPICHANGED:
                 {
+                    if (_processingSize) return DefWindowProc(hwnd, msg, wParam, lParam); // ignore DPI spam during resize
+
                     int newDpi = (int)(wParam & 0xFFFF);
                     float newScale = newDpi / 96.0f;
 
-                    OnDpiChanged(newScale);
+                    _processingSize = true;
+                    try { OnDpiChanged(newScale); }
+                    finally { _processingSize = false; }
 
                     RECT* suggestedRect = (RECT*)lParam;
                     SetWindowPos(hwnd, HWND.NULL,
@@ -2071,27 +2079,22 @@ public partial class IslandsWindow : ObservableObject, IDisposable
         presenter.PreferredMinimumHeight = (int)(MinHeight * newScale);
         presenter.PreferredMaximumHeight = (int)(MaxHeight * newScale);
 
-        int scaledX = (int)(X * newScale);
-        int scaledY = (int)(Y * newScale);
-        int scaledWidth = (int)(Width * newScale);
-        int scaledHeight = (int)(Height * newScale);
-
-        _internalResize = true;
-        try
+        // Suppress the resize loop — WM_DPICHANGED handler already calls
+        // SetWindowPos with the suggested rect, so AppWindow will update itself
+        using (SuppressResize())
         {
-            AppWindow.Move(new Windows.Graphics.PointInt32(scaledX, scaledY));
-            AppWindow.Resize(new Windows.Graphics.SizeInt32(scaledWidth, scaledHeight));
-        }
-        finally
-        {
-            _internalResize = false;
+            AppWindow.Move(new Windows.Graphics.PointInt32(
+                (int)(X * newScale), (int)(Y * newScale)));
+            AppWindow.Resize(new Windows.Graphics.SizeInt32(
+                (int)(Width * newScale), (int)(Height * newScale)));
         }
 
         RECT clientRect;
         GetClientRect(Handle, &clientRect);
-        int clientWidth = clientRect.right - clientRect.left;
-        int clientHeight = clientRect.bottom - clientRect.top;
-        SetWindowPos(_xamlHwnd, HWND.NULL, 0, 0, clientWidth, clientHeight, SWP_SHOWWINDOW | SWP_NOACTIVATE | SWP_NOZORDER);
+        SetWindowPos(_xamlHwnd, HWND.NULL, 0, 0,
+            clientRect.right - clientRect.left,
+            clientRect.bottom - clientRect.top,
+            SWP_SHOWWINDOW | SWP_NOACTIVATE | SWP_NOZORDER);
     }
 
     internal static void ProcessCoreWindowMessage(uint message, WPARAM wParam, LPARAM lParam)
@@ -2122,7 +2125,7 @@ public partial class IslandsWindow : ObservableObject, IDisposable
 
     partial void OnXChanged(int value)
     {
-        if (!_internalResize && AppWindow != null)
+        if (!IsResizeSuppressed && !_internalResize && AppWindow != null)
         {
             var scale = Display.GetScale(Handle);
             int physicalX = (int)(value * scale);
@@ -2132,7 +2135,7 @@ public partial class IslandsWindow : ObservableObject, IDisposable
 
     partial void OnYChanged(int value)
     {
-        if (!_internalResize && AppWindow != null)
+        if (!IsResizeSuppressed && !_internalResize && AppWindow != null)
         {
             var scale = Display.GetScale(Handle);
             int physicalY = (int)(value * scale);
@@ -2142,7 +2145,7 @@ public partial class IslandsWindow : ObservableObject, IDisposable
 
     partial void OnWidthChanged(int value)
     {
-        if (!_internalResize && AppWindow != null)
+        if (!IsResizeSuppressed && !_internalResize && AppWindow != null)
         {
             var currentSize = AppWindow.Size;
             var physicalWidth = (int)(value * Display.GetScale(Handle));
@@ -2152,13 +2155,19 @@ public partial class IslandsWindow : ObservableObject, IDisposable
 
     partial void OnHeightChanged(int value)
     {
-        if (!_internalResize && AppWindow != null)
+        if (!IsResizeSuppressed && !_internalResize && AppWindow != null)
         {
             var currentSize = AppWindow.Size;
             var physicalHeight = (int)(value * Display.GetScale(Handle));
             AppWindow.Resize(new(currentSize.Width, physicalHeight));
         }
     }
+
+    // Add these fields
+    private bool _processingSize;
+    private bool _processingMove;
+    private int _lastPhysicalWidth;
+    private int _lastPhysicalHeight;
 
     partial void OnMinWidthChanged(int value)
     {
@@ -2217,5 +2226,23 @@ public partial class IslandsWindow : ObservableObject, IDisposable
     private void ThrowIfDisposed()
     {
         ObjectDisposedException.ThrowIf(_disposed, nameof(IslandsWindow));
+    }
+
+    // Add a counter-based guard instead of a bool — nested calls are the problem
+    private int _suppressResizeDepth;
+
+    // Replace all _internalResize usages with this pattern:
+    private IDisposable SuppressResize()
+    {
+        _suppressResizeDepth++;
+        return new ActionDisposable(() => _suppressResizeDepth--);
+    }
+
+    private bool IsResizeSuppressed => _suppressResizeDepth > 0;
+
+    // Simple helper
+    private sealed class ActionDisposable(Action action) : IDisposable
+    {
+        public void Dispose() => action();
     }
 }

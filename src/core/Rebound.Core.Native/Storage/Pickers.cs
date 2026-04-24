@@ -339,14 +339,14 @@ public static class FilePickers
     {
         var specs = BuildFilterSpecs(filters);
         if (specs.Length == 0) return;
-        using var specsPtr = new ManagedPtr<COMDLG_FILTERSPEC>(specs);
+        using var specsPtr = new ManagedArrayPtr<COMDLG_FILTERSPEC>(specs);
         dialog->SetFileTypes((uint)specs.Length, specsPtr);
     }
 
     private static unsafe void ApplyFilters(IFileSaveDialog* dialog, IReadOnlyList<FileDialogFilter>? filters)
     {
         var specs = BuildFilterSpecs(filters);
-        using var specsPtr = new ManagedPtr<COMDLG_FILTERSPEC>(specs);
+        using var specsPtr = new ManagedArrayPtr<COMDLG_FILTERSPEC>(specs);
         if (specs.Length == 0) return;
         dialog->SetFileTypes((uint)specs.Length, specsPtr);
         foreach (ref var spec in specs.AsSpan())

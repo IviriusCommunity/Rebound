@@ -5,7 +5,9 @@ using Rebound.ControlPanel.Views;
 using Rebound.Core;
 using Rebound.Core.IPC;
 using Rebound.Core.UI;
-using Rebound.Core.UI.UWP.Application;
+using Rebound.Core.UI.Application;
+using Rebound.Core.UI.Threading;
+using Rebound.Core.UI.Windowing;
 using Rebound.Forge.Engines;
 using Rebound.Generators;
 using System;
@@ -110,7 +112,7 @@ public partial class App : Application, IReboundLegacySupportApp, IReboundPipeCl
             if (e.IsFirstLaunch)
             {
                 // Spawn or activate the main window immediately
-                UIThreadQueue.QueueAction(async () =>
+                UIThread.QueueAction(async () =>
                 {
                     if (MainWindow != null)
                         MainWindow.BringToFront();
@@ -121,7 +123,7 @@ public partial class App : Application, IReboundLegacySupportApp, IReboundPipeCl
 
             // The application has been launched again, simply bring the main window forward
             else
-                UIThreadQueue.QueueAction(MainWindow!.BringToFront);
+                UIThread.QueueAction(MainWindow!.BringToFront);
 
             // Launch validated item, if any
             if (_validatedItem != null)
@@ -168,7 +170,7 @@ public partial class App : Application, IReboundLegacySupportApp, IReboundPipeCl
 
     public void RunServiceHostFailedToLaunchFallback()
     {
-        UIThreadQueue.QueueAction(async () =>
+        UIThread.QueueAction(async () =>
         {
             // Request an action from the user
             var result = await ReboundDialog.ShowAsync(
@@ -212,7 +214,7 @@ public partial class App : Application, IReboundLegacySupportApp, IReboundPipeCl
 
     private static async Task LaunchPageOrUriAsync(object? target)
     {
-        await UIThreadQueue.QueueActionAsync(async () =>
+        await UIThread.QueueActionAsync(async () =>
         {
             // If it's a type (page), retrieve the root frame from the main window's content and navigate to that page
             if (target is Type pageType)

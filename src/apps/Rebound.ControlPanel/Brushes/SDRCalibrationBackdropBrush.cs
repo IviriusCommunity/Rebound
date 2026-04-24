@@ -4,6 +4,7 @@
 using Microsoft.Graphics.Canvas.Effects;
 using Rebound.Core.ICC.Display;
 using Rebound.Core.UI;
+using Rebound.Core.UI.Threading;
 using System;
 using System.Threading;
 using System.Threading.Tasks;
@@ -80,7 +81,7 @@ internal partial class SDRCalibrationBackdropBrush : XamlCompositionBrushBase, I
                 _contrast = _pendingContrast;
                 _hasPendingUpdate = false;
 
-                UIThreadQueue.QueueAction(BuildBrush);
+                UIThread.QueueAction(BuildBrush);
             }
         }, _cts.Token);
     }

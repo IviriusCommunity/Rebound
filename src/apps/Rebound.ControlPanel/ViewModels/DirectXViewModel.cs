@@ -4,7 +4,7 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Microsoft.Win32;
-using Rebound.Core.UI.UWP.Application;
+using Rebound.Core.UI.Application;
 using Rebound.Forge;
 using Rebound.Forge.Engines;
 using System;
@@ -235,7 +235,7 @@ internal partial class DirectXViewModel : ObservableObject
     public DirectXViewModel()
     {
         // Properties
-        IsElevated = AppHelper.IsRunningAsAdmin();
+        IsElevated = false;//AppHelper.IsRunningAsAdmin();
 
         D3DScopeApps.CollectionChanged += (s, e) => { IsD3DScopeAppsListEmpty = D3DScopeApps.Count <= 0; };
         MutedMessageIds.CollectionChanged += (s, e) => { IsMuteIdsListEmpty = MutedMessageIds.Count <= 0; };

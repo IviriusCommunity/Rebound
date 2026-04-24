@@ -1,6 +1,7 @@
 ﻿using System.Collections.ObjectModel;
 using CommunityToolkit.Mvvm.ComponentModel;
 using Rebound.Core;
+using Rebound.Core.Settings;
 
 namespace Rebound.ControlPanel.ViewModels;
 

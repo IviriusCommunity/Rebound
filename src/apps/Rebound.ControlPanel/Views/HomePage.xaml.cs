@@ -7,6 +7,7 @@ using Rebound.ControlPanel.ViewModels;
 using Rebound.Core;
 using Rebound.Core.SystemInformation.Software;
 using Rebound.Core.UI;
+using Rebound.Core.UI.Threading;
 using Rebound.Forge.Engines;
 using System;
 using System.Diagnostics;
@@ -27,7 +28,7 @@ internal sealed partial class HomePage : Page
     public HomePage()
     {
         InitializeComponent();
-        UIThreadQueue.QueueAction(() =>
+        UIThread.QueueAction(() =>
         {
             UserPicturePath = UserInformation.GetUserPicturePath() ?? string.Empty;
             WallpaperPath = UserInformation.GetWallpaperPath() ?? string.Empty;

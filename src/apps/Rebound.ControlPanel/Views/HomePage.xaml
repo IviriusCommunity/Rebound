@@ -11,7 +11,7 @@
     xmlns:local="using:Rebound.ControlPanel.Views"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:muxc="using:Microsoft.UI.Xaml.Controls"
-    xmlns:rconverters="using:Rebound.Core.UI.UWP.Converters"
+    xmlns:rconverters="using:Rebound.Core.UI.Converters"
     xmlns:sysinfoHardware="using:Rebound.Core.SystemInformation.Hardware"
     xmlns:sysinfoSoftware="using:Rebound.Core.SystemInformation.Software"
     xmlns:toolkit="using:CommunityToolkit.WinUI.Controls"

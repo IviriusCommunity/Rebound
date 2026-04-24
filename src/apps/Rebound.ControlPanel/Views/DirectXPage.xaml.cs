@@ -26,7 +26,7 @@ internal sealed partial class DirectXPage : Page
     public void AddD3DScopeAppFromFiles()
     {
         var result = FilePickers.PickOpenFile(
-            App.MainWindow!,
+            App.MainWindow!.Handle,
             "Select an app or program",
             [
                 new("Executable", ".exe;.com" ),
@@ -46,7 +46,7 @@ internal sealed partial class DirectXPage : Page
     public void AddD2DScopeAppFromFiles()
     {
         var result = FilePickers.PickOpenFile(
-            App.MainWindow!,
+            App.MainWindow!.Handle,
             "Select an app or program",
             [
                 new("Executable", ".exe;.com" ),

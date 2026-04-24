@@ -10,7 +10,7 @@
     xmlns:local="using:Rebound.ControlPanel"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:muxc="using:Microsoft.UI.Xaml.Controls"
-    xmlns:rconverters="using:Rebound.Core.UI.UWP.Converters"
+    xmlns:rconverters="using:Rebound.Core.UI.Converters"
     muxc:BackdropMaterial.ApplyToRootOrPageBackground="True"
     mc:Ignorable="d">
     <Page.Resources>

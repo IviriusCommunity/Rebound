@@ -5,6 +5,7 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using Rebound.Core.SystemInformation.Hardware;
 using Rebound.Core.SystemInformation.Software;
 using Rebound.Core.UI;
+using Rebound.Core.UI.Threading;
 
 namespace Rebound.ControlPanel.ViewModels;
 
@@ -30,7 +31,7 @@ internal partial class HomeViewModel : ObservableObject
 
     public HomeViewModel()
     {
-        UIThreadQueue.QueueAction(() =>
+        UIThread.QueueAction(() =>
         {
             WindowsVersionTitle = WindowsInformation.GetOSName();
             CpuName = CPU.GetName();

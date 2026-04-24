@@ -6,7 +6,7 @@ using CommunityToolkit.Mvvm.Input;
 using Microsoft.Win32;
 using Rebound.Core.Native.Windows;
 using Rebound.Core.SystemInformation.Software;
-using Rebound.Core.UI.UWP.Application;
+using Rebound.Core.UI.Application;
 using Rebound.Forge;
 using Rebound.Forge.Engines;
 using System.Diagnostics;
@@ -31,7 +31,7 @@ internal partial class SystemConfigurationViewModel : ObservableObject
     public SystemConfigurationViewModel()
     {
         // Properties
-        IsElevated = AppHelper.IsRunningAsAdmin();
+        IsElevated = false;//AppHelper.IsRunningAsAdmin();
 
         // Settings
         ComputerName = WindowsInformation.GetComputerName();

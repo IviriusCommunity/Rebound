@@ -5,7 +5,7 @@ using CommunityToolkit.Mvvm.Input;
 using CommunityToolkit.WinUI;
 using Rebound.Core.SystemInformation.Software;
 using Rebound.Core.UI;
-using Rebound.Core.UI.UWP.Converters;
+using Rebound.Core.UI.Converters;
 using System.Collections.Generic;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Navigation;
@@ -13,6 +13,7 @@ using NavigationViewItemInvokedEventArgs = Microsoft.UI.Xaml.Controls.Navigation
 using NavigationViewItemBase = Microsoft.UI.Xaml.Controls.NavigationViewItemBase;
 using NavigationViewItem = Microsoft.UI.Xaml.Controls.NavigationViewItem;
 using NavigationView = Microsoft.UI.Xaml.Controls.NavigationView;
+using Rebound.Core.UI.Threading;
 
 namespace Rebound.ControlPanel.Views;
 
@@ -45,7 +46,7 @@ internal sealed partial class RootPage : Page
                 Tag = item,
                 IsEnabled = item.IsEnabled,
                 SelectsOnInvoked = item.SelectsOnInvoked,
-                Icon = (IconElement?)CplIconConverter.ConvertIcon(item.Icon!, typeof(Windows.UI.Xaml.UIElement), null, null)
+                Icon = (IconElement?)IconStringToIconSourceConverter.ConvertIcon(item.Icon!, typeof(Windows.UI.Xaml.UIElement), null, null)
             };
 
             if (item.Children.Count > 0)
@@ -130,7 +131,7 @@ internal sealed partial class RootPage : Page
 
     private void RootFrame_Loaded(object sender, Windows.UI.Xaml.RoutedEventArgs e)
     {
-        UIThreadQueue.QueueAction(() =>
+        UIThread.QueueAction(() =>
         {
             UserPicturePath = UserInformation.GetUserPicturePath() ?? string.Empty;
         });

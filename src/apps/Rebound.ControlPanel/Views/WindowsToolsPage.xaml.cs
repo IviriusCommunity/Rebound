@@ -5,6 +5,7 @@ using CommunityToolkit.Mvvm.Input;
 using Microsoft.UI.Xaml.Controls;
 using Rebound.Core;
 using Rebound.Core.IPC;
+using Rebound.Core.Native.Windows;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
