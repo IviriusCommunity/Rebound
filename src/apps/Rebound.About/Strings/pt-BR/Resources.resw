@@ -1,0 +1,331 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <!-- 
+    Microsoft ResX Schema 
+    
+    Version 2.0
+    
+    The primary goals of this format is to allow a simple XML format 
+    that is mostly human readable. The generation and parsing of the 
+    various data types are done through the TypeConverter classes 
+    associated with the data types.
+    
+    Example:
+    
+    ... ado.net/XML headers & schema ...
+    <resheader name="resmimetype">text/microsoft-resx</resheader>
+    <resheader name="version">2.0</resheader>
+    <resheader name="reader">System.Resources.ResXResourceReader, System.Windows.Forms, ...</resheader>
+    <resheader name="writer">System.Resources.ResXResourceWriter, System.Windows.Forms, ...</resheader>
+    <data name="Name1"><value>this is my long string</value><comment>this is a comment</comment></data>
+    <data name="Color1" type="System.Drawing.Color, System.Drawing">Blue</data>
+    <data name="Bitmap1" mimetype="application/x-microsoft.net.object.binary.base64">
+        <value>[base64 mime encoded serialized .NET Framework object]</value>
+    </data>
+    <data name="Icon1" type="System.Drawing.Icon, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+        <value>[base64 mime encoded string representing a byte array form of the .NET Framework object]</value>
+        <comment>This is a comment</comment>
+    </data>
+                
+    There are any number of "resheader" rows that contain simple 
+    name/value pairs.
+    
+    Each data row contains a name, and value. The row also contains a 
+    type or mimetype. Type corresponds to a .NET class that support 
+    text/value conversion through the TypeConverter architecture. 
+    Classes that don't support this are serialized and stored with the 
+    mimetype set.
+    
+    The mimetype is used for serialized objects, and tells the 
+    ResXResourceReader how to depersist the object. This is currently not 
+    extensible. For a given mimetype the value must be set accordingly:
+    
+    Note - application/x-microsoft.net.object.binary.base64 is the format 
+    that the ResXResourceWriter will generate, however the reader can 
+    read any of the formats listed below.
+    
+    mimetype: application/x-microsoft.net.object.binary.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Binary.BinaryFormatter
+            : and then encoded with base64 encoding.
+    
+    mimetype: application/x-microsoft.net.object.soap.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Soap.SoapFormatter
+            : and then encoded with base64 encoding.
+
+    mimetype: application/x-microsoft.net.object.bytearray.base64
+    value   : The object must be serialized into a byte array 
+            : using a System.ComponentModel.TypeConverter
+            : and then encoded with base64 encoding.
+    -->
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="metadata">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" use="required" type="xsd:string" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="assembly">
+            <xsd:complexType>
+              <xsd:attribute name="alias" type="xsd:string" />
+              <xsd:attribute name="name" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="AccentColorPalette.Text" xml:space="preserve">
+    <value>Paleta de cores de destaque</value>
+  </data>
+  <data name="ActivationState.Text" xml:space="preserve">
+    <value>Estado de Ativação</value>
+  </data>
+  <data name="ActivationStatusActivated" xml:space="preserve">
+    <value>A instalação atual do Windows está ativada com uma chave de produto válida.</value>
+  </data>
+  <data name="ActivationStatusExtendedGracePeriod" xml:space="preserve">
+    <value>Esta instalação está no período estendido de tolerância para ativação. Ative o Windows antes do fim do período de tolerância para continuar usando o PC.</value>
+  </data>
+  <data name="ActivationStatusGracePeriod" xml:space="preserve">
+    <value>Esta instalação está no período de tolerância para ativação. Ative o Windows antes do fim do período de tolerância para continuar usando o PC.</value>
+  </data>
+  <data name="ActivationStatusNonGenuine" xml:space="preserve">
+    <value>Esta instalação do Windows não é genuína. Compre uma chave de produto do Windows em microsoft.com ou na Microsoft Store.</value>
+  </data>
+  <data name="ActivationStatusUnknown" xml:space="preserve">
+    <value>Não foi possível obter o status de ativação.</value>
+  </data>
+  <data name="ActivationStatusUnlicensed" xml:space="preserve">
+    <value>O Windows não está ativado. Considere comprar uma chave de produto do Windows para desbloquear todos os recursos.
+</value>
+  </data>
+  <data name="AdministratorAccount.Text" xml:space="preserve">
+    <value>Conta de administrador</value>
+  </data>
+  <data name="ArchitectureLabel.Text" xml:space="preserve">
+    <value>Arquitetura</value>
+  </data>
+  <data name="Beta.Text" xml:space="preserve">
+    <value>BETA</value>
+  </data>
+  <data name="BrightnessGradient.Text" xml:space="preserve">
+    <value>Gradiente de brilho</value>
+  </data>
+  <data name="ComputerNameLabel.Text" xml:space="preserve">
+    <value>Nome do computador</value>
+  </data>
+  <data name="CopyFirstFour.Text" xml:space="preserve">
+    <value>Copiar os quatro primeiros</value>
+  </data>
+  <data name="CopyLicenseOwners.Text" xml:space="preserve">
+    <value>Copiar proprietários da licença</value>
+  </data>
+  <data name="CopyrightLabel.Text" xml:space="preserve">
+    <value>Copyright ©️ Microsoft Corporation. All rights reserved.</value>
+  </data>
+  <data name="CopyWindowsVer.Text" xml:space="preserve">
+    <value>Copiar versão do Windows</value>
+  </data>
+  <data name="CPULabel.Text" xml:space="preserve">
+    <value>CPU</value>
+  </data>
+  <data name="CurrentUser" xml:space="preserve">
+    <value>Usuário atual</value>
+  </data>
+  <data name="DeviceManufacturerLabel.Text" xml:space="preserve">
+    <value>Fabricante do dispositivo</value>
+  </data>
+  <data name="DeviceModelLabel.Text" xml:space="preserve">
+    <value>Modelo do dispositivo</value>
+  </data>
+  <data name="DisplayRefreshRateLabel.Text" xml:space="preserve">
+    <value>Taxa de atualização da tela</value>
+  </data>
+  <data name="DisplayResLabel.Text" xml:space="preserve">
+    <value>Resolução da tela</value>
+  </data>
+  <data name="EditionLabel.Text" xml:space="preserve">
+    <value>Edição</value>
+  </data>
+  <data name="GPULabel.Text" xml:space="preserve">
+    <value>GPU</value>
+  </data>
+  <data name="HelloUser" xml:space="preserve">
+    <value>Olá, {0}!</value>
+  </data>
+  <data name="InformationLabel.Text" xml:space="preserve">
+    <value>Informação</value>
+  </data>
+  <data name="InformationSegmentedItem.Content" xml:space="preserve">
+    <value>Informação</value>
+  </data>
+  <data name="InstalledOnLabel.Text" xml:space="preserve">
+    <value>Instalado em</value>
+  </data>
+  <data name="LegacyWinver.Text" xml:space="preserve">
+    <value>Winver legado</value>
+  </data>
+  <data name="LegalInfo" xml:space="preserve">
+    <value>O sistema operacional {0} e sua interface de usuário são protegidos por marcas registradas e outros direitos de propriedade intelectual pendentes ou existentes nos Estados Unidos e em outros países/regiões.</value>
+  </data>
+  <data name="LicensedUnderLabel.Text" xml:space="preserve">
+    <value>Este produto é licenciado sob a</value>
+  </data>
+  <data name="LicenseInformation.Text" xml:space="preserve">
+    <value>Informações da licença</value>
+  </data>
+  <data name="LicenseSegmentedItem.Content" xml:space="preserve">
+    <value>Licença</value>
+  </data>
+  <data name="LocalAccount.Text" xml:space="preserve">
+    <value>Conta local</value>
+  </data>
+  <data name="LocaleLabel.Text" xml:space="preserve">
+    <value>Localidade</value>
+  </data>
+  <data name="LocalIPLabel.Text" xml:space="preserve">
+    <value>IP local</value>
+  </data>
+  <data name="MicrosoftAccount.Text" xml:space="preserve">
+    <value>Conta Microsoft</value>
+  </data>
+  <data name="MicrosoftLicenseTermsLabel.Text" xml:space="preserve">
+    <value>Termos de Licença de Software da Microsoft</value>
+  </data>
+  <data name="MoreInformation.Content" xml:space="preserve">
+    <value>Mais informações</value>
+  </data>
+  <data name="MotherboardModelLabel.Text" xml:space="preserve">
+    <value>Modelo da placa-mãe</value>
+  </data>
+  <data name="OKButton.Content" xml:space="preserve">
+    <value>OK</value>
+  </data>
+  <data name="OpenUserFolder.Text" xml:space="preserve">
+    <value>Abrir pasta do usuário</value>
+  </data>
+  <data name="OpenWinActivation.Text" xml:space="preserve">
+    <value>Abra as configurações de ativação do Windows</value>
+  </data>
+  <data name="PasswordExpiresOn.Text" xml:space="preserve">
+    <value>A senha expira em:</value>
+  </data>
+  <data name="PhysicalRam.Text" xml:space="preserve">
+    <value>Física</value>
+  </data>
+  <data name="RAMLabel.Text" xml:space="preserve">
+    <value>RAM</value>
+  </data>
+  <data name="ReboundInfo.Text" xml:space="preserve">
+    <value>Rebound é um mod do Windows que não modifica arquivos de sistema. A instalação atual do Windows contém aplicativos adicionais para executar o Rebound.</value>
+  </data>
+  <data name="ReboundInstalledText" xml:space="preserve">
+    <value>Rebound é um meta‑mod do Windows que não modifica arquivos de sistema. A instalação atual do Windows contém aplicativos e serviços adicionais para executar o Rebound.</value>
+  </data>
+  <data name="ReboundNotInstalledText" xml:space="preserve">
+    <value>Rebound é um meta‑mod do Windows que não modifica arquivos de sistema. Rebound não está instalado no seu sistema no momento.</value>
+  </data>
+  <data name="SaturationGradient.Text" xml:space="preserve">
+    <value>Gradiente de saturação</value>
+  </data>
+  <data name="ScalingFactorLabel.Text" xml:space="preserve">
+    <value>Fator de escala</value>
+  </data>
+  <data name="StorageLabel.Text" xml:space="preserve">
+    <value>Armazenamento</value>
+  </data>
+  <data name="WindowTitle" xml:space="preserve">
+    <value>Sobre o Windows</value>
+  </data>
+  <data name="Title.Text" xml:space="preserve">
+    <value>Sobre o Windows</value>
+  </data>
+  <data name="ToLabel.Text" xml:space="preserve">
+    <value>para:</value>
+  </data>
+  <data name="TotalLabel.Text" xml:space="preserve">
+    <value>Total</value>
+  </data>
+  <data name="Unknown" xml:space="preserve">
+    <value>Desconhecido</value>
+  </data>
+  <data name="UnknownLicenseHolders" xml:space="preserve">
+    <value>Titulares de licença desconhecidos</value>
+  </data>
+  <data name="UptimeLabel.Text" xml:space="preserve">
+    <value>Tempo de atividade</value>
+  </data>
+  <data name="UsableRam.Text" xml:space="preserve">
+    <value>Usável</value>
+  </data>
+  <data name="UserAccount.Text" xml:space="preserve">
+    <value>Conta do usuário</value>
+  </data>
+  <data name="VersionLabel.Text" xml:space="preserve">
+    <value>Versão</value>
+  </data>
+  <data name="VersionOSBuild" xml:space="preserve">
+    <value>Versão {0} (Compilação do S.O {1}.{2})</value>
+  </data>
+  <data name="ViewMore.Text" xml:space="preserve">
+    <value>Ver mais</value>
+  </data>
+  <data name="WindowsDriveLabel.Text" xml:space="preserve">
+    <value>Unidade do Windows</value>
+  </data>
+  <data name="ServiceHostNotFound" xml:space="preserve">
+    <value>Rebound Service Host não encontrado.</value>
+  </data>
+  <data name="ServiceHostNotFoundInfo" xml:space="preserve">
+    <value>Não foi possível encontrar o Rebound Service Host. Este processo é necessário para que o recurso “Winver legado” funcione.</value>
+  </data>
+  <data name="CouldntLaunchServiceHost" xml:space="preserve">
+    <value>Não foi possível iniciar o Rebound Service Host.</value>
+  </data>
+  <data name="CouldntLaunchServiceHostInfo" xml:space="preserve">
+    <value>Sua instalação do Rebound pode estar corrompida. Abra o Rebound Hub e verifique.</value>
+  </data>
+</root>
