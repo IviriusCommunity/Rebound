@@ -5,9 +5,10 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
   </PropertyGroup>
-
-  <ItemGroup>
-    <Folder Include="Native\" />
-  </ItemGroup>
+  
+	<ItemGroup>
+		<PackageReference Include="Dongle.GuidRVAGen" Version="1.0.5" />
+		<PackageReference Include="TerraFX.Interop.Windows" Version="10.0.26100.6" />
+	</ItemGroup>
 
 </Project>
