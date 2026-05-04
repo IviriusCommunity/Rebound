@@ -18,6 +18,7 @@
 		<ProjectReference Include="..\..\Rebound.Core.DLLInjection\Rebound.Core.DLLInjection.csproj" />
 		<ProjectReference Include="..\..\Rebound.Core.Native\Rebound.Core.Native.csproj" />
 		<ProjectReference Include="..\..\Rebound.Core.Storage\Rebound.Core.Storage.csproj" />
+		<ProjectReference Include="..\..\Rebound.Core.TaskScheduler\Rebound.Core.TaskScheduler.csproj" />
 		<ProjectReference Include="..\..\Rebound.Core\Rebound.Core.csproj" />
 	</ItemGroup>
 
