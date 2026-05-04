@@ -39,6 +39,24 @@ public static class ReboundLogger
         WriteToLog("Old Log", msg, LogMessageSeverity.Message, ex);
     }
 
+    /// <summary>
+    /// Writes a log message to the Rebound log file. 
+    /// </summary>
+    /// <param name="actionType">
+    /// The type of the action being logged. For example, "IFEOCog Apply".
+    /// </param>
+    /// <param name="message">
+    /// The message of the action being logged. For example, "Applied IFEOCog to winver.exe".
+    /// </param>
+    /// <param name="messageSeverity">
+    /// The severity of the message.
+    /// </param>
+    /// <param name="ex">
+    /// The exception, if any. Recommended to be used with <see cref="LogMessageSeverity.Error"/>.
+    /// </param>
+    /// <remarks>
+    /// If the message severity is "Message" and Rebound verbosity is not enabled, the message will be ignored.
+    /// </remarks>
     public static void WriteToLog(string actionType, string message, LogMessageSeverity messageSeverity = LogMessageSeverity.Message, Exception? ex = null)
     {
         try
