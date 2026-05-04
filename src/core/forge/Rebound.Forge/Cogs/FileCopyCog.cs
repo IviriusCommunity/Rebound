@@ -4,10 +4,12 @@
 using Rebound.Core;
 using Rebound.Core.Storage;
 
+#pragma warning disable CA1031 // Do not catch general exception types
+
 namespace Rebound.Forge.Cogs;
 
 /// <summary>
-/// Copies a file from one place to another, accounting for missing folders in the path.
+/// Copies a file or folder from one place to another, accounting for missing folders in the path.
 /// </summary>
 public class FileCopyCog : ICog
 {
@@ -21,106 +23,132 @@ public class FileCopyCog : ICog
     public required bool RequiresElevation { get; set; }
 
     /// <inheritdoc/>
-    public required string CogDescription { get; set; }
+    public string CogDescription { get => $"Copy {(IsDirectory ? "directory" : "file")} from {Path} to {TargetPath}."; }
 
     /// <summary>
-    /// The path to the original file.
+    /// The path to the original file or directory.
     /// </summary>
     public required string Path { get; set; }
 
     /// <summary>
-    /// The target path to copy the file to.
+    /// The target path to copy the file or directory to.
     /// </summary>
     public required string TargetPath { get; set; }
 
-
+    /// <summary>
+    /// Indicates whether the source represents a directory instead of a file.
+    /// </summary>
     public required bool IsDirectory { get; set; }
+
     /// <inheritdoc/>
-    public async Task<CogOperationResult> ApplyAsync(CancellationToken cancellationToken = default)
+    public Task<CogOperationResult> ApplyAsync(CancellationToken cancellationToken = default)
     {
         try
         {
-            ReboundLogger.WriteToLog("LauncherCog", "Apply started.");
+            ReboundLogger.WriteToLog(
+                "FileCopyCog Apply",
+                "Apply started.");
 
-            if (IsDirectory)
+            switch (IsDirectory)
             {
-                DirectoryEx.Copy(Path, TargetPath);
-                ReboundLogger.WriteToLog("LauncherCog", $"Copied directory from {Path} to {TargetPath}.");
+                case true:
+                    DirectoryEx.Copy(Path, TargetPath);
+                    break;
+                case false:
+                    FileEx.Copy(Path, TargetPath, true);
+                    break;
             }
-            else
-            {
-                // The actual file copy operation (with overwrite)
-                FileEx.Copy(Path, TargetPath, true);
-                ReboundLogger.WriteToLog("LauncherCog", $"Copied file from {Path} to {TargetPath}.");
-            }
-            return new(true, null, true);
+
+            ReboundLogger.WriteToLog(
+                "FileCopyCog Apply",
+                $"Copied {(IsDirectory ? "directory" : "file")} from {Path} to {TargetPath}.");
+
+            return Task.FromResult(new CogOperationResult(true, null, true));
         }
         catch (Exception ex)
         {
             ReboundLogger.WriteToLog(
-                "LauncherCog", 
+                "FileCopyCog Apply", 
                 $"Apply failed with exception.",
                 LogMessageSeverity.Error,
                 ex);
-            return new(false, "EXCEPTION", false);
+            return Task.FromResult(new CogOperationResult(false, "EXCEPTION", false));
         }
     }
 
     /// <inheritdoc/>
-    public async Task<CogOperationResult> RemoveAsync(CancellationToken cancellationToken = default)
+    public Task<CogOperationResult> RemoveAsync(CancellationToken cancellationToken = default)
     {
         try
         {
-            ReboundLogger.WriteToLog("LauncherCog", "Remove started.");
+            ReboundLogger.WriteToLog(
+                "FileCopyCog Remove", 
+                "Remove started.");
 
-            if (IsDirectory)
+            switch (IsDirectory)
             {
-                if (Directory.Exists(TargetPath))
-                {
-                    Directory.Delete(TargetPath, true);
-                    ReboundLogger.WriteToLog("LauncherCog", $"Deleted directory at {TargetPath}.");
-                    return new(true, null, true);
-                }
-                else
-                {
-                    ReboundLogger.WriteToLog("LauncherCog", "No directory found to delete.");
-                    return new(false, "DIRECTORY_NOT_FOUND", true, true);
-                }
-            }
-            else
-            {
-                if (File.Exists(TargetPath))
-                {
-                    File.Delete(TargetPath);
-                    ReboundLogger.WriteToLog("LauncherCog", $"Deleted file at {TargetPath}.");
-                    return new(true, null, true);
-                }
-                else
-                {
-                    ReboundLogger.WriteToLog("LauncherCog", "No file found to delete.");
-                    return new(false, "FILE_NOT_FOUND", true, true);
-                }
+                case true:
+                    if (Directory.Exists(TargetPath))
+                    {
+                        Directory.Delete(TargetPath, true);
+                        ReboundLogger.WriteToLog(
+                            "FileCopyCog Remove", 
+                            $"Deleted directory at {TargetPath}.");
+                        return Task.FromResult(new CogOperationResult(true, null, true));
+                    }
+                    else
+                    {
+                        ReboundLogger.WriteToLog(
+                            "FileCopyCog Remove", 
+                            "No directory found to delete.");
+                        return Task.FromResult(new CogOperationResult(false, "DIRECTORY_NOT_FOUND", true, true));
+                    }
+                case false:
+                    if (File.Exists(TargetPath))
+                    {
+                        File.Delete(TargetPath);
+                        ReboundLogger.WriteToLog(
+                            "FileCopyCog Remove",
+                            $"Deleted file at {TargetPath}.");
+                        return Task.FromResult(new CogOperationResult(true, null, true));
+                    }
+                    else
+                    {
+                        ReboundLogger.WriteToLog(
+                            "FileCopyCog Remove", 
+                            "No file found to delete.");
+                        return Task.FromResult(new CogOperationResult(false, "FILE_NOT_FOUND", true, true));
+                    }
             }
         }
         catch (Exception ex)
         {
             ReboundLogger.WriteToLog(
-                "LauncherCog", 
+                "FileCopyCog Remove", 
                 "Remove failed with exception.", 
                 LogMessageSeverity.Error, 
                 ex);
-            return new(false, "EXCEPTION", false);
+            return Task.FromResult(new CogOperationResult(false, "EXCEPTION", false));
         }
     }
 
     /// <inheritdoc/>
-    public async Task<CogStatus> GetStatusAsync()
+    public Task<CogStatus> GetStatusAsync()
     {
         try
         {
-            bool exists = IsDirectory ? Directory.Exists(TargetPath) : File.Exists(TargetPath);
-            ReboundLogger.WriteToLog("LauncherCog", $"IsApplied check: {TargetPath} exists? {exists}");
-            return new(exists ? CogState.Installed : CogState.NotInstalled);
+            ReboundLogger.WriteToLog(
+                "FileCopyCog GetStatus", 
+                "GetStatus started.");
+
+            bool exists = IsDirectory ? 
+                Directory.Exists(TargetPath) : 
+                File.Exists(TargetPath);
+
+            ReboundLogger.WriteToLog(
+                "FileCopyCog GetStatus",
+                $"IsApplied check: {TargetPath} exists? {exists}");
+            return Task.FromResult(new CogStatus(exists ? CogState.Installed : CogState.NotInstalled));
         }
         catch (Exception ex)
         {
@@ -129,7 +157,7 @@ public class FileCopyCog : ICog
                 "IsApplied failed with exception.",
                 LogMessageSeverity.Error,
                 ex);
-            return new(CogState.Unknown, ex.Message);
+            return Task.FromResult(new CogStatus(CogState.Unknown, ex.Message));
         }
     }
 }

@@ -3,8 +3,14 @@
 
 using Rebound.Core;
 using Rebound.Core.Settings;
+
+#pragma warning disable CA1031 // Do not catch general exception types
+
 namespace Rebound.Forge.Cogs;
 
+/// <summary>
+/// Writes a boolean value to an application setting on apply, and its inverse on remove.
+/// </summary>
 public class BoolSettingCog : ICog
 {
     /// <inheritdoc/>
@@ -14,85 +20,110 @@ public class BoolSettingCog : ICog
     public required Guid CogId { get; set; }
 
     /// <inheritdoc/>
-    public required bool RequiresElevation { get; set; }
-
-    /// <inheritdoc/>
-    public required string CogDescription { get; set; }
+    public string CogDescription { get => $"Set {Key} to {AppliedValue} in {SettingsFileName}.xml"; }
 
     /// <summary>
-    /// The name of the application the setting applies to.
+    /// Writing boolean settings to AppData never requires elevation.
     /// </summary>
-    public required string AppName { get; set; }
+    public bool RequiresElevation => false;
 
     /// <summary>
-    /// The setting's name.
+    /// The file name (without extension) of the settings file in AppData\Local. 
+    /// For example, "rebound" for the "rebound.xml" settings file.
+    /// </summary>
+    public required string SettingsFileName { get; set; }
+
+    /// <summary>
+    /// The key identifying the setting to write.
     /// </summary>
     public required string Key { get; set; }
 
     /// <summary>
-    /// The value that will be applied when <see cref="ApplyAsync"/> is called. The opposite
-    /// value will be written when <see cref="RemoveAsync"/> is called.
+    /// The value written when <see cref="ApplyAsync"/> is called.
+    /// <see cref="RemoveAsync"/> will write the inverse.
     /// </summary>
     public required bool AppliedValue { get; set; }
 
     /// <inheritdoc/>
-    public string TaskDescription { get => $"Set {Key} to {AppliedValue}"; }
-
-    /// <inheritdoc/>
-    public async Task<CogOperationResult> ApplyAsync(CancellationToken cancellationToken = default)
+    public Task<CogOperationResult> ApplyAsync(CancellationToken cancellationToken = default)
     {
         try
         {
-            SettingsManager.SetValue(Key, AppName, AppliedValue);
-            return new CogOperationResult(true, null, true);
+            ReboundLogger.WriteToLog(
+                "BoolSettingCog Apply", 
+                $"Applying setting {Key} for {SettingsFileName}");
+            SettingsManager.SetValue(Key, SettingsFileName, AppliedValue);
+            ReboundLogger.WriteToLog(
+                "BoolSettingCog Apply", 
+                $"Applied setting {Key} for {SettingsFileName}");
+
+            return Task.FromResult(new CogOperationResult(true, null, true));
         }
         catch (Exception ex)
         {
             ReboundLogger.WriteToLog(
-                "BoolSettingCog apply",
-                "Couldn't apply the bool setting cog.",
+                "BoolSettingCog Apply", 
+                $"Failed to apply setting {Key} for {SettingsFileName}.", 
                 LogMessageSeverity.Error,
                 ex);
-
-            return new CogOperationResult(false, "Couldn't apply the bool setting cog.", true);
+            return Task.FromResult(new CogOperationResult(false, "EXCEPTION", true));
         }
     }
 
     /// <inheritdoc/>
-    public async Task<CogOperationResult> RemoveAsync(CancellationToken cancellationToken = default)
+    public Task<CogOperationResult> RemoveAsync(CancellationToken cancellationToken = default)
     {
         try
         {
-            SettingsManager.SetValue(Key, AppName, !AppliedValue);
-            return new CogOperationResult(true, null, true);
+            ReboundLogger.WriteToLog(
+                "BoolSettingCog Remove",
+                $"Removing setting {Key} for {SettingsFileName}");
+            SettingsManager.SetValue(Key, SettingsFileName, !AppliedValue);
+            ReboundLogger.WriteToLog(
+                "BoolSettingCog Remove",
+                $"Removed setting {Key} for {SettingsFileName}");
+
+            return Task.FromResult(new CogOperationResult(true, null, true));
         }
         catch (Exception ex)
         {
             ReboundLogger.WriteToLog(
-                "BoolSettingCog apply",
-                "Couldn't remove the bool setting cog.",
-                LogMessageSeverity.Error,
+                "BoolSettingCog Remove", 
+                $"Failed to remove setting {Key} for {SettingsFileName}.",
+                LogMessageSeverity.Error, 
                 ex);
-
-            return new CogOperationResult(false, "Couldn't remove the bool setting cog.", true);
+            return Task.FromResult(new CogOperationResult(false, "EXCEPTION", true));
         }
     }
 
     /// <inheritdoc/>
-    public async Task<CogStatus> GetStatusAsync()
+    public Task<CogStatus> GetStatusAsync()
     {
         try
         {
-            return new(AppliedValue == SettingsManager.GetValue(Key, AppName, !AppliedValue) ? CogState.Installed : CogState.NotInstalled);
+            ReboundLogger.WriteToLog(
+                "BoolSettingCog GetStatus", 
+                $"Checking status of setting {Key} for {SettingsFileName}");
+
+            // The default passed to GetValue is the inverse of AppliedValue so that a missing key
+            // is treated as not installed rather than accidentally matching.
+            var current = SettingsManager.GetValue(Key, SettingsFileName, !AppliedValue);
+            var state = current == AppliedValue ? CogState.Installed : CogState.NotInstalled;
+
+            ReboundLogger.WriteToLog(
+                "BoolSettingCog GetStatus",
+                $"The status of setting {Key} for {SettingsFileName} is {state}");
+
+            return Task.FromResult(new CogStatus(state));
         }
         catch (Exception ex)
         {
             ReboundLogger.WriteToLog(
-                "BoolSettingCog apply",
-                "Couldn't check if the bool setting cog is applied.",
+                "BoolSettingCog GetStatus", 
+                $"Failed to check status of setting {Key} for {SettingsFileName}.",
                 LogMessageSeverity.Error,
                 ex);
-            return new CogStatus(CogState.Unknown, "Couldn't check the status of the cog.");
+            return Task.FromResult(new CogStatus(CogState.Unknown, "An error occurred."));
         }
     }
 }

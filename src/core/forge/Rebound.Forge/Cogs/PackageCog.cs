@@ -10,446 +10,438 @@ using Windows.Management.Deployment;
 using Windows.Services.Store;
 using WinRT.Interop;
 
-namespace Rebound.Forge.Cogs
+#pragma warning disable CA1031 // Do not catch general exception types
+
+namespace Rebound.Forge.Cogs;
+
+/// <summary>
+/// Defines when the package management operations of this cog should be triggered during the apply/remove lifecycle.
+/// </summary>
+public enum PackageManagementTriggeredOn
 {
-    public enum PackageManagementTriggeredOn
-    {
-        Apply,
-        Remove,
-        Both,
-        FollowConfiguration
-    }
-
-    public enum PackageTargetType
-    {
-        Local,
-        Store
-    }
-
-    public record PackageTarget(PackageTargetType TargetType, string? TargetPath = null, string? StoreProductId = null, string? PackageFamilyName = null);
+    /// <summary>
+    /// Only install the package during the apply phase. No action is taken during removal.
+    /// </summary>
+    Apply,
 
     /// <summary>
-    /// Handles installation and management of Microsoft Store apps by product ID.
+    /// Only remove the package during the remove phase. No action is taken during application.
     /// </summary>
-    public partial class PackageCog : ObservableObject, ICog
+    Remove,
+
+    /// <summary>
+    /// Run installation and removal operations during their respective phases.
+    /// </summary>
+    Both,
+
+    /// <summary>
+    /// Defers to the user's configuration to determine whether Store package management should run.
+    /// Local packages are always managed regardless of this setting.
+    /// The relevant setting is <c>ManageStoreApps</c> under the <c>rebound</c> section, which defaults to <see langword="true"/>.
+    /// If disabled, Store packages will not be installed or removed by this cog.
+    /// </summary>
+    FollowConfiguration
+}
+
+/// <summary>
+/// Specifies the source location of a package targeted by a <see cref="PackageCog"/>.
+/// </summary>
+public enum PackageTargetType
+{
+    /// <summary>
+    /// A package located on the local filesystem. Typically an MSIX or Appx file installed directly by path.
+    /// </summary>
+    Local,
+
+    /// <summary>
+    /// A package distributed through the Microsoft Store, identified by a Store product ID.
+    /// </summary>
+    Store
+}
+
+/// <summary>
+/// Describes the target package for installation or removal, including its source type and the relevant identifiers.
+/// </summary>
+/// <param name="TargetType">
+/// Whether the package is sourced from the local filesystem or the Microsoft Store.
+/// </param>
+/// <param name="TargetPath">
+/// The filesystem path to the package file. Only used when <paramref name="TargetType"/> is <see cref="PackageTargetType.Local"/>.
+/// </param>
+/// <param name="StoreProductId">
+/// The Microsoft Store product ID. Only used when <paramref name="TargetType"/> is <see cref="PackageTargetType.Store"/>.
+/// </param>
+/// <param name="PackageFamilyName">
+/// The package family name used to identify installed packages for both local and Store targets.
+/// Required for status checks and local removal.
+/// </param>
+public record PackageTarget(
+    PackageTargetType TargetType,
+    string? TargetPath = null,
+    string? StoreProductId = null,
+    string? PackageFamilyName = null);
+
+/// <summary>
+/// Handles installation, removal, and state tracking of local MSIX/Appx packages and Microsoft Store packages.
+/// </summary>
+public partial class PackageCog : ObservableObject, ICog
+{
+    /// <inheritdoc/>
+    public required string CogName { get; set; }
+
+    /// <inheritdoc/>
+    public required Guid CogId { get; set; }
+
+    /// <inheritdoc/>
+    /// <remarks>
+    /// Package management always requires elevation.
+    /// </remarks>
+    public bool RequiresElevation { get; } = true;
+
+    /// <inheritdoc/>
+    public string CogDescription { get => $"Manage package {Target.PackageFamilyName} ({Target.TargetType})"; }
+
+    /// <summary>
+    /// Describes the package to install or remove, including its source type and relevant identifiers.
+    /// </summary>
+    public required PackageTarget Target { get; set; }
+
+    /// <summary>
+    /// Controls when this cog is allowed to perform package operations.
+    /// Defaults to <see cref="PackageManagementTriggeredOn.FollowConfiguration"/> so that
+    /// package management respects the user's global preferences out of the box.
+    /// </summary>
+    public PackageManagementTriggeredOn DoPackageManagementOn { get; set; }
+        = PackageManagementTriggeredOn.FollowConfiguration;
+
+    /// <inheritdoc/>
+    public async Task<CogOperationResult> ApplyAsync(CancellationToken cancellationToken = default)
     {
-        /// <inheritdoc/>
-        public required string CogName { get; set; }
-
-        /// <inheritdoc/>
-        public required Guid CogId { get; set; }
-
-        /// <inheritdoc/>
-        public required bool RequiresElevation { get; set; }
-
-        /// <inheritdoc/>
-        public required string CogDescription { get; set; }
-
-        /// <summary>
-        /// The launch target — either a full executable path or a package family name.
-        /// </summary>
-        public required PackageTarget Target { get; set; }
-
-        /// <summary>
-        /// Whether to launch on apply, remove, or both.
-        /// </summary>
-        public PackageManagementTriggeredOn DoPackageManagementOn { get; set; } = PackageManagementTriggeredOn.Both;
-
-        public async Task<CogOperationResult> ApplyAsync(CancellationToken cancellationToken = default)
+        var ignorable = DoPackageManagementOn switch
         {
-            // Check if managing Store apps is enabled in settings. If Rebound shouldn't manage Store apps, mark this cog as ignorable to skip it in the workflow.
-            var ignorable = DoPackageManagementOn switch
-            {
-                PackageManagementTriggeredOn.Apply => false,
-                PackageManagementTriggeredOn.Remove => true,
-                PackageManagementTriggeredOn.Both => false,
-                PackageManagementTriggeredOn.FollowConfiguration => !SettingsManager.GetValue("ManageStoreApps", "rebound", true),
-                _ => throw new InvalidOperationException($"Unexpected DoPackageManagementOn value: {DoPackageManagementOn}")
-            };
+            PackageManagementTriggeredOn.Apply => false,
+            PackageManagementTriggeredOn.Remove => true,
+            PackageManagementTriggeredOn.Both => false,
+            PackageManagementTriggeredOn.FollowConfiguration
+                // If the target is a store app, follow configuration; otherwise, always manage the package regardless of configuration since it's a local package.
+                // The reason: store apps can be installed and uninstalled by users at any moment, local packages are expected to be managed exclusively by this cog,
+                // so it doesn't make sense to give users the option to ignore local package management operations since that would lead to a lot of confusion and inconsistency in package states.
+                => Target.TargetType == PackageTargetType.Store
+                   && !SettingsManager.GetValue("ManageStoreApps", "rebound", true),
+            _ => throw new InvalidOperationException($"Unexpected DoPackageManagementOn value: {DoPackageManagementOn}")
+        };
 
-            // If the cog is ignorable based on the trigger configuration, skip the installation logic and return a successful result with ignorable set to true.
-            if (ignorable)
-                return new(true, null, true, true);
+        if (ignorable)
+            return new(true, null, true, true);
 
-            switch (Target.TargetType)
-            {
-                case PackageTargetType.Local:
-                    {
-                        try
-                        {
-                            ReboundLogger.WriteToLog("PackageCog (Local Package)", $"Starting installation from {Target.TargetPath}.");
-
-                            // Create a PackageManager instance and add the package by URI. This will handle both local and remote packages, and can also accept unsigned packages.
-                            var deployment = new PackageManager().AddPackageByUriAsync(
-                                new Uri(Target.TargetPath!),
-                                new() 
-                                { 
-                                    AllowUnsigned = true 
-                                });
-
-                            // Track progress for logging because yes
-                            deployment.Progress += (sender, progress) =>
-                                ReboundLogger.WriteToLog("PackageCog Installation (Local Package)", $"Deployment progress: {progress.percentage}%");
-
-                            // Obtain the operation result
-                            var installationResult = await deployment.AsTask(cancellationToken).ConfigureAwait(false);
-
-                            // Handle errors
-                            if (installationResult.ExtendedErrorCode != null)
-                            {
-                                ReboundLogger.WriteToLog(
-                                    "PackageCog Installation (Local Package)", 
-                                    $"Failed to install for {Target.PackageFamilyName}.", 
-                                    LogMessageSeverity.Error, 
-                                    installationResult.ExtendedErrorCode);
-
-                                return new(false, installationResult.ExtendedErrorCode.ToString(), false);
-                            }
-
-                            if (!installationResult.IsRegistered)
-                            {
-                                ReboundLogger.WriteToLog(
-                                    "PackageCog Installation (Local Package)",
-                                    $"Failed to register for {Target.PackageFamilyName}.",
-                                    LogMessageSeverity.Error,
-                                    installationResult.ExtendedErrorCode);
-
-                                return new(false, installationResult.ExtendedErrorCode?.ToString(), false);
-                            }
-
-                            // Success state
-                            ReboundLogger.WriteToLog("PackageCog Installation (Local Package)", $"Successfully installed package: {Target.PackageFamilyName}");
-                            return new(true, null, true);
-                        }
-                        catch (Exception ex)
-                        {
-                            ReboundLogger.WriteToLog(
-                                "PackageCog Installation (Local Package)",
-                                $"Installation failed for {Target.PackageFamilyName}.",
-                                LogMessageSeverity.Error,
-                                ex);
-                            return new(true, null, true);
-                        }
-                    }
-                case PackageTargetType.Store:
-                    {
-                        try
-                        {
-                            ReboundLogger.WriteToLog("PackageCog Apply (Store Package)", $"Starting Store install for product ID: {Target.StoreProductId}");
-
-                            // Obtaining the Store context for the current user (default)
-                            var storeContext = StoreContext.GetDefault();
-
-                            // Required to display purchase UI if the user needs to buy the app or if there are any issues with the license.
-                            InitializeWithWindow.Initialize(storeContext, Process.GetCurrentProcess().MainWindowHandle);
-
-                            // Request purchase of the app. This will handle both free and paid apps. For free apps, this will simply acquire the license. For paid apps, this will prompt the user to complete the purchase.
-                            var purchaseResult = await storeContext.RequestPurchaseAsync(Target.StoreProductId).AsTask(cancellationToken).ConfigureAwait(true);
-
-                            // Handle purchasing status
-                            switch (purchaseResult.Status)
-                            {
-                                case StorePurchaseStatus.Succeeded:
-                                    {
-                                        ReboundLogger.WriteToLog(
-                                            "PackageCog Purchase (Store Package)",
-                                            $"Purchase successful for {Target.StoreProductId}. Proceeding with installation.",
-                                            LogMessageSeverity.Message);
-                                        break;
-                                    }
-                                case StorePurchaseStatus.AlreadyPurchased:
-                                    {
-                                        ReboundLogger.WriteToLog(
-                                            "PackageCog Purchase (Store Package)",
-                                            $"Product {Target.StoreProductId} is already purchased. Proceeding with installation.",
-                                            LogMessageSeverity.Message);
-                                        break;
-                                    }
-                                case StorePurchaseStatus.NotPurchased:
-                                    {
-                                        ReboundLogger.WriteToLog(
-                                            "StorePackageCog Purchase",
-                                            $"Purchase canceled or failed for {Target.StoreProductId}. Status: NotPurchased",
-                                            LogMessageSeverity.Error);
-
-                                        return new CogOperationResult(false, "NOT_PURCHASED", false);
-                                    }
-                                case StorePurchaseStatus.NetworkError:
-                                    {
-                                        ReboundLogger.WriteToLog(
-                                            "PackageCog Purchase (Store Package)",
-                                            $"Network error during purchase of {Target.StoreProductId}. Status: NetworkError",
-                                            LogMessageSeverity.Error);
-
-                                        return new CogOperationResult(false, "NETWORK_ERROR", false);
-                                    }
-                                case StorePurchaseStatus.ServerError:
-                                    {
-                                        ReboundLogger.WriteToLog(
-                                            "PackageCog Purchase (Store Package)",
-                                            $"Server error during purchase of {Target.StoreProductId}. Status: ServerError",
-                                            LogMessageSeverity.Error);
-
-                                        return new CogOperationResult(false, "SERVER_ERROR", false);
-                                    }
-                                default:
-                                    {
-                                        ReboundLogger.WriteToLog(
-                                            "PackageCog Purchase (Store Package)",
-                                            $"Unknown purchase status for {Target.StoreProductId}. Status: {purchaseResult.Status}",
-                                            LogMessageSeverity.Error);
-
-                                        return new CogOperationResult(false, "UNKNOWN_ERROR", false);
-                                    }
-                            }
-
-                            var installOperation = storeContext.DownloadAndInstallStorePackagesAsync(
-                                new List<string> 
-                                { 
-                                    Target.StoreProductId ?? throw new InvalidOperationException("StoreProductId is null") 
-                                });
-
-                            // Handle Progress updates
-                            installOperation.Progress = (info, progress) =>
-                            {
-                                ReboundLogger.WriteToLog(
-                                    "PackageCog Progress (Store Package)",
-                                    $"Downloading/Installing {Target.StoreProductId}: {progress.TotalDownloadProgress}%",
-                                    LogMessageSeverity.Message);
-                            };
-
-                            // Await the completion
-                            var result = await installOperation.AsTask(cancellationToken).ConfigureAwait(false);
-
-                            // Handle the final installation state
-                            switch (result.OverallState)
-                            {
-                                case StorePackageUpdateState.Completed:
-                                    ReboundLogger.WriteToLog(
-                                        "PackageCog Install (Store Package)",
-                                        $"Successfully installed {Target.StoreProductId}.",
-                                        LogMessageSeverity.Message);
-
-                                    return new CogOperationResult(true, null, true);
-
-                                case StorePackageUpdateState.Canceled:
-                                    ReboundLogger.WriteToLog(
-                                        "PackageCog Install (Store Package)",
-                                        $"Installation canceled for {Target.StoreProductId}.",
-                                        LogMessageSeverity.Warning);
-
-                                    return new CogOperationResult(false, "CANCELLED", false);
-
-                                case StorePackageUpdateState.ErrorWiFiRequired:
-                                    ReboundLogger.WriteToLog(
-                                        "PackageCog Install (Store Package)",
-                                        $"WiFi is required to install {Target.StoreProductId}.",
-                                        LogMessageSeverity.Error);
-
-                                    return new CogOperationResult(false, "NO_WIFI", false);
-
-                                case StorePackageUpdateState.ErrorLowBattery:
-                                    ReboundLogger.WriteToLog(
-                                        "PackageCog Install (Store Package)",
-                                        $"Battery is too low to continue installing {Target.StoreProductId}.",
-                                        LogMessageSeverity.Error);
-
-                                    return new CogOperationResult(false, "LOW_BATTERY", false);
-
-                                default:
-                                    ReboundLogger.WriteToLog(
-                                        "PackageCog Install (Store Package)",
-                                        $"An unknown error has occured while installing {Target.StoreProductId}. State: {result.OverallState}",
-                                        LogMessageSeverity.Error);
-
-                                    return new CogOperationResult(false, "UNKNOWN_ERROR", false);
-                            }
-                        }
-                        catch (Exception ex)
-                        {
-                            ReboundLogger.WriteToLog(
-                                "PackageCog Apply (Store Package)",
-                                $"Critical failure during install of {Target.StoreProductId}.",
-                                LogMessageSeverity.Error,
-                                ex);
-
-                            return new CogOperationResult(false, "EXCEPTION_THROWN", false);
-                        }
-                    }
-                default:
-                    throw new InvalidOperationException($"Unexpected TargetType: {Target.TargetType}");
-            }
-        }
-
-        public async Task<CogOperationResult> RemoveAsync(CancellationToken cancellationToken = default)
+        return Target.TargetType switch
         {
-            // Check if managing Store apps is enabled in settings. If Rebound shouldn't manage Store apps, mark this cog as ignorable to skip it in the workflow.
-            var ignorable = DoPackageManagementOn switch
-            {
-                PackageManagementTriggeredOn.Apply => false,
-                PackageManagementTriggeredOn.Remove => true,
-                PackageManagementTriggeredOn.Both => false,
-                PackageManagementTriggeredOn.FollowConfiguration => !SettingsManager.GetValue("ManageStoreApps", "rebound", true),
-                _ => throw new InvalidOperationException($"Unexpected DoPackageManagementOn value: {DoPackageManagementOn}")
-            };
+            PackageTargetType.Local => await ApplyLocalAsync(cancellationToken).ConfigureAwait(false),
+            PackageTargetType.Store => await ApplyStoreAsync(cancellationToken).ConfigureAwait(false),
+            _ => throw new InvalidOperationException($"Unexpected TargetType: {Target.TargetType}")
+        };
+    }
 
-            // If the cog is ignorable based on the trigger configuration, skip the installation logic and return a successful result with ignorable set to true.
-            if (ignorable)
-                return new(true, null, true, true);
-
-            switch (Target.TargetType)
-            {
-                case PackageTargetType.Local:
-                    {
-                        try
-                        {
-                            ReboundLogger.WriteToLog("PackageCog (Local Package)", $"Starting uninstallation from {Target.TargetPath}.");
-
-                            // Create a PackageManager instance and find the package by family name. Then remove it by full name. This will handle both local and remote packages, and can also accept unsigned packages.
-                            var packageManager = new PackageManager();
-                            var packages = packageManager.FindPackagesForUser(string.Empty)
-                                .Where(p => p.Id.FamilyName == Target.PackageFamilyName);
-
-                            // Uninstall each matching package
-                            foreach (var package in packages)
-                            {
-                                var result = await packageManager.RemovePackageAsync(package.Id.FullName).AsTask(cancellationToken).ConfigureAwait(true);
-
-                                if (result.ExtendedErrorCode != null)
-                                {
-                                    ReboundLogger.WriteToLog(
-                                        "PackageCog Uninstallation (Local Package)",
-                                        $"Failed to uninstall {Target.PackageFamilyName}.",
-                                        LogMessageSeverity.Error,
-                                        result.ExtendedErrorCode);
-                                    return new(false, result.ExtendedErrorCode.ToString(), false);
-                                }
-
-                                if (result.IsRegistered)
-                                {
-                                    ReboundLogger.WriteToLog(
-                                        "PackageCog Uninstallation (Local Package)",
-                                        $"Failed to unregister {Target.PackageFamilyName}.",
-                                        LogMessageSeverity.Error,
-                                        result.ExtendedErrorCode);
-                                    return new(false, result.ExtendedErrorCode?.ToString(), false);
-                                }
-                            }
-
-                            // Success state
-                            ReboundLogger.WriteToLog("PackageCog Uninstallation (Local Package)", $"Successfully uninstalled package: {Target.PackageFamilyName}");
-                            return new(true, null, true);
-                        }
-                        catch (Exception ex)
-                        {
-                            ReboundLogger.WriteToLog(
-                                "PackageCog Installation (Local Package)",
-                                $"Installation failed for {Target.PackageFamilyName}.",
-                                LogMessageSeverity.Error,
-                                ex);
-                            return new(true, null, true);
-                        }
-                    }
-                case PackageTargetType.Store:
-                    {
-                        try
-                        {
-                            ReboundLogger.WriteToLog("PackageCog Remove (Store Package)", $"Starting Store uninstall for product ID: {Target.StoreProductId}");
-
-                            // Obtain the current store context
-                            var storeContext = StoreContext.GetDefault();
-
-                            // Initialize with the current window handle to ensure any UI prompts are correctly parented
-                            InitializeWithWindow.Initialize(storeContext, Process.GetCurrentProcess().MainWindowHandle);
-
-                            // Attempt to uninstall the package by Store ID. This will handle cases where the package is installed, and will return an appropriate status if it's not found or if there's an error.
-                            var result = await storeContext.UninstallStorePackageByStoreIdAsync(Target.StoreProductId).AsTask(cancellationToken).ConfigureAwait(false);
-
-                            // Handle errors and success states based on the returned status
-                            switch (result.Status)
-                            {
-                                case StoreUninstallStorePackageStatus.Succeeded:
-                                    ReboundLogger.WriteToLog(
-                                        "PackageCog Uninstall (Store Package)",
-                                        $"Successfully uninstalled {Target.StoreProductId}.",
-                                        LogMessageSeverity.Message);
-
-                                    return new CogOperationResult(true, null, true);
-                                case StoreUninstallStorePackageStatus.NetworkError:
-                                    ReboundLogger.WriteToLog(
-                                        "PackageCog Uninstall (Store Package)",
-                                        $"Network error occurred while trying to uninstall {Target.StoreProductId}.",
-                                        LogMessageSeverity.Warning);
-
-                                    return new CogOperationResult(false, "NETWORK_ERROR", false);
-                                default:
-                                    ReboundLogger.WriteToLog(
-                                        "PackageCog Uninstall (Store Package)",
-                                        $"An unknown status was returned when trying to uninstall {Target.StoreProductId}. Status: {result.Status}",
-                                        LogMessageSeverity.Error);
-
-                                    return new CogOperationResult(false, "UNKNOWN_ERROR", false);
-                            }
-                        }
-                        catch (Exception ex)
-                        {
-                            ReboundLogger.WriteToLog(
-                                "PackageCog Remove (Store Package)",
-                                $"Critical failure during uninstall of {Target.StoreProductId}.",
-                                LogMessageSeverity.Error,
-                                ex);
-
-                            return new CogOperationResult(false, "EXCEPTION_THROWN", false);
-                        }
-                    }
-                default:
-                    throw new InvalidOperationException($"Unexpected TargetType: {Target.TargetType}");
-            }
-        }
-
-        public async Task<CogStatus> GetStatusAsync()
+    /// <inheritdoc/>
+    public async Task<CogOperationResult> RemoveAsync(CancellationToken cancellationToken = default)
+    {
+        var ignorable = DoPackageManagementOn switch
         {
-            // Check if managing Store apps is enabled in settings. If Rebound shouldn't manage Store apps, mark this cog as ignorable to skip it in the workflow.
-            var ignorable = DoPackageManagementOn switch
-            {
-                PackageManagementTriggeredOn.FollowConfiguration => !SettingsManager.GetValue("ManageStoreApps", "rebound", true),
-                _ => false
-            };
+            PackageManagementTriggeredOn.Apply => true,
+            PackageManagementTriggeredOn.Remove => false,
+            PackageManagementTriggeredOn.Both => false,
+            PackageManagementTriggeredOn.FollowConfiguration
+                // Same logic as above
+                => Target.TargetType == PackageTargetType.Store
+                   && !SettingsManager.GetValue("ManageStoreApps", "rebound", true),
+            _ => throw new InvalidOperationException($"Unexpected DoPackageManagementOn value: {DoPackageManagementOn}")
+        };
 
-            // If the cog is ignorable based on the trigger configuration, skip the installation logic and return a successful result with ignorable set to true.
-            if (ignorable)
-                return new(CogState.Ignorable);
+        if (ignorable)
+            return new(true, null, true, true);
 
-            try
-            {
-                ReboundLogger.WriteToLog("PackageCog Get Status", $"Starting Store uninstall for product ID: {Target.StoreProductId}");
+        return Target.TargetType switch
+        {
+            PackageTargetType.Local => await RemoveLocalAsync(cancellationToken).ConfigureAwait(false),
+            PackageTargetType.Store => await RemoveStoreAsync(cancellationToken).ConfigureAwait(false),
+            _ => throw new InvalidOperationException($"Unexpected TargetType: {Target.TargetType}")
+        };
+    }
 
-                // Obtain the current store context
-                var packageManager = new PackageManager();
-                var currentSid = WindowsIdentity.GetCurrent().User?.Value;
-                if (currentSid == null)
-                {
-                    ReboundLogger.WriteToLog("PackageCog Get Status", "Could not get current user SID.");
-                    return new(CogState.Unknown, "An error occurred.");
-                }
+    /// <inheritdoc/>
+    public async Task<CogStatus> GetStatusAsync()
+    {
+        // FollowConfiguration only suppresses install/remove operations, not status checks.
+        // We always want to know whether the package is actually present on the system.
+        try
+        {
+            var pm = new PackageManager();
+            var sid = WindowsIdentity.GetCurrent().User?.Value;
 
-                // Filter installed packages by PackageFamilyName instead of FullName
-                var packages = packageManager.FindPackagesForUser(currentSid, Target.PackageFamilyName);
-                bool installed = packages.Any(); // Any version installed is fine
-
-                ReboundLogger.WriteToLog("PackageCog Get Status", $"IsApplied check: {(installed ? "Installed" : "Not installed")}");
-                return new CogStatus(installed ? CogState.Installed : CogState.NotInstalled);
-            }
-            catch (Exception ex)
+            if (sid is null)
             {
                 ReboundLogger.WriteToLog(
-                    "PackageCog Get Status",
-                    $"Critical failure during uninstall of {Target.StoreProductId}.",
-                    LogMessageSeverity.Error,
-                    ex);
-
-                return new CogStatus(CogState.Unknown, "An error occurred.");
+                    "PackageCog GetStatus", 
+                    "Could not resolve current user SID for status check.", 
+                    LogMessageSeverity.Error);
+                return new(CogState.Unknown, "Missing SID.");
             }
+
+            // Retrieve any of the installed packages for the current user that match the target package family name.
+            // If any are found, we consider the package installed.
+            var installed = pm
+                .FindPackagesForUser(sid, Target.PackageFamilyName)
+                .Any();
+
+            ReboundLogger.WriteToLog(
+                "PackageCog GetStatus", 
+                $"Status check for {Target.PackageFamilyName}: {(installed ? "Installed" : "Not installed")}.");
+            return new(installed ? CogState.Installed : CogState.NotInstalled);
+        }
+        catch (Exception ex)
+        {
+            ReboundLogger.WriteToLog(
+                "PackageCog GetStatus", 
+                $"Status check failed for {Target.PackageFamilyName}.", LogMessageSeverity.Error, ex);
+            return new(CogState.Unknown, "An error occurred.");
         }
     }
+
+    #region Local Package Handling
+
+    private async Task<CogOperationResult> ApplyLocalAsync(CancellationToken cancellationToken)
+    {
+        try
+        {
+            ReboundLogger.WriteToLog(
+                "PackageCog ApplyLocal", 
+                $"Installing local package from: {Target.TargetPath}.");
+
+            var pm = new PackageManager();
+            var op = pm.AddPackageByUriAsync(
+                new Uri(Target.TargetPath!), // Technically supports URLs if needed
+                new AddPackageOptions { AllowUnsigned = true });
+
+            op.Progress += (_, progress) =>
+                ReboundLogger.WriteToLog(
+                    "PackageCog ApplyLocal", 
+                    $"Local install progress for {Target.PackageFamilyName}: {progress.percentage}%.");
+
+            var result = await op.AsTask(cancellationToken).ConfigureAwait(false);
+
+            if (result.ExtendedErrorCode is not null)
+            {
+                ReboundLogger.WriteToLog(
+                    "PackageCog ApplyLocal",
+                    $"Local install failed for {Target.PackageFamilyName}: {result.ErrorText}.",
+                    LogMessageSeverity.Error,
+                    result.ExtendedErrorCode);
+                return new(false, result.ErrorText, false);
+            }
+
+            if (!result.IsRegistered)
+            {
+                ReboundLogger.WriteToLog(
+                    "PackageCog ApplyLocal",
+                    $"Local package {Target.PackageFamilyName} installed but failed to register.",
+                    LogMessageSeverity.Error);
+                return new(false, "NOT_REGISTERED", false);
+            }
+
+            ReboundLogger.WriteToLog(
+                "PackageCog ApplyLocal", 
+                $"Local install succeeded for {Target.PackageFamilyName}.");
+            return new(true, null, true);
+        }
+        catch (Exception ex)
+        {
+            ReboundLogger.WriteToLog(
+                "PackageCog ApplyLocal", 
+                $"Local install failed for {Target.PackageFamilyName}.", 
+                LogMessageSeverity.Error, 
+                ex);
+            return new(false, "EXCEPTION", false);
+        }
+    }
+
+    private async Task<CogOperationResult> RemoveLocalAsync(CancellationToken cancellationToken)
+    {
+        try
+        {
+            ReboundLogger.WriteToLog(
+                "PackageCog RemoveLocal", 
+                $"Uninstalling local package: {Target.PackageFamilyName}.");
+
+            var pm = new PackageManager();
+            var sid = WindowsIdentity.GetCurrent().User?.Value;
+
+            if (sid is null)
+            {
+                ReboundLogger.WriteToLog(
+                    "PackageCog RemoveLocal",
+                    "Could not resolve current user SID for local removal.", 
+                    LogMessageSeverity.Error);
+                return new(false, "NO_SID", false);
+            }
+
+            var packages = pm.FindPackagesForUser(sid, Target.PackageFamilyName);
+
+            // Remove each package for the current user (there can be multiple for a single family)
+            foreach (var package in packages)
+            {
+                var result = await pm.RemovePackageAsync(package.Id.FullName).AsTask(cancellationToken).ConfigureAwait(false);
+
+                if (result.ExtendedErrorCode is not null)
+                {
+                    ReboundLogger.WriteToLog(
+                        "PackageCog RemoveLocal",
+                        $"Local uninstall failed for {Target.PackageFamilyName}: {result.ErrorText}.",
+                        LogMessageSeverity.Error,
+                        result.ExtendedErrorCode);
+                    return new(false, result.ErrorText, false);
+                }
+
+                if (result.IsRegistered)
+                {
+                    ReboundLogger.WriteToLog(
+                        "PackageCog RemoveLocal",
+                        $"Local package {Target.PackageFamilyName} removal did not fully deregister.",
+                        LogMessageSeverity.Error);
+                    return new(false, "STILL_REGISTERED", false);
+                }
+            }
+
+            ReboundLogger.WriteToLog(
+                "PackageCog RemoveLocal", 
+                $"Local uninstall succeeded for {Target.PackageFamilyName}.");
+            return new(true, null, true);
+        }
+        catch (Exception ex)
+        {
+            ReboundLogger.WriteToLog(
+                "PackageCog RemoveLocal", 
+                $"Local uninstall failed for {Target.PackageFamilyName}.", 
+                LogMessageSeverity.Error, 
+                ex);
+            return new(false, "EXCEPTION", false);
+        }
+    }
+
+    #endregion
+
+    #region Store Package Handling
+
+    private async Task<CogOperationResult> ApplyStoreAsync(CancellationToken cancellationToken)
+    {
+        try
+        {
+            ReboundLogger.WriteToLog(
+                "PackageCog ApplyStore", 
+                $"Starting Store install for product ID: {Target.StoreProductId}.");
+
+            // Store context really wants UI for the purchase flow, so we have to initialize it with the current window handle.
+            // It's meant for purchase confirmation dialogs and such, but it seems to be required even if the product is already owned and just needs to be installed.
+            // Users might see a flashing window specifically for the purchase confirmation prompt regardless of whether they already own the product or not, but unfortunately there's no way around it that I could find.
+            // It seems to be a Windows bug. Not surprising.
+            var ctx = StoreContext.GetDefault();
+            InitializeWithWindow.Initialize(ctx, Process.GetCurrentProcess().MainWindowHandle);
+
+            var purchase = await ctx
+                .RequestPurchaseAsync(Target.StoreProductId)
+                .AsTask(cancellationToken)
+                .ConfigureAwait(false);
+
+            switch (purchase.Status)
+            {
+                case StorePurchaseStatus.Succeeded:
+                    ReboundLogger.WriteToLog("PackageCog ApplyStore", $"Purchase succeeded for {Target.StoreProductId}.");
+                    break;
+                case StorePurchaseStatus.AlreadyPurchased:
+                    ReboundLogger.WriteToLog("PackageCog ApplyStore", $"Product {Target.StoreProductId} is already owned. Proceeding with install.");
+                    break;
+                case StorePurchaseStatus.NotPurchased:
+                    ReboundLogger.WriteToLog("PackageCog ApplyStore", $"Purchase was not completed for {Target.StoreProductId}.", LogMessageSeverity.Warning);
+                    return new(false, "NOT_PURCHASED", false);
+                case StorePurchaseStatus.NetworkError:
+                    ReboundLogger.WriteToLog("PackageCog ApplyStore", $"Network error during purchase of {Target.StoreProductId}.", LogMessageSeverity.Error);
+                    return new(false, "NETWORK_ERROR", false);
+                case StorePurchaseStatus.ServerError:
+                    ReboundLogger.WriteToLog("PackageCog ApplyStore", $"Server error during purchase of {Target.StoreProductId}.", LogMessageSeverity.Error);
+                    return new(false, "SERVER_ERROR", false);
+                default:
+                    ReboundLogger.WriteToLog("PackageCog ApplyStore", $"Unexpected purchase status for {Target.StoreProductId}: {purchase.Status}.", LogMessageSeverity.Error);
+                    return new(false, "UNKNOWN_PURCHASE_STATUS", false);
+            }
+
+            var installOp = ctx.DownloadAndInstallStorePackagesAsync(
+                [Target.StoreProductId ?? throw new InvalidOperationException("StoreProductId is null.")]);
+
+            installOp.Progress = (_, progress) =>
+                ReboundLogger.WriteToLog(
+                    "PackageCog ApplyStore", 
+                    $"Store install progress for {Target.StoreProductId}: {progress.TotalDownloadProgress}%.");
+
+            var installResult = await installOp.AsTask(cancellationToken).ConfigureAwait(false);
+
+            ReboundLogger.WriteToLog(
+                "PackageCog ApplyStore",
+                $"Store install result for {Target.StoreProductId}: {installResult.OverallState}.",
+                installResult.OverallState == StorePackageUpdateState.Completed ? LogMessageSeverity.Message : LogMessageSeverity.Error);
+
+            return installResult.OverallState == StorePackageUpdateState.Completed
+                ? new(true, null, true)
+                : new(false, installResult.OverallState.ToString(), false);
+        }
+        catch (Exception ex)
+        {
+            ReboundLogger.WriteToLog(
+                "PackageCog ApplyStore", 
+                $"Store install failed for {Target.StoreProductId}.",
+                LogMessageSeverity.Error, 
+                ex);
+            return new(false, "EXCEPTION", false);
+        }
+    }
+
+    private async Task<CogOperationResult> RemoveStoreAsync(CancellationToken cancellationToken)
+    {
+        try
+        {
+            ReboundLogger.WriteToLog(
+                "PackageCog RemoveStore",
+                $"Starting Store uninstall for product ID: {Target.StoreProductId}.");
+
+            // StoreContext requires a window handle even for uninstall operations. Why? No idea
+            var ctx = StoreContext.GetDefault();
+            InitializeWithWindow.Initialize(ctx, Process.GetCurrentProcess().MainWindowHandle);
+
+            var result = await ctx
+                .UninstallStorePackageByStoreIdAsync(Target.StoreProductId)
+                .AsTask(cancellationToken)
+                .ConfigureAwait(false);
+
+            ReboundLogger.WriteToLog(
+                "PackageCog RemoveStore",
+                $"Store uninstall result for {Target.StoreProductId}: {result.Status}.",
+                result.Status == StoreUninstallStorePackageStatus.Succeeded ? LogMessageSeverity.Message : LogMessageSeverity.Error);
+
+            return result.Status switch
+            {
+                StoreUninstallStorePackageStatus.Succeeded => new(true, null, true),
+                StoreUninstallStorePackageStatus.NetworkError => new(false, "NETWORK_ERROR", false),
+                _ => new(false, result.Status.ToString(), false)
+            };
+        }
+        catch (Exception ex)
+        {
+            ReboundLogger.WriteToLog(
+                "PackageCog RemoveStore", 
+                $"Store uninstall failed for {Target.StoreProductId}.", 
+                LogMessageSeverity.Error,
+                ex);
+            return new(false, "EXCEPTION", false);
+        }
+    }
+
+    #endregion
 }

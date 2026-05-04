@@ -8,6 +8,8 @@ using Rebound.Core.Storage;
 using TerraFX.Interop.Windows;
 using static TerraFX.Interop.Windows.Windows;
 
+#pragma warning disable CA1031 // Do not catch general exception types
+
 namespace Rebound.Forge.Cogs;
 
 /// <summary>
@@ -25,7 +27,7 @@ public class ShortcutCog : ICog
     public required bool RequiresElevation { get; set; }
 
     /// <inheritdoc/>
-    public required string CogDescription { get; set; }
+    public string CogDescription { get => $"Create shortcut '{ShortcutName}' for executable '{ExePath}'."; }
 
     /// <summary>
     /// Path of the target executable to be launched.
@@ -72,7 +74,7 @@ public class ShortcutCog : ICog
             if (hr.FAILED || shellLink.Get() is null)
             {
                 ReboundLogger.WriteToLog(
-                    "ShortcutCog apply",
+                    "ShortcutCog Apply",
                     $"CoCreateInstance failed. HRESULT=0x{hr.Value:X}, pointer null? {shellLink.Get() is null}",
                     LogMessageSeverity.Error);
                 return Task.FromResult(new CogOperationResult(false, "COM_EXCEPTION", false));
@@ -102,7 +104,7 @@ public class ShortcutCog : ICog
             if (hr.FAILED || persistFile.Get() is null)
             {
                 ReboundLogger.WriteToLog(
-                    "ShortcutCog apply",
+                    "ShortcutCog Apply",
                     $"QueryInterface(IPersistFile) failed. HRESULT=0x{hr.Value:X}",
                     LogMessageSeverity.Error);
                 return Task.FromResult(new CogOperationResult(false, "COM_EXCEPTION", false));
@@ -116,7 +118,7 @@ public class ShortcutCog : ICog
         catch (Exception ex)
         {
             ReboundLogger.WriteToLog(
-                "ShortcutCog apply",
+                "ShortcutCog Apply",
                 "An exception occurred while applying the shortcut cog.",
                 LogMessageSeverity.Error,
                 ex);
@@ -142,7 +144,7 @@ public class ShortcutCog : ICog
         catch (Exception ex)
         {
             ReboundLogger.WriteToLog(
-                "ShortcutCog remove",
+                "ShortcutCog Remove",
                 "An exception occurred while removing the shortcut cog.",
                 LogMessageSeverity.Error,
                 ex);
@@ -163,7 +165,7 @@ public class ShortcutCog : ICog
         catch (Exception ex)
         {
             ReboundLogger.WriteToLog(
-                "ShortcutCog check",
+                "ShortcutCog GetStatus",
                 "An exception occurred while checking the shortcut cog.",
                 LogMessageSeverity.Error,
                 ex);
