@@ -4,6 +4,8 @@
 		<TargetFrameworks>netstandard2.0</TargetFrameworks>
 		<OutputType>Library</OutputType>
 		<PublishAot>false</PublishAot>
+		<EmitCompilerGeneratedFiles>true</EmitCompilerGeneratedFiles>
+		<CompilerGeneratedFilesOutputPath>Generated</CompilerGeneratedFilesOutputPath>
 	</PropertyGroup>
 
 	<ItemGroup>

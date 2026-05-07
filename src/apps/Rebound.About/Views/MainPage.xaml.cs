@@ -7,13 +7,13 @@ using Microsoft.UI.Xaml.Controls;
 using Rebound.About.ViewModels;
 using Rebound.Core;
 using Rebound.Core.SystemInformation.Software;
+using Rebound.Core.UI.Threading;
 using Rebound.Core.UI.Windowing;
 using System;
 using System.Diagnostics;
 using System.Threading.Tasks;
 using Windows.ApplicationModel.DataTransfer;
 using Windows.System;
-using Windows.UI.Core;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 
@@ -37,7 +37,70 @@ internal sealed partial class MainPage : Page
         SizeChanged += (s, e) => { UpdateSize(e.NewSize); };
         UpdateSize(new(ActualWidth, ActualHeight));
 
-        _ = Dispatcher.RunAsync(CoreDispatcherPriority.Low, async () =>
+        Loaded += MainPage_Loaded;
+    }
+
+    private async void MainPage_Loaded(object sender, RoutedEventArgs e)
+    {
+        Loaded -= MainPage_Loaded;
+
+        // let first frame fully render
+        await Task.Yield();
+
+        UIThread.QueueAction(() =>
+        {
+            try
+            {
+                WallpaperPath = UserInformation.GetWallpaperPath();
+            }
+            catch (Exception ex)
+            {
+                ReboundLogger.WriteToLog(
+                    "Wallpaper Retrieval",
+                    "The user does not appear to have a picture wallpaper.",
+                    LogMessageSeverity.Warning,
+                    ex);
+            }
+
+            try
+            {
+                UserPicturePath = UserInformation.GetUserPicturePath();
+            }
+            catch (Exception ex)
+            {
+                ReboundLogger.WriteToLog(
+                    "User Picture Retrieval",
+                    "The user does not appear to have a profile picture.",
+                    LogMessageSeverity.Warning,
+                    ex);
+            }
+        });
+
+        // FAST init first
+        await Task.WhenAll(
+            ViewModel.InitializePrimarySoftwareAsync(),
+            ViewModel.InitializePrimaryHardwareAsync(),
+            ViewModel.InitializePrimaryUserAsync()
+        );
+
+        UIThread.QueueAction(() => ViewModel.Loaded = true);
+
+        // let UI update visibly before heavy work
+        await Task.Yield();
+
+        // background expensive stuff
+        _ = LoadDeferredAsync();
+    }
+
+    private async Task LoadDeferredAsync()
+    {
+        await Task.WhenAll(
+            ViewModel.InitializeSecondarySoftwareAsync(),
+            ViewModel.InitializeSecondaryHardwareAsync(),
+            ViewModel.InitializeSecondaryUserAsync()
+        );
+
+        UIThread.QueueAction(() =>
         {
             WindowsActivationSeverity = WindowsInformation.GetWindowsActivationType() switch
             {
@@ -49,31 +112,6 @@ internal sealed partial class MainPage : Page
                 WindowsActivationType.Unknown => InfoBarSeverity.Informational,
                 _ => InfoBarSeverity.Informational
             };
-            try
-            {
-                WallpaperPath = UserInformation.GetWallpaperPath();
-            }
-            catch (Exception ex)
-            {
-                ReboundLogger.WriteToLog(
-                "Wallpaper Retrieval",
-                "The user does not appear to have a picture wallpaper.",
-                LogMessageSeverity.Warning,
-                ex);
-            }
-            try
-            {
-                UserPicturePath = UserInformation.GetUserPicturePath();
-            }
-            catch (Exception ex)
-            {
-                ReboundLogger.WriteToLog(
-                "User Picture Retrieval",
-                "The user does not appear to have a profile picture.",
-                LogMessageSeverity.Warning,
-                ex);
-            }
-            await ViewModel.InitializeAsync().ConfigureAwait(false);
         });
     }
 

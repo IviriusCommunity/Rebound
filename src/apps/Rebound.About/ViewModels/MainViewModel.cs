@@ -40,23 +40,6 @@ internal partial class MainViewModel : ObservableObject
         _liveHardwareFeed.Start();
     }
 
-    public async Task InitializeAsync()
-    {
-        await Task.WhenAll(
-            InitializePrimarySoftwareAsync(),
-            InitializePrimaryHardwareAsync(),
-            InitializePrimaryUserAsync()
-        ).ConfigureAwait(false);
-
-        UIThread.QueueAction(() => Loaded = true);
-
-        await Task.WhenAll(
-            InitializeSecondarySoftwareAsync(),
-            InitializeSecondaryHardwareAsync(),
-            InitializeSecondaryUserAsync()
-        ).ConfigureAwait(false);
-    }
-
     // Hardware information
     [ObservableProperty] public partial int CpuUsage { get; set; } = 0;
     [ObservableProperty] public partial string CpuName { get; set; } = "Loading...";
@@ -245,9 +228,9 @@ internal partial class MainViewModel : ObservableObject
         await Task.WhenAll(cpuName, cpuArch, gpuName, pagefileSize, res,
             refreshRate, winSpace, totalSpace, manufacturer, model).ConfigureAwait(false);
 
-        var resResult = res.Result;
-        var winSpaceResult = winSpace.Result;
-        var totalSpaceResult = totalSpace.Result;
+        var resResult = await res.ConfigureAwait(false);
+        var winSpaceResult = await winSpace.ConfigureAwait(false);
+        var totalSpaceResult = await totalSpace.ConfigureAwait(false);
 
         UIThread.QueueAction(() =>
         {

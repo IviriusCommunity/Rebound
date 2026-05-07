@@ -12,6 +12,8 @@
 		<OutputItemType>Analyzer</OutputItemType>
 		<PublishAot>false</PublishAot>
 		<IncludeBuildOutput>false</IncludeBuildOutput>
+		<EmitCompilerGeneratedFiles>true</EmitCompilerGeneratedFiles>
+		<CompilerGeneratedFilesOutputPath>Generated</CompilerGeneratedFilesOutputPath>
 		<!-- Important for analyzers -->
 	</PropertyGroup>
 
