@@ -13,7 +13,7 @@ public static class SettingsManager
         try
         {
             // Define the path for the XML file
-            var localAppDataPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), ".rebound");
+            var localAppDataPath = Variables.ReboundDataFolder;
             var filePath = Path.Combine(localAppDataPath, $"{appName}.xml");
 
             // Check if the file exists
@@ -48,7 +48,7 @@ public static class SettingsManager
     {
         try
         {
-            var localAppDataPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), ".rebound");
+            var localAppDataPath = Variables.ReboundDataFolder;
             var filePath = Path.Combine(localAppDataPath, $"{appName}.xml");
 
             if (!Directory.Exists(localAppDataPath))
