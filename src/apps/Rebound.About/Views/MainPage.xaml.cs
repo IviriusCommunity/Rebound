@@ -44,7 +44,7 @@ internal sealed partial class MainPage : Page
     {
         Loaded -= MainPage_Loaded;
 
-        // let first frame fully render
+        // Let the first frame fully render so the window displays properly
         await Task.Yield();
 
         UIThread.QueueAction(() =>
@@ -76,19 +76,19 @@ internal sealed partial class MainPage : Page
             }
         });
 
-        // FAST init first
+        // Fast init tasks first
         await Task.WhenAll(
             ViewModel.InitializePrimarySoftwareAsync(),
             ViewModel.InitializePrimaryHardwareAsync(),
             ViewModel.InitializePrimaryUserAsync()
-        );
+        ).ConfigureAwait(false);
 
         UIThread.QueueAction(() => ViewModel.Loaded = true);
 
-        // let UI update visibly before heavy work
+        // Let UI update visibly before heavy work
         await Task.Yield();
 
-        // background expensive stuff
+        // Background expensive stuff
         _ = LoadDeferredAsync();
     }
 
@@ -98,7 +98,7 @@ internal sealed partial class MainPage : Page
             ViewModel.InitializeSecondarySoftwareAsync(),
             ViewModel.InitializeSecondaryHardwareAsync(),
             ViewModel.InitializeSecondaryUserAsync()
-        );
+        ).ConfigureAwait(false);
 
         UIThread.QueueAction(() =>
         {
