@@ -516,7 +516,7 @@ public sealed partial class ReboundDialog : IslandsWindow
 
     private static unsafe BitmapImage? LoadSystemIcon(DialogIcon icon)
     {
-        string dll = Environment.SystemDirectory + "\\imageres.dll";
+        string dll = System.Environment.SystemDirectory + "\\imageres.dll";
         int iconIndex = icon switch
         {
             DialogIcon.Warning => 79,

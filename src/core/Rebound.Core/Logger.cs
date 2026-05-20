@@ -79,7 +79,7 @@ public static class ReboundLogger
                         Directory.CreateDirectory(dir);
                         File.SetAttributes(dir, FileAttributes.Directory);
                     }
-                    File.AppendAllText(Variables.ReboundLogFile, line + Environment.NewLine);
+                    File.AppendAllText(Variables.ReboundLogFile, line + System.Environment.NewLine);
                 }
                 catch (IOException ioEx)
                 {

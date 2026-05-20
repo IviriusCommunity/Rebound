@@ -1,0 +1,53 @@
+﻿<Page
+    x:Class="Rebound.ControlPanel.Views.Secondary.CreateRestorePointPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:muxc="using:Microsoft.UI.Xaml.Controls"
+    mc:Ignorable="d">
+
+    <Grid Margin="24" RowSpacing="16">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+
+        <TextBox
+            x:Name="DescriptionBox"
+            Grid.Row="0"
+            Header="Description"
+            PlaceholderText="Enter a description for this restore point" />
+
+        <ComboBox
+            x:Name="TypeComboBox"
+            Grid.Row="1"
+            HorizontalAlignment="Stretch"
+            Header="Type"
+            SelectedIndex="0">
+            <ComboBoxItem>Modify settings</ComboBoxItem>
+            <ComboBoxItem>Application install</ComboBoxItem>
+            <ComboBoxItem>Application uninstall</ComboBoxItem>
+            <ComboBoxItem>Device driver install</ComboBoxItem>
+            <ComboBoxItem>Cancelled operation</ComboBoxItem>
+        </ComboBox>
+
+        <!--  Spacer  -->
+        <Grid Grid.Row="2" />
+
+        <StackPanel
+            Grid.Row="3"
+            HorizontalAlignment="Right"
+            Orientation="Horizontal"
+            Spacing="8">
+            <Button Click="OnCancelClicked" Content="Cancel" />
+            <Button
+                Click="OnCreateClicked"
+                Content="Create"
+                Style="{StaticResource AccentButtonStyle}" />
+        </StackPanel>
+
+    </Grid>
+</Page>

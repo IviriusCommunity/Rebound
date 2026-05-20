@@ -1,0 +1,87 @@
+﻿<Page
+    x:Class="Rebound.ControlPanel.Views.Secondary.ConfigureAutoBackupPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    mc:Ignorable="d">
+
+    <Grid Margin="24" RowSpacing="16">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+
+        <ComboBox
+            x:Name="FrequencyComboBox"
+            Grid.Row="0"
+            HorizontalAlignment="Stretch"
+            Header="How often"
+            SelectionChanged="OnFrequencyChanged">
+            <ComboBoxItem>Daily</ComboBoxItem>
+            <ComboBoxItem>Weekly</ComboBoxItem>
+            <ComboBoxItem>Monthly</ComboBoxItem>
+        </ComboBox>
+
+        <ComboBox
+            x:Name="DayComboBox"
+            Grid.Row="1"
+            HorizontalAlignment="Stretch"
+            Header="What day"
+            SelectionChanged="OnDayChanged">
+            <ComboBoxItem>Sunday</ComboBoxItem>
+            <ComboBoxItem>Monday</ComboBoxItem>
+            <ComboBoxItem>Tuesday</ComboBoxItem>
+            <ComboBoxItem>Wednesday</ComboBoxItem>
+            <ComboBoxItem>Thursday</ComboBoxItem>
+            <ComboBoxItem>Friday</ComboBoxItem>
+            <ComboBoxItem>Saturday</ComboBoxItem>
+        </ComboBox>
+
+        <ComboBox
+            x:Name="HourComboBox"
+            Grid.Row="2"
+            HorizontalAlignment="Stretch"
+            Header="What time"
+            SelectionChanged="OnHourChanged">
+            <ComboBoxItem>00:00</ComboBoxItem>
+            <ComboBoxItem>01:00</ComboBoxItem>
+            <ComboBoxItem>02:00</ComboBoxItem>
+            <ComboBoxItem>03:00</ComboBoxItem>
+            <ComboBoxItem>04:00</ComboBoxItem>
+            <ComboBoxItem>05:00</ComboBoxItem>
+            <ComboBoxItem>06:00</ComboBoxItem>
+            <ComboBoxItem>07:00</ComboBoxItem>
+            <ComboBoxItem>08:00</ComboBoxItem>
+            <ComboBoxItem>09:00</ComboBoxItem>
+            <ComboBoxItem>10:00</ComboBoxItem>
+            <ComboBoxItem>11:00</ComboBoxItem>
+            <ComboBoxItem>12:00</ComboBoxItem>
+            <ComboBoxItem>13:00</ComboBoxItem>
+            <ComboBoxItem>14:00</ComboBoxItem>
+            <ComboBoxItem>15:00</ComboBoxItem>
+            <ComboBoxItem>16:00</ComboBoxItem>
+            <ComboBoxItem>17:00</ComboBoxItem>
+            <ComboBoxItem>18:00</ComboBoxItem>
+            <ComboBoxItem>19:00</ComboBoxItem>
+            <ComboBoxItem>20:00</ComboBoxItem>
+            <ComboBoxItem>21:00</ComboBoxItem>
+            <ComboBoxItem>22:00</ComboBoxItem>
+            <ComboBoxItem>23:00</ComboBoxItem>
+        </ComboBox>
+
+        <!--  Spacer  -->
+        <Grid Grid.Row="3" />
+
+        <Button
+            Grid.Row="4"
+            HorizontalAlignment="Right"
+            Click="OnCloseClicked"
+            Content="Done"
+            Style="{StaticResource AccentButtonStyle}" />
+
+    </Grid>
+</Page>

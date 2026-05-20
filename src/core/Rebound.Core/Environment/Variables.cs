@@ -15,7 +15,7 @@ public static partial class Variables
     /// 'Rebound' subfolders. It can be used to store shortcuts or other application-related files that should appear in
     /// the Start Menu for every user on the system.</remarks>
     public static readonly string ReboundStartMenuFolder =
-        Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.CommonStartMenu),
+        Path.Combine(System.Environment.GetFolderPath(System.Environment.SpecialFolder.CommonStartMenu),
                      "Programs", "Rebound");
 
     /// <summary>
@@ -25,7 +25,7 @@ public static partial class Variables
     /// can be used to store user-specific configuration files or application data. The value is platform-dependent and
     /// resolves to the appropriate user profile location on the operating system.</remarks>
     public static readonly string ReboundDataFolder =
-        Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
+        Path.Combine(System.Environment.GetFolderPath(System.Environment.SpecialFolder.LocalApplicationData),
                      "Rebound");
 
     /// <summary>
@@ -44,7 +44,7 @@ public static partial class Variables
     /// are applied for all users. The folder is created by combining the Common Program Files directory with the "Rebound" subfolder. 
     /// Ensure that the application has appropriate permissions to read from and write to this location.</remarks>
     public static readonly string ReboundProgramFilesFolder =
-        Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles),
+        Path.Combine(System.Environment.GetFolderPath(System.Environment.SpecialFolder.ProgramFiles),
                      "Rebound");
 
     /// <summary>
@@ -54,7 +54,7 @@ public static partial class Variables
     /// To be used for storing binaries, mods, and other data requested by system level changes.
     /// </remarks>
     public static readonly string ReboundSharedDataFolder =
-        Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData), "Rebound");
+        Path.Combine(System.Environment.GetFolderPath(System.Environment.SpecialFolder.CommonApplicationData), "Rebound");
 
     /// <summary>
     /// Represents the full path to the Mods folder within the application's program data directory.

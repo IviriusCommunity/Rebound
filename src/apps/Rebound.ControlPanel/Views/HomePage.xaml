@@ -36,7 +36,10 @@
                             <BitmapImage UriSource="{x:Bind WallpaperPath, Converter={StaticResource StringToUriConverter}}" />
                         </header:HomePageHeaderImage.Image>
                     </header:HomePageHeaderImage>
-                    <StackPanel Margin="32" Spacing="8">
+                    <StackPanel
+                        MaxWidth="1000"
+                        Padding="40,40"
+                        Spacing="8">
                         <StackPanel Orientation="Horizontal" Spacing="16">
                             <muxc:PersonPicture Width="48">
                                 <muxc:PersonPicture.ProfilePicture>
@@ -128,119 +131,117 @@
                         </Grid>
                     </StackPanel>
                 </Grid>
-                <TextBlock
-                    Margin="40,-80,40,0"
-                    FontSize="28"
-                    FontWeight="SemiBold"
-                    Text="Welcome!" />
-                <TextBlock
-                    Margin="40,-32,40,16"
-                    Text="This is your main dashboard from where you can manage your settings by using the built in tools from both Windows and Rebound, listed below. All verified 3rd party tools on this computer are included. Read the descriptions of each app to know where you need to go."
-                    TextWrapping="WrapWholeWords" />
-                <TextBlock
-                    Margin="40,16,40,0"
-                    FontWeight="SemiBold"
-                    Text="Windows built-in" />
-                <toolkit:SettingsCard
-                    Margin="40,0"
-                    Description="Main settings application for Windows. The majority of settings can be found here."
-                    Header="Windows Settings"
-                    IsClickEnabled="True">
-                    <toolkit:SettingsCard.HeaderIcon>
-                        <FontIcon Glyph="&#xE713;" />
-                    </toolkit:SettingsCard.HeaderIcon>
-                    <toolkit:SettingsCard.ActionIcon>
-                        <FontIcon Glyph="&#xE8AD;" />
-                    </toolkit:SettingsCard.ActionIcon>
-                    <interactivity:Interaction.Behaviors>
-                        <interactivity:EventTriggerBehavior EventName="Tapped">
-                            <behaviors:NavigateToUriAction NavigateUri="ms-settings:" />
-                        </interactivity:EventTriggerBehavior>
-                    </interactivity:Interaction.Behaviors>
-                </toolkit:SettingsCard>
-                <toolkit:SettingsCard
-                    Margin="40,0"
-                    Command="{x:Bind LaunchPathCommand}"
-                    CommandParameter="cleanmgr"
-                    Description="Launch the old Win32 Windows Control Panel."
-                    Header="Legacy Control Panel"
-                    IsClickEnabled="True">
-                    <toolkit:SettingsCard.HeaderIcon>
-                        <muxc:ImageIcon Source="/Assets/Apps/ControlPanelLegacy.ico" />
-                    </toolkit:SettingsCard.HeaderIcon>
-                    <toolkit:SettingsCard.ActionIcon>
-                        <FontIcon Glyph="&#xE8AD;" />
-                    </toolkit:SettingsCard.ActionIcon>
-                </toolkit:SettingsCard>
-                <toolkit:SettingsCard
-                    Margin="40,0"
-                    Description="Manage system and poweruser related settings within Windows."
-                    Header="Management Console"
-                    IsClickEnabled="True">
-                    <toolkit:SettingsCard.HeaderIcon>
-                        <muxc:ImageIcon Source="/Assets/Apps/ManagementConsole.png" />
-                    </toolkit:SettingsCard.HeaderIcon>
-                    <toolkit:SettingsCard.ActionIcon>
-                        <FontIcon Glyph="&#xE8AD;" />
-                    </toolkit:SettingsCard.ActionIcon>
-                </toolkit:SettingsCard>
-                <TextBlock
-                    Margin="40,32,40,0"
-                    FontWeight="SemiBold"
-                    Text="Rebound specific" />
-                <toolkit:SettingsCard
-                    Margin="40,0"
-                    Command="{x:Bind LaunchReboundHubCommand}"
-                    Description="Install, uninstall, and repair Rebound mods."
-                    Header="Rebound Hub"
-                    IsClickEnabled="True">
-                    <toolkit:SettingsCard.HeaderIcon>
-                        <muxc:ImageIcon Source="/Assets/Apps/ReboundHub.ico" />
-                    </toolkit:SettingsCard.HeaderIcon>
-                    <toolkit:SettingsCard.ActionIcon>
-                        <FontIcon Glyph="&#xE8AD;" />
-                    </toolkit:SettingsCard.ActionIcon>
-                </toolkit:SettingsCard>
-                <toolkit:SettingsCard
-                    Margin="40,0"
-                    Description="Highly extended customization options can be found here. These are only available while Rebound is installed."
-                    Header="Rebound Shell Settings"
-                    IsClickEnabled="True">
-                    <toolkit:SettingsCard.HeaderIcon>
-                        <muxc:ImageIcon Source="/Assets/Apps/ReboundShell.ico" />
-                    </toolkit:SettingsCard.HeaderIcon>
-                    <toolkit:SettingsCard.ActionIcon>
-                        <FontIcon Glyph="&#xE8AD;" />
-                    </toolkit:SettingsCard.ActionIcon>
-                </toolkit:SettingsCard>
-                <TextBlock
-                    Margin="40,32,40,0"
-                    FontWeight="SemiBold"
-                    Text="3rd party" />
-                <toolkit:SettingsCard
-                    Margin="40,0"
-                    Description="Tweak hidden Windows settings, telemetry, manage services, and more."
-                    Header="Wintoys"
-                    IsClickEnabled="True">
-                    <toolkit:SettingsCard.HeaderIcon>
-                        <muxc:ImageIcon Source="/Assets/Apps/Wintoys.ico" />
-                    </toolkit:SettingsCard.HeaderIcon>
-                    <toolkit:SettingsCard.ActionIcon>
-                        <FontIcon Glyph="&#xE8AD;" />
-                    </toolkit:SettingsCard.ActionIcon>
-                </toolkit:SettingsCard>
-                <toolkit:SettingsCard
-                    Margin="40,40,40,40"
-                    Description="Open the Windows Tools page to see all the available tools."
-                    Header="View all Windows tools"
-                    IsClickEnabled="True">
-                    <toolkit:SettingsCard.HeaderIcon>
-                        <FontIcon Glyph="&#xE90F;" />
-                    </toolkit:SettingsCard.HeaderIcon>
-                    <toolkit:SettingsCard.ActionIcon>
-                        <FontIcon Glyph="&#xE8AD;" />
-                    </toolkit:SettingsCard.ActionIcon>
-                </toolkit:SettingsCard>
+                <StackPanel
+                    MaxWidth="1000"
+                    Padding="40,0,40,40"
+                    Spacing="4">
+                    <TextBlock
+                        Margin="0,-80,0,0"
+                        FontSize="28"
+                        FontWeight="SemiBold"
+                        Text="Welcome!" />
+                    <TextBlock
+                        Margin="0,-32,0,16"
+                        Text="This is your main dashboard from where you can manage your settings by using the built in tools from both Windows and Rebound, listed below. All verified 3rd party tools on this computer are included. Read the descriptions of each app to know where you need to go."
+                        TextWrapping="WrapWholeWords" />
+                    <TextBlock
+                        Margin="0,16,0,0"
+                        FontWeight="SemiBold"
+                        Text="Windows built-in" />
+                    <toolkit:SettingsCard
+                        Description="Main settings application for Windows. The majority of settings can be found here."
+                        Header="Windows Settings"
+                        IsClickEnabled="True">
+                        <toolkit:SettingsCard.HeaderIcon>
+                            <FontIcon Glyph="&#xE713;" />
+                        </toolkit:SettingsCard.HeaderIcon>
+                        <toolkit:SettingsCard.ActionIcon>
+                            <FontIcon Glyph="&#xE8AD;" />
+                        </toolkit:SettingsCard.ActionIcon>
+                        <interactivity:Interaction.Behaviors>
+                            <interactivity:EventTriggerBehavior EventName="Tapped">
+                                <behaviors:NavigateToUriAction NavigateUri="ms-settings:" />
+                            </interactivity:EventTriggerBehavior>
+                        </interactivity:Interaction.Behaviors>
+                    </toolkit:SettingsCard>
+                    <toolkit:SettingsCard
+                        Command="{x:Bind LaunchPathCommand}"
+                        CommandParameter="cleanmgr"
+                        Description="Launch the old Win32 Windows Control Panel."
+                        Header="Legacy Control Panel"
+                        IsClickEnabled="True">
+                        <toolkit:SettingsCard.HeaderIcon>
+                            <muxc:ImageIcon Source="/Assets/Apps/ControlPanelLegacy.ico" />
+                        </toolkit:SettingsCard.HeaderIcon>
+                        <toolkit:SettingsCard.ActionIcon>
+                            <FontIcon Glyph="&#xE8AD;" />
+                        </toolkit:SettingsCard.ActionIcon>
+                    </toolkit:SettingsCard>
+                    <toolkit:SettingsCard
+                        Description="Manage system and poweruser related settings within Windows."
+                        Header="Management Console"
+                        IsClickEnabled="True">
+                        <toolkit:SettingsCard.HeaderIcon>
+                            <muxc:ImageIcon Source="/Assets/Apps/ManagementConsole.png" />
+                        </toolkit:SettingsCard.HeaderIcon>
+                        <toolkit:SettingsCard.ActionIcon>
+                            <FontIcon Glyph="&#xE8AD;" />
+                        </toolkit:SettingsCard.ActionIcon>
+                    </toolkit:SettingsCard>
+                    <TextBlock
+                        Margin="0,32,0,0"
+                        FontWeight="SemiBold"
+                        Text="Rebound specific" />
+                    <toolkit:SettingsCard
+                        Command="{x:Bind LaunchReboundHubCommand}"
+                        Description="Install, uninstall, and repair Rebound mods."
+                        Header="Rebound Hub"
+                        IsClickEnabled="True">
+                        <toolkit:SettingsCard.HeaderIcon>
+                            <muxc:ImageIcon Source="/Assets/Apps/ReboundHub.ico" />
+                        </toolkit:SettingsCard.HeaderIcon>
+                        <toolkit:SettingsCard.ActionIcon>
+                            <FontIcon Glyph="&#xE8AD;" />
+                        </toolkit:SettingsCard.ActionIcon>
+                    </toolkit:SettingsCard>
+                    <toolkit:SettingsCard
+                        Description="Highly extended customization options can be found here. These are only available while Rebound is installed."
+                        Header="Rebound Shell Settings"
+                        IsClickEnabled="True">
+                        <toolkit:SettingsCard.HeaderIcon>
+                            <muxc:ImageIcon Source="/Assets/Apps/ReboundShell.ico" />
+                        </toolkit:SettingsCard.HeaderIcon>
+                        <toolkit:SettingsCard.ActionIcon>
+                            <FontIcon Glyph="&#xE8AD;" />
+                        </toolkit:SettingsCard.ActionIcon>
+                    </toolkit:SettingsCard>
+                    <TextBlock
+                        Margin="0,32,0,0"
+                        FontWeight="SemiBold"
+                        Text="3rd party" />
+                    <toolkit:SettingsCard
+                        Description="Tweak hidden Windows settings, telemetry, manage services, and more."
+                        Header="Wintoys"
+                        IsClickEnabled="True">
+                        <toolkit:SettingsCard.HeaderIcon>
+                            <muxc:ImageIcon Source="/Assets/Apps/Wintoys.ico" />
+                        </toolkit:SettingsCard.HeaderIcon>
+                        <toolkit:SettingsCard.ActionIcon>
+                            <FontIcon Glyph="&#xE8AD;" />
+                        </toolkit:SettingsCard.ActionIcon>
+                    </toolkit:SettingsCard>
+                    <toolkit:SettingsCard
+                        Description="Open the Windows Tools page to see all the available tools."
+                        Header="View all Windows tools"
+                        IsClickEnabled="True">
+                        <toolkit:SettingsCard.HeaderIcon>
+                            <FontIcon Glyph="&#xE90F;" />
+                        </toolkit:SettingsCard.HeaderIcon>
+                        <toolkit:SettingsCard.ActionIcon>
+                            <FontIcon Glyph="&#xE8AD;" />
+                        </toolkit:SettingsCard.ActionIcon>
+                    </toolkit:SettingsCard>
+                </StackPanel>
             </StackPanel>
         </ScrollViewer>
     </Grid>

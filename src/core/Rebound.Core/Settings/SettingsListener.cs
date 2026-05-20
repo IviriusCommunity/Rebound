@@ -15,7 +15,7 @@ public sealed class SettingsListener : IDisposable
     public SettingsListener()
     {
         _basePath = Path.Combine(
-            Environment.GetFolderPath(Environment.SpecialFolder.UserProfile),
+            System.Environment.GetFolderPath(System.Environment.SpecialFolder.UserProfile),
             ".rebound"
         );
 
