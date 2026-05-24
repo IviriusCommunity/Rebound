@@ -34,6 +34,7 @@
 		<DisableRuntimeMarshalling>true</DisableRuntimeMarshalling>
 		<OptimizationPreference>Speed</OptimizationPreference>
 		<IlcOptimizationPreference>Speed</IlcOptimizationPreference>
+		<SelfContained>true</SelfContained>
 
 		<!--<CsWin32RunAsBuildTask>true</CsWin32RunAsBuildTask>
 		<WindowsAppSDKSelfContained>true</WindowsAppSDKSelfContained>
@@ -48,6 +49,11 @@
 		<!-- Publishing Settings -->
 		<PublishProfile>win-$(Platform).pubxml</PublishProfile>
 		
+	</PropertyGroup>
+	<PropertyGroup>
+		<RuntimeIdentifier Condition="'$(RuntimeIdentifier)' == '' and '$(Platform)' == 'ARM64'">win-arm64</RuntimeIdentifier>
+		<RuntimeIdentifier Condition="'$(RuntimeIdentifier)' == '' and '$(Platform)' == 'x64'">win-x64</RuntimeIdentifier>
+		<RuntimeIdentifier Condition="'$(RuntimeIdentifier)' == ''">win-x64</RuntimeIdentifier>
 	</PropertyGroup>
 	<PropertyGroup>
 		<PlatformTarget Condition="'$(RuntimeIdentifier)' == 'win-arm64' or '$(Platform)' == 'ARM64'">arm64</PlatformTarget>
@@ -68,8 +74,6 @@
 		<PackageReference Include="Microsoft.WindowsAppSDK" Version="2.0.1" ExcludeAssets="buildTransitive" PrivateAssets="all" />
 		<PackageReference Include="WinUIEx" Version="2.9.0" />
 
-		<PackageReference Include="Microsoft.DotNet.ILCompiler" Version="10.0.7" />
-
 		<!-- CommunityToolkit WinUI -->
 		<PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.2" />
 		<PackageReference Include="CommunityToolkit.WinUI.Animations" Version="8.2.251219" />
@@ -79,6 +83,8 @@
 		<PackageReference Include="CommunityToolkit.WinUI.Controls.Segmented" Version="8.2.251219" />
 		<PackageReference Include="CommunityToolkit.WinUI.Media" Version="8.2.251219" />
 		<PackageReference Include="CommunityToolkit.WinUI.Triggers" Version="8.2.251219" />
+
+		<PackageReference Include="Microsoft.DotNet.ILCompiler" Version="10.0.8" />
 
 	</ItemGroup>
 

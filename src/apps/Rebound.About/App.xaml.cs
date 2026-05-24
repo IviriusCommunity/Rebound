@@ -35,6 +35,17 @@ public partial class App : Application, IReboundLegacySupportApp, IReboundPipeCl
 
     protected override void OnLaunched(LaunchActivatedEventArgs args)
     {
+        UnhandledException += (s, e) =>
+        {
+            ReboundLogger.WriteToLog(
+                "Unhandled Exception",
+                "An unhandled exception was caught in the application.",
+                LogMessageSeverity.Error,
+                e.Exception);
+            // The environment is too unstable for execution to continue
+            Current.Exit();
+        };
+
         SingleInstanceAppService.Launched += OnSingleInstanceLaunched;
         SingleInstanceAppService.Launch(args?.Arguments!);
     }

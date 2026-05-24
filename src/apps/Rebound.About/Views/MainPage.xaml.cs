@@ -9,9 +9,11 @@ using Rebound.About.ViewModels;
 using Rebound.Core;
 using Rebound.Core.SystemInformation.Hardware;
 using Rebound.Core.SystemInformation.Software;
+using Rebound.Core.Threading;
 using Rebound.Core.UI.Localizer;
 using System;
 using System.Diagnostics;
+using System.Threading;
 using System.Threading.Tasks;
 using Windows.ApplicationModel.DataTransfer;
 using Windows.System;
@@ -44,14 +46,13 @@ internal sealed partial class MainPage : Page
     {
         Loaded -= MainPage_Loaded;
 
-        // Compute everything off the UI thread
-        var (wallpaper, userPicture) = await Task.Run(() =>
+        var (wallpaper, userPicture) = await STAThread.RunOnSTAThread(() =>
         {
-            string? wallpaper = null, userPicture = null;
-            try { wallpaper = UserInformation.GetWallpaperPath(); } catch { }
-            try { userPicture = UserInformation.GetUserPicturePath(); } catch { }
-            return (wallpaper, userPicture);
-        }).ConfigureAwait(false);
+            string? w = null, u = null;
+            try { w = UserInformation.GetWallpaperPath(); } catch { }
+            try { u = UserInformation.GetUserPicturePath(); } catch { }
+            return (w, u);
+        }).ConfigureAwait(true);
 
         WallpaperPath = wallpaper ?? "ms-appx:///";
         UserPicturePath = userPicture ?? "ms-appx:///";
@@ -149,7 +150,7 @@ internal sealed partial class MainPage : Page
                 severity,
                 scale
             };
-        }).ConfigureAwait(false);
+        }).ConfigureAwait(true);
 
         // Marshal all results back to UI thread in one shot
         ViewModel.WindowsActivationInfo = results.activationInfo;
@@ -173,6 +174,7 @@ internal sealed partial class MainPage : Page
         ViewModel.LicenseOwners = results.licenseOwners;
         ViewModel.PasswordExpiryDate = results.passwordExpiry;
         WindowsActivationSeverity = results.severity;
+        ViewModel.Scale = results.scale;
     }
 
     private void LiveHardwareFeed_OnUpdate(object? sender, HardwareFeedUpdateEventArgs e)

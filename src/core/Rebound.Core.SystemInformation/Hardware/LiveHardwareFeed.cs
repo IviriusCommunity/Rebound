@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using Rebound.Core.SystemInformation.Software;
+using TerraFX.Interop.Windows;
 
 namespace Rebound.Core.SystemInformation.Hardware;
 
@@ -61,12 +62,23 @@ public partial class LiveHardwareFeed : IDisposable
 
     private unsafe void Tick()
     {
-        CpuUsage = CPU.GetUsage();
-        RamUsagePercent = RAM.GetUsage();
-        RamUsageBytes = RAM.GetUsageBytes();
-        GpuUsage = GPU.GetUsage();
-        Uptime = WindowsInformation.GetUptime();
-        OnUpdate?.Invoke(this, new HardwareFeedUpdateEventArgs(CpuUsage, RamUsageBytes, RamUsagePercent, GpuUsage, Uptime));
+        var hr = TerraFX.Interop.Windows.Windows.CoInitializeEx(null, (uint)COINIT.COINIT_MULTITHREADED);
+        var shouldUninitialize = hr == S.S_OK || hr == S.S_FALSE;
+
+        try
+        {
+            CpuUsage = CPU.GetUsage();
+            RamUsagePercent = RAM.GetUsage();
+            RamUsageBytes = RAM.GetUsageBytes();
+            GpuUsage = GPU.GetUsage();
+            Uptime = WindowsInformation.GetUptime();
+            OnUpdate?.Invoke(this, new HardwareFeedUpdateEventArgs(CpuUsage, RamUsageBytes, RamUsagePercent, GpuUsage, Uptime));
+        }
+        finally
+        {
+            if (shouldUninitialize)
+                TerraFX.Interop.Windows.Windows.CoUninitialize();
+        }
     }
 
     protected virtual void Dispose(bool disposing)

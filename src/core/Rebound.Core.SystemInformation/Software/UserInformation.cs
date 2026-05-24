@@ -4,6 +4,7 @@
 using Microsoft.Win32;
 using Rebound.Core.Native.Windows;
 using Rebound.Core.Native.Wrappers;
+using System.Diagnostics;
 using System.Globalization;
 using System.Security.Principal;
 using TerraFX.Interop.Windows;
@@ -157,28 +158,24 @@ public static class UserInformation
             using ComPtr<IDesktopWallpaper> desktopWallpaper = default;
 
             var hr = CoCreateInstance(
-                clsid, 
-                null, 
-                0x17, 
-                iid, 
+                clsid,
+                null,
+                (uint)CLSCTX.CLSCTX_LOCAL_SERVER,
+                iid,
                 (void**)desktopWallpaper.GetAddressOf());
 
             if (FAILED(hr)) return null;
 
-            ushort* wallpaperPtr = null;
-            hr = desktopWallpaper.Get()->GetWallpaper(null, (char**)&wallpaperPtr);
+            char* wallpaperPtr = null;
+            hr = desktopWallpaper.Get()->GetWallpaper(null, &wallpaperPtr);
 
-            if (FAILED(hr)) return null;
+            if (FAILED(hr) || wallpaperPtr == null) return null;
 
-            string wallpaperPath = new string((char*)wallpaperPtr);
+            var wallpaperPath = new string(wallpaperPtr);
             CoTaskMemFree(wallpaperPtr);
 
-            if (!string.IsNullOrEmpty(wallpaperPath))
-            {
-                return wallpaperPath;
-            }
+            return string.IsNullOrEmpty(wallpaperPath) ? null : wallpaperPath;
         }
-        return null;
     }
 
     /// <summary>
