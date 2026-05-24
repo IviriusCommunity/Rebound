@@ -6,15 +6,10 @@ using Rebound.Core.IPC;
 
 namespace Rebound.Core.UI
 {
-    public class SingleInstanceLaunchEventArgs : EventArgs
+    public class SingleInstanceLaunchEventArgs(string arguments, bool isFirstLaunch) : EventArgs
     {
-        public string Arguments { get; }
-        public bool IsFirstLaunch { get; }
-        public SingleInstanceLaunchEventArgs(string arguments, bool isFirstLaunch)
-        {
-            Arguments = arguments;
-            IsFirstLaunch = isFirstLaunch;
-        }
+        public string Arguments { get; } = arguments;
+        public bool IsFirstLaunch { get; } = isFirstLaunch;
     }
 
     public partial class SingleInstanceAppService : IDisposable

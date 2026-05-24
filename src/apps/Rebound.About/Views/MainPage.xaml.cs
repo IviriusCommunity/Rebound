@@ -3,19 +3,18 @@
 
 using CommunityToolkit.Mvvm.Input;
 using CommunityToolkit.WinUI;
+using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Rebound.About.ViewModels;
 using Rebound.Core;
+using Rebound.Core.SystemInformation.Hardware;
 using Rebound.Core.SystemInformation.Software;
-using Rebound.Core.UI.Threading;
-using Rebound.Core.UI.Windowing;
+using Rebound.Core.UI.Localizer;
 using System;
 using System.Diagnostics;
 using System.Threading.Tasks;
 using Windows.ApplicationModel.DataTransfer;
 using Windows.System;
-using Windows.UI.Xaml;
-using Windows.UI.Xaml.Controls;
 
 #pragma warning disable CA1031
 
@@ -31,12 +30,13 @@ internal sealed partial class MainPage : Page
 
     private MainViewModel ViewModel { get; } = new();
 
+    private readonly Microsoft.UI.Dispatching.DispatcherQueue _dispatcherQueue = Microsoft.UI.Dispatching.DispatcherQueue.GetForCurrentThread();
+
     public MainPage()
     {
         InitializeComponent();
         SizeChanged += (s, e) => { UpdateSize(e.NewSize); };
         UpdateSize(new(ActualWidth, ActualHeight));
-
         Loaded += MainPage_Loaded;
     }
 
@@ -44,74 +44,145 @@ internal sealed partial class MainPage : Page
     {
         Loaded -= MainPage_Loaded;
 
-        // Let the first frame fully render so the window displays properly
-        await Task.Yield();
-
-        UIThread.QueueAction(() =>
+        // Compute everything off the UI thread
+        var (wallpaper, userPicture) = await Task.Run(() =>
         {
-            try
-            {
-                WallpaperPath = UserInformation.GetWallpaperPath();
-            }
-            catch (Exception ex)
-            {
-                ReboundLogger.WriteToLog(
-                    "Wallpaper Retrieval",
-                    "The user does not appear to have a picture wallpaper.",
-                    LogMessageSeverity.Warning,
-                    ex);
-            }
+            string? wallpaper = null, userPicture = null;
+            try { wallpaper = UserInformation.GetWallpaperPath(); } catch { }
+            try { userPicture = UserInformation.GetUserPicturePath(); } catch { }
+            return (wallpaper, userPicture);
+        }).ConfigureAwait(false);
 
-            try
-            {
-                UserPicturePath = UserInformation.GetUserPicturePath();
-            }
-            catch (Exception ex)
-            {
-                ReboundLogger.WriteToLog(
-                    "User Picture Retrieval",
-                    "The user does not appear to have a profile picture.",
-                    LogMessageSeverity.Warning,
-                    ex);
-            }
-        });
+        WallpaperPath = wallpaper ?? "ms-appx:///";
+        UserPicturePath = userPicture ?? "ms-appx:///";
 
-        // Fast init tasks first
-        await Task.WhenAll(
-            ViewModel.InitializePrimarySoftwareAsync(),
-            ViewModel.InitializePrimaryHardwareAsync(),
-            ViewModel.InitializePrimaryUserAsync()
-        ).ConfigureAwait(false);
+        // Fast init — these are probably cheap, keep on UI thread
+        ViewModel.InitializePrimarySoftware();
+        ViewModel.InitializePrimaryHardware();
+        ViewModel.InitializePrimaryUser();
 
-        UIThread.QueueAction(() => ViewModel.Loaded = true);
+        ViewModel.Loaded = true;
 
-        // Let UI update visibly before heavy work
-        await Task.Yield();
-
-        // Background expensive stuff
+        // All heavy work off UI thread
         _ = LoadDeferredAsync();
+
+        ViewModel._liveHardwareFeed.OnUpdate += LiveHardwareFeed_OnUpdate;
+        ViewModel._liveHardwareFeed.Start();
     }
 
     private async Task LoadDeferredAsync()
     {
-        await Task.WhenAll(
-            ViewModel.InitializeSecondarySoftwareAsync(),
-            ViewModel.InitializeSecondaryHardwareAsync(),
-            ViewModel.InitializeSecondaryUserAsync()
-        ).ConfigureAwait(false);
-
-        UIThread.QueueAction(() =>
+        // Capture everything on background thread
+        var results = await Task.Run(() =>
         {
-            WindowsActivationSeverity = WindowsInformation.GetWindowsActivationType() switch
+            // Software
+            var activationType = WindowsInformation.GetWindowsActivationType();
+            var activationInfo = LocalizedResource.GetLocalizedString(activationType switch
+            {
+                WindowsActivationType.Unlicensed => "ActivationStatusUnlicensed",
+                WindowsActivationType.Activated => "ActivationStatusActivated",
+                WindowsActivationType.GracePeriod => "ActivationStatusGracePeriod",
+                WindowsActivationType.NonGenuine => "ActivationStatusNonGenuine",
+                WindowsActivationType.ExtendedGracePeriod => "ActivationStatusExtendedGracePeriod",
+                _ => "ActivationStatusUnknown"
+            });
+            var installedOn = WindowsInformation.GetInstalledOnDate().ToString((IFormatProvider?)null);
+            var locale = WindowsInformation.GetLocale();
+            var localIP = WindowsInformation.GetLocalIP();
+
+            // Hardware
+            var cpuName = CPU.GetName();
+            var cpuArch = CPU.GetArchitecture();
+            var gpuName = GPU.GetName();
+            var pagefileSize = RAM.GetPageFileSize();
+            var res = Display.GetDisplayResolution();
+            var refreshRate = Display.GetDisplayRefreshRate();
+            var winSpace = Storage.GetWindowsDriveOccupiedSpacePercentage();
+            var totalSpace = Storage.GetTotalOccupiedSpacePercentage();
+            var manufacturer = Device.GetDeviceManufacturer();
+            var model = Device.GetDeviceModel();
+            var motherboard = Device.GetMotherboardModel();
+
+            // User
+            var isMsAccount = UserInformation.IsMicrosoftAccount();
+            var licenseOwners = WindowsInformation.GetLicenseOwners();
+            var passwordExpiry = UserInformation.GetPasswordExpiry();
+
+            // Activation severity
+            var severity = activationType switch
             {
                 WindowsActivationType.Unlicensed => InfoBarSeverity.Error,
                 WindowsActivationType.Activated => InfoBarSeverity.Success,
                 WindowsActivationType.GracePeriod => InfoBarSeverity.Warning,
                 WindowsActivationType.NonGenuine => InfoBarSeverity.Error,
                 WindowsActivationType.ExtendedGracePeriod => InfoBarSeverity.Warning,
-                WindowsActivationType.Unknown => InfoBarSeverity.Informational,
                 _ => InfoBarSeverity.Informational
             };
+
+            // Scale
+            string? scale;
+            unsafe
+            {
+                scale = (Display.GetScale(new((void*)Process.GetCurrentProcess().MainWindowHandle)) * 100).ToString((IFormatProvider?)null) + "%";
+            }
+
+            return new
+            {
+                activationInfo,
+                installedOn,
+                locale,
+                localIP,
+                cpuName,
+                cpuArch,
+                gpuName,
+                pagefileSize,
+                res,
+                refreshRate,
+                winSpace,
+                totalSpace,
+                manufacturer,
+                model,
+                motherboard,
+                isMsAccount,
+                licenseOwners,
+                passwordExpiry,
+                severity,
+                scale
+            };
+        }).ConfigureAwait(false);
+
+        // Marshal all results back to UI thread in one shot
+        ViewModel.WindowsActivationInfo = results.activationInfo;
+        ViewModel.InstalledOnDate = results.installedOn;
+        ViewModel.Locale = results.locale;
+        ViewModel.LocalIP = results.localIP;
+        ViewModel.CpuName = results.cpuName;
+        ViewModel.CpuArchitecture = results.cpuArch;
+        ViewModel.GpuName = results.gpuName;
+        ViewModel.PagefileSize = results.pagefileSize;
+        ViewModel.DisplayResolution = $"{results.res.cx}x{results.res.cy}";
+        ViewModel.DisplayRefreshRate = $"{results.refreshRate} Hz";
+        ViewModel.WindowsOccupiedSpace = results.winSpace;
+        ViewModel.WindowsOccupiedSpaceString = ((int)results.winSpace).ToString((IFormatProvider?)null);
+        ViewModel.TotalOccupiedSpace = results.totalSpace;
+        ViewModel.TotalOccupiedSpaceString = ((int)results.totalSpace).ToString((IFormatProvider?)null);
+        ViewModel.DeviceManufacturer = results.manufacturer;
+        ViewModel.DeviceModel = results.model;
+        ViewModel.MotherboardModel = results.motherboard;
+        ViewModel.IsMicrosoftAccount = results.isMsAccount;
+        ViewModel.LicenseOwners = results.licenseOwners;
+        ViewModel.PasswordExpiryDate = results.passwordExpiry;
+        WindowsActivationSeverity = results.severity;
+    }
+
+    private void LiveHardwareFeed_OnUpdate(object? sender, HardwareFeedUpdateEventArgs e)
+    {
+        _dispatcherQueue.TryEnqueue(() =>
+        {
+            ViewModel.CpuUsage = e.CpuUsage;
+            ViewModel.RamUsage = e.RamUsagePercent;
+            ViewModel.GpuUsage = e.GpuUsage;
+            ViewModel.Uptime = $"{(int)e.Uptime.TotalDays}d {e.Uptime.Hours}h {e.Uptime.Minutes}m";
         });
     }
 
@@ -148,12 +219,9 @@ internal sealed partial class MainPage : Page
         }
         catch (Exception ex)
         {
-            await ReboundDialog.ShowAsync(
-                "Rebound About",
+            await App.MainWindow!.ShowMessageDialogAsync(
                 "Couldn't launch System Information.",
-                $"Something went wrong and we couldn't launch System Information. ({ex.Message})",
-                null,
-                DialogIcon.Error
+                $"Something went wrong and we couldn't launch System Information. ({ex.Message})"
                 ).ConfigureAwait(false);
         }
     }
@@ -166,6 +234,7 @@ internal sealed partial class MainPage : Page
         Clipboard.SetContent(package);
     }
 
-    [RelayCommand] private static void CloseWindow()
+    [RelayCommand]
+    private static void CloseWindow()
         => App.MainWindow?.Close();
 }

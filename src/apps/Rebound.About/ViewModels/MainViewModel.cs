@@ -7,11 +7,7 @@ using Rebound.Core.Settings;
 using Rebound.Core.SystemInformation.Hardware;
 using Rebound.Core.SystemInformation.Software;
 using Rebound.Core.UI.Localizer;
-using Rebound.Core.UI.Threading;
-using System;
-using System.Diagnostics;
 using System.IO;
-using System.Threading.Tasks;
 
 namespace Rebound.About.ViewModels;
 
@@ -21,7 +17,7 @@ internal partial class MainViewModel : ObservableObject
 {
     private readonly SettingsListener _listener;
 
-    private readonly LiveHardwareFeed _liveHardwareFeed;
+    public readonly LiveHardwareFeed _liveHardwareFeed;
 
     [ObservableProperty] public partial bool Loaded { get; set; } = false;
 
@@ -36,8 +32,6 @@ internal partial class MainViewModel : ObservableObject
         _listener = new SettingsListener();
         _listener.SettingChanged += Listener_SettingChanged;
         _liveHardwareFeed = new LiveHardwareFeed();
-        _liveHardwareFeed.OnUpdate += LiveHardwareFeed_OnUpdate;
-        _liveHardwareFeed.Start();
     }
 
     // Hardware information
@@ -45,62 +39,46 @@ internal partial class MainViewModel : ObservableObject
     [ObservableProperty] public partial string CpuName { get; set; } = "Loading...";
     [ObservableProperty] public partial string CpuArchitecture { get; set; } = "Loading...";
 
-    [ObservableProperty] public partial string GpuName { get; private set; } = "Loading...";
-    [ObservableProperty] public partial int GpuUsage { get; private set; } = 0;
+    [ObservableProperty] public partial string GpuName { get; set; } = "Loading...";
+    [ObservableProperty] public partial int GpuUsage { get; set; } = 0;
 
-    [ObservableProperty] public partial long InstalledRam { get; private set; } = 0;
-    [ObservableProperty] public partial long UsableRam { get; private set; } = 0;
-    [ObservableProperty] public partial int RamUsage { get; private set; } = 0;
+    [ObservableProperty] public partial long InstalledRam { get; set; } = 0;
+    [ObservableProperty] public partial long UsableRam { get; set; } = 0;
+    [ObservableProperty] public partial int RamUsage { get; set; } = 0;
 
-    [ObservableProperty] public partial long PagefileSize { get; private set; } = 0;
+    [ObservableProperty] public partial long PagefileSize { get; set; } = 0;
 
-    [ObservableProperty] public partial string DisplayResolution { get; private set; } = "Loading...";
-    [ObservableProperty] public partial string DisplayRefreshRate { get; private set; } = "Loading...";
+    [ObservableProperty] public partial string DisplayResolution { get; set; } = "Loading...";
+    [ObservableProperty] public partial string DisplayRefreshRate { get; set; } = "Loading...";
 
-    [ObservableProperty] public partial double WindowsOccupiedSpace { get; private set; } = 0;
-    [ObservableProperty] public partial double TotalOccupiedSpace { get; private set; } = 0;
-    [ObservableProperty] public partial string WindowsOccupiedSpaceString { get; private set; } = "Loading...";
-    [ObservableProperty] public partial string TotalOccupiedSpaceString { get; private set; } = "Loading...";
+    [ObservableProperty] public partial double WindowsOccupiedSpace { get; set; } = 0;
+    [ObservableProperty] public partial double TotalOccupiedSpace { get; set; } = 0;
+    [ObservableProperty] public partial string WindowsOccupiedSpaceString { get; set; } = "Loading...";
+    [ObservableProperty] public partial string TotalOccupiedSpaceString { get; set; } = "Loading...";
 
-    [ObservableProperty] public partial string DeviceManufacturer { get; private set; } = "Loading...";
-    [ObservableProperty] public partial string DeviceModel { get; private set; } = "Loading...";
-    [ObservableProperty] public partial string MotherboardModel { get; private set; } = "Loading...";
-    [ObservableProperty] public partial string Uptime { get; private set; } = "Loading...";
-
-    private void LiveHardwareFeed_OnUpdate(object? sender, HardwareFeedUpdateEventArgs e)
-    {
-        UIThread.QueueAction(() =>
-        {
-            CpuUsage = e.CpuUsage;
-            RamUsage = e.RamUsagePercent;
-            GpuUsage = e.GpuUsage;
-            Uptime = $"{(int)e.Uptime.TotalDays}d {e.Uptime.Hours}h {e.Uptime.Minutes}m";
-        });
-    }
+    [ObservableProperty] public partial string DeviceManufacturer { get; set; } = "Loading...";
+    [ObservableProperty] public partial string DeviceModel { get; set; } = "Loading...";
+    [ObservableProperty] public partial string MotherboardModel { get; set; } = "Loading...";
+    [ObservableProperty] public partial string Uptime { get; set; } = "Loading...";
 
     // Software information
-    [ObservableProperty] public partial string WindowsActivationInfo { get; private set; } = "Loading...";
-    [ObservableProperty] public partial string OSDisplayName { get; private set; } = "Loading...";
-    [ObservableProperty] public partial string DetailedWindowsVersion { get; private set; } = "Loading...";
-    [ObservableProperty] public partial string OSName { get; private set; } = "Loading...";
-    [ObservableProperty] public partial string InstalledOnDate { get; private set; } = "Loading...";
-    [ObservableProperty] public partial string ComputerName { get; private set; } = "Loading...";
-    [ObservableProperty] public partial string Locale { get; private set; } = "Loading...";
-    [ObservableProperty] public partial string LocalIP { get; private set; } = "Loading...";
-    [ObservableProperty] public partial string Scale { get; private set; } = "Loading...";
-
-    private unsafe void LoadScale()
-    {
-        Scale = (Display.GetScale(new((void*)Process.GetCurrentProcess().MainWindowHandle)) * 100).ToString((IFormatProvider?)null) + "%";
-    }
+    [ObservableProperty] public partial string WindowsActivationInfo { get; set; } = "Loading...";
+    [ObservableProperty] public partial string OSDisplayName { get; set; } = "Loading...";
+    [ObservableProperty] public partial string DetailedWindowsVersion { get; set; } = "Loading...";
+    [ObservableProperty] public partial string OSName { get; set; } = "Loading...";
+    [ObservableProperty] public partial string InstalledOnDate { get; set; } = "Loading...";
+    [ObservableProperty] public partial string ComputerName { get; set; } = "Loading...";
+    [ObservableProperty] public partial string Locale { get; set; } = "Loading...";
+    [ObservableProperty] public partial string LocalIP { get; set; } = "Loading...";
+    [ObservableProperty] public partial string Scale { get; set; } = "Loading...";
 
     // User information
-    [ObservableProperty] public partial string GreetingsMessage { get; private set; } = "Loading...";
-    [ObservableProperty] public partial bool IsAdmin { get; private set; } = false;
-    [ObservableProperty] public partial bool IsMicrosoftAccount { get; private set; } = false;
-    [ObservableProperty] public partial string LegalInfo { get; private set; } = "Loading...";
-    [ObservableProperty] public partial string LicenseOwners { get; private set; } = "Loading...";
-    [ObservableProperty] public partial string PasswordExpiryDate { get; private set; } = "Loading...";
+    [ObservableProperty] public partial string GreetingsMessage { get; set; } = "Loading...";
+    [ObservableProperty] public partial bool IsAdmin { get; set; } = false;
+    [ObservableProperty] public partial bool IsMicrosoftAccount { get; set; } = false;
+    [ObservableProperty] public partial string LegalInfo { get; set; } = "Loading...";
+    [ObservableProperty] public partial string LicenseOwners { get; set; } = "Loading...";
+    [ObservableProperty] public partial string PasswordExpiryDate { get; set; } = "Loading...";
 
     // App settings
     [ObservableProperty] public partial bool IsSidebarOn { get; set; }
@@ -115,154 +93,37 @@ internal partial class MainViewModel : ObservableObject
 
     private void UpdateSettings()
     {
-        UIThread.QueueAction(() =>
-        {
-            IsSidebarOn = SettingsManager.GetValue("IsSidebarOn", "winver", true);
-            IsReboundOn = SettingsManager.GetValue("IsReboundOn", "winver", true);
-            ShowBlurAndGlow = SettingsManager.GetValue("ShowBlurAndGlow", "rebound", true);
-            ShowHelloUser = SettingsManager.GetValue("ShowHelloUser", "winver", true);
-            ShowTabs = SettingsManager.GetValue("ShowTabs", "winver", true);
-            ShowActivationInfo = SettingsManager.GetValue("ShowActivationInfo", "winver", true);
-        });
+        IsSidebarOn = SettingsManager.GetValue("IsSidebarOn", "winver", true);
+        IsReboundOn = SettingsManager.GetValue("IsReboundOn", "winver", true);
+        ShowBlurAndGlow = SettingsManager.GetValue("ShowBlurAndGlow", "rebound", true);
+        ShowHelloUser = SettingsManager.GetValue("ShowHelloUser", "winver", true);
+        ShowTabs = SettingsManager.GetValue("ShowTabs", "winver", true);
+        ShowActivationInfo = SettingsManager.GetValue("ShowActivationInfo", "winver", true);
     }
 
     // Init
 
-    // Primary
-
-    public async Task InitializePrimarySoftwareAsync()
+    public void InitializePrimarySoftware()
     {
-        var osDisplayName = Task.Run(WindowsInformation.GetOSDisplayName);
-        var detailedVersion = Task.Run(WindowsInformation.GetDetailedWindowsVersion);
-        var osName = Task.Run(WindowsInformation.GetOSName);
-        var computerName = Task.Run(WindowsInformation.GetComputerName);
-        var reboundText = IsReboundInstalled
+        OSDisplayName = WindowsInformation.GetOSDisplayName();
+        DetailedWindowsVersion = WindowsInformation.GetDetailedWindowsVersion();
+        OSName = WindowsInformation.GetOSName();
+        ComputerName = WindowsInformation.GetComputerName();
+        ReboundText = IsReboundInstalled
             ? LocalizedResource.GetLocalizedString("ReboundInstalledText")
             : LocalizedResource.GetLocalizedString("ReboundNotInstalledText");
-
-        await Task.WhenAll(osDisplayName, detailedVersion, osName, computerName).ConfigureAwait(false);
-
-        UIThread.QueueAction(() =>
-        {
-            OSDisplayName = osDisplayName.Result;
-            DetailedWindowsVersion = detailedVersion.Result;
-            OSName = osName.Result;
-            ComputerName = computerName.Result;
-            ReboundText = reboundText;
-        });
     }
 
-    public async Task InitializePrimaryHardwareAsync()
+    public void InitializePrimaryHardware()
     {
-        var installedRam = Task.Run(RAM.GetInstalledRam);
-        var usableRam = Task.Run(RAM.GetUsableRam);
-
-        await Task.WhenAll(installedRam, usableRam).ConfigureAwait(false);
-
-        UIThread.QueueAction(() =>
-        {
-            InstalledRam = installedRam.Result;
-            UsableRam = usableRam.Result;
-        });
+        InstalledRam = RAM.GetInstalledRam();
+        UsableRam = RAM.GetUsableRam();
     }
 
-    public async Task InitializePrimaryUserAsync()
+    public void InitializePrimaryUser()
     {
-        var greetings = LocalizedResource.GetLocalizedStringFromTemplate("HelloUser", UserInformation.GetDisplayName());
-        var isAdmin = Task.Run(UserInformation.IsAdmin);
-        var legalInfo = LocalizedResource.GetLocalizedStringFromTemplate("LegalInfo", WindowsInformation.GetOSName());
-
-        await Task.WhenAll(isAdmin).ConfigureAwait(false);
-
-        UIThread.QueueAction(() =>
-        {
-            GreetingsMessage = greetings;
-            IsAdmin = isAdmin.Result;
-            LegalInfo = legalInfo;
-        });
-    }
-
-    // Secondary
-
-    public async Task InitializeSecondarySoftwareAsync()
-    {
-        var activationType = Task.Run(WindowsInformation.GetWindowsActivationType);
-        var installedOn = Task.Run(() => WindowsInformation.GetInstalledOnDate().ToString((IFormatProvider?)null));
-        var locale = Task.Run(WindowsInformation.GetLocale);
-        var localIP = Task.Run(WindowsInformation.GetLocalIP);
-
-        await Task.WhenAll(activationType, installedOn, locale, localIP).ConfigureAwait(false);
-
-        UIThread.QueueAction(() =>
-        {
-            WindowsActivationInfo = LocalizedResource.GetLocalizedString(activationType.Result switch
-            {
-                WindowsActivationType.Unlicensed => "ActivationStatusUnlicensed",
-                WindowsActivationType.Activated => "ActivationStatusActivated",
-                WindowsActivationType.GracePeriod => "ActivationStatusGracePeriod",
-                WindowsActivationType.NonGenuine => "ActivationStatusNonGenuine",
-                WindowsActivationType.ExtendedGracePeriod => "ActivationStatusExtendedGracePeriod",
-                _ => "ActivationStatusUnknown"
-            });
-            InstalledOnDate = installedOn.Result;
-            Locale = locale.Result;
-            LocalIP = localIP.Result;
-            LoadScale();
-        });
-    }
-
-    public async Task InitializeSecondaryHardwareAsync()
-    {
-        var cpuName = Task.Run(CPU.GetName);
-        var cpuArch = Task.Run(CPU.GetArchitecture);
-        var gpuName = Task.Run(GPU.GetName);
-        var pagefileSize = Task.Run(RAM.GetPageFileSize);
-        var res = Task.Run(Display.GetDisplayResolution);
-        var refreshRate = Task.Run(Display.GetDisplayRefreshRate);
-        var winSpace = Task.Run(Storage.GetWindowsDriveOccupiedSpacePercentage);
-        var totalSpace = Task.Run(Storage.GetTotalOccupiedSpacePercentage);
-        var manufacturer = Task.Run(Device.GetDeviceManufacturer);
-        var model = Task.Run(Device.GetDeviceModel);
-        var motherboardModel = Task.Run(Device.GetMotherboardModel);
-
-        await Task.WhenAll(cpuName, cpuArch, gpuName, pagefileSize, res,
-            refreshRate, winSpace, totalSpace, manufacturer, model).ConfigureAwait(false);
-
-        var resResult = await res.ConfigureAwait(false);
-        var winSpaceResult = await winSpace.ConfigureAwait(false);
-        var totalSpaceResult = await totalSpace.ConfigureAwait(false);
-
-        UIThread.QueueAction(() =>
-        {
-            CpuName = cpuName.Result;
-            CpuArchitecture = cpuArch.Result;
-            GpuName = gpuName.Result;
-            PagefileSize = pagefileSize.Result;
-            DisplayResolution = $"{resResult.cx}x{resResult.cy}";
-            DisplayRefreshRate = $"{refreshRate.Result} Hz";
-            WindowsOccupiedSpace = winSpaceResult;
-            WindowsOccupiedSpaceString = ((int)winSpaceResult).ToString((IFormatProvider?)null);
-            TotalOccupiedSpace = totalSpaceResult;
-            TotalOccupiedSpaceString = ((int)totalSpaceResult).ToString((IFormatProvider?)null);
-            DeviceManufacturer = manufacturer.Result;
-            DeviceModel = model.Result;
-            MotherboardModel = motherboardModel.Result;
-        });
-    }
-
-    public async Task InitializeSecondaryUserAsync()
-    {
-        var isMsAccount = Task.Run(UserInformation.IsMicrosoftAccount);
-        var licenseOwners = Task.Run(WindowsInformation.GetLicenseOwners);
-        var passwordExpiry = Task.Run(UserInformation.GetPasswordExpiry);
-
-        await Task.WhenAll(isMsAccount, licenseOwners, passwordExpiry).ConfigureAwait(false);
-
-        UIThread.QueueAction(() =>
-        {
-            IsMicrosoftAccount = isMsAccount.Result;
-            LicenseOwners = licenseOwners.Result;
-            PasswordExpiryDate = passwordExpiry.Result;
-        });
+        GreetingsMessage = LocalizedResource.GetLocalizedStringFromTemplate("HelloUser", UserInformation.GetDisplayName());
+        IsAdmin = UserInformation.IsAdmin();
+        LegalInfo = LocalizedResource.GetLocalizedStringFromTemplate("LegalInfo", WindowsInformation.GetOSName());
     }
 }

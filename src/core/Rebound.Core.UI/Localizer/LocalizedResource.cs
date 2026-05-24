@@ -5,7 +5,7 @@ namespace Rebound.Core.UI.Localizer;
 
 public static class LocalizedResource
 {
-    private static readonly Windows.ApplicationModel.Resources.ResourceLoader resourceLoader = Windows.ApplicationModel.Resources.ResourceLoader.GetForCurrentView();
+    private static readonly Windows.ApplicationModel.Resources.ResourceLoader resourceLoader = new();
 
     /// <summary>
     /// Retrieves a localized string from resource files.

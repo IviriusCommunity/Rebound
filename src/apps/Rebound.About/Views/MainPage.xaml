@@ -15,14 +15,12 @@
     xmlns:local="using:Rebound.About"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:media="using:CommunityToolkit.WinUI.Media"
-    xmlns:mica="using:MicaForUWP.Media"
     xmlns:muxc="using:Microsoft.UI.Xaml.Controls"
     xmlns:sysinfoHardware="using:Rebound.Core.SystemInformation.Hardware"
     xmlns:sysinfoSoftware="using:Rebound.Core.SystemInformation.Software"
     xmlns:ui="using:CommunityToolkit.WinUI"
     xmlns:viewModels="using:Rebound.About.ViewModels"
     d:DataContext="{d:DesignInstance Type=viewModels:MainViewModel}"
-    muxc:BackdropMaterial.ApplyToRootOrPageBackground="True"
     mc:Ignorable="d">
 
     <Page.Resources>

@@ -1,37 +1,45 @@
 ﻿// Copyright (C) Ivirius(TM) Community 2020 - 2026. All Rights Reserved.
 // Licensed under the MIT License.
 
+using Microsoft.UI;
+using Microsoft.UI.Xaml;
+using Microsoft.UI.Xaml.Controls;
 using Rebound.Core;
 using Rebound.Core.IPC;
 using Rebound.Core.UI;
 using Rebound.Core.UI.Application;
 using Rebound.Core.UI.Localizer;
-using Rebound.Core.UI.Threading;
 using Rebound.Core.UI.Windowing;
 using Rebound.Forge.Engines;
-using Rebound.Generators;
 using System;
 using System.Diagnostics;
 using System.Threading;
 using System.Threading.Tasks;
 using Windows.UI;
-using Windows.UI.Xaml;
-using Windows.UI.Xaml.Controls;
+using WinUIEx;
 
-#pragma warning disable IDE0079
 #pragma warning disable CA1515
 #pragma warning disable CA1031
 
 namespace Rebound.About;
 
-[ReboundApp("Rebound.About")]
 public partial class App : Application, IReboundLegacySupportApp, IReboundPipeClientApp
 {
     public PipeClient? ReboundPipeClient { get; private set; }
 
+    private SingleInstanceAppService SingleInstanceAppService { get; } = new("Rebound.About");
+
     public string LegacyExecutableName { get; } = "winver.exe";
 
-    private async void OnSingleInstanceLaunched(object sender, SingleInstanceLaunchEventArgs e)
+    public App() => InitializeComponent();
+
+    protected override void OnLaunched(LaunchActivatedEventArgs args)
+    {
+        SingleInstanceAppService.Launched += OnSingleInstanceLaunched;
+        SingleInstanceAppService.Launch(args?.Arguments!);
+    }
+
+    private async void OnSingleInstanceLaunched(object? sender, SingleInstanceLaunchEventArgs e)
     {
         try
         {
@@ -141,7 +149,7 @@ public partial class App : Application, IReboundLegacySupportApp, IReboundPipeCl
                 return;
             }
 
-            DirectStartup:
+        DirectStartup:
 
             ReboundLogger.WriteToLog(
                 "Application Launch",
@@ -152,18 +160,14 @@ public partial class App : Application, IReboundLegacySupportApp, IReboundPipeCl
             if (e.IsFirstLaunch)
             {
                 // Spawn or activate the main window immediately
-                UIThread.QueueAction(async () =>
-                {
-                    if (MainWindow != null)
-                        MainWindow.BringToFront();
-                    else
-                        CreateMainWindow();
-                });
+                if (MainWindow != null)
+                    MainWindow.BringToFront();
+                else
+                    CreateMainWindow();
             }
 
             // The application has been launched again, simply bring the main window forward
-            else
-                UIThread.QueueAction(MainWindow!.BringToFront);
+            else MainWindow!.BringToFront();
         }
         catch (Exception ex)
         {
@@ -178,48 +182,39 @@ public partial class App : Application, IReboundLegacySupportApp, IReboundPipeCl
         }
     }
 
-    public void RunServiceHostFailedToLaunchFallback()
+    public async void RunServiceHostFailedToLaunchFallback()
     {
-        UIThread.QueueAction(async () =>
+        // Request an action from the user
+        var result = await ReboundDialog.ShowAsync(
+            title: LocalizedResource.GetLocalizedString("ServiceHostNotFound"),
+            content: LocalizedResource.GetLocalizedString("ServiceHostNotFoundInfo"),
+            primaryButtonText: "Launch",
+            closeButtonText: "Ok",
+            defaultButton: ContentDialogButton.Primary).ConfigureAwait(false);
+
+        switch (result)
         {
-            // Request an action from the user
-            var result = await ReboundDialog.ShowAsync(
-                "Rebound About",
-                LocalizedResource.GetLocalizedString("ServiceHostNotFound"),
-                LocalizedResource.GetLocalizedString("ServiceHostNotFoundInfo"),
-                [
-                    new("Launch", true, '\uEA18'),
-                    new("Ok", false)
-                ],
-                DialogIcon.Warning
-                ).ConfigureAwait(false);
-            switch (result)
-            {
-                // Button index 0 (Launch)
-                case 0:
+            // Launch
+            case ContentDialogResult.Primary:
+                {
+                    // Make sure Rebound Service Host exists
+                    var launched = ServiceHostEngine.StartServiceHost();
+
+                    // If it still doesn't, it's possible that Rebound is corrupted - inform the user
+                    if (!launched)
                     {
-                        // Make sure Rebound Service Host exists
-                        var launched = ServiceHostEngine.StartServiceHost();
-
-                        // If it still doesn't, it's possible that Rebound is corrupted - inform the user
-                        if (!launched)
-                        {
-                            await ReboundDialog.ShowAsync(
-                                "Rebound About",
-                                LocalizedResource.GetLocalizedString("CouldntLaunchServiceHost"),
-                                LocalizedResource.GetLocalizedString("CouldntLaunchServiceHostInfo"),
-                                null,
-                                DialogIcon.Warning
-                                ).ConfigureAwait(false);
-                        }
-                        break;
+                        await ReboundDialog.ShowAsync(
+                            title: LocalizedResource.GetLocalizedString("CouldntLaunchServiceHost"),
+                            content: LocalizedResource.GetLocalizedString("CouldntLaunchServiceHostInfo"),
+                            closeButtonText: "Ok").ConfigureAwait(false);
                     }
-
-                // Ok and close buttons
-                default:
                     break;
-            }
-        });
+                }
+
+            // Ok button
+            default:
+                break;
+        }
     }
 
     public void LaunchLegacy(string args)
@@ -254,46 +249,31 @@ public partial class App : Application, IReboundLegacySupportApp, IReboundPipeCl
     {
         try
         {
-            // Create the window
-            MainWindow = new()
+            MainWindow = new MainWindow
             {
-                IsPersistenceEnabled = true,
-                PersistenceKey = "Rebound.About.MainWindow",
-                PersistenceFileName = "winver",
-                Width = 520,
-                Height = 740,
-                X = 50,
-                Y = 50
+                MinWidth = 440,
+                MinHeight = 360,
+                PersistenceId = "Rebound.About.MainWindow",
+                Title = LocalizedResource.GetLocalizedString("WindowTitle")
             };
 
-            // AppWindow init
-            MainWindow.AppWindowInitialized += (s, e) =>
+            // Default window size
+            if (WindowManager.PersistenceStorage?.TryGetValue("Rebound.About.MainWindow", out _) != true)
             {
-                // Window metrics
-                MainWindow.MinWidth = 440;
-                MainWindow.MinHeight = 360;
-
-                // Window properties
-                MainWindow.AppWindow?.TitleBar.ExtendsContentIntoTitleBar = true;
-                MainWindow.AppWindow?.TitleBar.ButtonBackgroundColor =
-                MainWindow.AppWindow?.TitleBar.ButtonInactiveBackgroundColor = Colors.Transparent;
-                MainWindow.AppWindow?.TitleBar.ButtonHoverBackgroundColor = IslandsWindow.ButtonHoverBackgroundColor;
-                MainWindow.AppWindow?.TitleBar.ButtonPressedBackgroundColor = IslandsWindow.ButtonPressedBackgroundColor;
-                MainWindow.AppWindow?.SetTaskbarIcon($"{AppContext.BaseDirectory}\\Assets\\AboutWindows.ico");
-            };
-
-            // Load main page
-            MainWindow.XamlInitialized += (s, e) =>
-            {
-                MainWindow.Title = LocalizedResource.GetLocalizedString("WindowTitle");
-
-                var frame = new Frame();
-                frame.Navigate(typeof(Views.MainPage));
-                MainWindow.Content = frame;
-            };
+                MainWindow.Width = 520;
+                MainWindow.Height = 740;
+            }
 
             // Spawn the window
-            MainWindow.Create();
+            MainWindow.Activate();
+
+            // Window properties
+            MainWindow.AppWindow.TitleBar.ExtendsContentIntoTitleBar = true;
+            MainWindow.AppWindow.TitleBar.ButtonBackgroundColor =
+            MainWindow.AppWindow.TitleBar.ButtonInactiveBackgroundColor = Colors.Transparent;
+            MainWindow.AppWindow.TitleBar.ButtonHoverBackgroundColor = Color.FromArgb(80, 120, 120, 120);
+            MainWindow.AppWindow.TitleBar.ButtonPressedBackgroundColor = Color.FromArgb(40, 120, 120, 120);
+            MainWindow.AppWindow.SetTaskbarIcon($"{AppContext.BaseDirectory}\\Assets\\AboutWindows.ico");
         }
         catch (Exception ex)
         {
@@ -308,5 +288,5 @@ public partial class App : Application, IReboundLegacySupportApp, IReboundPipeCl
         }
     }
 
-    public static IslandsWindow? MainWindow { get; set; }
+    public static WindowEx? MainWindow { get; set; }
 }

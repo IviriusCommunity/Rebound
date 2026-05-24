@@ -2,9 +2,8 @@
 // Licensed under the MIT License.
 
 using Microsoft.UI.Xaml.Controls;
-using Windows.UI.Xaml.Controls;
-using Windows.UI.Xaml.Data;
-using Windows.UI.Xaml.Media.Imaging;
+using Microsoft.UI.Xaml.Data;
+using Microsoft.UI.Xaml.Media.Imaging;
 
 namespace Rebound.Core.UI.Converters;
 
