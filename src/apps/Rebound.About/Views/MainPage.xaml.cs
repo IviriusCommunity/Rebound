@@ -7,13 +7,13 @@ using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Rebound.About.ViewModels;
 using Rebound.Core;
+using Rebound.Core.Settings;
 using Rebound.Core.SystemInformation.Hardware;
 using Rebound.Core.SystemInformation.Software;
 using Rebound.Core.Threading;
 using Rebound.Core.UI.Localizer;
 using System;
 using System.Diagnostics;
-using System.Threading;
 using System.Threading.Tasks;
 using Windows.ApplicationModel.DataTransfer;
 using Windows.System;
@@ -29,6 +29,8 @@ internal sealed partial class MainPage : Page
     [GeneratedDependencyProperty(DefaultValue = "ms-appx:///")] public partial string? UserPicturePath { get; set; }
 
     [GeneratedDependencyProperty(DefaultValue = "ms-appx:///")] public partial string? WallpaperPath { get; set; }
+
+    [GeneratedDependencyProperty(DefaultValue = "ms-appx:///")] public partial string? CustomLogoPath { get; set; }
 
     private MainViewModel ViewModel { get; } = new();
 
@@ -46,16 +48,17 @@ internal sealed partial class MainPage : Page
     {
         Loaded -= MainPage_Loaded;
 
+        // This needs a STA thread for some reason (Shell COM moment)
         var (wallpaper, userPicture) = await STAThread.RunOnSTAThread(() =>
         {
-            string? w = null, u = null;
-            try { w = UserInformation.GetWallpaperPath(); } catch { }
+            string w = string.Empty, u = string.Empty;
+            try { w = UserInformation.GetWallpaperPath()!; } catch { }
             try { u = UserInformation.GetUserPicturePath(); } catch { }
             return (w, u);
         }).ConfigureAwait(true);
 
-        WallpaperPath = wallpaper ?? "ms-appx:///";
-        UserPicturePath = userPicture ?? "ms-appx:///";
+        WallpaperPath = wallpaper;
+        UserPicturePath = userPicture;
 
         // Fast init — these are probably cheap, keep on UI thread
         ViewModel.InitializePrimarySoftware();
@@ -69,6 +72,31 @@ internal sealed partial class MainPage : Page
 
         ViewModel._liveHardwareFeed.OnUpdate += LiveHardwareFeed_OnUpdate;
         ViewModel._liveHardwareFeed.Start();
+
+        ViewModel._listener.SettingChanged += (s, e) =>
+        {
+            _dispatcherQueue.EnqueueAsync(() =>
+            {
+                ViewModel.UpdateSettings();
+                UpdateCustomBranding();
+            });
+        };
+
+        UpdateCustomBranding();
+    }
+
+    private void UpdateCustomBranding()
+    {
+        if (SettingsManager.GetValue<string?>("CustomBrandingPath", "rebound") is string path && !string.IsNullOrWhiteSpace(path))
+        {
+            CustomLogoPath = path;
+            ViewModel.ShowCustomBranding = true;
+        }
+        else
+        {
+            CustomLogoPath = "ms-appx:///Assets/AboutWindows.ico";
+            ViewModel.ShowCustomBranding = false;
+        }
     }
 
     private async Task LoadDeferredAsync()

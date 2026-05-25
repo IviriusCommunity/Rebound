@@ -15,7 +15,7 @@ namespace Rebound.About.ViewModels;
 internal partial class MainViewModel : ObservableObject
 #pragma warning restore CA1001 // Types that own disposable fields should be disposable
 {
-    private readonly SettingsListener _listener;
+    public readonly SettingsListener _listener;
 
     public readonly LiveHardwareFeed _liveHardwareFeed;
 
@@ -25,12 +25,13 @@ internal partial class MainViewModel : ObservableObject
 
     [ObservableProperty] public partial string ReboundText { get; set; } = "Loading...";
 
+    [ObservableProperty] public partial bool ShowCustomBranding { get; set; } = false;
+
     public MainViewModel()
     {
         IsReboundInstalled = File.Exists(Variables.ReboundCurrentVersionPath);
         UpdateSettings();
         _listener = new SettingsListener();
-        _listener.SettingChanged += Listener_SettingChanged;
         _liveHardwareFeed = new LiveHardwareFeed();
     }
 
@@ -89,9 +90,7 @@ internal partial class MainViewModel : ObservableObject
     [ObservableProperty] public partial bool ShowActivationInfo { get; set; }
     [ObservableProperty] public partial bool ShowExpandedView { get; set; }
 
-    private void Listener_SettingChanged(object? sender, SettingChangedEventArgs e) => UpdateSettings();
-
-    private void UpdateSettings()
+    public void UpdateSettings()
     {
         IsSidebarOn = SettingsManager.GetValue("IsSidebarOn", "winver", true);
         IsReboundOn = SettingsManager.GetValue("IsReboundOn", "winver", true);

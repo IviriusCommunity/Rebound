@@ -87,7 +87,8 @@
                 HorizontalAlignment="Center"
                 VerticalAlignment="Top"
                 Orientation="Horizontal"
-                Spacing="24">
+                Spacing="24"
+                Visibility="{x:Bind ViewModel.ShowCustomBranding, Mode=OneWay, Converter={StaticResource BoolToInverseVisibilityConverter}}">
                 <Grid VerticalAlignment="Center">
                     <Path Data="M 0 4 C 0 2 2 0 4 0 L 33 0 L 33 33 L 0 33 M 35 0 L 64 0 C 66 0 68 2 68 4 L 68 33 L 35 33 M 33 35 L 0 35 L 0 64 C 0 66 2 68 4 68 L 33 68 M 35 35 L 68 35 L 68 64 C 68 66 66 68 64 68 L 35 68">
                         <Path.Fill>
@@ -117,6 +118,15 @@
                     </TextBlock.Foreground>
                 </TextBlock>
             </StackPanel>
+
+            <!--  Custom logo  -->
+            <Grid Visibility="{x:Bind ViewModel.ShowCustomBranding, Mode=OneWay}">
+                <Image
+                    Height="100"
+                    Margin="0,32,0,12"
+                    Source="{x:Bind CustomLogoPath, Mode=OneWay}"
+                    Stretch="Uniform" />
+            </Grid>
 
             <!--  Blur  -->
             <Grid Visibility="{x:Bind ViewModel.ShowBlurAndGlow, Mode=OneWay}">
@@ -132,7 +142,8 @@
                 HorizontalAlignment="Center"
                 VerticalAlignment="Top"
                 Orientation="Horizontal"
-                Spacing="24">
+                Spacing="24"
+                Visibility="{x:Bind ViewModel.ShowCustomBranding, Mode=OneWay, Converter={StaticResource BoolToInverseVisibilityConverter}}">
                 <Grid VerticalAlignment="Center">
                     <Path Data="M 0 4 C 0 2 2 0 4 0 L 33 0 L 33 33 L 0 33 M 35 0 L 64 0 C 66 0 68 2 68 4 L 68 33 L 35 33 M 33 35 L 0 35 L 0 64 C 0 66 2 68 4 68 L 33 68 M 35 35 L 68 35 L 68 64 C 68 66 66 68 64 68 L 35 68">
                         <Path.Fill>
@@ -162,6 +173,15 @@
                     </TextBlock.Foreground>
                 </TextBlock>
             </StackPanel>
+
+            <!--  Custom logo  -->
+            <Grid Visibility="{x:Bind ViewModel.ShowCustomBranding, Mode=OneWay}">
+                <Image
+                    Height="100"
+                    Margin="0,32,0,12"
+                    Source="{x:Bind CustomLogoPath, Mode=OneWay}"
+                    Stretch="Uniform" />
+            </Grid>
 
             <!--  Title bar  -->
             <StackPanel
@@ -730,7 +750,8 @@
                 HorizontalAlignment="Stretch"
                 VerticalAlignment="Top"
                 Orientation="Horizontal"
-                Spacing="24">
+                Spacing="24"
+                Visibility="{x:Bind ViewModel.ShowCustomBranding, Mode=OneWay, Converter={StaticResource BoolToInverseVisibilityConverter}}">
                 <Grid VerticalAlignment="Center">
                     <Path Data="M 0 4 C 0 2 2 0 4 0 L 33 0 L 33 33 L 0 33 M 35 0 L 64 0 C 66 0 68 2 68 4 L 68 33 L 35 33 M 33 35 L 0 35 L 0 64 C 0 66 2 68 4 68 L 33 68 M 35 35 L 68 35 L 68 64 C 68 66 66 68 64 68 L 35 68">
                         <Path.Fill>
@@ -768,6 +789,20 @@
                 Background="{ThemeResource SystemControlBackgroundAltMediumLowBrush}"
                 Visibility="{x:Bind ViewModel.ShowBlurAndGlow, Mode=OneWay, Converter={StaticResource BoolToInverseVisibilityConverter}}" />
 
+            <!--  Custom logo  -->
+            <Grid
+                Grid.ColumnSpan="2"
+                MaxWidth="1200"
+                HorizontalAlignment="Stretch"
+                Visibility="{x:Bind ViewModel.ShowCustomBranding, Mode=OneWay}">
+                <Image
+                    Height="100"
+                    Margin="0,32,0,12"
+                    HorizontalAlignment="Left"
+                    Source="{x:Bind CustomLogoPath, Mode=OneWay}"
+                    Stretch="Uniform" />
+            </Grid>
+
             <!--  Blur  -->
             <Grid Grid.ColumnSpan="2" Visibility="{x:Bind ViewModel.ShowBlurAndGlow, Mode=OneWay}">
                 <Grid.Background>
@@ -783,7 +818,8 @@
                 HorizontalAlignment="Stretch"
                 VerticalAlignment="Top"
                 Orientation="Horizontal"
-                Spacing="24">
+                Spacing="24"
+                Visibility="{x:Bind ViewModel.ShowCustomBranding, Mode=OneWay, Converter={StaticResource BoolToInverseVisibilityConverter}}">
                 <Grid VerticalAlignment="Center">
                     <Path Data="M 0 4 C 0 2 2 0 4 0 L 33 0 L 33 33 L 0 33 M 35 0 L 64 0 C 66 0 68 2 68 4 L 68 33 L 35 33 M 33 35 L 0 35 L 0 64 C 0 66 2 68 4 68 L 33 68 M 35 35 L 68 35 L 68 64 C 68 66 66 68 64 68 L 35 68">
                         <Path.Fill>
@@ -814,6 +850,20 @@
                     </TextBlock.Foreground>
                 </TextBlock>
             </StackPanel>
+
+            <!--  Custom logo  -->
+            <Grid
+                Grid.ColumnSpan="2"
+                MaxWidth="1200"
+                HorizontalAlignment="Stretch"
+                Visibility="{x:Bind ViewModel.ShowCustomBranding, Mode=OneWay}">
+                <Image
+                    Height="100"
+                    Margin="0,32,0,12"
+                    HorizontalAlignment="Left"
+                    Source="{x:Bind CustomLogoPath, Mode=OneWay}"
+                    Stretch="Uniform" />
+            </Grid>
 
             <!--  Title bar  -->
             <StackPanel

@@ -7,82 +7,39 @@ public sealed class SettingsListener : IDisposable
 {
     public event EventHandler<SettingChangedEventArgs>? SettingChanged;
 
-    private readonly string _basePath;
-    private readonly Timer _timer;
-    private readonly int _pollIntervalMs = 500; // check twice per second
-    private FileSystemSnapshot _lastSnapshot;
+    private readonly FileSystemWatcher _watcher;
 
     public SettingsListener()
     {
-        _basePath = Path.Combine(
-            System.Environment.GetFolderPath(System.Environment.SpecialFolder.UserProfile),
-            ".rebound"
-        );
+        var basePath = Variables.ReboundDataFolder;
 
-        if (!Directory.Exists(_basePath))
-            Directory.CreateDirectory(_basePath);
+        if (!Directory.Exists(basePath))
+            Directory.CreateDirectory(basePath);
 
-        _lastSnapshot = FileSystemSnapshot.Capture(_basePath);
+        _watcher = new FileSystemWatcher(basePath)
+        {
+            NotifyFilter = NotifyFilters.LastWrite | NotifyFilters.FileName | NotifyFilters.DirectoryName,
+            Filter = "*",
+            IncludeSubdirectories = true,
+            EnableRaisingEvents = true,
+        };
 
-        _timer = new Timer(OnTimerTick, null, _pollIntervalMs, _pollIntervalMs);
+        _watcher.Changed += OnFileEvent;
+        _watcher.Created += OnFileEvent;
+        _watcher.Deleted += OnFileEvent;
+        _watcher.Renamed += OnFileRenamed;
     }
 
-    private void OnTimerTick(object? state)
-    {
-        try
-        {
-            var current = FileSystemSnapshot.Capture(_basePath);
+    private void OnFileEvent(object sender, FileSystemEventArgs e)
+        => SettingChanged?.Invoke(this, new SettingChangedEventArgs(e.Name ?? "", e.FullPath));
 
-            if (!_lastSnapshot.Equals(current))
-            {
-                _lastSnapshot = current;
-                SettingChanged?.Invoke(this, new SettingChangedEventArgs("", ""));
-            }
-        }
-        catch
-        {
-            // Ignore transient IO issues
-        }
-    }
+    private void OnFileRenamed(object sender, RenamedEventArgs e)
+        => SettingChanged?.Invoke(this, new SettingChangedEventArgs(e.Name ?? "", e.FullPath));
 
     public void Dispose()
     {
-        _timer.Dispose();
-    }
-
-    // Helper to capture file state
-    private class FileSystemSnapshot
-    {
-        public readonly (string path, DateTime lastWrite)[] Files;
-
-        private FileSystemSnapshot((string, DateTime)[] files)
-        {
-            Files = files;
-        }
-
-        public static FileSystemSnapshot Capture(string folder)
-        {
-            var files = Directory.GetFiles(folder, "*", SearchOption.AllDirectories)
-                                 .Select(f => (f, File.GetLastWriteTimeUtc(f)))
-                                 .ToArray();
-            return new FileSystemSnapshot(files);
-        }
-
-        public override bool Equals(object? obj)
-        {
-            if (obj is not FileSystemSnapshot other) return false;
-            if (Files.Length != other.Files.Length) return false;
-
-            for (int i = 0; i < Files.Length; i++)
-            {
-                if (Files[i].path != other.Files[i].path || Files[i].lastWrite != other.Files[i].lastWrite)
-                    return false;
-            }
-
-            return true;
-        }
-
-        public override int GetHashCode() => 0; // not used
+        _watcher.EnableRaisingEvents = false;
+        _watcher.Dispose();
     }
 }
 

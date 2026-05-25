@@ -5,7 +5,7 @@ using WinUIEx;
 
 namespace Rebound.About;
 
-public sealed partial class MainWindow : WindowEx
+internal sealed partial class MainWindow : WindowEx
 {
     public MainWindow()
     {
