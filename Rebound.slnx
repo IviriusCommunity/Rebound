@@ -145,16 +145,6 @@
       <Platform Solution="*|ARM64" Project="x64" />
     </Project>
   </Folder>
-  <Folder Name="/src/core/generators/" Id="4ec41458-d783-4ff2-b3a5-4baf78f04948">
-    <Project Path="src/core/generators/Rebound.Core.SourceGenerator/Rebound.Core.SourceGenerator.csproj">
-      <Platform Solution="*|ARM64" Project="ARM64" />
-      <Platform Solution="*|x64" Project="x64" />
-    </Project>
-    <Project Path="src/core/generators/Rebound.Core.SourceGeneratorAttributes/Rebound.Core.SourceGeneratorAttributes.csproj">
-      <Platform Solution="*|ARM64" Project="ARM64" />
-      <Platform Solution="*|x64" Project="x64" />
-    </Project>
-  </Folder>
   <Folder Name="/src/platforms/" Id="cbff53eb-5ead-4b57-8ed6-53491d4790e6" />
   <Folder Name="/src/platforms/management/">
     <Project Path="src/platforms/management/Rebound.ManagementConsole/Rebound.ManagementConsole.csproj">

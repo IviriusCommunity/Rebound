@@ -26,7 +26,6 @@ using Windows.UI.Xaml.Controls;
 
 namespace Rebound.ControlPanel;
 
-[ReboundApp("Rebound.Control")]
 public partial class App : Application, IReboundLegacySupportApp, IReboundPipeClientApp
 {
     private object? _validatedItem;

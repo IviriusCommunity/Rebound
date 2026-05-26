@@ -1,42 +1,52 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
+	<!-- Generic -->
 	<PropertyGroup>
-		<TargetFramework>net10.0-windows10.0.26100.0</TargetFramework>
-		<TargetPlatformMinVersion>10.0.22000.0</TargetPlatformMinVersion>
-		<Platforms>x64;ARM64</Platforms>
 
-		<ImplicitUsings>enable</ImplicitUsings>
-		<Nullable>enable</Nullable>
+		<!-- Library Generic -->
 		<UseWinUI>true</UseWinUI>
 		<UseWinUITools>true</UseWinUITools>
 		<WinUISDKReferences>false</WinUISDKReferences>
 		<EnableMsixTooling>true</EnableMsixTooling>
+
+		<!-- Targets -->
+		<TargetFramework>net10.0-windows10.0.26100.0</TargetFramework>
+		<TargetPlatformMinVersion>10.0.22000.0</TargetPlatformMinVersion>
+
+		<!-- Platforms -->
+		<Platforms>x64;ARM64</Platforms>
+
+		<!-- Advanced -->
+		<ImplicitUsings>enable</ImplicitUsings>
+		<Nullable>enable</Nullable>
+		<AllowUnsafeBlocks>true</AllowUnsafeBlocks>
 		<EnableDefaultPageItems>false</EnableDefaultPageItems>
-		<!--<IsPackable>false</IsPackable>
-		<PackOnBuild>false</PackOnBuild>
-		<GeneratePackageOnBuild>false</GeneratePackageOnBuild>-->
+
 	</PropertyGroup>
+
+	<!-- Architecture -->
 	<PropertyGroup>
 		<PlatformTarget Condition="'$(Platform)' == 'x64'">x64</PlatformTarget>
 		<PlatformTarget Condition="'$(Platform)' == 'ARM64' or $(RuntimeIdentifier.EndsWith('-arm64'))">arm64</PlatformTarget>
 	</PropertyGroup>
 
+	<!-- Project content -->
 	<ItemGroup>
-		<Page Include="UserControls\HomePageHeaderImage.xaml">
-			<SubType>Designer</SubType>
-			<Generator>MSBuild:Compile</Generator>
-		</Page>
-	</ItemGroup>
-	<ItemGroup>
-		<PackageReference Include="TerraFX.Interop.Windows" Version="10.0.26100.6" />
-		<PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.2" />
-		<PackageReference Include="Microsoft.WindowsAppSDK.WinUI" Version="2.0.12" />
-		<PackageReference Include="Microsoft.WindowsAppSDK" Version="2.0.1" ExcludeAssets="buildTransitive" PrivateAssets="all" />
-		<PackageReference Include="CommunityToolkit.WinUI.Animations" Version="8.2.251219" />
-		<PackageReference Include="Microsoft.Graphics.Win2D" Version="1.3.1" />
-		<PackageReference Include="WinUIEx" Version="2.9.0" />
+		<Page Include="UserControls\HomePageHeaderImage.xaml" />
 	</ItemGroup>
 
+	<!-- Package references -->
+	<ItemGroup>
+		<PackageReference Include="TerraFX.Interop.Windows" Version="10.0.26100.6" />
+		<PackageReference Include="Microsoft.WindowsAppSDK.WinUI" Version="2.1.0" />
+		<PackageReference Include="Microsoft.WindowsAppSDK" Version="2.1.3" ExcludeAssets="buildTransitive" PrivateAssets="all" />
+		<PackageReference Include="Microsoft.Graphics.Win2D" Version="1.4.0" />
+		<PackageReference Include="WinUIEx" Version="2.9.0" />
+		<PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.2" />
+		<PackageReference Include="CommunityToolkit.WinUI.Animations" Version="8.2.251219" />
+	</ItemGroup>
+
+	<!-- Project references -->
 	<ItemGroup>
 		<ProjectReference Include="..\Rebound.Core.IPC\Rebound.Core.IPC.csproj" />
 		<ProjectReference Include="..\Rebound.Core.Native\Rebound.Core.Native.csproj" />
