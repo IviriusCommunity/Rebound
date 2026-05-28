@@ -12,7 +12,7 @@ using System.ComponentModel;
 using System.Diagnostics;
 using System.Threading.Tasks;
 using TerraFX.Interop.Windows;
-using Windows.UI.Xaml.Controls;
+using WinUIEx;
 
 namespace Rebound.ControlPanel.Views;
 
@@ -50,7 +50,7 @@ internal partial class Tool
                 await reboundShellClient.ConnectAsync().ConfigureAwait(false);
                 await reboundShellClient.SendAsync("Shell::SpawnRunWindow").ConfigureAwait(false);
             }
-            else unsafe { Shell32RE.RunFileDlg(App.MainWindow!.Handle, HICON.NULL, null, null, null, 0); }
+            else unsafe { Shell32RE.RunFileDlg(new((void*)App.MainWindow!.GetWindowHandle()), HICON.NULL, null, null, null, 0); }
         }
         else
         {

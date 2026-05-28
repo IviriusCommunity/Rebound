@@ -3,13 +3,14 @@
 
 using CommunityToolkit.Mvvm.Input;
 using Microsoft.UI.Windowing;
+using Microsoft.UI.Xaml;
+using Microsoft.UI.Xaml.Controls;
 using Rebound.ControlPanel.ViewModels;
 using Rebound.ControlPanel.Views.Secondary;
 using Rebound.Core.Native.Storage;
-using Rebound.Core.UI.Windowing;
 using System;
 using System.Runtime.InteropServices;
-using Windows.UI.Xaml.Controls;
+using WinUIEx;
 
 namespace Rebound.ControlPanel.Views;
 
@@ -23,14 +24,14 @@ internal sealed partial class BackupAndRestorePage : Page
     }
 
     // Called when the page is unloaded so the registry monitor thread exits.
-    private void OnUnloaded(object sender, Windows.UI.Xaml.RoutedEventArgs e)
+    private void OnUnloaded(object sender, RoutedEventArgs e)
         => ViewModel.StopRegistryMonitor();
 
     // ── Child window helpers ──────────────────────────────────────────────────
 
-    private static void MakeChildModal(IslandsWindow child)
+    private static void MakeChildModal(WindowEx child)
     {
-        // Set owner
+        /*// Set owner
         NativeMethods.SetWindowLongPtr(
             child.Handle,
             NativeMethods.GWLP_HWNDPARENT,
@@ -38,7 +39,7 @@ internal sealed partial class BackupAndRestorePage : Page
 
         // Set modal
         if (child.AppWindow?.Presenter is OverlappedPresenter op)
-            op.IsModal = true;
+            op.IsModal = true;*/
     }
 
     // ── Create Restore Point ─────────────────────────────────────────────────
@@ -46,7 +47,7 @@ internal sealed partial class BackupAndRestorePage : Page
     [RelayCommand]
     public void OpenCreateRestorePointWindow()
     {
-        var child = new IslandsWindow
+        /*var child = new IslandsWindow
         {
             Width = 400,
             Height = 260
@@ -75,7 +76,7 @@ internal sealed partial class BackupAndRestorePage : Page
             child.Content = frame;
         };
 
-        child.Create();
+        child.Create();*/
     }
 
     // ── Configure Auto Backup ────────────────────────────────────────────────
@@ -83,7 +84,7 @@ internal sealed partial class BackupAndRestorePage : Page
     [RelayCommand]
     public void OpenConfigureAutoBackupWindow()
     {
-        var child = new IslandsWindow
+        /*var child = new IslandsWindow
         {
             Width = 440,
             Height = 320
@@ -112,7 +113,7 @@ internal sealed partial class BackupAndRestorePage : Page
             child.Content = frame;
         };
 
-        child.Create();
+        child.Create();*/
     }
 
     // ── Restore from file ────────────────────────────────────────────────────
@@ -120,7 +121,7 @@ internal sealed partial class BackupAndRestorePage : Page
     [RelayCommand]
     public async void RestoreFromFile()
     {
-        var result = FilePickers.PickOpenFile(
+        /*var result = FilePickers.PickOpenFile(
             App.MainWindow!.Handle,
             "Select a backup file",
             [
@@ -131,7 +132,7 @@ internal sealed partial class BackupAndRestorePage : Page
         if (result.IsCancelled == true || string.IsNullOrWhiteSpace(result.Path))
             return;
 
-        await ViewModel.RestoreFromFileAsync(result.Path);
+        await ViewModel.RestoreFromFileAsync(result.Path);*/
     }
 }
 

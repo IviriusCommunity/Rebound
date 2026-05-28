@@ -107,7 +107,9 @@
 	<ItemGroup>
 
 		<Manifest Include="$(ApplicationManifest)" />
-		
+
+		<Page Include="Views\Secondary\ConfigureAutoBackupPage.xaml" />
+		<Page Include="Views\Secondary\CreateRestorePointPage.xaml" />
 		<Page Include="Views\Appearance.xaml" />
 		<Page Include="Views\BackupAndRestorePage.xaml" />
 		<Page Include="Views\DirectXPage.xaml" />
@@ -119,6 +121,7 @@
 		<Page Include="Views\SystemPage.xaml" />
 		<Page Include="Views\WindowsToolsPage.xaml" />
 		<Page Include="MainWindow.xaml" />
+		<ApplicationDefinition Include="App.xaml" />
 
 		<Content Include="Strings\**\*.resw">
 			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>

@@ -4,8 +4,6 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using Rebound.Core.SystemInformation.Hardware;
 using Rebound.Core.SystemInformation.Software;
-using Rebound.Core.UI;
-using Rebound.Core.UI.Threading;
 
 namespace Rebound.ControlPanel.ViewModels;
 
@@ -31,14 +29,11 @@ internal partial class HomeViewModel : ObservableObject
 
     public HomeViewModel()
     {
-        UIThread.QueueAction(() =>
-        {
-            WindowsVersionTitle = WindowsInformation.GetOSName();
-            CpuName = CPU.GetName();
-            GpuName = GPU.GetName();
-            RamCapacity = RAM.GetInstalledRam();
-            ComputerName = WindowsInformation.GetComputerName();
-            Username = UserInformation.GetDisplayName();
-        });
+        WindowsVersionTitle = WindowsInformation.GetOSName();
+        CpuName = CPU.GetName();
+        GpuName = GPU.GetName();
+        RamCapacity = RAM.GetInstalledRam();
+        ComputerName = WindowsInformation.GetComputerName();
+        Username = UserInformation.GetDisplayName();
     }
 }

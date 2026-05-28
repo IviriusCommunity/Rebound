@@ -2,15 +2,12 @@
 // Licensed under the MIT License.
 
 using Microsoft.Graphics.Canvas.Effects;
+using Microsoft.UI.Composition;
+using Microsoft.UI.Xaml.Media;
 using Rebound.Core.ICC.Display;
-using Rebound.Core.UI;
-using Rebound.Core.UI.Threading;
 using System;
 using System.Threading;
 using System.Threading.Tasks;
-using Windows.UI.Composition;
-using Windows.UI.Xaml;
-using Windows.UI.Xaml.Media;
 
 namespace Rebound.ControlPanel.Brushes;
 
@@ -81,7 +78,7 @@ internal partial class SDRCalibrationBackdropBrush : XamlCompositionBrushBase, I
                 _contrast = _pendingContrast;
                 _hasPendingUpdate = false;
 
-                UIThread.QueueAction(BuildBrush);
+                DispatcherQueue.TryEnqueue(BuildBrush);
             }
         }, _cts.Token);
     }
@@ -132,11 +129,11 @@ internal partial class SDRCalibrationBackdropBrush : XamlCompositionBrushBase, I
             "Linear.RedOffset",    "Linear.GreenOffset",    "Linear.BlueOffset",
         };
 
-        var factory = Window.Current.Compositor?.CreateEffectFactory(linearEffect, animatableProperties);
+        var factory = new Compositor().CreateEffectFactory(linearEffect, animatableProperties);
 
         _brush?.Dispose();
         _brush = factory?.CreateBrush();
-        _brush?.SetSourceParameter("backdrop", Window.Current.Compositor?.CreateBackdropBrush());
+        _brush?.SetSourceParameter("backdrop", new Compositor().CreateBackdropBrush());
         CompositionBrush = _brush;
     }
 

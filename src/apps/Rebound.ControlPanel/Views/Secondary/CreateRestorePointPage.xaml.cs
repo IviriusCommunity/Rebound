@@ -1,9 +1,9 @@
 ﻿// Copyright (C) Ivirius(TM) Community 2020 - 2026. All Rights Reserved.
 // Licensed under the MIT License.
 
+using Microsoft.UI.Xaml;
+using Microsoft.UI.Xaml.Controls;
 using System;
-using Windows.UI.Xaml;
-using Windows.UI.Xaml.Controls;
 
 namespace Rebound.ControlPanel.Views.Secondary;
 

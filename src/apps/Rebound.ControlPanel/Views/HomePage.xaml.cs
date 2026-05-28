@@ -3,15 +3,14 @@
 
 using CommunityToolkit.Mvvm.Input;
 using CommunityToolkit.WinUI;
+using Microsoft.UI.Xaml.Controls;
+using Microsoft.UI.Xaml.Documents;
 using Rebound.ControlPanel.ViewModels;
 using Rebound.Core;
 using Rebound.Core.SystemInformation.Software;
-using Rebound.Core.UI;
-using Rebound.Core.UI.Threading;
 using Rebound.Forge.Engines;
 using System;
 using System.Diagnostics;
-using Windows.UI.Xaml.Controls;
 
 namespace Rebound.ControlPanel.Views;
 
@@ -28,11 +27,8 @@ internal sealed partial class HomePage : Page
     public HomePage()
     {
         InitializeComponent();
-        UIThread.QueueAction(() =>
-        {
-            UserPicturePath = UserInformation.GetUserPicturePath() ?? string.Empty;
-            WallpaperPath = UserInformation.GetWallpaperPath() ?? string.Empty;
-        });
+        UserPicturePath = UserInformation.GetUserPicturePath() ?? string.Empty;
+        WallpaperPath = UserInformation.GetWallpaperPath() ?? string.Empty;
     }
 
     [RelayCommand]
@@ -61,7 +57,7 @@ internal sealed partial class HomePage : Page
         }
     }
 
-    private void Hyperlink_Click(Windows.UI.Xaml.Documents.Hyperlink sender, Windows.UI.Xaml.Documents.HyperlinkClickEventArgs args)
+    private void Hyperlink_Click(Hyperlink sender, HyperlinkClickEventArgs args)
     {
         LaunchPath("winver.exe");
     }

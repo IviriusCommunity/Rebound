@@ -1,6 +1,7 @@
 ﻿// Copyright (C) Ivirius(TM) Community 2020 - 2026. All Rights Reserved.
 // Licensed under the MIT License.
 
+using Microsoft.UI.Xaml.Controls;
 using Rebound.ControlPanel.Views;
 using System;
 using System.Collections.Generic;
@@ -8,7 +9,6 @@ using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.Threading.Tasks;
 using Windows.System;
-using Windows.UI.Xaml.Controls;
 
 namespace Rebound.ControlPanel;
 
@@ -31,7 +31,7 @@ internal static partial class CplItemPairs
             Children =
             [
                 new() { Name = "Configuration", Tag = "configuration", Icon = "glyph:\uE90F", Page = typeof(SystemConfigurationPage), Args = [CplArgs.SystemPropertiesComputerNameExePath] },
-                new() { Name = "Display", Tag = "display", Page = typeof(DisplaySettingsPage), Icon = "glyph:\uE7F4" },
+                new() { Name = "Display", IsEnabled = false, Tag = "display", Page = typeof(DisplaySettingsPage), Icon = "glyph:\uE7F4" },
                 //new() { Name = "Power and Battery", Tag = "powerandbattery", Icon = "glyph:\uEBA5" },
                 new() { Name = "DirectX", Tag = "directx", Page = typeof(DirectXPage), Icon = "glyph:\uE967", Args = [CplArgs.DirectXControlPanelExePath] },
                 new() { Name = "Backup and Restore", IsEnabled = false, Tag = "backupandrestore", Page = typeof(BackupAndRestorePage), Icon = "glyph:\uE896" },
@@ -147,7 +147,7 @@ internal static partial class CplItemPairs
         {
             if (item.Page != null)
             {
-                var frame = (App.MainWindow?.Content as Frame)?.Content as RootPage;
+                var frame = (App.MainWindow as MainWindow)?.RootFrame.Content as RootPage;
                 if (frame?.RootFrame?.Content?.GetType() != item.Page)
                     frame?.RootFrame?.Navigate(item.Page);
             }

@@ -3,17 +3,12 @@
 
 using CommunityToolkit.Mvvm.Input;
 using CommunityToolkit.WinUI;
+using Microsoft.UI.Xaml;
+using Microsoft.UI.Xaml.Controls;
+using Microsoft.UI.Xaml.Navigation;
 using Rebound.Core.SystemInformation.Software;
-using Rebound.Core.UI;
 using Rebound.Core.UI.Converters;
 using System.Collections.Generic;
-using Windows.UI.Xaml.Controls;
-using Windows.UI.Xaml.Navigation;
-using NavigationViewItemInvokedEventArgs = Microsoft.UI.Xaml.Controls.NavigationViewItemInvokedEventArgs;
-using NavigationViewItemBase = Microsoft.UI.Xaml.Controls.NavigationViewItemBase;
-using NavigationViewItem = Microsoft.UI.Xaml.Controls.NavigationViewItem;
-using NavigationView = Microsoft.UI.Xaml.Controls.NavigationView;
-using Rebound.Core.UI.Threading;
 
 namespace Rebound.ControlPanel.Views;
 
@@ -46,7 +41,7 @@ internal sealed partial class RootPage : Page
                 Tag = item,
                 IsEnabled = item.IsEnabled,
                 SelectsOnInvoked = item.SelectsOnInvoked,
-                Icon = (IconElement?)IconStringToIconSourceConverter.ConvertIcon(item.Icon!, typeof(Windows.UI.Xaml.UIElement), null, null)
+                Icon = (IconElement?)IconStringToIconSourceConverter.ConvertIcon(item.Icon!, typeof(UIElement), null, null)
             };
 
             if (item.Children.Count > 0)
@@ -129,12 +124,9 @@ internal sealed partial class RootPage : Page
     public void TogglePane()
         => NavView.IsPaneOpen = !NavView.IsPaneOpen;
 
-    private void RootFrame_Loaded(object sender, Windows.UI.Xaml.RoutedEventArgs e)
+    private void RootFrame_Loaded(object sender, RoutedEventArgs e)
     {
-        UIThread.QueueAction(() =>
-        {
             UserPicturePath = UserInformation.GetUserPicturePath() ?? string.Empty;
-        });
 
         // Navigate to home on first load
         //RootFrame.Navigate(typeof(HomePage));

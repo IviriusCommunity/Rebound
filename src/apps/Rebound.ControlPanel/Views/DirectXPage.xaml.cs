@@ -2,14 +2,15 @@
 // Licensed under the MIT License.
 
 using CommunityToolkit.Mvvm.Input;
+using Microsoft.UI.Xaml.Controls;
+using Microsoft.UI.Xaml.Input;
 using Microsoft.Win32;
 using Rebound.ControlPanel.ViewModels;
 using Rebound.Core.Native.Storage;
 using Rebound.Forge;
 using Rebound.Forge.Engines;
 using System.IO;
-using Windows.UI.Xaml.Controls;
-using Windows.UI.Xaml.Input;
+using WinUIEx;
 
 namespace Rebound.ControlPanel.Views;
 
@@ -26,7 +27,7 @@ internal sealed partial class DirectXPage : Page
     public void AddD3DScopeAppFromFiles()
     {
         var result = FilePickers.PickOpenFile(
-            App.MainWindow!.Handle,
+            App.MainWindow!.GetWindowHandle(),
             "Select an app or program",
             [
                 new("Executable", ".exe;.com" ),
@@ -46,7 +47,7 @@ internal sealed partial class DirectXPage : Page
     public void AddD2DScopeAppFromFiles()
     {
         var result = FilePickers.PickOpenFile(
-            App.MainWindow!.Handle,
+            App.MainWindow!.GetWindowHandle(),
             "Select an app or program",
             [
                 new("Executable", ".exe;.com" ),

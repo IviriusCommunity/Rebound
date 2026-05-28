@@ -5,7 +5,6 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Microsoft.Win32;
 using Rebound.Core.Environment;
-using Rebound.Core.UI.Application;
 using Rebound.Forge;
 using Rebound.Forge.Engines;
 using System;

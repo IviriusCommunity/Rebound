@@ -2,20 +2,16 @@
 // Licensed under the MIT License.
 
 using CommunityToolkit.Mvvm.Input;
+using Microsoft.UI.Xaml;
+using Microsoft.UI.Xaml.Controls;
 using Rebound.ControlPanel.Brushes;
 using Rebound.ControlPanel.ViewModels;
 using Rebound.Core.ICC.Profiles;
 using Rebound.Core.Native.Storage;
-using Rebound.Core.UI;
-using Rebound.Core.UI.Threading;
 using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Threading.Tasks;
-using Windows.Storage.Pickers;
-using Windows.UI.Xaml;
-using Windows.UI.Xaml.Controls;
-using WinRT.Interop;
+using WinUIEx;
 
 namespace Rebound.ControlPanel.Views;
 
@@ -71,7 +67,7 @@ internal sealed partial class DisplaySettingsPage : Page, IDisposable
 
             // Create the file picker
             var result = FilePickers.PickSaveFile(
-                App.MainWindow!.Handle,
+                App.MainWindow!.GetWindowHandle(),
                 "Save Calibration Profile",
                 "New Calibration.icc",
                 [
@@ -88,18 +84,14 @@ internal sealed partial class DisplaySettingsPage : Page, IDisposable
             }).ConfigureAwait(false);
         }
 
-        UIThread.QueueAction(() => ViewModel.SelectedPage = "0");
+        ViewModel.SelectedPage = "0";
     }
 
     [RelayCommand]
     private async Task CancelAsync()
     {
-        UIThread.QueueAction(() =>
-        {
-            ViewModel.SelectedPage = "0";
-            ViewModel.ResetToDefault();
-        });
-        
+        ViewModel.SelectedPage = "0";
+        ViewModel.ResetToDefault();
     }
 
     [RelayCommand]

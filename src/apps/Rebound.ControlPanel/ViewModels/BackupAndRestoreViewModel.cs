@@ -5,8 +5,6 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Microsoft.Win32;
 using Rebound.Core.Environment;
-using Rebound.Core.UI.Application;
-using Rebound.Core.UI.Threading;
 using Rebound.Forge.Engines;
 using System;
 using System.Collections.ObjectModel;
@@ -194,7 +192,7 @@ internal partial class BackupAndRestoreViewModel : ObservableObject
                     if (ret == 0)
                     {
                         // Post back to UI thread
-                        UIThread.QueueAction(LoadAutoBackupScheduleText);
+                        LoadAutoBackupScheduleText();
                     }
                 }
             }

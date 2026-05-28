@@ -1,15 +1,16 @@
 ﻿// Copyright (C) Ivirius(TM) Community 2020 - 2026. All Rights Reserved.
 // Licensed under the MIT License.
 
+using Microsoft.UI;
+using Microsoft.UI.Xaml;
+using Microsoft.UI.Xaml.Controls;
 using Rebound.ControlPanel.Views;
 using Rebound.Core;
 using Rebound.Core.IPC;
 using Rebound.Core.UI;
 using Rebound.Core.UI.Application;
-using Rebound.Core.UI.Threading;
 using Rebound.Core.UI.Windowing;
 using Rebound.Forge.Engines;
-using Rebound.Generators;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -17,11 +18,8 @@ using System.Threading;
 using System.Threading.Tasks;
 using Windows.System;
 using Windows.UI;
-using Windows.UI.Xaml;
-using Windows.UI.Xaml.Controls;
+using WinUIEx;
 
-#pragma warning disable IDE0079
-#pragma warning disable CA1515
 #pragma warning disable CA1031
 
 namespace Rebound.ControlPanel;
@@ -32,13 +30,45 @@ public partial class App : Application, IReboundLegacySupportApp, IReboundPipeCl
 
     public PipeClient? ReboundPipeClient { get; private set; }
 
+    private SingleInstanceAppService SingleInstanceAppService { get; } = new("Rebound.ControlPanel");
+
     public string LegacyExecutableName { get; } = "control.exe";
+
+    public App() => InitializeComponent();
+
+    protected override void OnLaunched(LaunchActivatedEventArgs args)
+    {
+        UnhandledException += (s, e) =>
+        {
+            ReboundLogger.WriteToLog(
+                "Unhandled Exception",
+                "An unhandled exception was caught in the application.",
+                LogMessageSeverity.Error,
+                e.Exception);
+            // The environment is too unstable for execution to continue
+            Current.Exit();
+        };
+
+        SingleInstanceAppService.Launched += OnSingleInstanceLaunched;
+        SingleInstanceAppService.Launch(args?.Arguments!);
+    }
 
     private async void OnSingleInstanceLaunched(object? sender, SingleInstanceLaunchEventArgs e)
     {
         try
         {
             _validatedItem = ResolveFromArgs(e.Arguments);
+
+            // Check if Rebound is installed or not
+            if (!ReboundPresenceEngine.IsReboundInstalled())
+            {
+                ReboundLogger.WriteToLog(
+                    "Rebound Installation Check",
+                    "Rebound is not installed. The app will continue execution as undocked.",
+                    LogMessageSeverity.Message);
+
+                goto DirectStartup;
+            }
 
             // If this is the application's initial launch, handle the required environment
             if (e.IsFirstLaunch)
@@ -83,6 +113,8 @@ public partial class App : Application, IReboundLegacySupportApp, IReboundPipeCl
                 watchdogThread.Start();
             }
 
+        DirectStartup:
+
             // Legacy launch
             // with no validated item
             if (_validatedItem == null)
@@ -111,22 +143,17 @@ public partial class App : Application, IReboundLegacySupportApp, IReboundPipeCl
             if (e.IsFirstLaunch)
             {
                 // Spawn or activate the main window immediately
-                UIThread.QueueAction(async () =>
-                {
-                    if (MainWindow != null)
-                        MainWindow.BringToFront();
-                    else
-                        CreateMainWindow();
-                });
+                if (MainWindow != null)
+                    MainWindow.BringToFront();
+                else
+                    CreateMainWindow();
             }
 
             // The application has been launched again, simply bring the main window forward
-            else
-                UIThread.QueueAction(MainWindow!.BringToFront);
+            else MainWindow!.BringToFront();
 
-            // Launch validated item, if any
-            if (_validatedItem != null)
-                await LaunchPageOrUriAsync(_validatedItem).ConfigureAwait(false);
+            // Launch validated item
+            await LaunchPageOrUriAsync(_validatedItem).ConfigureAwait(false);
         }
         catch (Exception ex)
         {
@@ -167,69 +194,57 @@ public partial class App : Application, IReboundLegacySupportApp, IReboundPipeCl
         return null;
     }
 
-    public void RunServiceHostFailedToLaunchFallback()
+    public async void RunServiceHostFailedToLaunchFallback()
     {
-        UIThread.QueueAction(async () =>
+        // Request an action from the user
+        var result = await ReboundDialog.ShowAsync(
+            title: "Rebound Service Host not found.",
+            content: "Could not find Rebound Service Host. This process is required for multiple features to work properly.",
+            primaryButtonText: "Launch",
+            closeButtonText: "Ok",
+            defaultButton: ContentDialogButton.Primary).ConfigureAwait(false);
+
+        switch (result)
         {
-            // Request an action from the user
-            var result = await ReboundDialog.ShowAsync(
-                "Rebound Control Panel",
-                "Rebound Service Host not found.",
-                "Could not find Rebound Service Host. This process is required for multiple features to work properly.",
-                [
-                    new("Launch", true, '\uEA18'),
-                    new("Ok", false)
-                ],
-                DialogIcon.Warning
-                ).ConfigureAwait(false);
-            switch (result)
-            {
-                // Button index 0 (Launch)
-                case 0:
+            // Launch
+            case ContentDialogResult.Primary:
+                {
+                    // Make sure Rebound Service Host exists
+                    var launched = ServiceHostEngine.StartServiceHost();
+
+                    // If it still doesn't, it's possible that Rebound is corrupted - inform the user
+                    if (!launched)
                     {
-                        // Make sure Rebound Service Host exists
-                        var launched = ServiceHostEngine.StartServiceHost();
-
-                        // If it still doesn't, it's possible that Rebound is corrupted - inform the user
-                        if (!launched)
-                        {
-                            await ReboundDialog.ShowAsync(
-                                "Rebound Control Panel",
-                                "Couldn't launch Rebound Service Host.",
-                                "Your Rebound installation might be corrupted. Please open Rebound Hub and check.",
-                                null,
-                                DialogIcon.Warning
-                                ).ConfigureAwait(false);
-                        }
-                        break;
+                        await ReboundDialog.ShowAsync(
+                            title: "Couldn't launch Rebound Service Host.",
+                            content: "Your Rebound installation might be corrupted. Please open Rebound Hub and check.",
+                            closeButtonText: "Ok").ConfigureAwait(false);
                     }
-
-                // Ok and close buttons
-                default:
                     break;
-            }
-        });
+                }
+
+            // Ok button
+            default:
+                break;
+        }
     }
 
     private static async Task LaunchPageOrUriAsync(object? target)
     {
-        await UIThread.QueueActionAsync(async () =>
+        // If it's a type (page), retrieve the root frame from the main window's content and navigate to that page
+        if (target is Type pageType)
         {
-            // If it's a type (page), retrieve the root frame from the main window's content and navigate to that page
-            if (target is Type pageType)
+            var frame = (App.MainWindow as MainWindow)?.RootFrame.Content as RootPage;
+            if (frame?.RootFrame?.Content?.GetType() != pageType)
             {
-                var frame = (MainWindow?.Content as Frame)?.Content as RootPage;
-                if (frame?.RootFrame?.Content?.GetType() != pageType)
-                {
-                    _ = frame?.RootFrame?.Navigate(pageType);
-                }
+                _ = frame?.RootFrame?.Navigate(pageType);
             }
-            // If it's a URI, launch it
-            else if (target is string uri)
-            {
-                await Launcher.LaunchUriAsync(new Uri(uri));
-            }
-        }).ConfigureAwait(false);
+        }
+        // If it's a URI, launch it
+        else if (target is string uri)
+        {
+            await Launcher.LaunchUriAsync(new Uri(uri));
+        }
     }
 
     public void LaunchLegacy(string args)
@@ -265,37 +280,37 @@ public partial class App : Application, IReboundLegacySupportApp, IReboundPipeCl
 
     public static void CreateMainWindow()
     {
-        // Create the window
-        MainWindow = new()
+        try
         {
-            IsPersistenceEnabled = true,
-            PersistenceKey = "Rebound.ControlPanel.MainWindow",
-            PersistenceFileName = "control",
-        };
+            MainWindow = new MainWindow
+            {
+                PersistenceId = "Rebound.ControlPanel.MainWindow",
+                Title = "Control Panel"
+            };
 
-        // AppWindow init
-        MainWindow.AppWindowInitialized += (s, e) =>
-        {
-            MainWindow.Title = "Control Panel";
-            MainWindow.AppWindow?.TitleBar.ExtendsContentIntoTitleBar = true;
-            MainWindow.AppWindow?.TitleBar.ButtonBackgroundColor = Colors.Transparent;
-            MainWindow.AppWindow?.TitleBar.ButtonHoverBackgroundColor = IslandsWindow.ButtonHoverBackgroundColor;
-            MainWindow.AppWindow?.TitleBar.ButtonPressedBackgroundColor = IslandsWindow.ButtonPressedBackgroundColor;
-            MainWindow.AppWindow?.TitleBar.ButtonInactiveBackgroundColor = Colors.Transparent;
+            // Spawn the window
+            MainWindow.Activate();
+
+            // Window properties
+            MainWindow.AppWindow.TitleBar.ExtendsContentIntoTitleBar = true;
+            MainWindow.AppWindow.TitleBar.ButtonBackgroundColor =
+            MainWindow.AppWindow.TitleBar.ButtonInactiveBackgroundColor = Colors.Transparent;
+            MainWindow.AppWindow.TitleBar.ButtonHoverBackgroundColor = Color.FromArgb(80, 120, 120, 120);
+            MainWindow.AppWindow.TitleBar.ButtonPressedBackgroundColor = Color.FromArgb(40, 120, 120, 120);
             MainWindow.AppWindow?.SetTaskbarIcon($"{AppContext.BaseDirectory}\\Assets\\ControlPanel.ico");
-        };
-
-        // Load main page
-        MainWindow.XamlInitialized += (s, e) =>
+        }
+        catch (Exception ex)
         {
-            var frame = new Frame();
-            frame.Navigate(typeof(RootPage));
-            MainWindow.Content = frame;
-        };
+            ReboundLogger.WriteToLog(
+                "Application Launch",
+                "Window creation error - the application couldn't create a main window.",
+                LogMessageSeverity.Error,
+                ex);
 
-        // Spawn the window
-        MainWindow.Create();
+            // The environment is too unstable for execution to continue
+            Current.Exit();
+        }
     }
 
-    public static IslandsWindow? MainWindow { get; set; }
+    public static WindowEx? MainWindow { get; set; }
 }

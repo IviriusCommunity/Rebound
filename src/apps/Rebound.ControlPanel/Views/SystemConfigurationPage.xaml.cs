@@ -3,6 +3,7 @@
 
 using CommunityToolkit.Mvvm.Input;
 using CommunityToolkit.WinUI;
+using Microsoft.UI.Xaml.Controls;
 using Rebound.ControlPanel.Brushes;
 using Rebound.ControlPanel.ViewModels;
 using Rebound.Core.UI;
@@ -10,7 +11,6 @@ using Rebound.Core.UI.Windowing;
 using System;
 using System.Diagnostics;
 using System.Threading.Tasks;
-using Windows.UI.Xaml.Controls;
 
 namespace Rebound.ControlPanel.Views;
 
@@ -37,12 +37,12 @@ internal sealed partial class SystemConfigurationPage : Page
         }
         catch (Exception ex)
         {
-            await ReboundDialog.ShowAsync(
+            /*await ReboundDialog.ShowAsync(
                 "Rebound Control Panel",
                 "Couldn't launch Device Manager.",
                 ex.Message,
                 null,
-                DialogIcon.Error).ConfigureAwait(false);
+                DialogIcon.Error).ConfigureAwait(false);*/
         }
     }
 }
