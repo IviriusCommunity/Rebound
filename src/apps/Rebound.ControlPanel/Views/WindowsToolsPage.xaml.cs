@@ -5,6 +5,7 @@ using CommunityToolkit.Mvvm.Input;
 using Microsoft.UI.Xaml.Controls;
 using Rebound.Core;
 using Rebound.Core.IPC;
+using Rebound.Core.Native.Helpers;
 using Rebound.Core.Native.Windows;
 using System;
 using System.Collections.Generic;
@@ -40,6 +41,28 @@ internal partial class Tool
             catch
             {
 
+            }
+        }
+        else if (name == "wordpad")
+        {
+            try
+            {
+                Process.Start(new ProcessStartInfo()
+                {
+                    FileName = "wordpad",
+                    UseShellExecute = true,
+                    Verb = "runas"
+                });
+            }
+            catch
+            {
+                string rtfexe = RegistryHelper.GetString(1, "Software\\Microsoft\\Windows\\CurrentVersion\\Explorer\\FileExts\\.rtf\\OpenWithList", "a");
+                Process.Start(new ProcessStartInfo()
+                {
+                    FileName = rtfexe,
+                    UseShellExecute = true,
+                    Verb = "runas"
+                });
             }
         }
         else if (name == "run")

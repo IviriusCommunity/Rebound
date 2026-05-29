@@ -10,7 +10,7 @@ namespace Rebound.Core.Native.Helpers;
 
 public static class RegistryHelper
 {
-    public static unsafe string GetString(int HKEYType, char* SubKey, string ValueName)
+    public static unsafe string GetString(int HKEYType, string subKey, string ValueName)
     {
         var hKeyRoot = HKEYType switch
         {
@@ -22,9 +22,10 @@ public static class RegistryHelper
             _ => HKEY.HKEY_LOCAL_MACHINE, // using HKEY_LOCAL_MACHINE as default case as that's where most important registry values are stored
         };
 
+        using ManagedPtr<char> lpSubKey = subKey;
         using ManagedPtr<char> lpValueName = ValueName;
         HKEY hKey = default;
-        var status = RegOpenKeyExW(hKeyRoot, SubKey, 0, KEY.KEY_READ, &hKey);
+        var status = RegOpenKeyExW(hKeyRoot, lpSubKey, 0, KEY.KEY_READ, &hKey);
         if (status != TerraFX.Interop.Windows.ERROR.ERROR_SUCCESS)
             return null;
         try
