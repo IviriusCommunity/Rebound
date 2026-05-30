@@ -51,7 +51,7 @@
                     BorderThickness="1"
                     CornerRadius="4">
                     <ScrollViewer>
-                        <ListView ItemsSource="{x:Bind ViewModel.UserVariables}">
+                        <ListView ItemsSource="{x:Bind ViewModel.UserVariables}" SelectedIndex="{x:Bind ViewModel.SelectedUserVariable, Mode=TwoWay}">
                             <ListView.ItemTemplate>
                                 <DataTemplate x:DataType="viewModels:EnvironmentVariable">
                                     <Grid ToolTipService.ToolTip="{x:Bind Value, Mode=OneWay}">
@@ -75,12 +75,12 @@
                             <FontIcon Glyph="&#xE710;" />
                         </AppBarButton.Icon>
                     </AppBarButton>
-                    <AppBarButton Label="Edit">
+                    <AppBarButton Command="{x:Bind EditUserEnvVarCommand}" Label="Edit">
                         <AppBarButton.Icon>
                             <FontIcon Glyph="&#xE70F;" />
                         </AppBarButton.Icon>
                     </AppBarButton>
-                    <AppBarButton Label="Delete">
+                    <AppBarButton Command="{x:Bind DeleteUserEnvVarCommand}" Label="Delete">
                         <AppBarButton.Icon>
                             <FontIcon Glyph="&#xE74D;" />
                         </AppBarButton.Icon>

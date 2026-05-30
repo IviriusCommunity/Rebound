@@ -22,6 +22,8 @@ internal partial class EnvironmentVariablesViewModel : ObservableObject
 
     public ObservableCollection<EnvironmentVariable> SystemVariables = [];
 
+    [ObservableProperty] public partial int SelectedUserVariable { get; set; } = 0;
+
     public EnvironmentVariablesViewModel()
     {
         RefreshVariables();
