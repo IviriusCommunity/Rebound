@@ -5,6 +5,7 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Microsoft.Win32;
 using Rebound.Core.Environment;
+using Rebound.Core.UI;
 using Rebound.Forge;
 using Rebound.Forge.Engines;
 using System;
@@ -884,15 +885,13 @@ internal partial class DirectXViewModel : ObservableObject
     [RelayCommand]
     public static void RelaunchAsAdmin()
     {
-        ProcessStartInfo psi = new()
+        App.SingleInstanceAppService.Relaunch(new InstanceRelaunchOptions
         {
-            FileName = Process.GetCurrentProcess().MainModule?.FileName,
-            Verb = "runas",
-            UseShellExecute = true,
-            Arguments = "--newinstance " + CplArgs.DirectXControlPanelExePath
-        };
-        Process.Start(psi);
-        Process.GetCurrentProcess().Kill();
+            Elevated = true,
+            ShutdownCurrent = true,
+            ForceNewInstance = true,
+            Arguments = CplArgs.DirectXControlPanelExePath
+        });
     }
 
     [RelayCommand]

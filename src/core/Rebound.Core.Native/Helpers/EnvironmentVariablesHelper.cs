@@ -9,16 +9,16 @@ using static TerraFX.Interop.Windows.Windows;
 
 namespace Rebound.Core.Native.Helpers;
 
+public enum EnvironmentScope
+{
+    User,
+    System
+}
+
 public static class EnvironmentVariablesHelper
 {
     private const string UserSubKey = "Environment";
     private const string SystemSubKey = @"System\CurrentControlSet\Control\Session Manager\Environment";
-
-    public enum EnvironmentScope
-    {
-        User,
-        System
-    }
 
     /// <summary>
     /// Gets a persistent environment variable from the specified scope.

@@ -7,6 +7,7 @@ using Microsoft.Win32;
 using Rebound.Core.Environment;
 using Rebound.Core.Native.Windows;
 using Rebound.Core.SystemInformation.Software;
+using Rebound.Core.UI;
 using Rebound.Forge;
 using Rebound.Forge.Engines;
 using System.Diagnostics;
@@ -104,14 +105,12 @@ internal partial class SystemConfigurationViewModel : ObservableObject
     [RelayCommand]
     public static void RelaunchAsAdmin()
     {
-        ProcessStartInfo psi = new()
+        App.SingleInstanceAppService.Relaunch(new InstanceRelaunchOptions
         {
-            FileName = Process.GetCurrentProcess().MainModule?.FileName,
-            Verb = "runas",
-            UseShellExecute = true,
-            Arguments = "--newinstance " + CplArgs.SystemPropertiesComputerNameExePath
-        };
-        Process.Start(psi);
-        Process.GetCurrentProcess().Kill();
+            Elevated = true,
+            ShutdownCurrent = true,
+            ForceNewInstance = true,
+            Arguments = CplArgs.SystemPropertiesComputerNameExePath
+        });
     }
 }

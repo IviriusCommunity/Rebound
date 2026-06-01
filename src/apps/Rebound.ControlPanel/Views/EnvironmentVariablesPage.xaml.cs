@@ -26,11 +26,20 @@ internal sealed partial class EnvironmentVariablesPage : Page
 
     [RelayCommand]
     public async Task DeleteUserEnvVarAsync()
+        => await DeleteEnvVarAsync(EnvironmentScope.User).ConfigureAwait(true);
+
+    [RelayCommand]
+    public async Task DeleteSystemEnvVarAsync()
+        => await DeleteEnvVarAsync(EnvironmentScope.System).ConfigureAwait(true);
+
+    private async Task DeleteEnvVarAsync(EnvironmentScope scope)
     {
         ContentDialog dialog = new()
         {
-            Title = "Delete user environment variable",
-            Content = $"Are you sure you want to delete {ViewModel.UserVariables[ViewModel.SelectedUserVariable].Variable}?",
+            Title = $"Delete {(scope == EnvironmentScope.User ? "user" : "system")} environment variable",
+            Content = $"Are you sure you want to delete {
+                (scope == EnvironmentScope.User ? ViewModel.UserVariables : ViewModel.SystemVariables)
+                    [(scope == EnvironmentScope.User ? ViewModel.SelectedUserVariable : ViewModel.SelectedSystemVariable)].Variable}?",
             PrimaryButtonText = "Yes",
             CloseButtonText = "Cancel",
             DefaultButton = ContentDialogButton.Primary,
@@ -42,17 +51,38 @@ internal sealed partial class EnvironmentVariablesPage : Page
             return;
 
         // Find the variable and erase it
-        EnvironmentVariablesHelper.SetVariable(ViewModel.UserVariables[ViewModel.SelectedUserVariable].Variable, null, EnvironmentVariablesHelper.EnvironmentScope.User);
+        EnvironmentVariablesHelper.SetVariable(
+            (scope == EnvironmentScope.User ? ViewModel.UserVariables : ViewModel.SystemVariables)
+                [(scope == EnvironmentScope.User ? ViewModel.SelectedUserVariable : ViewModel.SelectedSystemVariable)].Variable,
+            null,
+            scope);
 
         // Remove it from the list as well
-        ViewModel.UserVariables.Remove(ViewModel.UserVariables[ViewModel.SelectedUserVariable]);
-        ViewModel.SelectedUserVariable = 0;
+        (scope == EnvironmentScope.User ? ViewModel.UserVariables : ViewModel.SystemVariables)
+            .Remove((scope == EnvironmentScope.User ? ViewModel.UserVariables : ViewModel.SystemVariables)
+                [(scope == EnvironmentScope.User ? ViewModel.SelectedUserVariable : ViewModel.SelectedSystemVariable)]);
+        switch (scope)
+        {
+            case EnvironmentScope.User:
+                ViewModel.SelectedUserVariable = 0;
+                break;
+            case EnvironmentScope.System:
+                ViewModel.SelectedSystemVariable = 0;
+                break;
+        }
     }
 
     [RelayCommand]
     public async Task EditUserEnvVarAsync()
+        => await EditEnvVarAsync(EnvironmentScope.User).ConfigureAwait(true);
+
+    [RelayCommand]
+    public async Task EditSystemEnvVarAsync()
+        => await EditEnvVarAsync(EnvironmentScope.System).ConfigureAwait(true);
+
+    private async Task EditEnvVarAsync(EnvironmentScope scope)
     {
-        var selected = ViewModel.UserVariables[ViewModel.SelectedUserVariable];
+        var selected = scope == EnvironmentScope.User ? ViewModel.UserVariables[ViewModel.SelectedUserVariable] : ViewModel.SystemVariables[ViewModel.SelectedSystemVariable];
 
         TextBox valueTextBox = new()
         {
@@ -88,15 +118,27 @@ internal sealed partial class EnvironmentVariablesPage : Page
         try
         {
             // Set the variable itself
-            EnvironmentVariablesHelper.SetVariable(variableName, variableValue, EnvironmentVariablesHelper.EnvironmentScope.User);
+            EnvironmentVariablesHelper.SetVariable(variableName, variableValue, scope);
 
             // Update the list
-            ViewModel.UserVariables.Remove(ViewModel.UserVariables.First(i => i.Variable == variableName)!);
-            ViewModel.UserVariables.Add(new EnvironmentVariable()
+            if (scope == EnvironmentScope.User)
             {
-                Variable = variableName,
-                Value = variableValue
-            });
+                ViewModel.UserVariables.Remove(ViewModel.UserVariables.First(i => i.Variable == variableName)!);
+                ViewModel.UserVariables.Add(new EnvironmentVariable()
+                {
+                    Variable = variableName,
+                    Value = variableValue
+                });
+            }
+            else
+            {
+                ViewModel.SystemVariables.Remove(ViewModel.SystemVariables.First(i => i.Variable == variableName)!);
+                ViewModel.SystemVariables.Add(new EnvironmentVariable()
+                {
+                    Variable = variableName,
+                    Value = variableValue
+                });
+            }
         }
         catch (Exception ex)
         {
@@ -112,6 +154,13 @@ internal sealed partial class EnvironmentVariablesPage : Page
 
     [RelayCommand]
     public async Task CreateUserEnvVarAsync()
+        => await CreateEnvVarAsync(EnvironmentScope.User).ConfigureAwait(true);
+
+    [RelayCommand]
+    public async Task CreateSystemEnvVarAsync()
+        => await CreateEnvVarAsync(EnvironmentScope.System).ConfigureAwait(true);
+
+    private async Task CreateEnvVarAsync(EnvironmentScope scope)
     {
         // Yes constructing the XAML tree manually in the big 26
         TextBox variableTextBox = new() { Header = "Variable", TextWrapping = TextWrapping.Wrap };
@@ -124,7 +173,7 @@ internal sealed partial class EnvironmentVariablesPage : Page
 
         ContentDialog dialog = new()
         {
-            Title = "Add user environment variable",
+            Title = $"Add {(scope == EnvironmentScope.User ? "User" : "System")} environment variable",
             Content = sp,
             PrimaryButtonText = "Add",
             CloseButtonText = "Cancel",
@@ -141,7 +190,7 @@ internal sealed partial class EnvironmentVariablesPage : Page
         }
         variableTextBox.TextChanged += (s, e) => ValidateInputs();
         valueTextBox.TextChanged += (s, e) => ValidateInputs();
-        
+
         // User cancelled, exit early
         if (await dialog.ShowAsync() != ContentDialogResult.Primary)
             return;
@@ -153,14 +202,15 @@ internal sealed partial class EnvironmentVariablesPage : Page
         try
         {
             // Variable already exists (edge case)
-            var existing = ViewModel.UserVariables
-                .FirstOrDefault(v => v.Variable.Equals(variableName, StringComparison.OrdinalIgnoreCase));
+            var existing = scope == EnvironmentScope.User
+                ? ViewModel.UserVariables.FirstOrDefault(v => v.Variable.Equals(variableName, StringComparison.OrdinalIgnoreCase))
+                : ViewModel.SystemVariables.FirstOrDefault(v => v.Variable.Equals(variableName, StringComparison.OrdinalIgnoreCase));
             if (existing is not null)
             {
                 ContentDialog overwriteDialog = new()
                 {
                     Title = "Variable Already Exists",
-                    Content = $"A user variable named '{variableName}' already exists. Do you want to overwrite it?",
+                    Content = $"A {(scope == EnvironmentScope.User ? "user" : "system")} variable named '{variableName}' already exists. Do you want to overwrite it?",
                     PrimaryButtonText = "Overwrite",
                     CloseButtonText = "Cancel",
                     DefaultButton = ContentDialogButton.Close,
@@ -173,16 +223,33 @@ internal sealed partial class EnvironmentVariablesPage : Page
             }
 
             // Set the variable itself
-            EnvironmentVariablesHelper.SetVariable(variableName, variableValue, EnvironmentVariablesHelper.EnvironmentScope.User);
+            EnvironmentVariablesHelper.SetVariable(variableName, variableValue, scope);
 
             // Update the list
             if (existing is not null)
-                ViewModel.UserVariables.Remove(existing);
-            ViewModel.UserVariables.Add(new EnvironmentVariable()
             {
-                Variable = variableName,
-                Value = variableValue
-            });
+                if (scope == EnvironmentScope.User)
+                    ViewModel.UserVariables.Remove(existing);
+                else
+                    ViewModel.SystemVariables.Remove(existing);
+            }
+
+            if (scope == EnvironmentScope.User)
+            {
+                ViewModel.UserVariables.Add(new EnvironmentVariable()
+                {
+                    Variable = variableName,
+                    Value = variableValue
+                });
+            }
+            else
+            {
+                ViewModel.SystemVariables.Add(new EnvironmentVariable()
+                {
+                    Variable = variableName,
+                    Value = variableValue
+                });
+            }
         }
         catch (Exception ex)
         {

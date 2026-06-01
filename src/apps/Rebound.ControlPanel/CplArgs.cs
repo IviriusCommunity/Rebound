@@ -4,7 +4,6 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Text;
 
 namespace Rebound.ControlPanel;
 
@@ -26,4 +25,5 @@ internal class CplArgs
     public const string ADMINISTRATIVE_TOOLS_UTIL = @"/name Microsoft.AdministrativeTools";
     public const string ADMINISTRATIVE_TOOLS = @"admintools";
     public const string INTLCPL_DATE = ",,/p:date";
+    public const string ENVIRONMENT_VARIABLES = @"/name Microsoft.EnvironmentVariables";
 }

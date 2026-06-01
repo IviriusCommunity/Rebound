@@ -4,6 +4,7 @@
 using Microsoft.UI;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
+using Microsoft.Windows.AppLifecycle;
 using Rebound.ControlPanel.Views;
 using Rebound.Core;
 using Rebound.Core.IPC;
@@ -16,6 +17,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Threading;
 using System.Threading.Tasks;
+using Windows.ApplicationModel.Activation;
 using Windows.System;
 using Windows.UI;
 using WinUIEx;
@@ -30,13 +32,13 @@ public partial class App : Application, IReboundLegacySupportApp, IReboundPipeCl
 
     public PipeClient? ReboundPipeClient { get; private set; }
 
-    private SingleInstanceAppService SingleInstanceAppService { get; } = new("Rebound.ControlPanel");
+    public static SingleInstanceAppService SingleInstanceAppService { get; } = new("Rebound.ControlPanel");
 
     public string LegacyExecutableName { get; } = "control.exe";
 
     public App() => InitializeComponent();
 
-    protected override void OnLaunched(LaunchActivatedEventArgs args)
+    protected override void OnLaunched(Microsoft.UI.Xaml.LaunchActivatedEventArgs args)
     {
         UnhandledException += (s, e) =>
         {
@@ -50,14 +52,17 @@ public partial class App : Application, IReboundLegacySupportApp, IReboundPipeCl
         };
 
         SingleInstanceAppService.Launched += OnSingleInstanceLaunched;
-        SingleInstanceAppService.Launch(args?.Arguments!);
+        SingleInstanceAppService.Launch(); // no args - service reads them from AppInstance itself
     }
 
     private async void OnSingleInstanceLaunched(object? sender, SingleInstanceLaunchEventArgs e)
     {
         try
         {
-            _validatedItem = ResolveFromArgs(e.Arguments);
+            // Extract the raw argument string from the activation payload
+            var arguments = e.LaunchArguments;
+
+            _validatedItem = ResolveFromArgs(arguments);
 
             // Check if Rebound is installed or not
             if (!ReboundPresenceEngine.IsReboundInstalled())
@@ -115,23 +120,43 @@ public partial class App : Application, IReboundLegacySupportApp, IReboundPipeCl
 
         DirectStartup:
 
+            // Handle non-launch activation kinds (protocol, file, etc.)
+            // directly without going through the legacy/page resolution path
+            switch (e.ActivationArguments.Kind)
+            {
+                case ExtendedActivationKind.Protocol:
+                    {
+                        var protocol = (IProtocolActivatedEventArgs)e.ActivationArguments.Data;
+                        // TODO: handle protocol activation (e.g. rebound-controlpanel://)
+                        await HandleProtocolActivationAsync(protocol).ConfigureAwait(false);
+                        return;
+                    }
+                case ExtendedActivationKind.File:
+                    {
+                        var file = (IFileActivatedEventArgs)e.ActivationArguments.Data;
+                        // TODO: handle file activation
+                        await HandleFileActivationAsync(file).ConfigureAwait(false);
+                        return;
+                    }
+            }
+
             // Legacy launch
             // with no validated item
             if (_validatedItem == null)
             {
-                LaunchLegacy(e.Arguments);
+                LaunchLegacy(arguments);
 
                 // The application itself shouldn't handle more logic from here
                 return;
             }
             // with arguments
-            if (e.Arguments.StartsWith(Variables.LegacyLaunchArgument, StringComparison.InvariantCultureIgnoreCase)
+            if (arguments.StartsWith(Variables.LegacyLaunchArgument, StringComparison.InvariantCultureIgnoreCase)
                 // without arguments
-                || e.Arguments.StartsWith(Variables.LegacyLaunchArgument.Trim(), StringComparison.InvariantCultureIgnoreCase))
+                || arguments.StartsWith(Variables.LegacyLaunchArgument.Trim(), StringComparison.InvariantCultureIgnoreCase))
             {
-                LaunchLegacy(e.Arguments.Length > Variables.LegacyLaunchArgument.Length - 1 ?
+                LaunchLegacy(arguments.Length > Variables.LegacyLaunchArgument.Length - 1 ?
                     // with arguments
-                    e.Arguments[Variables.LegacyLaunchArgument.Length..] :
+                    arguments[Variables.LegacyLaunchArgument.Length..] :
                     // without arguments
                     string.Empty);
 
@@ -166,6 +191,18 @@ public partial class App : Application, IReboundLegacySupportApp, IReboundPipeCl
             // The environment is too unstable for execution to continue
             Current.Exit();
         }
+    }
+
+    // Idk if we'll need this
+    private static Task HandleProtocolActivationAsync(IProtocolActivatedEventArgs args)
+    {
+        return Task.CompletedTask;
+    }
+
+    // This one's definitely gonna be needed for .cpl files
+    private static Task HandleFileActivationAsync(IFileActivatedEventArgs args)
+    {
+        return Task.CompletedTask;
     }
 
     private static object? ResolveFromArgs(string arguments)

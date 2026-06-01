@@ -2,11 +2,12 @@
 // Licensed under the MIT License.
 
 using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Input;
+using Rebound.Core.Environment;
 using Rebound.Core.Native.Helpers;
-using System;
-using System.Collections.Generic;
+using Rebound.Core.UI;
 using System.Collections.ObjectModel;
-using System.Text;
+using System.Diagnostics;
 
 namespace Rebound.ControlPanel.ViewModels;
 
@@ -24,9 +25,26 @@ internal partial class EnvironmentVariablesViewModel : ObservableObject
 
     [ObservableProperty] public partial int SelectedUserVariable { get; set; } = 0;
 
+    [ObservableProperty] public partial int SelectedSystemVariable { get; set; } = 0;
+
+    [ObservableProperty] public partial bool IsAdmin { get; set; }
+
     public EnvironmentVariablesViewModel()
-    {
+    { 
+        IsAdmin = ApplicationEnvironment.IsRunningAsAdmin();
         RefreshVariables();
+    }
+
+    [RelayCommand]
+    public static void RelaunchAsAdmin()
+    {
+        App.SingleInstanceAppService.Relaunch(new InstanceRelaunchOptions
+        {
+            Elevated = true,
+            ShutdownCurrent = true,
+            ForceNewInstance = true,
+            Arguments = CplArgs.ENVIRONMENT_VARIABLES
+        });
     }
 
     private void RefreshVariables()
@@ -34,7 +52,7 @@ internal partial class EnvironmentVariablesViewModel : ObservableObject
         UserVariables.Clear();
         SystemVariables.Clear();
 
-        var userVariables = EnvironmentVariablesHelper.EnumerateVariables(EnvironmentVariablesHelper.EnvironmentScope.User);
+        var userVariables = EnvironmentVariablesHelper.EnumerateVariables(EnvironmentScope.User);
         foreach (var variable in userVariables)
         {
             UserVariables.Add(new()
@@ -44,7 +62,7 @@ internal partial class EnvironmentVariablesViewModel : ObservableObject
             });
         }
 
-        var systemVariables = EnvironmentVariablesHelper.EnumerateVariables(EnvironmentVariablesHelper.EnvironmentScope.System);
+        var systemVariables = EnvironmentVariablesHelper.EnumerateVariables(EnvironmentScope.System);
         foreach (var variable in systemVariables)
         {
             SystemVariables.Add(new()

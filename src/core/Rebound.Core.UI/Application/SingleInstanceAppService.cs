@@ -2,197 +2,254 @@
 // Licensed under the MIT License.
 
 using System.Diagnostics;
-using Rebound.Core.IPC;
+using Microsoft.Windows.AppLifecycle;
+using Windows.ApplicationModel.Activation;
 
-namespace Rebound.Core.UI
+namespace Rebound.Core.UI;
+
+/// <summary>
+/// Controls whether the app allows multiple simultaneous instances.
+/// </summary>
+public enum InstanceMode
 {
-    public class SingleInstanceLaunchEventArgs(string arguments, bool isFirstLaunch) : EventArgs
+    /// <summary>
+    /// Only one instance is allowed. Subsequent launches are redirected to the
+    /// existing instance via <see cref="AppInstance.RedirectActivationToAsync"/>.
+    /// </summary>
+#pragma warning disable CA1720 // Shut up
+    Single,
+#pragma warning restore CA1720
+
+    /// <summary>
+    /// Every launch creates its own independent instance. No redirection occurs.
+    /// </summary>
+    Multiple
+}
+
+/// <summary>
+/// Options for <see cref="SingleInstanceAppService.Relaunch"/>.
+/// </summary>
+public sealed class InstanceRelaunchOptions
+{
+    /// <summary>
+    /// When <see langword="true"/>, the new instance is spawned with elevation (runas).
+    /// </summary>
+    public bool Elevated { get; init; }
+
+    /// <summary>
+    /// When <see langword="true"/>, the current process is killed after the new
+    /// instance has been spawned.
+    /// </summary>
+    public bool ShutdownCurrent { get; init; }
+
+    /// <summary>
+    /// When <see langword="true"/>, the new instance always registers as a fresh
+    /// instance (GUID key) regardless of the app's <see cref="InstanceMode"/>.
+    /// After registration the new instance respects the app's normal mode.
+    /// </summary>
+    public bool ForceNewInstance { get; init; }
+
+    /// <summary>
+    /// Arguments forwarded to the new instance.
+    /// When <see langword="null"/>, the current activation arguments are forwarded
+    /// as-is (launch arguments string only).
+    /// </summary>
+    public string? Arguments { get; init; }
+}
+
+/// <summary>
+/// Carries the full platform activation payload delivered to
+/// <see cref="SingleInstanceAppService.Launched"/>.
+/// </summary>
+public sealed class SingleInstanceLaunchEventArgs(
+    AppActivationArguments activationArguments,
+    bool isFirstLaunch) : EventArgs
+{
+    /// <summary>
+    /// The raw platform activation arguments.
+    /// Cast <see cref="AppActivationArguments.Data"/> according to
+    /// <see cref="AppActivationArguments.Kind"/>:
+    /// <list type="bullet">
+    ///   <item><see cref="ExtendedActivationKind.Launch"/>    → <see cref="ILaunchActivatedEventArgs"/></item>
+    ///   <item><see cref="ExtendedActivationKind.Protocol"/>  → <see cref="IProtocolActivatedEventArgs"/></item>
+    ///   <item><see cref="ExtendedActivationKind.File"/>      → <see cref="IFileActivatedEventArgs"/></item>
+    /// </list>
+    /// </summary>
+    public AppActivationArguments ActivationArguments { get; } = activationArguments;
+
+    /// <summary>
+    /// <see langword="true"/> when this is the process that won the instance key
+    /// (i.e. not a redirected activation from a second launch).
+    /// </summary>
+    public bool IsFirstLaunch { get; } = isFirstLaunch;
+
+    /// <summary>
+    /// Convenience accessor for the raw argument string when the activation kind
+    /// is <see cref="ExtendedActivationKind.Launch"/>.
+    /// Returns <see cref="string.Empty"/> for all other kinds.
+    /// </summary>
+    public string LaunchArguments =>
+        ActivationArguments.Kind == ExtendedActivationKind.Launch &&
+        ActivationArguments.Data is ILaunchActivatedEventArgs launch
+            ? launch.Arguments ?? string.Empty
+            : string.Empty;
+}
+
+/// <summary>
+/// Manages single- or multi-instance lifetime for a packaged WinUI 3 application
+/// built on <see cref="AppInstance"/> from Microsoft.Windows.AppLifecycle.
+/// <para>
+/// Drop-in replacement for the previous mutex + named-pipe implementation.
+/// The <see cref="Launched"/> event contract is preserved; only the event-args
+/// type has changed to carry the full <see cref="AppActivationArguments"/>.
+/// </para>
+/// </summary>
+/// <param name="appId">
+/// Stable, unique identifier for this application
+/// (e.g. <c>"Rebound.ControlPanel"</c>).
+/// Used as the <see cref="AppInstance"/> registration key when
+/// <see cref="InstanceMode.Single"/> is in effect.
+/// </param>
+/// <param name="mode">
+/// Whether to enforce a single instance or allow multiple.
+/// Defaults to <see cref="InstanceMode.Single"/>.
+/// </param>
+public sealed partial class SingleInstanceAppService(string appId, InstanceMode mode = InstanceMode.Single) : IDisposable
+{
+    private AppInstance? _instance;
+    private bool _disposed;
+
+    /// <summary>
+    /// Fired whenever this instance should handle an activation — both on first
+    /// launch and when a redirected activation arrives from a second launch
+    /// (single-instance mode only).
+    /// </summary>
+    public event EventHandler<SingleInstanceLaunchEventArgs>? Launched;
+
+    /// <summary>
+    /// Call once from <c>Application.OnLaunched</c>.
+    /// Registers this process with <see cref="AppInstance"/>, redirects if a
+    /// primary instance already exists (single-instance mode), and fires
+    /// <see cref="Launched"/>.
+    /// </summary>
+    public void Launch()
     {
-        public string Arguments { get; } = arguments;
-        public bool IsFirstLaunch { get; } = isFirstLaunch;
+        ObjectDisposedException.ThrowIf(_disposed, this);
+
+        var activationArgs = AppInstance.GetCurrent().GetActivatedEventArgs();
+
+        // In Multiple mode every launch is independent — skip registration.
+        if (mode == InstanceMode.Multiple)
+        {
+            FireLaunched(activationArgs, isFirstLaunch: true);
+            return;
+        }
+
+        // Single mode: compete for the fixed key.
+        _instance = AppInstance.FindOrRegisterForKey(appId);
+
+        if (_instance.IsCurrent)
+        {
+            // We won — subscribe to future redirected activations.
+            _instance.Activated += OnRedirectedActivation;
+            FireLaunched(activationArgs, isFirstLaunch: true);
+        }
+        else
+        {
+            // Another instance holds the key — redirect and exit.
+            RedirectAndExit(_instance, activationArgs);
+        }
     }
 
-    public partial class SingleInstanceAppService : IDisposable
+    /// <summary>
+    /// Spawns a new instance of the application with the supplied options.
+    /// </summary>
+    /// <param name="options">Controls elevation, shutdown, forced new instance, and arguments.</param>
+    public void Relaunch(InstanceRelaunchOptions options)
     {
-        private readonly string _mutexName;
-        private readonly string _pipeName;
-        private Mutex? _mutex;
-        private bool _isFirstInstance;
-        private bool _disposed;
-        private PipeHost? _server;
-        private CancellationTokenSource? _cts;
+        ObjectDisposedException.ThrowIf(_disposed, this);
 
-        public event EventHandler<SingleInstanceLaunchEventArgs>? Launched;
+        var exe = Process.GetCurrentProcess().MainModule?.FileName
+            ?? throw new InvalidOperationException("Cannot determine current executable path.");
 
-        public SingleInstanceAppService(string appId)
+        // When forcing a new instance unregister our key first so the new
+        // process can win it (single-instance mode) or register freely (multiple).
+        if (options?.ForceNewInstance == true)
+            _instance?.UnregisterKey();
+
+        var args = options?.Arguments ?? GetCurrentLaunchArguments();
+
+        var psi = new ProcessStartInfo
         {
-            _mutexName = $"MUTEX_{appId}";
-            _pipeName = $"PIPE_{appId}";
+            FileName = exe,
+            Arguments = args,
+            UseShellExecute = options?.Elevated == true, // ShellExecute required for runas
+            Verb = options?.Elevated == true ? "runas" : string.Empty
+        };
+
+        // For non-elevated relaunches we can pass arguments more reliably
+        // without ShellExecute, so keep UseShellExecute false in that case.
+        if (options?.Elevated != true)
+            psi.UseShellExecute = false;
+
+        Process.Start(psi);
+
+        if (options?.ShutdownCurrent == true)
+            Process.GetCurrentProcess().Kill();
+    }
+
+    public void Dispose()
+    {
+        if (_disposed)
+            return;
+
+        _disposed = true;
+
+        if (_instance is not null)
+        {
+            _instance.Activated -= OnRedirectedActivation;
+
+            // Only unregister if we currently own the key.
+            if (_instance.IsCurrent)
+                _instance.UnregisterKey();
         }
+    }
 
-        public void Launch(string arguments)
+    private void OnRedirectedActivation(object? sender, AppActivationArguments args)
+        => FireLaunched(args, isFirstLaunch: false);
+
+    private void FireLaunched(AppActivationArguments args, bool isFirstLaunch)
+        => Launched?.Invoke(this, new SingleInstanceLaunchEventArgs(args, isFirstLaunch));
+
+    /// <summary>
+    /// Forwards <paramref name="args"/> to <paramref name="target"/> and exits
+    /// the current process. Marked async-void intentionally: this is a
+    /// fire-and-exit path and we must not block <c>OnLaunched</c>.
+    /// </summary>
+    private static async void RedirectAndExit(AppInstance target, AppActivationArguments args)
+    {
+        try
         {
-            if (arguments.Contains("--newinstance"))
-            {
-                arguments = arguments.Replace("--newinstance", "").Trim();
-                Launched?.Invoke(this, new SingleInstanceLaunchEventArgs(arguments, true));
-                return;
-            }
-
-            if (_mutex == null)
-            {
-                try
-                {
-                    _mutex = new Mutex(true, _mutexName, out _isFirstInstance);
-                }
-                catch (Exception ex)
-                {
-                    throw;
-                }
-            }
-
-            if (_isFirstInstance)
-            {
-                // First instance: start pipe server
-                _cts = new CancellationTokenSource();
-                StartPipeServer(_cts.Token);
-
-                try
-                {
-                    Launched?.Invoke(this, new SingleInstanceLaunchEventArgs(arguments, true));
-                }
-                catch (Exception ex)
-                {
-
-                }
-            }
-            else
-            {
-                // Not first instance: send args and exit
-                SendArgsToFirstInstanceAndExit(arguments);
-            }
+            await target.RedirectActivationToAsync(args);
         }
-
-        private void StartPipeServer(CancellationToken ct)
+        finally
         {
-            try
-            {
-                _server = new PipeHost(_pipeName, AccessLevel.Everyone);
-
-                _server.MessageReceived += (connection, message) =>
-                {
-                    try
-                    {
-                        Launched?.Invoke(this, new SingleInstanceLaunchEventArgs(message, false));
-
-                        // Send acknowledgment back to the client
-                        _server.Broadcast("ACK");
-                    }
-                    catch (Exception ex)
-                    {
-
-                    }
-                };
-
-                // Fire-and-forget async loop
-                Task.Run(async () =>
-                {
-                    try
-                    {
-                        await _server.StartAsync();
-
-                        // Wait until cancellation
-                        while (!ct.IsCancellationRequested)
-                            await Task.Delay(100, ct);
-                    }
-                    catch (OperationCanceledException)
-                    {
-
-                    }
-                    catch (Exception ex)
-                    {
-
-                    }
-                }, ct);
-            }
-            catch (Exception ex)
-            {
-
-            }
-        }
-
-        private async void SendArgsToFirstInstanceAndExit(string arguments)
-        {
-            try
-            {
-                using var client = new PipeClient(_pipeName);
-
-                var ackReceived = false;
-                var ackTimeout = new CancellationTokenSource(5000); // 5 second timeout
-
-                client.MessageReceived += (msg) =>
-                {
-                    if (msg == "ACK")
-                    {
-                        ackReceived = true;
-                    }
-                };
-
-                await client.ConnectAsync();
-
-                await client.SendAsync(arguments);
-
-                // Wait for acknowledgment
-                while (!ackReceived && !ackTimeout.Token.IsCancellationRequested)
-                {
-                    await Task.Delay(10, ackTimeout.Token);
-                }
-
-                if (ackReceived)
-                {
-
-                }
-                else
-                {
-
-                }
-            }
-            catch (Exception ex)
-            {
-            }
-
-            // Exit safely
-            var currentPid = Process.GetCurrentProcess().Id;
             Process.GetCurrentProcess().Kill();
         }
+    }
 
-        public void Dispose()
-        {
-            if (_disposed)
-            {
-                return;
-            }
-
-            _disposed = true;
-
-            _cts?.Cancel();
-            _cts?.Dispose();
-
-            _server?.Dispose();
-
-            if (_isFirstInstance)
-            {
-                try
-                {
-                    _mutex?.ReleaseMutex();
-                }
-                catch (Exception ex)
-                {
-
-                }
-            }
-
-            _mutex?.Dispose();
-        }
+    /// <summary>
+    /// Extracts the raw argument string from the current launch activation.
+    /// Returns <see cref="string.Empty"/> for non-launch activation kinds —
+    /// callers should supply explicit <see cref="InstanceRelaunchOptions.Arguments"/>
+    /// when relaunching from a protocol or file activation context.
+    /// </summary>
+    private static string GetCurrentLaunchArguments()
+    {
+        var args = AppInstance.GetCurrent().GetActivatedEventArgs();
+        return args.Kind == ExtendedActivationKind.Launch &&
+               args.Data is ILaunchActivatedEventArgs launch
+            ? launch.Arguments ?? string.Empty
+            : string.Empty;
     }
 }

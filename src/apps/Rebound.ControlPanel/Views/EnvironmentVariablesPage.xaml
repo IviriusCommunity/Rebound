@@ -93,9 +93,10 @@
                 <muxc:InfoBar
                     Title="These settings require administrator privileges to edit."
                     IsClosable="False"
-                    IsOpen="True">
+                    IsOpen="True"
+                    Visibility="{x:Bind ViewModel.IsAdmin, Mode=OneWay, Converter={StaticResource BoolToInverseVisibilityConverter}}">
                     <muxc:InfoBar.ActionButton>
-                        <Button Style="{StaticResource AccentButtonStyle}">
+                        <Button Command="{x:Bind ViewModel.RelaunchAsAdminCommand}" Style="{StaticResource AccentButtonStyle}">
                             <StackPanel Orientation="Horizontal" Spacing="8">
                                 <FontIcon FontSize="16" Glyph="&#xEA18;" />
                                 <TextBlock Text="Relaunch as Administrator" />
@@ -111,7 +112,7 @@
                     BorderThickness="1"
                     CornerRadius="4">
                     <ScrollViewer>
-                        <ListView ItemsSource="{x:Bind ViewModel.SystemVariables}">
+                        <ListView IsEnabled="{x:Bind ViewModel.IsAdmin, Mode=OneWay}" ItemsSource="{x:Bind ViewModel.SystemVariables}">
                             <ListView.ItemTemplate>
                                 <DataTemplate x:DataType="viewModels:EnvironmentVariable">
                                     <Grid ToolTipService.ToolTip="{x:Bind Value, Mode=OneWay}">
@@ -129,18 +130,18 @@
                         </ListView>
                     </ScrollViewer>
                 </Grid>
-                <CommandBar DefaultLabelPosition="Right">
-                    <AppBarButton Label="New">
+                <CommandBar DefaultLabelPosition="Right" IsEnabled="{x:Bind ViewModel.IsAdmin, Mode=OneWay}">
+                    <AppBarButton Command="{x:Bind CreateSystemEnvVarCommand}" Label="New">
                         <AppBarButton.Icon>
                             <FontIcon Glyph="&#xE710;" />
                         </AppBarButton.Icon>
                     </AppBarButton>
-                    <AppBarButton Label="Edit">
+                    <AppBarButton Command="{x:Bind EditSystemEnvVarCommand}" Label="Edit">
                         <AppBarButton.Icon>
                             <FontIcon Glyph="&#xE70F;" />
                         </AppBarButton.Icon>
                     </AppBarButton>
-                    <AppBarButton Label="Delete">
+                    <AppBarButton Command="{x:Bind DeleteSystemEnvVarCommand}" Label="Delete">
                         <AppBarButton.Icon>
                             <FontIcon Glyph="&#xE74D;" />
                         </AppBarButton.Icon>
