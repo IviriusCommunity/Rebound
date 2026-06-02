@@ -89,9 +89,8 @@ public sealed class SingleInstanceLaunchEventArgs(
     /// Returns <see cref="string.Empty"/> for all other kinds.
     /// </summary>
     public string LaunchArguments =>
-        ActivationArguments.Kind == ExtendedActivationKind.Launch &&
-        ActivationArguments.Data is ILaunchActivatedEventArgs launch
-            ? launch.Arguments ?? string.Empty
+        ActivationArguments.Kind == ExtendedActivationKind.Launch
+            ? string.Join(" ", System.Environment.GetCommandLineArgs().Skip(1))
             : string.Empty;
 }
 
@@ -247,9 +246,8 @@ public sealed partial class SingleInstanceAppService(string appId, InstanceMode 
     private static string GetCurrentLaunchArguments()
     {
         var args = AppInstance.GetCurrent().GetActivatedEventArgs();
-        return args.Kind == ExtendedActivationKind.Launch &&
-               args.Data is ILaunchActivatedEventArgs launch
-            ? launch.Arguments ?? string.Empty
+        return args.Kind == ExtendedActivationKind.Launch
+            ? string.Join(" ", System.Environment.GetCommandLineArgs().Skip(1))
             : string.Empty;
     }
 }

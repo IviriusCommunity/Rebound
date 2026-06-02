@@ -112,7 +112,10 @@
                     BorderThickness="1"
                     CornerRadius="4">
                     <ScrollViewer>
-                        <ListView IsEnabled="{x:Bind ViewModel.IsAdmin, Mode=OneWay}" ItemsSource="{x:Bind ViewModel.SystemVariables}">
+                        <ListView
+                            IsEnabled="{x:Bind ViewModel.IsAdmin, Mode=OneWay}"
+                            ItemsSource="{x:Bind ViewModel.SystemVariables}"
+                            SelectedIndex="{x:Bind ViewModel.SelectedSystemVariable, Mode=TwoWay}">
                             <ListView.ItemTemplate>
                                 <DataTemplate x:DataType="viewModels:EnvironmentVariable">
                                     <Grid ToolTipService.ToolTip="{x:Bind Value, Mode=OneWay}">
