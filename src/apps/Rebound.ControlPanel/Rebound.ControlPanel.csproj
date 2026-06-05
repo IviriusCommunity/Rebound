@@ -87,6 +87,9 @@
 		<PackageReference Include="CommunityToolkit.WinUI.Triggers" Version="8.2.251219" />
 		<PackageReference Include="CommunityToolkit.Labs.WinUI.DependencyPropertyGenerator" Version="0.1.260203-build.2518" />
 
+		<!-- Other -->
+		<PackageReference Include="LiveChartsCore.SkiaSharpView.WinUI" Version="2.0.4" />
+
 	</ItemGroup>
 
 	<!-- Packaging Properties -->
@@ -108,6 +111,7 @@
 
 		<Manifest Include="$(ApplicationManifest)" />
 
+		<Page Include="Views\ReliabilityMonitorPage.xaml" />
 		<Page Include="Views\Secondary\ConfigureAutoBackupPage.xaml" />
 		<Page Include="Views\Secondary\CreateRestorePointPage.xaml" />
 		<Page Include="Views\Appearance.xaml" />

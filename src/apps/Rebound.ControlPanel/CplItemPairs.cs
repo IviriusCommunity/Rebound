@@ -36,7 +36,7 @@ internal static partial class CplItemPairs
                 new() { Name = "DirectX", Tag = "directx", Page = typeof(DirectXPage), Icon = "glyph:\uE967", Args = [CplArgs.DirectXControlPanelExePath] },
                 new() { Name = "Backup and Restore", IsEnabled = false, Tag = "backupandrestore", Page = typeof(BackupAndRestorePage), Icon = "glyph:\uE896" },
                 new() { Name = "Environment Variables", Tag = "environmentvariables", Page = typeof(EnvironmentVariablesPage), Icon = "glyph:\uE83B", Args = [CplArgs.ENVIRONMENT_VARIABLES] },
-                new() { Name = "Reliability Monitor", Tag = "reliabilitymonitor", Icon = "glyph:\uEBE8" },
+                new() { Name = "Reliability Monitor", Tag = "reliabilitymonitor", Page = typeof(ReliabilityMonitorPage), Icon = "glyph:\uEBE8" },
                 new() { Name = "Boot and BSoD Configuration", Tag = "bootandbsodconfiguration", Icon = "glyph:\uEBC8" },
                 new() { Name = "About", Tag = "about", Icon = "glyph:\uE946" },
             ]

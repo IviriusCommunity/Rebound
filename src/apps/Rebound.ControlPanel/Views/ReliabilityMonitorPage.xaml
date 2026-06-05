@@ -1,0 +1,109 @@
+﻿<Page
+    x:Class="Rebound.ControlPanel.Views.ReliabilityMonitorPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:behaviors="using:CommunityToolkit.WinUI.Behaviors"
+    xmlns:converters="using:CommunityToolkit.WinUI.Converters"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:interactivity="using:Microsoft.Xaml.Interactivity"
+    xmlns:local="using:Rebound.ControlPanel.Views"
+    xmlns:lvc="using:LiveChartsCore.SkiaSharpView.WinUI"
+    xmlns:lvcp="using:LiveChartsCore.SkiaSharpView.Painting"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:sk="using:SkiaSharp"
+    xmlns:toolkit="using:CommunityToolkit.WinUI.Controls"
+    mc:Ignorable="d">
+    <Page.Resources>
+        <converters:CollectionVisibilityConverter x:Key="CollectionVisibilityConverter" />
+        <converters:BoolToVisibilityConverter
+            x:Key="BoolToInverseVisibilityConverter"
+            FalseValue="Visible"
+            TrueValue="Collapsed" />
+        <converters:BoolNegationConverter x:Key="BoolNegationConverter" />
+        <converters:EmptyStringToObjectConverter
+            x:Key="EmptyStringToObjectConverter"
+            EmptyValue="False"
+            NotEmptyValue="True" />
+        <converters:DoubleToObjectConverter
+            x:Key="SelectedIndexToIsEnabledConverter"
+            FalseValue="False"
+            GreaterThan="-1"
+            TrueValue="True" />
+    </Page.Resources>
+    <Grid>
+        <Grid
+            Height="72"
+            VerticalAlignment="Top"
+            Background="{ThemeResource CardBackgroundFillColorDefaultBrush}">
+            <Image
+                Width="20"
+                Margin="16"
+                HorizontalAlignment="Left"
+                VerticalAlignment="Top"
+                Source="/Assets/Glyphs/DirectX.ico" />
+            <TextBlock
+                Margin="48,10"
+                FontSize="20"
+                FontWeight="SemiBold"
+                Foreground="{ThemeResource AccentTextFillColorPrimaryBrush}"
+                Text="DirectX" />
+            <TextBlock Margin="48,40,0,0" Text="Manage settings for DirectX applications." />
+        </Grid>
+        <ScrollViewer Margin="0,72,0,0" Padding="40,0,40,0">
+            <StackPanel
+                MaxWidth="1000"
+                Margin="0,40"
+                Spacing="8">
+                <InfoBar
+                    Title="Review your computer's reliability and problem history"
+                    IsClosable="False"
+                    IsOpen="True"
+                    Message="The stability index assesses your system's overall stability on a scale from 1 to 10. By selecting a specific period in time, you may review the specific hardware and software problems that have impacted your system." />
+                <toolkit:SettingsCard
+                    Description="View detailed information about DirectX and graphics on your system."
+                    Header="About DirectX"
+                    IsClickEnabled="True">
+                    <toolkit:SettingsCard.HeaderIcon>
+                        <FontIcon Glyph="&#xE946;" />
+                    </toolkit:SettingsCard.HeaderIcon>
+                    <toolkit:SettingsCard.ActionIcon>
+                        <FontIcon Glyph="&#xE8A7;" />
+                    </toolkit:SettingsCard.ActionIcon>
+                </toolkit:SettingsCard>
+                <TextBlock
+                    Margin="0,32,0,0"
+                    FontWeight="SemiBold"
+                    Text="Direct3D (DirectX 10/11/12)" />
+                <lvc:CartesianChart
+                    Height="200"
+                    Background="Transparent"
+                    LegendPosition="Hidden">
+                    <lvc:CartesianChart.YAxes>
+                        <lvc:AxesCollection>
+                            <lvc:XamlAxis Labels="{x:Bind yaxis}" />
+                        </lvc:AxesCollection>
+                    </lvc:CartesianChart.YAxes>
+                    <lvc:CartesianChart.XAxes>
+                        <lvc:AxesCollection>
+                            <lvc:XamlAxis Labels="{x:Bind xaxis}" />
+                        </lvc:AxesCollection>
+                    </lvc:CartesianChart.XAxes>
+                    <lvc:CartesianChart.Series>
+                        <lvc:SeriesCollection>
+                            <lvc:XamlLineSeries
+                                Fill="{lvc:LinearGradientPaint Colors='#44FF2200, #10FF2200',
+                                                               StartPoint='0, 0',
+                                                               EndPoint='0, 1'}"
+                                GeometryFill="{x:Null}"
+                                GeometryStroke="{x:Null}"
+                                IsHoverable="False"
+                                Stroke="{lvc:SolidColorPaint Color='#FF2200',
+                                                             StrokeWidth=3}"
+                                Values="{lvc:Values FromString='10, 10, 10, 4, 10, 6, 10, 0'}" />
+                        </lvc:SeriesCollection>
+                    </lvc:CartesianChart.Series>
+                </lvc:CartesianChart>
+            </StackPanel>
+        </ScrollViewer>
+    </Grid>
+</Page>
