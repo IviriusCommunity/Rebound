@@ -10,8 +10,10 @@
     xmlns:lvc="using:LiveChartsCore.SkiaSharpView.WinUI"
     xmlns:lvcp="using:LiveChartsCore.SkiaSharpView.Painting"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:models="using:Rebound.ControlPanel.Models"
     xmlns:sk="using:SkiaSharp"
     xmlns:toolkit="using:CommunityToolkit.WinUI.Controls"
+    x:Name="Root"
     mc:Ignorable="d">
     <Page.Resources>
         <converters:CollectionVisibilityConverter x:Key="CollectionVisibilityConverter" />
@@ -40,14 +42,14 @@
                 Margin="16"
                 HorizontalAlignment="Left"
                 VerticalAlignment="Top"
-                Source="/Assets/Glyphs/DirectX.ico" />
+                Source="/Assets/Glyphs/ReliabilityMonitor.ico" />
             <TextBlock
                 Margin="48,10"
                 FontSize="20"
                 FontWeight="SemiBold"
                 Foreground="{ThemeResource AccentTextFillColorPrimaryBrush}"
-                Text="DirectX" />
-            <TextBlock Margin="48,40,0,0" Text="Manage settings for DirectX applications." />
+                Text="Reliability Monitor" />
+            <TextBlock Margin="48,40,0,0" Text="View the issues history of the current machine." />
         </Grid>
         <ScrollViewer Margin="0,72,0,0" Padding="40,0,40,0">
             <StackPanel
@@ -58,51 +60,296 @@
                     Title="Review your computer's reliability and problem history"
                     IsClosable="False"
                     IsOpen="True"
-                    Message="The stability index assesses your system's overall stability on a scale from 1 to 10. By selecting a specific period in time, you may review the specific hardware and software problems that have impacted your system." />
+                    Message="The stability index assesses your system's overall stability on a scale from 1 to 10, where 10 is a healthy system and 1 is a highly unstable system. By selecting a specific period in time, you may review the specific hardware and software problems that have impacted your system." />
+                <toolkit:Segmented Header="View by:" SelectionChanged="OnViewModeChanged">
+                    <toolkit:SegmentedItem Content="Days" IsSelected="True" />
+                    <toolkit:SegmentedItem Content="Weeks" />
+                </toolkit:Segmented>
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
+                    <Button
+                        Padding="8,32"
+                        Command="{x:Bind ViewModel.ScrollBackCommand}"
+                        IsEnabled="{x:Bind ViewModel.CanScrollBack, Mode=OneWay}"
+                        Style="{StaticResource SubtleButtonStyle}"
+                        ToolTipService.ToolTip="Scroll back">
+                        <FontIcon FontSize="16" Glyph="&#xE76B;" />
+                    </Button>
+                    <Button
+                        Grid.Column="2"
+                        Padding="8,32"
+                        Command="{x:Bind ViewModel.ScrollForwardCommand}"
+                        IsEnabled="{x:Bind ViewModel.CanScrollForward, Mode=OneWay}"
+                        Style="{StaticResource SubtleButtonStyle}"
+                        ToolTipService.ToolTip="Scroll forward">
+                        <FontIcon FontSize="16" Glyph="&#xE76C;" />
+                    </Button>
+                    <lvc:CartesianChart
+                        x:Name="ReliabilityChart"
+                        Grid.Column="1"
+                        Height="200"
+                        Background="Transparent"
+                        LegendPosition="Hidden"
+                        Sections="{x:Bind ViewModel.Sections}"
+                        Series="{x:Bind ViewModel.Series}"
+                        TooltipPosition="Left"
+                        ZoomMode="None">
+                        <lvc:CartesianChart.YAxes>
+                            <lvc:AxesCollection>
+                                <lvc:XamlAxis
+                                    Labels="{x:Bind ViewModel.YAxisLabels}"
+                                    MaxLimit="9"
+                                    MinLimit="0" />
+                            </lvc:AxesCollection>
+                        </lvc:CartesianChart.YAxes>
+                        <lvc:CartesianChart.XAxes>
+                            <lvc:AxesCollection>
+                                <lvc:XamlAxis Labels="{x:Bind ViewModel.XAxisLabels}" />
+                            </lvc:AxesCollection>
+                        </lvc:CartesianChart.XAxes>
+                    </lvc:CartesianChart>
+                </Grid>
+                <CommandBar DefaultLabelPosition="Right">
+                    <AppBarButton Command="{x:Bind ExportCommand}" Label="Export">
+                        <AppBarButton.Icon>
+                            <FontIcon FontSize="16" Glyph="&#xEDE1;" />
+                        </AppBarButton.Icon>
+                    </AppBarButton>
+                    <AppBarButton Command="{x:Bind ViewModel.ViewAllEventsCommand}" Label="View all events">
+                        <AppBarButton.Icon>
+                            <FontIcon FontSize="16" Glyph="&#xE8AD;" />
+                        </AppBarButton.Icon>
+                    </AppBarButton>
+                </CommandBar>
+                <TextBlock FontWeight="SemiBold" Text="Reliability details" />
+                <StackPanel Spacing="8">
+                    <Expander
+                        HorizontalAlignment="Stretch"
+                        HorizontalContentAlignment="Stretch"
+                        IsExpanded="True">
+                        <Expander.Header>
+                            <StackPanel Orientation="Horizontal" Spacing="8">
+                                <FontIcon
+                                    FontSize="16"
+                                    Foreground="{ThemeResource SystemFillColorCriticalBrush}"
+                                    Glyph="&#xEB90;" />
+                                <TextBlock Text="Errors and crashes" />
+                            </StackPanel>
+                        </Expander.Header>
+
+                        <Grid>
+                            <TextBlock
+                                HorizontalAlignment="Center"
+                                Text="Nothing to see here."
+                                TextAlignment="Center"
+                                Visibility="{x:Bind ViewModel.IsErrorsEmpty, Mode=OneWay}" />
+                            <ItemsRepeater Margin="0,-8,-8,-8" ItemsSource="{x:Bind ViewModel.Errors, Mode=OneWay}">
+                                <ItemsRepeater.ItemTemplate>
+                                    <DataTemplate x:DataType="models:ReliabilityEvent">
+                                        <Grid Margin="0,4,0,4" ColumnSpacing="12">
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="*" />
+                                                <ColumnDefinition Width="Auto" />
+                                            </Grid.ColumnDefinitions>
+
+                                            <StackPanel Orientation="Horizontal" Spacing="8">
+                                                <Image
+                                                    Width="16"
+                                                    Height="16"
+                                                    VerticalAlignment="Center"
+                                                    Source="{x:Bind Icon, Mode=OneWay}" />
+                                                <TextBlock
+                                                    Width="160"
+                                                    VerticalAlignment="Center"
+                                                    Text="{x:Bind SourceName}"
+                                                    TextTrimming="CharacterEllipsis"
+                                                    ToolTipService.ToolTip="{x:Bind SourceName}" />
+                                                <TextBlock
+                                                    VerticalAlignment="Center"
+                                                    FontWeight="SemiBold"
+                                                    Foreground="{ThemeResource SystemFillColorCriticalBrush}"
+                                                    Text="{x:Bind Summary}" />
+                                            </StackPanel>
+
+                                            <StackPanel
+                                                Grid.Column="1"
+                                                Orientation="Horizontal"
+                                                Spacing="8">
+                                                <TextBlock
+                                                    VerticalAlignment="Center"
+                                                    FontSize="12"
+                                                    Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                                                    Text="{x:Bind DisplayDate}" />
+                                                <Button
+                                                    Click="OnViewEventDetailsClicked"
+                                                    Style="{StaticResource SubtleButtonStyle}"
+                                                    Tag="{x:Bind}">
+                                                    <StackPanel Orientation="Horizontal" Spacing="8">
+                                                        <FontIcon FontSize="16" Glyph="&#xE8AD;" />
+                                                        <TextBlock FontSize="12" Text="View event details" />
+                                                    </StackPanel>
+                                                </Button>
+                                            </StackPanel>
+                                        </Grid>
+                                    </DataTemplate>
+                                </ItemsRepeater.ItemTemplate>
+                            </ItemsRepeater>
+                        </Grid>
+                    </Expander>
+                    <Expander HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch">
+                        <Expander.Header>
+                            <StackPanel Orientation="Horizontal" Spacing="8">
+                                <FontIcon
+                                    FontSize="16"
+                                    Foreground="{ThemeResource SystemFillColorCautionBrush}"
+                                    Glyph="&#xE814;" />
+                                <TextBlock Text="Warnings" />
+                            </StackPanel>
+                        </Expander.Header>
+                        <Grid>
+                            <TextBlock
+                                HorizontalAlignment="Center"
+                                Text="Nothing to see here."
+                                TextAlignment="Center"
+                                Visibility="{x:Bind ViewModel.IsWarningsEmpty, Mode=OneWay}" />
+                            <ItemsRepeater Margin="0,-8,-8,-8" ItemsSource="{x:Bind ViewModel.Warnings, Mode=OneWay}">
+                                <ItemsRepeater.ItemTemplate>
+                                    <DataTemplate x:DataType="models:ReliabilityEvent">
+                                        <Grid Margin="0,4,0,4" ColumnSpacing="12">
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="*" />
+                                                <ColumnDefinition Width="Auto" />
+                                            </Grid.ColumnDefinitions>
+
+                                            <StackPanel Orientation="Horizontal" Spacing="8">
+                                                <Image
+                                                    Width="16"
+                                                    Height="16"
+                                                    VerticalAlignment="Center"
+                                                    Source="{x:Bind Icon, Mode=OneWay}" />
+                                                <TextBlock
+                                                    Width="160"
+                                                    VerticalAlignment="Center"
+                                                    Text="{x:Bind SourceName}"
+                                                    TextTrimming="CharacterEllipsis"
+                                                    ToolTipService.ToolTip="{x:Bind SourceName}" />
+                                                <TextBlock
+                                                    VerticalAlignment="Center"
+                                                    FontWeight="SemiBold"
+                                                    Foreground="{ThemeResource SystemFillColorCautionBrush}"
+                                                    Text="{x:Bind Summary}" />
+                                            </StackPanel>
+
+                                            <StackPanel
+                                                Grid.Column="1"
+                                                Orientation="Horizontal"
+                                                Spacing="8">
+                                                <TextBlock
+                                                    VerticalAlignment="Center"
+                                                    FontSize="12"
+                                                    Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                                                    Text="{x:Bind DisplayDate}" />
+                                                <Button
+                                                    Click="OnViewEventDetailsClicked"
+                                                    Style="{StaticResource SubtleButtonStyle}"
+                                                    Tag="{x:Bind}">
+                                                    <StackPanel Orientation="Horizontal" Spacing="8">
+                                                        <FontIcon FontSize="16" Glyph="&#xE8AD;" />
+                                                        <TextBlock FontSize="12" Text="View event details" />
+                                                    </StackPanel>
+                                                </Button>
+                                            </StackPanel>
+                                        </Grid>
+                                    </DataTemplate>
+                                </ItemsRepeater.ItemTemplate>
+                            </ItemsRepeater>
+                        </Grid>
+                    </Expander>
+                    <Expander HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch">
+                        <Expander.Header>
+                            <StackPanel Orientation="Horizontal" Spacing="8">
+                                <FontIcon
+                                    FontSize="16"
+                                    Foreground="{ThemeResource AccentTextFillColorPrimaryBrush}"
+                                    Glyph="&#xF167;" />
+                                <TextBlock Text="Informational events" />
+                            </StackPanel>
+                        </Expander.Header>
+                        <Grid>
+                            <TextBlock
+                                HorizontalAlignment="Center"
+                                Text="Nothing to see here."
+                                TextAlignment="Center"
+                                Visibility="{x:Bind ViewModel.IsInformationalEmpty, Mode=OneWay}" />
+                            <ItemsRepeater Margin="0,-8,-8,-8" ItemsSource="{x:Bind ViewModel.Informational, Mode=OneWay}">
+                                <ItemsRepeater.ItemTemplate>
+                                    <DataTemplate x:DataType="models:ReliabilityEvent">
+                                        <Grid Margin="0,4,0,4" ColumnSpacing="12">
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="*" />
+                                                <ColumnDefinition Width="Auto" />
+                                            </Grid.ColumnDefinitions>
+
+                                            <StackPanel Orientation="Horizontal" Spacing="8">
+                                                <Image
+                                                    Width="16"
+                                                    Height="16"
+                                                    VerticalAlignment="Center"
+                                                    Source="{x:Bind Icon, Mode=OneWay}" />
+                                                <TextBlock
+                                                    Width="160"
+                                                    VerticalAlignment="Center"
+                                                    Text="{x:Bind SourceName}"
+                                                    TextTrimming="CharacterEllipsis"
+                                                    ToolTipService.ToolTip="{x:Bind SourceName}" />
+                                                <TextBlock
+                                                    VerticalAlignment="Center"
+                                                    FontWeight="SemiBold"
+                                                    Foreground="{ThemeResource AccentTextFillColorPrimaryBrush}"
+                                                    Text="{x:Bind Summary}" />
+                                            </StackPanel>
+
+                                            <StackPanel
+                                                Grid.Column="1"
+                                                Orientation="Horizontal"
+                                                Spacing="8">
+                                                <TextBlock
+                                                    VerticalAlignment="Center"
+                                                    FontSize="12"
+                                                    Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                                                    Text="{x:Bind DisplayDate}" />
+                                                <Button
+                                                    Click="OnViewEventDetailsClicked"
+                                                    Style="{StaticResource SubtleButtonStyle}"
+                                                    Tag="{x:Bind}">
+                                                    <StackPanel Orientation="Horizontal" Spacing="8">
+                                                        <FontIcon FontSize="16" Glyph="&#xE8AD;" />
+                                                        <TextBlock FontSize="12" Text="View event details" />
+                                                    </StackPanel>
+                                                </Button>
+                                            </StackPanel>
+                                        </Grid>
+                                    </DataTemplate>
+                                </ItemsRepeater.ItemTemplate>
+                            </ItemsRepeater>
+                        </Grid>
+                    </Expander>
+                </StackPanel>
                 <toolkit:SettingsCard
-                    Description="View detailed information about DirectX and graphics on your system."
-                    Header="About DirectX"
+                    Description="Launch Event Viewer to see all system events."
+                    Header="Event Viewer"
                     IsClickEnabled="True">
                     <toolkit:SettingsCard.HeaderIcon>
-                        <FontIcon Glyph="&#xE946;" />
+                        <ImageIcon Source="/Assets/Apps/EventViewer.ico" />
                     </toolkit:SettingsCard.HeaderIcon>
                     <toolkit:SettingsCard.ActionIcon>
                         <FontIcon Glyph="&#xE8A7;" />
                     </toolkit:SettingsCard.ActionIcon>
                 </toolkit:SettingsCard>
-                <TextBlock
-                    Margin="0,32,0,0"
-                    FontWeight="SemiBold"
-                    Text="Direct3D (DirectX 10/11/12)" />
-                <lvc:CartesianChart
-                    Height="200"
-                    Background="Transparent"
-                    LegendPosition="Hidden">
-                    <lvc:CartesianChart.YAxes>
-                        <lvc:AxesCollection>
-                            <lvc:XamlAxis Labels="{x:Bind yaxis}" />
-                        </lvc:AxesCollection>
-                    </lvc:CartesianChart.YAxes>
-                    <lvc:CartesianChart.XAxes>
-                        <lvc:AxesCollection>
-                            <lvc:XamlAxis Labels="{x:Bind xaxis}" />
-                        </lvc:AxesCollection>
-                    </lvc:CartesianChart.XAxes>
-                    <lvc:CartesianChart.Series>
-                        <lvc:SeriesCollection>
-                            <lvc:XamlLineSeries
-                                Fill="{lvc:LinearGradientPaint Colors='#44FF2200, #10FF2200',
-                                                               StartPoint='0, 0',
-                                                               EndPoint='0, 1'}"
-                                GeometryFill="{x:Null}"
-                                GeometryStroke="{x:Null}"
-                                IsHoverable="False"
-                                Stroke="{lvc:SolidColorPaint Color='#FF2200',
-                                                             StrokeWidth=3}"
-                                Values="{lvc:Values FromString='10, 10, 10, 4, 10, 6, 10, 0'}" />
-                        </lvc:SeriesCollection>
-                    </lvc:CartesianChart.Series>
-                </lvc:CartesianChart>
             </StackPanel>
         </ScrollViewer>
     </Grid>

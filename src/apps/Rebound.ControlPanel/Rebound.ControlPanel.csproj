@@ -130,6 +130,10 @@
 		<Content Include="Strings\**\*.resw">
 			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 		</Content>
+
+		<None Remove="Assets\Glyphs\Program.ico" />
+
+		<None Remove="Assets\Glyphs\ReliabilityMonitor.ico" />
 		<Content Update="Assets\**\*">
 			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
 		</Content>
