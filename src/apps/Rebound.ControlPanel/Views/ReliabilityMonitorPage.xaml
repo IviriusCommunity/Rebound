@@ -96,6 +96,7 @@
                         LegendPosition="Hidden"
                         Sections="{x:Bind ViewModel.Sections}"
                         Series="{x:Bind ViewModel.Series}"
+                        FindingStrategy="ExactMatchTakeClosest"
                         TooltipPosition="Left"
                         ZoomMode="None">
                         <lvc:CartesianChart.YAxes>
@@ -190,7 +191,7 @@
                                                     Tag="{x:Bind}">
                                                     <StackPanel Orientation="Horizontal" Spacing="8">
                                                         <FontIcon FontSize="16" Glyph="&#xE8AD;" />
-                                                        <TextBlock FontSize="12" Text="View event details" />
+                                                        <TextBlock FontSize="12" Text="View details" />
                                                     </StackPanel>
                                                 </Button>
                                             </StackPanel>
@@ -259,7 +260,7 @@
                                                     Tag="{x:Bind}">
                                                     <StackPanel Orientation="Horizontal" Spacing="8">
                                                         <FontIcon FontSize="16" Glyph="&#xE8AD;" />
-                                                        <TextBlock FontSize="12" Text="View event details" />
+                                                        <TextBlock FontSize="12" Text="View details" />
                                                     </StackPanel>
                                                 </Button>
                                             </StackPanel>
@@ -328,7 +329,7 @@
                                                     Tag="{x:Bind}">
                                                     <StackPanel Orientation="Horizontal" Spacing="8">
                                                         <FontIcon FontSize="16" Glyph="&#xE8AD;" />
-                                                        <TextBlock FontSize="12" Text="View event details" />
+                                                        <TextBlock FontSize="12" Text="View details" />
                                                     </StackPanel>
                                                 </Button>
                                             </StackPanel>

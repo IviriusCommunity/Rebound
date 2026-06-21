@@ -37,8 +37,8 @@ internal static partial class CplItemPairs
                 new() { Name = "Backup and Restore", IsEnabled = false, Tag = "backupandrestore", Page = typeof(BackupAndRestorePage), Icon = "glyph:\uE896" },
                 new() { Name = "Environment Variables", Tag = "environmentvariables", Page = typeof(EnvironmentVariablesPage), Icon = "glyph:\uE83B", Args = [CplArgs.ENVIRONMENT_VARIABLES] },
                 new() { Name = "Reliability Monitor", Tag = "reliabilitymonitor", Page = typeof(ReliabilityMonitorPage), Icon = "glyph:\uEBE8" },
-                new() { Name = "Boot and BSoD Configuration", Tag = "bootandbsodconfiguration", Icon = "glyph:\uEBC8" },
-                new() { Name = "About", Tag = "about", Icon = "glyph:\uE946" },
+                new() { Name = "Advanced", Tag = "bootandbsodconfiguration", Page = typeof(BootAndBsodConfigurationPage), Icon = "glyph:\uEBC8", Args = [CplArgs.BOOT_AND_BSOD_CONFIGURATION] },
+                new() { Name = "About", Tag = "about", Icon = "glyph:\uE946", Page = typeof(AboutWindowsPage) },
             ]
         },
         new()
@@ -53,11 +53,7 @@ internal static partial class CplItemPairs
             Icon = "img:ms-appx:///Assets/HardwareAndSound.ico",
             Children =
             [
-                new() { Name = "Bluetooth and Devices", Icon = "glyph:\uEB66", Uri = "ms-settings:devices" ,
-                    Children = [
-                        new() { Name = "Add hardware manually", Icon = "glyph:\uE710" },
-                        ]
-                },
+                new() { Name = "Bluetooth and Devices", Icon = "glyph:\uEB66", Uri = "ms-settings:devices" },
                 new() { Name = "Sound", Icon = "glyph:\uE767" },
             ]
         },
@@ -66,7 +62,7 @@ internal static partial class CplItemPairs
             Name = "Privacy and Security",
             Icon = "img:ms-appx:///Assets/Glyphs/PrivacySecurity.ico",
             Children = [
-                new() { Name = "Privacy and User Choice", Tag = "privacyanduserchoice", Icon = "glyph:\uEF58" },
+                new() { Name = "Privacy and User Choice", Tag = "privacyanduserchoice", Icon = "glyph:\uEF58", Page = typeof(PrivacyAndUserChoicePage) },
                 new() { Name = "User Account Control Settings", Tag = "useraccountcontrolsettings", Icon = "glyph:\uEA18" },
                 new() { Name = "Credentials Manager", Tag = "credentialsmanager", Icon = "glyph:\uF540" },
                 ]

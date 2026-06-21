@@ -656,12 +656,8 @@
                                             Margin="-8,0"
                                             Padding="8"
                                             Background="Transparent"
-                                            BorderBrush="Transparent">
-                                            <interactivity:Interaction.Behaviors>
-                                                <interactivity:EventTriggerBehavior EventName="Click">
-                                                    <behaviors:NavigateToUriAction NavigateUri="ms-settings:activation" />
-                                                </interactivity:EventTriggerBehavior>
-                                            </interactivity:Interaction.Behaviors>
+                                            BorderBrush="Transparent"
+                                            Command="{x:Bind OpenWinActivationCommand}">
                                             <StackPanel Orientation="Horizontal" Spacing="8">
                                                 <FontIcon FontSize="16" Glyph="&#xE8D7;" />
                                                 <TextBlock x:Uid="OpenWinActivation" VerticalAlignment="Center" />
@@ -1840,12 +1836,8 @@
                                     Margin="-8,0"
                                     Padding="8"
                                     Background="Transparent"
-                                    BorderBrush="Transparent">
-                                    <interactivity:Interaction.Behaviors>
-                                        <interactivity:EventTriggerBehavior EventName="Click">
-                                            <behaviors:NavigateToUriAction NavigateUri="ms-settings:activation" />
-                                        </interactivity:EventTriggerBehavior>
-                                    </interactivity:Interaction.Behaviors>
+                                    BorderBrush="Transparent"
+                                    Command="{x:Bind OpenWinActivationCommand}">
                                     <StackPanel Orientation="Horizontal" Spacing="8">
                                         <FontIcon FontSize="16" Glyph="&#xE8D7;" />
                                         <TextBlock x:Uid="OpenWinActivation" VerticalAlignment="Center" />

@@ -26,4 +26,5 @@ internal class CplArgs
     public const string ADMINISTRATIVE_TOOLS = @"admintools";
     public const string INTLCPL_DATE = ",,/p:date";
     public const string ENVIRONMENT_VARIABLES = @"/name Microsoft.EnvironmentVariables";
+    public const string BOOT_AND_BSOD_CONFIGURATION = @"/name Rebound.BootAndBsodConfiguration";
 }

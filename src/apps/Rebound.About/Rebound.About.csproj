@@ -10,6 +10,14 @@
 		<WinUISDKReferences>false</WinUISDKReferences>
 		<EnableMsixTooling>true</EnableMsixTooling>
 
+		<!-- Code Analysis and Trimming -->
+		<AnalysisMode>All</AnalysisMode>
+
+		<!-- Language and Code Configuration -->
+		<LangVersion>preview</LangVersion>
+		<Nullable>enable</Nullable>
+		<AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+
 		<!-- Properties -->
 		<AssemblyName>Rebound.About</AssemblyName>
 		<RootNamespace>Rebound.About</RootNamespace>
@@ -41,15 +49,18 @@
 		<SelfContained>true</SelfContained>
 		<UseWindowsAppSDKBootstrapper>true</UseWindowsAppSDKBootstrapper>
 		<WindowsAppSdkSelfContained>false</WindowsAppSdkSelfContained>
-
+		
 		<!-- Versioning -->
 		<AssemblyVersion>0.0.10</AssemblyVersion>
 		<Version>0.0.10</Version>
 		<FileVersion>0.0.10</FileVersion>
-
+		
 		<!-- Publishing Settings -->
 		<PublishProfile>win-$(Platform).pubxml</PublishProfile>
-		
+		<EnableDefaultPriItems>true</EnableDefaultPriItems>
+
+
+		<DisableTransitiveProjectReferences>true</DisableTransitiveProjectReferences>
 	</PropertyGroup>
 
 	<!-- Architecture -->
@@ -67,24 +78,26 @@
 
 	<!-- Package references -->
 	<ItemGroup>
+		<PackageReference Include="Microsoft.WindowsAppSDK" Version="2.2.0" />
+		
+		<PackageReference Include="Microsoft.WindowsAppSDK.AI" Version="2.2.3" ExcludeAssets="all" />
+		<PackageReference Include="Microsoft.WindowsAppSDK.ML" Version="2.1.70" ExcludeAssets="all" />
+		<PackageReference Include="Microsoft.Windows.AI.MachineLearning" Version="2.1.70" ExcludeAssets="all" />
+		<PackageReference Include="Microsoft.ML.OnnxRuntime" Version="1.23.2" ExcludeAssets="all" />
+		<PackageReference Include="Microsoft.Web.WebView2" Version="1.0.3719.77" ExcludeAssets="all" />
 
 		<!-- Windows SDK and WinUI -->
-		<PackageReference Include="Microsoft.WindowsAppSDK.WinUI" Version="2.1.0" />
-		<PackageReference Include="Microsoft.WindowsAppSDK.Runtime" Version="2.1.3" />
-		<PackageReference Include="Microsoft.WindowsAppSDK" Version="2.1.3" ExcludeAssets="buildTransitive" PrivateAssets="all" />
-		<PackageReference Include="WinUIEx" Version="2.9.0" />
-		<PackageReference Include="Microsoft.DotNet.ILCompiler" Version="10.0.8" />
-
+		<PackageReference Include="WinUIEx" Version="2.9.1" />
 		<!-- CommunityToolkit -->
 		<PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.2" />
-		<PackageReference Include="CommunityToolkit.WinUI.Animations" Version="8.2.251219" />
+		<PackageReference Include="CommunityToolkit.WinUI.Animations" Version="8.2.251219"/>
 		<PackageReference Include="CommunityToolkit.WinUI.Behaviors" Version="8.2.251219" />
 		<PackageReference Include="CommunityToolkit.WinUI.Converters" Version="8.2.251219" />
 		<PackageReference Include="CommunityToolkit.WinUI.Controls.Primitives" Version="8.2.251219" />
-		<PackageReference Include="CommunityToolkit.WinUI.Controls.Segmented" Version="8.2.251219" />
-		<PackageReference Include="CommunityToolkit.WinUI.Media" Version="8.2.251219" />
-		<PackageReference Include="CommunityToolkit.WinUI.Triggers" Version="8.2.251219" />
-		<PackageReference Include="CommunityToolkit.Labs.WinUI.DependencyPropertyGenerator" Version="0.1.260203-build.2518" />
+		<PackageReference Include="CommunityToolkit.WinUI.Controls.Segmented" Version="8.2.251219"/>
+		<PackageReference Include="CommunityToolkit.WinUI.Media" Version="8.2.251219"/>
+		<PackageReference Include="CommunityToolkit.WinUI.Triggers" Version="8.2.251219"/>
+		<PackageReference Include="CommunityToolkit.Labs.WinUI.DependencyPropertyGenerator" Version="0.1.260203-build.2518"/>
 
 	</ItemGroup>
 
@@ -105,6 +118,8 @@
 	<!-- Project content -->
 	<ItemGroup>
 
+		<AppxTargetDeviceFamilyItem Include="Windows.Desktop" />
+
 		<Manifest Include="$(ApplicationManifest)" />
 
 		<Page Include="MainWindow.xaml" />
@@ -114,9 +129,6 @@
 		<None Include="README.md" Pack="true" PackagePath="\" />
 		<Content Update="Assets\AboutWindows.ico">
 			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
-		</Content>
-		<Content Include="Strings\**\*.resw">
-			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 		</Content>
 
 	</ItemGroup>

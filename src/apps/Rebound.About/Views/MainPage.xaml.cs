@@ -241,6 +241,19 @@ internal sealed partial class MainPage : Page
     }
 
     [RelayCommand]
+    private static async Task OpenWinActivation()
+    {
+        var uri = new Uri("ms-settings:activation");
+        if (!await Launcher.LaunchUriAsync(uri))
+        {
+            await App.MainWindow!.ShowMessageDialogAsync(
+                "Couldn't open Activation settings.",
+                "Something went wrong and we couldn't open the Activation settings page."
+                ).ConfigureAwait(false);
+        }
+    }
+
+    [RelayCommand]
     private static async Task ViewMoreAsync()
     {
         try

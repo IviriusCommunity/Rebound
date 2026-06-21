@@ -270,5 +270,113 @@ namespace Rebound.Forge
             KeyPath = @"SOFTWARE\Microsoft\Direct2D\Drivers",
             ValueName = string.Empty
         };
+
+        /// <summary>
+        /// CPU scheduling preference key (applications vs background services).
+        /// </summary>
+        public static readonly RegistrySetting ProcessorScheduling = new()
+        {
+            KeyPath = @"SYSTEM\CurrentControlSet\Control\PriorityControl",
+            ValueName = "Win32PrioritySeparation"
+        };
+
+        /// <summary>
+        /// Pagefile management registry key.
+        /// </summary>
+        public static readonly RegistrySetting AutomaticManagedPagefile = new()
+        {
+            KeyPath = @"SYSTEM\CurrentControlSet\Control\Session Manager\Memory Management",
+            ValueName = "AutomaticManagedPagefile"
+        };
+
+        /// <summary>
+        /// Paging files.
+        /// </summary>
+        public static readonly RegistrySetting PagingFiles = new()
+        {
+            KeyPath = @"SYSTEM\CurrentControlSet\Control\Session Manager\Memory Management",
+            ValueName = "PagingFiles"
+        };
+
+        /// <summary>
+        /// Bootloader timeout (in seconds).
+        /// </summary>
+        public static readonly RegistrySetting BootloaderTimeout = new()
+        {
+            KeyPath = @"SYSTEM\CurrentControlSet\Control\BootControl",
+            ValueName = "BootTimeOut"
+        };
+
+        /// <summary>
+        /// Controls whether the boot GUI is displayed. 0 = show GUI, 1 = no GUI.
+        /// </summary>
+        public static readonly RegistrySetting NoGuiBoot = new()
+        {
+            KeyPath = @"SYSTEM\CurrentControlSet\Control\BootControl",
+            ValueName = "NoGuiBoot"
+        };
+        
+        /// <summary>
+        /// Registry setting for enabling boot logging.
+        /// </summary>
+        public static readonly RegistrySetting BootLog = new()
+        {
+            KeyPath = @"SYSTEM\CurrentControlSet\Control\BootControl",
+            ValueName = "BootLog"
+        };
+
+        /// <summary>
+        /// Registry setting for enabling base video mode during boot.
+        /// </summary>
+        public static readonly RegistrySetting BaseVideo = new()
+        {
+            KeyPath = @"SYSTEM\CurrentControlSet\Control\BootControl",
+            ValueName = "BaseVideo"
+        };
+
+        /// <summary>
+        /// Registry setting for enabling OS boot information display during boot.
+        /// </summary>
+        public static readonly RegistrySetting OsBootInfo = new()
+        {
+            KeyPath = @"SYSTEM\CurrentControlSet\Control\BootControl",
+            ValueName = "OsBootInformation"
+        };
+
+        /// <summary>
+        /// Registry setting for controlling automatic reboot after a system crash.
+        /// </summary>
+        public static readonly RegistrySetting AutoReboot = new()
+        {
+            KeyPath = @"SYSTEM\CurrentControlSet\Control\CrashControl",
+            ValueName = "AutoReboot"
+        };
+
+        /// <summary>
+        /// Registry setting for controlling whether a system crash is logged in the event log.
+        /// </summary>
+        public static readonly RegistrySetting LogEvent = new()
+        {
+            KeyPath = @"SYSTEM\CurrentControlSet\Control\CrashControl",
+            ValueName = "LogEvent"
+        };
+
+        /// <summary>
+        /// Registry setting for controlling whether a system crash generates a memory dump.
+        /// </summary>
+        public static readonly RegistrySetting CrashDumpEnabled = new()
+        {
+            KeyPath = @"SYSTEM\CurrentControlSet\Control\CrashControl",
+            ValueName = "CrashDumpEnabled"
+        };
+
+        /// <summary>
+        /// Registry setting for controlling the directory where minidumps are stored after a system crash.
+        /// </summary>
+        public static readonly RegistrySetting MinidumpDir = new()
+        {
+            KeyPath = @"SYSTEM\CurrentControlSet\Control\CrashControl",
+            ValueName = "MinidumpDir"
+        };
     }
 }

@@ -3,10 +3,12 @@
 
 using CommunityToolkit.Mvvm.Input;
 using Microsoft.UI.Xaml.Controls;
+using Microsoft.Win32;
 using Rebound.Core;
 using Rebound.Core.IPC;
 using Rebound.Core.Native.Helpers;
 using Rebound.Core.Native.Windows;
+using Rebound.Forge.Engines;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -56,7 +58,7 @@ internal partial class Tool
             }
             catch
             {
-                string rtfexe = RegistryHelper.GetString(1, "Software\\Microsoft\\Windows\\CurrentVersion\\Explorer\\FileExts\\.rtf\\OpenWithList", "a");
+                string rtfexe = RegistrySettingsEngine.GetValue(RegistryHive.CurrentUser, "Software\\Microsoft\\Windows\\CurrentVersion\\Explorer\\FileExts\\.rtf\\OpenWithList", "a", string.Empty);
                 Process.Start(new ProcessStartInfo()
                 {
                     FileName = rtfexe,

@@ -15,6 +15,7 @@ using System;
 using System.Diagnostics;
 using System.Threading;
 using System.Threading.Tasks;
+using TerraFX.Interop.Windows;
 using Windows.UI;
 using WinUIEx;
 
@@ -47,7 +48,7 @@ public partial class App : Application, IReboundLegacySupportApp, IReboundPipeCl
         };
 
         SingleInstanceAppService.Launched += OnSingleInstanceLaunched;
-        SingleInstanceAppService.Launch(args?.Arguments!);
+        SingleInstanceAppService.Launch();
     }
 
     private async void OnSingleInstanceLaunched(object? sender, SingleInstanceLaunchEventArgs e)
@@ -139,19 +140,19 @@ public partial class App : Application, IReboundLegacySupportApp, IReboundPipeCl
 
             // Legacy launch
             // with arguments
-            if (e.Arguments.StartsWith(Variables.LegacyLaunchArgument, StringComparison.InvariantCultureIgnoreCase)
+            if (e.LaunchArguments.StartsWith(Variables.LegacyLaunchArgument, StringComparison.InvariantCultureIgnoreCase)
                 // without arguments
-                || e.Arguments.StartsWith(Variables.LegacyLaunchArgument.Trim(), StringComparison.InvariantCultureIgnoreCase))
+                || e.LaunchArguments.StartsWith(Variables.LegacyLaunchArgument.Trim(), StringComparison.InvariantCultureIgnoreCase))
             {
-                var trimmedArgs = e.Arguments.Length > Variables.LegacyLaunchArgument.Length - 1 ?
+                var trimmedArgs = e.LaunchArguments.Length > Variables.LegacyLaunchArgument.Length - 1 ?
                     // with arguments
-                    e.Arguments[Variables.LegacyLaunchArgument.Length..] :
+                    e.LaunchArguments[Variables.LegacyLaunchArgument.Length..] :
                     // without arguments
                     string.Empty;
 
                 ReboundLogger.WriteToLog(
                     "Legacy Launch",
-                    $"Launching the legacy app with arguments (raw: {e.Arguments}) (trimmed: {trimmedArgs}).",
+                    $"Launching the legacy app with arguments (raw: {e.LaunchArguments}) (trimmed: {trimmedArgs}).",
                     LogMessageSeverity.Message);
 
                 LaunchLegacy(trimmedArgs);
