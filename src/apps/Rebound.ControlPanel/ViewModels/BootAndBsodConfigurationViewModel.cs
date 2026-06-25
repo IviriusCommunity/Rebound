@@ -127,6 +127,8 @@ internal partial class BootAndBsodConfigurationViewModel : ObservableObject
                 }
             }
 
+            IsPagefileModeCustom = PagefileMode == 2;
+
             // Boot timeout
             Timeout = RegistrySettingsEngine.GetValue<int>(RegistryHive.LocalMachine, RegistrySettingsCatalog.BootloaderTimeout);
 

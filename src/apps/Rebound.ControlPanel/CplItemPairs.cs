@@ -63,7 +63,6 @@ internal static partial class CplItemPairs
             Icon = "img:ms-appx:///Assets/Glyphs/PrivacySecurity.ico",
             Children = [
                 new() { Name = "Privacy and User Choice", Tag = "privacyanduserchoice", Icon = "glyph:\uEF58", Page = typeof(PrivacyAndUserChoicePage) },
-                new() { Name = "User Account Control Settings", Tag = "useraccountcontrolsettings", Icon = "glyph:\uEA18" },
                 new() { Name = "Credentials Manager", Tag = "credentialsmanager", Icon = "glyph:\uF540" },
                 ]
         },

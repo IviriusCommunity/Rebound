@@ -74,52 +74,681 @@
                     </toolkit:SettingsCard.HeaderIcon>
                     <ToggleSwitch />
                 </toolkit:SettingsCard>
+                <toolkit:SettingsCard Description="Choose the behavior of Windows Update on your system. It is recommended that you keep security updates enabled. This setting will persist throughout your installation and won't be reverted by the system without your consent." Header="Windows Update">
+                    <toolkit:SettingsCard.HeaderIcon>
+                        <FontIcon Glyph="&#xEC76;" />
+                    </toolkit:SettingsCard.HeaderIcon>
+                    <ComboBox>
+                        <ComboBoxItem Content="Allow all" />
+                        <ComboBoxItem Content="Only security updates" />
+                        <ComboBoxItem Content="Check for updates manually" />
+                        <ComboBoxItem Content="Never update" />
+                    </ComboBox>
+                </toolkit:SettingsCard>
+                <toolkit:SettingsExpander Description="Windows AI features such as Click To Do, Windows Recall, etc. Turning this option off will remove every single AI component from within Windows and Microsoft apps. Turning it on will allow you to select each AI feature individually." Header="AI Features">
+                    <toolkit:SettingsExpander.HeaderIcon>
+                        <FontIcon Glyph="&#xF4A5;" />
+                    </toolkit:SettingsExpander.HeaderIcon>
+                    <toolkit:SettingsExpander.Items>
+                        <toolkit:SettingsCard Description="System-wide AI assistant integrated into the Windows shell, accessible from the taskbar and system surfaces." Header="Copilot in Windows">
+                            <ToggleSwitch />
+                        </toolkit:SettingsCard>
+                        <toolkit:SettingsCard Description="AI assistance integrated into the Settings app for searching and changing system options using natural language." Header="Copilot in Settings">
+                            <ToggleSwitch />
+                        </toolkit:SettingsCard>
+                        <toolkit:SettingsCard Description="Controls whether the Copilot key or shortcut launches the Windows Copilot experience." Header="Copilot Key Integration">
+                            <ComboBox>
+                                <ComboBoxItem Content="Launch Copilot" />
+                                <ComboBoxItem Content="Right Control" />
+                            </ComboBox>
+                        </toolkit:SettingsCard>
+                        <toolkit:SettingsCard Description="AI-powered contextual actions and features available in File Explorer for interacting with files." Header="Copilot in File Explorer">
+                            <ToggleSwitch />
+                        </toolkit:SettingsCard>
+                        <toolkit:SettingsCard Description="Copilot-powered image editing, enhancement, and generation features in the Photos app." Header="Copilot in Photos">
+                            <ToggleSwitch />
+                        </toolkit:SettingsCard>
+                        <toolkit:SettingsCard Description="AI writing assistance features integrated into Notepad, including rewrite and summarization tools." Header="Copilot in Notepad">
+                            <ToggleSwitch />
+                        </toolkit:SettingsCard>
+                    </toolkit:SettingsExpander.Items>
+                    <ToggleSwitch />
+                </toolkit:SettingsExpander>
+                <TextBlock
+                    Margin="0,32,0,0"
+                    FontWeight="SemiBold"
+                    Text="Security" />
                 <toolkit:SettingsCard Description="SmartScreen is a Windows security feature that uses reputation-based checks to help prevent the execution of unrecognized or known malicious apps, scripts, and downloaded files. It acts as an early protection layer before an application is run, complementing other security components such as Microsoft Defender and installed antivirus solutions. Disabling this option removes this reputation-based filtering and may allow unverified files to run without warning." Header="SmartScreen">
                     <toolkit:SettingsCard.HeaderIcon>
                         <FontIcon Glyph="&#xE83D;" />
                     </toolkit:SettingsCard.HeaderIcon>
                     <ToggleSwitch />
                 </toolkit:SettingsCard>
+                <toolkit:SettingsExpander Description="sudo for Windows allows you to run commands or applications with administrator privileges without manually opening an elevated terminal or using longer elevation workflows. It provides a familiar sudo-style entry point similar to UNIX systems, including support for elevating within the current session (for example, sudo powershell), while still relying on Windows’ built-in security model and UAC confirmation for permission approval." Header="sudo for Windows">
+                    <toolkit:SettingsExpander.HeaderIcon>
+                        <FontIcon Glyph="&#xF760;" />
+                    </toolkit:SettingsExpander.HeaderIcon>
+                    <toolkit:SettingsExpander.Items>
+                        <toolkit:SettingsCard Header="sudo execution policy">
+                            <ComboBox>
+                                <ComboBoxItem Content="In a new window" />
+                                <ComboBoxItem Content="With input disabled" />
+                                <ComboBoxItem Content="Inline (recommended for UNIX-like workflows)" />
+                            </ComboBox>
+                        </toolkit:SettingsCard>
+                    </toolkit:SettingsExpander.Items>
+                    <ToggleSwitch />
+                </toolkit:SettingsExpander>
+                <toolkit:SettingsExpander Description="Change how Windows handles the execution of script-based automation, including PowerShell execution policies, Windows Script Host availability, and handling of downloaded scripts through Mark-of-the-Web. These settings determine what types of scripts can run, under what trust conditions, and how strongly external script sources are restricted before execution." Header="Execution policies">
+                    <toolkit:SettingsExpander.HeaderIcon>
+                        <FontIcon Glyph="&#xE8AD;" />
+                    </toolkit:SettingsExpander.HeaderIcon>
+                    <toolkit:SettingsExpander.Items>
+                        <toolkit:SettingsCard Header="PowerShell script execution policy">
+                            <ComboBox>
+                                <ComboBoxItem Content="Restricted" />
+                                <ComboBoxItem Content="Allow all signed scripts" />
+                                <ComboBoxItem Content="Allow all local scripts, require signature for remote scripts" />
+                                <ComboBoxItem Content="Unrestricted" />
+                                <ComboBoxItem Content="Bypass all restrictions" />
+                            </ComboBox>
+                        </toolkit:SettingsCard>
+                        <toolkit:SettingsCard Header="Enable Windows Script Host">
+                            <ToggleSwitch />
+                        </toolkit:SettingsCard>
+                        <toolkit:SettingsCard Header="Mark-of-the-Web enforcement (downloaded scripts)">
+                            <ComboBox>
+                                <ComboBoxItem Content="Preserve internet zone information on files" />
+                                <ComboBoxItem Content="Ignore Mark-of-the-Web (weaker security)" />
+                                <ComboBoxItem Content="Force prompt for downloaded script files (where applicable)" />
+                            </ComboBox>
+                        </toolkit:SettingsCard>
+                    </toolkit:SettingsExpander.Items>
+                </toolkit:SettingsExpander>
+                <toolkit:SettingsCard Description="Enables Windows developer features, including relaxed MSIX/AppX deployment rules for development scenarios, support for installing locally built or test-signed packages, and access to additional debugging and device portal interfaces used for app testing and deployment." Header="Developer Mode">
+                    <toolkit:SettingsCard.HeaderIcon>
+                        <FontIcon Glyph="&#xE943;" />
+                    </toolkit:SettingsCard.HeaderIcon>
+                    <ToggleSwitch />
+                </toolkit:SettingsCard>
+                <toolkit:SettingsCard Description="Enables Remote Desktop connections to this device, allowing authorized users to remotely sign in and control the system over the network using the RDP protocol. When disabled, incoming Remote Desktop connections are blocked." Header="Remote Desktop">
+                    <toolkit:SettingsCard.HeaderIcon>
+                        <FontIcon Glyph="&#xE8AF;" />
+                    </toolkit:SettingsCard.HeaderIcon>
+                    <ToggleSwitch />
+                </toolkit:SettingsCard>
+                <toolkit:SettingsCard Description="User Account Control (UAC) is the Windows security mechanism that mediates elevation requests between standard user processes and system-level privileges. It acts as a permission broker that ensures administrative actions require explicit approval before being executed, helping prevent unauthorized or unintended changes to the system. This setting controls how often Windows prompts for consent when applications request elevated access." Header="User Account Control">
+                    <toolkit:SettingsCard.HeaderIcon>
+                        <FontIcon Glyph="&#xEA0D;" />
+                    </toolkit:SettingsCard.HeaderIcon>
+                    <ComboBox>
+                        <ComboBoxItem Content="Always notify me (highest security)" />
+                        <ComboBoxItem Content="Notify me only when apps try to make changes to my device" />
+                        <ComboBoxItem Content="Notify me only when apps try to make changes (do not dim desktop)" />
+                        <ComboBoxItem Content="Never notify (not recommended)" />
+                    </ComboBox>
+                </toolkit:SettingsCard>
                 <TextBlock
                     Margin="0,32,0,0"
                     FontWeight="SemiBold"
                     Text="Privacy" />
+                <InfoBar
+                    Title="Verify the impact on your privacy"
+                    IsClosable="False"
+                    IsOpen="True"
+                    Message="These settings are labeled by how much impact they have on your privacy, ranging from lowest impact (where it doesn't matter if you keep them on or not) to highest impact (where it's better to turn them off). You can also see if they store data locally or in the cloud with the associated badges.">
+                    <StackPanel
+                        Margin="0,0,24,24"
+                        Orientation="Horizontal"
+                        Spacing="8">
+                        <Border
+                            Padding="8,4"
+                            Background="{ThemeResource SystemFillColorCriticalBackgroundBrush}"
+                            CornerRadius="4">
+                            <TextBlock Foreground="{ThemeResource SystemFillColorCriticalBrush}" Text="High" />
+                        </Border>
+                        <Border
+                            Padding="8,4"
+                            Background="{ThemeResource SystemFillColorCautionBackgroundBrush}"
+                            CornerRadius="4">
+                            <TextBlock Foreground="{ThemeResource SystemFillColorCautionBrush}" Text="Medium" />
+                        </Border>
+                        <Border
+                            Padding="8,4"
+                            Background="{ThemeResource SystemFillColorSuccessBackgroundBrush}"
+                            CornerRadius="4">
+                            <TextBlock Foreground="{ThemeResource SystemFillColorSuccessBrush}" Text="Low" />
+                        </Border>
+                        <Border
+                            Width="1"
+                            Margin="0,4"
+                            Background="{ThemeResource DividerStrokeColorDefaultBrush}" />
+                        <Border
+                            Padding="8,4"
+                            Background="{ThemeResource SystemFillColorAttentionBackgroundBrush}"
+                            CornerRadius="4">
+                            <StackPanel Orientation="Horizontal" Spacing="8">
+                                <FontIcon
+                                    FontSize="16"
+                                    Foreground="{ThemeResource SystemFillColorAttentionBrush}"
+                                    Glyph="&#xE753;" />
+                                <TextBlock Foreground="{ThemeResource SystemFillColorAttentionBrush}" Text="Cloud" />
+                            </StackPanel>
+                        </Border>
+                        <Border
+                            Padding="8,4"
+                            Background="{ThemeResource SystemFillColorAttentionBackgroundBrush}"
+                            CornerRadius="4">
+                            <StackPanel Orientation="Horizontal" Spacing="8">
+                                <FontIcon
+                                    FontSize="16"
+                                    Foreground="{ThemeResource SystemFillColorAttentionBrush}"
+                                    Glyph="&#xE977;" />
+                                <TextBlock Foreground="{ThemeResource SystemFillColorAttentionBrush}" Text="Local" />
+                            </StackPanel>
+                        </Border>
+                    </StackPanel>
+                </InfoBar>
                 <toolkit:SettingsCard Description="Important note: Windows Telemetry is not classified as spyware by mainstream security vendors or security agencies. It refers to diagnostic data collection used to improve system reliability, security, compatibility, and performance. This can include hardware details, system configuration, installed applications, application usage and diagnostics, performance data, device health information, and Microsoft Edge diagnostics. Disabling or limiting telemetry may affect certain features that rely on diagnostic data, such as Windows Insider program functionality and some Microsoft service integrations." Header="Telemetry">
                     <toolkit:SettingsCard.HeaderIcon>
                         <FontIcon Glyph="&#xED15;" />
                     </toolkit:SettingsCard.HeaderIcon>
-                    <ToggleSwitch />
+                    <StackPanel Orientation="Horizontal" Spacing="8">
+                        <Border
+                            Padding="8,4"
+                            VerticalAlignment="Center"
+                            Background="{ThemeResource SystemFillColorCriticalBackgroundBrush}"
+                            CornerRadius="4">
+                            <TextBlock Foreground="{ThemeResource SystemFillColorCriticalBrush}" Text="High" />
+                        </Border>
+                        <Border
+                            Padding="8,4"
+                            VerticalAlignment="Center"
+                            Background="{ThemeResource SystemFillColorAttentionBackgroundBrush}"
+                            CornerRadius="4">
+                            <FontIcon
+                                Margin="0,2"
+                                FontSize="16"
+                                Foreground="{ThemeResource SystemFillColorAttentionBrush}"
+                                Glyph="&#xE753;" />
+                        </Border>
+                        <ToggleSwitch />
+                    </StackPanel>
                 </toolkit:SettingsCard>
                 <toolkit:SettingsCard Description="Allows Windows to use optional diagnostic data to provide personalized tips, recommendations, and suggestions within the operating system and Microsoft services. This may include tailored setup prompts, feature recommendations, and other contextual experiences. In some cases, personalization settings can also influence how Microsoft services display content and advertising." Header="Tailored Experiences">
                     <toolkit:SettingsCard.HeaderIcon>
-                        <FontIcon Glyph="&#xF4A5;" />
+                        <FontIcon Glyph="&#xE771;" />
                     </toolkit:SettingsCard.HeaderIcon>
-                    <ToggleSwitch />
+                    <StackPanel Orientation="Horizontal" Spacing="8">
+                        <Border
+                            Padding="8,4"
+                            VerticalAlignment="Center"
+                            Background="{ThemeResource SystemFillColorCriticalBackgroundBrush}"
+                            CornerRadius="4">
+                            <TextBlock Foreground="{ThemeResource SystemFillColorCriticalBrush}" Text="High" />
+                        </Border>
+                        <Border
+                            Padding="8,4"
+                            VerticalAlignment="Center"
+                            Background="{ThemeResource SystemFillColorAttentionBackgroundBrush}"
+                            CornerRadius="4">
+                            <FontIcon
+                                Margin="0,2"
+                                FontSize="16"
+                                Foreground="{ThemeResource SystemFillColorAttentionBrush}"
+                                Glyph="&#xE753;" />
+                        </Border>
+                        <ToggleSwitch />
+                    </StackPanel>
                 </toolkit:SettingsCard>
                 <toolkit:SettingsCard Description="Enables a device-based advertising identifier that apps and some Microsoft services can use to provide personalized advertising and content based on your activity. When enabled, supported apps (including some Windows experiences such as Widgets) may use this identifier to show more relevant ads. Disabling it limits ad personalization based on this identifier." Header="Advertising ID">
                     <toolkit:SettingsCard.HeaderIcon>
                         <FontIcon Glyph="&#xF571;" />
                     </toolkit:SettingsCard.HeaderIcon>
-                    <ToggleSwitch />
+                    <StackPanel Orientation="Horizontal" Spacing="8">
+                        <Border
+                            Padding="8,4"
+                            VerticalAlignment="Center"
+                            Background="{ThemeResource SystemFillColorCriticalBackgroundBrush}"
+                            CornerRadius="4">
+                            <TextBlock Foreground="{ThemeResource SystemFillColorCriticalBrush}" Text="High" />
+                        </Border>
+                        <Border
+                            Padding="8,4"
+                            VerticalAlignment="Center"
+                            Background="{ThemeResource SystemFillColorAttentionBackgroundBrush}"
+                            CornerRadius="4">
+                            <FontIcon
+                                Margin="0,2"
+                                FontSize="16"
+                                Foreground="{ThemeResource SystemFillColorAttentionBrush}"
+                                Glyph="&#xE753;" />
+                        </Border>
+                        <ToggleSwitch />
+                    </StackPanel>
                 </toolkit:SettingsCard>
                 <toolkit:SettingsCard Description="Stores a history of your activity on this device, such as apps you use and documents you open, to enable features like activity continuity and cross-device resume. When enabled and syncing is turned on, some of this data can be associated with your Microsoft account and synchronized across devices. Otherwise, the data remains stored locally on the device." Header="Activity History">
                     <toolkit:SettingsCard.HeaderIcon>
                         <FontIcon Glyph="&#xE81C;" />
                     </toolkit:SettingsCard.HeaderIcon>
-                    <ToggleSwitch />
+                    <StackPanel Orientation="Horizontal" Spacing="8">
+                        <Border
+                            Padding="8,4"
+                            VerticalAlignment="Center"
+                            Background="{ThemeResource SystemFillColorCriticalBackgroundBrush}"
+                            CornerRadius="4">
+                            <TextBlock Foreground="{ThemeResource SystemFillColorCriticalBrush}" Text="High" />
+                        </Border>
+                        <Border
+                            Padding="8,4"
+                            VerticalAlignment="Center"
+                            Background="{ThemeResource SystemFillColorAttentionBackgroundBrush}"
+                            CornerRadius="4">
+                            <FontIcon
+                                Margin="0,2"
+                                FontSize="16"
+                                Foreground="{ThemeResource SystemFillColorAttentionBrush}"
+                                Glyph="&#xE753;" />
+                        </Border>
+                        <Border
+                            Padding="8,4"
+                            VerticalAlignment="Center"
+                            Background="{ThemeResource SystemFillColorAttentionBackgroundBrush}"
+                            CornerRadius="4">
+                            <FontIcon
+                                Margin="0,2"
+                                FontSize="16"
+                                Foreground="{ThemeResource SystemFillColorAttentionBrush}"
+                                Glyph="&#xE977;" />
+                        </Border>
+                        <ToggleSwitch />
+                    </StackPanel>
                 </toolkit:SettingsCard>
-                <toolkit:SettingsCard Description="Enables personalization of handwriting and typing input by learning from your input patterns, such as pen strokes, corrections, and language usage, to improve recognition accuracy. This data is primarily used locally to adapt input suggestions and inking behavior. Depending on your diagnostic settings, some anonymized data may be used to improve Microsoft’s input models." Header="Typing &amp; Inking Personalization">
+                <toolkit:SettingsCard Description="Controls participation in Microsoft’s Customer Experience Improvement Program, which collects additional usage and feature interaction data to help improve Windows and its components. When disabled, Windows reduces optional behavioral data sharing related to how features are used." Header="Customer Experience Improvement Program">
                     <toolkit:SettingsCard.HeaderIcon>
-                        <FontIcon Glyph="&#xEDC6;" />
+                        <FontIcon Glyph="&#xE8E1;" />
                     </toolkit:SettingsCard.HeaderIcon>
-                    <ToggleSwitch />
+                    <StackPanel Orientation="Horizontal" Spacing="8">
+                        <Border
+                            Padding="8,4"
+                            VerticalAlignment="Center"
+                            Background="{ThemeResource SystemFillColorCautionBackgroundBrush}"
+                            CornerRadius="4">
+                            <TextBlock Foreground="{ThemeResource SystemFillColorCautionBrush}" Text="Medium" />
+                        </Border>
+                        <Border
+                            Padding="8,4"
+                            VerticalAlignment="Center"
+                            Background="{ThemeResource SystemFillColorAttentionBackgroundBrush}"
+                            CornerRadius="4">
+                            <FontIcon
+                                Margin="0,2"
+                                FontSize="16"
+                                Foreground="{ThemeResource SystemFillColorAttentionBrush}"
+                                Glyph="&#xE753;" />
+                        </Border>
+                        <ToggleSwitch />
+                    </StackPanel>
+                </toolkit:SettingsCard>
+                <toolkit:SettingsCard Description="Collects diagnostic information when applications, drivers, or Windows components crash, stop responding, or encounter unexpected errors. Crash reports may be sent to Microsoft and participating software or hardware vendors to help identify bugs, improve reliability, and resolve compatibility issues. Depending on the error, reports may include technical details such as exception information, loaded modules, and memory state at the time of the failure." Header="Error Reporting">
+                    <toolkit:SettingsCard.HeaderIcon>
+                        <FontIcon Glyph="&#xEA39;" />
+                    </toolkit:SettingsCard.HeaderIcon>
+                    <StackPanel Orientation="Horizontal" Spacing="8">
+                        <Border
+                            Padding="8,4"
+                            VerticalAlignment="Center"
+                            Background="{ThemeResource SystemFillColorCautionBackgroundBrush}"
+                            CornerRadius="4">
+                            <TextBlock Foreground="{ThemeResource SystemFillColorCautionBrush}" Text="Medium" />
+                        </Border>
+                        <Border
+                            Padding="8,4"
+                            VerticalAlignment="Center"
+                            Background="{ThemeResource SystemFillColorAttentionBackgroundBrush}"
+                            CornerRadius="4">
+                            <FontIcon
+                                Margin="0,2"
+                                FontSize="16"
+                                Foreground="{ThemeResource SystemFillColorAttentionBrush}"
+                                Glyph="&#xE753;" />
+                        </Border>
+                        <Border
+                            Padding="8,4"
+                            VerticalAlignment="Center"
+                            Background="{ThemeResource SystemFillColorAttentionBackgroundBrush}"
+                            CornerRadius="4">
+                            <FontIcon
+                                Margin="0,2"
+                                FontSize="16"
+                                Foreground="{ThemeResource SystemFillColorAttentionBrush}"
+                                Glyph="&#xE977;" />
+                        </Border>
+                        <ToggleSwitch />
+                    </StackPanel>
+                </toolkit:SettingsCard>
+                <toolkit:SettingsCard Description="Enables cloud-based speech recognition for features such as voice dictation and speech-to-text. When enabled, spoken input is processed using Microsoft’s online speech services to improve accuracy and language understanding. When disabled, speech input is processed locally using on-device recognition models where available." Header="Online Speech Recognition">
+                    <toolkit:SettingsCard.HeaderIcon>
+                        <FontIcon Glyph="&#xEFA9;" />
+                    </toolkit:SettingsCard.HeaderIcon>
+                    <StackPanel Orientation="Horizontal" Spacing="8">
+                        <Border
+                            Padding="8,4"
+                            VerticalAlignment="Center"
+                            Background="{ThemeResource SystemFillColorCautionBackgroundBrush}"
+                            CornerRadius="4">
+                            <TextBlock Foreground="{ThemeResource SystemFillColorCautionBrush}" Text="Medium" />
+                        </Border>
+                        <Border
+                            Padding="8,4"
+                            VerticalAlignment="Center"
+                            Background="{ThemeResource SystemFillColorAttentionBackgroundBrush}"
+                            CornerRadius="4">
+                            <FontIcon
+                                Margin="0,2"
+                                FontSize="16"
+                                Foreground="{ThemeResource SystemFillColorAttentionBrush}"
+                                Glyph="&#xE753;" />
+                        </Border>
+                        <Border
+                            Padding="8,4"
+                            VerticalAlignment="Center"
+                            Background="{ThemeResource SystemFillColorAttentionBackgroundBrush}"
+                            CornerRadius="4">
+                            <FontIcon
+                                Margin="0,2"
+                                FontSize="16"
+                                Foreground="{ThemeResource SystemFillColorAttentionBrush}"
+                                Glyph="&#xE977;" />
+                        </Border>
+                        <ToggleSwitch />
+                    </StackPanel>
                 </toolkit:SettingsCard>
                 <toolkit:SettingsCard Description="Allows apps and Windows services to access your device's real-time location when permission is granted. This enables features such as weather, maps, and location-based app functionality. Both Microsoft and third-party apps may request location data through the Windows location platform, depending on your permission settings. Disabling this prevents all apps from accessing device location services." Header="Location Services">
                     <toolkit:SettingsCard.HeaderIcon>
                         <FontIcon Glyph="&#xECAF;" />
                     </toolkit:SettingsCard.HeaderIcon>
+                    <StackPanel Orientation="Horizontal" Spacing="8">
+                        <Border
+                            Padding="8,4"
+                            VerticalAlignment="Center"
+                            Background="{ThemeResource SystemFillColorCautionBackgroundBrush}"
+                            CornerRadius="4">
+                            <TextBlock Foreground="{ThemeResource SystemFillColorCautionBrush}" Text="Medium" />
+                        </Border>
+                        <ToggleSwitch />
+                    </StackPanel>
+                </toolkit:SettingsCard>
+                <toolkit:SettingsCard Description="Controls whether Microsoft Store apps can send aggregated, anonymized usage and diagnostic data used in Partner Center analytics. This data is processed in a way that removes direct user identification and is not traceable to individual users. It is used by independent developers and companies to understand high-level usage metrics such as app adoption by country or region, app versions in use, feature engagement, performance trends, and reliability signals. This helps developers improve app stability and prioritize updates based on real-world usage patterns." Header="Application Telemetry">
+                    <toolkit:SettingsCard.HeaderIcon>
+                        <FontIcon Glyph="&#xECAA;" />
+                    </toolkit:SettingsCard.HeaderIcon>
+                    <StackPanel Orientation="Horizontal" Spacing="8">
+                        <Border
+                            Padding="8,4"
+                            VerticalAlignment="Center"
+                            Background="{ThemeResource SystemFillColorSuccessBackgroundBrush}"
+                            CornerRadius="4">
+                            <TextBlock Foreground="{ThemeResource SystemFillColorSuccessBrush}" Text="Low" />
+                        </Border>
+                        <Border
+                            Padding="8,4"
+                            VerticalAlignment="Center"
+                            Background="{ThemeResource SystemFillColorAttentionBackgroundBrush}"
+                            CornerRadius="4">
+                            <FontIcon
+                                Margin="0,2"
+                                FontSize="16"
+                                Foreground="{ThemeResource SystemFillColorAttentionBrush}"
+                                Glyph="&#xE753;" />
+                        </Border>
+                        <ToggleSwitch />
+                    </StackPanel>
+                </toolkit:SettingsCard>
+                <toolkit:SettingsCard Description="Allows anonymized typing and handwriting diagnostic data to be used to improve Microsoft's text input, prediction, and handwriting recognition models. Data sharing may depend on your diagnostic data settings." Header="Help Improve Typing &amp; Inking">
+                    <toolkit:SettingsCard.HeaderIcon>
+                        <FontIcon Glyph="&#xF67B;" />
+                    </toolkit:SettingsCard.HeaderIcon>
+                    <StackPanel Orientation="Horizontal" Spacing="8">
+                        <Border
+                            Padding="8,4"
+                            VerticalAlignment="Center"
+                            Background="{ThemeResource SystemFillColorSuccessBackgroundBrush}"
+                            CornerRadius="4">
+                            <TextBlock Foreground="{ThemeResource SystemFillColorSuccessBrush}" Text="Low" />
+                        </Border>
+                        <Border
+                            Padding="8,4"
+                            VerticalAlignment="Center"
+                            Background="{ThemeResource SystemFillColorAttentionBackgroundBrush}"
+                            CornerRadius="4">
+                            <FontIcon
+                                Margin="0,2"
+                                FontSize="16"
+                                Foreground="{ThemeResource SystemFillColorAttentionBrush}"
+                                Glyph="&#xE753;" />
+                        </Border>
+                        <ToggleSwitch />
+                    </StackPanel>
+                </toolkit:SettingsCard>
+                <toolkit:SettingsCard Description="Allows Windows to build a local language and handwriting model based on your typing, corrections, and pen input. This information is used to improve text prediction, autocorrect, and handwriting recognition on this device." Header="Typing &amp; Inking Personalization">
+                    <toolkit:SettingsCard.HeaderIcon>
+                        <FontIcon Glyph="&#xEDC6;" />
+                    </toolkit:SettingsCard.HeaderIcon>
+                    <StackPanel Orientation="Horizontal" Spacing="8">
+                        <Border
+                            Padding="8,4"
+                            VerticalAlignment="Center"
+                            Background="{ThemeResource SystemFillColorSuccessBackgroundBrush}"
+                            CornerRadius="4">
+                            <TextBlock Foreground="{ThemeResource SystemFillColorSuccessBrush}" Text="Low" />
+                        </Border>
+                        <Border
+                            Padding="8,4"
+                            VerticalAlignment="Center"
+                            Background="{ThemeResource SystemFillColorAttentionBackgroundBrush}"
+                            CornerRadius="4">
+                            <FontIcon
+                                Margin="0,2"
+                                FontSize="16"
+                                Foreground="{ThemeResource SystemFillColorAttentionBrush}"
+                                Glyph="&#xE977;" />
+                        </Border>
+                        <ToggleSwitch />
+                    </StackPanel>
+                </toolkit:SettingsCard>
+                <toolkit:SettingsCard Description="Maintains a local index of application launch activity used to improve Search results, Start menu recommendations, and other app discovery features. Windows uses this information to identify frequently used applications and make them easier to access." Header="Application Launches Tracking">
+                    <toolkit:SettingsCard.HeaderIcon>
+                        <FontIcon Glyph="&#xE8A7;" />
+                    </toolkit:SettingsCard.HeaderIcon>
+                    <StackPanel Orientation="Horizontal" Spacing="8">
+                        <Border
+                            Padding="8,4"
+                            VerticalAlignment="Center"
+                            Background="{ThemeResource SystemFillColorSuccessBackgroundBrush}"
+                            CornerRadius="4">
+                            <TextBlock Foreground="{ThemeResource SystemFillColorSuccessBrush}" Text="Low" />
+                        </Border>
+                        <Border
+                            Padding="8,4"
+                            VerticalAlignment="Center"
+                            Background="{ThemeResource SystemFillColorAttentionBackgroundBrush}"
+                            CornerRadius="4">
+                            <FontIcon
+                                Margin="0,2"
+                                FontSize="16"
+                                Foreground="{ThemeResource SystemFillColorAttentionBrush}"
+                                Glyph="&#xE977;" />
+                        </Border>
+                        <ToggleSwitch />
+                    </StackPanel>
+                </toolkit:SettingsCard>
+                <TextBlock
+                    Margin="0,32,0,0"
+                    FontWeight="SemiBold"
+                    Text="Content" />
+                <toolkit:SettingsCard Description="Controls whether Windows shows tips, recommendations, and related links within Settings pages. These suggestions help guide users to relevant system features and Microsoft support content based on local usage and system configuration." Header="Suggested content in Settings">
+                    <toolkit:SettingsCard.HeaderIcon>
+                        <FontIcon Glyph="&#xE713;" />
+                    </toolkit:SettingsCard.HeaderIcon>
                     <ToggleSwitch />
                 </toolkit:SettingsCard>
+                <toolkit:SettingsCard Description="Controls the default landing page in the Settings app, which provides a dashboard of recent settings, device status, and recommended actions. When enabled, Windows may surface contextual setup suggestions and system highlights." Header="Settings Home page">
+                    <toolkit:SettingsCard.HeaderIcon>
+                        <FontIcon Glyph="&#xE80F;" />
+                    </toolkit:SettingsCard.HeaderIcon>
+                    <ToggleSwitch />
+                </toolkit:SettingsCard>
+                <toolkit:SettingsCard Description="Controls whether Windows can show suggested notifications containing tips, feature recommendations, and setup guidance. These notifications are generated by the system to highlight relevant features and improvements based on device state and usage patterns." Header="Suggested notifications">
+                    <toolkit:SettingsCard.HeaderIcon>
+                        <FontIcon Glyph="&#xEA8F;" />
+                    </toolkit:SettingsCard.HeaderIcon>
+                    <ToggleSwitch />
+                </toolkit:SettingsCard>
+                <toolkit:SettingsCard Description="Shows occasional tips, feature highlights, and informational messages on the lock screen. These are intended to surface Windows features and usage hints while the device is locked." Header="Lock screen tips">
+                    <toolkit:SettingsCard.HeaderIcon>
+                        <FontIcon Glyph="&#xE82F;" />
+                    </toolkit:SettingsCard.HeaderIcon>
+                    <ToggleSwitch />
+                </toolkit:SettingsCard>
+                <toolkit:SettingsCard Description="Shows tips, feature highlights, and informational prompts in notification form, especially after Windows updates or system changes. These messages introduce new features and help users discover system capabilities following updates." Header="Windows tips">
+                    <toolkit:SettingsCard.HeaderIcon>
+                        <FontIcon Glyph="&#xE897;" />
+                    </toolkit:SettingsCard.HeaderIcon>
+                    <ToggleSwitch />
+                </toolkit:SettingsCard>
+                <toolkit:SettingsCard Description="Displays a guided experience after updates or first sign-in, highlighting new features, recommended settings, and changes in Windows. It helps introduce system capabilities and optional setup improvements." Header="Windows Welcome Experience">
+                    <toolkit:SettingsCard.HeaderIcon>
+                        <FontIcon Glyph="&#xE774;" />
+                    </toolkit:SettingsCard.HeaderIcon>
+                    <ToggleSwitch />
+                </toolkit:SettingsCard>
+                <toolkit:SettingsCard Description="Shows reminders to complete optional setup steps such as account sign-in, backup configuration, and device personalization. These prompts help ensure key Windows features are fully configured." Header="Finish setting up your device">
+                    <toolkit:SettingsCard.HeaderIcon>
+                        <FontIcon Glyph="&#xEC76;" />
+                    </toolkit:SettingsCard.HeaderIcon>
+                    <ToggleSwitch />
+                </toolkit:SettingsCard>
+                <TextBlock
+                    Margin="0,32,0,0"
+                    FontWeight="SemiBold"
+                    Text="Debloat" />
+                <toolkit:SettingsExpander Description="Applications inside Windows that are typically defined as part of the system, but can be removed safely. Warning: some of these apps might be required to navigate around the system properly if you don't have alternatives already installed." Header="System Apps">
+                    <toolkit:SettingsExpander.HeaderIcon>
+                        <FontIcon Glyph="&#xE770;" />
+                    </toolkit:SettingsExpander.HeaderIcon>
+                    <toolkit:SettingsExpander.Items>
+                        <toolkit:SettingsCard Description="Send feedback to Microsoft." Header="Feedback Hub">
+                            <ToggleSwitch />
+                        </toolkit:SettingsCard>
+                        <toolkit:SettingsCard Description="Does nothing particularily useful." Header="Get Started">
+                            <ToggleSwitch />
+                        </toolkit:SettingsCard>
+                        <toolkit:SettingsCard Description="Default browser for Windows. Due to a security feature in Windows, we cannot uninstall it for you, and you will have to uninstall it manually, with some guidance." Header="Microsoft Edge">
+                            <Grid>
+                                <Button Content="Begin uninstalling" Visibility="Collapsed" />
+                                <Button Content="Install" />
+                            </Grid>
+                        </toolkit:SettingsCard>
+                        <toolkit:SettingsCard Description="Frontend application for the Store APIs. Removing this will not remove application package support from Windows." Header="Microsoft Store">
+                            <ToggleSwitch />
+                        </toolkit:SettingsCard>
+                        <toolkit:SettingsCard Description="Simple text editor." Header="Notepad">
+                            <ToggleSwitch />
+                        </toolkit:SettingsCard>
+                        <toolkit:SettingsCard Description="Simple drawing app." Header="Paint">
+                            <ToggleSwitch />
+                        </toolkit:SettingsCard>
+                        <toolkit:SettingsCard Description="Deprecated." Header="People">
+                            <ToggleSwitch />
+                        </toolkit:SettingsCard>
+                        <toolkit:SettingsCard Description="Connects your phone and PC to access your files, notifications, texts, etc. from Windows." Header="Phone Link">
+                            <ToggleSwitch />
+                        </toolkit:SettingsCard>
+                        <toolkit:SettingsCard Description="Screenshot utility. You can still take full screenshots via the PrtSc key." Header="Snipping Tool">
+                            <ToggleSwitch />
+                        </toolkit:SettingsCard>
+                        <toolkit:SettingsCard Description="WinUI command line emulator." Header="Terminal">
+                            <ToggleSwitch />
+                        </toolkit:SettingsCard>
+                        <toolkit:SettingsCard Description="Package manager for Windows." Header="WinGet">
+                            <ToggleSwitch />
+                        </toolkit:SettingsCard>
+                        <toolkit:SettingsCard Description="Back up your PC to your Microsoft account." Header="Windows Backup">
+                            <ToggleSwitch />
+                        </toolkit:SettingsCard>
+                        <toolkit:SettingsCard Description="Web-backed experiences such as Widgets and content feeds used by the Windows shell." Header="Windows Web Experience Pack">
+                            <ToggleSwitch />
+                        </toolkit:SettingsCard>
+                        <toolkit:SettingsCard Description="Game assistant overlay." Header="Xbox Game Bar">
+                            <ToggleSwitch />
+                        </toolkit:SettingsCard>
+                    </toolkit:SettingsExpander.Items>
+                </toolkit:SettingsExpander>
+                <toolkit:SettingsExpander Description="Applications that can be safely removed and will not impact your system. Beware, the list is long." Header="Preinstalled Apps">
+                    <toolkit:SettingsExpander.HeaderIcon>
+                        <FontIcon Glyph="&#xE71D;" />
+                    </toolkit:SettingsExpander.HeaderIcon>
+                    <toolkit:SettingsExpander.Items>
+                        <toolkit:SettingsCard Description="Web search provider for some shell components." Header="Bing">
+                            <ToggleSwitch />
+                        </toolkit:SettingsCard>
+                        <toolkit:SettingsCard Description="Do math." Header="Calculator">
+                            <ToggleSwitch />
+                        </toolkit:SettingsCard>
+                        <toolkit:SettingsCard Description="Deprecated." Header="Calendar">
+                            <ToggleSwitch />
+                        </toolkit:SettingsCard>
+                        <toolkit:SettingsCard Description="Take a picture. Smile!" Header="Camera">
+                            <ToggleSwitch />
+                        </toolkit:SettingsCard>
+                        <toolkit:SettingsCard Description="Cloud-based video editor." Header="Clipchamp">
+                            <ToggleSwitch />
+                        </toolkit:SettingsCard>
+                        <toolkit:SettingsCard Description="Set timers and stopwatches." Header="Clock">
+                            <ToggleSwitch />
+                        </toolkit:SettingsCard>
+                        <toolkit:SettingsCard Description="Deprecated." Header="Mail">
+                            <ToggleSwitch />
+                        </toolkit:SettingsCard>
+                        <toolkit:SettingsCard Description="Play songs and videos." Header="Media Player">
+                            <ToggleSwitch />
+                        </toolkit:SettingsCard>
+                        <toolkit:SettingsCard Description="Lets you access the web versions of Microsoft Office. (Web wrapper)" Header="Microsoft 365 Copilot (Office web app)">
+                            <ToggleSwitch />
+                        </toolkit:SettingsCard>
+                        <toolkit:SettingsCard Description="Classic cards game." Header="Microsoft Solitaire Collection">
+                            <ToggleSwitch />
+                        </toolkit:SettingsCard>
+                        <toolkit:SettingsCard Description="Deprecated." Header="Movies &amp; TV">
+                            <ToggleSwitch />
+                        </toolkit:SettingsCard>
+                        <toolkit:SettingsCard Description="Deprecated." Header="News">
+                            <ToggleSwitch />
+                        </toolkit:SettingsCard>
+                        <toolkit:SettingsCard Description="Cloud storage from Microsoft." Header="OneDrive">
+                            <ToggleSwitch />
+                        </toolkit:SettingsCard>
+                        <toolkit:SettingsCard Description="View and edit pictures." Header="Photos">
+                            <ToggleSwitch />
+                        </toolkit:SettingsCard>
+                        <toolkit:SettingsCard Description="Record sounds." Header="Sound Recorder">
+                            <ToggleSwitch />
+                        </toolkit:SettingsCard>
+                        <toolkit:SettingsCard Description="Moved to OneNote." Header="Sticky Notes">
+                            <ToggleSwitch />
+                        </toolkit:SettingsCard>
+                        <toolkit:SettingsCard Description="Go on meetings and chat with your co-workers." Header="Teams">
+                            <ToggleSwitch />
+                        </toolkit:SettingsCard>
+                        <toolkit:SettingsCard Description="Deprecated." Header="Weather">
+                            <ToggleSwitch />
+                        </toolkit:SettingsCard>
+                        <toolkit:SettingsCard Description="Videogame store and launcher." Header="Xbox">
+                            <ToggleSwitch />
+                        </toolkit:SettingsCard>
+                    </toolkit:SettingsExpander.Items>
+                </toolkit:SettingsExpander>
             </StackPanel>
         </ScrollViewer>
     </Grid>
