@@ -10,7 +10,7 @@ namespace Rebound.Core.Native.Helpers;
 
 public static class WindowHelper
 {
-    public static unsafe void Activate(HWND handle)
+    /*public static unsafe void Activate(HWND handle)
     {
         if (TerraFX.Interop.Windows.Windows.IsIconic(handle) != 0) // if minimized
         {
@@ -113,5 +113,5 @@ public static class WindowHelper
 
         // 14. Restore foreground lock timeout
         TerraFX.Interop.Windows.Windows.SystemParametersInfoW(0x2001, 0, &lockTimeout, 0x0002);
-    }
+    }*/
 }

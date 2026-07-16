@@ -42,7 +42,7 @@
                 Margin="16"
                 HorizontalAlignment="Left"
                 VerticalAlignment="Top"
-                Source="/Assets/Glyphs/ReliabilityMonitor.ico" />
+                Source="/Assets/Glyphs/ReliabilityMonitor.png" />
             <TextBlock
                 Margin="48,10"
                 FontSize="20"
@@ -93,10 +93,10 @@
                         Grid.Column="1"
                         Height="200"
                         Background="Transparent"
+                        FindingStrategy="ExactMatchTakeClosest"
                         LegendPosition="Hidden"
                         Sections="{x:Bind ViewModel.Sections}"
                         Series="{x:Bind ViewModel.Series}"
-                        FindingStrategy="ExactMatchTakeClosest"
                         TooltipPosition="Left"
                         ZoomMode="None">
                         <lvc:CartesianChart.YAxes>

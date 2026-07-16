@@ -51,7 +51,7 @@
 		<PackageReference Include="Microsoft.Graphics.Win2D" Version="1.4.0" />
 		<PackageReference Include="WinUIEx" Version="2.9.1" />
 		<PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.2" />
-		<PackageReference Include="CommunityToolkit.WinUI.Animations" Version="8.2.251219" > <ExcludeAssets>build;buildtransitive</ExcludeAssets> </PackageReference>
+		<PackageReference Include="CommunityToolkit.WinUI.Animations" Version="8.2.251219"> <ExcludeAssets>build;buildtransitive</ExcludeAssets> </PackageReference>
 	</ItemGroup>
 
 	<!-- Project references -->

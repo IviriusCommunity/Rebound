@@ -4,7 +4,6 @@
 using System;
 using System.IO;
 using Rebound.Cleanup.Views;
-using Rebound.Helpers.Windowing;
 using WinUIEx;
 
 namespace Rebound.Cleanup;
@@ -15,9 +14,9 @@ internal sealed partial class MainWindow : WindowEx
     {
         InitializeComponent();
         ExtendsContentIntoTitleBar = true;
-        this.SetWindowIcon(Path.Combine(AppContext.BaseDirectory, "Assets", "cleanmgr.ico"));
+        this.SetIcon(Path.Combine(AppContext.BaseDirectory, "Assets", "cleanmgr.ico"));
         this.Move(25, 25);
-        this.TurnOffDoubleClick();
+        //this.TurnOffDoubleClick();
         RootFrame.Navigate(typeof(MainPage));
     }
 }

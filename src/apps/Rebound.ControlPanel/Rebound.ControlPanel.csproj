@@ -133,6 +133,10 @@
 		  <Generator>MSBuild:Compile</Generator>
 		</Page>
 
+		<Page Include="Views\CredentialManagerPage.xaml">
+		  <Generator>MSBuild:Compile</Generator>
+		</Page>
+
 		<Page Include="Views\PrivacyAndUserChoicePage.xaml">
 		  <Generator>MSBuild:Compile</Generator>
 		</Page>
@@ -148,7 +152,6 @@
 		<Page Include="Views\HomePage.xaml" />
 		<Page Include="Views\RootPage.xaml" />
 		<Page Include="Views\SystemConfigurationPage.xaml" />
-		<Page Include="Views\SystemPage.xaml" />
 		<Page Include="Views\WindowsToolsPage.xaml" />
 		<Page Include="MainWindow.xaml" />
 		<ApplicationDefinition Include="App.xaml" />
@@ -157,13 +160,37 @@
 			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 		</Content>
 
+		<None Remove="Assets\Glyphs\Advanced.svg" />
+
+		<None Remove="Assets\Glyphs\Configuration.svg" />
+
+		<None Remove="Assets\Glyphs\CredentialManager.ico" />
+
+		<None Remove="Assets\Glyphs\DirectX.svg" />
+
+		<None Remove="Assets\Glyphs\EnvironmentVariables.svg" />
+
+		<None Remove="Assets\Glyphs\HardwareAndSound.ico" />
+
+		<None Remove="Assets\Glyphs\Home.svg" />
+
+		<None Remove="Assets\Glyphs\PrivacyAndSecurity.svg" />
+
+		<None Remove="Assets\Glyphs\PrivacyAndUserChoice.svg" />
+
 		<None Remove="Assets\Glyphs\Program.ico" />
 
 		<None Remove="Assets\Glyphs\ReliabilityMonitor.ico" />
 
+		<None Remove="Assets\Glyphs\ReliabilityMonitor.svg" />
+
+		<None Remove="Assets\Glyphs\System.svg" />
+
 		<None Remove="Views\AboutWindowsPage.xaml" />
 
 		<None Remove="Views\BootAndBsodConfigurationPage.xaml" />
+
+		<None Remove="Views\CredentialManagerPage.xaml" />
 
 		<None Remove="Views\PrivacyAndUserChoicePage.xaml" />
 		<Content Update="Assets\**\*">

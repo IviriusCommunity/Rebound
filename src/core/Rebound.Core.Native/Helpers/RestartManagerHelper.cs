@@ -14,28 +14,6 @@ namespace Rebound.Core.Native.Helpers;
 /// </summary>
 public static class RestartManagerHelper
 {
-    [StructLayout(LayoutKind.Sequential)]
-    private struct RM_UNIQUE_PROCESS
-    {
-        public uint dwProcessId;
-        public System.Runtime.InteropServices.ComTypes.FILETIME ProcessStartTime;
-    }
-
-    [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Unicode)]
-    private unsafe struct RM_PROCESS_INFO
-    {
-        public RM_UNIQUE_PROCESS Process;
-
-        public fixed char strAppName[256];
-        public fixed char strServiceShortName[64];
-
-        public int ApplicationType;
-        public uint AppStatus;
-        public uint TSSessionId;
-
-        public int bRestartable;
-    }
-
     public static IEnumerable<Process> GetLockingProcesses(string filePath)
     {
         var processes = GetLockingProcessesInternal(filePath);
@@ -99,7 +77,7 @@ public static class RestartManagerHelper
                 sessionHandle, 
                 &pnProcInfoNeeded, 
                 &pnProcInfo,
-                (TerraFX.Interop.Windows.RM_PROCESS_INFO*)processInfo.ObjectPointer, 
+                (RM_PROCESS_INFO*)processInfo.ObjectPointer, 
                 &lpdwRebootReasons);
 
             // Error handling

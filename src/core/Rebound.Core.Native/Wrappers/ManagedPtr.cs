@@ -19,7 +19,25 @@ namespace Rebound.Core.Native.Wrappers;
 public unsafe struct ManagedPtr<T> : IEquatable<ManagedPtr<T>>, IDisposable where T : unmanaged
 {
     private nint _ptr;
+
     public readonly void* ObjectPointer => (void*)_ptr;
+
+    public readonly void** ObjectPointerPointer
+    {
+        get
+        {
+            fixed (nint* pField = &_ptr)
+            {
+                return (void**)pField;
+            }
+        }
+    }
+
+    public readonly T Value
+    {
+        get => *(T*)_ptr;
+        set => *(T*)_ptr = value;
+    }
 
     public ManagedPtr(T value)
     {
@@ -57,8 +75,11 @@ public unsafe struct ManagedPtr<T> : IEquatable<ManagedPtr<T>>, IDisposable wher
     public static implicit operator ManagedPtr<T>(string value) => new(value);
     public static implicit operator ManagedPtr<T>(Guid value) => new(value);
     public static implicit operator T*(ManagedPtr<T> ptr) => (T*)ptr.ObjectPointer;
+    public static implicit operator T(ManagedPtr<T> ptr) => ptr.Value;
     public readonly char* ToCharPtr() => (char*)ObjectPointer;
-    public readonly Guid* ToGuidPtr() => (Guid*)ObjectPointer;
+    public readonly Guid* ToGuidPtr() => (Guid*)ObjectPointer; 
+    public readonly string ToStringValue()
+        => Marshal.PtrToStringUni(_ptr) ?? string.Empty;
 #pragma warning restore CA2225
 }
 
@@ -75,6 +96,17 @@ public unsafe struct ManagedArrayPtr<T> : IEquatable<ManagedArrayPtr<T>>, IDispo
     public readonly int Length;
 
     public readonly void* ObjectPointer => (void*)_ptr;
+
+    public readonly void** ObjectPointerPointer
+    {
+        get
+        {
+            fixed (nint* pField = &_ptr)
+            {
+                return (void**)pField;
+            }
+        }
+    }
 
     /// <summary>Total size of the allocation in bytes.</summary>
     public readonly int ByteLength => Length * sizeof(T);
@@ -128,6 +160,26 @@ public unsafe struct ManagedArrayPtr<T> : IEquatable<ManagedArrayPtr<T>>, IDispo
 
     /// <summary>Returns a <see cref="Span{T}"/> over the unmanaged buffer. Valid only while this instance is alive.</summary>
     public readonly Span<T> AsSpan() => new((T*)_ptr, Length);
+
+    /// <summary>
+    /// Returns a string representation of the unmanaged buffer.
+    /// </summary>
+    /// <returns>
+    /// If <typeparamref name="T"/> is <see cref="char"/>, returns the contents of the
+    /// null-terminated UTF-16 buffer. Otherwise, returns the default string representation.
+    /// </returns>
+    public readonly override string ToString()
+    {
+        if (typeof(T) != typeof(char))
+            return base.ToString()!;
+
+        var span = AsSpan();
+        var length = span.IndexOf((T)(object)'\0');
+        if (length < 0)
+            length = span.Length;
+
+        return new string((char*)ObjectPointer, 0, length);
+    }
 
     public void Dispose()
     {

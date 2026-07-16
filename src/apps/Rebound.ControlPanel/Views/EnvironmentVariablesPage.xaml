@@ -28,7 +28,7 @@
                 Margin="16"
                 HorizontalAlignment="Left"
                 VerticalAlignment="Top"
-                Source="/Assets/Apps/EnvironmentVariables.ico" />
+                Source="/Assets/Glyphs/EnvironmentVariables.png" />
             <TextBlock
                 Margin="48,10"
                 FontSize="20"

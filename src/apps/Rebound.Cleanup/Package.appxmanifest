@@ -8,16 +8,16 @@
   IgnorableNamespaces="uap rescap">
 
   <Identity
-    Name="e8dfd11c-954d-46a2-b700-9cbc6201f056"
+    Name="Rebound.Cleanup"
     Publisher="CN=Ivirius"
     Version="1.0.2.0" />
 
   <mp:PhoneIdentity PhoneProductId="e8dfd11c-954d-46a2-b700-9cbc6201f056" PhonePublisherId="00000000-0000-0000-0000-000000000000"/>
 
   <Properties>
-    <DisplayName>Rebound.Cleanup</DisplayName>
+    <DisplayName>Rebound Disk Cleanup</DisplayName>
     <PublisherDisplayName>Ivirius</PublisherDisplayName>
-    <Logo>Assets\StoreLogo.png</Logo>
+    <Logo>Assets\Package\StoreLogo.png</Logo>
   </Properties>
 
   <Dependencies>
@@ -33,16 +33,16 @@
     <Application Id="App"
       Executable="$targetnametoken$.exe"
       EntryPoint="$targetentrypoint$">
-      <uap:VisualElements
-        DisplayName="Rebound Disk Cleanup"
-        Description="Rebound Disk Cleanup"
-        BackgroundColor="transparent"
-        Square150x150Logo="Assets\Square150x150Logo.png"
-        Square44x44Logo="Assets\Square44x44Logo.png"
-			  AppListEntry="none">
-        <uap:DefaultTile Wide310x150Logo="Assets\Wide310x150Logo.png"  Square71x71Logo="Assets\SmallTile.png" Square310x310Logo="Assets\LargeTile.png"/>
-        <uap:SplashScreen Image="Assets\SplashScreen.png" />
-      </uap:VisualElements>
+		<uap:VisualElements
+		  DisplayName="Rebound Disk Cleanup"
+		  Description="Rebound Disk Cleanup"
+		  BackgroundColor="transparent"
+		  Square150x150Logo="Assets\Package\Square150x150Logo.png"
+		  Square44x44Logo="Assets\Package\Square44x44Logo.png">
+			<!--AppListEntry="none">-->
+			<uap:DefaultTile Wide310x150Logo="Assets\Package\Wide310x150Logo.png"  Square71x71Logo="Assets\Package\SmallTile.png" Square310x310Logo="Assets\Package\LargeTile.png"/>
+			<uap:SplashScreen Image="Assets\Package\SplashScreen.png" />
+		</uap:VisualElements>
     </Application>
   </Applications>
 

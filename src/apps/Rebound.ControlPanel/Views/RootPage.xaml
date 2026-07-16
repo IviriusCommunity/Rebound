@@ -228,6 +228,46 @@
                             <BitmapImage UriSource="{x:Bind UserPicturePath, Mode=OneWay, Converter={StaticResource StringToUriConverter}}" />
                         </muxc:PersonPicture.ProfilePicture>
                     </muxc:PersonPicture>
+                    <Button.Flyout>
+                        <Flyout ShouldConstrainToRootBounds="False">
+                            <Grid>
+                                <StackPanel>
+                                    <muxc:PersonPicture Width="64" Height="64">
+                                        <muxc:PersonPicture.ProfilePicture>
+                                            <BitmapImage UriSource="{x:Bind UserPicturePath, Mode=OneWay, Converter={StaticResource StringToUriConverter}}" />
+                                        </muxc:PersonPicture.ProfilePicture>
+                                    </muxc:PersonPicture>
+                                    <TextBlock
+                                        Margin="0,16,0,0"
+                                        HorizontalAlignment="Center"
+                                        FontSize="16"
+                                        FontWeight="SemiBold"
+                                        Text="Hello, User!" />
+                                    <TextBlock
+                                        HorizontalAlignment="Center"
+                                        FontSize="12"
+                                        Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                                        Text="Local account" />
+                                    <StackPanel
+                                        Margin="0,16,0,0"
+                                        HorizontalAlignment="Center"
+                                        Orientation="Horizontal"
+                                        Spacing="8">
+                                        <HyperlinkButton Content="View user folder" />
+                                        <HyperlinkButton Content="Log out" />
+                                    </StackPanel>
+                                </StackPanel>
+                                <Button
+                                    Padding="8"
+                                    HorizontalAlignment="Right"
+                                    VerticalAlignment="Top"
+                                    Style="{StaticResource SubtleButtonStyle}"
+                                    ToolTipService.ToolTip="Manage user">
+                                    <FontIcon FontSize="16" Glyph="&#xEF58;" />
+                                </Button>
+                            </Grid>
+                        </Flyout>
+                    </Button.Flyout>
                 </Button>
                 <Button
                     Width="36"

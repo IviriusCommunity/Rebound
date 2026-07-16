@@ -2,10 +2,10 @@
 // Licensed under the MIT License.
 
 using Microsoft.Win32;
-using Rebound.Core.Native.Helpers;
+using Rebound.Core.Native.TerraFX;
 using System.Runtime.InteropServices;
-using TerraFX.Interop.Windows;
 using static TerraFX.Interop.Windows.Windows;
+using FILETIME = TerraFX.Interop.Windows.FILETIME;
 
 namespace Rebound.Core.SystemInformation.Hardware;
 
@@ -22,22 +22,19 @@ public static class CPU
     /// A string representing the CPU architecture of the current process. Possible values include "x64", "x86",
     /// "ARM64", "ARM", "WASM", "S390x", "LoongArch64", "ARMv6", "PPC64LE", or "Unknown" if the architecture cannot be determined.
     /// </returns>
-    public static string GetArchitecture()
+    public static string GetArchitecture() => RuntimeInformation.ProcessArchitecture switch
     {
-        return RuntimeInformation.ProcessArchitecture switch
-        {
-            Architecture.X64 => "x64",
-            Architecture.X86 => "x86",
-            Architecture.Arm64 => "ARM64",
-            Architecture.Arm => "ARM",
-            Architecture.Wasm => "WASM",
-            Architecture.S390x => "S390x",
-            Architecture.LoongArch64 => "LoongArch64",
-            Architecture.Armv6 => "ARMv6",
-            Architecture.Ppc64le => "PPC64LE",
-            _ => "Unknown"
-        };
-    }
+        Architecture.X64 => "x64",
+        Architecture.X86 => "x86",
+        Architecture.Arm64 => "ARM64",
+        Architecture.Arm => "ARM",
+        Architecture.Wasm => "WASM",
+        Architecture.S390x => "S390x",
+        Architecture.LoongArch64 => "LoongArch64",
+        Architecture.Armv6 => "ARMv6",
+        Architecture.Ppc64le => "PPC64LE",
+        _ => "Unknown"
+    };
 
     /// <returns>
     /// The current CPU usage, in percentage.
@@ -54,9 +51,9 @@ public static class CPU
             return 0;
         }
 
-        ulong idleDelta = FileTimeHelpers.FileTimeToUlong(idle) - FileTimeHelpers.FileTimeToUlong(_prevIdleTime);
-        ulong kernelDelta = FileTimeHelpers.FileTimeToUlong(kernel) - FileTimeHelpers.FileTimeToUlong(_prevKernelTime);
-        ulong userDelta = FileTimeHelpers.FileTimeToUlong(user) - FileTimeHelpers.FileTimeToUlong(_prevUserTime);
+        ulong idleDelta = (ulong)(idle.ToLong() - _prevIdleTime.ToLong());
+        ulong kernelDelta = (ulong)(kernel.ToLong() - _prevKernelTime.ToLong());
+        ulong userDelta = (ulong)(user.ToLong() - _prevUserTime.ToLong());
         ulong total = kernelDelta + userDelta;
 
         (_prevIdleTime, _prevKernelTime, _prevUserTime) = (idle, kernel, user);

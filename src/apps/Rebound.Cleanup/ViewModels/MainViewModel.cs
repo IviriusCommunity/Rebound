@@ -1,44 +1,50 @@
-﻿using System;
+﻿// Copyright (C) Ivirius(TM) Community 2020 - 2026. All Rights Reserved.
+// Licensed under the MIT License.
+
+using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Input;
+using CommunityToolkit.WinUI;
+using Rebound.Cleanup.Helpers;
+using Rebound.Cleanup.Items;
+using Rebound.Core.Environment;
+using Rebound.Core.Native.Wrappers;
+using Rebound.Core.Settings;
+using Rebound.Core.SystemInformation.Software;
+using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.IO;
-using System.ServiceProcess;
+using System.Linq;
+using System.Runtime.InteropServices;
+using System.Threading;
 using System.Threading.Tasks;
-using CommunityToolkit.Mvvm.ComponentModel;
-using CommunityToolkit.Mvvm.Input;
-using Rebound.Cleanup.Helpers;
-using Rebound.Cleanup.Items;
-using Rebound.Helpers;
-using Rebound.Helpers.AppEnvironment;
+using TerraFX.Interop.Windows;
 using Windows.System;
+using static TerraFX.Interop.Windows.S;
+using static TerraFX.Interop.Windows.Windows;
 
 namespace Rebound.Cleanup.ViewModels;
 
 internal partial class MainViewModel : ObservableObject
 {
-    public ObservableCollection<DriveComboBoxItem> ComboBoxItems { get; } = DriveHelper.GetDriveItems();
+    public ObservableCollection<DriveComboBoxItem> DriveItems { get; } = DriveHelper.GetDriveItems();
 
     public ObservableCollection<CleanItem> CleanItems { get; set; } = [];
 
-    public bool IsRunningAsAdmin { get; } = AppHelper.IsRunningAsAdmin();
+    public bool IsRunningAsAdmin { get; } = ApplicationEnvironment.IsRunningAsAdmin();
 
-    [ObservableProperty]
-    public partial int FilesCount { get; set; }
+    [ObservableProperty] public partial int FilesCount { get; set; }
 
-    [ObservableProperty]
-    public partial string FilesSize { get; set; } = "0 B";
+    [ObservableProperty] public partial long FilesSize { get; set; } = 0;
 
-    [ObservableProperty]
-    public partial bool IsLoading { get; set; } = true;
+    [ObservableProperty] public partial bool IsLoading { get; set; } = false;
 
-    [ObservableProperty]
-    public partial bool? IsEverythingSelected { get; set; }
+    [ObservableProperty] public partial bool? IsEverythingSelected { get; set; }
 
-    [ObservableProperty]
-    public partial bool CanItemsBeClicked { get; set; } = true;
+    [ObservableProperty] public partial bool CanItemsBeClicked { get; set; } = true;
 
-    [ObservableProperty]
-    public partial int SelectedDriveIndex { get; set; }
+    [ObservableProperty] public partial int SelectedDriveIndex { get; set; }
 
     partial void OnIsEverythingSelectedChanged(bool? oldValue, bool? newValue)
     {
@@ -59,14 +65,15 @@ internal partial class MainViewModel : ObservableObject
         }
     }
 
-    partial void OnSelectedDriveIndexChanged(int oldValue, int newValue)
+    async partial void OnSelectedDriveIndexChanged(int oldValue, int newValue)
     {
-        SettingsHelper.SetValue("SelectedDriveIndex", "cleanmgr", newValue);
+        SettingsManager.SetValue("SelectedDriveIndex", "cleanmgr", newValue);
+        await RefreshCleanupListAsync(DriveItems[SelectedDriveIndex]);
     }
 
     public MainViewModel()
     {
-        SelectedDriveIndex = SettingsHelper.GetValue("SelectedDriveIndex", "cleanmgr", 0);
+        SelectedDriveIndex = SettingsManager.GetValue("SelectedDriveIndex", "cleanmgr", 0);
     }
 
     [RelayCommand]
@@ -77,7 +84,7 @@ internal partial class MainViewModel : ObservableObject
             Process.Start(new ProcessStartInfo
             {
                 FileName = "vssadmin",
-                Arguments = $"delete shadows /for={EnvironmentHelper.GetWindowsInstallationDrivePath()[..1]}: /oldest",
+                Arguments = $"delete shadows /for={WindowsInformation.GetWindowsInstallationDrivePath()[..1]}: /oldest",
                 CreateNoWindow = true,
                 UseShellExecute = false
             });
@@ -107,170 +114,703 @@ internal partial class MainViewModel : ObservableObject
     }
 
     [RelayCommand]
-    public async Task RefreshAsync(DriveComboBoxItem selectedItem)
+    public async Task RefreshCleanupListAsync(DriveComboBoxItem selectedItem)
     {
-        IsLoading = true;
+        if (selectedItem == null)
+            return;
 
-        await Task.Delay(25).ConfigureAwait(true);
-
+        // Reset the list to default
         CleanItems.Clear();
 
+        // Store everything on the main thread
+        var discoveredItems = new List<CleanItem>();
+
+        // Capture these here for thread safety just in case
         var isSystemDrive = selectedItem.DrivePath == "C:\\";
+        var isRunningAsAdmin = IsRunningAsAdmin;
 
-        async Task AddItem(string name, string path, string image, string description, string id, bool isChecked = false, ItemType itemType = ItemType.Normal)
+        // Offload all heavy I/O stuff to a background thread
+        await Task.Run(async () =>
         {
-            var item = new CleanItem(name, image, description, path, id, isChecked, itemType);
-            CleanItems.Add(item);
-            await item.RefreshAsync();
-        }
-
-        if (IsRunningAsAdmin)
-        {
-            await AddItem("Recycle Bin", $@"{selectedItem.DrivePath}$Recycle.Bin", "ms-appx:///Assets/RecycleBin.ico",
-                "The Recycle Bin stores files and folders that you've deleted from your computer. These items are not permanently removed until you empty the Recycle Bin. You can recover deleted items from here, but deleting them permanently frees up disk space.", "TRASH", true, ItemType.RecycleBin);
-        }
-
-        if (isSystemDrive)
-        {
-            var localAppData = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
-            var appData = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
-            var systemRoot = EnvironmentHelper.GetWindowsInstallationDrivePath();
-
-            await AddItem("Temporary Files (Current User)", $@"{localAppData}\Temp", "ms-appx:///Assets/User.ico",
-                        "Stores temporary data created by applications and the system during normal operation.", "APPDATA_TEMP");
-
-            await AddItem("Recent Files (Current User)", $@"{appData}\Microsoft\Windows\Recent", "ms-appx:///Assets/User.ico",
-                        "Tracks recently opened files and documents for quick access in File Explorer and applications.", "APPDATA_MS_WIN_RECENT", false, ItemType.RecentItems);
-
-            await AddItem("Temporary Internet Files", $@"{localAppData}\Microsoft\Windows\INetCache", "ms-appx:///Assets/Internet.ico",
-                        "Contains cached web content used by Internet Explorer and other legacy components.", "LOCALAPPDATA_MS_WIN_INETCACHE");
-
-            await AddItem("Downloaded Program Files", $@"{systemRoot}Windows\Downloaded Program Files", "ms-appx:///Assets/Program.ico",
-                        "Stores legacy ActiveX controls and Java applets downloaded from the internet.", "DOWNLOADED_PROGRAM_FILES", true);
-
-            await AddItem("Thumbnails", $@"{localAppData}\Microsoft\Windows\Explorer", "ms-appx:///Assets/Thumbnail.ico",
-                        "Contains cached thumbnail previews for images, videos, and documents.", "MS_WIN_EXPLORER_THUMBNAILS", false, ItemType.ThumbnailCache);
-
-            await AddItem("System Created Windows Error Reporting", $@"{systemRoot}ProgramData\Microsoft\Windows\WER", "ms-appx:///Assets/EventViewer.ico",
-                        "Stores diagnostic reports generated when applications or the system encounter errors.", "WER");
-
-            await AddItem("Downloads Folder (Current User)", Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), "Downloads"), "ms-appx:///Assets/Downloads.ico",
-                        "Default location for files downloaded from the internet or transferred from other devices.", "DOWNLOADS", true);
-
-            await AddItem("DirectX Shader Cache", $@"{localAppData}\D3DSCache", "ms-appx:///Assets/Video.ico",
-                        "Holds precompiled shader files used to enhance graphics rendering performance.", "D3DS", false);
-
-            if (IsRunningAsAdmin)
+            // Helper to instantiate and refresh items on the background thread
+            async Task AddItem(
+                string name,
+                CleanTarget[] targets,
+                string image,
+                string description,
+                string id,
+                string targetLaunchPath,
+                bool isChecked = false)
             {
-                await AddItem("Prefetch", $@"{systemRoot}Windows\Prefetch", "ms-appx:///Assets/File.ico",
-                            "Stores execution history to speed up application and system boot times.", "PREFETCH");
-
-                await AddItem("Delivery Optimization Cache", $@"{systemRoot}Windows\SoftwareDistribution", "ms-appx:///Assets/Script.ico",
-                            "Holds downloaded update files used for peer-to-peer delivery across devices.", "SOFTWARE_DISTRIBUTION", true);
-
-                await AddItem("Windows Update Logs", $@"{systemRoot}Windows\Logs\WindowsUpdate", "ms-appx:///Assets/EventViewer.ico",
-                            "Contains log files generated during the Windows Update process.", "WIN_UPDATE_LOGS", true);
-
-                await AddItem("Previous Windows Installations", $@"{systemRoot}Windows.old", "ms-appx:///Assets/History.ico",
-                            "Stores files from a previous version of Windows after an upgrade.", "WINDOWS_OLD");
-
-                await AddItem("System Error Memory Dump Files", $@"{systemRoot}Windows\MEMORY.DMP", "ms-appx:///Assets/DLL.ico",
-                            "Captures the full contents of system memory during a crash for diagnostic analysis.", "MEMORY_DUMP");
-
-                await AddItem("System Error Minidump Files", $@"{systemRoot}Windows\Minidump", "ms-appx:///Assets/DLL.ico",
-                            "Contains small memory dump files created during system crashes.", "MINIDUMP");
-
-                await AddItem("Temporary Windows Installation Files", $@"{systemRoot}Windows\Temp", "ms-appx:///Assets/Desktop.ico",
-                            "Used for temporary storage during Windows installation, setup, and updates.", "WINDOWS_TEMP");
-
-                // Chrome
-                await AddChromiumBrowserProfiles("Chrome", Path.Combine(localAppData, @"Google\Chrome"), "ms-appx:///Assets/Chrome.png", "CHROME");
-
-                // Edge
-                await AddChromiumBrowserProfiles("Edge", Path.Combine(localAppData, @"Microsoft\Edge"), "ms-appx:///Assets/Edge.png", "EDGE");
-
-                var firefoxProfilesPath = Path.Combine(appData, @"Mozilla\Firefox\Profiles");
-                if (Directory.Exists(firefoxProfilesPath))
+                var item = new CleanItem(isChecked)
                 {
-                    foreach (var profileDir in Directory.GetDirectories(firefoxProfilesPath))
-                    {
-                        var profileName = new DirectoryInfo(profileDir).Name;
-
-                        await AddItem($"Firefox Cache ({profileName})", Path.Combine(profileDir, "cache2"), "ms-appx:///Assets/Firefox.png",
-                                    "Cache files used by Mozilla Firefox to store web data for faster browsing.", $"FIREFOX_CACHE_{profileName}", false);
-
-                        await AddItem($"Firefox Cookies ({profileName})", profileDir, "ms-appx:///Assets/Firefox.png",
-                                    "Cookies stored by Mozilla Firefox for websites you visit.", $"FIREFOX_COOKIES_{profileName}", false, ItemType.FirefoxCookies);
-
-                        await AddItem($"Firefox History ({profileName})", profileDir, "ms-appx:///Assets/Firefox.png",
-                                    "Browser history stored by Mozilla Firefox.", $"FIREFOX_HISTORY_{profileName}", false, ItemType.FirefoxHistory);
-                    }
+                    Name = name,
+                    CleanTargets = targets,
+                    Description = description,
+                    ImagePath = image,
+                    ItemID = id,
+                    LaunchTargetPath = targetLaunchPath
+                };
+                lock (discoveredItems)
+                {
+                    discoveredItems.Add(item);
                 }
             }
-        }
-        IsLoading = false;
 
-        LoadProperties();
-        async Task AddChromiumBrowserProfiles(string browserName, string basePath, string iconPath, string prefix)
-        {
-            var browserProfilesPath = Path.Combine(basePath, "User Data");
-
-            if (!Directory.Exists(browserProfilesPath))
-                return;
-
-            foreach (var profileDir in Directory.GetDirectories(browserProfilesPath))
+            // ---------------
+            // Any disk, admin
+            // ---------------
+            if (isRunningAsAdmin)
             {
-                var profileName = new DirectoryInfo(profileDir).Name;
+                // -----------
+                // Recycle Bin
+                // -----------
+                await AddItem(
+                    "Recycle Bin (All Users)",
+                    [new CleanTarget()
+                    {
+                        Path = Path.Combine(selectedItem.DrivePath, "$Recycle.Bin"),
 
-                // Only include "Default" or folders starting with "Profile "
-                if (!profileName.Equals("Default", StringComparison.OrdinalIgnoreCase) &&
-                    !profileName.StartsWith("Profile ", StringComparison.OrdinalIgnoreCase))
-                    continue;
+                        // Custom deletion action for Admin mode
+                        CustomDeleteAction = async (target, cancellationToken) =>
+                        {
+                            await Task.Run(() =>
+                            {
+                                var recycleBinRootPath = Path.Combine(selectedItem.DrivePath, "$Recycle.Bin");
+                                if (!Directory.Exists(recycleBinRootPath)) 
+                                    return;
 
-                await AddItem($"{browserName} Cache ({profileName})", Path.Combine(profileDir, "Cache"), iconPath,
-                    $"Cache files used by {browserName} to store web data for faster browsing.",
-                    $"{prefix}_CACHE_{profileName}", false);
+                                var rootDirectory = new DirectoryInfo(recycleBinRootPath);
 
-                await AddItem($"{browserName} Cookies ({profileName})", profileDir, iconPath,
-                    $"Cookies stored by {browserName} for websites you visit.",
-                    $"{prefix}_COOKIES_{profileName}", false, ItemType.ChromiumCookies);
+                                // Loop through all SID folders (e.g., S-1-5-21-...) belonging to different users
+                                foreach (var subDirectory in rootDirectory.EnumerateDirectories())
+                                {
+                                    try
+                                    {
+                                        // Strip hidden/system flags so Windows allows the deletion loop
+                                        subDirectory.Attributes = FileAttributes.Normal;
+                
+                                        // Clear out all deleted file fragments and metadata indexes inside
+                                        foreach (var file in subDirectory.EnumerateFiles("*", SearchOption.AllDirectories))
+                                        {
+                                            try
+                                            {
+                                                file.Attributes = FileAttributes.Normal;
+                                                file.Delete();
+                                            }
+                                            catch (IOException) { /* File is currently locked/active */ }
+                                            catch (UnauthorizedAccessException) { /* Bad permissions */ }
+                                        }
 
-                await AddItem($"{browserName} History ({profileName})", profileDir, iconPath,
-                    $"Browsing history stored by {browserName}.",
-                    $"{prefix}_HISTORY_{profileName}", false, ItemType.ChromiumHistory);
+                                        // Delete the user's specific subfolder container
+                                        subDirectory.Delete(recursive: true);
+                                    }
+                                    catch (Exception)
+                                    {
+                                        // If a specific user's trash folder is totally locked, skip it and keep moving
+                                    }
+                                }
+                            }, cancellationToken).ConfigureAwait(false);
+                        },
+
+                        // Custom enumerate action for Admin mode
+                        CustomEnumerateAction = async (target, cancellationToken) =>
+                        {
+                            return await Task.Run(() =>
+                            {
+                                var recycleBinRootPath = Path.Combine(selectedItem.DrivePath, "$Recycle.Bin");
+                                if (!Directory.Exists(recycleBinRootPath)) return (0L, 0);
+
+                                long totalSizeBytes = 0;
+                                int totalFiles = 0;
+                                var rootDirectory = new DirectoryInfo(recycleBinRootPath);
+
+                                foreach (var subDirectory in rootDirectory.EnumerateDirectories())
+                                {
+                                    cancellationToken.ThrowIfCancellationRequested();
+                                    try
+                                    {
+                                        foreach (var file in subDirectory.EnumerateFiles("*", SearchOption.AllDirectories))
+                                        {
+                                            try
+                                            {
+                                                totalSizeBytes += file.Length;
+                                                totalFiles++;
+                                            }
+                                            catch (FileNotFoundException) { /* Gone during scan */ }
+                                            catch (UnauthorizedAccessException) { /* Hidden system file lock */ }
+                                        }
+                                    }
+                                    catch (Exception) { /* Skip unreadable user SID directories */ }
+                                }
+
+                                return (totalSizeBytes, totalFiles);
+                            }, cancellationToken).ConfigureAwait(false);
+                        }
+                    }],
+                    "ms-appx:///Assets/CleanupItems/RecycleBin.ico",
+                    "The Recycle Bin stores files and folders that you've deleted from your computer. These items are not permanently removed until you empty the Recycle Bin. You can recover deleted items from here, but deleting them permanently frees up disk space.",
+                    "TRASH",
+                    "shell:RecycleBinFolder",
+                    true).ConfigureAwait(false);
+            }
+
+            // -------------------
+            // Any disk, non-admin
+            // -------------------
+            else
+            {
+                // -----------
+                // Recycle Bin
+                // -----------
+                await AddItem(
+                    "Recycle Bin (Current User)",
+                    [new CleanTarget()
+                    {
+                        Path = selectedItem.DrivePath,
+
+                        // Custom deletion action for Non-Admin mode using standard Shell API
+                        CustomDeleteAction = async (target, cancellationToken) =>
+                        {
+                            await Task.Run(() =>
+                            {
+                                uint flags = SHERB_NOCONFIRMATION | SHERB_NOPROGRESSUI | SHERB_NOSOUND;
+                                
+                                // drivePath must be formatted like "C:\"
+                                using ManagedPtr<char> drivePathPtr = selectedItem.DrivePath;
+
+                                // This clears the current user's partition on that specific drive
+                                unsafe { SHEmptyRecycleBinW(HWND.NULL, drivePathPtr, flags); }
+                            }, cancellationToken).ConfigureAwait(false);
+                        },
+
+                        // Custom enumerate action for Non-Admin mode
+                        CustomEnumerateAction = async (target, cancellationToken) =>
+                        {
+                            return await Task.Run(() =>
+                            {
+                                unsafe
+                                {
+                                    // Setup the info structure sizes
+                                    var rbInfo = new SHQUERYRBINFO { cbSize = (uint)sizeof(SHQUERYRBINFO) };
+
+                                    using ManagedPtr<char> drivePathPtr = selectedItem.DrivePath;
+
+                                    // Native query invoke
+                                    int result = SHQueryRecycleBinW(drivePathPtr, &rbInfo);
+                                    if (result == S_OK)
+                                    {
+                                        return (rbInfo.i64Size, (int)rbInfo.i64NumItems);
+                                    }
+                                }
+
+                                return (0L, 0);
+                            }, cancellationToken).ConfigureAwait(false);
+                        }
+                    }],
+                    "ms-appx:///Assets/CleanupItems/RecycleBin.ico",
+                    "The Recycle Bin stores files and folders that you've deleted from your computer. These items are not permanently removed until you empty the Recycle Bin. You can recover deleted items from here, but deleting them permanently frees up disk space.",
+                    "TRASH",
+                    "shell:RecycleBinFolder",
+                    true).ConfigureAwait(false);
+            }
+
+            // -----------------------
+            // System drive, non-admin
+            // -----------------------
+            if (isSystemDrive)
+            {
+                var localAppData = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
+                var appData = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
+                var programData = Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData);
+                var windowsRoot = Environment.GetFolderPath(Environment.SpecialFolder.Windows);
+                var systemRoot = WindowsInformation.GetWindowsInstallationDrivePath();
+
+                // ----
+                // Temp
+                // ----
+                string tempPath = 
+                    Environment.GetEnvironmentVariable("TEMP")
+                    ?? Path.Combine(localAppData, "Temp");
+
+                await AddItem(
+                    "Temporary Files (Current User)",
+                    [new() { Path = tempPath }],
+                    "ms-appx:///Assets/CleanupItems/TemporaryFiles.ico",
+                    "Stores temporary data created by applications and the system during normal operation.",
+                    "APPDATA_TEMP",
+                    tempPath
+                ).ConfigureAwait(false);
+
+                // ------------
+                // Recent files
+                // ------------
+                string recentFilesPath = Environment.GetFolderPath(Environment.SpecialFolder.Recent);
+                if (string.IsNullOrEmpty(recentFilesPath))
+                    recentFilesPath = Path.Combine(appData, "Microsoft", "Windows", "Recent");
+
+                await AddItem(
+                    "Recent Files (Current User)",
+                    [new() { Path = recentFilesPath }],
+                    "ms-appx:///Assets/CleanupItems/RecentFiles.ico",
+                    "Tracks recently opened files and documents for quick access in File Explorer and applications.",
+                    "APPDATA_MS_WIN_RECENT",
+                    recentFilesPath).ConfigureAwait(false);
+
+                // -------------------------------------
+                // INET Cache (Temporary Internet Files)
+                // -------------------------------------
+                string inetCachePath = Environment.GetFolderPath(Environment.SpecialFolder.InternetCache);
+
+                if (string.IsNullOrEmpty(inetCachePath))
+                    inetCachePath = Path.Combine(localAppData, "Microsoft", "Windows", "INetCache");
+
+                await AddItem(
+                    "Temporary Internet Files",
+                    [new() { Path = inetCachePath }],
+                    "ms-appx:///Assets/CleanupItems/TemporaryInternetFiles.ico",
+                    "(Obsolete) Contains cached web content used by Internet Explorer and other legacy components.",
+                    "LOCALAPPDATA_MS_WIN_INETCACHE", inetCachePath).ConfigureAwait(false);
+
+                // --------------
+                // Explorer cache
+                // --------------
+                string explorerCachePath = Path.Combine(localAppData, "Microsoft", "Windows", "Explorer");
+
+                await AddItem(
+                    "Thumbnails",
+                    [new CleanTarget()
+                    {
+                        Path = explorerCachePath,
+
+                        // Thumbnail dbs live strictly in the root of this folder
+                        Depth = SearchDepth.TopDirectoryOnly, 
+
+                        // Match only thumbcache and iconcache files, ignoring explorer configuration registries
+                        FileFilter = (file) =>
+                        {
+                            string name = file.Name.ToUpperInvariant();
+                            return (name.StartsWith("THUMBCACHE_", StringComparison.OrdinalIgnoreCase) || name.StartsWith("ICONCACHE_", StringComparison.OrdinalIgnoreCase))
+                                && name.EndsWith(".DB", StringComparison.OrdinalIgnoreCase);
+                        },
+
+                        // Custom Delete Action (Explorer locks these files so they need special handling not to throw)
+                        CustomDeleteAction = async (target, cancellationToken) =>
+                        {
+                            await Task.Run(() =>
+                            {
+                                if (!Directory.Exists(target.Path)) return;
+
+                                var dirInfo = new DirectoryInfo(target.Path);
+
+                                foreach (FileInfo file in dirInfo.EnumerateFiles("*", SearchOption.TopDirectoryOnly))
+                                {
+                                    cancellationToken.ThrowIfCancellationRequested();
+
+                                    // Apply the filter so it doesn't touch other Explorer files
+                                    if (target.FileFilter(file))
+                                    {
+                                        try
+                                        {
+                                            // Strip readonly/system attributes just in case
+                                            if (file.Attributes != FileAttributes.Normal)
+                                            {
+                                                file.Attributes = FileAttributes.Normal;
+                                            }
+
+                                            file.Delete();
+                                        }
+                                        catch (IOException)
+                                        {
+                                            // File is locked by Explorer for reasons™️
+                                        }
+                                        catch (UnauthorizedAccessException) { /* Insufficient permissions */ }
+                                    }
+                                }
+                            }, cancellationToken).ConfigureAwait(false);
+                        }
+                    }],
+                    "ms-appx:///Assets/CleanupItems/Thumbnails.ico",
+                    "Contains cached thumbnail previews for images, videos, and documents.",
+                    "MS_WIN_EXPLORER_THUMBNAILS",
+                    explorerCachePath).ConfigureAwait(false);
+
+                // ------------------
+                // WER (Current User)
+                // ------------------
+                string userWerPath = Path.Combine(localAppData, "Microsoft", "Windows", "WER");
+
+                var currentUserWerTargets = new[]
+                {
+                    new CleanTarget() { Path = Path.Combine(userWerPath, "ReportQueue"), Depth = SearchDepth.AllDirectories },
+                    new CleanTarget() { Path = Path.Combine(userWerPath, "ReportArchive"), Depth = SearchDepth.AllDirectories }
+                };
+
+                await AddItem(
+                    "Windows Error Reporting (Current User)",
+                    currentUserWerTargets,
+                    "ms-appx:///Assets/CleanupItems/WindowsErrorReporting.ico",
+                    "Stores diagnostic reports generated when applications or the system encounter errors.",
+                    "WER_CURRENTUSER",
+                    userWerPath
+                    ).ConfigureAwait(false);
+
+                // ---------
+                // Downloads
+                // ---------
+                Guid downloadsGuid = new Guid("374DE290-123F-4565-9164-39C4925E467B");
+                string downloadsPath;
+
+                unsafe
+                {
+                    ManagedPtr<char> pNativePath = default;
+
+                    int hresult = SHGetKnownFolderPath(
+#pragma warning disable CS9123 // The '&' operator should not be used on parameters or local variables in async methods.
+                        &downloadsGuid,
+#pragma warning restore CS9123 // The '&' operator should not be used on parameters or local variables in async methods.
+                        0, 
+                        HANDLE.NULL, 
+                        (char**)pNativePath.ObjectPointerPointer);
+
+                    if (hresult == 0 && pNativePath != NULL)
+                    {
+                        try
+                        {
+                            downloadsPath = pNativePath.ToStringValue();
+                        }
+                        finally
+                        {
+                            Marshal.FreeCoTaskMem(pNativePath);
+                        }
+                    }
+
+                    // Emergency fallback if the Win32 API call fails
+                    downloadsPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), "Downloads");
+                }
+
+                await AddItem(
+                    "Downloads Folder (Current User)",
+                    [new() { Path = downloadsPath }],
+                    "ms-appx:///Assets/CleanupItems/Downloads.ico",
+                    "Default location for files downloaded from the internet or transferred from other devices.",
+                    "DOWNLOADS",
+                    downloadsPath).ConfigureAwait(false);
+
+                // --------------------
+                // DirectX Shader Cache
+                // --------------------
+                var shaderTargets = new List<CleanTarget>();
+
+                string d3dCache = Path.Combine(localAppData, "D3DSCache");
+                if (Directory.Exists(d3dCache))
+                    shaderTargets.Add(new CleanTarget() { Path = d3dCache, Depth = SearchDepth.AllDirectories });
+
+                string dx12Cache = Path.Combine(localAppData, "Microsoft", "DirectX");
+                if (Directory.Exists(dx12Cache))
+                    shaderTargets.Add(new CleanTarget() { Path = dx12Cache, Depth = SearchDepth.AllDirectories });
+
+                string nvidiaCache = Path.Combine(localAppData, "NVIDIA", "DXCache");
+                if (Directory.Exists(nvidiaCache))
+                    shaderTargets.Add(new CleanTarget() { Path = nvidiaCache, Depth = SearchDepth.AllDirectories });
+
+                string amdCache = Path.Combine(localAppData, "AMD", "DxCache");
+                if (Directory.Exists(amdCache))
+                    shaderTargets.Add(new CleanTarget() { Path = amdCache, Depth = SearchDepth.AllDirectories });
+
+                await AddItem(
+                    "DirectX Shader Cache",
+                    [..shaderTargets],
+                    "ms-appx:///Assets/CleanupItems/DirectX.ico",
+                    "Holds precompiled shader files used by graphics drivers and DirectX to enhance rendering performance and reduce game stutter.",
+                    "DIRECTX_SHADER_CACHE",
+                    dx12Cache,
+                    false).ConfigureAwait(false);
+
+                // --------
+                // Browsers
+                // --------
+                var eng = new BrowserScannerEngine();
+                var browsers = await eng.EnumerateBrowsersAsync().ConfigureAwait(false);
+                foreach (var browser in browsers)
+                    await AddItem(
+                        browser.Name, 
+                        browser.CleanTargets,
+                        browser.ImagePath, 
+                        browser.Description,
+                        browser.ItemID,
+                        string.Empty).ConfigureAwait(false);
+
+                // -------------------
+                // System drive, admin
+                // -------------------
+                if (isRunningAsAdmin)
+                {
+                    // ------------------------
+                    // Downloaded Program Files
+                    // ------------------------
+                    string dpfPath = Path.Combine(windowsRoot, "Downloaded Program Files");
+
+                    var dpfTargets = Directory.Exists(dpfPath)
+                        ? [ new CleanTarget() { Path = dpfPath, Depth = SearchDepth.TopDirectoryOnly } ]
+                        : Array.Empty<CleanTarget>();
+
+                    await AddItem(
+                        "Downloaded Program Files",
+                        dpfTargets,
+                        "ms-appx:///Assets/CleanupItems/DownloadedProgramFiles.ico",
+                        "(Obsolete) Stores legacy ActiveX controls and Java applets downloaded from the internet in older versions of Windows.",
+                        "DOWNLOADED_PROGRAM_FILES",
+                        dpfPath,
+                        true).ConfigureAwait(false);
+
+                    // ------------
+                    // WER (System)
+                    // ------------
+                    string systemWerPath = Path.Combine(programData, "Microsoft", "Windows", "WER");
+
+                    var systemWerTargets = new List<CleanTarget>();
+                    string sysQueue = Path.Combine(systemWerPath, "ReportQueue");
+                    string sysArchive = Path.Combine(systemWerPath, "ReportArchive");
+
+                    if (Directory.Exists(sysQueue))
+                        systemWerTargets.Add(new CleanTarget() { Path = sysQueue, Depth = SearchDepth.AllDirectories });
+
+                    if (Directory.Exists(sysArchive))
+                        systemWerTargets.Add(new CleanTarget() { Path = sysArchive, Depth = SearchDepth.AllDirectories });
+
+                    await AddItem(
+                        "System Created Windows Error Reporting",
+                        [..systemWerTargets],
+                        "ms-appx:///Assets/CleanupItems/WindowsErrorReporting.ico",
+                        "Stores system-wide diagnostic reports and memory dumps generated when background services or the operating system crash.",
+                        "WER_SYSTEM",
+                        systemWerPath,
+                        false).ConfigureAwait(false);
+
+                    // --------
+                    // Prefetch
+                    // --------
+                    string prefetchPath = Path.Combine(windowsRoot, "Prefetch");
+
+                    var prefetchTargets = Directory.Exists(prefetchPath)
+                        ? [ new CleanTarget() { Path = prefetchPath, Depth = SearchDepth.TopDirectoryOnly } ]
+                        : Array.Empty<CleanTarget>();
+
+                    await AddItem(
+                        "Prefetch",
+                        prefetchTargets,
+                        "ms-appx:///Assets/CleanupItems/Prefetch.ico",
+                        "Stores application execution history. Cleaning this can free up space, but may temporarily slow down application launch times while Windows rebuilds the cache.",
+                        "PREFETCH",
+                        prefetchPath,
+                        false).ConfigureAwait(false);
+
+                    // ---------------------
+                    // Delivery Optimization
+                    // ---------------------
+                    string wdoCachePath = Path.Combine(programData, "Microsoft", "Network", "Downloader");
+
+                    var wdoTargets = Directory.Exists(wdoCachePath)
+                        ? [ new CleanTarget() { Path = wdoCachePath, Depth = SearchDepth.AllDirectories } ]
+                        : Array.Empty<CleanTarget>();
+
+                    await AddItem(
+                        "Delivery Optimization Cache",
+                        wdoTargets,
+                        "ms-appx:///Assets/CleanupItems/DeliveryOptimization.ico",
+                        "Holds downloaded update files used for peer-to-peer delivery across local network devices to save internet bandwidth.",
+                        "DELIVERY_OPTIMIZATION_CACHE",
+                        wdoCachePath,
+                        false).ConfigureAwait(false);
+
+                    // -----------------------------
+                    // Windows Update Download Cache
+                    // -----------------------------
+                    string updateStagingPath = Path.Combine(windowsRoot, "SoftwareDistribution", "Download");
+
+                    var updateTargets = Directory.Exists(updateStagingPath)
+                        ? [ new CleanTarget() { Path = updateStagingPath, Depth = SearchDepth.AllDirectories } ]
+                        : Array.Empty<CleanTarget>();
+
+                    await AddItem(
+                        "Windows Update Download Cache",
+                        updateTargets,
+                        "ms-appx:///Assets/CleanupItems/WindowsUpdate.ico",
+                        "Contains downloaded installation files for Windows Updates. It is safe to clear this folder to free up space after updates have been successfully installed.",
+                        "WINDOWS_UPDATE_DOWNLOADS",
+                        updateStagingPath,
+                        false).ConfigureAwait(false);
+
+                    // -------------------
+                    // Windows Update Logs
+                    // -------------------
+                    string winUpdateLogPath = Path.Combine(windowsRoot, "Logs", "WindowsUpdate");
+
+                    var logTargets = Directory.Exists(winUpdateLogPath)
+                        ? [ new CleanTarget() { Path = winUpdateLogPath, Depth = SearchDepth.TopDirectoryOnly } ]
+                        : Array.Empty<CleanTarget>();
+
+                    await AddItem(
+                        "Windows Update Logs",
+                        logTargets,
+                        "ms-appx:///Assets/CleanupItems/Logs.ico",
+                        "Contains diagnostic event tracing log files (.etl) generated during the Windows Update process.",
+                        "WIN_UPDATE_LOGS",
+                        winUpdateLogPath,
+                        true).ConfigureAwait(false);
+
+                    // --------------------------------------------
+                    // Windows.old (Previous Windows Installations)
+                    // --------------------------------------------
+                    string windowsOldPath = Path.Combine(systemRoot, "Windows.old");
+
+                    CleanTarget[] windowsOldTargets;
+                    if (Directory.Exists(windowsOldPath))
+                        windowsOldTargets = new[] { new WindowsOldCleanTarget() { Path = windowsOldPath } };
+                    else
+                        windowsOldTargets = Array.Empty<CleanTarget>();
+
+                    await AddItem(
+                        "Previous Windows Installations",
+                        windowsOldTargets,
+                        "ms-appx:///Assets/CleanupItems/PreviousWindowsInstallations.ico",
+                        "Stores system configuration files and data from previous versions of Windows. Wiping this prevents rollback capabilities but reclaims massive amounts of storage.",
+                        "WINDOWS_OLD",
+                        windowsOldPath,
+                        false).ConfigureAwait(false);
+
+                    // ------------------------------
+                    // Memory dump files (MEMORY.DMP)
+                    // ------------------------------
+                    string mainDumpFile = Path.Combine(windowsRoot, "MEMORY.DMP");
+                    var mainDumpTargets = File.Exists(mainDumpFile)
+                        ? [ new CleanTarget() { Path = mainDumpFile, Depth = SearchDepth.TopDirectoryOnly } ]
+                        : Array.Empty<CleanTarget>();
+
+                    await AddItem(
+                        "System Error Memory Dump Files",
+                        mainDumpTargets,
+                        "ms-appx:///Assets/CleanupItems/SystemLog.ico",
+                        "Captures the full contents of system memory during a crash for diagnostic analysis. These files can be massive.",
+                        "MEMORY_DUMP",
+                        windowsRoot,
+                        false).ConfigureAwait(false);
+
+                    // --------------------------------
+                    // Minidump files (Minidump folder)
+                    // --------------------------------
+                    string miniDumpFolder = Path.Combine(windowsRoot, "Minidump");
+                    var miniDumpTargets = Directory.Exists(miniDumpFolder)
+                        ? [ new CleanTarget() { Path = miniDumpFolder, Depth = SearchDepth.AllDirectories } ]
+                        : Array.Empty<CleanTarget>();
+
+                    await AddItem(
+                        "System Error Minidump Files",
+                        miniDumpTargets,
+                        "ms-appx:///Assets/CleanupItems/SystemLog.ico",
+                        "Contains smaller individual memory dump files created during historical system crashes.",
+                        "MINIDUMP",
+                        windowsRoot,
+                        false).ConfigureAwait(false);
+
+                    // -------------------
+                    // Temp files (System)
+                    // -------------------
+                    string systemTempPath = Path.Combine(windowsRoot, "Temp");
+
+                    var tempTargets = Directory.Exists(systemTempPath)
+                        ? [ new CleanTarget() { Path = systemTempPath, Depth = SearchDepth.AllDirectories } ]
+                        : Array.Empty<CleanTarget>();
+
+                    await AddItem(
+                        "Temporary Windows Installation Files",
+                        tempTargets,
+                        "ms-appx:///Assets/CleanupItems/TemporaryFiles.ico",
+                        "Contains temporary scratch files used by the operating system, Windows Update, and system services during installation and maintenance tasks.",
+                        "WINDOWS_TEMP",
+                        systemTempPath,
+                        false).ConfigureAwait(false);
+                }
+            }
+        }).ConfigureAwait(true);
+
+        // Back on the UI thread: bulk add to the ObservableCollection to prevent UI stutter
+        LoadProperties(discoveredItems);
+    }
+
+
+    public static void CleanUnusedTemp(string tempFolderPath)
+    {
+        if (!Directory.Exists(tempFolderPath)) return;
+
+        var directory = new DirectoryInfo(tempFolderPath);
+
+        // 1. Get the exact time the computer started.
+        // Files older than the current Windows session are 100% safe to delete, 
+        // because the app that made them isn't running anymore.
+        DateTime bootTime = DateTime.Now - TimeSpan.FromMilliseconds(Environment.TickCount64);
+
+        // 2. Set a short buffer for the current session (e.g., 20 minutes)
+        // This catches that 12 GB installer dump from 30 minutes ago, 
+        // but protects a file an app created 45 seconds ago.
+        DateTime shortSessionBuffer = DateTime.Now.AddMinutes(-20);
+
+        foreach (FileInfo file in directory.EnumerateFiles("*", SearchOption.AllDirectories))
+        {
+            try
+            {
+                // Deletion Conditions:
+                // - File was made in a previous Windows session OR
+                // - File is older than our 20-minute safety buffer
+                if (file.LastWriteTime < bootTime || file.LastWriteTime < shortSessionBuffer)
+                {
+                    file.Attributes = FileAttributes.Normal;
+                    file.Delete();
+                }
+            }
+            catch (IOException)
+            {
+                // File is actively locked by a running process (Truly "In Use"). 
+                // Windows handles this for us; skip it safely.
+            }
+            catch (UnauthorizedAccessException)
+            {
+                // Lacks permissions, skip safely.
             }
         }
     }
 
-    private void LoadProperties()
+    private async void LoadProperties(List<CleanItem> discoveredItems)
     {
-        long filesSize = 0;
-        FilesCount = 0;
-
-        foreach (var item in CleanItems)
+        foreach (var item in discoveredItems)
         {
-            filesSize += item.Size;
-            FilesCount += item.FilePaths.Count; // Directly use the count of FilePaths instead of iterating over it
-        }
+            CleanItems.Add(item);
 
-        FilesSize = CleanItem.FormatSize(filesSize);
-
-        var selectedItems = 0;
-        foreach (var item in CleanItems)
-        {
-            if (item.IsChecked)
+            _ = Task.Run(async () =>
             {
-                selectedItems++;
-            }
+                long totalSize = 0;
+                int totalCount = 0;
+
+                foreach (var target in item.CleanTargets)
+                {
+                    var (size, count) = await target.EnumerateAsync(null, CancellationToken.None).ConfigureAwait(false);
+                    totalSize += size;
+                    totalCount += count;
+                }
+
+                var task = App.MainWindow?.DispatcherQueue.EnqueueAsync(() =>
+                {
+                    item.Size = totalSize;
+                    item.FileCount = totalCount;
+
+                    FilesSize += totalSize;
+                    FilesCount += totalCount;
+                });
+                await task!.ConfigureAwait(true);
+            });
         }
-        var totalItems = CleanItems.Count; // Store the count in a variable
-        IsEverythingSelected = selectedItems switch
-        {
-            0 => false,
-            // Use a pattern matching case
-            var count when count == totalItems => true,
-            _ => null,
-        };
+
     }
 
     [RelayCommand]
@@ -278,26 +818,16 @@ internal partial class MainViewModel : ObservableObject
     {
         CanItemsBeClicked = false;
 
-        await Task.Delay(25).ConfigureAwait(true);
-
-        var systemRoot = EnvironmentHelper.GetWindowsInstallationDrivePath();
-
-        foreach (var item in CleanItems)
+        foreach (CleanItem item in CleanItems)
         {
             try
             {
                 // Check if the path matches and if the item is checked
                 if (item.IsChecked)
                 {
-                    if (item.ItemPath.Equals($@"{systemRoot}Windows\SoftwareDistribution", StringComparison.OrdinalIgnoreCase))
+                    foreach (var target in item.CleanTargets)
                     {
-                        StopWindowsUpdateService();
-                        item.Delete();
-                        StartWindowsUpdateService();
-                    }
-                    else
-                    {
-                        item.Delete();
+                        await target.ExecuteCleanAsync(CancellationToken.None).ConfigureAwait(false);
                     }
                 }
             }
@@ -307,7 +837,7 @@ internal partial class MainViewModel : ObservableObject
             }
         }
 
-        await RefreshAsync(ComboBoxItems[SelectedDriveIndex]);
+        await RefreshCleanupListAsync(DriveItems[SelectedDriveIndex]).ConfigureAwait(false);
 
         CanItemsBeClicked = true;
     }
@@ -316,49 +846,7 @@ internal partial class MainViewModel : ObservableObject
     public async Task ViewFilesAsync(int index)
     {
         if (index != -1)
-        {
-            if (CleanItems[index].ItemPath.Contains("$Recycle.Bin", StringComparison.OrdinalIgnoreCase))
-            {
-                await Launcher.LaunchFolderPathAsync("shell:RecycleBinFolder");
-            }
-            else
-            {
-                await Launcher.LaunchFolderPathAsync(CleanItems[index].ItemPath);
-            }
-        }
-    }
-
-    private static void StopWindowsUpdateService()
-    {
-        try
-        {
-            using var service = new ServiceController("wuauserv");
-            if (service.Status == ServiceControllerStatus.Running)
-            {
-                service.Stop();
-                service.WaitForStatus(ServiceControllerStatus.Stopped);
-            }
-        }
-        catch
-        {
-
-        }
-    }
-
-    private static void StartWindowsUpdateService()
-    {
-        try
-        {
-            using var service = new ServiceController("wuauserv");
-            if (service.Status == ServiceControllerStatus.Stopped)
-            {
-                service.Start();
-            }
-        }
-        catch
-        {
-
-        }
+            await Launcher.LaunchFolderPathAsync(CleanItems[index].LaunchTargetPath);
     }
 
     [RelayCommand]

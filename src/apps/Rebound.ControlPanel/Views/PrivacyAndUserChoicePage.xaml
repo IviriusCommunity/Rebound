@@ -19,7 +19,7 @@
                 Margin="16"
                 HorizontalAlignment="Left"
                 VerticalAlignment="Top"
-                Source="/Assets/Glyphs/DirectX.ico" />
+                Source="/Assets/Glyphs/PrivacyAndUserChoice.png" />
             <TextBlock
                 Margin="48,10"
                 FontSize="20"

@@ -1,47 +1,140 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
-	<!-- Properties -->
+	<!-- Generic -->
 	<PropertyGroup>
 
-		<!-- General -->
+		<!-- Program Generic -->
 		<OutputType>WinExe</OutputType>
+		<UseWinUI>true</UseWinUI>
+		<UseWinUITools>true</UseWinUITools>
+		<WinUISDKReferences>false</WinUISDKReferences>
+		<EnableMsixTooling>true</EnableMsixTooling>
+
+		<!-- Code Analysis and Trimming -->
+		<AnalysisMode>All</AnalysisMode>
+
+		<!-- Language and Code Configuration -->
+		<LangVersion>preview</LangVersion>
+		<Nullable>enable</Nullable>
+		<AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+
+		<!-- Properties -->
 		<AssemblyName>Rebound Disk Cleanup</AssemblyName>
+		<RootNamespace>Rebound.Cleanup</RootNamespace>
 		<ApplicationIcon>Assets\cleanmgr.ico</ApplicationIcon>
 		<ApplicationManifest>app.manifest</ApplicationManifest>
 
-		<!-- Deployment -->
-		<EnableMsixTooling>true</EnableMsixTooling>
-		<WindowsPackageType>None</WindowsPackageType>
+		<!-- Targets -->
+		<TargetFramework>net10.0-windows10.0.26100.0</TargetFramework>
+		<TargetPlatformMinVersion>10.0.22000.0</TargetPlatformMinVersion>
+
+		<!-- Platforms -->
+		<Platforms>x64;ARM64</Platforms>
+		<RuntimeIdentifiers>win-x64;win-arm64</RuntimeIdentifiers>
+		<PublishProfile>win-$(Platform).pubxml</PublishProfile>
+
+		<!-- Advanced -->
+		<Nullable>enable</Nullable>
+		<PublishTrimmed>true</PublishTrimmed>
+		<PublishAot>true</PublishAot>
+		<EnableDefaultPageItems>false</EnableDefaultPageItems>
+		<EnableDefaultApplicationDefinition>false</EnableDefaultApplicationDefinition>
+		<EnableComInterop>true</EnableComInterop>
+		<UseSourceGenerators>true</UseSourceGenerators>
+		<DisableRuntimeMarshalling>true</DisableRuntimeMarshalling>
+		<OptimizationPreference>Speed</OptimizationPreference>
+		<IlcOptimizationPreference>Speed</IlcOptimizationPreference>
+		<SelfContained>true</SelfContained>
+		<UseWindowsAppSDKBootstrapper>true</UseWindowsAppSDKBootstrapper>
+		<WindowsAppSdkSelfContained>false</WindowsAppSdkSelfContained>
+
+		<!-- Versioning -->
+		<AssemblyVersion>0.0.10</AssemblyVersion>
+		<Version>0.0.10</Version>
+		<FileVersion>0.0.10</FileVersion>
+
+		<!-- Publishing Settings -->
+		<PublishProfile>win-$(Platform).pubxml</PublishProfile>
+		<EnableDefaultPriItems>true</EnableDefaultPriItems>
+
+		<DisableTransitiveProjectReferences>true</DisableTransitiveProjectReferences>
 
 	</PropertyGroup>
 
-	<!-- Project content -->
-	<ItemGroup>
-		<None Remove="Assets\Administrator.png" />
-		<None Remove="Assets\cleanmgr.ico" />
-		<None Remove="Assets\cleanmgr.png" />
-		<None Remove="Assets\Drive.png" />
-		<None Remove="Assets\DriveFloppy.png" />
-		<None Remove="Assets\DriveOptical.png" />
-		<None Remove="Assets\DriveRemovable.png" />
-		<None Remove="Assets\DriveSystem.png" />
-		<None Remove="Assets\DriveUnknown.png" />
-		<None Remove="Assets\DriveWindows.png" />
-		<None Remove="Assets\EventViewer.png" />
-		<None Remove="Assets\imageres_184.ico" />
-		<None Remove="Assets\imageres_2.ico" />
-		<None Remove="Assets\imageres_3.ico" />
-		<None Remove="Assets\imageres_5364.ico" />
-		<None Remove="Assets\imageres_54.ico" />
-		<None Remove="Assets\imageres_59.ico" />
-		<Content Include="NativeMethods.json" />
+	<!-- Architecture -->
+	<PropertyGroup>
+		<RuntimeIdentifier Condition="'$(RuntimeIdentifier)' == '' and '$(Platform)' == 'ARM64'">win-arm64</RuntimeIdentifier>
+		<RuntimeIdentifier Condition="'$(RuntimeIdentifier)' == '' and '$(Platform)' == 'x64'">win-x64</RuntimeIdentifier>
+		<RuntimeIdentifier Condition="'$(RuntimeIdentifier)' == ''">win-x64</RuntimeIdentifier>
+	</PropertyGroup>
 
-		<Page Update="Views\MainPage.xaml">
-			<Generator>MSBuild:Compile</Generator>
-		</Page>
+	<PropertyGroup>
+		<PlatformTarget Condition="'$(RuntimeIdentifier)' == 'win-arm64' or '$(Platform)' == 'ARM64'">arm64</PlatformTarget>
+		<PlatformTarget Condition="'$(RuntimeIdentifier)' == 'win-x64' or '$(Platform)' == 'x64'">x64</PlatformTarget>
+		<PlatformTarget Condition="'$(PlatformTarget)' == ''">x64</PlatformTarget>
+	</PropertyGroup>
+
+	<!-- Package references -->
+	<ItemGroup>
+
+		<PackageReference Include="Microsoft.WindowsAppSDK" Version="2.2.0" />
+
+		<PackageReference Include="Microsoft.WindowsAppSDK.AI" Version="2.2.3" ExcludeAssets="all" />
+		<PackageReference Include="Microsoft.WindowsAppSDK.ML" Version="2.1.70" ExcludeAssets="all" />
+		<PackageReference Include="Microsoft.Windows.AI.MachineLearning" Version="2.1.70" ExcludeAssets="all" />
+		<PackageReference Include="Microsoft.ML.OnnxRuntime" Version="1.23.2" ExcludeAssets="all" />
+		<PackageReference Include="Microsoft.Web.WebView2" Version="1.0.3719.77" ExcludeAssets="all" />
+
+		<!-- Windows SDK and WinUI -->
+		<PackageReference Include="WinUIEx" Version="2.9.1" />
+		<!-- CommunityToolkit -->
+		<PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.2" />
+		<PackageReference Include="CommunityToolkit.WinUI.Animations" Version="8.2.251219" />
+		<PackageReference Include="CommunityToolkit.WinUI.Behaviors" Version="8.2.251219" />
+		<PackageReference Include="CommunityToolkit.WinUI.Converters" Version="8.2.251219" />
+		<PackageReference Include="CommunityToolkit.WinUI.Controls.Primitives" Version="8.2.251219" />
+		<PackageReference Include="CommunityToolkit.WinUI.Controls.Segmented" Version="8.2.251219" />
+		<PackageReference Include="CommunityToolkit.WinUI.Media" Version="8.2.251219" />
+		<PackageReference Include="CommunityToolkit.WinUI.Triggers" Version="8.2.251219" />
+		<PackageReference Include="CommunityToolkit.Labs.WinUI.DependencyPropertyGenerator" Version="0.1.260203-build.2518" />
+
 	</ItemGroup>
 
+	<!-- Project content -->
+	<ItemGroup>
+
+		<AppxTargetDeviceFamilyItem Include="Windows.Desktop" />
+
+		<Page Include="MainWindow.xaml" />
+		<Page Include="Views\MainPage.xaml" />
+		<ApplicationDefinition Include="App.xaml" />
+	</ItemGroup>
+
+	<!-- Packaging Properties -->
+	<PropertyGroup>
+		<AppxPackageSigningEnabled>True</AppxPackageSigningEnabled>
+		<AppxPackageSigningTimestampDigestAlgorithm>SHA256</AppxPackageSigningTimestampDigestAlgorithm>
+		<AppxAutoIncrementPackageRevision>False</AppxAutoIncrementPackageRevision>
+		<AppxBundle>Always</AppxBundle>
+		<GenerateTestArtifacts>True</GenerateTestArtifacts>
+		<GenerateAppInstallerFile>True</GenerateAppInstallerFile>
+		<AppInstallerUri>C:\</AppInstallerUri>
+		<HoursBetweenUpdateChecks>0</HoursBetweenUpdateChecks>
+		<PackageCertificateKeyFile>$(SolutionDir)\src\Rebound.Hub_TemporaryKey.pfx</PackageCertificateKeyFile>
+		<AppxBundlePlatforms>x64|arm64</AppxBundlePlatforms>
+	</PropertyGroup>
+
 	<!-- Project references -->
+
+	<!-- Project References -->
+	<ItemGroup>
+		<ProjectReference Include="..\..\core\forge\Rebound.Forge\Rebound.Forge.csproj" />
+		<ProjectReference Include="..\..\core\Rebound.Core.IPC\Rebound.Core.IPC.csproj" />
+		<ProjectReference Include="..\..\core\Rebound.Core.Native\Rebound.Core.Native.csproj" />
+		<ProjectReference Include="..\..\core\Rebound.Core.SystemInformation\Rebound.Core.SystemInformation.csproj" />
+		<ProjectReference Include="..\..\core\Rebound.Core.UI\Rebound.Core.UI.csproj" />
+		<ProjectReference Include="..\..\core\Rebound.Core\Rebound.Core.csproj" />
+	</ItemGroup>
 	<ItemGroup>
 	  <Content Update="Assets\Administrator.png">
 	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
@@ -55,16 +148,7 @@
 	  <Content Update="Assets\cleanmgrLegacy.ico">
 	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
 	  </Content>
-	  <Content Update="Assets\Desktop.ico">
-	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-	  </Content>
 	  <Content Update="Assets\dfrgui.ico">
-	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-	  </Content>
-	  <Content Update="Assets\DLL.ico">
-	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-	  </Content>
-	  <Content Update="Assets\Downloads.ico">
 	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
 	  </Content>
 	  <Content Update="Assets\Drive.ico">
@@ -91,49 +175,9 @@
 	  <Content Update="Assets\Edge.png">
 	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
 	  </Content>
-	  <Content Update="Assets\EventViewer.ico">
-	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-	  </Content>
-	  <Content Update="Assets\File.ico">
-	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-	  </Content>
 	  <Content Update="Assets\Firefox.png">
 	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
 	  </Content>
-	  <Content Update="Assets\Folder.ico">
-	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-	  </Content>
-	  <Content Update="Assets\History.ico">
-	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-	  </Content>
-	  <Content Update="Assets\Internet.ico">
-	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-	  </Content>
-	  <Content Update="Assets\Lock.ico">
-	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-	  </Content>
-	  <Content Update="Assets\Program.ico">
-	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-	  </Content>
-	  <Content Update="Assets\RecycleBin.ico">
-	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-	  </Content>
-	  <Content Update="Assets\Script.ico">
-	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-	  </Content>
-	  <Content Update="Assets\Thumbnail.ico">
-	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-	  </Content>
-	  <Content Update="Assets\User.ico">
-	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-	  </Content>
-	  <Content Update="Assets\Video.ico">
-	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-	  </Content>
 	</ItemGroup>
-
-	<!-- Shared project imports -->
-	<Import Project="..\..\core\forge\Rebound.Forge\Rebound.Forge.projitems" Label="Shared" />
-	<Import Project="..\..\core\shared\Rebound.Core.Helpers\Rebound.Core.Helpers.projitems" Label="Shared" />
 
 </Project>

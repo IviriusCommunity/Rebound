@@ -6,6 +6,7 @@ using System.Collections.ObjectModel;
 using System.Runtime.InteropServices;
 using TerraFX.Interop.Windows;
 using static TerraFX.Interop.Windows.Windows;
+using static TerraFX.Interop.Windows.ERROR;
 
 namespace Rebound.Core.Native.Helpers;
 
@@ -35,7 +36,7 @@ public static class EnvironmentVariablesHelper
 
         // Open the registry key (we all love it when some functions in Windows don't return HRESULT)
         var status = RegOpenKeyExW(hKeyRoot, lpSubKey, 0, KEY.KEY_READ, &hKey);
-        if (status != TerraFX.Interop.Windows.ERROR.ERROR_SUCCESS) 
+        if (status != ERROR_SUCCESS) 
             return null;
 
         try
@@ -46,9 +47,9 @@ public static class EnvironmentVariablesHelper
             // Query first for buffer size requirements
             status = RegQueryValueExW(hKey, lpValueName, null, &type, null, &cbData);
             
-            if (status == TerraFX.Interop.Windows.ERROR.ERROR_FILE_NOT_FOUND) 
+            if (status == ERROR_FILE_NOT_FOUND) 
                 return null;
-            if (status is not TerraFX.Interop.Windows.ERROR.ERROR_SUCCESS and not TerraFX.Interop.Windows.ERROR.ERROR_MORE_DATA)
+            if (status is not ERROR_SUCCESS and not ERROR_MORE_DATA)
                 return null;
 
             // Allocate buffer on native heap (cbData is in bytes)
@@ -56,7 +57,7 @@ public static class EnvironmentVariablesHelper
             try
             {
                 status = RegQueryValueExW(hKey, lpValueName, null, &type, pBuffer, &cbData);
-                if (status != TerraFX.Interop.Windows.ERROR.ERROR_SUCCESS) return null;
+                if (status != ERROR_SUCCESS) return null;
 
                 // Marshal string depending on data type (REG_SZ or REG_EXPAND_SZ)
                 return new string((char*)pBuffer, 0, (int)(cbData / sizeof(char))).TrimEnd('\0');
@@ -83,7 +84,7 @@ public static class EnvironmentVariablesHelper
         using ManagedPtr<char> lpSubKey = subKey;
         HKEY hKey = default;
 
-        if (RegOpenKeyExW(hKeyRoot, lpSubKey, 0, KEY.KEY_READ, &hKey) != TerraFX.Interop.Windows.ERROR.ERROR_SUCCESS)
+        if (RegOpenKeyExW(hKeyRoot, lpSubKey, 0, KEY.KEY_READ, &hKey) != ERROR_SUCCESS)
             return new Collection<KeyValuePair<string, string>>();
 
         var results = new Collection<KeyValuePair<string, string>>();
@@ -94,7 +95,7 @@ public static class EnvironmentVariablesHelper
             uint maxNameLen = 0;
             uint maxValueLen = 0;
 
-            if (RegQueryInfoKeyW(hKey, null, null, null, null, null, null, &cValues, &maxNameLen, &maxValueLen, null, null) != TerraFX.Interop.Windows.ERROR.ERROR_SUCCESS)
+            if (RegQueryInfoKeyW(hKey, null, null, null, null, null, null, &cValues, &maxNameLen, &maxValueLen, null, null) != ERROR_SUCCESS)
                 return results;
 
             maxNameLen++; // Null terminator
@@ -109,7 +110,7 @@ public static class EnvironmentVariablesHelper
                     uint dataLen = maxValueLen;
                     uint type = 0;
 
-                    if (RegEnumValueW(hKey, i, nameBuffer, &nameLen, null, &type, dataBuffer, &dataLen) == TerraFX.Interop.Windows.ERROR.ERROR_SUCCESS)
+                    if (RegEnumValueW(hKey, i, nameBuffer, &nameLen, null, &type, dataBuffer, &dataLen) == ERROR_SUCCESS)
                     {
                         string name = new string(nameBuffer, 0, (int)nameLen);
                         string value = new string((char*)dataBuffer, 0, (int)(dataLen / sizeof(char))).TrimEnd('\0');
@@ -148,7 +149,7 @@ public static class EnvironmentVariablesHelper
         HKEY hKey = default;
 
         int status = RegOpenKeyExW(hKeyRoot, lpSubKey, 0, samDesired, &hKey);
-        if (status != TerraFX.Interop.Windows.ERROR.ERROR_SUCCESS) return false;
+        if (status != ERROR_SUCCESS) return false;
 
         try
         {
@@ -156,7 +157,7 @@ public static class EnvironmentVariablesHelper
             {
                 // Deleting the environment variable
                 status = RegDeleteValueW(hKey, lpValueName);
-                if (status is not TerraFX.Interop.Windows.ERROR.ERROR_SUCCESS and not TerraFX.Interop.Windows.ERROR.ERROR_FILE_NOT_FOUND)
+                if (status is not ERROR_SUCCESS and not ERROR_FILE_NOT_FOUND)
                     return false;
             }
             else
@@ -170,7 +171,7 @@ public static class EnvironmentVariablesHelper
                     uint type = value.Contains('%', StringComparison.InvariantCultureIgnoreCase) ? REG.REG_EXPAND_SZ : REG.REG_SZ;
 
                     status = RegSetValueExW(hKey, lpValueName, 0, type, (byte*)lpData, cbData);
-                    if (status != TerraFX.Interop.Windows.ERROR.ERROR_SUCCESS) return false;
+                    if (status != ERROR_SUCCESS) return false;
                 }
             }
         }

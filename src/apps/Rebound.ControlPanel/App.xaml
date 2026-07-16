@@ -3,35 +3,133 @@
     x:Class="Rebound.ControlPanel.App"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-    xmlns:controls="using:Microsoft.UI.Xaml.Controls"
+    xmlns:animatedVisuals="using:Microsoft.UI.Xaml.Controls.AnimatedVisuals"
+    xmlns:composition="using:Rebound.Core.UI.Composition"
     xmlns:local="using:Rebound.ControlPanel">
     <Application.Resources>
-        <controls:XamlControlsResources x:Key="Main">
-            <controls:XamlControlsResources.MergedDictionaries>
-                <ResourceDictionary>
-                    <ResourceDictionary.ThemeDictionaries>
+        <ResourceDictionary>
 
-                        <ResourceDictionary x:Key="Default">
+            <ResourceDictionary.MergedDictionaries>
+                <XamlControlsResources />
+            </ResourceDictionary.MergedDictionaries>
 
-                            <ImageSource x:Key="HeroBackgroundBitmapImage">ms-appx:///Assets/Backgrounds/WallpaperRebornDark.png</ImageSource>
+            <Style TargetType="FlyoutPresenter">
+                <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+                <Setter Property="VerticalContentAlignment" Value="Stretch" />
+                <Setter Property="IsTabStop" Value="False" />
+                <Setter Property="Background" Value="{ThemeResource LayerOnAcrylicFillColorDefaultBrush}" />
+                <Setter Property="BorderBrush" Value="{ThemeResource FlyoutBorderThemeBrush}" />
+                <Setter Property="BorderThickness" Value="{ThemeResource FlyoutBorderThemeThickness}" />
+                <Setter Property="Padding" Value="{StaticResource FlyoutContentPadding}" />
+                <Setter Property="MinWidth" Value="{ThemeResource FlyoutThemeMinWidth}" />
+                <Setter Property="MaxWidth" Value="{ThemeResource FlyoutThemeMaxWidth}" />
+                <Setter Property="MinHeight" Value="{ThemeResource FlyoutThemeMinHeight}" />
+                <Setter Property="MaxHeight" Value="{ThemeResource FlyoutThemeMaxHeight}" />
+                <Setter Property="ScrollViewer.HorizontalScrollMode" Value="Auto" />
+                <Setter Property="ScrollViewer.HorizontalScrollBarVisibility" Value="Auto" />
+                <Setter Property="ScrollViewer.VerticalScrollMode" Value="Auto" />
+                <Setter Property="ScrollViewer.VerticalScrollBarVisibility" Value="Auto" />
+                <Setter Property="ScrollViewer.ZoomMode" Value="Disabled" />
+                <Setter Property="CornerRadius" Value="{ThemeResource OverlayCornerRadius}" />
+                <Setter Property="Template">
+                    <Setter.Value>
+                        <ControlTemplate TargetType="FlyoutPresenter">
+                            <Grid>
+                                <Grid BorderThickness="{TemplateBinding BorderThickness}" CornerRadius="{TemplateBinding CornerRadius}">
+                                    <SystemBackdropElement CornerRadius="{TemplateBinding CornerRadius}">
+                                        <SystemBackdropElement.SystemBackdrop>
+                                            <DesktopAcrylicBackdrop />
+                                        </SystemBackdropElement.SystemBackdrop>
+                                    </SystemBackdropElement>
+                                </Grid>
+                                <Border
+                                    Background="{TemplateBinding Background}"
+                                    BackgroundSizing="InnerBorderEdge"
+                                    BorderBrush="{TemplateBinding BorderBrush}"
+                                    BorderThickness="{TemplateBinding BorderThickness}"
+                                    CornerRadius="{TemplateBinding CornerRadius}">
+                                    <ScrollViewer
+                                        x:Name="ScrollViewer"
+                                        AutomationProperties.AccessibilityView="Raw"
+                                        HorizontalScrollBarVisibility="{TemplateBinding ScrollViewer.HorizontalScrollBarVisibility}"
+                                        HorizontalScrollMode="{TemplateBinding ScrollViewer.HorizontalScrollMode}"
+                                        VerticalScrollBarVisibility="{TemplateBinding ScrollViewer.VerticalScrollBarVisibility}"
+                                        VerticalScrollMode="{TemplateBinding ScrollViewer.VerticalScrollMode}"
+                                        ZoomMode="{TemplateBinding ScrollViewer.ZoomMode}">
+                                        <ContentPresenter
+                                            Margin="{TemplateBinding Padding}"
+                                            HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
+                                            VerticalAlignment="{TemplateBinding VerticalContentAlignment}"
+                                            Content="{TemplateBinding Content}"
+                                            ContentTemplate="{TemplateBinding ContentTemplate}"
+                                            ContentTransitions="{TemplateBinding ContentTransitions}" />
+                                    </ScrollViewer>
+                                </Border>
+                            </Grid>
+                        </ControlTemplate>
+                    </Setter.Value>
+                </Setter>
+            </Style>
+            <Style TargetType="ToolTip">
+                <Setter Property="Foreground" Value="{ThemeResource ToolTipForegroundBrush}" />
+                <Setter Property="Background" Value="{ThemeResource LayerOnAcrylicFillColorDefaultBrush}" />
+                <Setter Property="BackgroundSizing" Value="InnerBorderEdge" />
+                <Setter Property="BorderBrush" Value="{ThemeResource ToolTipBorderBrush}" />
+                <Setter Property="BorderThickness" Value="{ThemeResource ToolTipBorderThemeThickness}" />
+                <Setter Property="FontFamily" Value="{ThemeResource ContentControlThemeFontFamily}" />
+                <Setter Property="FontSize" Value="{ThemeResource ToolTipContentThemeFontSize}" />
+                <Setter Property="Padding" Value="{StaticResource ToolTipBorderPadding}" />
+                <Setter Property="MaxWidth" Value="{StaticResource ToolTipMaxWidth}" />
+                <Setter Property="CornerRadius" Value="{ThemeResource ControlCornerRadius}" />
+                <Setter Property="Template">
+                    <Setter.Value>
+                        <ControlTemplate TargetType="ToolTip">
+                            <ContentPresenter x:Name="LayoutRoot">
+                                <Grid>
+                                    <Grid BorderThickness="{TemplateBinding BorderThickness}" CornerRadius="{TemplateBinding CornerRadius}">
+                                        <SystemBackdropElement CornerRadius="{TemplateBinding CornerRadius}">
+                                            <SystemBackdropElement.SystemBackdrop>
+                                                <DesktopAcrylicBackdrop />
+                                            </SystemBackdropElement.SystemBackdrop>
+                                        </SystemBackdropElement>
+                                    </Grid>
+                                    <ContentPresenter
+                                        MaxWidth="{TemplateBinding MaxWidth}"
+                                        Padding="{TemplateBinding Padding}"
+                                        Background="{TemplateBinding Background}"
+                                        BackgroundSizing="{TemplateBinding BackgroundSizing}"
+                                        BorderBrush="{TemplateBinding BorderBrush}"
+                                        BorderThickness="{TemplateBinding BorderThickness}"
+                                        Content="{TemplateBinding Content}"
+                                        ContentTemplate="{TemplateBinding ContentTemplate}"
+                                        ContentTransitions="{TemplateBinding ContentTransitions}"
+                                        CornerRadius="{TemplateBinding CornerRadius}"
+                                        TextWrapping="Wrap" />
+                                </Grid>
+                                <VisualStateManager.VisualStateGroups>
+                                    <VisualStateGroup x:Name="OpenStates">
+                                        <VisualState x:Name="Closed">
 
-                        </ResourceDictionary>
+                                            <Storyboard>
+                                                <FadeOutThemeAnimation TargetName="LayoutRoot" />
+                                            </Storyboard>
+                                        </VisualState>
+                                        <VisualState x:Name="Opened">
 
-                        <ResourceDictionary x:Key="Light">
+                                            <Storyboard>
+                                                <FadeInThemeAnimation TargetName="LayoutRoot" />
+                                            </Storyboard>
+                                        </VisualState>
 
-                            <ImageSource x:Key="HeroBackgroundBitmapImage">ms-appx:///Assets/Backgrounds/WallpaperRebornLight.png</ImageSource>
+                                    </VisualStateGroup>
 
-                        </ResourceDictionary>
+                                </VisualStateManager.VisualStateGroups>
+                            </ContentPresenter>
 
-                        <ResourceDictionary x:Key="HighContrast">
-
-                            <ImageSource x:Key="HeroBackgroundBitmapImage">ms-appx:///Assets/Backgrounds/WallpaperRebornDark.png</ImageSource>
-
-                        </ResourceDictionary>
-
-                    </ResourceDictionary.ThemeDictionaries>
-                </ResourceDictionary>
-            </controls:XamlControlsResources.MergedDictionaries>
-        </controls:XamlControlsResources>
+                        </ControlTemplate>
+                    </Setter.Value>
+                </Setter>
+            </Style>
+        </ResourceDictionary>
     </Application.Resources>
 </Application>

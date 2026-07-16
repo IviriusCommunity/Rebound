@@ -19,12 +19,11 @@
 		<AllowUnsafeBlocks>true</AllowUnsafeBlocks>
 
 		<!-- Properties -->
-		<AssemblyName>Rebound.About</AssemblyName>
+		<AssemblyName>Rebound About</AssemblyName>
 		<RootNamespace>Rebound.About</RootNamespace>
 		<DefaultLanguage>en-US</DefaultLanguage>
 		<ApplicationIcon>Assets\AboutWindows.ico</ApplicationIcon>
 		<ApplicationManifest>app.manifest</ApplicationManifest>
-		<RootNamespace>Rebound.About</RootNamespace>
 
 		<!-- Targets -->
 		<TargetFramework>net10.0-windows10.0.26100.0</TargetFramework>
@@ -59,8 +58,8 @@
 		<PublishProfile>win-$(Platform).pubxml</PublishProfile>
 		<EnableDefaultPriItems>true</EnableDefaultPriItems>
 
-
 		<DisableTransitiveProjectReferences>true</DisableTransitiveProjectReferences>
+
 	</PropertyGroup>
 
 	<!-- Architecture -->
@@ -78,6 +77,7 @@
 
 	<!-- Package references -->
 	<ItemGroup>
+
 		<PackageReference Include="Microsoft.WindowsAppSDK" Version="2.2.0" />
 		
 		<PackageReference Include="Microsoft.WindowsAppSDK.AI" Version="2.2.3" ExcludeAssets="all" />

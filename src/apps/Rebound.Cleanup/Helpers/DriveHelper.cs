@@ -1,16 +1,18 @@
 ﻿using System;
 using System.Collections.ObjectModel;
 using Rebound.Cleanup.Items;
-using Rebound.Helpers;
-using Windows.Win32;
+using Rebound.Core.Native.Wrappers;
+using Rebound.Core.SystemInformation.Software;
+using static TerraFX.Interop.Windows.Windows;
 
 namespace Rebound.Cleanup.Helpers;
 
 internal static partial class DriveHelper
 {
-    public static string GetDriveTypeDescription(string driveRoot)
+    public static unsafe string GetDriveTypeDescription(string driveRoot)
     {
-        var driveType = PInvoke.GetDriveType(driveRoot);
+        using ManagedPtr<char> driveRootPtr = new(driveRoot);
+        var driveType = GetDriveTypeW(driveRootPtr);
 
         return driveType switch
         {
@@ -30,7 +32,7 @@ internal static partial class DriveHelper
         ObservableCollection<DriveComboBoxItem> items = [];
 
         // Get a bitmask representing all logical drives
-        var drivesBitMask = PInvoke.GetLogicalDrives();
+        var drivesBitMask = GetLogicalDrives();
         if (drivesBitMask == 0)
         {
             // No drives found, return empty list
@@ -38,8 +40,8 @@ internal static partial class DriveHelper
         }
 
         // Allocate stack space for volume and file system names
-        Span<char> volumeName = stackalloc char[261];
-        Span<char> fileSystemName = stackalloc char[261];
+        using ManagedArrayPtr<char> volumeName = new(261);
+        using ManagedArrayPtr<char> fileSystemName = new(261);
 
         uint serialNumber, maxComponentLength, fsFlags;
 
@@ -56,11 +58,20 @@ internal static partial class DriveHelper
 
             // Format the full drive path (e.g., "C:\")
             var drivePath = $"{letter}:\\";
+            using ManagedPtr<char> drivePathPtr = new(drivePath);
 
             // Attempt to retrieve volume information for the drive
-            if (!PInvoke.GetVolumeInformation(drivePath, volumeName, &serialNumber, &maxComponentLength, &fsFlags, fileSystemName))
+            if (!GetVolumeInformationW(
+                drivePathPtr,
+                volumeName,
+                (uint)volumeName.Length,
+                &serialNumber,
+                &maxComponentLength,
+                &fsFlags,
+                fileSystemName,
+                (uint)fileSystemName.Length))
             {
-                continue; // Skip if unable to read volume info
+                continue;
             }
 
             // Create a formatted drive letter (e.g., "C:")
@@ -70,7 +81,10 @@ internal static partial class DriveHelper
             var mediaType = GetDriveTypeDescription(drivePath);
 
             // Create the display name for the drive
-            var name = volumeName.IsEmpty ? $"({driveLetter})" : $"{volumeName} ({driveLetter})";
+            var volumeNameString = volumeName.ToString();
+            var name = string.IsNullOrEmpty(volumeNameString)
+                ? $"({driveLetter})"
+                : $"{volumeNameString} ({driveLetter})";
 
             // Select an icon based on media type
             var imagePath = mediaType switch
@@ -82,7 +96,7 @@ internal static partial class DriveHelper
             };
 
             // Use a special icon if this is the Windows installation drive
-            if (driveLetter == EnvironmentHelper.GetWindowsInstallationDrivePath().DrivePathToLetter())
+            if (driveLetter == WindowsInformation.GetWindowsInstallationDrivePath().DrivePathToLetter())
             {
                 imagePath = "ms-appx:///Assets/DriveWindows.ico";
             }

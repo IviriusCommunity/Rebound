@@ -3,7 +3,6 @@
     x:Class="Rebound.Cleanup.Views.MainPage"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-    xmlns:appEnvironment="using:Rebound.Helpers.AppEnvironment"
     xmlns:behaviors="using:CommunityToolkit.WinUI.Behaviors"
     xmlns:converters="using:CommunityToolkit.WinUI.Converters"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
@@ -63,6 +62,10 @@
                     Content="Disk Cleanup"
                     IsSelected="True" />
                 <toolkit:SegmentedItem
+                    x:Name="DiskAnalyzerItem"
+                    Content="Disk Analyzer"
+                    Visibility="{x:Bind ViewModel.IsRunningAsAdmin}" />
+                <toolkit:SegmentedItem
                     x:Name="MoreOptionsItem"
                     Content="More Options"
                     Visibility="{x:Bind ViewModel.IsRunningAsAdmin}" />
@@ -79,15 +82,16 @@
                     <RowDefinition Height="Auto" />
                     <RowDefinition Height="Auto" />
                     <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
                 </Grid.RowDefinitions>
                 <ComboBox
+                    MaxWidth="1000"
                     Margin="24,0"
                     HorizontalAlignment="Stretch"
                     VerticalAlignment="Center"
                     IsEnabled="{x:Bind ViewModel.CanItemsBeClicked, Mode=OneWay}"
-                    ItemsSource="{x:Bind ViewModel.ComboBoxItems, Mode=OneWay}"
-                    SelectedIndex="{x:Bind ViewModel.SelectedDriveIndex, Mode=TwoWay}"
-                    SelectionChanged="ComboBox_SelectionChanged">
+                    ItemsSource="{x:Bind ViewModel.DriveItems, Mode=OneWay}"
+                    SelectedIndex="{x:Bind ViewModel.SelectedDriveIndex, Mode=TwoWay}">
                     <ComboBox.ItemTemplate>
                         <DataTemplate x:DataType="items:DriveComboBoxItem">
                             <Grid>
@@ -109,6 +113,7 @@
                 <InfoBar
                     Title="Hover over an item for its description."
                     Grid.Row="1"
+                    MaxWidth="1000"
                     Margin="24,0"
                     IsClosable="False"
                     IsOpen="True" />
@@ -133,6 +138,7 @@
                     x:Name="ItemsListView"
                     Grid.Row="3"
                     Margin="24,0"
+                    Padding="4,6"
                     Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
                     BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
                     CornerRadius="4"
@@ -141,28 +147,33 @@
                     SelectedIndex="0">
                     <ListView.ItemTemplate>
                         <DataTemplate x:DataType="items:CleanItem">
-                            <Grid ToolTipService.ToolTip="{x:Bind Description, Mode=OneWay}">
+                            <Grid ColumnSpacing="8" ToolTipService.ToolTip="{x:Bind Description, Mode=OneWay}">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto" />
+                                    <ColumnDefinition Width="Auto" />
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="Auto" />
+                                </Grid.ColumnDefinitions>
                                 <CheckBox
-                                    Width="24"
                                     MinWidth="0"
                                     Checked="CheckBox_Checked"
                                     IsChecked="{x:Bind IsChecked, Mode=TwoWay}"
                                     Unchecked="CheckBox_Checked" />
                                 <ImageIcon
-                                    Width="20"
-                                    Margin="28,0,0,0"
+                                    Grid.Column="1"
+                                    Width="16"
                                     HorizontalAlignment="Left"
                                     Source="{x:Bind ImagePath, Mode=OneWay}" />
                                 <TextBlock
-                                    Margin="56,0,64,0"
+                                    Grid.Column="2"
                                     VerticalAlignment="Center"
                                     Text="{x:Bind Name, Mode=OneWay}"
-                                    TextWrapping="WrapWholeWords" />
+                                    TextTrimming="CharacterEllipsis" />
                                 <TextBlock
-                                    HorizontalAlignment="Right"
+                                    Grid.Column="3"
                                     VerticalAlignment="Center"
                                     Opacity="0.5"
-                                    Text="{x:Bind DisplaySize, Mode=OneWay}" />
+                                    Text="{x:Bind Size, Mode=OneWay, Converter={StaticResource FileSizeToFriendlyStringConverter}}" />
                             </Grid>
                         </DataTemplate>
                     </ListView.ItemTemplate>
@@ -175,10 +186,21 @@
                     <TextBlock
                         HorizontalAlignment="Right"
                         Opacity="0.5"
-                        Text="{x:Bind ViewModel.FilesSize, Mode=OneWay}" />
+                        Text="{x:Bind ViewModel.FilesSize, Mode=OneWay, Converter={StaticResource FileSizeToFriendlyStringConverter}}" />
                 </Grid>
                 <StackPanel
                     Grid.Row="5"
+                    Margin="24,0"
+                    Spacing="8">
+                    <TextBlock Text="Live progress" />
+                    <ProgressBar />
+                    <TextBlock
+                        FontSize="12"
+                        Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                        Text="Idle" />
+                </StackPanel>
+                <StackPanel
+                    Grid.Row="6"
                     Margin="24,4,24,8"
                     HorizontalAlignment="Right"
                     Orientation="Horizontal"
@@ -207,31 +229,33 @@
                     </Button>
                 </StackPanel>
                 <Grid
-                    Grid.Row="6"
+                    Grid.Row="7"
                     Height="80"
                     Padding="24"
                     Background="{ThemeResource SystemControlBackgroundAltMediumLowBrush}">
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition />
-                        <ColumnDefinition Width="8" />
-                        <ColumnDefinition />
-                    </Grid.ColumnDefinitions>
-                    <Button
-                        HorizontalAlignment="Stretch"
-                        Command="{x:Bind ViewModel.DeleteCommand}"
-                        Content="Clean"
-                        IsEnabled="{x:Bind ViewModel.CanItemsBeClicked, Mode=OneWay}"
-                        Style="{ThemeResource AccentButtonStyle}" />
-                    <Button
-                        Grid.Column="2"
-                        HorizontalAlignment="Stretch"
-                        Command="{x:Bind CloseCommand}"
-                        Content="Close"
-                        IsEnabled="{x:Bind ViewModel.CanItemsBeClicked, Mode=OneWay}">
-                        <Button.KeyboardAccelerators>
-                            <KeyboardAccelerator Key="Escape" />
-                        </Button.KeyboardAccelerators>
-                    </Button>
+                    <Grid HorizontalAlignment="Right">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition />
+                            <ColumnDefinition Width="8" />
+                            <ColumnDefinition />
+                        </Grid.ColumnDefinitions>
+                        <Button
+                            Width="120"
+                            Command="{x:Bind ViewModel.DeleteCommand}"
+                            Content="Clean"
+                            IsEnabled="{x:Bind ViewModel.CanItemsBeClicked, Mode=OneWay}"
+                            Style="{ThemeResource AccentButtonStyle}" />
+                        <Button
+                            Grid.Column="2"
+                            Width="120"
+                            Command="{x:Bind CloseCommand}"
+                            Content="Close"
+                            IsEnabled="{x:Bind ViewModel.CanItemsBeClicked, Mode=OneWay}">
+                            <Button.KeyboardAccelerators>
+                                <KeyboardAccelerator Key="Escape" />
+                            </Button.KeyboardAccelerators>
+                        </Button>
+                    </Grid>
                 </Grid>
             </Grid>
             <Grid Grid.Row="2" Visibility="{x:Bind MoreOptionsItem.IsSelected, Mode=OneWay}">
