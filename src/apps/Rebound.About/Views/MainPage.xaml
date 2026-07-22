@@ -220,14 +220,8 @@
                     SelectedIndex="0"
                     Style="{StaticResource PivotSegmentedStyle}"
                     Visibility="{x:Bind ViewModel.ShowTabs, Mode=OneWay}">
-                    <controls:SegmentedItem
-                        x:Uid="InformationSegmentedItem"
-                        Icon="{ui:FontIcon Glyph=&#xE946;}"
-                        Tag="information" />
-                    <controls:SegmentedItem
-                        x:Uid="LicenseSegmentedItem"
-                        Icon="{ui:FontIcon Glyph=&#xEB95;}"
-                        Tag="license" />
+                    <controls:SegmentedItem x:Uid="InformationSegmentedItem" Icon="{ui:FontIcon Glyph=&#xE946;}" />
+                    <controls:SegmentedItem x:Uid="LicenseSegmentedItem" Icon="{ui:FontIcon Glyph=&#xEB95;}" />
                 </controls:Segmented>
                 <Button
                     Margin="8,0"
@@ -243,8 +237,11 @@
                         <TextBlock x:Uid="ViewMore" />
                     </StackPanel>
                 </Button>
-                <controls:SwitchPresenter Grid.Row="1" Value="{Binding SelectedItem.Tag, ElementName=segmentedControl}">
-                    <controls:Case Value="information">
+                <controls:SwitchPresenter Grid.Row="1" Value="{x:Bind segmentedControl.SelectedIndex, Mode=OneWay}">
+                    <controls:Case>
+                        <controls:Case.Value>
+                            <x:Int32>0</x:Int32>
+                        </controls:Case.Value>
                         <Grid animations:Implicit.HideAnimations="{StaticResource HideTransitions}" animations:Implicit.ShowAnimations="{StaticResource ShowTransitions}">
                             <Grid.RowDefinitions>
                                 <RowDefinition Height="*" />
@@ -535,7 +532,10 @@
 
                         </Grid>
                     </controls:Case>
-                    <controls:Case Value="license">
+                    <controls:Case>
+                        <controls:Case.Value>
+                            <x:Int32>1</x:Int32>
+                        </controls:Case.Value>
                         <Grid animations:Implicit.HideAnimations="{StaticResource HideTransitions}" animations:Implicit.ShowAnimations="{StaticResource ShowTransitions}">
                             <Grid.RowDefinitions>
                                 <RowDefinition Height="*" />
