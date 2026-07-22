@@ -65,8 +65,6 @@ internal sealed partial class MainPage : Page
         ViewModel.InitializePrimaryHardware();
         ViewModel.InitializePrimaryUser();
 
-        ViewModel.Loaded = true;
-
         // All heavy work off UI thread
         _ = LoadDeferredAsync();
 

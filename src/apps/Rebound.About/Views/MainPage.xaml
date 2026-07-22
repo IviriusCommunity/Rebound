@@ -1905,24 +1905,5 @@
                 </StackPanel>
             </Grid>
         </Grid>
-        <Grid Background="{ThemeResource SolidBackgroundFillColorBaseBrush}" Visibility="{x:Bind ViewModel.Loaded, Mode=OneWay, Converter={StaticResource BoolToInverseVisibilityConverter}}">
-            <Image
-                Width="80"
-                HorizontalAlignment="Center"
-                VerticalAlignment="Center"
-                Source="/Assets/AboutWindows.ico"
-                Visibility="{x:Bind ViewModel.Loaded, Mode=OneWay, Converter={StaticResource BoolToInverseVisibilityConverter}}" />
-            <ProgressRing
-                Width="32"
-                Height="32"
-                Margin="0,160,0,0"
-                Foreground="{ThemeResource TextFillColorPrimaryBrush}"
-                IsActive="True"
-                IsIndeterminate="True"
-                Visibility="{x:Bind ViewModel.Loaded, Mode=OneWay, Converter={StaticResource BoolToInverseVisibilityConverter}}" />
-            <animations:Implicit.HideAnimations>
-                <animations:OpacityAnimation To="0" Duration="0:0:0.5" />
-            </animations:Implicit.HideAnimations>
-        </Grid>
     </Grid>
 </Page>
