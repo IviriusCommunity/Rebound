@@ -4,6 +4,9 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using CommunityToolkit.WinUI;
+using Microsoft.UI.Windowing;
+using Microsoft.UI.Xaml;
+using Microsoft.UI.Xaml.Controls;
 using Rebound.Cleanup.Helpers;
 using Rebound.Cleanup.Items;
 using Rebound.Core.Environment;
@@ -20,7 +23,9 @@ using System.Runtime.InteropServices;
 using System.Threading;
 using System.Threading.Tasks;
 using TerraFX.Interop.Windows;
+using Windows.Foundation;
 using Windows.System;
+using WinUIEx;
 using static TerraFX.Interop.Windows.S;
 using static TerraFX.Interop.Windows.Windows;
 
@@ -45,6 +50,14 @@ internal partial class MainViewModel : ObservableObject
     [ObservableProperty] public partial bool CanItemsBeClicked { get; set; } = true;
 
     [ObservableProperty] public partial int SelectedDriveIndex { get; set; }
+
+    [ObservableProperty] public partial int MaxProgress { get; set; }
+
+    [ObservableProperty] public partial int CurrentProgress { get; set; }
+
+    [ObservableProperty] public partial string CurrentTask { get; set; }
+
+    [ObservableProperty] public partial string CurrentOperation { get; set; }
 
     partial void OnIsEverythingSelectedChanged(bool? oldValue, bool? newValue)
     {
@@ -113,14 +126,22 @@ internal partial class MainViewModel : ObservableObject
         });
     }
 
+    private CancellationTokenSource _globalIndexingCancellationToken = new();
+
     [RelayCommand]
     public async Task RefreshCleanupListAsync(DriveComboBoxItem selectedItem)
     {
         if (selectedItem == null)
             return;
 
-        // Reset the list to default
+        // Cancel ongoing indexing operations
+        await _globalIndexingCancellationToken.CancelAsync().ConfigureAwait(true);
+        _globalIndexingCancellationToken = new CancellationTokenSource();
+
+        // Reset the list and properties to default
         CleanItems.Clear();
+        FilesSize = 0;
+        FilesCount = 0;
 
         // Store everything on the main thread
         var discoveredItems = new List<CleanItem>();
@@ -172,15 +193,28 @@ internal partial class MainViewModel : ObservableObject
                         Path = Path.Combine(selectedItem.DrivePath, "$Recycle.Bin"),
 
                         // Custom deletion action for Admin mode
-                        CustomDeleteAction = async (target, cancellationToken) =>
+                        CustomDeleteAction = async (target, progressReporter, cancellationToken) =>
                         {
                             await Task.Run(() =>
                             {
                                 var recycleBinRootPath = Path.Combine(selectedItem.DrivePath, "$Recycle.Bin");
-                                if (!Directory.Exists(recycleBinRootPath)) 
+                                if (!Directory.Exists(recycleBinRootPath))
                                     return;
 
                                 var rootDirectory = new DirectoryInfo(recycleBinRootPath);
+
+                                // Safe enumeration options to avoid system loops/junction blocks
+                                var options = new EnumerationOptions
+                                {
+                                    IgnoreInaccessible = true,
+                                    RecurseSubdirectories = true,
+                                    AttributesToSkip = FileAttributes.ReparsePoint // Prevents escaping the Recycle Bin via junctions
+                                };
+
+                                long batchSize = 0;
+                                int batchCount = 0;
+                                string lastReportedFilePath = string.Empty;
+                                var stopwatch = System.Diagnostics.Stopwatch.StartNew();
 
                                 // Loop through all SID folders (e.g., S-1-5-21-...) belonging to different users
                                 foreach (var subDirectory in rootDirectory.EnumerateDirectories())
@@ -189,14 +223,32 @@ internal partial class MainViewModel : ObservableObject
                                     {
                                         // Strip hidden/system flags so Windows allows the deletion loop
                                         subDirectory.Attributes = FileAttributes.Normal;
-                
-                                        // Clear out all deleted file fragments and metadata indexes inside
-                                        foreach (var file in subDirectory.EnumerateFiles("*", SearchOption.AllDirectories))
+
+                                        // Clear out all deleted file fragments and metadata indexes inside safely
+                                        foreach (FileInfo file in subDirectory.EnumerateFiles("*", options))
                                         {
+                                            cancellationToken.ThrowIfCancellationRequested();
+
                                             try
                                             {
+                                                long fileSize = file.Length;
+
                                                 file.Attributes = FileAttributes.Normal;
                                                 file.Delete();
+
+                                                // Only accumulate progress metrics on successful execution
+                                                batchSize += fileSize;
+                                                batchCount++;
+                                                lastReportedFilePath = file.FullName;
+
+                                                if (stopwatch.ElapsedMilliseconds > 100)
+                                                {
+                                                    progressReporter?.Report((batchSize, batchCount, lastReportedFilePath));
+
+                                                    batchSize = 0;
+                                                    batchCount = 0;
+                                                    stopwatch.Restart();
+                                                }
                                             }
                                             catch (IOException) { /* File is currently locked/active */ }
                                             catch (UnauthorizedAccessException) { /* Bad permissions */ }
@@ -210,11 +262,17 @@ internal partial class MainViewModel : ObservableObject
                                         // If a specific user's trash folder is totally locked, skip it and keep moving
                                     }
                                 }
+
+                                // Flush any remaining completed deletions left in the final batch window
+                                if (batchCount > 0)
+                                {
+                                    progressReporter?.Report((batchSize, batchCount, lastReportedFilePath));
+                                }
                             }, cancellationToken).ConfigureAwait(false);
                         },
 
                         // Custom enumerate action for Admin mode
-                        CustomEnumerateAction = async (target, cancellationToken) =>
+                        CustomEnumerateAction = async (target, progressReporter, cancellationToken) =>
                         {
                             return await Task.Run(() =>
                             {
@@ -223,6 +281,12 @@ internal partial class MainViewModel : ObservableObject
 
                                 long totalSizeBytes = 0;
                                 int totalFiles = 0;
+
+                                // Trackers for our throttled batching
+                                long batchSize = 0;
+                                int batchCount = 0;
+                                var stopwatch = System.Diagnostics.Stopwatch.StartNew();
+
                                 var rootDirectory = new DirectoryInfo(recycleBinRootPath);
 
                                 foreach (var subDirectory in rootDirectory.EnumerateDirectories())
@@ -232,10 +296,25 @@ internal partial class MainViewModel : ObservableObject
                                     {
                                         foreach (var file in subDirectory.EnumerateFiles("*", SearchOption.AllDirectories))
                                         {
+                                            cancellationToken.ThrowIfCancellationRequested(); // Check inside the inner file loops too
                                             try
                                             {
                                                 totalSizeBytes += file.Length;
                                                 totalFiles++;
+
+                                                // Accumulate current batch
+                                                batchSize += file.Length;
+                                                batchCount++;
+
+                                                // Push updates to UI every 100ms
+                                                if (stopwatch.ElapsedMilliseconds > 100)
+                                                {
+                                                    progressReporter?.Report((batchSize, batchCount, file.FullName));
+
+                                                    batchSize = 0;
+                                                    batchCount = 0;
+                                                    stopwatch.Restart();
+                                                }
                                             }
                                             catch (FileNotFoundException) { /* Gone during scan */ }
                                             catch (UnauthorizedAccessException) { /* Hidden system file lock */ }
@@ -244,12 +323,18 @@ internal partial class MainViewModel : ObservableObject
                                     catch (Exception) { /* Skip unreadable user SID directories */ }
                                 }
 
+                                // Flush any remaining items in the batch at the finish line
+                                if (batchCount > 0)
+                                {
+                                    progressReporter?.Report((batchSize, batchCount, rootDirectory.FullName));
+                                }
+
                                 return (totalSizeBytes, totalFiles);
                             }, cancellationToken).ConfigureAwait(false);
                         }
                     }],
                     "ms-appx:///Assets/CleanupItems/RecycleBin.ico",
-                    "The Recycle Bin stores files and folders that you've deleted from your computer. These items are not permanently removed until you empty the Recycle Bin. You can recover deleted items from here, but deleting them permanently frees up disk space.",
+                    "The Recycle Bins for all user accounts on this computer. Deleted files and folders stored here can normally be restored until they are permanently removed. Emptying the Recycle Bin permanently deletes these items and frees the disk space they occupy.",
                     "TRASH",
                     "shell:RecycleBinFolder",
                     true).ConfigureAwait(false);
@@ -270,25 +355,44 @@ internal partial class MainViewModel : ObservableObject
                         Path = selectedItem.DrivePath,
 
                         // Custom deletion action for Non-Admin mode using standard Shell API
-                        CustomDeleteAction = async (target, cancellationToken) =>
+                        CustomDeleteAction = async (target, progressReporter, cancellationToken) =>
                         {
                             await Task.Run(() =>
                             {
-                                uint flags = SHERB_NOCONFIRMATION | SHERB_NOPROGRESSUI | SHERB_NOSOUND;
-                                
-                                // drivePath must be formatted like "C:\"
-                                using ManagedPtr<char> drivePathPtr = selectedItem.DrivePath;
+                                unsafe
+                                {
+                                    cancellationToken.ThrowIfCancellationRequested();
 
-                                // This clears the current user's partition on that specific drive
-                                unsafe { SHEmptyRecycleBinW(HWND.NULL, drivePathPtr, flags); }
+                                    uint flags = SHERB_NOCONFIRMATION | SHERB_NOPROGRESSUI | SHERB_NOSOUND;
+        
+                                    // drivePath must be formatted like "C:\"
+                                    using ManagedPtr<char> drivePathPtr = selectedItem.DrivePath;
+
+                                    var rbInfo = new SHQUERYRBINFO { cbSize = (uint)sizeof(SHQUERYRBINFO) };
+                                    int queryResult = SHQueryRecycleBinW(drivePathPtr, &rbInfo);
+
+                                    long totalSizeToFree = rbInfo.i64Size;
+                                    int totalCountToFree = (int)rbInfo.i64NumItems;
+
+                                    // This clears the current user's partition on that specific drive
+                                    int result = SHEmptyRecycleBinW(HWND.NULL, drivePathPtr, flags); 
+            
+                                    // If the native call succeeds (S_OK is 0), report completion to the UI
+                                    if (result == 0 && totalCountToFree > 0)
+                                    {
+                                        progressReporter?.Report((totalSizeToFree, totalCountToFree, selectedItem.DrivePath));
+                                    }
+                                }
                             }, cancellationToken).ConfigureAwait(false);
                         },
 
                         // Custom enumerate action for Non-Admin mode
-                        CustomEnumerateAction = async (target, cancellationToken) =>
+                        CustomEnumerateAction = async (target, progressReporter, cancellationToken) =>
                         {
                             return await Task.Run(() =>
                             {
+                                cancellationToken.ThrowIfCancellationRequested();
+
                                 unsafe
                                 {
                                     // Setup the info structure sizes
@@ -300,6 +404,9 @@ internal partial class MainViewModel : ObservableObject
                                     int result = SHQueryRecycleBinW(drivePathPtr, &rbInfo);
                                     if (result == S_OK)
                                     {
+                                        // We got the data instantly! Report it as a single batch to update the UI
+                                        progressReporter?.Report((rbInfo.i64Size, (int)rbInfo.i64NumItems, selectedItem.DrivePath));
+
                                         return (rbInfo.i64Size, (int)rbInfo.i64NumItems);
                                     }
                                 }
@@ -309,7 +416,7 @@ internal partial class MainViewModel : ObservableObject
                         }
                     }],
                     "ms-appx:///Assets/CleanupItems/RecycleBin.ico",
-                    "The Recycle Bin stores files and folders that you've deleted from your computer. These items are not permanently removed until you empty the Recycle Bin. You can recover deleted items from here, but deleting them permanently frees up disk space.",
+                    "The Recycle Bin for the current user account. Deleted files and folders stored here can normally be restored until they are permanently removed. Emptying the Recycle Bin permanently deletes these items and frees the disk space they occupy.",
                     "TRASH",
                     "shell:RecycleBinFolder",
                     true).ConfigureAwait(false);
@@ -335,9 +442,9 @@ internal partial class MainViewModel : ObservableObject
 
                 await AddItem(
                     "Temporary Files (Current User)",
-                    [new() { Path = tempPath }],
+                    [new() { Path = tempPath, Depth = SearchDepth.AllDirectories, DeleteEmptySubdirectories = true }],
                     "ms-appx:///Assets/CleanupItems/TemporaryFiles.ico",
-                    "Stores temporary data created by applications and the system during normal operation.",
+                    "Temporary files created by applications and Windows in the current user's temporary folder. These files are intended for short-term use and are generally safe to delete after the applications that created them have closed.",
                     "APPDATA_TEMP",
                     tempPath
                 ).ConfigureAwait(false);
@@ -351,9 +458,9 @@ internal partial class MainViewModel : ObservableObject
 
                 await AddItem(
                     "Recent Files (Current User)",
-                    [new() { Path = recentFilesPath }],
+                    [new() { Path = recentFilesPath, Depth = SearchDepth.AllDirectories }],
                     "ms-appx:///Assets/CleanupItems/RecentFiles.ico",
-                    "Tracks recently opened files and documents for quick access in File Explorer and applications.",
+                    "Shortcuts to recently opened files and documents used by File Explorer and applications to display recent activity. Clearing this list removes the shortcuts without affecting the original files.",
                     "APPDATA_MS_WIN_RECENT",
                     recentFilesPath).ConfigureAwait(false);
 
@@ -367,7 +474,7 @@ internal partial class MainViewModel : ObservableObject
 
                 await AddItem(
                     "Temporary Internet Files",
-                    [new() { Path = inetCachePath }],
+                    [new() { Path = inetCachePath, Depth = SearchDepth.AllDirectories, DeleteEmptySubdirectories = true }],
                     "ms-appx:///Assets/CleanupItems/TemporaryInternetFiles.ico",
                     "(Obsolete) Contains cached web content used by Internet Explorer and other legacy components.",
                     "LOCALAPPDATA_MS_WIN_INETCACHE", inetCachePath).ConfigureAwait(false);
@@ -395,7 +502,7 @@ internal partial class MainViewModel : ObservableObject
                         },
 
                         // Custom Delete Action (Explorer locks these files so they need special handling not to throw)
-                        CustomDeleteAction = async (target, cancellationToken) =>
+                        CustomDeleteAction = async (target, progressReporter, cancellationToken) =>
                         {
                             await Task.Run(() =>
                             {
@@ -403,7 +510,19 @@ internal partial class MainViewModel : ObservableObject
 
                                 var dirInfo = new DirectoryInfo(target.Path);
 
-                                foreach (FileInfo file in dirInfo.EnumerateFiles("*", SearchOption.TopDirectoryOnly))
+                                var options = new EnumerationOptions
+                                {
+                                    IgnoreInaccessible = true,
+                                    RecurseSubdirectories = target.Depth == SearchDepth.AllDirectories,
+                                    AttributesToSkip = FileAttributes.ReparsePoint // Keep it safe from symlink traps
+                                };
+
+                                long batchSize = 0;
+                                int batchCount = 0;
+                                string lastReportedFilePath = string.Empty;
+                                var stopwatch = System.Diagnostics.Stopwatch.StartNew();
+
+                                foreach (FileInfo file in dirInfo.EnumerateFiles("*", options))
                                 {
                                     cancellationToken.ThrowIfCancellationRequested();
 
@@ -412,6 +531,8 @@ internal partial class MainViewModel : ObservableObject
                                     {
                                         try
                                         {
+                                            long fileSize = file.Length;
+
                                             // Strip readonly/system attributes just in case
                                             if (file.Attributes != FileAttributes.Normal)
                                             {
@@ -419,6 +540,20 @@ internal partial class MainViewModel : ObservableObject
                                             }
 
                                             file.Delete();
+
+                                            // Only track progress metrics if the deletion was successful
+                                            batchSize += fileSize;
+                                            batchCount++;
+                                            lastReportedFilePath = file.FullName;
+
+                                            if (stopwatch.ElapsedMilliseconds > 100)
+                                            {
+                                                progressReporter?.Report((batchSize, batchCount, lastReportedFilePath));
+
+                                                batchSize = 0;
+                                                batchCount = 0;
+                                                stopwatch.Restart();
+                                            }
                                         }
                                         catch (IOException)
                                         {
@@ -426,6 +561,12 @@ internal partial class MainViewModel : ObservableObject
                                         }
                                         catch (UnauthorizedAccessException) { /* Insufficient permissions */ }
                                     }
+                                }
+
+                                // Flush any remaining completed deletions left in the final batch window
+                                if (batchCount > 0)
+                                {
+                                    progressReporter?.Report((batchSize, batchCount, lastReportedFilePath));
                                 }
                             }, cancellationToken).ConfigureAwait(false);
                         }
@@ -484,14 +625,16 @@ internal partial class MainViewModel : ObservableObject
                             Marshal.FreeCoTaskMem(pNativePath);
                         }
                     }
-
-                    // Emergency fallback if the Win32 API call fails
-                    downloadsPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), "Downloads");
+                    else
+                    {
+                        // Emergency fallback if the Win32 API call fails
+                        downloadsPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), "Downloads");
+                    }
                 }
 
                 await AddItem(
                     "Downloads Folder (Current User)",
-                    [new() { Path = downloadsPath }],
+                    [new() { Path = downloadsPath, Depth = SearchDepth.AllDirectories, DeleteEmptySubdirectories = true }],
                     "ms-appx:///Assets/CleanupItems/Downloads.ico",
                     "Default location for files downloaded from the internet or transferred from other devices.",
                     "DOWNLOADS",
@@ -552,7 +695,7 @@ internal partial class MainViewModel : ObservableObject
                     string dpfPath = Path.Combine(windowsRoot, "Downloaded Program Files");
 
                     var dpfTargets = Directory.Exists(dpfPath)
-                        ? [ new CleanTarget() { Path = dpfPath, Depth = SearchDepth.TopDirectoryOnly } ]
+                        ? [ new CleanTarget() { Path = dpfPath, Depth = SearchDepth.TopDirectoryOnly, DeleteEmptySubdirectories = true } ]
                         : Array.Empty<CleanTarget>();
 
                     await AddItem(
@@ -612,7 +755,7 @@ internal partial class MainViewModel : ObservableObject
                     string wdoCachePath = Path.Combine(programData, "Microsoft", "Network", "Downloader");
 
                     var wdoTargets = Directory.Exists(wdoCachePath)
-                        ? [ new CleanTarget() { Path = wdoCachePath, Depth = SearchDepth.AllDirectories } ]
+                        ? [ new CleanTarget() { Path = wdoCachePath, Depth = SearchDepth.AllDirectories, DeleteEmptySubdirectories = true } ]
                         : Array.Empty<CleanTarget>();
 
                     await AddItem(
@@ -630,7 +773,7 @@ internal partial class MainViewModel : ObservableObject
                     string updateStagingPath = Path.Combine(windowsRoot, "SoftwareDistribution", "Download");
 
                     var updateTargets = Directory.Exists(updateStagingPath)
-                        ? [ new CleanTarget() { Path = updateStagingPath, Depth = SearchDepth.AllDirectories } ]
+                        ? [ new CleanTarget() { Path = updateStagingPath, Depth = SearchDepth.AllDirectories, DeleteEmptySubdirectories = true } ]
                         : Array.Empty<CleanTarget>();
 
                     await AddItem(
@@ -720,7 +863,7 @@ internal partial class MainViewModel : ObservableObject
                     string systemTempPath = Path.Combine(windowsRoot, "Temp");
 
                     var tempTargets = Directory.Exists(systemTempPath)
-                        ? [ new CleanTarget() { Path = systemTempPath, Depth = SearchDepth.AllDirectories } ]
+                        ? [ new CleanTarget() { Path = systemTempPath, Depth = SearchDepth.AllDirectories, DeleteEmptySubdirectories = true } ]
                         : Array.Empty<CleanTarget>();
 
                     await AddItem(
@@ -736,117 +879,268 @@ internal partial class MainViewModel : ObservableObject
         }).ConfigureAwait(true);
 
         // Back on the UI thread: bulk add to the ObservableCollection to prevent UI stutter
-        LoadProperties(discoveredItems);
+        await LoadPropertiesAsync(discoveredItems, _globalIndexingCancellationToken.Token).ConfigureAwait(false);
     }
 
-
-    public static void CleanUnusedTemp(string tempFolderPath)
+    private async Task LoadPropertiesAsync(List<CleanItem> discoveredItems, CancellationToken token)
     {
-        if (!Directory.Exists(tempFolderPath)) return;
+        MaxProgress = discoveredItems.Count;
+        CurrentOperation = "Indexing items...";
 
-        var directory = new DirectoryInfo(tempFolderPath);
+        var indexingTasks = new List<Task>();
 
-        // 1. Get the exact time the computer started.
-        // Files older than the current Windows session are 100% safe to delete, 
-        // because the app that made them isn't running anymore.
-        DateTime bootTime = DateTime.Now - TimeSpan.FromMilliseconds(Environment.TickCount64);
-
-        // 2. Set a short buffer for the current session (e.g., 20 minutes)
-        // This catches that 12 GB installer dump from 30 minutes ago, 
-        // but protects a file an app created 45 seconds ago.
-        DateTime shortSessionBuffer = DateTime.Now.AddMinutes(-20);
-
-        foreach (FileInfo file in directory.EnumerateFiles("*", SearchOption.AllDirectories))
-        {
-            try
-            {
-                // Deletion Conditions:
-                // - File was made in a previous Windows session OR
-                // - File is older than our 20-minute safety buffer
-                if (file.LastWriteTime < bootTime || file.LastWriteTime < shortSessionBuffer)
-                {
-                    file.Attributes = FileAttributes.Normal;
-                    file.Delete();
-                }
-            }
-            catch (IOException)
-            {
-                // File is actively locked by a running process (Truly "In Use"). 
-                // Windows handles this for us; skip it safely.
-            }
-            catch (UnauthorizedAccessException)
-            {
-                // Lacks permissions, skip safely.
-            }
-        }
-    }
-
-    private async void LoadProperties(List<CleanItem> discoveredItems)
-    {
         foreach (var item in discoveredItems)
         {
+            if (token.IsCancellationRequested)
+                break;
+
             CleanItems.Add(item);
 
-            _ = Task.Run(async () =>
+            // Define the progress handler ON the UI thread.
+            // IProgress automatically handles the Dispatcher switching for us.
+            var progress = new Progress<(long size, int count, string itemPath)>(async delta =>
             {
-                long totalSize = 0;
-                int totalCount = 0;
+                // Safeguard: If the user cancelled, stop adding to global aggregates
+                if (token.IsCancellationRequested)
+                    return;
 
+                // Display the currently indexed item in the UI
+                await (App.MainWindow?.DispatcherQueue.EnqueueAsync(() =>
+                {
+                    CurrentTask = delta.itemPath;
+                }))!.ConfigureAwait(false)!;
+
+                // Update the individual row item in real-time
+                item.Size += delta.size;
+                item.FileCount += delta.count;
+
+                // Accumulate into your global totals in real-time
+                FilesSize += delta.size;
+                FilesCount += delta.count;
+            });
+
+            var task = Task.Run(async () =>
+            {
                 foreach (var target in item.CleanTargets)
                 {
-                    var (size, count) = await target.EnumerateAsync(null, CancellationToken.None).ConfigureAwait(false);
-                    totalSize += size;
-                    totalCount += count;
+                    // Pass our UI-bound progress reporter down to the scanner
+                    var (finalSize, finalCount) = await target.EnumerateAsync(progress, token).ConfigureAwait(false);
                 }
 
-                var task = App.MainWindow?.DispatcherQueue.EnqueueAsync(() =>
-                {
-                    item.Size = totalSize;
-                    item.FileCount = totalCount;
+                if (token.IsCancellationRequested)
+                    return;
 
-                    FilesSize += totalSize;
-                    FilesCount += totalCount;
-                });
-                await task!.ConfigureAwait(true);
-            });
+                // Final flip of the flag once this specific item finishes entirely
+                await (App.MainWindow?.DispatcherQueue.EnqueueAsync(async () =>
+                {
+                    if (!token.IsCancellationRequested)
+                    {
+                        item.IsEnumerated = true;
+                        await (App.MainWindow?.DispatcherQueue.EnqueueAsync(() =>
+                        {
+                            CurrentProgress++;
+                        }))!.ConfigureAwait(false)!;
+                    }
+                }))!.ConfigureAwait(false)!;
+            }, token);
+
+            indexingTasks.Add(task);
         }
 
+        try
+        {
+            await Task.WhenAll(indexingTasks).ConfigureAwait(false);
+        }
+        catch (OperationCanceledException)
+        {
+            // Suppress expected cancellation exceptions gracefully
+        }
+
+        await (App.MainWindow?.DispatcherQueue.EnqueueAsync(() =>
+        {
+            CurrentProgress = 0;
+            CurrentTask = "Done.";
+            CurrentOperation = "Idle";
+        }))!.ConfigureAwait(false);
     }
 
     [RelayCommand]
     public async Task DeleteAsync()
     {
-        CanItemsBeClicked = false;
+        // 1. Gather up all targets that the user actually selected to clean
+        var activeTargets = CleanItems
+            .Where(item => item.IsChecked)
+            .SelectMany(item => item.CleanTargets)
+            .ToList();
 
-        foreach (CleanItem item in CleanItems)
+        var itemTargets = CleanItems
+            .Where(item => item.IsChecked)
+            .ToList();
+
+        if (activeTargets.Count == 0) return;
+
+        // Calculate total operations to process (matches our file counts from enumeration)
+        // Assuming target exposes the Count calculated during EnumerateAsync
+        int totalFilesToClean = itemTargets.Sum(t => t.FileCount);
+        long totalBytesToClean = itemTargets.Sum(t => t.Size);
+
+        // 2. Set up Cancellation and Window Closing Guards
+        using var cts = new CancellationTokenSource();
+
+        TypedEventHandler<AppWindow, AppWindowClosingEventArgs> preventCloseHandler = (s, e) => e.Cancel = true;
+        if (App.MainWindow != null)
         {
-            try
-            {
-                // Check if the path matches and if the item is checked
-                if (item.IsChecked)
-                {
-                    foreach (var target in item.CleanTargets)
-                    {
-                        await target.ExecuteCleanAsync(CancellationToken.None).ConfigureAwait(false);
-                    }
-                }
-            }
-            catch
-            {
-
-            }
+            App.MainWindow.AppWindow.Closing += preventCloseHandler;
         }
 
-        await RefreshCleanupListAsync(DriveItems[SelectedDriveIndex]).ConfigureAwait(false);
+        // 3. Build out the live progress UI layout completely in code
+        var statusText = new TextBlock
+        {
+            Text = "Preparing extraction...",
+            TextTrimming = TextTrimming.CharacterEllipsis
+        };
 
-        CanItemsBeClicked = true;
+        var progressBar = new ProgressBar
+        {
+            Minimum = 0,
+            Maximum = totalFilesToClean,
+            Value = 0,
+            IsIndeterminate = totalFilesToClean == 0 // Failsafe if counts were zero
+        };
+
+        var contentPanel = new StackPanel { Spacing = 8 };
+        contentPanel.Children.Add(statusText);
+        contentPanel.Children.Add(progressBar);
+
+        var progressDialog = new ContentDialog
+        {
+            Title = "Cleaning...",
+            Content = contentPanel,
+            SecondaryButtonText = "Cancel",
+            XamlRoot = App.MainWindow?.Content?.XamlRoot // Required for WinUI 3 dialogs
+        };
+
+        progressDialog.SecondaryButtonClick += (s, e) =>
+        {
+            cts.Cancel();
+        };
+
+        // 4. Setup Progress Aggregator to report back safely to the UI thread
+        long aggregatedBytesFreed = 0;
+        int aggregatedFilesFreed = 0;
+
+        var progressReporter = new Progress<(long size, int count, string itemPath)>(data =>
+        {
+            aggregatedBytesFreed += data.size;
+            aggregatedFilesFreed += data.count;
+
+            // Keep progress bar bounded in case file discrepancies happen mid-run
+            progressBar.Value = Math.Min(aggregatedFilesFreed, progressBar.Maximum);
+            statusText.Text = data.itemPath;
+            ToolTipService.SetToolTip(statusText, data.itemPath);
+        });
+
+        // Show the progress dialog without awaiting its full completion block yet
+        var dialogTask = progressDialog.ShowAsync().AsTask();
+
+        bool isCancelled = false;
+
+        // 5. Run the core background cleaning engine loops
+        try
+        {
+            foreach (var target in activeTargets)
+            {
+                if (cts.IsCancellationRequested)
+                {
+                    isCancelled = true;
+                    break;
+                }
+
+                try
+                {
+                    // Execute using our updated signature with progress reporting
+                    await target.ExecuteCleanAsync(progressReporter, cts.Token).ConfigureAwait(false);
+                }
+                catch (OperationCanceledException)
+                {
+                    isCancelled = true;
+                    break;
+                }
+                catch
+                {
+                    // Engine skips individual locked targets cleanly
+                }
+            }
+        }
+        finally
+        {
+            await (App.MainWindow?.DispatcherQueue.EnqueueAsync(async () =>
+            {
+                // 6. Clean up hooks and dismiss live tracking UI
+                if (App.MainWindow != null)
+                {
+                    App.MainWindow.AppWindow.Closing -= preventCloseHandler;
+                }
+
+                progressDialog.Hide();
+                await dialogTask.ConfigureAwait(true); // Ensure dialog finishes execution loop gracefully
+            }))!.ConfigureAwait(false);
+        }
+
+        await (App.MainWindow?.DispatcherQueue.EnqueueAsync(async () =>
+        {
+            // 7. Refresh the UI elements behind the scenes
+            if (DriveItems.Count > SelectedDriveIndex)
+            {
+                await RefreshCleanupListAsync(DriveItems[SelectedDriveIndex]).ConfigureAwait(true);
+            }
+
+            // 8. Present success validation modal to user if they didn't abort execution
+            if (!isCancelled)
+            {
+                var completionDialog = new ContentDialog
+                {
+                    Title = "All done!",
+                    Content = $"Cleaned {aggregatedFilesFreed:N0} files ({FormatBytes(aggregatedBytesFreed)})",
+                    PrimaryButtonText = "Ok",
+                    XamlRoot = App.MainWindow?.Content?.XamlRoot
+                };
+
+                await completionDialog.ShowAsync();
+            }
+        }))!.ConfigureAwait(false);
+    }
+
+    /// <summary>
+    /// Converts raw disk capacities into clean human-readable binary byte string formats.
+    /// </summary>
+    private static string FormatBytes(long bytes)
+    {
+        string[] suffixes = { "bytes", "KB", "MB", "GB", "TB", "PB" };
+        int counter = 0;
+        double number = bytes;
+
+        while (Math.Round(number / 1024) >= 1)
+        {
+            number /= 1024;
+            counter++;
+        }
+
+        return $"{number:N2} {suffixes[counter]}";
     }
 
     [RelayCommand]
     public async Task ViewFilesAsync(int index)
     {
-        if (index != -1)
-            await Launcher.LaunchFolderPathAsync(CleanItems[index].LaunchTargetPath);
+        try
+        {
+            if (index != -1)
+                await Launcher.LaunchFolderPathAsync(CleanItems[index].LaunchTargetPath);
+        }
+        catch
+        {
+            App.MainWindow?.CreateMessageDialog("The contents of this item cannot be viewed.", "No access");
+        }
     }
 
     [RelayCommand]

@@ -60,7 +60,7 @@ internal sealed partial class MainPage : Page
         WallpaperPath = wallpaper;
         UserPicturePath = userPicture;
 
-        // Fast init — these are probably cheap, keep on UI thread
+        // Fast init - these are probably cheap, keep on UI thread
         ViewModel.InitializePrimarySoftware();
         ViewModel.InitializePrimaryHardware();
         ViewModel.InitializePrimaryUser();

@@ -21,6 +21,7 @@
 		<!-- Properties -->
 		<AssemblyName>Rebound Disk Cleanup</AssemblyName>
 		<RootNamespace>Rebound.Cleanup</RootNamespace>
+		<DefaultLanguage>en-US</DefaultLanguage>
 		<ApplicationIcon>Assets\cleanmgr.ico</ApplicationIcon>
 		<ApplicationManifest>app.manifest</ApplicationManifest>
 
@@ -57,7 +58,11 @@
 		<PublishProfile>win-$(Platform).pubxml</PublishProfile>
 		<EnableDefaultPriItems>true</EnableDefaultPriItems>
 
+		<!-- For debloat -->
 		<DisableTransitiveProjectReferences>true</DisableTransitiveProjectReferences>
+
+		<!-- For system composition -->
+		<DefineConstants>$(DefineConstants);DISABLE_XAML_GENERATED_MAIN</DefineConstants>
 
 	</PropertyGroup>
 
@@ -77,16 +82,20 @@
 	<!-- Package references -->
 	<ItemGroup>
 
-		<PackageReference Include="Microsoft.WindowsAppSDK" Version="2.2.0" />
-
-		<PackageReference Include="Microsoft.WindowsAppSDK.AI" Version="2.2.3" ExcludeAssets="all" />
-		<PackageReference Include="Microsoft.WindowsAppSDK.ML" Version="2.1.70" ExcludeAssets="all" />
-		<PackageReference Include="Microsoft.Windows.AI.MachineLearning" Version="2.1.70" ExcludeAssets="all" />
-		<PackageReference Include="Microsoft.ML.OnnxRuntime" Version="1.23.2" ExcludeAssets="all" />
-		<PackageReference Include="Microsoft.Web.WebView2" Version="1.0.3719.77" ExcludeAssets="all" />
+		<!-- NAOT fix -->
+		<PackageReference Include="Microsoft.DotNet.ILCompiler" Version="10.0.10" PrivateAssets="All" />
 
 		<!-- Windows SDK and WinUI -->
-		<PackageReference Include="WinUIEx" Version="2.9.1" />
+		<PackageReference Include="Microsoft.WindowsAppSDK" Version="2.3.1" />
+
+		<PackageReference Include="Microsoft.WindowsAppSDK.AI" Version="2.3.4" ExcludeAssets="all" />
+		<PackageReference Include="Microsoft.WindowsAppSDK.ML" Version="2.1.74" ExcludeAssets="all" />
+		<PackageReference Include="Microsoft.Windows.AI.MachineLearning" Version="2.1.74" ExcludeAssets="all" />
+		<PackageReference Include="Microsoft.ML.OnnxRuntime" Version="1.27.1" ExcludeAssets="all" />
+		<PackageReference Include="Microsoft.Web.WebView2" Version="1.0.4078.44" ExcludeAssets="all" />
+
+		<PackageReference Include="WinUIEx" Version="2.9.2" />
+
 		<!-- CommunityToolkit -->
 		<PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.2" />
 		<PackageReference Include="CommunityToolkit.WinUI.Animations" Version="8.2.251219" />
@@ -139,13 +148,25 @@
 	  <Content Update="Assets\Administrator.png">
 	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
 	  </Content>
-	  <Content Update="Assets\Chrome.png">
-	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-	  </Content>
 	  <Content Update="Assets\cleanmgr.ico">
 	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
 	  </Content>
 	  <Content Update="Assets\cleanmgrLegacy.ico">
+	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	  </Content>
+	  <Content Update="Assets\CleanupItems\Browsers\Brave.png">
+	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	  </Content>
+	  <Content Update="Assets\CleanupItems\Browsers\Chrome.png">
+	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	  </Content>
+	  <Content Update="Assets\CleanupItems\Browsers\Edge.png">
+	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	  </Content>
+	  <Content Update="Assets\CleanupItems\Browsers\Firefox.png">
+	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	  </Content>
+	  <Content Update="Assets\CleanupItems\Browsers\Opera.png">
 	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
 	  </Content>
 	  <Content Update="Assets\dfrgui.ico">
@@ -172,12 +193,19 @@
 	  <Content Update="Assets\DriveWindows.ico">
 	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
 	  </Content>
-	  <Content Update="Assets\Edge.png">
-	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-	  </Content>
-	  <Content Update="Assets\Firefox.png">
-	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-	  </Content>
 	</ItemGroup>
+
+	<!-- NAOT fix -->
+	<PropertyGroup>
+		<!-- Force the ILCompiler tool path variables manually right before targets evaluate them -->
+		<IlcToolsPath>$(UserProfile)\.nuget\packages\runtime.win-x64.microsoft.dotnet.ilcompiler\10.0.10\tools\</IlcToolsPath>
+		<IlcCompilerPath>$(UserProfile)\.nuget\packages\runtime.win-x64.microsoft.dotnet.ilcompiler\10.0.10\tools\ilc.exe</IlcCompilerPath>
+	</PropertyGroup>
+	<Target Name="CopyAotBinaryToExpectedMsixPath" BeforeTargets="Package">
+		<ItemGroup>
+			<_AotBinaryToCopy Include="$(TargetDir)native\$(TargetName).exe" />
+		</ItemGroup>
+		<Copy SourceFiles="@(_AotBinaryToCopy)" DestinationFolder="$(TargetDir)" SkipUnchangedFiles="true" Condition="Exists('$(TargetDir)native\$(TargetName).exe')" />
+	</Target>
 
 </Project>

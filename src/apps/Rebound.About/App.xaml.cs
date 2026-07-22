@@ -15,7 +15,6 @@ using System;
 using System.Diagnostics;
 using System.Threading;
 using System.Threading.Tasks;
-using TerraFX.Interop.Windows;
 using Windows.UI;
 using WinUIEx;
 

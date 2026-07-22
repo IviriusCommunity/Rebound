@@ -10,6 +10,7 @@ using Rebound.Core;
 using Rebound.Core.Native.Wrappers;
 using System;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.IO;
 using System.Runtime.InteropServices;
 using System.Text;
@@ -246,6 +247,30 @@ internal sealed partial class MainPage : Page
             default:
                 ViewModel.IsEverythingSelected = null;
                 break;
+        }
+    }
+
+    private bool _forcedTop;
+
+    private void NavigationView_SizeChanged(object sender, SizeChangedEventArgs e)
+    {
+        var nav = (NavigationView)sender;
+
+        if (e.NewSize.Width < 760)
+        {
+            if (!_forcedTop)
+            {
+                nav.PaneDisplayMode = NavigationViewPaneDisplayMode.Top;
+                _forcedTop = true;
+            }
+        }
+        else
+        {
+            if (_forcedTop)
+            {
+                nav.PaneDisplayMode = NavigationViewPaneDisplayMode.Auto;
+                _forcedTop = false;
+            }
         }
     }
 }

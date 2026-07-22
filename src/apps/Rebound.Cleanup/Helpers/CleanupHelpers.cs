@@ -10,10 +10,11 @@ using System.IO;
 using System.Linq;
 using System.Security.AccessControl;
 using System.Security.Principal;
+using System.Threading;
 using System.Threading.Tasks;
 using TerraFX.Interop.Windows;
-using static TerraFX.Interop.Windows.TOKEN;
 using static TerraFX.Interop.Windows.SE;
+using static TerraFX.Interop.Windows.TOKEN;
 using static TerraFX.Interop.Windows.Windows;
 
 #pragma warning disable CA1031 // Do not catch general exception types
@@ -40,7 +41,7 @@ internal class BrowserScannerEngine
         new(
             "Google Chrome", 
             "CHROME", 
-            "ms-appx:///Assets/Chrome.png", 
+            "ms-appx:///Assets/CleanupItems/Browsers/Chrome.png", 
             ["chrome"],
             [Path.Combine(_localAppData, @"Google\Chrome\User Data")],
             [ "Google.Chrome" ], 
@@ -50,7 +51,7 @@ internal class BrowserScannerEngine
         new(
             "Microsoft Edge", 
             "EDGE", 
-            "ms-appx:///Assets/Edge.png",
+            "ms-appx:///Assets/CleanupItems/Browsers/Edge.png",
             ["msedge"],
             [Path.Combine(_localAppData, @"Microsoft\Edge\User Data")], 
             [ "Microsoft.MicrosoftEdge" ], 
@@ -60,7 +61,7 @@ internal class BrowserScannerEngine
         new(
             "Brave Browser", 
             "BRAVE", 
-            "ms-appx:///Assets/Brave.png",
+            "ms-appx:///Assets/CleanupItems/Browsers/Brave.png",
             ["brave"],
             [Path.Combine(_localAppData, @"BraveSoftware\Brave-Browser\User Data")],
             [ "BraveSoftware.BraveBrowser" ], 
@@ -70,7 +71,7 @@ internal class BrowserScannerEngine
         new(
             "Opera", 
             "OPERA", 
-            "ms-appx:///Assets/Opera.png", 
+            "ms-appx:///Assets/CleanupItems/Browsers/Opera.png", 
             ["opera"],
             [Path.Combine(_appData, @"Opera Software\Opera Stable"),
             Path.Combine(_localAppData, @"Opera Software\Opera Stable")], 
@@ -80,9 +81,9 @@ internal class BrowserScannerEngine
 
         // The only non-Chromium browser out there
         new(
-            "Mozilla Firefox", 
-            "FIREFOX", 
-            "ms-appx:///Assets/Firefox.png",
+            "Mozilla Firefox",
+            "FIREFOX",
+            "ms-appx:///Assets/CleanupItems/Browsers/Firefox.png",
             ["firefox"],
             [Path.Combine(_appData, @"Mozilla\Firefox\Profiles")],
             [ "Mozilla.Firefox" ],
@@ -92,6 +93,7 @@ internal class BrowserScannerEngine
 
     internal async Task<List<CleanItem>> EnumerateBrowsersAsync()
     {
+        var allItems = new List<CleanItem>();
         foreach (var browser in GetDefinitions())
         {
             // Gather all unique base root paths for this browser (Win32 + MSIX Store packages)
@@ -140,16 +142,25 @@ internal class BrowserScannerEngine
                     }
                 }
 
-                // Firefox
+                // Firefox specific scanning logic
                 else
                 {
+                    // Firefox profile scanning
                     foreach (var path in Directory.GetDirectories(root))
                     {
-                        // Cache
-                        string cPath = Path.Combine(path, "cache2");
-                        if (Directory.Exists(cPath)) cacheTargets.Add(new CleanTarget { Path = cPath, Depth = SearchDepth.AllDirectories });
+                        string profileFolderName = Path.GetFileName(path);
 
-                        // SQLite Engines
+                        // Route to the correct AppData\Local folder structure depending on Win32 or MSIX deployment
+                        string cacheProfilePath = root.Contains("Packages")
+                            ? root.Replace(@"LocalCache\Roaming", @"LocalCache\Local")
+                            : Path.Combine(_localAppData, @"Mozilla\Firefox\Profiles");
+
+                        string actualCachePath = Path.Combine(cacheProfilePath, profileFolderName, "cache2");
+
+                        if (Directory.Exists(actualCachePath))
+                            cacheTargets.Add(new CleanTarget { Path = actualCachePath, Depth = SearchDepth.AllDirectories });
+
+                        // SQLite Databases (History & Cookies reside exclusively in the Roaming root)
                         if (!isRunning)
                         {
                             string hist = Path.Combine(path, "places.sqlite");
@@ -173,7 +184,9 @@ internal class BrowserScannerEngine
                     Name = $"{browser.Name} - Cache",
                     Description = $"Removes cached images and web elements stored by {browser.Name}.",
                     CleanTargets = [.. cacheTargets],
-                    ItemID = $"{browser.Prefix}_CACHE"
+                    ItemID = $"{browser.Prefix}_CACHE",
+                    ImagePath = browser.IconPath,
+                    LaunchTargetPath = cacheTargets[0].Path,
                 });
 
             if (cookieTargets.Count > 0)
@@ -182,7 +195,9 @@ internal class BrowserScannerEngine
                     Name = $"{browser.Name} - Cookies",
                     Description = $"Clears website cookies and site preferences for {browser.Name}.",
                     CleanTargets = [.. cookieTargets],
-                    ItemID = $"{browser.Prefix}_COOKIES"
+                    ItemID = $"{browser.Prefix}_COOKIES",
+                    ImagePath = browser.IconPath,
+                    LaunchTargetPath = cookieTargets[0].Path,
                 });
 
             if (historyTargets.Count > 0)
@@ -191,12 +206,14 @@ internal class BrowserScannerEngine
                     Name = $"{browser.Name} - History{statusSuffix}",
                     Description = $"Deletes the log of visited websites for {browser.Name}.",
                     CleanTargets = [.. historyTargets],
-                    ItemID = $"{browser.Prefix}_HISTORY"
+                    ItemID = $"{browser.Prefix}_HISTORY",
+                    ImagePath = browser.IconPath,
+                    LaunchTargetPath = historyTargets[0].Path,
                 });
 
-            return itemsList;
+            allItems.AddRange(itemsList);
         }
-        return [];
+        return allItems;
     }
 
     private List<string> GetResolvedRoots(BrowserCleanupDefinition browser)
@@ -225,10 +242,157 @@ internal class BrowserScannerEngine
 internal class WindowsOldCleanTarget : CleanTarget
 {
     public WindowsOldCleanTarget()
-        => Depth = SearchDepth.AllDirectories;
+    {
+        Depth = SearchDepth.AllDirectories;
+        DeleteEmptySubdirectories = true;
+
+        // Route the orchestrator directly into your fixed engine architecture
+        CustomDeleteAction = async (target, progressReporter, cancellationToken) =>
+        {
+            await Task.Run(() =>
+            {
+                if (!Directory.Exists(target.Path)) return;
+
+                // 1. Elevate process token tokens to bypass TrustedInstaller locks
+                EnablePrivilege("SeTakeOwnershipPrivilege");
+                EnablePrivilege("SeRestorePrivilege");
+                EnablePrivilege("SeSecurityPrivilege"); // Crucial for security descriptor modification
+
+                var rootDir = new DirectoryInfo(target.Path);
+
+                // 2. Execute the recursive cleanup
+                long batchSize = 0;
+                int batchCount = 0;
+                string lastReportedPath = string.Empty;
+                var stopwatch = Stopwatch.StartNew();
+
+                DeleteDirectoryRecursively(rootDir, progressReporter, ref batchSize, ref batchCount, ref lastReportedPath, stopwatch, cancellationToken);
+
+                // 3. Flush the final metric totals back to the UI thread
+                if (batchCount > 0)
+                {
+                    progressReporter?.Report((batchSize, batchCount, lastReportedPath));
+                }
+            }, cancellationToken).ConfigureAwait(false);
+        };
+    }
+
+    private static void DeleteDirectoryRecursively(
+        DirectoryInfo dir,
+        IProgress<(long size, int count, string itemPath)> progressReporter,
+        ref long batchSize,
+        ref int batchCount,
+        ref string lastReportedPath,
+        Stopwatch stopwatch,
+        CancellationToken cancellationToken)
+    {
+        cancellationToken.ThrowIfCancellationRequested();
+
+        // Safe skip check for symlink junctions to avoid bouncing into active system folders
+        if ((dir.Attributes & FileAttributes.ReparsePoint) == FileAttributes.ReparsePoint)
+        {
+            try { dir.Delete(); } catch { }
+            return;
+        }
+
+        // Process files first
+        foreach (var file in dir.EnumerateFiles())
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+
+            try
+            {
+                long length = file.Length;
+                string fullName = file.FullName;
+
+                StripSecurityAndAttributes(fullName);
+                file.Delete();
+
+                batchSize += length;
+                batchCount++;
+                lastReportedPath = fullName;
+
+                if (stopwatch.ElapsedMilliseconds > 100)
+                {
+                    progressReporter?.Report((batchSize, batchCount, lastReportedPath));
+                    batchSize = 0;
+                    batchCount = 0;
+                    stopwatch.Restart();
+                }
+            }
+            catch { /* Skip stubborn active driver files safely */ }
+        }
+
+        // Process subdirectories recursively
+        foreach (var subDir in dir.EnumerateDirectories())
+        {
+            DeleteDirectoryRecursively(subDir, progressReporter, ref batchSize, ref batchCount, ref lastReportedPath, stopwatch, cancellationToken);
+        }
+
+        // Wipe out the empty directory container container itself
+        try
+        {
+            StripSecurityAndAttributes(dir.FullName);
+            dir.Delete();
+        }
+        catch { }
+    }
+
+    private static unsafe void StripSecurityAndAttributes(string path)
+    {
+        try
+        {
+            // FIXED: Inverted string guard error corrected
+            if (!string.IsNullOrEmpty(path))
+            {
+                using ManagedPtr<char> pathPtr = path;
+
+                // Force strip system, hidden, and read-only flags
+                SetFileAttributesW(pathPtr, FILE.FILE_ATTRIBUTE_NORMAL);
+
+                var adminSid = new SecurityIdentifier(WellKnownSidType.BuiltinAdministratorsSid, null);
+
+                if (File.Exists(path))
+                {
+                    var fileInfo = new FileInfo(path);
+                    FileSecurity fileSecurity = fileInfo.GetAccessControl();
+
+                    fileSecurity.SetOwner(adminSid);
+                    fileInfo.SetAccessControl(fileSecurity);
+
+                    fileSecurity.AddAccessRule(new FileSystemAccessRule(
+                        adminSid,
+                        FileSystemRights.FullControl,
+                        AccessControlType.Allow));
+                    fileInfo.SetAccessControl(fileSecurity);
+                }
+                else if (Directory.Exists(path))
+                {
+                    var dirInfo = new DirectoryInfo(path);
+                    DirectorySecurity dirSecurity = dirInfo.GetAccessControl();
+
+                    dirSecurity.SetOwner(adminSid);
+                    dirInfo.SetAccessControl(dirSecurity);
+
+                    dirSecurity.AddAccessRule(new FileSystemAccessRule(
+                        adminSid,
+                        FileSystemRights.FullControl,
+                        InheritanceFlags.ContainerInherit | InheritanceFlags.ObjectInherit,
+                        PropagationFlags.None,
+                        AccessControlType.Allow));
+                    dirInfo.SetAccessControl(dirSecurity);
+                }
+            }
+        }
+        catch
+        {
+            // Fall through safely to keep loops moving
+        }
+    }
 
     public static unsafe bool EnablePrivilege(string privilegeName)
     {
+        // Obtain current process token wrapper
         var hProcess = new HANDLE((void*)Process.GetCurrentProcess().Handle);
         var hToken = new HANDLE();
 
@@ -255,113 +419,7 @@ internal class WindowsOldCleanTarget : CleanTarget
             if (hToken != HANDLE.NULL)
                 CloseHandle(hToken);
 
-            if (hProcess != HANDLE.NULL)
-                CloseHandle(hProcess);
-        }
-    }
-
-    public void ExecuteDangerousClean()
-    {
-        if (!Directory.Exists(Path)) return;
-
-        // Elevate process token privileges to allow overriding TrustedInstaller ownership
-        // Windows is stubborn and protects these files in case you want to revert after
-        // a very "successful" update
-        EnablePrivilege("SeTakeOwnershipPrivilege");
-        EnablePrivilege("SeRestorePrivilege");
-
-        var rootDir = new DirectoryInfo(Path);
-        DeleteDirectoryRecursively(rootDir);
-    }
-
-    private static void DeleteDirectoryRecursively(DirectoryInfo dir)
-    {
-        if ((dir.Attributes & FileAttributes.ReparsePoint) == FileAttributes.ReparsePoint)
-        {
-            try { dir.Delete(); } catch { }
-            return;
-        }
-
-        // Process files first
-        foreach (var file in dir.EnumerateFiles())
-        {
-            try
-            {
-                StripSecurityAndAttributes(file.FullName);
-                file.Delete();
-            }
-            catch (Exception)
-            {
-                // Some locked driver files (.sys) require a reboot to clear
-                // Technically cleanmgr has private methods to get rid of these
-                // but it requires reverse engineering
-            }
-        }
-
-        // Process subdirectories
-        foreach (var subDir in dir.EnumerateDirectories())
-            DeleteDirectoryRecursively(subDir);
-
-        // Wipe out the empty directory container
-        try
-        {
-            StripSecurityAndAttributes(dir.FullName);
-            dir.Delete();
-        }
-        catch { }
-    }
-
-    private static unsafe void StripSecurityAndAttributes(string path)
-    {
-        try
-        {
-            if (string.IsNullOrEmpty(path))
-            {
-                using ManagedPtr<char> pathPtr = path;
-
-                // Force strip attributes like ReadOnly, System, Hidden
-                SetFileAttributesW(pathPtr, FILE.FILE_ATTRIBUTE_NORMAL);
-
-                var adminSid = new SecurityIdentifier(WellKnownSidType.BuiltinAdministratorsSid, null);
-
-                if (File.Exists(path))
-                {
-                    var fileInfo = new FileInfo(path);
-                    FileSecurity fileSecurity = fileInfo.GetAccessControl();
-
-                    // Overwrite the owner (rip it from TrustedInstaller)
-                    fileSecurity.SetOwner(adminSid);
-                    fileInfo.SetAccessControl(fileSecurity);
-
-                    // Grant Full Control explicitly
-                    fileSecurity.AddAccessRule(new FileSystemAccessRule(
-                        adminSid,
-                        FileSystemRights.FullControl,
-                        AccessControlType.Allow));
-                    fileInfo.SetAccessControl(fileSecurity);
-                }
-                else if (Directory.Exists(path))
-                {
-                    var dirInfo = new DirectoryInfo(path);
-                    DirectorySecurity dirSecurity = dirInfo.GetAccessControl();
-
-                    // Overwrite the owner
-                    dirSecurity.SetOwner(adminSid);
-                    dirInfo.SetAccessControl(dirSecurity);
-
-                    dirSecurity.AddAccessRule(new FileSystemAccessRule(
-                        adminSid,
-                        FileSystemRights.FullControl,
-                        InheritanceFlags.ContainerInherit | InheritanceFlags.ObjectInherit,
-                        PropagationFlags.None,
-                        AccessControlType.Allow));
-                    dirInfo.SetAccessControl(dirSecurity);
-                }
-            }
-        }
-        catch
-        {
-            // Fail silently on stubborn individual files to keep the cleanup loop rolling
+            // FIXED: Do NOT close the process pseudo-handle context!
         }
     }
 }

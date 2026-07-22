@@ -119,6 +119,11 @@
         </Style>
     </Page.Resources>
     <Grid>
+        <SystemBackdropElement>
+            <SystemBackdropElement.SystemBackdrop>
+                <MicaBackdrop />
+            </SystemBackdropElement.SystemBackdrop>
+        </SystemBackdropElement>
         <StackPanel
             Margin="12,8,12,0"
             VerticalAlignment="Top"

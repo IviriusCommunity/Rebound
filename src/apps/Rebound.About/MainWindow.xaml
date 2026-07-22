@@ -11,8 +11,12 @@
     Title="Rebound About"
     mc:Ignorable="d">
 
-    <winuiex:WindowEx.SystemBackdrop>
-        <MicaBackdrop />
-    </winuiex:WindowEx.SystemBackdrop>
-    <Frame x:Name="RootFrame" />
+    <Grid>
+        <SystemBackdropElement>
+            <SystemBackdropElement.SystemBackdrop>
+                <MicaBackdrop />
+            </SystemBackdropElement.SystemBackdrop>
+        </SystemBackdropElement>
+        <Frame x:Name="RootFrame" />
+    </Grid>
 </winuiex:WindowEx>

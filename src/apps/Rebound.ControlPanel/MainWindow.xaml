@@ -10,8 +10,5 @@
     Title="Rebound Control Panel"
     mc:Ignorable="d">
 
-    <winuiex:WindowEx.SystemBackdrop>
-        <MicaBackdrop />
-    </winuiex:WindowEx.SystemBackdrop>
     <Frame x:Name="RootFrame" x:FieldModifier="public" />
 </winuiex:WindowEx>

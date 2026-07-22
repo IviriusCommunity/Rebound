@@ -5,9 +5,11 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using Rebound.Core.Settings;
 using System;
 using System.IO;
+using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using static CommunityToolkit.WinUI.Animations.Expressions.ExpressionValues;
 
 #pragma warning disable CA1031 // Do not catch general exception types
 
@@ -33,12 +35,19 @@ internal partial class CleanItem : ObservableObject
 
     [ObservableProperty] public partial bool IsChecked { get; set; } = false;
 
+    [ObservableProperty] public partial bool IsEnumerated { get; set; } = false;
+
     public CleanTarget[] CleanTargets { get; set; } = [];
 
     public string LaunchTargetPath { get; set; } = Environment.GetFolderPath(Environment.SpecialFolder.Windows);
 
+    private bool _defaultIsChecked;
+
     public CleanItem(bool defaultIsChecked)
-        => IsChecked = SettingsManager.GetValue($"IsChecked{ConvertStringToNumericString(ItemID)}", "cleanmgr", defaultIsChecked);
+        => _defaultIsChecked = defaultIsChecked;
+
+    partial void OnItemIDChanged(string value)
+        => IsChecked = SettingsManager.GetValue($"IsChecked{ConvertStringToNumericString(ItemID)}", "cleanmgr", _defaultIsChecked);
 
     partial void OnIsCheckedChanged(bool oldValue, bool newValue)
         => SettingsManager.SetValue($"IsChecked{ConvertStringToNumericString(ItemID)}", "cleanmgr", newValue);
@@ -89,24 +98,34 @@ internal class CleanTarget
     /// and invokes this delegate instead, passing the target's 
     /// path and context.
     /// </summary>
-    public Func<CleanTarget, CancellationToken, Task>? CustomDeleteAction { get; set; }
+    public Func<CleanTarget, IProgress<(long size, int count, string itemPath)>, CancellationToken, Task>? CustomDeleteAction { get; set; }
 
     /// <summary>
     /// If this is set, the execution engine skips default deletion 
     /// and invokes this delegate instead, passing the target's 
     /// path and context.
     /// </summary>
-    public Func<CleanTarget, CancellationToken, Task<(long size, int count)>>? CustomEnumerateAction { get; set; }
+    public Func<CleanTarget, IProgress<(long size, int count, string itemPath)>, CancellationToken, Task<(long size, int count)>>? CustomEnumerateAction { get; set; }
 
     /// <summary>
-    /// Deletes every file specified by <see cref="FileFilter"/>.
+    /// If true, empty subdirectories will be deleted
+    /// at once with their containing files. If false,
+    /// all directories will remain in place and only the
+    /// files inside will be deleted.
     /// </summary>
-    public async Task ExecuteCleanAsync(CancellationToken cancellationToken)
+    public bool DeleteEmptySubdirectories { get; set; }
+
+    /// <summary>
+    /// Deletes every file specified by <see cref="FileFilter"/> and reports live progress.
+    /// </summary>
+    public async Task ExecuteCleanAsync(
+        IProgress<(long size, int count, string itemPath)> progressReporter,
+        CancellationToken cancellationToken)
     {
         // If a custom action was assigned, execute it and exit
         if (CustomDeleteAction != null)
         {
-            await CustomDeleteAction(this, cancellationToken).ConfigureAwait(false);
+            await CustomDeleteAction(this, progressReporter, cancellationToken).ConfigureAwait(false);
             return;
         }
 
@@ -115,28 +134,115 @@ internal class CleanTarget
         {
             if (File.Exists(Path))
             {
-                try { File.Delete(Path); } catch { /* locked/in use */ }
+                var fileInfo = new FileInfo(Path);
+                if (fileInfo.Name.Equals("desktop.ini", StringComparison.OrdinalIgnoreCase))
+                    return;
+
+                if (FileFilter(fileInfo))
+                {
+                    try
+                    {
+                        long size = fileInfo.Length;
+                        fileInfo.Attributes = FileAttributes.Normal;
+                        fileInfo.Delete();
+                        progressReporter?.Report((size, 1, fileInfo.FullName));
+                    }
+                    catch { /* locked/in use */ }
+                }
                 return;
             }
 
             if (!Directory.Exists(Path)) return;
 
             var dirInfo = new DirectoryInfo(Path);
-            var searchOption = Depth == SearchDepth.AllDirectories ? SearchOption.AllDirectories : SearchOption.TopDirectoryOnly;
 
-            foreach (FileInfo file in dirInfo.EnumerateFiles("*", searchOption))
+            var options = new EnumerationOptions
+            {
+                IgnoreInaccessible = true,
+                RecurseSubdirectories = Depth == SearchDepth.AllDirectories,
+                AttributesToSkip = FileAttributes.ReparsePoint
+            };
+
+            long batchSize = 0;
+            int batchCount = 0;
+            string lastReportedFilePath = string.Empty;
+            var stopwatch = System.Diagnostics.Stopwatch.StartNew();
+
+            // Use EnumerateFiles with options instead of SearchOption
+            foreach (FileInfo file in dirInfo.EnumerateFiles("*", options))
             {
                 cancellationToken.ThrowIfCancellationRequested();
 
                 try
                 {
+                    if (file.Name.Equals("desktop.ini", StringComparison.OrdinalIgnoreCase))
+                        continue;
+
                     if (FileFilter(file))
                     {
+                        long fileSize = file.Length;
+
                         file.Attributes = FileAttributes.Normal;
                         file.Delete();
+
+                        // Accumulate progress metrics only on a successful deletion
+                        batchSize += fileSize;
+                        batchCount++;
+                        lastReportedFilePath = file.FullName;
+
+                        if (stopwatch.ElapsedMilliseconds > 100)
+                        {
+                            progressReporter?.Report((batchSize, batchCount, lastReportedFilePath));
+
+                            batchSize = 0;
+                            batchCount = 0;
+                            stopwatch.Restart();
+                        }
                     }
                 }
                 catch { /* skip locked/in use */ }
+            }
+
+            // Flush any remaining completed deletions left in the final batch window BEFORE folder cleanup
+            if (batchCount > 0)
+            {
+                progressReporter?.Report((batchSize, batchCount, lastReportedFilePath));
+            }
+
+            // ---- Post-Deletion Directory Cleanup ----
+            if (Depth == SearchDepth.AllDirectories && DeleteEmptySubdirectories)
+            {
+                try
+                {
+                    // Enumerate all subdirectories, sorting by path length descending 
+                    // to guarantee we process the deepest child folders first.
+                    var subDirs = dirInfo.GetDirectories("*", SearchOption.AllDirectories)
+                                         .OrderByDescending(d => d.FullName.Length);
+
+                    foreach (var subDir in subDirs)
+                    {
+                        cancellationToken.ThrowIfCancellationRequested();
+
+                        try
+                        {
+                            // FIXED: Use EnumerateFileSystemInfos() which exists on DirectoryInfo
+                            if (!subDir.EnumerateFileSystemInfos().Any())
+                            {
+                                // Strip system/hidden/readonly attributes on the folder if necessary
+                                if ((subDir.Attributes & FileAttributes.ReadOnly) != 0 ||
+                                    (subDir.Attributes & FileAttributes.Hidden) != 0)
+                                {
+                                    subDir.Attributes = FileAttributes.Normal;
+                                }
+
+                                subDir.Delete(recursive: false);
+                            }
+                        }
+                        catch (IOException) { /* Directory is locked or became non-empty */ }
+                        catch (UnauthorizedAccessException) { /* Insufficient permissions */ }
+                    }
+                }
+                catch (Exception) { /* Guard against top-level directory access issues */ }
             }
         }, cancellationToken).ConfigureAwait(false);
     }
@@ -148,21 +254,23 @@ internal class CleanTarget
     /// A tuple containing the size of the files in bytes and their number.
     /// </returns>
     public async Task<(long size, int count)> EnumerateAsync(
-        IProgress<(long size, int count)> progressReporter,
+        IProgress<(long size, int count, string itemPath)> progressReporter,
         CancellationToken cancellationToken)
     {
         if (CustomEnumerateAction != null)
-            return await CustomEnumerateAction(this, cancellationToken).ConfigureAwait(false);
+            return await CustomEnumerateAction(this, progressReporter, cancellationToken).ConfigureAwait(false);
 
         return await Task.Run(() =>
         {
-            // If it's a single file target rather than a directory
             if (File.Exists(Path))
             {
                 var fileInfo = new FileInfo(Path);
+                if (fileInfo.Name.Equals("desktop.ini", StringComparison.OrdinalIgnoreCase))
+                    return (0, 0);
+
                 if (FileFilter(fileInfo))
                 {
-                    progressReporter?.Report((fileInfo.Length, 1));
+                    progressReporter?.Report((fileInfo.Length, 1, fileInfo.FullName));
                     return (fileInfo.Length, 1);
                 }
                 return (0, 0);
@@ -173,41 +281,66 @@ internal class CleanTarget
 
             long totalSize = 0;
             int totalFileCount = 0;
-            var searchOption = Depth == SearchDepth.AllDirectories
-                ? SearchOption.AllDirectories
-                : SearchOption.TopDirectoryOnly;
+
+            var options = new EnumerationOptions
+            {
+                IgnoreInaccessible = true,
+                RecurseSubdirectories = Depth == SearchDepth.AllDirectories,
+                AttributesToSkip = FileAttributes.ReparsePoint
+            };
+
+            long batchSize = 0;
+            int batchCount = 0;
+            string lastReportedFilePath = string.Empty;
+            var stopwatch = System.Diagnostics.Stopwatch.StartNew();
 
             try
             {
                 var dirInfo = new DirectoryInfo(Path);
 
-                // Enumerate files lazily to stream results back in real time
-                foreach (FileInfo file in dirInfo.EnumerateFiles("*", searchOption))
+                foreach (var fsInfo in dirInfo.EnumerateFileSystemInfos("*", options))
                 {
-                    // Check for cancellation requests on heavy disk loads
                     cancellationToken.ThrowIfCancellationRequested();
 
-                    try
+                    if (fsInfo is FileInfo fileInfo)
                     {
-                        if (FileFilter(file))
+                        try
                         {
-                            long fileLength = file.Length;
-                            totalSize += fileLength;
-                            totalFileCount += 1;
+                            if (fileInfo.Name.Equals("desktop.ini", StringComparison.OrdinalIgnoreCase))
+                                continue;
 
-                            // Report progress up to the UI thread continuously
-                            progressReporter?.Report((totalSize, totalFileCount));
+                            if (FileFilter(fileInfo))
+                            {
+                                totalSize += fileInfo.Length;
+                                totalFileCount++;
+
+                                batchSize += fileInfo.Length;
+                                batchCount++;
+                                lastReportedFilePath = fileInfo.FullName;
+
+                                if (stopwatch.ElapsedMilliseconds > 100)
+                                {
+                                    progressReporter?.Report((batchSize, batchCount, lastReportedFilePath));
+
+                                    batchSize = 0;
+                                    batchCount = 0;
+                                    stopwatch.Restart();
+                                }
+                            }
                         }
-                    }
-                    catch (Exception)
-                    {
-                        // Safely skip files wrapped in system locks during scanning
+                        catch (Exception) { continue; }
                     }
                 }
+
+                // Flush any remaining items using the exact last file path processed
+                if (batchCount > 0)
+                {
+                    progressReporter?.Report((batchSize, batchCount, lastReportedFilePath));
+                }
             }
-            catch (Exception)
+            catch
             {
-                // Root directory unreadable or locked
+                // Fail gracefully
             }
 
             return (totalSize, totalFileCount);

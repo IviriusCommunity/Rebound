@@ -19,8 +19,6 @@ internal partial class MainViewModel : ObservableObject
 
     public readonly LiveHardwareFeed _liveHardwareFeed;
 
-    [ObservableProperty] public partial bool Loaded { get; set; } = false;
-
     [ObservableProperty] public partial bool IsReboundInstalled { get; set; }
 
     [ObservableProperty] public partial string ReboundText { get; set; } = "Loading...";

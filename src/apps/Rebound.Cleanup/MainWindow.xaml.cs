@@ -15,8 +15,6 @@ internal sealed partial class MainWindow : WindowEx
         InitializeComponent();
         ExtendsContentIntoTitleBar = true;
         this.SetIcon(Path.Combine(AppContext.BaseDirectory, "Assets", "cleanmgr.ico"));
-        this.Move(25, 25);
-        //this.TurnOffDoubleClick();
         RootFrame.Navigate(typeof(MainPage));
     }
 }
