@@ -1904,7 +1904,6 @@
                     </Button>
                 </StackPanel>
             </Grid>
-
         </Grid>
         <Grid Background="{ThemeResource SolidBackgroundFillColorBaseBrush}" Visibility="{x:Bind ViewModel.Loaded, Mode=OneWay, Converter={StaticResource BoolToInverseVisibilityConverter}}">
             <Image
