@@ -284,7 +284,7 @@ public partial class App : Application, IReboundLegacySupportApp, IReboundPipeCl
             MainWindow.AppWindow.TitleBar.ButtonInactiveBackgroundColor = Colors.Transparent;
             MainWindow.AppWindow.TitleBar.ButtonHoverBackgroundColor = Color.FromArgb(80, 120, 120, 120);
             MainWindow.AppWindow.TitleBar.ButtonPressedBackgroundColor = Color.FromArgb(40, 120, 120, 120);
-            MainWindow.AppWindow.SetTaskbarIcon($"{AppContext.BaseDirectory}\\Assets\\AboutWindows.ico");
+            MainWindow.AppWindow.SetIcon($"{AppContext.BaseDirectory}\\Assets\\AboutWindows.ico");
         }
         catch (Exception ex)
         {
