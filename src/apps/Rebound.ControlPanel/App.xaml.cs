@@ -325,6 +325,16 @@ public partial class App : Application, IReboundLegacySupportApp, IReboundPipeCl
                 Title = "Control Panel"
             };
 
+            // Default window size
+            if (WindowManager.PersistenceStorage?.TryGetValue("Rebound.ControlPanel.MainWindow", out _) != true)
+            {
+                MainWindow.Width = 1480;
+                MainWindow.Height = 820;
+            }
+
+            // Spawn the window
+            MainWindow.Activate();
+
             // Spawn the window
             MainWindow.Activate();
 
@@ -335,6 +345,8 @@ public partial class App : Application, IReboundLegacySupportApp, IReboundPipeCl
             MainWindow.AppWindow.TitleBar.ButtonHoverBackgroundColor = Color.FromArgb(80, 120, 120, 120);
             MainWindow.AppWindow.TitleBar.ButtonPressedBackgroundColor = Color.FromArgb(40, 120, 120, 120);
             MainWindow.AppWindow?.SetTaskbarIcon($"{AppContext.BaseDirectory}\\Assets\\ControlPanel.ico");
+
+            ReboundWindowMenu.Register(MainWindow);
         }
         catch (Exception ex)
         {

@@ -10,7 +10,9 @@
     xmlns:winuiex="using:WinUIEx"
     Title="Rebound About"
     mc:Ignorable="d">
-
+    <winuiex:WindowEx.SystemBackdrop>
+        <winuiex:TransparentTintBackdrop />
+    </winuiex:WindowEx.SystemBackdrop>
     <Grid>
         <SystemBackdropElement>
             <SystemBackdropElement.SystemBackdrop>

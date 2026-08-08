@@ -247,9 +247,9 @@ public class StartupTaskCog : ICog
                     return Task.FromResult(new CogStatus(CogState.NotInstalled, $"Task '{TaskName}' not found."));
 
                 // Enabled state
-                BOOL enabled;
+                short enabled;
                 registeredTask.Get()->get_Enabled(&enabled);
-                if (!(bool)enabled)
+                if (enabled == 0)
                     return Task.FromResult(new CogStatus(CogState.NotInstalled, "Task is disabled."));
 
                 // Pull definition

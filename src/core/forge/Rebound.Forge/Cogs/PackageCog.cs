@@ -5,6 +5,7 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using Rebound.Core;
 using Rebound.Core.Settings;
 using System.Diagnostics;
+using System.Globalization;
 using System.Security.Principal;
 using Windows.Management.Deployment;
 using Windows.Services.Store;
@@ -346,10 +347,25 @@ public partial class PackageCog : ObservableObject, ICog
             var ctx = StoreContext.GetDefault();
             InitializeWithWindow.Initialize(ctx, Process.GetCurrentProcess().MainWindowHandle);
 
+            var products = await ctx.GetStoreProductsAsync(new List<string>() { "Application" }, new List<string>() { Target.StoreProductId! })
+                .AsTask(cancellationToken)
+                .ConfigureAwait(true);
+
+            var product = products.Products.First().Value;
+
+            var isFree = decimal.TryParse(
+                product.Price.UnformattedPrice,
+                NumberStyles.Number,
+                CultureInfo.InvariantCulture,
+                out var price) && price == 0;
+
+            if (product.IsInUserCollection || isFree)
+                goto Install;
+
             var purchase = await ctx
                 .RequestPurchaseAsync(Target.StoreProductId)
                 .AsTask(cancellationToken)
-                .ConfigureAwait(false);
+                .ConfigureAwait(true);
 
             switch (purchase.Status)
             {
@@ -373,15 +389,21 @@ public partial class PackageCog : ObservableObject, ICog
                     return new(false, "UNKNOWN_PURCHASE_STATUS", false);
             }
 
+        Install:
+
             var installOp = ctx.DownloadAndInstallStorePackagesAsync(
-                [Target.StoreProductId ?? throw new InvalidOperationException("StoreProductId is null.")]);
+                new List<string>
+                {
+                    Target.StoreProductId
+                        ?? throw new InvalidOperationException("StoreProductId is null.")
+                });
 
             installOp.Progress = (_, progress) =>
                 ReboundLogger.WriteToLog(
                     "PackageCog ApplyStore", 
                     $"Store install progress for {Target.StoreProductId}: {progress.TotalDownloadProgress}%.");
 
-            var installResult = await installOp.AsTask(cancellationToken).ConfigureAwait(false);
+            var installResult = await installOp.AsTask(cancellationToken).ConfigureAwait(true);
 
             ReboundLogger.WriteToLog(
                 "PackageCog ApplyStore",

@@ -11,5 +11,14 @@ internal sealed partial class MainWindow : WindowEx
     {
         InitializeComponent();
         RootFrame.Navigate(typeof(Views.MainPage));
+        unsafe
+        {
+            var mica = TerraFX.Interop.Windows.DWM_SYSTEMBACKDROP_TYPE.DWMSBT_MAINWINDOW;
+            TerraFX.Interop.Windows.Windows.DwmSetWindowAttribute(
+                new((void*)this.GetWindowHandle()),
+                (uint)TerraFX.Interop.Windows.DWMWINDOWATTRIBUTE.DWMWA_SYSTEMBACKDROP_TYPE,
+                &mica,
+                sizeof(TerraFX.Interop.Windows.DWM_SYSTEMBACKDROP_TYPE));
+        }
     }
 }

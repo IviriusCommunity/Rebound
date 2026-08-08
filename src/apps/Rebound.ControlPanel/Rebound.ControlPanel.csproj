@@ -219,6 +219,7 @@
 		<ProjectReference Include="..\..\core\Rebound.Core.IPC\Rebound.Core.IPC.csproj" />
 		<ProjectReference Include="..\..\core\Rebound.Core.Native\Rebound.Core.Native.csproj" />
 		<ProjectReference Include="..\..\core\Rebound.Core.SystemInformation\Rebound.Core.SystemInformation.csproj" />
+		<ProjectReference Include="..\..\core\Rebound.Core.TaskScheduler\Rebound.Core.TaskScheduler.csproj" />
 		<ProjectReference Include="..\..\core\Rebound.Core.UI\Rebound.Core.UI.csproj" />
 		<ProjectReference Include="..\..\core\Rebound.Core\Rebound.Core.csproj" />
 	</ItemGroup>
@@ -233,11 +234,7 @@
 		<ItemGroup>
 			<_AotBinaryToCopy Include="$(TargetDir)native\$(TargetName).exe" />
 		</ItemGroup>
-		<Copy
-			SourceFiles="@(_AotBinaryToCopy)"
-			DestinationFolder="$(TargetDir)"
-			SkipUnchangedFiles="true"
-			Condition="Exists('$(TargetDir)native\$(TargetName).exe')" />
+		<Copy SourceFiles="@(_AotBinaryToCopy)" DestinationFolder="$(TargetDir)" SkipUnchangedFiles="true" Condition="Exists('$(TargetDir)native\$(TargetName).exe')" />
 	</Target>
 
 </Project>

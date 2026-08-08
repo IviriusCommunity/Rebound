@@ -22,6 +22,8 @@ public unsafe struct ManagedPtr<T> : IEquatable<ManagedPtr<T>>, IDisposable wher
 
     public readonly void* ObjectPointer => (void*)_ptr;
 
+    public readonly T* TypedObjectPointer => (T*)_ptr;
+
     public readonly void** ObjectPointerPointer
     {
         get
@@ -29,6 +31,17 @@ public unsafe struct ManagedPtr<T> : IEquatable<ManagedPtr<T>>, IDisposable wher
             fixed (nint* pField = &_ptr)
             {
                 return (void**)pField;
+            }
+        }
+    }
+
+    public readonly T** TypedObjectPointerPointer
+    {
+        get
+        {
+            fixed (nint* pField = &_ptr)
+            {
+                return (T**)pField;
             }
         }
     }
@@ -74,7 +87,7 @@ public unsafe struct ManagedPtr<T> : IEquatable<ManagedPtr<T>>, IDisposable wher
 #pragma warning disable CA2225
     public static implicit operator ManagedPtr<T>(string value) => new(value);
     public static implicit operator ManagedPtr<T>(Guid value) => new(value);
-    public static implicit operator T*(ManagedPtr<T> ptr) => (T*)ptr.ObjectPointer;
+    public static implicit operator T*(ManagedPtr<T> ptr) => ptr.TypedObjectPointer;
     public static implicit operator T(ManagedPtr<T> ptr) => ptr.Value;
     public readonly char* ToCharPtr() => (char*)ObjectPointer;
     public readonly Guid* ToGuidPtr() => (Guid*)ObjectPointer; 
@@ -97,6 +110,8 @@ public unsafe struct ManagedArrayPtr<T> : IEquatable<ManagedArrayPtr<T>>, IDispo
 
     public readonly void* ObjectPointer => (void*)_ptr;
 
+    public readonly T* TypedObjectPointer => (T*)_ptr;
+
     public readonly void** ObjectPointerPointer
     {
         get
@@ -104,6 +119,17 @@ public unsafe struct ManagedArrayPtr<T> : IEquatable<ManagedArrayPtr<T>>, IDispo
             fixed (nint* pField = &_ptr)
             {
                 return (void**)pField;
+            }
+        }
+    }
+
+    public readonly T** TypedObjectPointerPointer
+    {
+        get
+        {
+            fixed (nint* pField = &_ptr)
+            {
+                return (T**)pField;
             }
         }
     }
@@ -198,6 +224,6 @@ public unsafe struct ManagedArrayPtr<T> : IEquatable<ManagedArrayPtr<T>>, IDispo
 
 #pragma warning disable CA2225
     public static implicit operator ManagedArrayPtr<T>(T[] values) => new(values);
-    public static implicit operator T*(ManagedArrayPtr<T> ptr) => (T*)ptr.ObjectPointer;
+    public static implicit operator T*(ManagedArrayPtr<T> ptr) => ptr.TypedObjectPointer;
 #pragma warning restore CA2225
 }

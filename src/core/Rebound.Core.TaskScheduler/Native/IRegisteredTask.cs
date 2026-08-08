@@ -24,8 +24,8 @@ public unsafe partial struct IRegisteredTask
         public delegate* unmanaged[MemberFunction]<TSelf*, ushort**, HRESULT> get_Name;
         public delegate* unmanaged[MemberFunction]<TSelf*, ushort**, HRESULT> get_Path;
         public delegate* unmanaged[MemberFunction]<TSelf*, TASK_STATE*, HRESULT> get_State;
-        public delegate* unmanaged[MemberFunction]<TSelf*, BOOL*, HRESULT> get_Enabled;
-        public delegate* unmanaged[MemberFunction]<TSelf*, BOOL, HRESULT> put_Enabled;
+        public delegate* unmanaged[MemberFunction]<TSelf*, short*, HRESULT> get_Enabled;
+        public delegate* unmanaged[MemberFunction]<TSelf*, short, HRESULT> put_Enabled;
         public delegate* unmanaged[MemberFunction]<TSelf*, VARIANT, IRunningTask**, HRESULT> Run;
         public delegate* unmanaged[MemberFunction]<TSelf*, VARIANT, int, int, ushort*, IRunningTask**, HRESULT> RunEx;
         public delegate* unmanaged[MemberFunction]<TSelf*, IRunningTaskCollection**, HRESULT> GetInstances;
@@ -74,12 +74,12 @@ public unsafe partial struct IRegisteredTask : IRegisteredTask.Interface, INativ
         ((delegate* unmanaged[MemberFunction]<IRegisteredTask*, TASK_STATE*, HRESULT>)lpVtbl[9])
             ((IRegisteredTask*)Unsafe.AsPointer(in this), p);
 
-    public HRESULT get_Enabled(BOOL* p) =>
-        ((delegate* unmanaged[MemberFunction]<IRegisteredTask*, BOOL*, HRESULT>)lpVtbl[10])
+    public HRESULT get_Enabled(short* p) =>
+        ((delegate* unmanaged[MemberFunction]<IRegisteredTask*, short*, HRESULT>)lpVtbl[10])
             ((IRegisteredTask*)Unsafe.AsPointer(in this), p);
 
-    public HRESULT put_Enabled(BOOL v) =>
-        ((delegate* unmanaged[MemberFunction]<IRegisteredTask*, BOOL, HRESULT>)lpVtbl[11])
+    public HRESULT put_Enabled(short v) =>
+        ((delegate* unmanaged[MemberFunction]<IRegisteredTask*, short, HRESULT>)lpVtbl[11])
             ((IRegisteredTask*)Unsafe.AsPointer(in this), v);
 
     public HRESULT Run(VARIANT parameters, IRunningTask** ppRunningTask) =>
@@ -123,8 +123,8 @@ public unsafe partial struct IRegisteredTask : IRegisteredTask.Interface, INativ
         HRESULT get_Name(ushort** p);
         HRESULT get_Path(ushort** p);
         HRESULT get_State(TASK_STATE* p);
-        HRESULT get_Enabled(BOOL* p);
-        HRESULT put_Enabled(BOOL v);
+        HRESULT get_Enabled(short* p);
+        HRESULT put_Enabled(short v);
         HRESULT Run(VARIANT parameters, IRunningTask** ppRunningTask);
         HRESULT GetInstances(IRunningTaskCollection** ppRunningTasks);
         HRESULT get_LastRunTime(double* p);

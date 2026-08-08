@@ -19,15 +19,37 @@ public static class RegistrySettingsEngine
     public static T? GetValue<T>(RegistryHive hive, RegistrySetting registrySetting, T? defaultValue = default)
         => GetValue(hive, registrySetting.KeyPath, registrySetting.ValueName, defaultValue);
 
-    public static bool SetValue<T>(RegistryHive hive, string keyPath, string valueName, T value, RegistryValueKind kind = RegistryValueKind.DWord)
+    public static bool SetValue<T>(
+        RegistryHive hive,
+        string keyPath,
+        string valueName,
+        T value,
+        RegistryValueKind kind = RegistryValueKind.DWord)
     {
-        using var key = OpenHive(hive).OpenSubKey(keyPath, writable: true);
-        if (key == null) return false;
+        using var key = OpenHive(hive).CreateSubKey(keyPath);
+
+        if (key == null)
+            return false;
+
         key.SetValue(valueName, value!, kind);
         return true;
     }
 
+    public static bool DeleteValue(RegistryHive hive, RegistrySetting registrySetting)
+        => DeleteValue(hive, registrySetting.KeyPath, registrySetting.ValueName);
+
+    public static bool DeleteValue(RegistryHive hive, string keyPath, string valueName)
+    {
+        using var key = OpenHive(hive).OpenSubKey(keyPath, writable: true);
+        if (key == null) return false;
+        key.DeleteValue(valueName, false);
+        return true;
+    }
+
     public static bool SetValue<T>(RegistryHive hive, RegistrySetting registrySetting, T value, RegistryValueKind kind = RegistryValueKind.DWord)
+        => SetValue(hive, registrySetting.KeyPath, registrySetting.ValueName, value, kind);
+
+    public static bool SetString(RegistryHive hive, RegistrySetting registrySetting, string value, RegistryValueKind kind = RegistryValueKind.String)
         => SetValue(hive, registrySetting.KeyPath, registrySetting.ValueName, value, kind);
 
     public static bool GetBool(RegistryHive hive, string keyPath, string valueName, bool defaultValue = false)

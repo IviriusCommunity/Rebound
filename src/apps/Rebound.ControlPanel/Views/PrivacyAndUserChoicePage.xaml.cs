@@ -8,6 +8,7 @@ using Microsoft.UI.Xaml.Data;
 using Microsoft.UI.Xaml.Input;
 using Microsoft.UI.Xaml.Media;
 using Microsoft.UI.Xaml.Navigation;
+using Rebound.ControlPanel.ViewModels;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -25,6 +26,8 @@ namespace Rebound.ControlPanel.Views;
 /// </summary>
 public sealed partial class PrivacyAndUserChoicePage : Page
 {
+    private PrivacyAndUserChoiceViewModel ViewModel { get; } = new();
+
     public PrivacyAndUserChoicePage()
     {
         InitializeComponent();

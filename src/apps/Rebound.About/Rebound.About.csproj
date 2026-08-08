@@ -48,7 +48,7 @@
 		<SelfContained>true</SelfContained>
 		<UseWindowsAppSDKBootstrapper>true</UseWindowsAppSDKBootstrapper>
 		<WindowsAppSdkSelfContained>false</WindowsAppSdkSelfContained>
-		
+
 		<!-- Versioning -->
 		<AssemblyVersion>0.0.10</AssemblyVersion>
 		<Version>0.0.10</Version>

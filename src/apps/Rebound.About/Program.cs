@@ -1,18 +1,17 @@
-﻿// Credit: bUrnonaim on Discord
+﻿// Copyright (C) Ivirius(TM) Community 2020 - 2026. All Rights Reserved.
+// Licensed under the MIT License.
 
 using Microsoft.UI.Composition;
 using Microsoft.UI.Dispatching;
 using Microsoft.UI.Xaml;
-using Rebound.Core;
-using Rebound.Core.Native.Wrappers;
+using Microsoft.UI.Xaml.Settings;
 using System;
-using System.Diagnostics;
-using System.IO;
-using System.Runtime.InteropServices;
+using System.Linq;
+using System.Security.Cryptography;
+using System.Text;
 using System.Threading;
-using TerraFX.Interop.Windows;
+using Windows.ApplicationModel;
 using WinRT;
-using static TerraFX.Interop.Windows.Windows;
 
 namespace Rebound.About;
 
@@ -23,7 +22,19 @@ internal static class Program
     {
         ComWrappersSupport.InitializeComWrappers();
 
-        var res = SystemCompositionHack.TrySetSystemEngine();
+        // Unlock the System Composition Engine via LimitedAccessFeatures
+        var featureId = "com.microsoft.windows.composition.engine";
+        var code = "26ef12c7-bf7e-4fa7-ac71-9665b27be6f7";
+        var token = FeatureTokenGenerator.GenerateTokenFromFeatureId(featureId, code);
+        var attestation = FeatureTokenGenerator.GenerateAttestation(featureId);
+
+        var accessResult = LimitedAccessFeatures.TryUnlockFeature(featureId, token, attestation);
+        CompositionEngine.TrySetProcessEngine(CompositionEngineType.System);
+
+        XamlOptionalChanges.EnableChange(XamlChangeId.IconNoGridOptimization);
+        XamlOptionalChanges.EnableChange(XamlChangeId.DeferContextFlyoutInit);
+        XamlOptionalChanges.EnableChange(XamlChangeId.OptimizeApplyStyles);
+        XamlOptionalChanges.EnableChange(XamlChangeId.DefaultStyleOptimizations);
 
         Application.Start(_ =>
         {
@@ -34,130 +45,21 @@ internal static class Program
     }
 }
 
-internal static unsafe partial class SystemCompositionHack
+static class FeatureTokenGenerator
 {
-    private const int ExpectedState = 2;
-    private const int SystemState = 1;
-    private const int PageReadWrite = 0x04;
-    private const long SwitcherStateRva = 0x2D5F80;
-    private const long ExpectedImageSize = 3_204_920;
-    private const string ExpectedFileVersion = "10.0.27200.1038 (WinBuild.160101.0800)";
+    public static string GenerateTokenFromFeatureId(string featureId, string code)
+        => GenerateFeatureToken(featureId, code, AppInfo.Current.PackageFamilyName);
 
-    internal static bool TrySetSystemEngine()
+    public static string GenerateAttestation(string featureId)
+        => $"{AppInfo.Current.PackageFamilyName.Split('_').Last()} has registered their use of {featureId} with Microsoft and agrees to the terms of use.";
+
+    private static string GenerateFeatureToken(string featureId, string featureKey, string packageIdentity)
     {
-        bool initialResult = CompositionEngine.TrySetProcessEngine(CompositionEngineType.System);
-        Log($"Initial TrySetProcessEngine(System): {initialResult}");
-        if (initialResult)
-        {
-            return true;
-        }
+        var fullBytes = Encoding.UTF8.GetBytes($"{featureId}!{featureKey}!{packageIdentity}");
+        var tokenBytes = new byte[16];
+        var hash = SHA256.HashData(fullBytes);
+        Array.Copy(hash, tokenBytes, tokenBytes.Length);
 
-        if (!OperatingSystem.IsWindows() || IntPtr.Size != 8)
-        {
-            Log($"Unsupported process: Windows={OperatingSystem.IsWindows()}, PointerSize={IntPtr.Size}");
-            return false;
-        }
-
-        using ManagedPtr<char> dcompiPtr = "dcompi.dll";
-
-        var module = GetModuleHandleW(dcompiPtr);
-        Log($"dcompi.dll module handle: 0x{module:X}");
-        if (module == 0)
-        {
-            Log("dcompi.dll was not loaded");
-            return false;
-        }
-
-        if (!IsExpectedModule(module))
-        {
-            Log("dcompi.dll validation failed");
-            return false;
-        }
-
-        var stateAddress = module + (int)SwitcherStateRva;
-        int currentState = *(int*)stateAddress;
-        Log($"g_switcherState address: 0x{stateAddress:X}, value: {currentState}");
-        if (currentState != ExpectedState)
-        {
-            Log($"Expected g_switcherState to be {ExpectedState}, found {currentState}");
-            return false;
-        }
-
-        uint oldProtection;
-
-        if (!VirtualProtect(&stateAddress, sizeof(int), PageReadWrite, &oldProtection))
-        {
-            Log($"VirtualProtect(write) failed: {Marshal.GetLastWin32Error()}");
-            return false;
-        }
-
-        try
-        {
-            *(int*)stateAddress = SystemState;
-            Log($"g_switcherState patched to {SystemState}");
-        }
-        finally
-        {
-            uint restoreError;
-
-            bool restored = VirtualProtect(&stateAddress, sizeof(int), oldProtection, &restoreError);
-            Log(restored
-                ? "Original memory protection restored"
-                : $"VirtualProtect(restore) failed: {restoreError}");
-        }
-
-        bool retryResult = CompositionEngine.TrySetProcessEngine(CompositionEngineType.System);
-        Log($"Retry TrySetProcessEngine(System): {retryResult}");
-        return retryResult;
-    }
-
-    private static bool IsExpectedModule(HMODULE module)
-    {
-        Span<char> pathBuffer = stackalloc char[32768];
-        fixed (char* path = pathBuffer)
-        {
-            uint pathLength = GetModuleFileNameW(module, path, (uint)pathBuffer.Length);
-            if (pathLength == 0 || pathLength >= pathBuffer.Length)
-            {
-                Log($"GetModuleFileName failed: {Marshal.GetLastWin32Error()}");
-                return false;
-            }
-
-            try
-            {
-                string modulePath = new(path, 0, (int)pathLength);
-                FileInfo file = new(modulePath);
-                FileVersionInfo version = FileVersionInfo.GetVersionInfo(file.FullName);
-                bool matches = file.Length == ExpectedImageSize
-                    && string.Equals(version.FileVersion, ExpectedFileVersion, StringComparison.Ordinal);
-                Log($"dcompi.dll path: {modulePath}");
-                Log($"dcompi.dll version: {version.FileVersion}");
-                Log($"dcompi.dll size: {file.Length}; expected: {ExpectedImageSize}; matches: {matches}");
-                return matches;
-            }
-            catch (IOException)
-            {
-                Log("dcompi.dll validation failed with an I/O error");
-                return false;
-            }
-            catch (UnauthorizedAccessException)
-            {
-                Log("dcompi.dll validation failed with an access error");
-                return false;
-            }
-            catch (ArgumentException)
-            {
-                Log("dcompi.dll validation failed with an argument error");
-                return false;
-            }
-        }
-    }
-
-    private static void Log(string message)
-    {
-        ReboundLogger.WriteToLog(
-            "Program Launch",
-            message,
-            LogMessageSeverity.Message);
+        return Convert.ToBase64String(tokenBytes);
     }
 }
