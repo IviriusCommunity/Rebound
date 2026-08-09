@@ -60,6 +60,9 @@ internal sealed partial class RootPage : Page
             // Load profile picture and username
             UserPicturePath = UserInformation.GetUserPicturePath();
             ViewModel.Username = $"Hello, {UserInformation.GetDisplayName()}!";
+
+            // Other user info
+            ViewModel.IsMicrosoftAccount = UserInformation.IsMicrosoftAccount();
         };
 
         // Initialize the page

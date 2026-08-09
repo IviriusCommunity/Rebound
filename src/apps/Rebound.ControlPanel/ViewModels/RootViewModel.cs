@@ -20,4 +20,6 @@ internal partial class RootViewModel : ObservableObject
     [ObservableProperty] public partial string Username { get; set; }
 
     [ObservableProperty] public partial string PageAddress { get; set; }
+
+    [ObservableProperty] public partial bool IsMicrosoftAccount { get; set; }
 }

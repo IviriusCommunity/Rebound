@@ -313,7 +313,14 @@
                                         HorizontalAlignment="Center"
                                         FontSize="12"
                                         Foreground="{ThemeResource TextFillColorSecondaryBrush}"
-                                        Text="Local account" />
+                                        Text="Local account"
+                                        Visibility="{x:Bind ViewModel.IsMicrosoftAccount, Mode=OneWay, Converter={StaticResource BoolToInverseVisibilityConverter}}" />
+                                    <TextBlock
+                                        HorizontalAlignment="Center"
+                                        FontSize="12"
+                                        Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                                        Text="Microsoft account"
+                                        Visibility="{x:Bind ViewModel.IsMicrosoftAccount, Mode=OneWay}" />
                                     <StackPanel
                                         Margin="0,16,0,0"
                                         HorizontalAlignment="Center"
