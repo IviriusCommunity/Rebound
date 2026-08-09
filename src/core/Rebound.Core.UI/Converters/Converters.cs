@@ -15,7 +15,7 @@ public partial class IconStringToIconSourceConverter : IValueConverter
     private const string ImagePrefix = "img:";
     private const string PathPrefix = "path:";
 
-    public static object? ConvertIcon(object value, Type targetType, object parameter, string language)
+    public static object? ConvertIcon(object value, Type targetType, object? parameter, string? language)
     {
         try
         {

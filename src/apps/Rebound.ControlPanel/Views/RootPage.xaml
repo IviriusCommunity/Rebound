@@ -5,14 +5,18 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:animatedvisuals="using:Microsoft.UI.Xaml.Controls.AnimatedVisuals"
     xmlns:behaviors="using:CommunityToolkit.WinUI.Behaviors"
+    xmlns:converters="using:CommunityToolkit.WinUI.Converters"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:interactivity="using:Microsoft.Xaml.Interactivity"
     xmlns:local="using:Rebound.ControlPanel"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-    xmlns:muxc="using:Microsoft.UI.Xaml.Controls"
     xmlns:rconverters="using:Rebound.Core.UI.Converters"
     mc:Ignorable="d">
     <Page.Resources>
+        <converters:BoolToVisibilityConverter
+            x:Key="BoolToInverseVisibilityConverter"
+            FalseValue="Visible"
+            TrueValue="Collapsed" />
         <rconverters:StringToUriConverter x:Key="StringToUriConverter" />
         <Style x:Key="DisabledButtonStyle" TargetType="Button">
             <Setter Property="Background" Value="{ThemeResource ButtonBackground}" />
@@ -37,7 +41,7 @@
                             Padding="{TemplateBinding Padding}"
                             HorizontalContentAlignment="{TemplateBinding HorizontalContentAlignment}"
                             VerticalContentAlignment="{TemplateBinding VerticalContentAlignment}"
-                            muxc:AnimatedIcon.State="Normal"
+                            AnimatedIcon.State="Normal"
                             AutomationProperties.AccessibilityView="Raw"
                             Background="{TemplateBinding Background}"
                             BackgroundSizing="{TemplateBinding BackgroundSizing}"
@@ -70,7 +74,7 @@
                                             </ObjectAnimationUsingKeyFrames>
                                         </Storyboard>
                                         <VisualState.Setters>
-                                            <Setter Target="ContentPresenter.(muxc:AnimatedIcon.State)" Value="PointerOver" />
+                                            <Setter Target="ContentPresenter.(AnimatedIcon.State)" Value="PointerOver" />
 
                                         </VisualState.Setters>
                                     </VisualState>
@@ -89,7 +93,7 @@
                                             </ObjectAnimationUsingKeyFrames>
                                         </Storyboard>
                                         <VisualState.Setters>
-                                            <Setter Target="ContentPresenter.(muxc:AnimatedIcon.State)" Value="Pressed" />
+                                            <Setter Target="ContentPresenter.(AnimatedIcon.State)" Value="Pressed" />
 
                                         </VisualState.Setters>
                                     </VisualState>
@@ -103,7 +107,7 @@
                                         </Storyboard>
                                         <VisualState.Setters>
                                             <!--  DisabledVisual Should be handled by the control, not the animated icon.  -->
-                                            <Setter Target="ContentPresenter.(muxc:AnimatedIcon.State)" Value="Normal" />
+                                            <Setter Target="ContentPresenter.(AnimatedIcon.State)" Value="Normal" />
 
                                         </VisualState.Setters>
                                     </VisualState>
@@ -169,34 +173,82 @@
                     Padding="8"
                     Background="Transparent"
                     BorderBrush="Transparent"
-                    Command="{x:Bind TogglePaneCommand}">
-                    <muxc:AnimatedIcon>
-                        <muxc:AnimatedIcon.Source>
+                    Command="{x:Bind TogglePaneCommand}"
+                    ToolTipService.ToolTip="Toggle navigation pane">
+                    <AnimatedIcon>
+                        <AnimatedIcon.Source>
                             <animatedvisuals:AnimatedGlobalNavigationButtonVisualSource />
-                        </muxc:AnimatedIcon.Source>
-                    </muxc:AnimatedIcon>
+                        </AnimatedIcon.Source>
+                    </AnimatedIcon>
                 </Button>
                 <Button
                     Width="36"
                     Height="36"
-                    Padding="8"
+                    Padding="0"
                     Background="Transparent"
                     BorderBrush="Transparent"
                     Command="{x:Bind GoBackCommand}"
-                    IsEnabled="{x:Bind CanGoBack, Mode=OneWay}"
-                    Style="{StaticResource DisabledButtonStyle}">
-                    <FontIcon FontSize="16" Glyph="&#xE72B;" />
+                    IsEnabled="{x:Bind ViewModel.CanGoBack, Mode=OneWay}"
+                    Style="{StaticResource DisabledButtonStyle}"
+                    ToolTipService.ToolTip="Go back">
+                    <AnimatedIcon Width="20" Height="20">
+                        <animatedvisuals:AnimatedBackVisualSource />
+                    </AnimatedIcon>
                 </Button>
                 <Button
                     Width="36"
                     Height="36"
                     Padding="8"
+                    Background="Transparent"
+                    BorderBrush="Transparent"
+                    ToolTipService.ToolTip="See more"
+                    Visibility="{x:Bind ViewModel.CollapseLeftItems, Mode=OneWay}">
+                    <Button.Flyout>
+                        <MenuFlyout>
+                            <MenuFlyoutItem
+                                Command="{x:Bind GoForwardCommand}"
+                                IsEnabled="{x:Bind ViewModel.CanGoForward, Mode=OneWay}"
+                                Text="Go forward">
+                                <MenuFlyoutItem.Icon>
+                                    <FontIcon Glyph="&#xE72A;" />
+                                </MenuFlyoutItem.Icon>
+                            </MenuFlyoutItem>
+                            <MenuFlyoutItem Command="{x:Bind RefreshCommand}" Text="Refresh">
+                                <MenuFlyoutItem.Icon>
+                                    <FontIcon Glyph="&#xE72C;" />
+                                </MenuFlyoutItem.Icon>
+                            </MenuFlyoutItem>
+                            <MenuFlyoutItem Command="{x:Bind GoHomeCommand}" Text="Home">
+                                <MenuFlyoutItem.Icon>
+                                    <FontIcon Glyph="&#xE80F;" />
+                                </MenuFlyoutItem.Icon>
+                            </MenuFlyoutItem>
+                        </MenuFlyout>
+                    </Button.Flyout>
+                    <FontIcon FontSize="16" Glyph="&#xE712;" />
+                </Button>
+                <Button
+                    Width="36"
+                    Height="36"
+                    Padding="0"
                     Background="Transparent"
                     BorderBrush="Transparent"
                     Command="{x:Bind GoForwardCommand}"
-                    IsEnabled="{x:Bind CanGoForward, Mode=OneWay}"
-                    Style="{StaticResource DisabledButtonStyle}">
-                    <FontIcon FontSize="16" Glyph="&#xE72A;" />
+                    IsEnabled="{x:Bind ViewModel.CanGoForward, Mode=OneWay}"
+                    Style="{StaticResource DisabledButtonStyle}"
+                    ToolTipService.ToolTip="Go forward"
+                    Visibility="{x:Bind ViewModel.CollapseLeftItems, Mode=OneWay, Converter={StaticResource BoolToInverseVisibilityConverter}}">
+                    <Grid
+                        Width="20"
+                        Height="20"
+                        RenderTransformOrigin="0.5, 0.5">
+                        <Grid.RenderTransform>
+                            <RotateTransform Angle="180" />
+                        </Grid.RenderTransform>
+                        <AnimatedIcon Width="20" Height="20">
+                            <animatedvisuals:AnimatedBackVisualSource />
+                        </AnimatedIcon>
+                    </Grid>
                 </Button>
                 <Button
                     Width="36"
@@ -204,7 +256,20 @@
                     Padding="8"
                     Background="Transparent"
                     BorderBrush="Transparent"
-                    Command="{x:Bind GoHomeCommand}">
+                    Command="{x:Bind RefreshCommand}"
+                    ToolTipService.ToolTip="Refresh"
+                    Visibility="{x:Bind ViewModel.CollapseLeftItems, Mode=OneWay, Converter={StaticResource BoolToInverseVisibilityConverter}}">
+                    <FontIcon FontSize="16" Glyph="&#xE72C;" />
+                </Button>
+                <Button
+                    Width="36"
+                    Height="36"
+                    Padding="8"
+                    Background="Transparent"
+                    BorderBrush="Transparent"
+                    Command="{x:Bind GoHomeCommand}"
+                    ToolTipService.ToolTip="Home"
+                    Visibility="{x:Bind ViewModel.CollapseLeftItems, Mode=OneWay, Converter={StaticResource BoolToInverseVisibilityConverter}}">
                     <FontIcon FontSize="16" Glyph="&#xE80F;" />
                 </Button>
             </StackPanel>
@@ -227,27 +292,23 @@
                     Height="36"
                     Padding="0"
                     Background="Transparent"
-                    BorderBrush="Transparent">
-                    <muxc:PersonPicture Width="24" Height="24">
-                        <muxc:PersonPicture.ProfilePicture>
-                            <BitmapImage UriSource="{x:Bind UserPicturePath, Mode=OneWay, Converter={StaticResource StringToUriConverter}}" />
-                        </muxc:PersonPicture.ProfilePicture>
-                    </muxc:PersonPicture>
+                    BorderBrush="Transparent"
+                    ToolTipService.ToolTip="Profile">
                     <Button.Flyout>
                         <Flyout ShouldConstrainToRootBounds="False">
                             <Grid>
                                 <StackPanel>
-                                    <muxc:PersonPicture Width="64" Height="64">
-                                        <muxc:PersonPicture.ProfilePicture>
+                                    <PersonPicture Width="64" Height="64">
+                                        <PersonPicture.ProfilePicture>
                                             <BitmapImage UriSource="{x:Bind UserPicturePath, Mode=OneWay, Converter={StaticResource StringToUriConverter}}" />
-                                        </muxc:PersonPicture.ProfilePicture>
-                                    </muxc:PersonPicture>
+                                        </PersonPicture.ProfilePicture>
+                                    </PersonPicture>
                                     <TextBlock
                                         Margin="0,16,0,0"
                                         HorizontalAlignment="Center"
                                         FontSize="16"
                                         FontWeight="SemiBold"
-                                        Text="Hello, User!" />
+                                        Text="{x:Bind ViewModel.Username, Mode=OneWay}" />
                                     <TextBlock
                                         HorizontalAlignment="Center"
                                         FontSize="12"
@@ -258,14 +319,15 @@
                                         HorizontalAlignment="Center"
                                         Orientation="Horizontal"
                                         Spacing="8">
-                                        <HyperlinkButton Content="View user folder" />
-                                        <HyperlinkButton Content="Log out" />
+                                        <HyperlinkButton Command="{x:Bind OpenUserFolderCommand}" Content="Open user folder" />
+                                        <HyperlinkButton Command="{x:Bind LogOutCommand}" Content="Log out" />
                                     </StackPanel>
                                 </StackPanel>
                                 <Button
                                     Padding="8"
                                     HorizontalAlignment="Right"
                                     VerticalAlignment="Top"
+                                    Command="{x:Bind ManageUserCommand}"
                                     Style="{StaticResource SubtleButtonStyle}"
                                     ToolTipService.ToolTip="Manage user">
                                     <FontIcon FontSize="16" Glyph="&#xEF58;" />
@@ -273,54 +335,100 @@
                             </Grid>
                         </Flyout>
                     </Button.Flyout>
+                    <PersonPicture Width="24" Height="24">
+                        <PersonPicture.ProfilePicture>
+                            <BitmapImage UriSource="{x:Bind UserPicturePath, Mode=OneWay, Converter={StaticResource StringToUriConverter}}" />
+                        </PersonPicture.ProfilePicture>
+                    </PersonPicture>
                 </Button>
-                <Button
-                    Width="36"
+                <StackPanel
+                    Orientation="Horizontal"
+                    Spacing="4"
+                    Visibility="{x:Bind ViewModel.CollapseRightItems, Mode=OneWay, Converter={StaticResource BoolToInverseVisibilityConverter}}">
+                    <Button
+                        Width="36"
+                        Height="36"
+                        Padding="0"
+                        Background="Transparent"
+                        BorderBrush="Transparent"
+                        Command="{x:Bind OpenSettingsCommand}"
+                        ToolTipService.ToolTip="Windows Settings">
+                        <AnimatedIcon Width="20" Height="20">
+                            <animatedvisuals:AnimatedSettingsVisualSource />
+                        </AnimatedIcon>
+                    </Button>
+                    <Button
+                        Height="36"
+                        Padding="8"
+                        Background="Transparent"
+                        BorderBrush="Transparent"
+                        Command="{x:Bind CreateShortcutCommand}"
+                        ToolTipService.ToolTip="Create shortcut">
+                        <FontIcon FontSize="16" Glyph="&#xE8A7;" />
+                    </Button>
+                    <DropDownButton
+                        Height="36"
+                        Padding="8"
+                        Background="Transparent"
+                        BorderBrush="Transparent"
+                        ToolTipService.ToolTip="Legacy launch"
+                        Visibility="{x:Bind ViewModel.IsReboundInstalled, Mode=OneWay}">
+                        <DropDownButton.Flyout>
+                            <MenuFlyout x:Name="LegacyLaunchDropDownButtonFlyout" />
+                        </DropDownButton.Flyout>
+                        <FontIcon FontSize="16" Glyph="&#xED56;" />
+                    </DropDownButton>
+                    <DropDownButton
+                        Height="36"
+                        Padding="8"
+                        Background="Transparent"
+                        BorderBrush="Transparent"
+                        ToolTipService.ToolTip="Help">
+                        <DropDownButton.Flyout>
+                            <MenuFlyout x:Name="DocsDropDownButtonFlyout" />
+                        </DropDownButton.Flyout>
+                        <FontIcon FontSize="16" Glyph="&#xE897;" />
+                    </DropDownButton>
+                </StackPanel>
+                <DropDownButton
                     Height="36"
                     Padding="8"
                     Background="Transparent"
-                    BorderBrush="Transparent">
-                    <FontIcon FontSize="16" Glyph="&#xE713;" />
-                </Button>
-                <Button
-                    Width="36"
-                    Height="36"
-                    Padding="8"
-                    Background="Transparent"
-                    BorderBrush="Transparent">
-                    <FontIcon FontSize="16" Glyph="&#xED56;" />
-                </Button>
-                <Button
-                    Width="36"
-                    Height="36"
-                    Padding="8"
-                    Background="Transparent"
-                    BorderBrush="Transparent">
-                    <Button.Flyout>
+                    BorderBrush="Transparent"
+                    ToolTipService.ToolTip="All actions"
+                    Visibility="{x:Bind ViewModel.CollapseRightItems, Mode=OneWay}">
+                    <DropDownButton.Flyout>
                         <MenuFlyout>
-                            <MenuFlyoutItem Text="Read the docs for this page">
+                            <MenuFlyoutItem Command="{x:Bind OpenSettingsCommand}" Text="Windows Settings">
                                 <MenuFlyoutItem.Icon>
-                                    <FontIcon Glyph="&#xE897;" />
+                                    <FontIcon Glyph="&#xE713;" />
                                 </MenuFlyoutItem.Icon>
                             </MenuFlyoutItem>
-                            <MenuFlyoutItem Text="Create shortcut on Desktop">
+                            <MenuFlyoutItem Command="{x:Bind CreateShortcutCommand}" Text="Create shortcut">
                                 <MenuFlyoutItem.Icon>
                                     <FontIcon Glyph="&#xE8A7;" />
                                 </MenuFlyoutItem.Icon>
                             </MenuFlyoutItem>
-                            <MenuFlyoutSeparator />
-                            <MenuFlyoutItem Text="Exit">
-                                <MenuFlyoutItem.Icon>
-                                    <FontIcon Glyph="&#xE894;" />
-                                </MenuFlyoutItem.Icon>
-                            </MenuFlyoutItem>
+                            <MenuFlyoutSubItem
+                                x:Name="LegacyLaunchFlyoutItem"
+                                Text="Legacy launch"
+                                Visibility="{x:Bind ViewModel.IsReboundInstalled, Mode=OneWay}">
+                                <MenuFlyoutSubItem.Icon>
+                                    <FontIcon Glyph="&#xED56;" />
+                                </MenuFlyoutSubItem.Icon>
+                            </MenuFlyoutSubItem>
+                            <MenuFlyoutSubItem x:Name="DocsFlyoutItem" Text="Help">
+                                <MenuFlyoutSubItem.Icon>
+                                    <FontIcon Glyph="&#xE897;" />
+                                </MenuFlyoutSubItem.Icon>
+                            </MenuFlyoutSubItem>
                         </MenuFlyout>
-                    </Button.Flyout>
-                    <FontIcon FontSize="16" Glyph="&#xE712;" />
-                </Button>
+                    </DropDownButton.Flyout>
+                    <FontIcon FontSize="16" Glyph="&#xE71D;" />
+                </DropDownButton>
             </StackPanel>
         </Grid>
-        <muxc:NavigationView
+        <NavigationView
             x:Name="NavView"
             Margin="0,80,0,0"
             IsBackButtonVisible="Collapsed"
@@ -330,8 +438,7 @@
             <Frame
                 x:Name="RootFrame"
                 x:FieldModifier="public"
-                Loaded="RootFrame_Loaded"
                 Navigated="RootFrame_Navigated" />
-        </muxc:NavigationView>
+        </NavigationView>
     </Grid>
 </Page>

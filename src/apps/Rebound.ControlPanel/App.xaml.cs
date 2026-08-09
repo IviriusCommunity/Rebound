@@ -38,6 +38,22 @@ public partial class App : Application, IReboundLegacySupportApp, IReboundPipeCl
 
     public App() => InitializeComponent();
 
+    private static readonly TaskCompletionSource _windowReadyTcs = new(TaskCreationOptions.RunContinuationsAsynchronously);
+
+    public static bool WindowReady
+    {
+        get;
+        set
+        {
+            field = value;
+            if (value)
+            {
+                // This instantly releases anything awaiting the window
+                _windowReadyTcs.TrySetResult();
+            }
+        }
+    }
+
     protected override void OnLaunched(Microsoft.UI.Xaml.LaunchActivatedEventArgs args)
     {
         UnhandledException += (s, e) =>
@@ -127,9 +143,14 @@ public partial class App : Application, IReboundLegacySupportApp, IReboundPipeCl
                 case ExtendedActivationKind.Protocol:
                     {
                         var protocol = (IProtocolActivatedEventArgs)e.ActivationArguments.Data;
-                        // TODO: handle protocol activation (e.g. rebound-controlpanel://)
-                        await HandleProtocolActivationAsync(protocol).ConfigureAwait(false);
-                        return;
+                        var path = protocol.Uri.LocalPath.Trim('/', '\\');
+
+                        _validatedItem = path.ToUpperInvariant() switch
+                        {
+                            "HOME" => typeof(HomePage),
+                            _ => _validatedItem
+                        };
+                        break;
                     }
                 case ExtendedActivationKind.File:
                     {
@@ -191,12 +212,6 @@ public partial class App : Application, IReboundLegacySupportApp, IReboundPipeCl
             // The environment is too unstable for execution to continue
             Current.Exit();
         }
-    }
-
-    // Idk if we'll need this
-    private static Task HandleProtocolActivationAsync(IProtocolActivatedEventArgs args)
-    {
-        return Task.CompletedTask;
     }
 
     // This one's definitely gonna be needed for .cpl files
@@ -268,6 +283,9 @@ public partial class App : Application, IReboundLegacySupportApp, IReboundPipeCl
 
     private static async Task LaunchPageOrUriAsync(object? target)
     {
+        // Wait asynchronously until the window is marked ready
+        await _windowReadyTcs.Task.ConfigureAwait(true);
+
         // If it's a type (page), retrieve the root frame from the main window's content and navigate to that page
         if (target is Type pageType)
         {
@@ -335,16 +353,13 @@ public partial class App : Application, IReboundLegacySupportApp, IReboundPipeCl
             // Spawn the window
             MainWindow.Activate();
 
-            // Spawn the window
-            MainWindow.Activate();
-
             // Window properties
             MainWindow.AppWindow.TitleBar.ExtendsContentIntoTitleBar = true;
             MainWindow.AppWindow.TitleBar.ButtonBackgroundColor =
             MainWindow.AppWindow.TitleBar.ButtonInactiveBackgroundColor = Colors.Transparent;
             MainWindow.AppWindow.TitleBar.ButtonHoverBackgroundColor = Color.FromArgb(80, 120, 120, 120);
             MainWindow.AppWindow.TitleBar.ButtonPressedBackgroundColor = Color.FromArgb(40, 120, 120, 120);
-            MainWindow.AppWindow?.SetTaskbarIcon($"{AppContext.BaseDirectory}\\Assets\\ControlPanel.ico");
+            MainWindow.AppWindow?.SetIcon($"{AppContext.BaseDirectory}\\Assets\\ControlPanel.ico");
 
             ReboundWindowMenu.Register(MainWindow);
         }

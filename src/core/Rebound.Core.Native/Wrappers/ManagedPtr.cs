@@ -16,6 +16,7 @@ namespace Rebound.Core.Native.Wrappers;
 /// Automatically frees the allocation when disposed.
 /// </summary>
 /// <typeparam name="T">The unmanaged type to wrap.</typeparam>
+[Obsolete("Use NativeValue<T> instead for better safety and flexibility.")]
 public unsafe struct ManagedPtr<T> : IEquatable<ManagedPtr<T>>, IDisposable where T : unmanaged
 {
     private nint _ptr;
@@ -101,6 +102,7 @@ public unsafe struct ManagedPtr<T> : IEquatable<ManagedPtr<T>>, IDisposable wher
 /// and length for native interop. Automatically frees the allocation when disposed.
 /// </summary>
 /// <typeparam name="T">The unmanaged element type.</typeparam>
+[Obsolete("Use NativeArray<T> instead for better safety and flexibility.")]
 public unsafe struct ManagedArrayPtr<T> : IEquatable<ManagedArrayPtr<T>>, IDisposable where T : unmanaged
 {
     private nint _ptr;

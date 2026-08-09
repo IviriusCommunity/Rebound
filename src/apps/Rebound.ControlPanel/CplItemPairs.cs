@@ -20,9 +20,15 @@ internal static partial class CplItemPairs
         {
             Name = "Home", 
             Tag = "home",
-            Icon = "img:ms-appx:///Assets/Glyphs/Home.png",
+            Icon = "img:ms-appx:///Assets/Glyphs/Home.ico",
             Page = typeof(HomePage), 
-            Args = ["control", ""] 
+            Args = ["control", ""],
+            PageOpenUri = "rebound-controlpanel:home",
+            PageOpenIconPath = "Assets/Glyphs/Home.ico",
+            LegacyLaunchItems =
+            [
+                new() { Name = "Control Panel - Home", Path = "control.exe" }
+            ],
         },
         new()
         {
@@ -147,15 +153,14 @@ internal static partial class CplItemPairs
         return null;
     }
 
-    public static async Task InvokeAsync(CplItem item)
+    public static async Task InvokeAsync(Frame rootFrame, CplItem item)
     {
         try
         {
             if (item.Page != null)
             {
-                var frame = (App.MainWindow as MainWindow)?.RootFrame.Content as RootPage;
-                if (frame?.RootFrame?.Content?.GetType() != item.Page)
-                    frame?.RootFrame?.Navigate(item.Page);
+                if (rootFrame.Content?.GetType() != item.Page)
+                    rootFrame.Navigate(item.Page);
             }
             else if (!string.IsNullOrEmpty(item.Uri))
             {
@@ -180,10 +185,16 @@ internal partial class CplItem
     public string Tag { get; set; } = string.Empty;
     public string? Icon { get; set; }
 
+    public Collection<CplLegacyLaunchItem> LegacyLaunchItems { get; set; } = [];
+    public Collection<CplDocsItem> DocsItems { get; set; } = [];
+
     // Launch behaviors - only one should be set
     public Type? Page { get; set; }
     public string? Uri { get; set; }
     public string? Process { get; set; }
+
+    public string? PageOpenUri { get; set; }
+    public string? PageOpenIconPath { get; set; }
 
     public string[] Args { get; set; } = [];
 
@@ -193,4 +204,17 @@ internal partial class CplItem
     public bool SelectsOnInvoked => Page != null;
 
     public Collection<CplItem> Children { get; set; } = [];
+}
+
+internal partial class CplLegacyLaunchItem
+{
+    public string Name { get; set; } = string.Empty;
+    public string Path { get; set; } = string.Empty;
+    public string Executable { get; set; } = string.Empty;
+}
+
+internal partial class CplDocsItem
+{
+    public string Name { get; set; } = string.Empty;
+    public string Link { get; set; } = string.Empty;
 }
