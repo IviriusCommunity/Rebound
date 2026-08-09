@@ -102,7 +102,7 @@ public partial class Catalog : ObservableObject
                 PreferredInstallationTemplate = InstallationTemplate.Extras
             },*/
             
-            /*// Rebound Shell
+            // Rebound Shell
             new()
             {
                 Name = "Rebound Shell",
@@ -163,7 +163,7 @@ public partial class Catalog : ObservableObject
                 ]
             },
             
-            // Run
+            /*// Run
             new()
             {
                 Name = "Run",
@@ -626,10 +626,10 @@ public partial class Catalog : ObservableObject
     /// <summary>
     /// Represents the Rebound Hub declaration mod. Must only be used in the installers.
     /// </summary>
-    /*public readonly static Mod ReboundHub = new()
+    public readonly static Mod ReboundHub = new()
     {
         Name = "Rebound Hub",
-        Id = "Rebound.Hub",
+        Id = new Guid("0E885036-4DC8-4AAA-9B12-A97E6C51BB82"),
         Description = "The Rebound Hub.",
         Icon = string.Empty,
         Category = ModCategory.Mandatory,
@@ -639,24 +639,30 @@ public partial class Catalog : ObservableObject
             new()
             {
                 Name = "Default",
-                Id = "Rebound.Hub.Default",
+                Id = new Guid("2ba8d562-9d00-4a13-b4d2-c949e3e41440"),
                 Cogs =
                 [
                     new ProcessKillCog()
                     {
-                        ProcessName = "Rebound Hub"
+                        CogName = "Rebound Hub Process Kill",
+                        CogId = new("24a06efd-06e1-45e2-a30c-22f9516add5f"),
+                        ProcessName = "Rebound Hub",
+                        RequiresElevation = true,
+                        KillOn = ProcessKillOn.Remove
                     },
                     new PackageCog()
                     {
-                        PackageURI = Path.Combine(AppContext.BaseDirectory, "Rebound.Hub.msixbundle"),
-                        PackageFamilyName = "Rebound.Hub_rcz2tbwv5qzb8"
+                        CogName = "Rebound Hub Package",
+                        CogId = new("71951744-33f4-44d1-bd6a-4dad64c47b1f"),
+                        Target = new PackageTarget(PackageTargetType.Local, Path.Combine(AppContext.BaseDirectory, "Rebound.Hub.msixbundle"), PackageFamilyName: "Rebound.Hub_rcz2tbwv5qzb8"),
+                        DoPackageManagementOn = PackageManagementTriggeredOn.Both
                     },
                 ],
             }
         ]
     };
 
-    /// <summary>
+    /*/// <summary>
     /// Represents the built-in mod definition for the Rebound uninstaller executable.
     /// </summary>
     /// <remarks>This mod is categorized as mandatory and is used to install the Rebound uninstaller,

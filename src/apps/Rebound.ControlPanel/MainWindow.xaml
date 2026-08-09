@@ -9,6 +9,8 @@
     xmlns:winuiex="using:WinUIEx"
     Title="Rebound Control Panel"
     mc:Ignorable="d">
-
+    <winuiex:WindowEx.SystemBackdrop>
+        <winuiex:TransparentTintBackdrop />
+    </winuiex:WindowEx.SystemBackdrop>
     <Frame x:Name="RootFrame" x:FieldModifier="public" />
 </winuiex:WindowEx>

@@ -346,8 +346,9 @@ public partial class App : Application, IReboundLegacySupportApp, IReboundPipeCl
             // Default window size
             if (WindowManager.PersistenceStorage?.TryGetValue("Rebound.ControlPanel.MainWindow", out _) != true)
             {
-                MainWindow.Width = 1480;
-                MainWindow.Height = 820;
+                MainWindow.Width = 1100;
+                MainWindow.Height = 720;
+                MainWindow.CenterOnScreen();
             }
 
             // Spawn the window
