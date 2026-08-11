@@ -18,28 +18,35 @@
             TrueValue="Collapsed" />
     </Page.Resources>
     <Grid>
-        <Grid
-            Height="72"
-            VerticalAlignment="Top"
-            Background="{ThemeResource CardBackgroundFillColorDefaultBrush}">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+        <Grid VerticalAlignment="Top" Background="{ThemeResource CardBackgroundFillColorDefaultBrush}">
             <Image
-                Width="20"
+                Width="16"
                 Margin="16"
                 HorizontalAlignment="Left"
                 VerticalAlignment="Top"
-                Source="/Assets/Glyphs/Configuration.png" />
+                Source="/Assets/Glyphs/Configuration.ico" />
             <TextBlock
-                Margin="48,10"
-                FontSize="20"
+                Margin="48,10,16,0"
+                FontSize="18"
                 FontWeight="SemiBold"
                 Foreground="{ThemeResource AccentTextFillColorPrimaryBrush}"
-                Text="System Configuration" />
-            <TextBlock Margin="48,40,0,0" Text="System configuration and properties." />
+                Text="Configuration"
+                TextTrimming="CharacterEllipsis" />
+            <TextBlock
+                Margin="48,36,16,12"
+                FontSize="12"
+                Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                Text="Generic system configuration and properties."
+                TextWrapping="WrapWholeWords" />
         </Grid>
-        <ScrollViewer Margin="0,72,0,0" Padding="40,0,40,0">
+        <ScrollViewer Grid.Row="1">
             <StackPanel
                 MaxWidth="1000"
-                Margin="0,40"
+                Margin="40"
                 Spacing="8">
                 <toolkit:SettingsCard
                     Description="Manage the settings that don't appear here."
@@ -51,7 +58,7 @@
                         </interactivity:EventTriggerBehavior>
                     </interactivity:Interaction.Behaviors>
                     <toolkit:SettingsCard.HeaderIcon>
-                        <FontIcon Glyph="&#xE713;" />
+                        <ImageIcon Source="/Assets/Glyphs/WindowsSettings.ico" />
                     </toolkit:SettingsCard.HeaderIcon>
                     <toolkit:SettingsCard.ActionIcon>
                         <FontIcon Glyph="&#xE8AD;" />
@@ -67,7 +74,7 @@
                     IsOpen="True"
                     Visibility="{x:Bind ViewModel.IsElevated, Mode=OneWay, Converter={StaticResource BoolToInverseVisibilityConverter}}">
                     <muxc:InfoBar.ActionButton>
-                        <Button Command="{x:Bind ViewModel.RelaunchAsAdminCommand}" Style="{StaticResource AccentButtonStyle}">
+                        <Button Command="{x:Bind RelaunchAsAdminCommand}" Style="{StaticResource AccentButtonStyle}">
                             <StackPanel Orientation="Horizontal" Spacing="8">
                                 <FontIcon FontSize="16" Glyph="&#xEA18;" />
                                 <TextBlock Text="Relaunch as Administrator" />
@@ -75,36 +82,46 @@
                         </Button>
                     </muxc:InfoBar.ActionButton>
                 </muxc:InfoBar>
-                <toolkit:SettingsExpander Description="The display name of your computer. Only letters, numbers and hyphens allowed, max 15 characters. Cannot start or end with a hyphen. Requires a restart to apply." Header="Computer name">
-                    <toolkit:SettingsExpander.HeaderIcon>
+                <toolkit:SettingsCard
+                    Description="The display name of your computer. Only letters, numbers and hyphens allowed, max 15 characters. Cannot start or end with a hyphen. Requires a restart to apply."
+                    Header="Computer name"
+                    IsEnabled="{x:Bind ViewModel.IsElevated, Mode=OneWay}">
+                    <toolkit:SettingsCard.HeaderIcon>
                         <FontIcon Glyph="&#xE8AC;" />
-                    </toolkit:SettingsExpander.HeaderIcon>
-                    <toolkit:SettingsExpander.ItemsHeader>
-                        <Grid Padding="16" Background="{ThemeResource CardBackgroundFillColorDefaultBrush}">
-                            <TextBox
-                                IsEnabled="{x:Bind ViewModel.IsElevated, Mode=OneWay}"
-                                MaxLength="15"
-                                Text="{x:Bind ViewModel.ComputerName, Mode=TwoWay}" />
-                        </Grid>
-                    </toolkit:SettingsExpander.ItemsHeader>
-                </toolkit:SettingsExpander>
-                <toolkit:SettingsExpander Description="The description of your computer." Header="Computer description">
-                    <toolkit:SettingsExpander.HeaderIcon>
+                    </toolkit:SettingsCard.HeaderIcon>
+                    <StackPanel Orientation="Horizontal" Spacing="8">
+                        <TextBlock
+                            VerticalAlignment="Center"
+                            IsTextSelectionEnabled="True"
+                            Text="{x:Bind ViewModel.ComputerName, Mode=OneWay}" />
+                        <Button
+                            Command="{x:Bind ChangeComputerNameCommand}"
+                            Style="{StaticResource SubtleButtonStyle}"
+                            ToolTipService.ToolTip="Edit">
+                            <FontIcon FontSize="16" Glyph="&#xE70F;" />
+                        </Button>
+                    </StackPanel>
+                </toolkit:SettingsCard>
+                <toolkit:SettingsCard
+                    Description="The description of your computer."
+                    Header="Computer description"
+                    IsEnabled="{x:Bind ViewModel.IsElevated, Mode=OneWay}">
+                    <toolkit:SettingsCard.HeaderIcon>
                         <FontIcon Glyph="&#xE946;" />
-                    </toolkit:SettingsExpander.HeaderIcon>
-                    <toolkit:SettingsExpander.ItemsHeader>
-                        <Grid Padding="16" Background="{ThemeResource CardBackgroundFillColorDefaultBrush}">
-                            <TextBox
-                                IsEnabled="{x:Bind ViewModel.IsElevated, Mode=OneWay}"
-                                MaxLength="255"
-                                Text="{x:Bind ViewModel.ComputerDescription, Mode=TwoWay}" />
-                        </Grid>
-                    </toolkit:SettingsExpander.ItemsHeader>
-                </toolkit:SettingsExpander>
-                <muxc:InfoBar
-                    Title="Invalid computer name. Check the naming requirements above."
-                    IsOpen="{x:Bind ViewModel.IsComputerNameError, Mode=TwoWay}"
-                    Severity="Error" />
+                    </toolkit:SettingsCard.HeaderIcon>
+                    <StackPanel Orientation="Horizontal" Spacing="8">
+                        <TextBlock
+                            VerticalAlignment="Center"
+                            IsTextSelectionEnabled="True"
+                            Text="{x:Bind ViewModel.ComputerDescription, Mode=OneWay}" />
+                        <Button
+                            Command="{x:Bind ChangeComputerDescriptionCommand}"
+                            Style="{StaticResource SubtleButtonStyle}"
+                            ToolTipService.ToolTip="Edit">
+                            <FontIcon FontSize="16" Glyph="&#xE70F;" />
+                        </Button>
+                    </StackPanel>
+                </toolkit:SettingsCard>
                 <muxc:InfoBar
                     Title="You will need to restart in order for the computer name to be fully updated."
                     IsOpen="{x:Bind ViewModel.IsRestartRequired, Mode=TwoWay}"
@@ -118,37 +135,13 @@
                         </Button>
                     </muxc:InfoBar.ActionButton>
                 </muxc:InfoBar>
-                <StackPanel
-                    HorizontalAlignment="Right"
-                    Orientation="Horizontal"
-                    Spacing="8">
-                    <Button
-                        Command="{x:Bind ViewModel.ApplyChangesCommand}"
-                        IsEnabled="{x:Bind ViewModel.AreChangesPending, Mode=OneWay}"
-                        Style="{StaticResource AccentButtonStyle}"
-                        Visibility="{x:Bind ViewModel.IsElevated, Mode=OneWay}">
-                        <StackPanel Orientation="Horizontal" Spacing="8">
-                            <FontIcon FontSize="16" Glyph="&#xE73E;" />
-                            <TextBlock Text="Apply" />
-                        </StackPanel>
-                    </Button>
-                    <Button
-                        Command="{x:Bind ViewModel.CancelChangesCommand}"
-                        IsEnabled="{x:Bind ViewModel.AreChangesPending, Mode=OneWay}"
-                        Visibility="{x:Bind ViewModel.IsElevated, Mode=OneWay}">
-                        <StackPanel Orientation="Horizontal" Spacing="8">
-                            <FontIcon FontSize="16" Glyph="&#xE711;" />
-                            <TextBlock Text="Cancel" />
-                        </StackPanel>
-                    </Button>
-                </StackPanel>
                 <TextBlock
                     Margin="0,32,0,0"
                     FontWeight="SemiBold"
                     Text="Hardware" />
                 <toolkit:SettingsCard
                     Command="{x:Bind LaunchDeviceManagerCommand}"
-                    Description="Manage device drivers."
+                    Description="Manage connected devices and device drivers."
                     Header="Device Manager"
                     IsClickEnabled="True">
                     <toolkit:SettingsCard.HeaderIcon>
@@ -164,7 +157,7 @@
                     IsOpen="True"
                     Visibility="{x:Bind ViewModel.IsElevated, Mode=OneWay, Converter={StaticResource BoolToInverseVisibilityConverter}}">
                     <muxc:InfoBar.ActionButton>
-                        <Button Command="{x:Bind ViewModel.RelaunchAsAdminCommand}" Style="{StaticResource AccentButtonStyle}">
+                        <Button Command="{x:Bind RelaunchAsAdminCommand}" Style="{StaticResource AccentButtonStyle}">
                             <StackPanel Orientation="Horizontal" Spacing="8">
                                 <FontIcon FontSize="16" Glyph="&#xEA18;" />
                                 <TextBlock Text="Relaunch as Administrator" />

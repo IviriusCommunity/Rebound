@@ -7,10 +7,8 @@ using Microsoft.Win32;
 using Rebound.Core.Environment;
 using Rebound.Core.Native.Windows;
 using Rebound.Core.SystemInformation.Software;
-using Rebound.Core.UI;
 using Rebound.Forge;
 using Rebound.Forge.Engines;
-using System.Diagnostics;
 
 namespace Rebound.ControlPanel.ViewModels;
 
@@ -19,15 +17,11 @@ internal partial class SystemConfigurationViewModel : ObservableObject
     // Properties
     [ObservableProperty] public partial bool IsElevated { get; set; }
     [ObservableProperty] public partial bool IsRestartRequired { get; set; } = false;
-    [ObservableProperty] public partial bool IsComputerNameError { get; set; } = false;
-    [ObservableProperty] public partial bool AreChangesPending { get; set; } = false;
 
     // Settings
     [ObservableProperty] public partial string ComputerName { get; set; }
     [ObservableProperty] public partial string ComputerDescription { get; set; }
     [ObservableProperty] public partial bool InstallOemApps { get; set; }
-
-    private bool _isInitialized;
 
     public SystemConfigurationViewModel()
     {
@@ -37,18 +31,13 @@ internal partial class SystemConfigurationViewModel : ObservableObject
         // Settings
         ComputerName = WindowsInformation.GetComputerName();
         ComputerDescription = WindowsInformation.GetComputerDescription();
-        try
+
+        if (IsElevated)
         {
             InstallOemApps = !RegistrySettingsEngine.GetBool(RegistryHive.LocalMachine,
                 RegistrySettingsCatalog.InstallOemApps.KeyPath,
                 RegistrySettingsCatalog.InstallOemApps.ValueName);
         }
-        catch
-        {
-
-        }
-
-        _isInitialized = true;
     }
 
     partial void OnInstallOemAppsChanged(bool value) 
@@ -56,61 +45,24 @@ internal partial class SystemConfigurationViewModel : ObservableObject
             RegistrySettingsCatalog.InstallOemApps.KeyPath,
             RegistrySettingsCatalog.InstallOemApps.ValueName, !value);
 
-    partial void OnComputerNameChanged(string value) { if (_isInitialized) AreChangesPending = true; }
-    partial void OnComputerDescriptionChanged(string value) { if (_isInitialized) AreChangesPending = true; }
-
-    [RelayCommand]
-    public void ApplyChanges()
+    partial void OnComputerNameChanged(string value)
     {
-        IsComputerNameError = false;
-
-        // Computer name
         if (ComputerName != WindowsInformation.GetComputerName()) // Check if there's changes
-        {
-            if (!WindowsInformation.IsValidComputerName(ComputerName)) // Validate
-                IsComputerNameError = true;
-            else if (WindowsInformation.SetComputerName(ComputerName)) // Try to set
+            if (WindowsInformation.IsValidComputerName(ComputerName)) // Validate
+            {
+                WindowsInformation.SetComputerName(ComputerName);
                 IsRestartRequired = true;
-            else
-                IsComputerNameError = true;
-        }
-        
-        // Computer description
-        if (ComputerDescription != WindowsInformation.GetComputerDescription()) // Check if there's changes
-        {
-            if (WindowsInformation.IsValidComputerDescription(ComputerDescription))
-                WindowsInformation.SetComputerDescription(ComputerDescription);
-        }
-
-        AreChangesPending = false;
+            }
     }
 
-    [RelayCommand]
-    public void CancelChanges()
+    partial void OnComputerDescriptionChanged(string value)
     {
-        _isInitialized = false;
-
-        // Retrieve data again
-        ComputerName = WindowsInformation.GetComputerName();
-        ComputerDescription = WindowsInformation.GetComputerDescription();
-
-        _isInitialized = true;
-        AreChangesPending = false;
+        if (ComputerDescription != WindowsInformation.GetComputerDescription()) // Check if there's changes
+            if (WindowsInformation.IsValidComputerDescription(ComputerDescription)) // Validate
+                WindowsInformation.SetComputerDescription(ComputerDescription);
     }
 
     [RelayCommand]
     public static void Restart()
         => Shutdown.RestartNow(true);
-
-    [RelayCommand]
-    public static void RelaunchAsAdmin()
-    {
-        App.SingleInstanceAppService.Relaunch(new InstanceRelaunchOptions
-        {
-            Elevated = true,
-            ShutdownCurrent = true,
-            ForceNewInstance = true,
-            Arguments = CplArgs.SystemPropertiesComputerNameExePath
-        });
-    }
 }

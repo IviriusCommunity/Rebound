@@ -23,11 +23,15 @@ internal static partial class CplItemPairs
             Icon = "img:ms-appx:///Assets/Glyphs/Home.ico",
             Page = typeof(HomePage), 
             Args = ["control", ""],
-            PageOpenUri = "rebound-controlpanel:home",
+            PageOpenUri = "home",
             PageOpenIconPath = "Assets/Glyphs/Home.ico",
             LegacyLaunchItems =
             [
-                new() { Name = "Control Panel - Home", Path = "control.exe" }
+                new() 
+                {
+                    Name = "Control Panel - Home", 
+                    Path = "control.exe"
+                }
             ],
         },
         new()
@@ -36,7 +40,24 @@ internal static partial class CplItemPairs
             Icon = "img:ms-appx:///Assets/Glyphs/System.png",
             Children =
             [
-                new() { Name = "Configuration", Tag = "configuration", Icon = "glyph:\uE9E9", Page = typeof(SystemConfigurationPage), Args = [CplArgs.SystemPropertiesComputerNameExePath] },
+                new() 
+                {
+                    Name = "Configuration", 
+                    Tag = "configuration", 
+                    Icon = "glyph:\uE9E9",
+                    Page = typeof(SystemConfigurationPage),
+                    Args = [CplArgs.SystemPropertiesComputerNameExePath],
+                    PageOpenUri = "sysconfig",
+                    PageOpenIconPath = "Assets/Glyphs/Configuration.ico",
+                    LegacyLaunchItems =
+                    [
+                        new()
+                        {
+                            Name = "System Properties",
+                            Path = CplArgs.SystemPropertiesComputerNameExePath
+                        }
+                    ],
+                },
                 new() { Name = "Display", IsEnabled = false, Tag = "display", Page = typeof(DisplaySettingsPage), Icon = "glyph:\uE7F4" },
                 //new() { Name = "Power and Battery", Tag = "powerandbattery", Icon = "glyph:\uEBA5" },
                 new() { Name = "DirectX", Tag = "directx", Page = typeof(DirectXPage), Icon = "glyph:\uE8B2", Args = [CplArgs.DirectXControlPanelExePath] },

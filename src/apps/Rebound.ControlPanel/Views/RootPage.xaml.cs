@@ -43,8 +43,8 @@ internal sealed partial class RootPage : Page
         SizeChanged += (s, e) =>
         {
             // Collapse items depending on window size
-            ViewModel.CollapseLeftItems = e.NewSize.Width < 400;
-            ViewModel.CollapseRightItems = e.NewSize.Width < 640;
+            ViewModel.CollapseLeftItems = e.NewSize.Width <= 440;
+            ViewModel.CollapseRightItems = e.NewSize.Width <= 640;
         };
         Loaded += async (s, e) =>
         {
@@ -415,7 +415,7 @@ internal sealed partial class RootPage : Page
             throw new Win32Exception($"Failed to create IShellLink instance. HRESULT: {hr}");
 
         // Set the path to the application/executable the shortcut launches
-        using NativeString target = NativeString.Alloc(item.PageOpenUri);
+        using NativeString target = NativeString.Alloc($"rebound-controlpanel:{item.PageOpenUri}");
         shellLink.Get()->SetPath(target.CharPointer);
 
         // Set the shortcut's description

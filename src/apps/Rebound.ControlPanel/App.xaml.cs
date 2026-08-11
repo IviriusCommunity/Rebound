@@ -145,11 +145,9 @@ public partial class App : Application, IReboundLegacySupportApp, IReboundPipeCl
                         var protocol = (IProtocolActivatedEventArgs)e.ActivationArguments.Data;
                         var path = protocol.Uri.LocalPath.Trim('/', '\\');
 
-                        _validatedItem = path.ToUpperInvariant() switch
-                        {
-                            "HOME" => typeof(HomePage),
-                            _ => _validatedItem
-                        };
+                        var resolved = ResolveFromUris(path);
+                        if (resolved != null)
+                            _validatedItem = resolved;
                         break;
                     }
                 case ExtendedActivationKind.File:
@@ -225,6 +223,29 @@ public partial class App : Application, IReboundLegacySupportApp, IReboundPipeCl
         return SearchArgs(CplItemPairs.CplItems, arguments.Trim());
     }
 
+    private static object? ResolveFromUris(string uri)
+    {
+        return SearchUris(CplItemPairs.CplItems, uri.Trim());
+    }
+
+    private static object? SearchUris(IEnumerable<CplItem> items, string arguments)
+    {
+        foreach (var item in items)
+        {
+            bool isMatch = string.IsNullOrEmpty(item.PageOpenUri)
+                ? string.IsNullOrEmpty(arguments)
+                : arguments.Contains(item.PageOpenUri.Trim(), StringComparison.InvariantCultureIgnoreCase);
+
+            if (isMatch)
+                return item.Page ?? (object?)item.Uri;
+
+            var result = SearchUris(item.Children, arguments);
+            if (result != null)
+                return result;
+        }
+        return null;
+    }
+
     private static object? SearchArgs(IEnumerable<CplItem> items, string arguments)
     {
         foreach (var item in items)
@@ -289,10 +310,19 @@ public partial class App : Application, IReboundLegacySupportApp, IReboundPipeCl
         // If it's a type (page), retrieve the root frame from the main window's content and navigate to that page
         if (target is Type pageType)
         {
-            var frame = (App.MainWindow as MainWindow)?.RootFrame.Content as RootPage;
-            if (frame?.RootFrame?.Content?.GetType() != pageType)
+            if (MainWindow is MainWindow window)
             {
-                _ = frame?.RootFrame?.Navigate(pageType);
+                // No idea why but the thread moves here
+                window.DispatcherQueue.TryEnqueue(() =>
+                {
+                    if (window.RootFrame.Content is RootPage root)
+                    {
+                        if (root.RootFrame?.Content?.GetType() != pageType)
+                        {
+                            _ = root.RootFrame?.Navigate(pageType);
+                        }
+                    }
+                });
             }
         }
         // If it's a URI, launch it

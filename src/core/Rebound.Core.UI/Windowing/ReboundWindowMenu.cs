@@ -8,8 +8,6 @@ using Microsoft.UI.Xaml.Controls.Primitives;
 using Rebound.Core.SystemInformation.Hardware;
 using TerraFX.Interop.Windows;
 using Windows.System;
-using Windows.UI;
-using Windows.UI.ViewManagement;
 using WinUIEx;
 using static TerraFX.Interop.Windows.Windows;
 
@@ -17,9 +15,13 @@ namespace Rebound.Core.UI.Windowing;
 
 public static unsafe class ReboundWindowMenu
 {
+    private static List<HWND> _handles = [];
+
     public static void Register(Window window)
     {
-        WindowManager.Get(window).WindowMessageReceived += (s, e) =>
+        var manager = WindowManager.Get(window);
+        var handle = new HWND((void*)window.GetWindowHandle());
+        manager.WindowMessageReceived += (s, e) =>
         {
             unsafe
             {
@@ -156,12 +158,66 @@ public static unsafe class ReboundWindowMenu
                 IsChecked = window.GetIsAlwaysOnTop(),
                 Icon = new FontIcon() { Glyph = "\uE74A" }
             };
+            var keepBelowItem = new ToggleMenuFlyoutItem()
+            {
+                Text = "Keep below",
+                IsChecked = _handles.Contains(handle),
+                Icon = new FontIcon() { Glyph = "\uE74B" }
+            };
             keepOnTopItem.Click += (s, e) =>
             {
+                if (keepOnTopItem.IsChecked && _handles.Contains(handle))
+                {
+                    _handles.Remove(handle);
+                    manager.ZOrderChanged -= ZOrder_Changed;
+                }
                 window.SetIsAlwaysOnTop(keepOnTopItem.IsChecked);
-                SetWindowBorderColor(window, keepOnTopItem.IsChecked);
             };
             moreOptionsItem.Items.Add(keepOnTopItem);
+
+            keepBelowItem.Click += (s, e) =>
+            {
+                if (keepBelowItem.IsChecked)
+                {
+                    window.SetIsAlwaysOnTop(false);
+                    _handles.Add(handle);
+                    manager.ZOrderChanged += ZOrder_Changed;
+                    window.AppWindow.MoveInZOrderAtBottom();
+                }
+                else
+                {
+                    _handles.Remove(handle);
+                    manager.ZOrderChanged -= ZOrder_Changed;
+                }
+            };
+            moreOptionsItem.Items.Add(keepBelowItem);
+
+            var windowBorderItem = new ToggleMenuFlyoutItem()
+            {
+                Text = "Window border",
+                IsEnabled = window.AppWindow.Presenter is OverlappedPresenter overlappedPresenter1 && !overlappedPresenter1.HasTitleBar,
+                IsChecked = window.AppWindow.Presenter is OverlappedPresenter overlappedPresenter2 && overlappedPresenter2.HasBorder,
+                Icon = new FontIcon() { Glyph = "\uE739" }
+            };
+            windowBorderItem.Click += (s, e) =>
+            {
+                if (window.AppWindow.Presenter is OverlappedPresenter overlappedPresenter)
+                    overlappedPresenter.SetBorderAndTitleBar(windowBorderItem.IsChecked, overlappedPresenter.HasTitleBar);
+            };
+            moreOptionsItem.Items.Add(windowBorderItem);
+
+            var titleBarItem = new ToggleMenuFlyoutItem()
+            {
+                Text = "Title bar",
+                IsChecked = window.AppWindow.Presenter is OverlappedPresenter overlappedPresenter3 && overlappedPresenter3.HasTitleBar,
+                Icon = new FontIcon() { Glyph = "\uE737" }
+            };
+            titleBarItem.Click += (s, e) =>
+            {
+                if (window.AppWindow.Presenter is OverlappedPresenter overlappedPresenter)
+                    overlappedPresenter.SetBorderAndTitleBar(titleBarItem.IsChecked ? true : overlappedPresenter.HasBorder, titleBarItem.IsChecked);
+            };
+            moreOptionsItem.Items.Add(titleBarItem);
 
             flyout.Items.Add(moreOptionsItem);
             flyout.Items.Add(new MenuFlyoutSeparator());
@@ -192,29 +248,11 @@ public static unsafe class ReboundWindowMenu
         {
             PostMessageW(new((void*)window.GetWindowHandle()), WM.WM_SYSCOMMAND, command, 0);
         }
-    }
 
-    private static void SetWindowBorderColor(Window window, bool isTopmost)
-    {
-        var hwnd = (HWND)(void*)window.GetWindowHandle();
-
-        if (isTopmost)
+        void ZOrder_Changed(object? sender, ZOrderInfo e)
         {
-            // Query system accent color directly from OS settings
-            var uiSettings = new UISettings();
-            var accentColor = uiSettings.GetColorValue(UIColorType.Accent);
-
-            // Convert to Win32 COLORREF (0x00BBGGRR)
-            uint colorRef = (uint)(accentColor.R | (accentColor.G << 8) | (accentColor.B << 16));
-
-            // DWMWA_BORDER_COLOR = 34
-            DwmSetWindowAttribute(hwnd, (uint)DWMWINDOWATTRIBUTE.DWMWA_BORDER_COLOR, &colorRef, sizeof(uint));
-        }
-        else
-        {
-            // DWMWA_COLOR_DEFAULT (0xFFFFFFFF) resets to standard Windows border
-            uint defaultColor = 0xFFFFFFFF;
-            DwmSetWindowAttribute(hwnd, (uint)DWMWINDOWATTRIBUTE.DWMWA_BORDER_COLOR, &defaultColor, sizeof(uint));
+            if (!e.IsZOrderAtBottom)
+                window.AppWindow.MoveInZOrderAtBottom();
         }
     }
 }
