@@ -575,7 +575,8 @@ public partial class Mod : ObservableObject
     [RelayCommand]
     public async Task OpenAsync()
     {
-        if (SelectedVariantIndex == -1) return;
+        if (SelectedVariantIndex == -1) 
+            return;
 
         var selectedVariant = Variants[SelectedVariantIndex];
 

@@ -83,18 +83,18 @@
 	<ItemGroup>
 
 		<!-- NAOT fix -->
-		<PackageReference Include="Microsoft.DotNet.ILCompiler" Version="10.0.10" PrivateAssets="All" />
+		<PackageReference Include="Microsoft.DotNet.ILCompiler" Version="10.0.11" PrivateAssets="All" />
 
 		<!-- Windows SDK and WinUI -->
-		<PackageReference Include="Microsoft.WindowsAppSDK" Version="2.3.1" />
-		
-		<PackageReference Include="Microsoft.WindowsAppSDK.AI" Version="2.3.4" ExcludeAssets="all" />
-		<PackageReference Include="Microsoft.WindowsAppSDK.ML" Version="2.1.74" ExcludeAssets="all" />
-		<PackageReference Include="Microsoft.Windows.AI.MachineLearning" Version="2.1.74" ExcludeAssets="all" />
-		<PackageReference Include="Microsoft.ML.OnnxRuntime" Version="1.27.1" ExcludeAssets="all" />
-		<PackageReference Include="Microsoft.Web.WebView2" Version="1.0.4078.44" ExcludeAssets="all" />
+		<PackageReference Include="Microsoft.WindowsAppSDK" Version="2.4.0" />
 
-		<PackageReference Include="WinUIEx" Version="2.9.2" />
+		<PackageReference Include="Microsoft.WindowsAppSDK.AI" Version="2.4.4" ExcludeAssets="all" />
+		<PackageReference Include="Microsoft.WindowsAppSDK.ML" Version="2.1.74" ExcludeAssets="all" />
+		<PackageReference Include="Microsoft.Windows.AI.MachineLearning" Version="2.2.12" ExcludeAssets="all" />
+		<PackageReference Include="Microsoft.ML.OnnxRuntime" Version="1.29.0" ExcludeAssets="all" />
+		<PackageReference Include="Microsoft.Web.WebView2" Version="1.0.4129.50" ExcludeAssets="all" />
+
+		<PackageReference Include="WinUIEx" Version="2.9.3" />
 
 		<!-- CommunityToolkit -->
 		<PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.2" />

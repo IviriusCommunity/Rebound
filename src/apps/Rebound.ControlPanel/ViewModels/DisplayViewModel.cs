@@ -4,32 +4,25 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Microsoft.Win32;
+using Rebound.Core.Native.Wrappers;
 using Rebound.Forge;
+using Rebound.Forge.Cogs;
 using Rebound.Forge.Engines;
+using Rebound.Forge.Launchers;
+using System;
+using System.Threading.Tasks;
+using TerraFX.Interop.Windows;
 
 namespace Rebound.ControlPanel.ViewModels;
 
 internal partial class DisplayViewModel : ObservableObject
 {
-    // Color calibration
-
-    [ObservableProperty] public partial string SelectedPage { get; set; } = "0";
-    [ObservableProperty] public partial double Gamma { get; set; } = 1;
-    [ObservableProperty] public partial double Brightness { get; set; } = 0;
-    [ObservableProperty] public partial double Contrast { get; set; } = 1;
-    [ObservableProperty] public partial bool DoSoftwareCalibration { get; set; }
-    [ObservableProperty] public partial bool InvalidCombination { get; set; }
-    [ObservableProperty] public partial bool IsExpandedLayout { get; set; }
-    [ObservableProperty] public partial string ProfileName { get; set; } = "Rebound SDR Calibration";
-    [ObservableProperty] public partial string ProfileDescription { get; set; } = "sRGB display profile with display hardware configuration data derived from calibration, done with Rebound Control Panel - Display Color Calibration";
-
-    // ClearType
-
     [ObservableProperty] public partial int FontSmoothingType { get; set; }
     [ObservableProperty] public partial int ClearTypeLevel { get; set; }
     [ObservableProperty] public partial int ClearTypeGamma { get; set; }
     [ObservableProperty] public partial int SubpixelLayout { get; set; }
     [ObservableProperty] public partial bool IsClearTypeEnabled { get; set; }
+    [ObservableProperty] public partial bool IsRefreshRequired { get; set; }
 
     public DisplayViewModel()
     {
@@ -37,15 +30,44 @@ internal partial class DisplayViewModel : ObservableObject
         PropertyChanged += DisplayViewModel_PropertyChanged;
     }
 
+    public Mod HDRCalibration = new()
+    {
+        Name = "Windows HDR Calibration",
+        Id = new Guid("a8357b0d-d30b-4ef4-8f2d-55adf9094e69"),
+        Variants =
+        [
+            new ModVariant
+            {
+                Name = "Windows HDR Calibration",
+                Id = new Guid("e1bf060c-4288-4fe0-b682-342479f05635"),
+                Launchers = 
+                [
+                    new PackageLauncher()
+                    {
+                        PackageFamilyName = "MicrosoftCorporationII.WindowsHDRCalibration_8wekyb3d8bbwe"
+                    }
+                ],
+                Cogs =
+                [
+                    new PackageCog
+                    {
+                        CogName = "Windows HDR Calibration",
+                        CogId = new Guid("0f732795-39d2-4d92-b054-5c44e20f9822"),
+                        DoPackageManagementOn = PackageManagementTriggeredOn.Both,
+                        Target = new PackageTarget(
+                            PackageTargetType.Store,
+                            StoreProductId: "9N7F2SM5D1LR",
+                            PackageFamilyName: "MicrosoftCorporationII.WindowsHDRCalibration_8wekyb3d8bbwe")
+                    }
+                ]
+            }
+        ]
+    };
+
     private void DisplayViewModel_PropertyChanged(object? sender, System.ComponentModel.PropertyChangedEventArgs e)
     {
         switch (e.PropertyName)
         {
-            case nameof(Gamma):
-            case nameof(Brightness):
-            case nameof(Contrast):
-                InvalidCombination = !IsValidCombination(Gamma, Brightness, Contrast);
-                break;
             case nameof(FontSmoothingType):
             case nameof(ClearTypeLevel):
             case nameof(ClearTypeGamma):
@@ -55,50 +77,15 @@ internal partial class DisplayViewModel : ObservableObject
         }
     }
 
-    // Color calibration
-
-    [RelayCommand]
-    public void BeginSoftwareCalibration()
-    {
-        DoSoftwareCalibration = true;
-        ResetToDefault();
-        SelectedPage = "1";
-    }
-
-    [RelayCommand]
-    public void BeginHardwareCalibration()
-    {
-        DoSoftwareCalibration = false;
-        ResetToDefault();
-        SelectedPage = "1";
-    }
-
-    public void ResetToDefault()
-    {
-        Gamma = 1;
-        Brightness = 0;
-        Contrast = 1;
-        ProfileName = "Rebound SDR Calibration";
-        ProfileDescription = "sRGB display profile with display hardware configuration data derived from calibration, done with Rebound Control Panel - Display Color Calibration";
-    }
-
-    private static bool IsValidCombination(double gamma, double brightness, double contrast)
-    {
-        // There's some kind of validation algorithm and idk what it is exactly
-        return true;
-    }
-
-    // ClearType
-
     private void LoadClearTypeSettings()
     {
-        var smoothingEnabled = RegistrySettingsEngine.GetValue<string>(
+        var smoothingEnabled = RegistrySettingsEngine.GetValue(
             RegistryHive.CurrentUser,
             RegistrySettingsCatalog.FontSmoothing.KeyPath,
             RegistrySettingsCatalog.FontSmoothing.ValueName,
             "2");
 
-        var smoothingType = RegistrySettingsEngine.GetValue<int>(
+        var smoothingType = RegistrySettingsEngine.GetValue(
             RegistryHive.CurrentUser,
             RegistrySettingsCatalog.FontSmoothingType.KeyPath,
             RegistrySettingsCatalog.FontSmoothingType.ValueName,
@@ -106,19 +93,19 @@ internal partial class DisplayViewModel : ObservableObject
 
         FontSmoothingType = smoothingEnabled == "0" ? 0 : smoothingType;
 
-        ClearTypeLevel = RegistrySettingsEngine.GetValue<int>(
+        ClearTypeLevel = RegistrySettingsEngine.GetValue(
             RegistryHive.CurrentUser,
             RegistrySettingsCatalog.AvalonClearTypeLevel.KeyPath,
             RegistrySettingsCatalog.AvalonClearTypeLevel.ValueName,
             100);
 
-        ClearTypeGamma = RegistrySettingsEngine.GetValue<int>(
+        ClearTypeGamma = RegistrySettingsEngine.GetValue(
             RegistryHive.CurrentUser,
             RegistrySettingsCatalog.AvalonGammaLevel.KeyPath,
             RegistrySettingsCatalog.AvalonGammaLevel.ValueName,
             1400);
 
-        SubpixelLayout = RegistrySettingsEngine.GetValue<int>(
+        SubpixelLayout = RegistrySettingsEngine.GetValue(
             RegistryHive.CurrentUser,
             RegistrySettingsCatalog.FontSmoothingOrientation.KeyPath,
             RegistrySettingsCatalog.FontSmoothingOrientation.ValueName,
@@ -127,7 +114,7 @@ internal partial class DisplayViewModel : ObservableObject
         IsClearTypeEnabled = FontSmoothingType == 2;
     }
 
-    public unsafe void ApplyClearTypeSettings()
+    public void ApplyClearTypeSettings()
     {
         RegistrySettingsEngine.EnsureKeyExists(
             RegistryHive.CurrentUser,
@@ -176,22 +163,48 @@ internal partial class DisplayViewModel : ObservableObject
             RegistryValueKind.DWord);
 
         IsClearTypeEnabled = FontSmoothingType == 2;
+        IsRefreshRequired = true;
+    }
 
-        // Needed to reload fonts for all Win32 apps
-        unsafe
+    [RelayCommand]
+    public void Refresh()
+    {
+        IsRefreshRequired = false;
+
+        _ = Task.Run(() =>
         {
-            try
+            unsafe
             {
-                TerraFX.Interop.Windows.Windows.SystemParametersInfoW(
-                0x004A,
-                FontSmoothingType != 0 ? 1u : 0u,
-                null,
-                0x0003);
-            }
-            catch
-            {
+                try
+                {
+                    // Update system parameters
+                    TerraFX.Interop.Windows.Windows.SystemParametersInfoW(
+                        SPI.SPI_SETFONTSMOOTHING,
+                        FontSmoothingType != 0 ? 1u : 0u,
+                        null,
+                        TerraFX.Interop.Windows.Windows.SPIF_UPDATEINIFILE);
 
+                    // ClearType / Gamma parameters require SPI_SETFONTSMOOTHINGORIENTATION
+                    TerraFX.Interop.Windows.Windows.SystemParametersInfoW(
+                        SPI.SPI_SETFONTSMOOTHINGORIENTATION,
+                        (uint)SubpixelLayout,
+                        null,
+                        TerraFX.Interop.Windows.Windows.SPIF_UPDATEINIFILE);
+
+                    var pDesktop = NativeString.Alloc("Control Panel\\Desktop");
+
+                    // Send WM_SETTINGCHANGE
+                    TerraFX.Interop.Windows.Windows.SendMessageW(
+                        HWND.HWND_BROADCAST,
+                        WM.WM_SETTINGCHANGE,
+                        (WPARAM)SPI.SPI_SETFONTSMOOTHING,
+                        (LPARAM)pDesktop.Pointer);
+                }
+                catch
+                {
+
+                }
             }
-        }
+        });
     }
 }

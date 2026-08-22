@@ -65,7 +65,7 @@ internal sealed partial class DirectXPage : Page
 
     private void TextBox_KeyDown(object sender, KeyRoutedEventArgs e)
     {
-        if (e.Key == Windows.System.VirtualKey.Enter)
+        if (e.Key == global::Windows.System.VirtualKey.Enter)
         {
             var path = ViewModel.D3DScopeInputPath.Trim();
             if (string.IsNullOrWhiteSpace(path) || ViewModel.D3DScopeApps.Contains(path)) return;
@@ -82,7 +82,7 @@ internal sealed partial class DirectXPage : Page
 
     private void TextBox_KeyDown_1(object sender, KeyRoutedEventArgs e)
     {
-        if (e.Key == Windows.System.VirtualKey.Enter)
+        if (e.Key == global::Windows.System.VirtualKey.Enter)
         {
             var id = ViewModel.MuteInputId.Trim();
             if (string.IsNullOrWhiteSpace(id) || ViewModel.MutedMessageIds.Contains(id)) return;
@@ -99,7 +99,7 @@ internal sealed partial class DirectXPage : Page
 
     private void TextBox_KeyDown_2(object sender, KeyRoutedEventArgs e)
     {
-        if (e.Key == Windows.System.VirtualKey.Enter)
+        if (e.Key == global::Windows.System.VirtualKey.Enter)
         {
             var id = ViewModel.BreakInputId.Trim();
             if (string.IsNullOrWhiteSpace(id) || ViewModel.BreakMessageIds.Contains(id)) return;
@@ -116,7 +116,7 @@ internal sealed partial class DirectXPage : Page
 
     private void TextBox_KeyDown_3(object sender, KeyRoutedEventArgs e)
     {
-        if (e.Key == Windows.System.VirtualKey.Enter)
+        if (e.Key == global::Windows.System.VirtualKey.Enter)
         {
             var path = ViewModel.D2DScopeInputPath.Trim();
             if (string.IsNullOrWhiteSpace(path) || ViewModel.D2DScopeApps.Contains(path)) return;

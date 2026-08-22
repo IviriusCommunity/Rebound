@@ -7,6 +7,7 @@ using Rebound.Core.Settings;
 using Rebound.Core.SystemInformation.Hardware;
 using Rebound.Core.SystemInformation.Software;
 using Rebound.Core.UI.Localizer;
+using System;
 using System.IO;
 
 namespace Rebound.About.ViewModels;
@@ -109,12 +110,15 @@ internal partial class MainViewModel : ObservableObject
         ReboundText = IsReboundInstalled
             ? LocalizedResource.GetLocalizedString("ReboundInstalledText")
             : LocalizedResource.GetLocalizedString("ReboundNotInstalledText");
+        InstalledOnDate = WindowsInformation.GetInstalledOnDate().ToString((IFormatProvider?)null);
     }
 
     public void InitializePrimaryHardware()
     {
         InstalledRam = RAM.GetInstalledRam();
         UsableRam = RAM.GetUsableRam();
+        CpuName = CPU.GetName();
+        GpuName = GPU.GetName();
     }
 
     public void InitializePrimaryUser()

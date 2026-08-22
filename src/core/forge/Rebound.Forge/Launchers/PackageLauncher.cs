@@ -17,5 +17,8 @@ public class PackageLauncher : ILauncher
 
     /// <inheritdoc/>
     public Task LaunchAsync()
-        => Task.FromResult(() => ApplicationLaunchEngine.LaunchApp(PackageFamilyName));
+    {
+        ApplicationLaunchEngine.LaunchApp(PackageFamilyName); 
+        return Task.CompletedTask;
+    }
 }

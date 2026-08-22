@@ -87,15 +87,15 @@
 		<PackageReference Include="Microsoft.DotNet.ILCompiler" Version="10.0.10" PrivateAssets="All" />
 
 		<!-- Windows SDK and WinUI -->
-		<PackageReference Include="Microsoft.WindowsAppSDK" Version="2.3.1" />
-
-		<PackageReference Include="Microsoft.WindowsAppSDK.AI" Version="2.3.4" ExcludeAssets="all" />
+		<PackageReference Include="Microsoft.WindowsAppSDK" Version="2.4.0" />
+		
+		<PackageReference Include="Microsoft.WindowsAppSDK.AI" Version="2.4.4" ExcludeAssets="all" />
 		<PackageReference Include="Microsoft.WindowsAppSDK.ML" Version="2.1.74" ExcludeAssets="all" />
-		<PackageReference Include="Microsoft.Windows.AI.MachineLearning" Version="2.1.74" ExcludeAssets="all" />
-		<PackageReference Include="Microsoft.ML.OnnxRuntime" Version="1.27.1" ExcludeAssets="all" />
-		<PackageReference Include="Microsoft.Web.WebView2" Version="1.0.4078.44" ExcludeAssets="all" />
+		<PackageReference Include="Microsoft.Windows.AI.MachineLearning" Version="2.2.12" ExcludeAssets="all" />
+		<PackageReference Include="Microsoft.ML.OnnxRuntime" Version="1.29.0" ExcludeAssets="all" />
+		<PackageReference Include="Microsoft.Web.WebView2" Version="1.0.4129.50" ExcludeAssets="all" />
 
-		<PackageReference Include="WinUIEx" Version="2.9.2" />
+		<PackageReference Include="WinUIEx" Version="2.9.3" />
 
 		<!-- CommunityToolkit -->
 		<PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.2" />
@@ -105,6 +105,7 @@
 		<PackageReference Include="CommunityToolkit.WinUI.Controls.Primitives" Version="8.2.251219" />
 		<PackageReference Include="CommunityToolkit.WinUI.Controls.Segmented" Version="8.2.251219" />
 		<PackageReference Include="CommunityToolkit.WinUI.Controls.SettingsControls" Version="8.2.251219" />
+		<PackageReference Include="CommunityToolkit.WinUI.Controls.Sizers" Version="8.2.251219" />
 		<PackageReference Include="CommunityToolkit.WinUI.Media" Version="8.2.251219" />
 		<PackageReference Include="CommunityToolkit.WinUI.Triggers" Version="8.2.251219" />
 		<PackageReference Include="CommunityToolkit.Labs.WinUI.DependencyPropertyGenerator" Version="0.1.260203-build.2518" />
@@ -147,6 +148,10 @@
 		  <Generator>MSBuild:Compile</Generator>
 		</Page>
 
+		<Page Include="Views\DisplayColorCalibrationPage.xaml">
+		  <Generator>MSBuild:Compile</Generator>
+		</Page>
+
 		<Page Include="Views\PrivacyAndUserChoicePage.xaml">
 		  <Generator>MSBuild:Compile</Generator>
 		</Page>
@@ -164,11 +169,16 @@
 		<Page Include="Views\SystemConfigurationPage.xaml" />
 		<Page Include="Views\WindowsToolsPage.xaml" />
 		<Page Include="MainWindow.xaml" />
+		<Page Include="Windows\DisplayColorCalibrationWindow.xaml">
+		  <Generator>MSBuild:Compile</Generator>
+		</Page>
 		<ApplicationDefinition Include="App.xaml" />
 
 		<Content Include="Strings\**\*.resw">
 			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 		</Content>
+
+		<None Remove="Assets\Apps\DeviceManager.ico" />
 
 		<None Remove="Assets\Glyphs\Advanced.svg" />
 
@@ -202,7 +212,11 @@
 
 		<None Remove="Views\CredentialManagerPage.xaml" />
 
+		<None Remove="Views\DisplayColorCalibrationPage.xaml" />
+
 		<None Remove="Views\PrivacyAndUserChoicePage.xaml" />
+
+		<None Remove="Windows\DisplayColorCalibrationWindow.xaml" />
 		<Content Update="Assets\**\*">
 			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
 		</Content>
@@ -222,6 +236,9 @@
 		<ProjectReference Include="..\..\core\Rebound.Core.TaskScheduler\Rebound.Core.TaskScheduler.csproj" />
 		<ProjectReference Include="..\..\core\Rebound.Core.UI\Rebound.Core.UI.csproj" />
 		<ProjectReference Include="..\..\core\Rebound.Core\Rebound.Core.csproj" />
+	</ItemGroup>
+	<ItemGroup>
+	  <Folder Include="Assets\Photos\Brightness\" />
 	</ItemGroup>
 
 	<!-- NAOT fix -->

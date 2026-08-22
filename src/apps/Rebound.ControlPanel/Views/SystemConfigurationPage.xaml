@@ -8,7 +8,6 @@
     xmlns:interactivity="using:Microsoft.Xaml.Interactivity"
     xmlns:local="using:Rebound.ControlPanel.Views"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-    xmlns:muxc="using:Microsoft.UI.Xaml.Controls"
     xmlns:toolkit="using:CommunityToolkit.WinUI.Controls"
     mc:Ignorable="d">
     <Page.Resources>
@@ -61,27 +60,27 @@
                         <ImageIcon Source="/Assets/Glyphs/WindowsSettings.ico" />
                     </toolkit:SettingsCard.HeaderIcon>
                     <toolkit:SettingsCard.ActionIcon>
-                        <FontIcon Glyph="&#xE8AD;" />
+                        <FontIcon Glyph="&#xE8A7;" />
                     </toolkit:SettingsCard.ActionIcon>
                 </toolkit:SettingsCard>
                 <TextBlock
                     Margin="0,32,0,0"
                     FontWeight="SemiBold"
                     Text="Computer information" />
-                <muxc:InfoBar
+                <InfoBar
                     Title="These settings require administrator privileges to edit."
                     IsClosable="False"
                     IsOpen="True"
                     Visibility="{x:Bind ViewModel.IsElevated, Mode=OneWay, Converter={StaticResource BoolToInverseVisibilityConverter}}">
-                    <muxc:InfoBar.ActionButton>
+                    <InfoBar.ActionButton>
                         <Button Command="{x:Bind RelaunchAsAdminCommand}" Style="{StaticResource AccentButtonStyle}">
                             <StackPanel Orientation="Horizontal" Spacing="8">
                                 <FontIcon FontSize="16" Glyph="&#xEA18;" />
                                 <TextBlock Text="Relaunch as Administrator" />
                             </StackPanel>
                         </Button>
-                    </muxc:InfoBar.ActionButton>
-                </muxc:InfoBar>
+                    </InfoBar.ActionButton>
+                </InfoBar>
                 <toolkit:SettingsCard
                     Description="The display name of your computer. Only letters, numbers and hyphens allowed, max 15 characters. Cannot start or end with a hyphen. Requires a restart to apply."
                     Header="Computer name"
@@ -122,19 +121,19 @@
                         </Button>
                     </StackPanel>
                 </toolkit:SettingsCard>
-                <muxc:InfoBar
+                <InfoBar
                     Title="You will need to restart in order for the computer name to be fully updated."
                     IsOpen="{x:Bind ViewModel.IsRestartRequired, Mode=TwoWay}"
                     Severity="Warning">
-                    <muxc:InfoBar.ActionButton>
+                    <InfoBar.ActionButton>
                         <Button Command="{x:Bind ViewModel.RestartCommand}">
                             <StackPanel Orientation="Horizontal" Spacing="8">
                                 <FontIcon FontSize="16" Glyph="&#xE777;" />
                                 <TextBlock Text="Restart now" />
                             </StackPanel>
                         </Button>
-                    </muxc:InfoBar.ActionButton>
-                </muxc:InfoBar>
+                    </InfoBar.ActionButton>
+                </InfoBar>
                 <TextBlock
                     Margin="0,32,0,0"
                     FontWeight="SemiBold"
@@ -145,26 +144,26 @@
                     Header="Device Manager"
                     IsClickEnabled="True">
                     <toolkit:SettingsCard.HeaderIcon>
-                        <FontIcon Glyph="&#xEB66;" />
+                        <ImageIcon Source="/Assets/Apps/DeviceManager.ico" />
                     </toolkit:SettingsCard.HeaderIcon>
                     <toolkit:SettingsCard.ActionIcon>
-                        <FontIcon Glyph="&#xE8AD;" />
+                        <FontIcon Glyph="&#xE8A7;" />
                     </toolkit:SettingsCard.ActionIcon>
                 </toolkit:SettingsCard>
-                <muxc:InfoBar
+                <InfoBar
                     Title="This setting requires administrator privileges to view and edit."
                     IsClosable="False"
                     IsOpen="True"
                     Visibility="{x:Bind ViewModel.IsElevated, Mode=OneWay, Converter={StaticResource BoolToInverseVisibilityConverter}}">
-                    <muxc:InfoBar.ActionButton>
+                    <InfoBar.ActionButton>
                         <Button Command="{x:Bind RelaunchAsAdminCommand}" Style="{StaticResource AccentButtonStyle}">
                             <StackPanel Orientation="Horizontal" Spacing="8">
                                 <FontIcon FontSize="16" Glyph="&#xEA18;" />
                                 <TextBlock Text="Relaunch as Administrator" />
                             </StackPanel>
                         </Button>
-                    </muxc:InfoBar.ActionButton>
-                </muxc:InfoBar>
+                    </InfoBar.ActionButton>
+                </InfoBar>
                 <toolkit:SettingsCard
                     Description="Controls whether Windows automatically downloads device metadata and OEM apps from the Windows Metadata and Internet Services (WMIS) server for connected devices. When enabled, Windows will silently install manufacturer apps (e.g. Lenovo Vantage) upon connecting hardware. Disable to prevent unsolicited OEM software installation."
                     Header="OEM apps"

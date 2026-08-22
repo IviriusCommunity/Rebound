@@ -16,13 +16,17 @@
     xmlns:toolkit="using:CommunityToolkit.WinUI.Controls"
     xmlns:viewModels="using:Rebound.ControlPanel.ViewModels"
     mc:Ignorable="d">
+
     <Page.Resources>
         <converters:FileSizeToFriendlyStringConverter x:Key="FileSizeToFriendlyStringConverter" />
         <rconverters:StringToUriConverter x:Key="StringToUriConverter" />
     </Page.Resources>
+
     <Grid>
         <ScrollViewer>
             <StackPanel Spacing="4">
+
+                <!--  Header section  -->
                 <Grid>
                     <header:HomePageHeaderImage
                         x:Name="BKGImage"
@@ -39,6 +43,8 @@
                         MaxWidth="1000"
                         Margin="40"
                         Spacing="8">
+
+                        <!--  User profile  -->
                         <StackPanel Orientation="Horizontal" Spacing="16">
                             <PersonPicture Width="48">
                                 <PersonPicture.ProfilePicture>
@@ -50,6 +56,8 @@
                                 FontWeight="SemiBold"
                                 Text="{x:Bind ViewModel.Username, Mode=OneWay}" />
                         </StackPanel>
+
+                        <!--  System info  -->
                         <Grid
                             Margin="0,24"
                             ColumnSpacing="16"
@@ -130,10 +138,14 @@
                         </Grid>
                     </StackPanel>
                 </Grid>
+
+                <!--  Shortcuts  -->
                 <StackPanel
                     MaxWidth="1000"
                     Margin="40,0,40,40"
                     Spacing="4">
+
+                    <!--  Introduction  -->
                     <TextBlock
                         Margin="0,-80,0,0"
                         FontSize="28"
@@ -143,6 +155,8 @@
                         Margin="0,-32,0,16"
                         Text="This is your main dashboard from where you can manage your settings by using the built in tools from both Windows and Rebound, listed below. All verified 3rd party tools on this computer are included. Read the descriptions of each app to know where you need to go."
                         TextWrapping="WrapWholeWords" />
+
+                    <!--  Windows built-in  -->
                     <TextBlock
                         Margin="0,16,0,0"
                         FontWeight="SemiBold"
@@ -155,7 +169,7 @@
                             <ImageIcon Source="/Assets/Glyphs/WindowsSettings.ico" />
                         </toolkit:SettingsCard.HeaderIcon>
                         <toolkit:SettingsCard.ActionIcon>
-                            <FontIcon Glyph="&#xE8AD;" />
+                            <FontIcon Glyph="&#xE8A7;" />
                         </toolkit:SettingsCard.ActionIcon>
                         <interactivity:Interaction.Behaviors>
                             <interactivity:EventTriggerBehavior EventName="Tapped">
@@ -172,7 +186,7 @@
                             <ImageIcon Source="/Assets/Apps/ControlPanelLegacy.ico" />
                         </toolkit:SettingsCard.HeaderIcon>
                         <toolkit:SettingsCard.ActionIcon>
-                            <FontIcon Glyph="&#xE8AD;" />
+                            <FontIcon Glyph="&#xE8A7;" />
                         </toolkit:SettingsCard.ActionIcon>
                     </toolkit:SettingsCard>
                     <toolkit:SettingsCard
@@ -185,7 +199,7 @@
                             <ImageIcon Source="/Assets/Apps/ManagementConsole.png" />
                         </toolkit:SettingsCard.HeaderIcon>
                         <toolkit:SettingsCard.ActionIcon>
-                            <FontIcon Glyph="&#xE8AD;" />
+                            <FontIcon Glyph="&#xE8A7;" />
                         </toolkit:SettingsCard.ActionIcon>
                     </toolkit:SettingsCard>
                     <toolkit:SettingsCard
@@ -196,10 +210,9 @@
                         <toolkit:SettingsCard.HeaderIcon>
                             <ImageIcon Source="/Assets/Glyphs/WindowsTools.png" />
                         </toolkit:SettingsCard.HeaderIcon>
-                        <toolkit:SettingsCard.ActionIcon>
-                            <FontIcon Glyph="&#xE8AD;" />
-                        </toolkit:SettingsCard.ActionIcon>
                     </toolkit:SettingsCard>
+
+                    <!--  Rebound specific  -->
                     <TextBlock
                         Margin="0,32,0,0"
                         FontWeight="SemiBold"
@@ -215,7 +228,7 @@
                             <ImageIcon Source="/Assets/Apps/ReboundHub.ico" />
                         </toolkit:SettingsCard.HeaderIcon>
                         <toolkit:SettingsCard.ActionIcon>
-                            <FontIcon Glyph="&#xE8AD;" />
+                            <FontIcon Glyph="&#xE8A7;" />
                         </toolkit:SettingsCard.ActionIcon>
                     </toolkit:SettingsCard>
                     <toolkit:SettingsCard
@@ -227,7 +240,7 @@
                             <ImageIcon Source="/Assets/Apps/ReboundShell.ico" />
                         </toolkit:SettingsCard.HeaderIcon>
                         <toolkit:SettingsCard.ActionIcon>
-                            <FontIcon Glyph="&#xE8AD;" />
+                            <FontIcon Glyph="&#xE8A7;" />
                         </toolkit:SettingsCard.ActionIcon>
                         <interactivity:Interaction.Behaviors>
                             <interactivity:EventTriggerBehavior EventName="Tapped">
@@ -235,6 +248,8 @@
                             </interactivity:EventTriggerBehavior>
                         </interactivity:Interaction.Behaviors>
                     </toolkit:SettingsCard>
+
+                    <!--  Third party  -->
                     <TextBlock
                         Margin="0,32,0,0"
                         FontWeight="SemiBold"
@@ -250,7 +265,7 @@
                             <ImageIcon Source="/Assets/Apps/PowerToys.ico" />
                         </toolkit:SettingsCard.HeaderIcon>
                         <toolkit:SettingsCard.ActionIcon>
-                            <FontIcon Glyph="&#xE8AD;" />
+                            <FontIcon Glyph="&#xE8A7;" />
                         </toolkit:SettingsCard.ActionIcon>
                     </toolkit:SettingsCard>
                     <toolkit:SettingsCard
@@ -263,7 +278,7 @@
                             <ImageIcon Source="/Assets/Apps/Wintoys.ico" />
                         </toolkit:SettingsCard.HeaderIcon>
                         <toolkit:SettingsCard.ActionIcon>
-                            <FontIcon Glyph="&#xE8AD;" />
+                            <FontIcon Glyph="&#xE8A7;" />
                         </toolkit:SettingsCard.ActionIcon>
                     </toolkit:SettingsCard>
                 </StackPanel>

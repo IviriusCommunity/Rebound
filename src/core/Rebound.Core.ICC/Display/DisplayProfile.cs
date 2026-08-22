@@ -1,7 +1,12 @@
 ﻿// Copyright (C) Ivirius(TM) Community 2020 - 2026. All Rights Reserved.
 // Licensed under the MIT License.
 
+using System;
 using System.Diagnostics;
+using System.IO;
+using System.Linq;
+using System.Globalization;
+using System.Xml.Linq;
 using TerraFX.Interop.Windows;
 using static TerraFX.Interop.Windows.Windows;
 
@@ -31,12 +36,10 @@ public static class DisplayProfile
     }
 
     /// <summary>
-    /// Retrieves calibration values for the given color profile.
+    /// Retrieves calibration values (Gamma, Red Gain, Green Gain, Blue Gain) for the given color profile.
     /// </summary>
-    /// <param name="profilePath">
-    /// The location on disk of the color profile.
-    /// </param>
-    public static (double gamma, double brightness, double contrast)? ReadCalibrationValues(string profilePath)
+    /// <param name="profilePath">The location on disk of the color profile.</param>
+    public static (double gamma, double redGain, double greenGain, double blueGain)? ReadCalibrationValues(string profilePath)
     {
         try
         {
@@ -46,7 +49,7 @@ public static class DisplayProfile
         catch { return null; }
     }
 
-    private static unsafe (double gamma, double brightness, double contrast)? ReadMs10ValuesFromBytes(byte[] bytes)
+    private static unsafe (double gamma, double redGain, double greenGain, double blueGain)? ReadMs10ValuesFromBytes(byte[] bytes)
     {
         if (bytes.Length < 132) return null;
 
@@ -62,7 +65,7 @@ public static class DisplayProfile
                 var offset = ReadU32(data + entryBase + 4);
                 var size = ReadU32(data + entryBase + 8);
 
-                if (sig != 0x4D533030) continue; // 'MS00'
+                if (sig != 0x4D533030) continue; // 'MS00' tag
                 if (offset + size > bytes.Length) return null;
 
                 var dmpSize = ReadU32(data + offset + 12);
@@ -72,16 +75,23 @@ public static class DisplayProfile
                 var startOff = (data[offset + dmpOffset] == 0xFF && data[offset + dmpOffset + 1] == 0xFE) ? 2u : 0u;
                 var xml = new string((char*)(data + offset + dmpOffset + startOff), 0, (int)((dmpSize - startOff) / 2));
 
-                var doc = System.Xml.Linq.XDocument.Parse(xml);
-                var ns = "http://schemas.microsoft.com/windows/2005/02/color/ColorDeviceModel";
-                var element = doc.Descendants($"{{{ns}}}GammaOffsetGainLinearGain").FirstOrDefault();
-                if (element == null) return null;
+                var doc = XDocument.Parse(xml);
+                XNamespace wcsNs = "http://schemas.microsoft.com/windows/2005/02/color/WcsCommonProfileTypes";
 
-                var gamma = double.Parse(element.Attribute("Gamma")!.Value, System.Globalization.CultureInfo.InvariantCulture);
-                var brightness = double.Parse(element.Attribute("Offset")!.Value, System.Globalization.CultureInfo.InvariantCulture);
-                var contrast = double.Parse(element.Attribute("Gain")!.Value, System.Globalization.CultureInfo.InvariantCulture);
+                var redTrc = doc.Descendants(wcsNs + "RedTRC").FirstOrDefault();
+                var greenTrc = doc.Descendants(wcsNs + "GreenTRC").FirstOrDefault();
+                var blueTrc = doc.Descendants(wcsNs + "BlueTRC").FirstOrDefault();
 
-                return (gamma, brightness, contrast);
+                if (redTrc == null || greenTrc == null || blueTrc == null) return null;
+
+                var culture = CultureInfo.InvariantCulture;
+
+                var gamma = double.Parse(redTrc.Attribute("Gamma")!.Value, culture);
+                var redGain = double.Parse(redTrc.Attribute("Gain")!.Value, culture);
+                var greenGain = double.Parse(greenTrc.Attribute("Gain")!.Value, culture);
+                var blueGain = double.Parse(blueTrc.Attribute("Gain")!.Value, culture);
+
+                return (gamma, redGain, greenGain, blueGain);
             }
         }
 

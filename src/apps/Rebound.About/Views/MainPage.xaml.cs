@@ -113,14 +113,11 @@ internal sealed partial class MainPage : Page
                 WindowsActivationType.ExtendedGracePeriod => "ActivationStatusExtendedGracePeriod",
                 _ => "ActivationStatusUnknown"
             });
-            var installedOn = WindowsInformation.GetInstalledOnDate().ToString((IFormatProvider?)null);
             var locale = WindowsInformation.GetLocale();
             var localIP = WindowsInformation.GetLocalIP();
 
             // Hardware
-            var cpuName = CPU.GetName();
             var cpuArch = CPU.GetArchitecture();
-            var gpuName = GPU.GetName();
             var pagefileSize = RAM.GetPageFileSize();
             var res = Display.GetDisplayResolution();
             var refreshRate = Display.GetDisplayRefreshRate();
@@ -156,12 +153,9 @@ internal sealed partial class MainPage : Page
             return new
             {
                 activationInfo,
-                installedOn,
                 locale,
                 localIP,
-                cpuName,
                 cpuArch,
-                gpuName,
                 pagefileSize,
                 res,
                 refreshRate,
@@ -180,12 +174,9 @@ internal sealed partial class MainPage : Page
 
         // Marshal all results back to UI thread in one shot
         ViewModel.WindowsActivationInfo = results.activationInfo;
-        ViewModel.InstalledOnDate = results.installedOn;
         ViewModel.Locale = results.locale;
         ViewModel.LocalIP = results.localIP;
-        ViewModel.CpuName = results.cpuName;
         ViewModel.CpuArchitecture = results.cpuArch;
-        ViewModel.GpuName = results.gpuName;
         ViewModel.PagefileSize = results.pagefileSize;
         ViewModel.DisplayResolution = $"{results.res.cx}x{results.res.cy}";
         ViewModel.DisplayRefreshRate = $"{results.refreshRate} Hz";

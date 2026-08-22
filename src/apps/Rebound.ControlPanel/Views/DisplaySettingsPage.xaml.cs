@@ -4,105 +4,33 @@
 using CommunityToolkit.Mvvm.Input;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
-using Rebound.ControlPanel.Brushes;
 using Rebound.ControlPanel.ViewModels;
-using Rebound.Core.ICC.Profiles;
-using Rebound.Core.Native.Storage;
-using System;
-using System.IO;
-using System.Threading.Tasks;
+using Rebound.ControlPanel.Windows;
 using WinUIEx;
 
 namespace Rebound.ControlPanel.Views;
 
-internal sealed partial class DisplaySettingsPage : Page, IDisposable
+internal sealed partial class DisplaySettingsPage : Page
 {
-    private readonly SDRCalibrationBackdropBrush _brush;
-
     private DisplayViewModel ViewModel { get; } = new();
 
     public DisplaySettingsPage()
     {
         InitializeComponent();
-        _brush = new SDRCalibrationBackdropBrush();
-        BrushSurface.Background = _brush;
-        ViewModel.PropertyChanged += ViewModel_PropertyChanged;
-    }
-
-    private void ViewModel_PropertyChanged(object? sender, System.ComponentModel.PropertyChangedEventArgs e)
-    {
-        switch (e.PropertyName)
+        Loaded += async (s, e) =>
         {
-            case nameof(ViewModel.Gamma):
-            case nameof(ViewModel.Brightness):
-            case nameof(ViewModel.Contrast):
-                {
-                    UpdateCalibration();
-                    break;
-                }
-        }
-    }
-
-    private void UpdateCalibration()
-    {
-        _brush?.UpdateCalibration(
-            ViewModel.Gamma,
-            ViewModel.Brightness,
-            ViewModel.Contrast);
+            await ViewModel.HDRCalibration.UpdateIntegrityAsync().ConfigureAwait(false);
+        };
     }
 
     [RelayCommand]
-    private async Task FinishAsync()
+    public static void BeginDisplayColorCalibration()
     {
-        if (ViewModel.DoSoftwareCalibration)
-        {
-            var bytes = WcsProfile.Generate(
-                ViewModel.ProfileName,
-                ViewModel.ProfileDescription,
-                ViewModel.Gamma,
-                ViewModel.Brightness,
-                ViewModel.Contrast);
-
-            if (bytes == null) return;
-
-            // Create the file picker
-            var result = FilePickers.PickSaveFile(
-                App.MainWindow!.GetWindowHandle(),
-                "Save Calibration Profile",
-                "New Calibration.icc",
-                [
-                    new("ICC Profile", ".icc;.icm" ),
-                    new("All files", "*" )
-                ]);
-
-            if (result.IsCancelled == true) return;
-
-            var path = result.Path;
-            await Task.Run(() =>
-            {
-                File.WriteAllBytes(path!, bytes);
-            }).ConfigureAwait(false);
-        }
-
-        ViewModel.SelectedPage = "0";
-    }
-
-    [RelayCommand]
-    private async Task CancelAsync()
-    {
-        ViewModel.SelectedPage = "0";
-        ViewModel.ResetToDefault();
+        var colorCalibrationWindow = new DisplayColorCalibrationWindow();
+        colorCalibrationWindow.Show();
     }
 
     [RelayCommand]
     private static void LaunchLegacy(string exe)
         => ((App)Application.Current).LaunchLegacy(exe, string.Empty);
-
-    private void StackPanel_SizeChanged(object sender, SizeChangedEventArgs e)
-        => ViewModel.IsExpandedLayout = e.NewSize.Width > 560;
-
-    public void Dispose()
-    {
-        _brush.Dispose();
-    }
 }

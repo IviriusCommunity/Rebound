@@ -58,7 +58,30 @@ internal static partial class CplItemPairs
                         }
                     ],
                 },
-                new() { Name = "Display", IsEnabled = false, Tag = "display", Page = typeof(DisplaySettingsPage), Icon = "glyph:\uE7F4" },
+
+                new() 
+                { 
+                    Name = "Display",
+                    Tag = "display",
+                    Icon = "glyph:\uE7F4",
+                    Page = typeof(DisplaySettingsPage),
+                    Args = [CplArgs.DisplayColorCalibrationExePath, CplArgs.ClearTypeTunerExePath],
+                    PageOpenUri = "display",
+                    PageOpenIconPath = "Assets/Glyphs/Display.ico",
+                    LegacyLaunchItems =
+                    [
+                        new()
+                        {
+                            Name = "Display Color Calibration",
+                            Path = CplArgs.DisplayColorCalibrationExePath
+                        },
+                        new()
+                        {
+                            Name = "ClearType Text Tuner",
+                            Path = CplArgs.ClearTypeTunerExePath
+                        }
+                    ],
+                },
                 //new() { Name = "Power and Battery", Tag = "powerandbattery", Icon = "glyph:\uEBA5" },
                 new() { Name = "DirectX", Tag = "directx", Page = typeof(DirectXPage), Icon = "glyph:\uE8B2", Args = [CplArgs.DirectXControlPanelExePath] },
                 new() { Name = "Backup and Restore", IsEnabled = false, Tag = "backupandrestore", Page = typeof(BackupAndRestorePage), Icon = "glyph:\uE896" },
