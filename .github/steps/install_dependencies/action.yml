@@ -16,7 +16,7 @@ runs:
   steps:
     # Install .NET
     - name: Setup .NET ${{ inputs.dotnet-version }}
-      uses: actions/setup-dotnet@v3
+      uses: actions/setup-dotnet@v6
       with:
         dotnet-version: '${{ inputs.dotnet-version }}'
 
