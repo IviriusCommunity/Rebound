@@ -41,6 +41,9 @@
 
 	<!-- Project content -->
 	<ItemGroup>
+		<Page Include="Themes\Generic.xaml">
+		  <Generator>MSBuild:Compile</Generator>
+		</Page>
 		<Page Include="UserControls\HomePageHeaderImage.xaml" />
 	</ItemGroup>
 
@@ -51,6 +54,8 @@
 		<PackageReference Include="Microsoft.Graphics.Win2D" Version="1.4.0" />
 		<PackageReference Include="WinUIEx" Version="2.9.1" />
 		<PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.2" />
+
+		<PackageReference Include="CommunityToolkit.Labs.WinUI.DependencyPropertyGenerator" Version="0.1.260203-build.2518"> <ExcludeAssets>build;buildtransitive</ExcludeAssets> </PackageReference>
 		<PackageReference Include="CommunityToolkit.WinUI.Animations" Version="8.2.251219"> <ExcludeAssets>build;buildtransitive</ExcludeAssets> </PackageReference>
 		<PackageReference Include="CommunityToolkit.WinUI.Helpers" Version="8.2.251219">
 			<ExcludeAssets>build;buildtransitive</ExcludeAssets>

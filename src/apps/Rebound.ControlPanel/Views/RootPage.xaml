@@ -10,6 +10,7 @@
     xmlns:interactivity="using:Microsoft.Xaml.Interactivity"
     xmlns:local="using:Rebound.ControlPanel"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:rcontrols="using:Rebound.Core.UI.Controls"
     xmlns:rconverters="using:Rebound.Core.UI.Converters"
     mc:Ignorable="d">
     <Page.Resources>
@@ -123,39 +124,19 @@
         </Style>
     </Page.Resources>
     <Grid>
-        <SystemBackdropElement>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+        <SystemBackdropElement Grid.RowSpan="3">
             <SystemBackdropElement.SystemBackdrop>
                 <MicaBackdrop />
             </SystemBackdropElement.SystemBackdrop>
         </SystemBackdropElement>
-        <StackPanel
-            Margin="12,8,12,0"
-            VerticalAlignment="Top"
-            Orientation="Horizontal"
-            Spacing="8">
-            <Image
-                Width="16"
-                VerticalAlignment="Center"
-                Source="/Assets/ControlPanel.ico" />
-            <TextBlock
-                Margin="0,0,0,2"
-                VerticalAlignment="Center"
-                FontSize="12"
-                Text="Control Panel" />
-            <Border
-                Padding="6,2,6,3"
-                VerticalAlignment="Center"
-                Background="{ThemeResource AccentFillColorDefaultBrush}"
-                CornerRadius="2">
-                <TextBlock
-                    FontSize="10"
-                    FontWeight="SemiBold"
-                    Foreground="{ThemeResource TextOnAccentFillColorPrimaryBrush}"
-                    Text="BETA" />
-            </Border>
-        </StackPanel>
         <Grid
-            Margin="4,40,4,8"
+            Grid.Row="1"
+            Margin="4"
             VerticalAlignment="Top"
             ColumnSpacing="4">
             <Grid.ColumnDefinitions>
@@ -280,7 +261,7 @@
                 HorizontalAlignment="Stretch"
                 VerticalAlignment="Center"
                 FontWeight="SemiBold"
-                Text="Home"
+                Text="{x:Bind ViewModel.PageAddress, Mode=OneWay}"
                 TextTrimming="CharacterEllipsis" />
             <StackPanel
                 Grid.Column="2"
@@ -437,7 +418,7 @@
         </Grid>
         <NavigationView
             x:Name="NavView"
-            Margin="0,80,0,0"
+            Grid.Row="2"
             IsBackButtonVisible="Collapsed"
             IsPaneToggleButtonVisible="False"
             IsSettingsVisible="False"
@@ -447,5 +428,10 @@
                 x:FieldModifier="public"
                 Navigated="RootFrame_Navigated" />
         </NavigationView>
+        <TitleBar Title="Control Panel" Subtitle="BETA">
+            <TitleBar.IconSource>
+                <ImageIconSource ImageSource="ms-appx:///Assets/ControlPanel.ico" />
+            </TitleBar.IconSource>
+        </TitleBar>
     </Grid>
 </Page>

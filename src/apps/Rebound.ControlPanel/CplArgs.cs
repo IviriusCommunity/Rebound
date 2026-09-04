@@ -21,7 +21,9 @@ internal class CplArgs
     public static readonly string appWizCplPath = Path.Combine(systemFolder, "appwiz.cpl");
     public static readonly string SystemPropertiesComputerNameExePath = Path.Combine(systemFolder, "SystemPropertiesComputerName.exe");
     public static readonly string DirectXControlPanelExePath = Path.Combine(systemFolder, "dxcpl.exe");
+    public static readonly string DirectXDiagExePath = Path.Combine(systemFolder, "dxdiag.exe");
     public static readonly string DisplayColorCalibrationExePath = Path.Combine(systemFolder, "dccw.exe");
+    public static readonly string EnvironmentVariablesExePath = Path.Combine(systemFolder, "rundll32.exe sysdm.cpl,EditEnvironmentVariables");
     public static readonly string ClearTypeTunerExePath = Path.Combine(systemFolder, "cttune.exe");
 
     public const string ADMINISTRATIVE_TOOLS_UTIL = @"/name Microsoft.AdministrativeTools";

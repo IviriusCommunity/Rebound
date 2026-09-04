@@ -31,29 +31,33 @@
             TrueValue="True" />
     </Page.Resources>
     <Grid>
-        <Grid
-            Height="72"
-            VerticalAlignment="Top"
-            Background="{ThemeResource CardBackgroundFillColorDefaultBrush}">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+        <Grid VerticalAlignment="Top" Background="{ThemeResource CardBackgroundFillColorDefaultBrush}">
             <Image
-                Width="20"
+                Width="16"
                 Margin="16"
                 HorizontalAlignment="Left"
                 VerticalAlignment="Top"
-                Source="/Assets/Glyphs/About.png" />
+                Source="/Assets/Glyphs/About.ico" />
             <TextBlock
-                Margin="48,10"
-                FontSize="20"
+                Margin="48,10,16,0"
+                FontSize="18"
                 FontWeight="SemiBold"
                 Foreground="{ThemeResource AccentTextFillColorPrimaryBrush}"
-                Text="About Windows" />
-            <TextBlock Margin="48,40,0,0" Text="View information about your PC." />
+                Text="About Windows"
+                TextTrimming="CharacterEllipsis" />
+            <TextBlock
+                Margin="48,36,16,12"
+                FontSize="12"
+                Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                Text="View information about your PC."
+                TextWrapping="WrapWholeWords" />
         </Grid>
-        <ScrollView Margin="0,72,0,0" Padding="40,0,40,0">
-            <StackPanel
-                MaxWidth="1000"
-                Margin="0,40"
-                Spacing="8">
+        <ScrollViewer Grid.Row="1">
+            <StackPanel Margin="40" Spacing="8">
                 <Grid ColumnSpacing="16">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="Auto" />
@@ -140,21 +144,31 @@
                     Margin="0,32,0,0"
                     FontWeight="SemiBold"
                     Text="Hardware information" />
-                <toolkit:SettingsCard Description="The processor's name and architecture" Header="CPU">
-                    <toolkit:SettingsCard.HeaderIcon>
-                        <FontIcon Glyph="&#xEEA1;" />
-                    </toolkit:SettingsCard.HeaderIcon>
-                    <StackPanel>
-                        <TextBlock IsTextSelectionEnabled="True" Text="{x:Bind ViewModel.CpuName, Mode=OneWay}" />
-                        <TextBlock IsTextSelectionEnabled="True" Text="{x:Bind ViewModel.CpuArchitecture, Mode=OneWay}" />
-                    </StackPanel>
-                </toolkit:SettingsCard>
-                <toolkit:SettingsCard Description="The graphics card's name" Header="GPU">
-                    <toolkit:SettingsCard.HeaderIcon>
-                        <PathIcon Data="F1 M 0 5 C 0 4 1 3 2 3 L 14 3 C 15 3 16 4 16 5 L 16 9 C 16 10 15 11 14 11 L 2 11 C 1 11 0 10 0 9 M 1 5 L 1 9 C 1 9.5 1.5 10 2 10 L 14 10 C 14.5 10 15 9.5 15 9 L 15 5 C 15 4.5 14.5 4 14 4 L 2 4 C 1.5 4 1 4.5 1 5 M 14 11 L 14 13 L 6 13 L 6 11 M 7 11 L 7 12 L 13 12 L 13 11 M 4 5 A 1 1 0 0 0 4 9 A 1 1 0 0 0 4 5 M 4 6 A 1 1 0 0 1 4 8 A 1 1 0 0 1 4 6 M 12 5 A 1 1 0 0 0 12 9 A 1 1 0 0 0 12 5 M 12 6 A 1 1 0 0 1 12 8 A 1 1 0 0 1 12 6 M 8 6 A 1 1 0 0 1 8 8 A 1 1 0 0 1 8 6 M 8 5 A 1 1 0 0 0 8 9 A 1 1 0 0 0 8 5" />
-                    </toolkit:SettingsCard.HeaderIcon>
-                    <TextBlock IsTextSelectionEnabled="True" Text="{x:Bind ViewModel.GpuName, Mode=OneWay}" />
-                </toolkit:SettingsCard>
+                <Grid ColumnSpacing="8">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="*" />
+                    </Grid.ColumnDefinitions>
+                    <toolkit:SettingsCard Description="The processor's name and architecture" Header="CPU">
+                        <toolkit:SettingsCard.HeaderIcon>
+                            <FontIcon Glyph="&#xEEA1;" />
+                        </toolkit:SettingsCard.HeaderIcon>
+                        <TextBlock IsTextSelectionEnabled="True">
+                            <Run Text="{x:Bind ViewModel.CpuName, Mode=OneWay}" />
+                            <Run Text="-" />
+                            <Run Text="{x:Bind ViewModel.CpuArchitecture, Mode=OneWay}" />
+                        </TextBlock>
+                    </toolkit:SettingsCard>
+                    <toolkit:SettingsCard
+                        Grid.Column="1"
+                        Description="The graphics card's name"
+                        Header="GPU">
+                        <toolkit:SettingsCard.HeaderIcon>
+                            <PathIcon Data="F1 M 0 5 C 0 4 1 3 2 3 L 14 3 C 15 3 16 4 16 5 L 16 9 C 16 10 15 11 14 11 L 2 11 C 1 11 0 10 0 9 M 1 5 L 1 9 C 1 9.5 1.5 10 2 10 L 14 10 C 14.5 10 15 9.5 15 9 L 15 5 C 15 4.5 14.5 4 14 4 L 2 4 C 1.5 4 1 4.5 1 5 M 14 11 L 14 13 L 6 13 L 6 11 M 7 11 L 7 12 L 13 12 L 13 11 M 4 5 A 1 1 0 0 0 4 9 A 1 1 0 0 0 4 5 M 4 6 A 1 1 0 0 1 4 8 A 1 1 0 0 1 4 6 M 12 5 A 1 1 0 0 0 12 9 A 1 1 0 0 0 12 5 M 12 6 A 1 1 0 0 1 12 8 A 1 1 0 0 1 12 6 M 8 6 A 1 1 0 0 1 8 8 A 1 1 0 0 1 8 6 M 8 5 A 1 1 0 0 0 8 9 A 1 1 0 0 0 8 5" />
+                        </toolkit:SettingsCard.HeaderIcon>
+                        <TextBlock IsTextSelectionEnabled="True" Text="{x:Bind ViewModel.GpuName, Mode=OneWay}" />
+                    </toolkit:SettingsCard>
+                </Grid>
                 <toolkit:SettingsExpander
                     Description="RAM and pagefile memory"
                     Header="Memory"
@@ -174,57 +188,36 @@
                         </toolkit:SettingsCard>
                     </toolkit:SettingsExpander.Items>
                 </toolkit:SettingsExpander>
-                <toolkit:SettingsCard Description="Windows partition and total storage capacity" Header="Storage">
-                    <toolkit:SettingsCard.HeaderIcon>
+                <toolkit:SettingsExpander
+                    Description="Windows partition and total storage capacity"
+                    Header="Storage"
+                    IsExpanded="True">
+                    <toolkit:SettingsExpander.HeaderIcon>
                         <FontIcon Glyph="&#xEDA2;" />
-                    </toolkit:SettingsCard.HeaderIcon>
-                    <StackPanel Orientation="Horizontal" Spacing="8">
-                        <StackPanel Spacing="8">
-                            <Grid>
-                                <ProgressRing
-                                    Width="40"
-                                    Height="40"
-                                    Background="{ThemeResource SystemControlBackgroundAltMediumLowBrush}"
+                    </toolkit:SettingsExpander.HeaderIcon>
+                    <toolkit:SettingsExpander.Items>
+                        <toolkit:SettingsCard Header="Windows">
+                            <StackPanel Orientation="Horizontal" Spacing="8">
+                                <ProgressBar
+                                    Width="100"
                                     IsIndeterminate="False"
                                     Value="{x:Bind ViewModel.WindowsOccupiedSpace, Mode=OneWay}" />
-                                <TextBlock
-                                    HorizontalAlignment="Center"
-                                    VerticalAlignment="Center"
-                                    FontSize="12"
-                                    FontWeight="SemiBold"
-                                    Foreground="{ThemeResource AccentTextFillColorPrimaryBrush}">
+                                <TextBlock VerticalAlignment="Center">
                                     <Run Text="{x:Bind ViewModel.WindowsOccupiedSpaceString, Mode=OneWay}" /><Run Text="%" /></TextBlock>
-                            </Grid>
-                            <TextBlock
-                                HorizontalAlignment="Center"
-                                FontSize="12"
-                                Foreground="{ThemeResource TextFillColorSecondaryBrush}"
-                                Text="Windows" />
-                        </StackPanel>
-                        <StackPanel Spacing="8">
-                            <Grid>
-                                <ProgressRing
-                                    Width="40"
-                                    Height="40"
-                                    Background="{ThemeResource SystemControlBackgroundAltMediumLowBrush}"
+                            </StackPanel>
+                        </toolkit:SettingsCard>
+                        <toolkit:SettingsCard Header="Total">
+                            <StackPanel Orientation="Horizontal" Spacing="8">
+                                <ProgressBar
+                                    Width="100"
                                     IsIndeterminate="False"
                                     Value="{x:Bind ViewModel.TotalOccupiedSpace, Mode=OneWay}" />
-                                <TextBlock
-                                    HorizontalAlignment="Center"
-                                    VerticalAlignment="Center"
-                                    FontSize="12"
-                                    FontWeight="SemiBold"
-                                    Foreground="{ThemeResource AccentTextFillColorPrimaryBrush}">
+                                <TextBlock VerticalAlignment="Center">
                                     <Run Text="{x:Bind ViewModel.TotalOccupiedSpaceString, Mode=OneWay}" /><Run Text="%" /></TextBlock>
-                            </Grid>
-                            <TextBlock
-                                HorizontalAlignment="Center"
-                                FontSize="12"
-                                Foreground="{ThemeResource TextFillColorSecondaryBrush}"
-                                Text="Total" />
-                        </StackPanel>
-                    </StackPanel>
-                </toolkit:SettingsCard>
+                            </StackPanel>
+                        </toolkit:SettingsCard>
+                    </toolkit:SettingsExpander.Items>
+                </toolkit:SettingsExpander>
                 <toolkit:SettingsExpander Description="Device and motherboard details" Header="Device information">
                     <toolkit:SettingsExpander.HeaderIcon>
                         <FontIcon Glyph="&#xE7F8;" />
@@ -242,6 +235,6 @@
                     </toolkit:SettingsExpander.Items>
                 </toolkit:SettingsExpander>
             </StackPanel>
-        </ScrollView>
+        </ScrollViewer>
     </Grid>
 </Page>

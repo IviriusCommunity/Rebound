@@ -8,7 +8,6 @@
     xmlns:interactivity="using:Microsoft.Xaml.Interactivity"
     xmlns:local="using:Rebound.ControlPanel.Views"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-    xmlns:muxc="using:Microsoft.UI.Xaml.Controls"
     xmlns:toolkit="using:CommunityToolkit.WinUI.Controls"
     mc:Ignorable="d">
     <Page.Resources>
@@ -29,31 +28,38 @@
             TrueValue="True" />
     </Page.Resources>
     <Grid>
-        <Grid
-            Height="72"
-            VerticalAlignment="Top"
-            Background="{ThemeResource CardBackgroundFillColorDefaultBrush}">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+        <Grid VerticalAlignment="Top" Background="{ThemeResource CardBackgroundFillColorDefaultBrush}">
             <Image
-                Width="20"
+                Width="16"
                 Margin="16"
                 HorizontalAlignment="Left"
                 VerticalAlignment="Top"
-                Source="/Assets/Glyphs/DirectX.png" />
+                Source="/Assets/Glyphs/DirectX.ico" />
             <TextBlock
-                Margin="48,10"
-                FontSize="20"
+                Margin="48,10,16,0"
+                FontSize="18"
                 FontWeight="SemiBold"
                 Foreground="{ThemeResource AccentTextFillColorPrimaryBrush}"
-                Text="DirectX" />
-            <TextBlock Margin="48,40,0,0" Text="Manage settings for DirectX applications." />
+                Text="DirectX"
+                TextTrimming="CharacterEllipsis" />
+            <TextBlock
+                Margin="48,36,16,12"
+                FontSize="12"
+                Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                Text="Manage settings for DirectX applications and diagnostics."
+                TextWrapping="WrapWholeWords" />
         </Grid>
-        <ScrollViewer Margin="0,72,0,0" Padding="40,0,40,0">
+        <ScrollViewer Grid.Row="1">
             <StackPanel
                 MaxWidth="1000"
-                Margin="0,40"
+                Margin="40"
                 Spacing="8">
                 <toolkit:SettingsCard
-                    Command="{x:Bind ViewModel.LaunchDxDiagCommand}"
+                    Command="{x:Bind LaunchDxDiagCommand}"
                     Description="View detailed information about DirectX and graphics on your system."
                     Header="About DirectX"
                     IsClickEnabled="True">
@@ -64,21 +70,21 @@
                         <FontIcon Glyph="&#xE8A7;" />
                     </toolkit:SettingsCard.ActionIcon>
                 </toolkit:SettingsCard>
-                <muxc:InfoBar
+                <InfoBar
                     Title="These settings require administrator privileges to edit."
                     IsClosable="False"
                     IsOpen="True"
                     Visibility="{x:Bind ViewModel.IsElevated, Mode=OneWay, Converter={StaticResource BoolToInverseVisibilityConverter}}">
-                    <muxc:InfoBar.ActionButton>
-                        <Button Command="{x:Bind ViewModel.RelaunchAsAdminCommand}" Style="{StaticResource AccentButtonStyle}">
+                    <InfoBar.ActionButton>
+                        <Button Command="{x:Bind RelaunchAsAdminCommand}" Style="{StaticResource AccentButtonStyle}">
                             <StackPanel Orientation="Horizontal" Spacing="8">
                                 <FontIcon FontSize="16" Glyph="&#xEA18;" />
                                 <TextBlock Text="Relaunch as Administrator" />
                             </StackPanel>
                         </Button>
-                    </muxc:InfoBar.ActionButton>
-                </muxc:InfoBar>
-                <ContentControl IsEnabled="{x:Bind ViewModel.IsElevated, Mode=OneWay}">
+                    </InfoBar.ActionButton>
+                </InfoBar>
+                <ContentControl HorizontalContentAlignment="Stretch" IsEnabled="{x:Bind ViewModel.IsElevated, Mode=OneWay}">
                     <StackPanel Spacing="8">
                         <TextBlock
                             Margin="0,32,0,0"
@@ -92,7 +98,7 @@
                                 <Grid Background="{ThemeResource CardBackgroundFillColorDefaultBrush}">
                                     <StackPanel Spacing="8">
                                         <CommandBar DefaultLabelPosition="Right">
-                                            <AppBarButton Command="{x:Bind ViewModel.AddD3DScopeAppCommand}" Label="Add">
+                                            <AppBarButton Command="{x:Bind AddD3DScopeAppCommand}" Label="Add">
                                                 <AppBarButton.Icon>
                                                     <FontIcon Glyph="&#xE710;" />
                                                 </AppBarButton.Icon>
@@ -122,31 +128,6 @@
                                                 </AppBarButton>
                                             </CommandBar.SecondaryCommands>
                                         </CommandBar>
-                                        <Grid
-                                            Margin="16,0"
-                                            ColumnSpacing="8"
-                                            Visibility="{x:Bind ViewModel.IsAddingD3DScope, Mode=OneWay}">
-                                            <Grid.ColumnDefinitions>
-                                                <ColumnDefinition Width="*" />
-                                                <ColumnDefinition Width="Auto" />
-                                                <ColumnDefinition Width="Auto" />
-                                            </Grid.ColumnDefinitions>
-                                            <TextBox
-                                                Header="Path to the file you want to add"
-                                                KeyDown="TextBox_KeyDown"
-                                                Text="{x:Bind ViewModel.D3DScopeInputPath, Mode=TwoWay}" />
-                                            <Button
-                                                Grid.Column="1"
-                                                VerticalAlignment="Bottom"
-                                                Command="{x:Bind ViewModel.AddD3DScopeAppImplCommand}"
-                                                Content="Add"
-                                                IsEnabled="{x:Bind ViewModel.D3DScopeInputPath, Mode=OneWay, Converter={StaticResource EmptyStringToObjectConverter}}" />
-                                            <Button
-                                                Grid.Column="2"
-                                                VerticalAlignment="Bottom"
-                                                Command="{x:Bind ViewModel.CancelAddD3DScopeAppCommand}"
-                                                Content="Cancel" />
-                                        </Grid>
                                         <TextBlock
                                             Margin="16,0"
                                             FontWeight="SemiBold"
@@ -172,20 +153,19 @@
                             <toolkit:SettingsExpander.HeaderIcon>
                                 <FontIcon Glyph="&#xEBE8;" />
                             </toolkit:SettingsExpander.HeaderIcon>
-                            <toolkit:SettingsExpander.ItemsHeader>
-                                <Grid Padding="16" Background="{ThemeResource CardBackgroundFillColorDefaultBrush}">
-                                    <StackPanel Spacing="8">
-                                        <CheckBox Content="Conservative resource state tracing" IsChecked="{x:Bind ViewModel.ConservativeResourceStateTracking, Mode=TwoWay}" />
-                                        <muxc:NumberBox
-                                            HorizontalAlignment="Left"
-                                            Header="GPU slowdown factor (%)"
-                                            Maximum="100"
-                                            Minimum="1"
-                                            SpinButtonPlacementMode="Inline"
-                                            Value="{x:Bind ViewModel.GpuSlowdownFactor, Mode=TwoWay}" />
-                                    </StackPanel>
-                                </Grid>
-                            </toolkit:SettingsExpander.ItemsHeader>
+                            <toolkit:SettingsExpander.Items>
+                                <toolkit:SettingsCard Header="Conservative resource state tracing">
+                                    <CheckBox MinWidth="0" IsChecked="{x:Bind ViewModel.ConservativeResourceStateTracking, Mode=TwoWay}" />
+                                </toolkit:SettingsCard>
+                                <toolkit:SettingsCard Header="GPU slowdown factor (%)">
+                                    <NumberBox
+                                        HorizontalAlignment="Left"
+                                        Maximum="100"
+                                        Minimum="1"
+                                        SpinButtonPlacementMode="Inline"
+                                        Value="{x:Bind ViewModel.GpuSlowdownFactor, Mode=TwoWay}" />
+                                </toolkit:SettingsCard>
+                            </toolkit:SettingsExpander.Items>
                             <ComboBox SelectedIndex="{x:Bind ViewModel.D3DDebugLayerMode, Mode=TwoWay}">
                                 <ComboBoxItem>Application Controlled</ComboBoxItem>
                                 <ComboBoxItem>Force On</ComboBoxItem>
@@ -196,18 +176,18 @@
                             <toolkit:SettingsExpander.HeaderIcon>
                                 <PathIcon Data="F1 M 0 5 C 0 4 1 3 2 3 L 14 3 C 15 3 16 4 16 5 L 16 9 C 16 10 15 11 14 11 L 2 11 C 1 11 0 10 0 9 M 1 5 L 1 9 C 1 9.5 1.5 10 2 10 L 14 10 C 14.5 10 15 9.5 15 9 L 15 5 C 15 4.5 14.5 4 14 4 L 2 4 C 1.5 4 1 4.5 1 5 M 14 11 L 14 13 L 6 13 L 6 11 M 7 11 L 7 12 L 13 12 L 13 11 M 4 5 A 1 1 0 0 0 4 9 A 1 1 0 0 0 4 5 M 4 6 A 1 1 0 0 1 4 8 A 1 1 0 0 1 4 6 M 12 5 A 1 1 0 0 0 12 9 A 1 1 0 0 0 12 5 M 12 6 A 1 1 0 0 1 12 8 A 1 1 0 0 1 12 6 M 8 6 A 1 1 0 0 1 8 8 A 1 1 0 0 1 8 6 M 8 5 A 1 1 0 0 0 8 9 A 1 1 0 0 0 8 5" />
                             </toolkit:SettingsExpander.HeaderIcon>
-                            <toolkit:SettingsExpander.ItemsHeader>
-                                <Grid Padding="16" Background="{ThemeResource CardBackgroundFillColorDefaultBrush}">
-                                    <StackPanel Spacing="8">
-                                        <CheckBox Content="PSO Create Front Load" IsChecked="{x:Bind ViewModel.PsoCreateFrontLoad, Mode=TwoWay}" />
-                                        <ComboBox Header="Shader patch mode" SelectedIndex="{x:Bind ViewModel.ShaderPatchMode, Mode=TwoWay}">
-                                            <ComboBoxItem>Application Controlled</ComboBoxItem>
-                                            <ComboBoxItem>Force On</ComboBoxItem>
-                                            <ComboBoxItem>Force Off</ComboBoxItem>
-                                        </ComboBox>
-                                    </StackPanel>
-                                </Grid>
-                            </toolkit:SettingsExpander.ItemsHeader>
+                            <toolkit:SettingsExpander.Items>
+                                <toolkit:SettingsCard Header="PSO Create Front Load">
+                                    <CheckBox MinWidth="0" IsChecked="{x:Bind ViewModel.PsoCreateFrontLoad, Mode=TwoWay}" />
+                                </toolkit:SettingsCard>
+                                <toolkit:SettingsCard Header="Shader patch mode">
+                                    <ComboBox SelectedIndex="{x:Bind ViewModel.ShaderPatchMode, Mode=TwoWay}">
+                                        <ComboBoxItem>Application Controlled</ComboBoxItem>
+                                        <ComboBoxItem>Force On</ComboBoxItem>
+                                        <ComboBoxItem>Force Off</ComboBoxItem>
+                                    </ComboBox>
+                                </toolkit:SettingsCard>
+                            </toolkit:SettingsExpander.Items>
                             <ComboBox SelectedIndex="{x:Bind ViewModel.GpuBasedValidationMode, Mode=TwoWay}">
                                 <ComboBoxItem>Application Controlled</ComboBoxItem>
                                 <ComboBoxItem>Force On</ComboBoxItem>
@@ -236,7 +216,7 @@
                                     <Grid Background="{ThemeResource CardBackgroundFillColorDefaultBrush}">
                                         <StackPanel Spacing="8">
                                             <CommandBar DefaultLabelPosition="Right">
-                                                <AppBarButton Command="{x:Bind ViewModel.AddMutedMessageIdCommand}" Label="Add custom ID">
+                                                <AppBarButton Command="{x:Bind AddMutedMessageIdCommand}" Label="Add custom ID">
                                                     <AppBarButton.Icon>
                                                         <FontIcon Glyph="&#xE710;" />
                                                     </AppBarButton.Icon>
@@ -361,31 +341,6 @@
                                                     </AppBarButton.Flyout>
                                                 </AppBarButton>
                                             </CommandBar>
-                                            <Grid
-                                                Margin="16,0"
-                                                ColumnSpacing="8"
-                                                Visibility="{x:Bind ViewModel.IsAddingMuteMessage, Mode=OneWay}">
-                                                <Grid.ColumnDefinitions>
-                                                    <ColumnDefinition Width="*" />
-                                                    <ColumnDefinition Width="Auto" />
-                                                    <ColumnDefinition Width="Auto" />
-                                                </Grid.ColumnDefinitions>
-                                                <TextBox
-                                                    Header="ID of the message you want to add"
-                                                    KeyDown="TextBox_KeyDown_1"
-                                                    Text="{x:Bind ViewModel.MuteInputId, Mode=TwoWay}" />
-                                                <Button
-                                                    Grid.Column="1"
-                                                    VerticalAlignment="Bottom"
-                                                    Command="{x:Bind ViewModel.AddMutedMessageIdImplCommand}"
-                                                    Content="Add"
-                                                    IsEnabled="{x:Bind ViewModel.MuteInputId, Mode=OneWay, Converter={StaticResource EmptyStringToObjectConverter}}" />
-                                                <Button
-                                                    Grid.Column="2"
-                                                    VerticalAlignment="Bottom"
-                                                    Command="{x:Bind ViewModel.CancelAddMutedMessageIdCommand}"
-                                                    Content="Cancel" />
-                                            </Grid>
                                             <TextBlock
                                                 Margin="16,0"
                                                 FontWeight="SemiBold"
@@ -424,7 +379,7 @@
                                     <Grid Background="{ThemeResource CardBackgroundFillColorDefaultBrush}">
                                         <StackPanel Spacing="8">
                                             <CommandBar DefaultLabelPosition="Right">
-                                                <AppBarButton Command="{x:Bind ViewModel.AddBreakMessageIdCommand}" Label="Add custom ID">
+                                                <AppBarButton Command="{x:Bind AddBreakMessageIdCommand}" Label="Add custom ID">
                                                     <AppBarButton.Icon>
                                                         <FontIcon Glyph="&#xE710;" />
                                                     </AppBarButton.Icon>
@@ -549,31 +504,6 @@
                                                     </AppBarButton.Flyout>
                                                 </AppBarButton>
                                             </CommandBar>
-                                            <Grid
-                                                Margin="16,0"
-                                                ColumnSpacing="8"
-                                                Visibility="{x:Bind ViewModel.IsAddingBreakOnMessage, Mode=OneWay}">
-                                                <Grid.ColumnDefinitions>
-                                                    <ColumnDefinition Width="*" />
-                                                    <ColumnDefinition Width="Auto" />
-                                                    <ColumnDefinition Width="Auto" />
-                                                </Grid.ColumnDefinitions>
-                                                <TextBox
-                                                    Header="ID of the message you want to add"
-                                                    KeyDown="TextBox_KeyDown_2"
-                                                    Text="{x:Bind ViewModel.BreakInputId, Mode=TwoWay}" />
-                                                <Button
-                                                    Grid.Column="1"
-                                                    VerticalAlignment="Bottom"
-                                                    Command="{x:Bind ViewModel.AddBreakMessageIdImplCommand}"
-                                                    Content="Add"
-                                                    IsEnabled="{x:Bind ViewModel.BreakInputId, Mode=OneWay, Converter={StaticResource EmptyStringToObjectConverter}}" />
-                                                <Button
-                                                    Grid.Column="2"
-                                                    VerticalAlignment="Bottom"
-                                                    Command="{x:Bind ViewModel.CancelAddBreakMessageIdCommand}"
-                                                    Content="Cancel" />
-                                            </Grid>
                                             <TextBlock
                                                 Margin="16,0"
                                                 FontWeight="SemiBold"
@@ -627,7 +557,7 @@
                                 <Grid Background="{ThemeResource CardBackgroundFillColorDefaultBrush}">
                                     <StackPanel Spacing="8">
                                         <CommandBar DefaultLabelPosition="Right">
-                                            <AppBarButton Command="{x:Bind ViewModel.AddD2DScopeAppCommand}" Label="Add">
+                                            <AppBarButton Command="{x:Bind AddD2DScopeAppCommand}" Label="Add">
                                                 <AppBarButton.Icon>
                                                     <FontIcon Glyph="&#xE710;" />
                                                 </AppBarButton.Icon>
@@ -657,31 +587,6 @@
                                                 </AppBarButton>
                                             </CommandBar.SecondaryCommands>
                                         </CommandBar>
-                                        <Grid
-                                            Margin="16,0"
-                                            ColumnSpacing="8"
-                                            Visibility="{x:Bind ViewModel.IsAddingD2DScope, Mode=OneWay}">
-                                            <Grid.ColumnDefinitions>
-                                                <ColumnDefinition Width="*" />
-                                                <ColumnDefinition Width="Auto" />
-                                                <ColumnDefinition Width="Auto" />
-                                            </Grid.ColumnDefinitions>
-                                            <TextBox
-                                                Header="Path to the file you want to add"
-                                                KeyDown="TextBox_KeyDown_3"
-                                                Text="{x:Bind ViewModel.D2DScopeInputPath, Mode=TwoWay}" />
-                                            <Button
-                                                Grid.Column="1"
-                                                VerticalAlignment="Bottom"
-                                                Command="{x:Bind ViewModel.AddD2DScopeAppImplCommand}"
-                                                Content="Add"
-                                                IsEnabled="{x:Bind ViewModel.D2DScopeInputPath, Mode=OneWay, Converter={StaticResource EmptyStringToObjectConverter}}" />
-                                            <Button
-                                                Grid.Column="2"
-                                                VerticalAlignment="Bottom"
-                                                Command="{x:Bind ViewModel.CancelAddD2DScopeAppCommand}"
-                                                Content="Cancel" />
-                                        </Grid>
                                         <TextBlock
                                             Margin="16,0"
                                             FontWeight="SemiBold"
@@ -707,16 +612,16 @@
                             <toolkit:SettingsExpander.HeaderIcon>
                                 <FontIcon Glyph="&#xEBE8;" />
                             </toolkit:SettingsExpander.HeaderIcon>
-                            <toolkit:SettingsExpander.ItemsHeader>
-                                <Grid Padding="16" Background="{ThemeResource CardBackgroundFillColorDefaultBrush}">
-                                    <ComboBox Header="Debug level" SelectedIndex="{x:Bind ViewModel.D2DDebugLevel, Mode=TwoWay}">
+                            <toolkit:SettingsExpander.Items>
+                                <toolkit:SettingsCard Header="Debug level">
+                                    <ComboBox SelectedIndex="{x:Bind ViewModel.D2DDebugLevel, Mode=TwoWay}">
                                         <ComboBoxItem>None</ComboBoxItem>
                                         <ComboBoxItem>Error</ComboBoxItem>
                                         <ComboBoxItem>Warning</ComboBoxItem>
                                         <ComboBoxItem>Information</ComboBoxItem>
                                     </ComboBox>
-                                </Grid>
-                            </toolkit:SettingsExpander.ItemsHeader>
+                                </toolkit:SettingsCard>
+                            </toolkit:SettingsExpander.Items>
                             <ComboBox SelectedIndex="{x:Bind ViewModel.D2DDebugLayerMode, Mode=TwoWay}">
                                 <ComboBoxItem>Application Controlled</ComboBoxItem>
                                 <ComboBoxItem>Force On</ComboBoxItem>

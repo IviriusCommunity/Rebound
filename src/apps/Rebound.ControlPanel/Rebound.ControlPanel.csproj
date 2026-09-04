@@ -101,13 +101,14 @@
 		<PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.2" />
 		<PackageReference Include="CommunityToolkit.WinUI.Animations" Version="8.2.251219" />
 		<PackageReference Include="CommunityToolkit.WinUI.Behaviors" Version="8.2.251219" />
-		<PackageReference Include="CommunityToolkit.WinUI.Converters" Version="8.2.251219" />
+		<PackageReference Include="CommunityToolkit.WinUI.Converters" Version="8.3.260402-preview2" />
 		<PackageReference Include="CommunityToolkit.WinUI.Controls.Primitives" Version="8.2.251219" />
 		<PackageReference Include="CommunityToolkit.WinUI.Controls.Segmented" Version="8.2.251219" />
 		<PackageReference Include="CommunityToolkit.WinUI.Controls.SettingsControls" Version="8.2.251219" />
-		<PackageReference Include="CommunityToolkit.WinUI.Controls.Sizers" Version="8.2.251219" />
+		<PackageReference Include="CommunityToolkit.WinUI.Controls.Sizers" Version="8.3.260402-preview2" />
 		<PackageReference Include="CommunityToolkit.WinUI.Media" Version="8.2.251219" />
 		<PackageReference Include="CommunityToolkit.WinUI.Triggers" Version="8.2.251219" />
+		<PackageReference Include="CommunityToolkit.Labs.WinUI.Controls.DataTable" Version="0.1.260617-build.2640" />
 		<PackageReference Include="CommunityToolkit.Labs.WinUI.DependencyPropertyGenerator" Version="0.1.260203-build.2518" />
 
 		<!-- Other -->
@@ -135,6 +136,10 @@
 		<AppxTargetDeviceFamilyItem Include="Windows.Desktop" />
 
 		<Manifest Include="$(ApplicationManifest)" />
+
+		<Page Include="Dialogs\EditEnvVarDialog.xaml">
+		  <Generator>MSBuild:Compile</Generator>
+		</Page>
 
 		<Page Include="Views\AboutWindowsPage.xaml">
 		  <Generator>MSBuild:Compile</Generator>
@@ -180,6 +185,8 @@
 
 		<None Remove="Assets\Apps\DeviceManager.ico" />
 
+		<None Remove="Assets\Apps\Services.ico" />
+
 		<None Remove="Assets\Glyphs\Advanced.svg" />
 
 		<None Remove="Assets\Glyphs\Configuration.svg" />
@@ -204,7 +211,11 @@
 
 		<None Remove="Assets\Glyphs\ReliabilityMonitor.svg" />
 
+		<None Remove="Assets\Glyphs\StartupApps.ico" />
+
 		<None Remove="Assets\Glyphs\System.svg" />
+
+		<None Remove="Dialogs\EditEnvVarDialog.xaml" />
 
 		<None Remove="Views\AboutWindowsPage.xaml" />
 

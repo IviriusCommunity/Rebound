@@ -2,8 +2,11 @@
 // Licensed under the MIT License.
 
 using CommunityToolkit.Mvvm.Input;
+using CommunityToolkit.WinUI;
 using Microsoft.UI.Xaml.Controls;
+using Microsoft.Windows.Storage.Pickers;
 using Rebound.ControlPanel.ViewModels;
+using Rebound.Core.UI;
 using System;
 using System.Diagnostics;
 using System.Threading.Tasks;
@@ -25,35 +28,44 @@ internal sealed partial class BootAndBsodConfigurationPage : Page
         => await Launcher.LaunchUriAsync(new Uri("ms-settings:otherusers"));
 
     [RelayCommand]
-    private static void OpenBootAndRecovery()
+    private static async Task OpenBootAndRecoveryAsync()
+        => await Launcher.LaunchUriAsync(new Uri("ms-settings:recovery"));
+
+    [RelayCommand]
+    private static async Task OpenSystemProtectionAsync()
+        => await Launcher.LaunchUriAsync(new Uri("windowsdefender:systemprotection"));
+
+    [RelayCommand]
+    public async Task RelaunchAsAdminAsync()
     {
         try
         {
-            Process.Start(new ProcessStartInfo
+            App.SingleInstanceAppService.Relaunch(new InstanceRelaunchOptions
             {
-                FileName = "SystemPropertiesAdvanced.exe",
-                UseShellExecute = true
+                Elevated = true,
+                ShutdownCurrent = true,
+                ForceNewInstance = true,
+                Arguments = CplArgs.BOOT_AND_BSOD_CONFIGURATION
             });
         }
-        catch { }
-    }
-
-    [RelayCommand]
-    private static void OpenSystemProtection()
-    {
-        try
+        catch (Exception ex)
         {
-            Process.Start(new ProcessStartInfo
+            await DispatcherQueue.EnqueueAsync(async () =>
             {
-                FileName = "SystemPropertiesProtection.exe",
-                UseShellExecute = true
-            });
+                var cd = new ContentDialog()
+                {
+                    Title = "Rebound Control Panel",
+                    Content = $"Couldn't launch Rebound Control Panel as administrator.\n\n{ex.Message}",
+                    CloseButtonText = "Ok",
+                    XamlRoot = XamlRoot
+                };
+                await cd.ShowAsync();
+            }).ConfigureAwait(false);
         }
-        catch { }
     }
 
     [RelayCommand]
-    private static void OpenServices()
+    private async Task OpenServicesAsync()
     {
         try
         {
@@ -63,25 +75,39 @@ internal sealed partial class BootAndBsodConfigurationPage : Page
                 UseShellExecute = true
             });
         }
-        catch { }
+        catch (Exception ex)
+        {
+            await DispatcherQueue.EnqueueAsync(async () =>
+            {
+                var cd = new ContentDialog()
+                {
+                    Title = "Rebound Control Panel",
+                    Content = $"Couldn't launch Services.\n\n{ex.Message}",
+                    CloseButtonText = "Ok",
+                    XamlRoot = XamlRoot
+                };
+                await cd.ShowAsync();
+            }).ConfigureAwait(false);
+        }
+    }
+
+    [RelayCommand]
+    public async Task SelectDumpDirAsync()
+    {
+        var dialog = new FolderPicker(App.MainWindow!.AppWindow.Id)
+        {
+            SuggestedStartLocation = PickerLocationId.ComputerFolder
+        };
+
+        var hwnd = WinRT.Interop.WindowNative.GetWindowHandle(App.MainWindow);
+        WinRT.Interop.InitializeWithWindow.Initialize(dialog, hwnd);
+
+        var result = await dialog.PickSingleFolderAsync();
+        if (result != null)
+            ViewModel.DumpDirectory = result.Path;
     }
 
     [RelayCommand]
     private static async Task OpenStartupAppsAsync()
         => await Launcher.LaunchUriAsync(new Uri("ms-settings:startupapps"));
-
-    [RelayCommand]
-    private static void OpenWindowsTools()
-    {
-        try
-        {
-            Process.Start(new ProcessStartInfo
-            {
-                FileName = "control.exe",
-                Arguments = "/name Microsoft.AdministrativeTools",
-                UseShellExecute = true
-            });
-        }
-        catch { }
-    }
 }

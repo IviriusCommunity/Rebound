@@ -2,15 +2,10 @@
 // Licensed under the MIT License.
 
 using CommunityToolkit.Mvvm.ComponentModel;
-using Rebound.Core;
 using Rebound.Core.Settings;
 using Rebound.Core.SystemInformation.Hardware;
 using Rebound.Core.SystemInformation.Software;
-using Rebound.Core.UI.Localizer;
 using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Text;
 
 namespace Rebound.ControlPanel.ViewModels;
 
@@ -66,5 +61,16 @@ internal partial class AboutWindowsViewModel : ObservableObject
     {
         InstalledRam = RAM.GetInstalledRam();
         UsableRam = RAM.GetUsableRam();
+        CpuName = CPU.GetName();
+        CpuArchitecture = CPU.GetArchitecture();
+        GpuName = GPU.GetName();
+        PagefileSize = RAM.GetPageFileSize();
+        WindowsOccupiedSpace = Storage.GetWindowsDriveOccupiedSpacePercentage();
+        WindowsOccupiedSpaceString = ((int)WindowsOccupiedSpace).ToString((IFormatProvider?)null);
+        TotalOccupiedSpace = Storage.GetTotalOccupiedSpacePercentage();
+        TotalOccupiedSpaceString = ((int)TotalOccupiedSpace).ToString((IFormatProvider?)null);
+        DeviceManufacturer = Device.GetDeviceManufacturer();
+        DeviceModel = Device.GetDeviceModel();
+        MotherboardModel = Device.GetMotherboardModel();
     }
 }

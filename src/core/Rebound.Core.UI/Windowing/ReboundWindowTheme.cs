@@ -12,17 +12,26 @@ public static unsafe class ReboundWindowTheme
 {
     public static void Register(Window window)
     {
+        var darkMode = (TerraFX.Interop.Windows.BOOL)(Microsoft.UI.Xaml.Application.Current.RequestedTheme == ApplicationTheme.Dark);
+        TerraFX.Interop.Windows.Windows.DwmSetWindowAttribute(
+            new((void*)window.GetWindowHandle()),
+            (uint)TerraFX.Interop.Windows.DWMWINDOWATTRIBUTE.DWMWA_USE_IMMERSIVE_DARK_MODE,
+            &darkMode,
+            (uint)sizeof(TerraFX.Interop.Windows.BOOL));
+
+        window?.AppWindow.TitleBar.ButtonForegroundColor = darkMode ? Colors.White : Colors.Black;
+
         using var listener = new ThemeListener();
         listener.ThemeChanged += (t) =>
         {
             var darkMode = (TerraFX.Interop.Windows.BOOL)(t.CurrentTheme == ApplicationTheme.Dark);
             TerraFX.Interop.Windows.Windows.DwmSetWindowAttribute(
-                new((void*)window.GetWindowHandle()),
+                new((void*)window!.GetWindowHandle()),
                 (uint)TerraFX.Interop.Windows.DWMWINDOWATTRIBUTE.DWMWA_USE_IMMERSIVE_DARK_MODE,
                 &darkMode,
                 (uint)sizeof(TerraFX.Interop.Windows.BOOL));
 
-            window.AppWindow.TitleBar.ButtonForegroundColor = darkMode ? Colors.White : Colors.Black;
+            window?.AppWindow.TitleBar.ButtonForegroundColor = darkMode ? Colors.White : Colors.Black;
         };
     }
 }

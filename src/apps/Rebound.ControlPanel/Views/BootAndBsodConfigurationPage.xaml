@@ -7,7 +7,6 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:local="using:Rebound.ControlPanel.Views"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-    xmlns:muxc="using:Microsoft.UI.Xaml.Controls"
     xmlns:toolkit="using:CommunityToolkit.WinUI.Controls"
     xmlns:viewModels="using:Rebound.ControlPanel.ViewModels"
     mc:Ignorable="d">
@@ -18,81 +17,102 @@
             TrueValue="Collapsed" />
     </Page.Resources>
     <Grid>
-        <Grid
-            Height="72"
-            VerticalAlignment="Top"
-            Background="{ThemeResource CardBackgroundFillColorDefaultBrush}">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+        <Grid VerticalAlignment="Top" Background="{ThemeResource CardBackgroundFillColorDefaultBrush}">
             <Image
-                Width="20"
+                Width="16"
                 Margin="16"
                 HorizontalAlignment="Left"
                 VerticalAlignment="Top"
-                Source="/Assets/Glyphs/Advanced.png" />
+                Source="/Assets/Glyphs/Advanced.ico" />
             <TextBlock
-                Margin="48,10"
-                FontSize="20"
+                Margin="48,10,16,0"
+                FontSize="18"
                 FontWeight="SemiBold"
                 Foreground="{ThemeResource AccentTextFillColorPrimaryBrush}"
-                Text="Advanced System Configuration" />
-            <TextBlock Margin="48,40,0,0" Text="Performance, boot, and BSoD Configuration" />
+                Text="Advanced System Configuration"
+                TextTrimming="CharacterEllipsis" />
+            <TextBlock
+                Margin="48,36,16,12"
+                FontSize="12"
+                Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                Text="Performance, boot, and BSoD configuration."
+                TextWrapping="WrapWholeWords" />
         </Grid>
-        <ScrollViewer Margin="0,72,0,0" Padding="40,0,40,0">
-            <StackPanel MaxWidth="1000" Spacing="8">
-                <muxc:InfoBar
-                    Title="These settings require administrator privileges to edit."
-                    Margin="0,32,0,0"
-                    IsClosable="False"
-                    IsOpen="True"
-                    Visibility="{x:Bind ViewModel.IsElevated, Mode=OneWay, Converter={StaticResource BoolToInverseVisibilityConverter}}">
-                    <muxc:InfoBar.ActionButton>
-                        <Button Command="{x:Bind ViewModel.RelaunchAsAdminCommand}" Style="{StaticResource AccentButtonStyle}">
-                            <StackPanel Orientation="Horizontal" Spacing="8">
-                                <FontIcon FontSize="16" Glyph="&#xEA18;" />
-                                <TextBlock Text="Relaunch as Administrator" />
-                            </StackPanel>
-                        </Button>
-                    </muxc:InfoBar.ActionButton>
-                </muxc:InfoBar>
-                <muxc:InfoBar
+        <ScrollViewer Grid.Row="1">
+            <StackPanel
+                MaxWidth="1000"
+                Margin="40"
+                Spacing="8">
+                <TextBlock FontWeight="SemiBold" Text="Performance" />
+                <InfoBar
                     Title="You must restart your PC for changes to take effect."
-                    Margin="0,32,0,0"
                     IsClosable="False"
                     IsOpen="True"
                     Visibility="{x:Bind ViewModel.RequiresRestart, Mode=OneWay}">
-                    <muxc:InfoBar.ActionButton>
+                    <InfoBar.ActionButton>
                         <Button Command="{x:Bind ViewModel.RestartCommand}" Style="{StaticResource AccentButtonStyle}">
                             <StackPanel Orientation="Horizontal" Spacing="8">
                                 <FontIcon FontSize="16" Glyph="&#xE72C;" />
                                 <TextBlock Text="Restart Now" />
                             </StackPanel>
                         </Button>
-                    </muxc:InfoBar.ActionButton>
-                </muxc:InfoBar>
-                <ContentControl IsEnabled="{x:Bind ViewModel.IsElevated, Mode=OneWay}">
+                    </InfoBar.ActionButton>
+                </InfoBar>
+                <InfoBar
+                    Title="These settings require administrator privileges to view and edit."
+                    IsClosable="False"
+                    IsOpen="True"
+                    Visibility="{x:Bind ViewModel.IsElevated, Mode=OneWay, Converter={StaticResource BoolToInverseVisibilityConverter}}">
+                    <InfoBar.ActionButton>
+                        <Button Command="{x:Bind RelaunchAsAdminCommand}" Style="{StaticResource AccentButtonStyle}">
+                            <StackPanel Orientation="Horizontal" Spacing="8">
+                                <FontIcon FontSize="16" Glyph="&#xEA18;" />
+                                <TextBlock Text="Relaunch as Administrator" />
+                            </StackPanel>
+                        </Button>
+                    </InfoBar.ActionButton>
+                </InfoBar>
+                <ContentControl HorizontalContentAlignment="Stretch" IsEnabled="{x:Bind ViewModel.IsElevated, Mode=OneWay}">
                     <StackPanel Spacing="8">
-                        <TextBlock
-                            Margin="0,32,0,0"
-                            FontWeight="SemiBold"
-                            Text="Performance" />
                         <toolkit:SettingsCard Description="Adjusts performance to favor the selected category. Hover over each option for more details." Header="Processor scheduling">
-                            <ComboBox SelectedIndex="{x:Bind ViewModel.ProcessorScheduling, Mode=TwoWay}">
+                            <ComboBox SelectedIndex="{x:Bind ViewModel.ProcessorScheduling, Mode=TwoWay}" Visibility="{x:Bind ViewModel.IsElevated, Mode=OneWay}">
                                 <ComboBoxItem Content="Apps and programs" ToolTipService.ToolTip="Best for home use." />
                                 <ComboBoxItem Content="Background services" ToolTipService.ToolTip="Intended for servers and headless machines." />
                             </ComboBox>
+                            <toolkit:SettingsCard.Transitions>
+                                <TransitionCollection>
+                                    <RepositionThemeTransition />
+                                </TransitionCollection>
+                            </toolkit:SettingsCard.Transitions>
                             <toolkit:SettingsCard.HeaderIcon>
                                 <FontIcon Glyph="&#xEC4A;" />
                             </toolkit:SettingsCard.HeaderIcon>
                         </toolkit:SettingsCard>
-                        <muxc:InfoBar
+                        <InfoBar
                             Title="About pagefile"
                             IsClosable="False"
                             IsOpen="True"
-                            Message="Windows pagefile is the equivalent of swap memory on UNIX systems, providing additional RAM by using the device's primary storage. Windows uses pagefile primarily for cache as disk read and write speeds tend to be slower compared to RAM." />
+                            Message="Windows pagefile is the equivalent of swap memory on UNIX systems, providing additional RAM by using the device's primary storage. Windows uses pagefile primarily for cache as disk read and write speeds tend to be slower compared to RAM.">
+                            <InfoBar.Transitions>
+                                <TransitionCollection>
+                                    <RepositionThemeTransition />
+                                </TransitionCollection>
+                            </InfoBar.Transitions>
+                        </InfoBar>
                         <toolkit:SettingsCard Description="How Windows manages pagefile. Hover over each option for more details." Header="Pagefile management">
                             <toolkit:SettingsCard.HeaderIcon>
                                 <FontIcon Glyph="&#xE83B;" />
                             </toolkit:SettingsCard.HeaderIcon>
-                            <ComboBox SelectedIndex="{x:Bind ViewModel.PagefileMode, Mode=TwoWay}">
+                            <toolkit:SettingsCard.Transitions>
+                                <TransitionCollection>
+                                    <RepositionThemeTransition />
+                                </TransitionCollection>
+                            </toolkit:SettingsCard.Transitions>
+                            <ComboBox SelectedIndex="{x:Bind ViewModel.PagefileMode, Mode=TwoWay}" Visibility="{x:Bind ViewModel.IsElevated, Mode=OneWay}">
                                 <ComboBoxItem Content="Auto" ToolTipService.ToolTip="Windows will select the appropriate values for pagefile on your specific configuration." />
                                 <ComboBoxItem Content="No pagefile (not recommended)" ToolTipService.ToolTip="No pagefile is provided. This option is not recommended as it can lead to issues with caching, latency, and crashes." />
                                 <ComboBoxItem Content="Custom" ToolTipService.ToolTip="Configure pagefile to your desired size." />
@@ -101,80 +121,167 @@
                         <toolkit:SettingsCard
                             Description="The size of your pagefile. Supports decimals and values in bytes, megabytes, gigabytes, etc."
                             Header="Pagefile size"
-                            IsEnabled="{x:Bind ViewModel.IsPagefileModeCustom, Mode=OneWay}">
+                            IsEnabled="{x:Bind ViewModel.IsPagefileModeCustom, Mode=OneWay}"
+                            Visibility="{x:Bind ViewModel.IsElevated, Mode=OneWay}">
+                            <toolkit:SettingsCard.Transitions>
+                                <TransitionCollection>
+                                    <RepositionThemeTransition />
+                                </TransitionCollection>
+                            </toolkit:SettingsCard.Transitions>
                             <toolkit:SettingsCard.HeaderIcon>
                                 <FontIcon Glyph="&#xEB05;" />
                             </toolkit:SettingsCard.HeaderIcon>
                             <TextBox Text="{x:Bind ViewModel.PagefileSize, Mode=TwoWay}" />
                         </toolkit:SettingsCard>
-                        <TextBlock
-                            Margin="0,32,0,0"
-                            FontWeight="SemiBold"
-                            Text="Bootloader" />
-                        <muxc:InfoBar
-                            Title="About bootloader"
+                    </StackPanel>
+                </ContentControl>
+                <TextBlock
+                    Margin="0,32,0,0"
+                    FontWeight="SemiBold"
+                    Text="Boot">
+                    <TextBlock.Transitions>
+                        <TransitionCollection>
+                            <RepositionThemeTransition />
+                        </TransitionCollection>
+                    </TextBlock.Transitions>
+                </TextBlock>
+                <InfoBar
+                    Title="These settings require administrator privileges to view and edit."
+                    IsClosable="False"
+                    IsOpen="True"
+                    Visibility="{x:Bind ViewModel.IsElevated, Mode=OneWay, Converter={StaticResource BoolToInverseVisibilityConverter}}">
+                    <InfoBar.Transitions>
+                        <TransitionCollection>
+                            <RepositionThemeTransition />
+                        </TransitionCollection>
+                    </InfoBar.Transitions>
+                    <InfoBar.ActionButton>
+                        <Button Command="{x:Bind RelaunchAsAdminCommand}" Style="{StaticResource AccentButtonStyle}">
+                            <StackPanel Orientation="Horizontal" Spacing="8">
+                                <FontIcon FontSize="16" Glyph="&#xEA18;" />
+                                <TextBlock Text="Relaunch as Administrator" />
+                            </StackPanel>
+                        </Button>
+                    </InfoBar.ActionButton>
+                </InfoBar>
+                <ContentControl HorizontalContentAlignment="Stretch" IsEnabled="{x:Bind ViewModel.IsElevated, Mode=OneWay}">
+                    <StackPanel Spacing="8">
+                        <InfoBar
+                            Title="About boot manager"
                             IsClosable="False"
                             IsOpen="True"
-                            Message="The bootloader handles how the operating system starts. In case you're having trouble with drivers or you need to diagnose your system, modify these settings carefully." />
-                        <toolkit:SettingsCard Description="How long the OS list is displayed before the default entry is selected, in seconds. 0 means no timeout." Header="Bootloader timeout">
-                            <muxc:NumberBox
+                            Message="The boot manager handles how the operating system starts. In case you're having trouble with drivers or you need to diagnose your system, modify these settings carefully.">
+                            <InfoBar.Transitions>
+                                <TransitionCollection>
+                                    <RepositionThemeTransition />
+                                </TransitionCollection>
+                            </InfoBar.Transitions>
+                        </InfoBar>
+                        <toolkit:SettingsCard Description="How long the OS list is displayed before the default entry is selected, in seconds. 0 means no timeout." Header="Boot manager timeout">
+                            <toolkit:SettingsCard.Transitions>
+                                <TransitionCollection>
+                                    <RepositionThemeTransition />
+                                </TransitionCollection>
+                            </toolkit:SettingsCard.Transitions>
+                            <NumberBox
                                 Width="120"
                                 Maximum="999"
                                 Minimum="0"
                                 SpinButtonPlacementMode="Compact"
+                                Visibility="{x:Bind ViewModel.IsElevated, Mode=OneWay}"
                                 Value="{x:Bind ViewModel.Timeout, Mode=TwoWay}" />
                         </toolkit:SettingsCard>
-                        <Grid
-                            Padding="16"
-                            Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
-                            BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
-                            BorderThickness="1"
-                            CornerRadius="4">
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="*" />
-                                <ColumnDefinition Width="*" />
-                            </Grid.ColumnDefinitions>
-                            <Grid.RowDefinitions>
-                                <RowDefinition Height="Auto" />
-                                <RowDefinition Height="*" />
-                            </Grid.RowDefinitions>
-                            <TextBlock
-                                Margin="0,0,0,8"
-                                FontWeight="SemiBold"
-                                Text="Boot parameters" />
-                            <StackPanel Grid.Row="1">
-                                <CheckBox Content="No GUI boot" IsChecked="{x:Bind ViewModel.NoGuiBoot, Mode=TwoWay}" />
-                                <CheckBox Content="Boot log" IsChecked="{x:Bind ViewModel.BootLog, Mode=TwoWay}" />
-                                <CheckBox Content="Base video (VGA mode)" IsChecked="{x:Bind ViewModel.BaseVideo, Mode=TwoWay}" />
-                                <CheckBox Content="OS boot information" IsChecked="{x:Bind ViewModel.OsBootInfo, Mode=TwoWay}" />
+                        <toolkit:SettingsExpander Description="Change how the OS boots." Header="Boot parameters">
+                            <toolkit:SettingsExpander.Transitions>
+                                <TransitionCollection>
+                                    <RepositionThemeTransition />
+                                </TransitionCollection>
+                            </toolkit:SettingsExpander.Transitions>
+                            <toolkit:SettingsExpander.Items>
+                                <toolkit:SettingsCard Header="No GUI boot">
+                                    <CheckBox MinWidth="0" IsChecked="{x:Bind ViewModel.NoGuiBoot, Mode=TwoWay}" />
+                                </toolkit:SettingsCard>
+                                <toolkit:SettingsCard Header="Boot log">
+                                    <CheckBox MinWidth="0" IsChecked="{x:Bind ViewModel.BootLog, Mode=TwoWay}" />
+                                </toolkit:SettingsCard>
+                                <toolkit:SettingsCard Header="Base video (VGA mode)">
+                                    <CheckBox MinWidth="0" IsChecked="{x:Bind ViewModel.BaseVideo, Mode=TwoWay}" />
+                                </toolkit:SettingsCard>
+                                <toolkit:SettingsCard Header="OS boot information">
+                                    <CheckBox MinWidth="0" IsChecked="{x:Bind ViewModel.OsBootInfo, Mode=TwoWay}" />
+                                </toolkit:SettingsCard>
+                            </toolkit:SettingsExpander.Items>
+                        </toolkit:SettingsExpander>
+                    </StackPanel>
+                </ContentControl>
+                <TextBlock
+                    Margin="0,32,0,0"
+                    FontWeight="SemiBold"
+                    Text="Blue Screen of Death (BSoD)" />
+                <InfoBar
+                    Title="These settings require administrator privileges to view and edit."
+                    IsClosable="False"
+                    IsOpen="True"
+                    Visibility="{x:Bind ViewModel.IsElevated, Mode=OneWay, Converter={StaticResource BoolToInverseVisibilityConverter}}">
+                    <InfoBar.Transitions>
+                        <TransitionCollection>
+                            <RepositionThemeTransition />
+                        </TransitionCollection>
+                    </InfoBar.Transitions>
+                    <InfoBar.ActionButton>
+                        <Button Command="{x:Bind RelaunchAsAdminCommand}" Style="{StaticResource AccentButtonStyle}">
+                            <StackPanel Orientation="Horizontal" Spacing="8">
+                                <FontIcon FontSize="16" Glyph="&#xEA18;" />
+                                <TextBlock Text="Relaunch as Administrator" />
                             </StackPanel>
-                        </Grid>
-                        <TextBlock
-                            Margin="0,32,0,0"
-                            FontWeight="SemiBold"
-                            Text="Blue Screen of Death (BSoD)" />
-                        <muxc:InfoBar
+                        </Button>
+                    </InfoBar.ActionButton>
+                </InfoBar>
+                <ContentControl HorizontalContentAlignment="Stretch" IsEnabled="{x:Bind ViewModel.IsElevated, Mode=OneWay}">
+                    <StackPanel Spacing="8">
+                        <InfoBar
                             Title="About the BSoD"
                             IsClosable="False"
                             IsOpen="True"
-                            Message="A BSoD typically shows up when your system encounters a critical error that it can not recover from. These can typically be caused by hardware failures, system corruption, power surges, etc." />
+                            Message="A BSoD typically shows up when your system encounters a critical error that it can not recover from. These can typically be caused by hardware failures, system corruption, power surges, etc.">
+                            <InfoBar.Transitions>
+                                <TransitionCollection>
+                                    <RepositionThemeTransition />
+                                </TransitionCollection>
+                            </InfoBar.Transitions>
+                        </InfoBar>
                         <toolkit:SettingsCard Description="Restarts the system after writing dumps." Header="Automatically restart">
                             <toolkit:SettingsCard.HeaderIcon>
                                 <FontIcon Glyph="&#xE777;" />
                             </toolkit:SettingsCard.HeaderIcon>
-                            <ToggleSwitch IsOn="{x:Bind ViewModel.AutoRestart, Mode=TwoWay}" />
+                            <toolkit:SettingsCard.Transitions>
+                                <TransitionCollection>
+                                    <RepositionThemeTransition />
+                                </TransitionCollection>
+                            </toolkit:SettingsCard.Transitions>
+                            <ToggleSwitch IsOn="{x:Bind ViewModel.AutoRestart, Mode=TwoWay}" Visibility="{x:Bind ViewModel.IsElevated, Mode=OneWay}" />
                         </toolkit:SettingsCard>
                         <toolkit:SettingsCard Description="Logs the crash to the system logs to be viewed in Event Viewer." Header="Write an event to the system log">
                             <toolkit:SettingsCard.HeaderIcon>
                                 <FontIcon Glyph="&#xF000;" />
                             </toolkit:SettingsCard.HeaderIcon>
-                            <ToggleSwitch IsOn="{x:Bind ViewModel.LogEvent, Mode=TwoWay}" />
+                            <toolkit:SettingsCard.Transitions>
+                                <TransitionCollection>
+                                    <RepositionThemeTransition />
+                                </TransitionCollection>
+                            </toolkit:SettingsCard.Transitions>
+                            <ToggleSwitch IsOn="{x:Bind ViewModel.LogEvent, Mode=TwoWay}" Visibility="{x:Bind ViewModel.IsElevated, Mode=OneWay}" />
                         </toolkit:SettingsCard>
                         <toolkit:SettingsCard Header="Write debugging information">
                             <toolkit:SettingsCard.HeaderIcon>
                                 <FontIcon Glyph="&#xEBE8;" />
                             </toolkit:SettingsCard.HeaderIcon>
-                            <ComboBox SelectedIndex="{x:Bind ViewModel.DumpType, Mode=TwoWay}">
+                            <toolkit:SettingsCard.Transitions>
+                                <TransitionCollection>
+                                    <RepositionThemeTransition />
+                                </TransitionCollection>
+                            </toolkit:SettingsCard.Transitions>
+                            <ComboBox SelectedIndex="{x:Bind ViewModel.DumpType, Mode=TwoWay}" Visibility="{x:Bind ViewModel.IsElevated, Mode=OneWay}">
                                 <ComboBoxItem Content="Disabled" />
                                 <ComboBoxItem Content="Complete memory dump" />
                                 <ComboBoxItem Content="Kernel memory dump" />
@@ -183,81 +290,125 @@
                             </ComboBox>
                         </toolkit:SettingsCard>
                         <toolkit:SettingsCard Header="Small dump directory">
+                            <toolkit:SettingsCard.Transitions>
+                                <TransitionCollection>
+                                    <RepositionThemeTransition />
+                                </TransitionCollection>
+                            </toolkit:SettingsCard.Transitions>
                             <toolkit:SettingsCard.HeaderIcon>
                                 <FontIcon Glyph="&#xE8B7;" />
                             </toolkit:SettingsCard.HeaderIcon>
-                            <TextBox Text="{x:Bind ViewModel.DumpDirectory, Mode=TwoWay}" />
-                        </toolkit:SettingsCard>
-                        <TextBlock
-                            Margin="0,32,0,0"
-                            FontWeight="SemiBold"
-                            Text="Other" />
-                        <toolkit:SettingsCard
-                            Command="{x:Bind ManageUsersCommand}"
-                            Description="Manage users on this machine."
-                            Header="Users"
-                            IsClickEnabled="True">
-                            <toolkit:SettingsCard.HeaderIcon>
-                                <FontIcon Glyph="&#xE716;" />
-                            </toolkit:SettingsCard.HeaderIcon>
-                        </toolkit:SettingsCard>
-                        <toolkit:SettingsCard
-                            Command="{x:Bind OpenBootAndRecoveryCommand}"
-                            Description="Windows startup, boot options, recovery."
-                            Header="Boot and recovery"
-                            IsClickEnabled="True">
-                            <toolkit:SettingsCard.HeaderIcon>
-                                <FontIcon Glyph="&#xEBC4;" />
-                            </toolkit:SettingsCard.HeaderIcon>
-                        </toolkit:SettingsCard>
-                        <toolkit:SettingsCard
-                            Command="{x:Bind OpenSystemProtectionCommand}"
-                            Description="Manage Windows system protection settings."
-                            Header="System protection"
-                            IsClickEnabled="True">
-                            <toolkit:SettingsCard.HeaderIcon>
-                                <FontIcon Glyph="&#xF552;" />
-                            </toolkit:SettingsCard.HeaderIcon>
-                        </toolkit:SettingsCard>
-                        <toolkit:SettingsCard
-                            Command="{x:Bind OpenServicesCommand}"
-                            Description="View and manage Windows services."
-                            Header="Services"
-                            IsClickEnabled="True">
-                            <toolkit:SettingsCard.HeaderIcon>
-                                <FontIcon Glyph="&#xE9F5;" />
-                            </toolkit:SettingsCard.HeaderIcon>
-                            <toolkit:SettingsCard.ActionIcon>
-                                <FontIcon Glyph="&#xE8AD;" />
-                            </toolkit:SettingsCard.ActionIcon>
-                        </toolkit:SettingsCard>
-                        <toolkit:SettingsCard
-                            Command="{x:Bind OpenStartupAppsCommand}"
-                            Description="Manage startup apps in Task Manager."
-                            Header="Startup apps"
-                            IsClickEnabled="True">
-                            <toolkit:SettingsCard.HeaderIcon>
-                                <FontIcon Glyph="&#xF120;" />
-                            </toolkit:SettingsCard.HeaderIcon>
-                            <toolkit:SettingsCard.ActionIcon>
-                                <FontIcon Glyph="&#xE8AD;" />
-                            </toolkit:SettingsCard.ActionIcon>
-                        </toolkit:SettingsCard>
-                        <toolkit:SettingsCard
-                            Margin="0,40,0,40"
-                            Command="{x:Bind OpenWindowsToolsCommand}"
-                            Description="Open the Windows Tools page to see all the available tools."
-                            Header="View all Windows tools"
-                            IsClickEnabled="True">
-                            <toolkit:SettingsCard.HeaderIcon>
-                                <FontIcon Glyph="&#xE90F;" />
-                            </toolkit:SettingsCard.HeaderIcon>
-                            <toolkit:SettingsCard.ActionIcon>
-                                <FontIcon Glyph="&#xE8AD;" />
-                            </toolkit:SettingsCard.ActionIcon>
+                            <StackPanel
+                                Orientation="Horizontal"
+                                Spacing="8"
+                                Visibility="{x:Bind ViewModel.IsElevated, Mode=OneWay}">
+                                <TextBox Text="{x:Bind ViewModel.DumpDirectory, Mode=TwoWay}" />
+                                <Button
+                                    Padding="8"
+                                    Command="{x:Bind SelectDumpDirCommand}"
+                                    Style="{StaticResource SubtleButtonStyle}"
+                                    ToolTipService.ToolTip="Select folder">
+                                    <FontIcon FontSize="16" Glyph="&#xE8DA;" />
+                                </Button>
+                            </StackPanel>
                         </toolkit:SettingsCard>
                     </StackPanel>
                 </ContentControl>
+                <TextBlock
+                    Margin="0,32,0,0"
+                    FontWeight="SemiBold"
+                    Text="Other">
+                    <TextBlock.Transitions>
+                        <TransitionCollection>
+                            <RepositionThemeTransition />
+                        </TransitionCollection>
+                    </TextBlock.Transitions>
+                </TextBlock>
+                <toolkit:SettingsCard
+                    Command="{x:Bind ManageUsersCommand}"
+                    Description="Manage users on this machine."
+                    Header="Users"
+                    IsClickEnabled="True">
+                    <toolkit:SettingsCard.HeaderIcon>
+                        <ImageIcon Source="/Assets/Glyphs/UserAccounts.png" />
+                    </toolkit:SettingsCard.HeaderIcon>
+                    <toolkit:SettingsCard.Transitions>
+                        <TransitionCollection>
+                            <RepositionThemeTransition />
+                        </TransitionCollection>
+                    </toolkit:SettingsCard.Transitions>
+                    <toolkit:SettingsCard.ActionIcon>
+                        <FontIcon Glyph="&#xE8A7;" />
+                    </toolkit:SettingsCard.ActionIcon>
+                </toolkit:SettingsCard>
+                <toolkit:SettingsCard
+                    Command="{x:Bind OpenBootAndRecoveryCommand}"
+                    Description="Windows startup, boot options, recovery."
+                    Header="Boot and recovery"
+                    IsClickEnabled="True">
+                    <toolkit:SettingsCard.HeaderIcon>
+                        <ImageIcon Source="/Assets/Glyphs/BackupAndRestore.ico" />
+                    </toolkit:SettingsCard.HeaderIcon>
+                    <toolkit:SettingsCard.Transitions>
+                        <TransitionCollection>
+                            <RepositionThemeTransition />
+                        </TransitionCollection>
+                    </toolkit:SettingsCard.Transitions>
+                    <toolkit:SettingsCard.ActionIcon>
+                        <FontIcon Glyph="&#xE8A7;" />
+                    </toolkit:SettingsCard.ActionIcon>
+                </toolkit:SettingsCard>
+                <toolkit:SettingsCard
+                    Command="{x:Bind OpenSystemProtectionCommand}"
+                    Description="Manage Windows system protection settings."
+                    Header="System protection"
+                    IsClickEnabled="True">
+                    <toolkit:SettingsCard.HeaderIcon>
+                        <ImageIcon Source="/Assets/Glyphs/PrivacyAndSecurity.png" />
+                    </toolkit:SettingsCard.HeaderIcon>
+                    <toolkit:SettingsCard.Transitions>
+                        <TransitionCollection>
+                            <RepositionThemeTransition />
+                        </TransitionCollection>
+                    </toolkit:SettingsCard.Transitions>
+                    <toolkit:SettingsCard.ActionIcon>
+                        <FontIcon Glyph="&#xE8A7;" />
+                    </toolkit:SettingsCard.ActionIcon>
+                </toolkit:SettingsCard>
+                <toolkit:SettingsCard
+                    Command="{x:Bind OpenServicesCommand}"
+                    Description="View and manage Windows services."
+                    Header="Services"
+                    IsClickEnabled="True">
+                    <toolkit:SettingsCard.Transitions>
+                        <TransitionCollection>
+                            <RepositionThemeTransition />
+                        </TransitionCollection>
+                    </toolkit:SettingsCard.Transitions>
+                    <toolkit:SettingsCard.HeaderIcon>
+                        <ImageIcon Source="/Assets/Apps/Services.ico" />
+                    </toolkit:SettingsCard.HeaderIcon>
+                    <toolkit:SettingsCard.ActionIcon>
+                        <FontIcon Glyph="&#xE8A7;" />
+                    </toolkit:SettingsCard.ActionIcon>
+                </toolkit:SettingsCard>
+                <toolkit:SettingsCard
+                    Command="{x:Bind OpenStartupAppsCommand}"
+                    Description="Manage startup apps in Settings."
+                    Header="Startup apps"
+                    IsClickEnabled="True">
+                    <toolkit:SettingsCard.Transitions>
+                        <TransitionCollection>
+                            <RepositionThemeTransition />
+                        </TransitionCollection>
+                    </toolkit:SettingsCard.Transitions>
+                    <toolkit:SettingsCard.HeaderIcon>
+                        <ImageIcon Source="/Assets/Glyphs/AppsAndPrograms.png" />
+                    </toolkit:SettingsCard.HeaderIcon>
+                    <toolkit:SettingsCard.ActionIcon>
+                        <FontIcon Glyph="&#xE8A7;" />
+                    </toolkit:SettingsCard.ActionIcon>
+                </toolkit:SettingsCard>
             </StackPanel>
         </ScrollViewer>
     </Grid>

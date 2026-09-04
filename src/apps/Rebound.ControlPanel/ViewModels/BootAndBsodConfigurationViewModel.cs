@@ -3,21 +3,13 @@
 
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using CommunityToolkit.WinUI.Controls;
 using Microsoft.Win32;
 using Rebound.Core.Environment;
 using Rebound.Core.Native.Windows;
-using Rebound.Core.UI;
 using Rebound.Forge;
 using Rebound.Forge.Engines;
 using System;
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.Globalization;
-using System.Linq;
-using System.Net.ServerSentEvents;
-using System.Threading.Tasks;
-using TerraFX.Interop.Windows;
 
 namespace Rebound.ControlPanel.ViewModels;
 
@@ -62,18 +54,6 @@ internal partial class BootAndBsodConfigurationViewModel : ObservableObject
         ("KB", 1024L),
         ("B", 1)
     ];
-
-    [RelayCommand]
-    public static void RelaunchAsAdmin()
-    {
-        App.SingleInstanceAppService.Relaunch(new InstanceRelaunchOptions
-        {
-            Elevated = true,
-            ShutdownCurrent = true,
-            ForceNewInstance = true,
-            Arguments = CplArgs.BOOT_AND_BSOD_CONFIGURATION
-        });
-    }
 
     public BootAndBsodConfigurationViewModel()
     {

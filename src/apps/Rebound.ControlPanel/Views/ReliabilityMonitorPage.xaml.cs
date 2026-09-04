@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using CommunityToolkit.Mvvm.Input;
+using CommunityToolkit.WinUI;
 using CommunityToolkit.WinUI.Controls;
 using LiveChartsCore.SkiaSharpView;
 using Microsoft.UI.Dispatching;
@@ -14,10 +15,12 @@ using Rebound.ControlPanel.Models;
 using Rebound.ControlPanel.ViewModels;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Xml.Linq;
+using Windows.ApplicationModel.DataTransfer;
 
 namespace Rebound.ControlPanel.Views;
 
@@ -43,7 +46,7 @@ internal sealed partial class ReliabilityMonitorPage : Page
 
     private void OnViewModeChanged(object sender, SelectionChangedEventArgs e)
     {
-        if (sender is CommunityToolkit.WinUI.Controls.Segmented seg)
+        if (sender is Segmented seg)
             ViewModel.ViewByWeeks = seg.SelectedIndex == 1;
     }
 
@@ -179,7 +182,7 @@ internal sealed partial class ReliabilityMonitorPage : Page
         return new EventDetails(provider, eventId, level, channel, recordId, timeCreated, data);
     }
 
-    private static FrameworkElement BuildGeneralEventView(EventDetails details)
+    private static ScrollViewer BuildGeneralEventView(EventDetails details)
     {
         var panel = new StackPanel { Spacing = 8 };
 
@@ -238,7 +241,6 @@ internal sealed partial class ReliabilityMonitorPage : Page
 
     /// <summary>
     /// Exports reliability history to a CSV next to the user's Desktop.
-    /// Matches the "Save reliability history" link in the real Reliability Monitor.
     /// </summary>
     [RelayCommand]
     public async Task ExportAsync()
@@ -251,7 +253,7 @@ internal sealed partial class ReliabilityMonitorPage : Page
                 SuggestedStartLocation = PickerLocationId.Desktop,
                 DefaultFileExtension = ".csv",
                 SuggestedFileName = $"ReliabilityHistory_{DateTime.Now:yyyy-MM-dd}"
-            }; 
+            };
             picker.FileTypeChoices.Add("CSV Files", new List<string>() { ".csv" });
 
             // Show the picker dialog window
@@ -273,7 +275,38 @@ internal sealed partial class ReliabilityMonitorPage : Page
                 }
             }
         }
-        catch { /* Swallow export errors - UI can show a toast if desired */ }
+        catch
+        {
+
+        }
+    }
+
+    [RelayCommand]
+    public async Task ViewAllEventsAsync()
+    {
+        try
+        {
+            Process.Start(new ProcessStartInfo()
+            {
+                FileName = "eventvwr.msc",
+                UseShellExecute = true,
+                Verb = "runas"
+            });
+        }
+        catch (Exception ex)
+        {
+            await DispatcherQueue.EnqueueAsync(async () =>
+            {
+                var cd = new ContentDialog()
+                {
+                    Title = "Rebound Control Panel",
+                    Content = $"Couldn't launch Event Viewer.\n\n{ex.Message}",
+                    CloseButtonText = "Ok",
+                    XamlRoot = XamlRoot
+                };
+                await cd.ShowAsync();
+            }).ConfigureAwait(false);
+        }
     }
 
     private static string CsvEscape(string value)
@@ -285,5 +318,15 @@ internal sealed partial class ReliabilityMonitorPage : Page
     {
         if (sender is FrameworkElement { Tag: ReliabilityEvent ev })
             ViewEventDetailsCommand.Execute(ev);
+    }
+
+    private void OnCopyRowClicked(object sender, RoutedEventArgs e)
+    {
+        if (sender is FrameworkElement { Tag: ReliabilityEvent ev })
+        {
+            var package = new DataPackage();
+            package.SetText($"Source: {ev.SourceName}\nSummary: {ev.Summary}\nDate: {ev.DisplayDate}");
+            Clipboard.SetContent(package);
+        }
     }
 }

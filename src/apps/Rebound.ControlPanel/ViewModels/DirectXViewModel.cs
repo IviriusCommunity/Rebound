@@ -5,12 +5,10 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Microsoft.Win32;
 using Rebound.Core.Environment;
-using Rebound.Core.UI;
 using Rebound.Forge;
 using Rebound.Forge.Engines;
 using System;
 using System.Collections.ObjectModel;
-using System.Diagnostics;
 using System.IO;
 using System.Linq;
 
@@ -28,10 +26,8 @@ internal partial class DirectXViewModel : ObservableObject
 
     #region Scope
 
-    [ObservableProperty] public partial bool IsAddingD3DScope { get; set; } 
     [ObservableProperty] public partial int SelectedD3DScopeAppIndex { get; set; } = -1;
     [ObservableProperty] public partial bool IsD3DScopeAppsListEmpty { get; set; } = true;
-    [ObservableProperty] public partial string D3DScopeInputPath { get; set; } = string.Empty;
 
     public ObservableCollection<string> D3DScopeApps { get; } = [];
 
@@ -92,9 +88,6 @@ internal partial class DirectXViewModel : ObservableObject
     public partial int SelectedMutedMessageId { get; set; } = -1;
 
     [ObservableProperty]
-    public partial bool IsAddingMuteMessage { get; set; }
-
-    [ObservableProperty]
     public partial bool IsMuteIdsListEmpty { get; set; } = true;
 
     /// <summary>
@@ -104,9 +97,6 @@ internal partial class DirectXViewModel : ObservableObject
     public partial bool MuteAllMessages { get; set; }
 
     public ObservableCollection<string> MutedMessageIds { get; } = [];
-
-    [ObservableProperty]
-    public partial string MuteInputId { get; set; } = string.Empty;
 
     // Severity
     [ObservableProperty] public partial bool MuteCorruption { get; set; }
@@ -136,18 +126,12 @@ internal partial class DirectXViewModel : ObservableObject
     public partial int SelectedBreakMessageId { get; set; } = -1;
 
     [ObservableProperty]
-    public partial bool IsAddingBreakOnMessage { get; set; }
-
-    [ObservableProperty]
     public partial bool BreakOnApiError { get; set; }
 
     [ObservableProperty]
     public partial bool IsBreakIdsListEmpty { get; set; } = true;
 
     public ObservableCollection<string> BreakMessageIds { get; } = [];
-
-    [ObservableProperty]
-    public partial string BreakInputId { get; set; } = string.Empty;
 
     // Severity
     [ObservableProperty] public partial bool BreakOnCorruption { get; set; }
@@ -211,9 +195,7 @@ internal partial class DirectXViewModel : ObservableObject
     public ObservableCollection<string> D2DScopeApps { get; } = [];
 
     [ObservableProperty] public partial int SelectedD2DScopeAppIndex { get; set; } = -1;
-    [ObservableProperty] public partial bool IsAddingD2DScope { get; set; }
     [ObservableProperty] public partial bool IsD2DScopeAppsListEmpty { get; set; } = true;
-    [ObservableProperty] public partial string D2DScopeInputPath { get; set; } = string.Empty;
 
     #endregion
 
@@ -686,28 +668,16 @@ internal partial class DirectXViewModel : ObservableObject
 
     #region D3D scope commands
 
-    [RelayCommand]
-    public void AddD3DScopeApp()
-        => IsAddingD3DScope = true;
-
-    [RelayCommand]
     public void AddD3DScopeAppImpl(string data)
     {
-        var path = string.IsNullOrWhiteSpace(data) ? D3DScopeInputPath.Trim() : data;
-        if (string.IsNullOrWhiteSpace(path) || D3DScopeApps.Contains(path)) return;
+        if (string.IsNullOrWhiteSpace(data) || D3DScopeApps.Contains(data)) return;
 
         RegistrySettingsEngine.EnsureKeyExists(RegistryHive.LocalMachine, RegistrySettingsCatalog.D3DScopeDrivers.KeyPath);
         using var key = Registry.LocalMachine.OpenSubKey(RegistrySettingsCatalog.D3DScopeDrivers.KeyPath, writable: true);
-        key?.SetValue(Path.GetFileName(path), path, RegistryValueKind.String);
+        key?.SetValue(Path.GetFileName(data), data, RegistryValueKind.String);
 
-        D3DScopeApps.Add(path);
-        D3DScopeInputPath = string.Empty;
-        IsAddingD3DScope = false;
+        D3DScopeApps.Add(data);
     }
-
-    [RelayCommand]
-    public void CancelAddD3DScopeApp()
-        => IsAddingD3DScope = false;
 
     [RelayCommand]
     public void RemoveD3DScopeApp()
@@ -736,27 +706,16 @@ internal partial class DirectXViewModel : ObservableObject
     #region Mute list commands
 
     [RelayCommand]
-    public void AddMutedMessageId()
-        => IsAddingMuteMessage = true;
-
-    [RelayCommand]
     public void AddMutedMessageIdImpl(string data)
     {
-        var path = string.IsNullOrWhiteSpace(data) ? MuteInputId.Trim() : data;
-        if (string.IsNullOrWhiteSpace(path) || MutedMessageIds.Contains(path)) return;
+        if (string.IsNullOrWhiteSpace(data) || MutedMessageIds.Contains(data)) return;
 
         RegistrySettingsEngine.EnsureKeyExists(RegistryHive.LocalMachine, RegistrySettingsCatalog.MuteList.KeyPath);
         using var key = Registry.LocalMachine.OpenSubKey(RegistrySettingsCatalog.MuteList.KeyPath, writable: true);
-        key?.SetValue(Path.GetFileName(path), path, RegistryValueKind.String);
+        key?.SetValue(Path.GetFileName(data), data, RegistryValueKind.String);
 
-        MutedMessageIds.Add(path);
-        MuteInputId = string.Empty;
-        IsAddingMuteMessage = false;
+        MutedMessageIds.Add(data);
     }
-
-    [RelayCommand]
-    public void CancelAddMutedMessageId()
-        => IsAddingMuteMessage = false;
 
     [RelayCommand]
     public void RemoveMutedMessageId()
@@ -785,27 +744,16 @@ internal partial class DirectXViewModel : ObservableObject
     #region Break list commands
 
     [RelayCommand]
-    public void AddBreakMessageId()
-        => IsAddingBreakOnMessage = true;
-
-    [RelayCommand]
     public void AddBreakMessageIdImpl(string data)
     {
-        var path = string.IsNullOrWhiteSpace(data) ? BreakInputId.Trim() : data;
-        if (string.IsNullOrWhiteSpace(path) || BreakMessageIds.Contains(path)) return;
+        if (string.IsNullOrWhiteSpace(data) || BreakMessageIds.Contains(data)) return;
 
         RegistrySettingsEngine.EnsureKeyExists(RegistryHive.LocalMachine, RegistrySettingsCatalog.BreakList.KeyPath);
         using var key = Registry.LocalMachine.OpenSubKey(RegistrySettingsCatalog.BreakList.KeyPath, writable: true);
-        key?.SetValue(Path.GetFileName(path), path, RegistryValueKind.String);
+        key?.SetValue(Path.GetFileName(data), data, RegistryValueKind.String);
 
-        BreakMessageIds.Add(path);
-        BreakInputId = string.Empty;
-        IsAddingBreakOnMessage = false;
+        BreakMessageIds.Add(data);
     }
-
-    [RelayCommand]
-    public void CancelAddBreakMessageId()
-        => IsAddingBreakOnMessage = false;
 
     [RelayCommand]
     public void RemoveBreakMessageId()
@@ -834,27 +782,16 @@ internal partial class DirectXViewModel : ObservableObject
     #region D2D scope commands
 
     [RelayCommand]
-    public void AddD2DScopeApp()
-        => IsAddingD2DScope = true;
-
-    [RelayCommand]
     public void AddD2DScopeAppImpl(string data)
     {
-        var path = string.IsNullOrWhiteSpace(data) ? D2DScopeInputPath.Trim() : data;
-        if (string.IsNullOrWhiteSpace(path) || D2DScopeApps.Contains(path)) return;
+        if (string.IsNullOrWhiteSpace(data) || D2DScopeApps.Contains(data)) return;
 
         RegistrySettingsEngine.EnsureKeyExists(RegistryHive.LocalMachine, RegistrySettingsCatalog.D2DScopeDrivers.KeyPath);
         using var key = Registry.LocalMachine.OpenSubKey(RegistrySettingsCatalog.D2DScopeDrivers.KeyPath, writable: true);
-        key?.SetValue(Path.GetFileName(path), path, RegistryValueKind.String);
+        key?.SetValue(Path.GetFileName(data), data, RegistryValueKind.String);
 
-        D2DScopeApps.Add(path);
-        D2DScopeInputPath = string.Empty;
-        IsAddingD2DScope = false;
+        D2DScopeApps.Add(data);
     }
-
-    [RelayCommand]
-    public void CancelAddD2DScopeApp()
-        => IsAddingD2DScope = false;
 
     [RelayCommand]
     public void RemoveD2DScopeApp()
@@ -876,34 +813,6 @@ internal partial class DirectXViewModel : ObservableObject
                 key.DeleteValue(name, throwOnMissingValue: false);
 
         D2DScopeApps.Clear();
-    }
-
-    #endregion
-
-    #region Launchers
-
-    [RelayCommand]
-    public static void RelaunchAsAdmin()
-    {
-        App.SingleInstanceAppService.Relaunch(new InstanceRelaunchOptions
-        {
-            Elevated = true,
-            ShutdownCurrent = true,
-            ForceNewInstance = true,
-            Arguments = CplArgs.DirectXControlPanelExePath
-        });
-    }
-
-    [RelayCommand]
-    public static void LaunchDxDiag()
-    {
-        ProcessStartInfo psi = new()
-        {
-            FileName = "dxdiag.exe",
-            Verb = "runas",
-            UseShellExecute = true
-        };
-        Process.Start(psi);
     }
 
     #endregion

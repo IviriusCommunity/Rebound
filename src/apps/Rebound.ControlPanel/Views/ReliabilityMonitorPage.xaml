@@ -13,6 +13,7 @@
     xmlns:models="using:Rebound.ControlPanel.Models"
     xmlns:sk="using:SkiaSharp"
     xmlns:toolkit="using:CommunityToolkit.WinUI.Controls"
+    xmlns:ui="using:CommunityToolkit.WinUI"
     x:Name="Root"
     mc:Ignorable="d">
     <Page.Resources>
@@ -33,28 +34,35 @@
             TrueValue="True" />
     </Page.Resources>
     <Grid>
-        <Grid
-            Height="72"
-            VerticalAlignment="Top"
-            Background="{ThemeResource CardBackgroundFillColorDefaultBrush}">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+        <Grid VerticalAlignment="Top" Background="{ThemeResource CardBackgroundFillColorDefaultBrush}">
             <Image
-                Width="20"
+                Width="16"
                 Margin="16"
                 HorizontalAlignment="Left"
                 VerticalAlignment="Top"
-                Source="/Assets/Glyphs/ReliabilityMonitor.png" />
+                Source="/Assets/Glyphs/ReliabilityMonitor.ico" />
             <TextBlock
-                Margin="48,10"
-                FontSize="20"
+                Margin="48,10,16,0"
+                FontSize="18"
                 FontWeight="SemiBold"
                 Foreground="{ThemeResource AccentTextFillColorPrimaryBrush}"
-                Text="Reliability Monitor" />
-            <TextBlock Margin="48,40,0,0" Text="View the issues history of the current machine." />
+                Text="Reliability Monitor"
+                TextTrimming="CharacterEllipsis" />
+            <TextBlock
+                Margin="48,36,16,12"
+                FontSize="12"
+                Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                Text="View the problems history for the current machine as a reliability graph."
+                TextWrapping="WrapWholeWords" />
         </Grid>
-        <ScrollViewer Margin="0,72,0,0" Padding="40,0,40,0">
+        <ScrollViewer Grid.Row="1">
             <StackPanel
                 MaxWidth="1000"
-                Margin="0,40"
+                Margin="40"
                 Spacing="8">
                 <InfoBar
                     Title="Review your computer's reliability and problem history"
@@ -91,7 +99,7 @@
                     <lvc:CartesianChart
                         x:Name="ReliabilityChart"
                         Grid.Column="1"
-                        Height="200"
+                        Height="320"
                         Background="Transparent"
                         FindingStrategy="ExactMatchTakeClosest"
                         LegendPosition="Hidden"
@@ -109,7 +117,7 @@
                         </lvc:CartesianChart.YAxes>
                         <lvc:CartesianChart.XAxes>
                             <lvc:AxesCollection>
-                                <lvc:XamlAxis Labels="{x:Bind ViewModel.XAxisLabels}" />
+                                <lvc:XamlAxis Labels="{x:Bind ViewModel.XAxisLabels}" LabelsRotation="30" />
                             </lvc:AxesCollection>
                         </lvc:CartesianChart.XAxes>
                     </lvc:CartesianChart>
@@ -120,18 +128,18 @@
                             <FontIcon FontSize="16" Glyph="&#xEDE1;" />
                         </AppBarButton.Icon>
                     </AppBarButton>
-                    <AppBarButton Command="{x:Bind ViewModel.ViewAllEventsCommand}" Label="View all events">
-                        <AppBarButton.Icon>
-                            <FontIcon FontSize="16" Glyph="&#xE8AD;" />
-                        </AppBarButton.Icon>
-                    </AppBarButton>
+                    <AppBarButton
+                        Command="{x:Bind ViewAllEventsCommand}"
+                        Icon="{ui:BitmapIcon Source='/Assets/Apps/EventViewer.ico'}"
+                        Label="View all events" />
                 </CommandBar>
                 <TextBlock FontWeight="SemiBold" Text="Reliability details" />
+                <InfoBar
+                    Title="Right click on an item to view all available actions."
+                    IsClosable="False"
+                    IsOpen="True" />
                 <StackPanel Spacing="8">
-                    <Expander
-                        HorizontalAlignment="Stretch"
-                        HorizontalContentAlignment="Stretch"
-                        IsExpanded="True">
+                    <Expander HorizontalAlignment="Stretch" IsExpanded="True">
                         <Expander.Header>
                             <StackPanel Orientation="Horizontal" Spacing="8">
                                 <FontIcon
@@ -139,6 +147,7 @@
                                     Foreground="{ThemeResource SystemFillColorCriticalBrush}"
                                     Glyph="&#xEB90;" />
                                 <TextBlock Text="Errors and crashes" />
+                                <InfoBadge Background="{ThemeResource SystemFillColorCriticalBrush}" Value="{x:Bind ViewModel.Errors.Count, Mode=OneWay}" />
                             </StackPanel>
                         </Expander.Header>
 
@@ -148,57 +157,87 @@
                                 Text="Nothing to see here."
                                 TextAlignment="Center"
                                 Visibility="{x:Bind ViewModel.IsErrorsEmpty, Mode=OneWay}" />
-                            <ItemsRepeater Margin="0,-8,-8,-8" ItemsSource="{x:Bind ViewModel.Errors, Mode=OneWay}">
-                                <ItemsRepeater.ItemTemplate>
+                            <ListView
+                                Margin="-12,-8"
+                                ItemsSource="{x:Bind ViewModel.Errors, Mode=OneWay}"
+                                Visibility="{x:Bind ViewModel.IsErrorsEmpty, Mode=OneWay, Converter={StaticResource BoolToInverseVisibilityConverter}}">
+                                <ListView.Header>
+                                    <toolkit:DataTable Margin="12,4,0,4">
+                                        <toolkit:DataColumn
+                                            MinWidth="120"
+                                            CanResize="True"
+                                            Content="Application"
+                                            DesiredWidth="200" />
+                                        <toolkit:DataColumn
+                                            MinWidth="80"
+                                            CanResize="True"
+                                            Content="Event"
+                                            DesiredWidth="160" />
+                                        <toolkit:DataColumn
+                                            MinWidth="120"
+                                            CanResize="True"
+                                            Content="Date"
+                                            DesiredWidth="240" />
+                                    </toolkit:DataTable>
+                                </ListView.Header>
+                                <ListView.ItemTemplate>
                                     <DataTemplate x:DataType="models:ReliabilityEvent">
-                                        <Grid Margin="0,4,0,4" ColumnSpacing="12">
-                                            <Grid.ColumnDefinitions>
-                                                <ColumnDefinition Width="*" />
-                                                <ColumnDefinition Width="Auto" />
-                                            </Grid.ColumnDefinitions>
-
-                                            <StackPanel Orientation="Horizontal" Spacing="8">
+                                        <toolkit:DataRow HorizontalAlignment="Left">
+                                            <toolkit:DataRow.ContextFlyout>
+                                                <MenuFlyout>
+                                                    <MenuFlyoutItem
+                                                        Click="OnCopyRowClicked"
+                                                        Icon="{ui:FontIcon Glyph=&#xE8C8;}"
+                                                        Tag="{x:Bind}"
+                                                        Text="Copy row" />
+                                                    <MenuFlyoutItem
+                                                        Click="OnViewEventDetailsClicked"
+                                                        Icon="{ui:FontIcon Glyph=&#xE8BC;}"
+                                                        Tag="{x:Bind}"
+                                                        Text="View details" />
+                                                </MenuFlyout>
+                                            </toolkit:DataRow.ContextFlyout>
+                                            <Grid Margin="0,0,8,0" ColumnSpacing="8">
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="Auto" />
+                                                    <ColumnDefinition Width="*" />
+                                                </Grid.ColumnDefinitions>
                                                 <Image
                                                     Width="16"
                                                     Height="16"
                                                     VerticalAlignment="Center"
                                                     Source="{x:Bind Icon, Mode=OneWay}" />
                                                 <TextBlock
-                                                    Width="160"
+                                                    Grid.Column="1"
+                                                    MinWidth="0"
+                                                    HorizontalAlignment="Stretch"
                                                     VerticalAlignment="Center"
                                                     Text="{x:Bind SourceName}"
                                                     TextTrimming="CharacterEllipsis"
                                                     ToolTipService.ToolTip="{x:Bind SourceName}" />
-                                                <TextBlock
-                                                    VerticalAlignment="Center"
-                                                    FontWeight="SemiBold"
-                                                    Foreground="{ThemeResource SystemFillColorCriticalBrush}"
-                                                    Text="{x:Bind Summary}" />
-                                            </StackPanel>
-
-                                            <StackPanel
-                                                Grid.Column="1"
-                                                Orientation="Horizontal"
-                                                Spacing="8">
-                                                <TextBlock
-                                                    VerticalAlignment="Center"
-                                                    FontSize="12"
-                                                    Foreground="{ThemeResource TextFillColorSecondaryBrush}"
-                                                    Text="{x:Bind DisplayDate}" />
-                                                <Button
-                                                    Click="OnViewEventDetailsClicked"
-                                                    Style="{StaticResource SubtleButtonStyle}"
-                                                    Tag="{x:Bind}">
-                                                    <StackPanel Orientation="Horizontal" Spacing="8">
-                                                        <FontIcon FontSize="16" Glyph="&#xE8AD;" />
-                                                        <TextBlock FontSize="12" Text="View details" />
-                                                    </StackPanel>
-                                                </Button>
-                                            </StackPanel>
-                                        </Grid>
+                                            </Grid>
+                                            <TextBlock
+                                                Margin="0,0,8,0"
+                                                VerticalAlignment="Center"
+                                                FontWeight="SemiBold"
+                                                Foreground="{ThemeResource SystemFillColorCriticalBrush}"
+                                                Text="{x:Bind Summary}"
+                                                TextTrimming="CharacterEllipsis" />
+                                            <TextBlock
+                                                VerticalAlignment="Center"
+                                                FontSize="12"
+                                                Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                                                Text="{x:Bind DisplayDate}"
+                                                TextTrimming="CharacterEllipsis" />
+                                        </toolkit:DataRow>
                                     </DataTemplate>
-                                </ItemsRepeater.ItemTemplate>
-                            </ItemsRepeater>
+                                </ListView.ItemTemplate>
+                                <ListView.ItemContainerStyle>
+                                    <Style BasedOn="{StaticResource DefaultListViewItemStyle}" TargetType="ListViewItem">
+                                        <Setter Property="HorizontalContentAlignment" Value="Left" />
+                                    </Style>
+                                </ListView.ItemContainerStyle>
+                            </ListView>
                         </Grid>
                     </Expander>
                     <Expander HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch">
@@ -209,6 +248,7 @@
                                     Foreground="{ThemeResource SystemFillColorCautionBrush}"
                                     Glyph="&#xE814;" />
                                 <TextBlock Text="Warnings" />
+                                <InfoBadge Background="{ThemeResource SystemFillColorCautionBrush}" Value="{x:Bind ViewModel.Warnings.Count, Mode=OneWay}" />
                             </StackPanel>
                         </Expander.Header>
                         <Grid>
@@ -217,57 +257,87 @@
                                 Text="Nothing to see here."
                                 TextAlignment="Center"
                                 Visibility="{x:Bind ViewModel.IsWarningsEmpty, Mode=OneWay}" />
-                            <ItemsRepeater Margin="0,-8,-8,-8" ItemsSource="{x:Bind ViewModel.Warnings, Mode=OneWay}">
-                                <ItemsRepeater.ItemTemplate>
+                            <ListView
+                                Margin="-12,-8"
+                                ItemsSource="{x:Bind ViewModel.Warnings, Mode=OneWay}"
+                                Visibility="{x:Bind ViewModel.IsWarningsEmpty, Mode=OneWay, Converter={StaticResource BoolToInverseVisibilityConverter}}">
+                                <ListView.Header>
+                                    <toolkit:DataTable Margin="12,4,0,4">
+                                        <toolkit:DataColumn
+                                            MinWidth="120"
+                                            CanResize="True"
+                                            Content="Application"
+                                            DesiredWidth="200" />
+                                        <toolkit:DataColumn
+                                            MinWidth="80"
+                                            CanResize="True"
+                                            Content="Event"
+                                            DesiredWidth="160" />
+                                        <toolkit:DataColumn
+                                            MinWidth="120"
+                                            CanResize="True"
+                                            Content="Date"
+                                            DesiredWidth="240" />
+                                    </toolkit:DataTable>
+                                </ListView.Header>
+                                <ListView.ItemTemplate>
                                     <DataTemplate x:DataType="models:ReliabilityEvent">
-                                        <Grid Margin="0,4,0,4" ColumnSpacing="12">
-                                            <Grid.ColumnDefinitions>
-                                                <ColumnDefinition Width="*" />
-                                                <ColumnDefinition Width="Auto" />
-                                            </Grid.ColumnDefinitions>
-
-                                            <StackPanel Orientation="Horizontal" Spacing="8">
+                                        <toolkit:DataRow HorizontalAlignment="Left">
+                                            <toolkit:DataRow.ContextFlyout>
+                                                <MenuFlyout>
+                                                    <MenuFlyoutItem
+                                                        Click="OnCopyRowClicked"
+                                                        Icon="{ui:FontIcon Glyph=&#xE8C8;}"
+                                                        Tag="{x:Bind}"
+                                                        Text="Copy row" />
+                                                    <MenuFlyoutItem
+                                                        Click="OnViewEventDetailsClicked"
+                                                        Icon="{ui:FontIcon Glyph=&#xE8BC;}"
+                                                        Tag="{x:Bind}"
+                                                        Text="View details" />
+                                                </MenuFlyout>
+                                            </toolkit:DataRow.ContextFlyout>
+                                            <Grid ColumnSpacing="8">
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="Auto" />
+                                                    <ColumnDefinition Width="*" />
+                                                </Grid.ColumnDefinitions>
                                                 <Image
                                                     Width="16"
                                                     Height="16"
                                                     VerticalAlignment="Center"
                                                     Source="{x:Bind Icon, Mode=OneWay}" />
                                                 <TextBlock
-                                                    Width="160"
+                                                    Grid.Column="1"
+                                                    MinWidth="0"
+                                                    HorizontalAlignment="Stretch"
                                                     VerticalAlignment="Center"
                                                     Text="{x:Bind SourceName}"
                                                     TextTrimming="CharacterEllipsis"
                                                     ToolTipService.ToolTip="{x:Bind SourceName}" />
-                                                <TextBlock
-                                                    VerticalAlignment="Center"
-                                                    FontWeight="SemiBold"
-                                                    Foreground="{ThemeResource SystemFillColorCautionBrush}"
-                                                    Text="{x:Bind Summary}" />
-                                            </StackPanel>
-
-                                            <StackPanel
-                                                Grid.Column="1"
-                                                Orientation="Horizontal"
-                                                Spacing="8">
-                                                <TextBlock
-                                                    VerticalAlignment="Center"
-                                                    FontSize="12"
-                                                    Foreground="{ThemeResource TextFillColorSecondaryBrush}"
-                                                    Text="{x:Bind DisplayDate}" />
-                                                <Button
-                                                    Click="OnViewEventDetailsClicked"
-                                                    Style="{StaticResource SubtleButtonStyle}"
-                                                    Tag="{x:Bind}">
-                                                    <StackPanel Orientation="Horizontal" Spacing="8">
-                                                        <FontIcon FontSize="16" Glyph="&#xE8AD;" />
-                                                        <TextBlock FontSize="12" Text="View details" />
-                                                    </StackPanel>
-                                                </Button>
-                                            </StackPanel>
-                                        </Grid>
+                                            </Grid>
+                                            <TextBlock
+                                                VerticalAlignment="Center"
+                                                FontWeight="SemiBold"
+                                                Foreground="{ThemeResource SystemFillColorCautionBrush}"
+                                                Text="{x:Bind Summary}"
+                                                TextTrimming="CharacterEllipsis" />
+                                            <TextBlock
+                                                Margin="0,0,16,0"
+                                                VerticalAlignment="Center"
+                                                FontSize="12"
+                                                Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                                                Text="{x:Bind DisplayDate}"
+                                                TextTrimming="CharacterEllipsis" />
+                                        </toolkit:DataRow>
                                     </DataTemplate>
-                                </ItemsRepeater.ItemTemplate>
-                            </ItemsRepeater>
+                                </ListView.ItemTemplate>
+                                <ListView.ItemContainerStyle>
+                                    <Style BasedOn="{StaticResource DefaultListViewItemStyle}" TargetType="ListViewItem">
+                                        <Setter Property="HorizontalContentAlignment" Value="Left" />
+                                    </Style>
+                                </ListView.ItemContainerStyle>
+                            </ListView>
                         </Grid>
                     </Expander>
                     <Expander HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch">
@@ -278,6 +348,7 @@
                                     Foreground="{ThemeResource AccentTextFillColorPrimaryBrush}"
                                     Glyph="&#xF167;" />
                                 <TextBlock Text="Informational events" />
+                                <InfoBadge Background="{ThemeResource AccentTextFillColorPrimaryBrush}" Value="{x:Bind ViewModel.Informational.Count, Mode=OneWay}" />
                             </StackPanel>
                         </Expander.Header>
                         <Grid>
@@ -286,71 +357,90 @@
                                 Text="Nothing to see here."
                                 TextAlignment="Center"
                                 Visibility="{x:Bind ViewModel.IsInformationalEmpty, Mode=OneWay}" />
-                            <ItemsRepeater Margin="0,-8,-8,-8" ItemsSource="{x:Bind ViewModel.Informational, Mode=OneWay}">
-                                <ItemsRepeater.ItemTemplate>
+                            <ListView
+                                Margin="-12,-8"
+                                ItemsSource="{x:Bind ViewModel.Informational, Mode=OneWay}"
+                                Visibility="{x:Bind ViewModel.IsInformationalEmpty, Mode=OneWay, Converter={StaticResource BoolToInverseVisibilityConverter}}">
+                                <ListView.Header>
+                                    <toolkit:DataTable Margin="12,4,0,4">
+                                        <toolkit:DataColumn
+                                            MinWidth="120"
+                                            CanResize="True"
+                                            Content="Application"
+                                            DesiredWidth="200" />
+                                        <toolkit:DataColumn
+                                            MinWidth="80"
+                                            CanResize="True"
+                                            Content="Event"
+                                            DesiredWidth="160" />
+                                        <toolkit:DataColumn
+                                            MinWidth="120"
+                                            CanResize="True"
+                                            Content="Date"
+                                            DesiredWidth="240" />
+                                    </toolkit:DataTable>
+                                </ListView.Header>
+                                <ListView.ItemTemplate>
                                     <DataTemplate x:DataType="models:ReliabilityEvent">
-                                        <Grid Margin="0,4,0,4" ColumnSpacing="12">
-                                            <Grid.ColumnDefinitions>
-                                                <ColumnDefinition Width="*" />
-                                                <ColumnDefinition Width="Auto" />
-                                            </Grid.ColumnDefinitions>
-
-                                            <StackPanel Orientation="Horizontal" Spacing="8">
+                                        <toolkit:DataRow HorizontalAlignment="Left">
+                                            <toolkit:DataRow.ContextFlyout>
+                                                <MenuFlyout>
+                                                    <MenuFlyoutItem
+                                                        Click="OnCopyRowClicked"
+                                                        Icon="{ui:FontIcon Glyph=&#xE8C8;}"
+                                                        Tag="{x:Bind}"
+                                                        Text="Copy row" />
+                                                    <MenuFlyoutItem
+                                                        Click="OnViewEventDetailsClicked"
+                                                        Icon="{ui:FontIcon Glyph=&#xE8BC;}"
+                                                        Tag="{x:Bind}"
+                                                        Text="View details" />
+                                                </MenuFlyout>
+                                            </toolkit:DataRow.ContextFlyout>
+                                            <Grid ColumnSpacing="8">
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="Auto" />
+                                                    <ColumnDefinition Width="*" />
+                                                </Grid.ColumnDefinitions>
                                                 <Image
                                                     Width="16"
                                                     Height="16"
                                                     VerticalAlignment="Center"
                                                     Source="{x:Bind Icon, Mode=OneWay}" />
                                                 <TextBlock
-                                                    Width="160"
+                                                    Grid.Column="1"
+                                                    MinWidth="0"
+                                                    HorizontalAlignment="Stretch"
                                                     VerticalAlignment="Center"
                                                     Text="{x:Bind SourceName}"
                                                     TextTrimming="CharacterEllipsis"
                                                     ToolTipService.ToolTip="{x:Bind SourceName}" />
-                                                <TextBlock
-                                                    VerticalAlignment="Center"
-                                                    FontWeight="SemiBold"
-                                                    Foreground="{ThemeResource AccentTextFillColorPrimaryBrush}"
-                                                    Text="{x:Bind Summary}" />
-                                            </StackPanel>
-
-                                            <StackPanel
-                                                Grid.Column="1"
-                                                Orientation="Horizontal"
-                                                Spacing="8">
-                                                <TextBlock
-                                                    VerticalAlignment="Center"
-                                                    FontSize="12"
-                                                    Foreground="{ThemeResource TextFillColorSecondaryBrush}"
-                                                    Text="{x:Bind DisplayDate}" />
-                                                <Button
-                                                    Click="OnViewEventDetailsClicked"
-                                                    Style="{StaticResource SubtleButtonStyle}"
-                                                    Tag="{x:Bind}">
-                                                    <StackPanel Orientation="Horizontal" Spacing="8">
-                                                        <FontIcon FontSize="16" Glyph="&#xE8AD;" />
-                                                        <TextBlock FontSize="12" Text="View details" />
-                                                    </StackPanel>
-                                                </Button>
-                                            </StackPanel>
-                                        </Grid>
+                                            </Grid>
+                                            <TextBlock
+                                                VerticalAlignment="Center"
+                                                FontWeight="SemiBold"
+                                                Foreground="{ThemeResource AccentTextFillColorPrimaryBrush}"
+                                                Text="{x:Bind Summary}"
+                                                TextTrimming="CharacterEllipsis" />
+                                            <TextBlock
+                                                Margin="0,0,16,0"
+                                                VerticalAlignment="Center"
+                                                FontSize="12"
+                                                Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                                                Text="{x:Bind DisplayDate}"
+                                                TextTrimming="CharacterEllipsis" />
+                                        </toolkit:DataRow>
                                     </DataTemplate>
-                                </ItemsRepeater.ItemTemplate>
-                            </ItemsRepeater>
+                                </ListView.ItemTemplate>
+                                <ListView.ItemContainerStyle>
+                                    <Style BasedOn="{StaticResource DefaultListViewItemStyle}" TargetType="ListViewItem">
+                                        <Setter Property="HorizontalContentAlignment" Value="Left" />
+                                    </Style>
+                                </ListView.ItemContainerStyle>
+                            </ListView>
                         </Grid>
                     </Expander>
                 </StackPanel>
-                <toolkit:SettingsCard
-                    Description="Launch Event Viewer to see all system events."
-                    Header="Event Viewer"
-                    IsClickEnabled="True">
-                    <toolkit:SettingsCard.HeaderIcon>
-                        <ImageIcon Source="/Assets/Apps/EventViewer.ico" />
-                    </toolkit:SettingsCard.HeaderIcon>
-                    <toolkit:SettingsCard.ActionIcon>
-                        <FontIcon Glyph="&#xE8A7;" />
-                    </toolkit:SettingsCard.ActionIcon>
-                </toolkit:SettingsCard>
             </StackPanel>
         </ScrollViewer>
     </Grid>

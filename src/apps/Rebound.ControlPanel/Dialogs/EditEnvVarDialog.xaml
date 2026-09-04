@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentDialog
+    x:Class="Rebound.ControlPanel.Dialogs.EditEnvVarDialog"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:converters="using:CommunityToolkit.WinUI.Converters"
+    xmlns:local="using:Rebound.ControlPanel.Models"
+    Title="Edit Variable"
+    CloseButtonText="Cancel"
+    DefaultButton="Primary"
+    PrimaryButtonText="Apply"
+    Style="{StaticResource DefaultContentDialogStyle}">
+    <ContentDialog.Resources>
+        <converters:BoolToVisibilityConverter
+            x:Key="BoolToInverseVisibilityConverter"
+            FalseValue="Visible"
+            TrueValue="Collapsed" />
+        <converters:EmptyStringToObjectConverter
+            x:Key="EmptyStringToObjectConverter"
+            EmptyValue="False"
+            NotEmptyValue="True" />
+    </ContentDialog.Resources>
+
+    <StackPanel Width="400" Spacing="12">
+        <TextBox Header="Name" Text="{x:Bind ViewModel.Name, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+
+        <TextBox
+            Header="Value"
+            Text="{x:Bind ViewModel.RawValue, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+            TextWrapping="Wrap"
+            Visibility="{x:Bind ViewModel.IsListMode, Mode=OneWay, Converter={StaticResource BoolToInverseVisibilityConverter}}" />
+
+        <StackPanel Spacing="8" Visibility="{x:Bind ViewModel.IsListMode, Mode=OneWay}">
+            <TextBlock Text="Values" />
+
+            <ListView
+                MaxHeight="240"
+                Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
+                BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                BorderThickness="1"
+                CornerRadius="4"
+                ItemsSource="{x:Bind ViewModel.PathItems}"
+                SelectedItem="{x:Bind ViewModel.SelectedPathItem, Mode=TwoWay}"
+                SelectionMode="None">
+                <ListView.ItemTemplate>
+                    <DataTemplate x:DataType="local:EnvironmentVariableListItem">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="Auto" />
+                            </Grid.ColumnDefinitions>
+                            <TextBox
+                                Margin="-12,0,0,0"
+                                VerticalAlignment="Center"
+                                Background="Transparent"
+                                BorderThickness="0"
+                                PlaceholderText="Write a value here..."
+                                Text="{x:Bind Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                            <Button
+                                Grid.Column="1"
+                                Margin="4,0,-8,0"
+                                Padding="8"
+                                Background="Transparent"
+                                BorderBrush="Transparent"
+                                Click="RemovePath_Click"
+                                Tag="{x:Bind}">
+                                <FontIcon FontSize="14" Glyph="&#xE74D;" />
+                            </Button>
+                        </Grid>
+                    </DataTemplate>
+                </ListView.ItemTemplate>
+            </ListView>
+
+            <Grid Margin="0,4,0,0">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
+                <TextBox PlaceholderText="Add new path entry..." Text="{x:Bind ViewModel.NewPathInput, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}">
+                    <TextBox.KeyboardAccelerators>
+                        <KeyboardAccelerator
+                            Key="Enter"
+                            Invoked="KeyboardAccelerator_Invoked"
+                            IsEnabled="{x:Bind ViewModel.NewPathInput, Mode=OneWay, Converter={StaticResource EmptyStringToObjectConverter}}" />
+                    </TextBox.KeyboardAccelerators>
+                </TextBox>
+                <Button
+                    Grid.Column="1"
+                    Margin="8,0,0,0"
+                    Command="{x:Bind ViewModel.AddPathCommand}">
+                    <StackPanel Orientation="Horizontal" Spacing="6">
+                        <FontIcon FontSize="14" Glyph="&#xE710;" />
+                        <TextBlock Text="Add" />
+                    </StackPanel>
+                </Button>
+            </Grid>
+        </StackPanel>
+    </StackPanel>
+</ContentDialog>

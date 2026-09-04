@@ -17,7 +17,7 @@ public static unsafe class ReboundWindowMenu
 {
     private static List<HWND> _handles = [];
 
-    public static void Register(Window window)
+    public static void Register(WindowEx window)
     {
         var manager = WindowManager.Get(window);
         var handle = new HWND((void*)window.GetWindowHandle());
@@ -73,7 +73,7 @@ public static unsafe class ReboundWindowMenu
         {
             var flyout = new MenuFlyout()
             {
-                XamlRoot = window.Content.XamlRoot,
+                XamlRoot = window.Content.XamlRoot
             };
 
             bool isOverlappedPresenter = false;
@@ -240,8 +240,16 @@ public static unsafe class ReboundWindowMenu
             {
                 Position = new(x, y)
             });
-        }
-        ;
+
+            manager.WindowMessageReceived += Window_MessageReceived;
+            flyout.Closed += (s, e) => manager.WindowMessageReceived -= Window_MessageReceived;
+
+            void Window_MessageReceived(object? s, WinUIEx.Messaging.WindowMessageEventArgs e)
+            {
+                if (e.Message.MessageId is WM.WM_NCLBUTTONDOWN)
+                    flyout.Hide();
+            }
+        };
 
         // Helper to send Move/Resize system commands to the HWND
         void TriggerSysCommand(WPARAM command)

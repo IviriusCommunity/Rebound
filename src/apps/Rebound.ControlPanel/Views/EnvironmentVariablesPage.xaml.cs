@@ -2,13 +2,17 @@
 // Licensed under the MIT License.
 
 using CommunityToolkit.Mvvm.Input;
+using CommunityToolkit.WinUI;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
+using Rebound.ControlPanel.Dialogs;
 using Rebound.ControlPanel.ViewModels;
 using Rebound.Core.Native.Helpers;
+using Rebound.Core.UI;
 using System;
 using System.Linq;
 using System.Threading.Tasks;
+using Windows.System;
 
 namespace Rebound.ControlPanel.Views;
 
@@ -82,63 +86,72 @@ internal sealed partial class EnvironmentVariablesPage : Page
 
     private async Task EditEnvVarAsync(EnvironmentScope scope)
     {
-        var selected = scope == EnvironmentScope.User ? ViewModel.UserVariables[ViewModel.SelectedUserVariable] : ViewModel.SystemVariables[ViewModel.SelectedSystemVariable];
+        // Retrieve targets per scope
+        var targetList = scope == EnvironmentScope.User ? ViewModel.UserVariables : ViewModel.SystemVariables;
+        int selectedIndex = scope == EnvironmentScope.User ? ViewModel.SelectedUserVariable : ViewModel.SelectedSystemVariable;
 
-        TextBox valueTextBox = new()
-        {
-            Header = "Value",
-            TextWrapping = TextWrapping.Wrap,
-            Text = selected.Value
-        };
+        if ((uint)selectedIndex >= (uint)targetList.Count) return;
 
-        ContentDialog dialog = new()
-        {
-            Title = $"Edit {selected.Variable}",
-            Content = valueTextBox,
-            PrimaryButtonText = "Apply",
-            CloseButtonText = "Cancel",
-            DefaultButton = ContentDialogButton.Primary,
-            IsPrimaryButtonEnabled = !string.IsNullOrWhiteSpace(selected.Value),
-            XamlRoot = XamlRoot
-        };
+        var selected = targetList[selectedIndex];
+        var dialogVm = new EditEnvVarDialogViewModel(selected.Variable, selected.Value);
 
-        // Make sure the input isn't an empty string
-        void ValidateInputs()
-            => dialog.IsPrimaryButtonEnabled = !string.IsNullOrWhiteSpace(valueTextBox.Text);
-        valueTextBox.TextChanged += (s, e) => ValidateInputs();
+        var dialog = new EditEnvVarDialog(dialogVm) { XamlRoot = XamlRoot };
 
-        // User cancelled, exit early
-        if (await dialog.ShowAsync() != ContentDialogResult.Primary)
+        if (await dialog.ShowAsync() != ContentDialogResult.Primary || !dialogVm.IsValid())
+            return;
+
+        string newName = dialogVm.Name.Trim();
+        string newValue = dialogVm.GetFinalValue();
+
+        if (selected.Variable.Equals(newName, StringComparison.OrdinalIgnoreCase) &&
+            string.Equals(selected.Value ?? string.Empty, newValue, StringComparison.Ordinal))
             return;
 
         // Trimmed string
-        string variableName = selected.Variable;
-        string variableValue = valueTextBox.Text.Trim();
+        string oldName = selected.Variable;
+        string? oldValue = selected.Value;
 
         try
         {
-            // Set the variable itself
-            EnvironmentVariablesHelper.SetVariable(variableName, variableValue, scope);
+            if (oldName != newName)
+            {
+                if (targetList.Any(i => i.Variable == newName))
+                {
+                    ContentDialog overwriteDialog = new()
+                    {
+                        Title = "Variable Already Exists",
+                        Content = $"A {(scope == EnvironmentScope.User ? "user" : "system")} variable named '{newName}' already exists. Do you want to overwrite it?",
+                        PrimaryButtonText = "Overwrite",
+                        CloseButtonText = "Cancel",
+                        DefaultButton = ContentDialogButton.Close,
+                        XamlRoot = XamlRoot
+                    };
 
-            // Update the list
-            if (scope == EnvironmentScope.User)
-            {
-                ViewModel.UserVariables.Remove(ViewModel.UserVariables.First(i => i.Variable == variableName)!);
-                ViewModel.UserVariables.Add(new EnvironmentVariable()
-                {
-                    Variable = variableName,
-                    Value = variableValue
-                });
+                    // User cancelled the overwrite
+                    if (await overwriteDialog.ShowAsync() != ContentDialogResult.Primary)
+                        return;
+                }
+
+                // Remove the old variable from the environment
+                EnvironmentVariablesHelper.SetVariable(oldName, null, scope);
             }
-            else
+
+            // Set the variable itself
+            EnvironmentVariablesHelper.SetVariable(newName, newValue, scope);
+
+            // Remove both the old entry and any overwritten entry
+            var oldItem = targetList.FirstOrDefault(i => i.Variable == oldName);
+            if (oldItem != null) targetList.Remove(oldItem);
+
+            var overwrittenItem = targetList.FirstOrDefault(i => i.Variable == newName);
+            if (overwrittenItem != null) targetList.Remove(overwrittenItem);
+
+            // Add the fresh variable entry
+            targetList.Add(new EnvironmentVariable()
             {
-                ViewModel.SystemVariables.Remove(ViewModel.SystemVariables.First(i => i.Variable == variableName)!);
-                ViewModel.SystemVariables.Add(new EnvironmentVariable()
-                {
-                    Variable = variableName,
-                    Value = variableValue
-                });
-            }
+                Variable = newName,
+                Value = newValue
+            });
         }
         catch (Exception ex)
         {
@@ -162,7 +175,6 @@ internal sealed partial class EnvironmentVariablesPage : Page
 
     private async Task CreateEnvVarAsync(EnvironmentScope scope)
     {
-        // Yes constructing the XAML tree manually in the big 26
         TextBox variableTextBox = new() { Header = "Variable", TextWrapping = TextWrapping.Wrap };
         TextBox valueTextBox = new() { Header = "Value", TextWrapping = TextWrapping.Wrap };
 
@@ -173,7 +185,7 @@ internal sealed partial class EnvironmentVariablesPage : Page
 
         ContentDialog dialog = new()
         {
-            Title = $"Add {(scope == EnvironmentScope.User ? "User" : "System")} environment variable",
+            Title = $"Add {(scope == EnvironmentScope.User ? "user" : "system")} environment variable",
             Content = sp,
             PrimaryButtonText = "Add",
             CloseButtonText = "Cancel",
@@ -260,6 +272,35 @@ internal sealed partial class EnvironmentVariablesPage : Page
                 CloseButtonText = "OK",
                 XamlRoot = XamlRoot
             }.ShowAsync();
+        }
+    }
+
+    [RelayCommand]
+    public async Task RelaunchAsAdminAsync()
+    {
+        try
+        {
+            App.SingleInstanceAppService.Relaunch(new InstanceRelaunchOptions
+            {
+                Elevated = true,
+                ShutdownCurrent = true,
+                ForceNewInstance = true,
+                Arguments = CplArgs.ENVIRONMENT_VARIABLES
+            });
+        }
+        catch (Exception ex)
+        {
+            await DispatcherQueue.EnqueueAsync(async () =>
+            {
+                var cd = new ContentDialog()
+                {
+                    Title = "Rebound Control Panel",
+                    Content = $"Couldn't launch Rebound Control Panel as administrator.\n\n{ex.Message}",
+                    CloseButtonText = "Ok",
+                    XamlRoot = XamlRoot
+                };
+                await cd.ShowAsync();
+            }).ConfigureAwait(false);
         }
     }
 }

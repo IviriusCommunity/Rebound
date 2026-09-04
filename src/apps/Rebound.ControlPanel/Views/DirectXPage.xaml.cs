@@ -2,14 +2,14 @@
 // Licensed under the MIT License.
 
 using CommunityToolkit.Mvvm.Input;
+using CommunityToolkit.WinUI;
 using Microsoft.UI.Xaml.Controls;
-using Microsoft.UI.Xaml.Input;
-using Microsoft.Win32;
 using Rebound.ControlPanel.ViewModels;
 using Rebound.Core.Native.Storage;
-using Rebound.Forge;
-using Rebound.Forge.Engines;
-using System.IO;
+using Rebound.Core.UI;
+using System;
+using System.Diagnostics;
+using System.Threading.Tasks;
 using WinUIEx;
 
 namespace Rebound.ControlPanel.Views;
@@ -63,71 +63,177 @@ internal sealed partial class DirectXPage : Page
         }
     }
 
-    private void TextBox_KeyDown(object sender, KeyRoutedEventArgs e)
+    [RelayCommand]
+    public async Task AddD3DScopeAppAsync()
     {
-        if (e.Key == global::Windows.System.VirtualKey.Enter)
+        var cd = new ContentDialog()
         {
-            var path = ViewModel.D3DScopeInputPath.Trim();
-            if (string.IsNullOrWhiteSpace(path) || ViewModel.D3DScopeApps.Contains(path)) return;
+            Title = "Add Direct3D Scope",
+            PrimaryButtonText = "Apply",
+            CloseButtonText = "Cancel",
+            DefaultButton = ContentDialogButton.Primary,
+            IsPrimaryButtonEnabled = false,
+            XamlRoot = XamlRoot
+        };
 
-            RegistrySettingsEngine.EnsureKeyExists(RegistryHive.LocalMachine, RegistrySettingsCatalog.D3DScopeDrivers.KeyPath);
-            using var key = Registry.LocalMachine.OpenSubKey(RegistrySettingsCatalog.D3DScopeDrivers.KeyPath, writable: true);
-            key?.SetValue(Path.GetFileName(path), path, RegistryValueKind.String);
+        var tb = new TextBox()
+        {
+            PlaceholderText = "File path"
+        };
+        tb.TextChanged += (s, e) =>
+        {
+            cd.IsPrimaryButtonEnabled = !string.IsNullOrWhiteSpace(tb.Text);
+        };
+        cd.Content = tb;
 
-            ViewModel.D3DScopeApps.Add(path);
-            ViewModel.D3DScopeInputPath = string.Empty;
-            ViewModel.IsAddingD3DScope = false;
+        var result = await cd.ShowAsync();
+        if (result == ContentDialogResult.Primary)
+            ViewModel.AddD3DScopeAppImpl(tb.Text);
+    }
+
+    [RelayCommand]
+    public async Task AddMutedMessageIdAsync()
+    {
+        var cd = new ContentDialog()
+        {
+            Title = "Add Muted Message ID",
+            PrimaryButtonText = "Apply",
+            CloseButtonText = "Cancel",
+            DefaultButton = ContentDialogButton.Primary,
+            IsPrimaryButtonEnabled = false,
+            XamlRoot = XamlRoot
+        };
+
+        var tb = new TextBox()
+        {
+            PlaceholderText = "Muted Message ID"
+        };
+        tb.TextChanged += (s, e) =>
+        {
+            cd.IsPrimaryButtonEnabled = !string.IsNullOrWhiteSpace(tb.Text);
+        };
+        cd.Content = tb;
+
+        var result = await cd.ShowAsync();
+        if (result == ContentDialogResult.Primary)
+            ViewModel.AddMutedMessageIdImpl(tb.Text);
+    }
+
+    [RelayCommand]
+    public async Task AddBreakMessageIdAsync()
+    {
+        var cd = new ContentDialog()
+        {
+            Title = "Add Break Message ID",
+            PrimaryButtonText = "Apply",
+            CloseButtonText = "Cancel",
+            DefaultButton = ContentDialogButton.Primary,
+            IsPrimaryButtonEnabled = false,
+            XamlRoot = XamlRoot
+        };
+
+        var tb = new TextBox()
+        {
+            PlaceholderText = "Break Message ID"
+        };
+        tb.TextChanged += (s, e) =>
+        {
+            cd.IsPrimaryButtonEnabled = !string.IsNullOrWhiteSpace(tb.Text);
+        };
+        cd.Content = tb;
+
+        var result = await cd.ShowAsync();
+        if (result == ContentDialogResult.Primary)
+            ViewModel.AddBreakMessageIdImpl(tb.Text);
+    }
+
+    [RelayCommand]
+    public async Task AddD2DScopeAppAsync()
+    {
+        var cd = new ContentDialog()
+        {
+            Title = "Add Direct2D Scope",
+            PrimaryButtonText = "Apply",
+            CloseButtonText = "Cancel",
+            DefaultButton = ContentDialogButton.Primary,
+            IsPrimaryButtonEnabled = false,
+            XamlRoot = XamlRoot
+        };
+
+        var tb = new TextBox()
+        {
+            PlaceholderText = "File path"
+        };
+        tb.TextChanged += (s, e) =>
+        {
+            cd.IsPrimaryButtonEnabled = !string.IsNullOrWhiteSpace(tb.Text);
+        };
+        cd.Content = tb;
+
+        var result = await cd.ShowAsync();
+        if (result == ContentDialogResult.Primary)
+            ViewModel.AddD2DScopeAppImpl(tb.Text);
+    }
+
+    #region Launchers
+
+    [RelayCommand]
+    public async Task RelaunchAsAdminAsync()
+    {
+        try
+        {
+            App.SingleInstanceAppService.Relaunch(new InstanceRelaunchOptions
+            {
+                Elevated = true,
+                ShutdownCurrent = true,
+                ForceNewInstance = true,
+                Arguments = CplArgs.DirectXControlPanelExePath
+            });
+        }
+        catch (Exception ex)
+        {
+            await DispatcherQueue.EnqueueAsync(async () =>
+            {
+                var cd = new ContentDialog()
+                {
+                    Title = "Rebound Control Panel",
+                    Content = $"Couldn't launch Rebound Control Panel as administrator.\n\n{ex.Message}",
+                    CloseButtonText = "Ok",
+                    XamlRoot = XamlRoot
+                };
+                await cd.ShowAsync();
+            }).ConfigureAwait(false);
         }
     }
 
-    private void TextBox_KeyDown_1(object sender, KeyRoutedEventArgs e)
+    [RelayCommand]
+    public async Task LaunchDxDiagAsync()
     {
-        if (e.Key == global::Windows.System.VirtualKey.Enter)
+        try
         {
-            var id = ViewModel.MuteInputId.Trim();
-            if (string.IsNullOrWhiteSpace(id) || ViewModel.MutedMessageIds.Contains(id)) return;
-
-            RegistrySettingsEngine.EnsureKeyExists(RegistryHive.LocalMachine, RegistrySettingsCatalog.MuteList.KeyPath);
-            using var key = Registry.LocalMachine.OpenSubKey(RegistrySettingsCatalog.MuteList.KeyPath, writable: true);
-            key?.SetValue(id, 1, RegistryValueKind.DWord);
-
-            ViewModel.MutedMessageIds.Add(id);
-            ViewModel.MuteInputId = string.Empty;
-            ViewModel.IsAddingMuteMessage = false;
+            ProcessStartInfo psi = new()
+            {
+                FileName = "dxdiag.exe",
+                Verb = "runas",
+                UseShellExecute = true
+            };
+            Process.Start(psi);
+        }
+        catch (Exception ex)
+        {
+            await DispatcherQueue.EnqueueAsync(async () =>
+            {
+                var cd = new ContentDialog()
+                {
+                    Title = "Rebound Control Panel",
+                    Content = $"Couldn't launch dxdiag.exe.\n\n{ex.Message}",
+                    CloseButtonText = "Ok",
+                    XamlRoot = XamlRoot
+                };
+                await cd.ShowAsync();
+            }).ConfigureAwait(false);
         }
     }
 
-    private void TextBox_KeyDown_2(object sender, KeyRoutedEventArgs e)
-    {
-        if (e.Key == global::Windows.System.VirtualKey.Enter)
-        {
-            var id = ViewModel.BreakInputId.Trim();
-            if (string.IsNullOrWhiteSpace(id) || ViewModel.BreakMessageIds.Contains(id)) return;
-
-            RegistrySettingsEngine.EnsureKeyExists(RegistryHive.LocalMachine, RegistrySettingsCatalog.BreakList.KeyPath);
-            using var key = Registry.LocalMachine.OpenSubKey(RegistrySettingsCatalog.BreakList.KeyPath, writable: true);
-            key?.SetValue(id, 1, RegistryValueKind.DWord);
-
-            ViewModel.BreakMessageIds.Add(id);
-            ViewModel.BreakInputId = string.Empty;
-            ViewModel.IsAddingBreakOnMessage = false;
-        }
-    }
-
-    private void TextBox_KeyDown_3(object sender, KeyRoutedEventArgs e)
-    {
-        if (e.Key == global::Windows.System.VirtualKey.Enter)
-        {
-            var path = ViewModel.D2DScopeInputPath.Trim();
-            if (string.IsNullOrWhiteSpace(path) || ViewModel.D2DScopeApps.Contains(path)) return;
-
-            RegistrySettingsEngine.EnsureKeyExists(RegistryHive.LocalMachine, RegistrySettingsCatalog.D2DScopeDrivers.KeyPath);
-            using var key = Registry.LocalMachine.OpenSubKey(RegistrySettingsCatalog.D2DScopeDrivers.KeyPath, writable: true);
-            key?.SetValue(System.IO.Path.GetFileName(path), path, RegistryValueKind.String);
-
-            ViewModel.D2DScopeApps.Add(path);
-            ViewModel.D2DScopeInputPath = string.Empty;
-            ViewModel.IsAddingD2DScope = false;
-        }
-    }
+    #endregion
 }

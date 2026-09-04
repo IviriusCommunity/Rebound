@@ -4,33 +4,14 @@
 using CommunityToolkit.WinUI;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
-using Microsoft.UI.Xaml.Controls.Primitives;
-using Microsoft.UI.Xaml.Data;
-using Microsoft.UI.Xaml.Input;
-using Microsoft.UI.Xaml.Media;
-using Microsoft.UI.Xaml.Navigation;
 using Rebound.ControlPanel.ViewModels;
 using Rebound.Core.Settings;
-using Rebound.Core.SystemInformation.Hardware;
 using Rebound.Core.SystemInformation.Software;
-using Rebound.Core.Threading;
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Runtime.InteropServices.WindowsRuntime;
 using System.Threading.Tasks;
-using Windows.Foundation;
-using Windows.Foundation.Collections;
-
-// To learn more about WinUI, the WinUI project structure,
-// and more about our project templates, see: http://aka.ms/winui-project-info.
 
 namespace Rebound.ControlPanel.Views;
-/// <summary>
-/// An empty page that can be used on its own or navigated to within a Frame.
-/// </summary>
-public sealed partial class AboutWindowsPage : Page
+
+internal sealed partial class AboutWindowsPage : Page
 {
     [GeneratedDependencyProperty(DefaultValue = InfoBarSeverity.Informational)] public partial InfoBarSeverity WindowsActivationSeverity { get; set; }
 
@@ -50,7 +31,7 @@ public sealed partial class AboutWindowsPage : Page
     {
         Loaded -= MainPage_Loaded;
 
-        // Fast init — these are probably cheap, keep on UI thread
+        // Fast init
         ViewModel.InitializePrimarySoftware();
         ViewModel.InitializePrimaryHardware();
 
@@ -87,7 +68,6 @@ public sealed partial class AboutWindowsPage : Page
         // Capture everything on background thread
         var results = await Task.Run(() =>
         {
-            // Software
             var activationType = WindowsInformation.GetWindowsActivationType();
             var activationInfo = activationType switch
             {
@@ -98,17 +78,6 @@ public sealed partial class AboutWindowsPage : Page
                 WindowsActivationType.ExtendedGracePeriod => "Extended grace period",
                 _ => "Unknown"
             };
-
-            // Hardware
-            var cpuName = CPU.GetName();
-            var cpuArch = CPU.GetArchitecture();
-            var gpuName = GPU.GetName();
-            var pagefileSize = RAM.GetPageFileSize();
-            var winSpace = Storage.GetWindowsDriveOccupiedSpacePercentage();
-            var totalSpace = Storage.GetTotalOccupiedSpacePercentage();
-            var manufacturer = Device.GetDeviceManufacturer();
-            var model = Device.GetDeviceModel();
-            var motherboard = Device.GetMotherboardModel();
 
             // Activation severity
             var severity = activationType switch
@@ -124,32 +93,12 @@ public sealed partial class AboutWindowsPage : Page
             return new
             {
                 activationInfo,
-                cpuName,
-                cpuArch,
-                gpuName,
-                pagefileSize,
-                winSpace,
-                totalSpace,
-                manufacturer,
-                model,
-                motherboard,
-                severity,
+                severity
             };
         }).ConfigureAwait(true);
 
         // Marshal all results back to UI thread in one shot
         ViewModel.WindowsActivationInfo = results.activationInfo;
-        ViewModel.CpuName = results.cpuName;
-        ViewModel.CpuArchitecture = results.cpuArch;
-        ViewModel.GpuName = results.gpuName;
-        ViewModel.PagefileSize = results.pagefileSize;
-        ViewModel.WindowsOccupiedSpace = results.winSpace;
-        ViewModel.WindowsOccupiedSpaceString = ((int)results.winSpace).ToString((IFormatProvider?)null);
-        ViewModel.TotalOccupiedSpace = results.totalSpace;
-        ViewModel.TotalOccupiedSpaceString = ((int)results.totalSpace).ToString((IFormatProvider?)null);
-        ViewModel.DeviceManufacturer = results.manufacturer;
-        ViewModel.DeviceModel = results.model;
-        ViewModel.MotherboardModel = results.motherboard;
         WindowsActivationSeverity = results.severity;
     }
 }

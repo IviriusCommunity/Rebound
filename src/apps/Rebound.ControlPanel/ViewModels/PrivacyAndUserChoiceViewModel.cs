@@ -27,8 +27,12 @@ namespace Rebound.ControlPanel.ViewModels;
 
 internal partial class PrivacyAndUserChoiceViewModel : ObservableObject
 {
+    [ObservableProperty] public partial bool IsElevated { get; set; }
+
     public PrivacyAndUserChoiceViewModel()
     {
+        IsElevated = ApplicationEnvironment.IsRunningAsAdmin();
+
         RefreshDMAProperties();
         RefreshUcpdProperties();
         RefreshWindowsUpdateProperties();
@@ -915,6 +919,9 @@ internal partial class PrivacyAndUserChoiceViewModel : ObservableObject
 
     private void RefreshGetStartedProperties()
     {
+        if (!IsElevated)
+            return;
+
         IsGetStartedEnabled = !RegistrySettingsEngine.GetBool(
             RegistryHive.LocalMachine,
             RegistrySettingsCatalog.DisableGetStarted,
@@ -1105,6 +1112,9 @@ internal partial class PrivacyAndUserChoiceViewModel : ObservableObject
 
     private void RefreshPrivacyLowProperties()
     {
+        if (!IsElevated)
+            return;
+
         IsApplicationTelemetryEnabled =
             RegistrySettingsEngine.GetBool(
                 RegistryHive.LocalMachine,
@@ -1185,6 +1195,9 @@ internal partial class PrivacyAndUserChoiceViewModel : ObservableObject
 
     private void RefreshPrivacyMediumProperties()
     {
+        if (!IsElevated)
+            return;
+
         IsWindowsCeipEnabled = RegistrySettingsEngine.GetBool(
             RegistryHive.LocalMachine,
             RegistrySettingsCatalog.WindowsCeipEnabled,
@@ -1255,6 +1268,9 @@ internal partial class PrivacyAndUserChoiceViewModel : ObservableObject
 
     private void RefreshPrivacyHighProperties()
     {
+        if (!IsElevated)
+            return;
+
         TelemetryLevel =
             RegistrySettingsEngine.GetValue<int>(
                 RegistryHive.LocalMachine,
@@ -1394,6 +1410,9 @@ internal partial class PrivacyAndUserChoiceViewModel : ObservableObject
 
     private void RefreshDeveloperModeProperties()
     {
+        if (!IsElevated)
+            return;
+
         DeveloperMode =
             RegistrySettingsEngine.GetBool(
                 RegistryHive.LocalMachine,
@@ -1447,6 +1466,9 @@ internal partial class PrivacyAndUserChoiceViewModel : ObservableObject
 
     private void RefreshExecutionPolicies()
     {
+        if (!IsElevated)
+            return;
+
         string? powerShellValue = RegistrySettingsEngine.GetValue<string>(
             RegistryHive.LocalMachine,
             RegistrySettingsCatalog.PowerShellExecutionPolicy,
@@ -1495,6 +1517,9 @@ internal partial class PrivacyAndUserChoiceViewModel : ObservableObject
 
     private void RefreshSudoProperties()
     {
+        if (!IsElevated)
+            return;
+
         int sudoValue = RegistrySettingsEngine.GetValue<int>(
             RegistryHive.LocalMachine,
             RegistrySettingsCatalog.EnableSudo);

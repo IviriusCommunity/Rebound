@@ -19,53 +19,82 @@
             TrueValue="Collapsed" />
     </Page.Resources>
     <Grid>
-        <Grid
-            Height="72"
-            VerticalAlignment="Top"
-            Background="{ThemeResource CardBackgroundFillColorDefaultBrush}">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+        <Grid VerticalAlignment="Top" Background="{ThemeResource CardBackgroundFillColorDefaultBrush}">
             <Image
-                Width="20"
+                Width="16"
                 Margin="16"
                 HorizontalAlignment="Left"
                 VerticalAlignment="Top"
-                Source="/Assets/Glyphs/EnvironmentVariables.png" />
+                Source="/Assets/Glyphs/EnvironmentVariables.ico" />
             <TextBlock
-                Margin="48,10"
-                FontSize="20"
+                Margin="48,10,16,0"
+                FontSize="18"
                 FontWeight="SemiBold"
                 Foreground="{ThemeResource AccentTextFillColorPrimaryBrush}"
-                Text="Environment Variables" />
-            <TextBlock Margin="48,40,0,0" Text="Change environment variables for the current user or all users." />
+                Text="Environment Variables"
+                TextTrimming="CharacterEllipsis" />
+            <TextBlock
+                Margin="48,36,16,12"
+                FontSize="12"
+                Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                Text="Change environment variables for the current user or all users."
+                TextWrapping="WrapWholeWords" />
         </Grid>
-        <ScrollViewer Margin="0,72,0,0" Padding="40,0,40,0">
+        <ScrollViewer Grid.Row="1">
             <StackPanel
                 MaxWidth="1000"
-                Margin="0,40"
+                Margin="40"
                 Spacing="8">
+                <InfoBar
+                    Title="Hover over a variable's value to view its full contents."
+                    IsClosable="False"
+                    IsOpen="True" />
                 <TextBlock FontWeight="SemiBold" Text="User variables" />
                 <Grid
                     Height="240"
-                    Padding="8"
                     Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
                     BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
                     BorderThickness="1"
                     CornerRadius="4">
-                    <ScrollViewer>
+                    <ScrollViewer Padding="4">
                         <ListView ItemsSource="{x:Bind ViewModel.UserVariables}" SelectedIndex="{x:Bind ViewModel.SelectedUserVariable, Mode=TwoWay}">
+                            <ListView.Header>
+                                <toolkit:DataTable Margin="12,4,0,8">
+                                    <toolkit:DataColumn
+                                        MinWidth="80"
+                                        CanResize="True"
+                                        Content="Name"
+                                        DesiredWidth="100" />
+                                    <toolkit:DataColumn
+                                        MinWidth="160"
+                                        CanResize="True"
+                                        Content="Value"
+                                        DesiredWidth="320" />
+                                </toolkit:DataTable>
+                            </ListView.Header>
                             <ListView.ItemTemplate>
                                 <DataTemplate x:DataType="viewModels:EnvironmentVariable">
-                                    <Grid ToolTipService.ToolTip="{x:Bind Value, Mode=OneWay}">
-                                        <StackPanel Margin="0,8">
-                                            <TextBlock Text="{x:Bind Variable, Mode=OneWay}" />
-                                            <TextBlock
-                                                FontSize="12"
-                                                Foreground="{ThemeResource TextFillColorSecondaryBrush}"
-                                                Text="{x:Bind Value, Mode=OneWay}"
-                                                TextTrimming="CharacterEllipsis" />
-                                        </StackPanel>
-                                    </Grid>
+                                    <toolkit:DataRow HorizontalAlignment="Left">
+                                        <TextBlock
+                                            Margin="0,0,8,0"
+                                            Text="{x:Bind Variable, Mode=OneWay}"
+                                            ToolTipService.ToolTip="{x:Bind Variable, Mode=OneWay}" />
+                                        <TextBlock
+                                            Text="{x:Bind Value, Mode=OneWay}"
+                                            TextTrimming="CharacterEllipsis"
+                                            ToolTipService.ToolTip="{x:Bind Value, Mode=OneWay}" />
+                                    </toolkit:DataRow>
                                 </DataTemplate>
                             </ListView.ItemTemplate>
+                            <ListView.ItemContainerStyle>
+                                <Style BasedOn="{StaticResource DefaultListViewItemStyle}" TargetType="ListViewItem">
+                                    <Setter Property="HorizontalContentAlignment" Value="Left" />
+                                </Style>
+                            </ListView.ItemContainerStyle>
                         </ListView>
                     </ScrollViewer>
                 </Grid>
@@ -86,17 +115,14 @@
                         </AppBarButton.Icon>
                     </AppBarButton>
                 </CommandBar>
-                <TextBlock
-                    Margin="0,32,0,0"
-                    FontWeight="SemiBold"
-                    Text="System variables" />
+                <TextBlock FontWeight="SemiBold" Text="System variables" />
                 <muxc:InfoBar
                     Title="These settings require administrator privileges to edit."
                     IsClosable="False"
                     IsOpen="True"
                     Visibility="{x:Bind ViewModel.IsAdmin, Mode=OneWay, Converter={StaticResource BoolToInverseVisibilityConverter}}">
                     <muxc:InfoBar.ActionButton>
-                        <Button Command="{x:Bind ViewModel.RelaunchAsAdminCommand}" Style="{StaticResource AccentButtonStyle}">
+                        <Button Command="{x:Bind RelaunchAsAdminCommand}" Style="{StaticResource AccentButtonStyle}">
                             <StackPanel Orientation="Horizontal" Spacing="8">
                                 <FontIcon FontSize="16" Glyph="&#xEA18;" />
                                 <TextBlock Text="Relaunch as Administrator" />
@@ -106,30 +132,45 @@
                 </muxc:InfoBar>
                 <Grid
                     Height="240"
-                    Padding="8"
                     Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
                     BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
                     BorderThickness="1"
                     CornerRadius="4">
-                    <ScrollViewer>
-                        <ListView
-                            IsEnabled="{x:Bind ViewModel.IsAdmin, Mode=OneWay}"
-                            ItemsSource="{x:Bind ViewModel.SystemVariables}"
-                            SelectedIndex="{x:Bind ViewModel.SelectedSystemVariable, Mode=TwoWay}">
+                    <ScrollViewer Padding="4" IsEnabled="{x:Bind ViewModel.IsAdmin, Mode=OneWay}">
+                        <ListView ItemsSource="{x:Bind ViewModel.SystemVariables}" SelectedIndex="{x:Bind ViewModel.SelectedSystemVariable, Mode=TwoWay}">
+                            <ListView.Header>
+                                <toolkit:DataTable Margin="12,4,0,8">
+                                    <toolkit:DataColumn
+                                        MinWidth="80"
+                                        CanResize="True"
+                                        Content="Name"
+                                        DesiredWidth="100" />
+                                    <toolkit:DataColumn
+                                        MinWidth="160"
+                                        CanResize="True"
+                                        Content="Value"
+                                        DesiredWidth="320" />
+                                </toolkit:DataTable>
+                            </ListView.Header>
                             <ListView.ItemTemplate>
                                 <DataTemplate x:DataType="viewModels:EnvironmentVariable">
-                                    <Grid ToolTipService.ToolTip="{x:Bind Value, Mode=OneWay}">
-                                        <StackPanel Margin="0,8">
-                                            <TextBlock Text="{x:Bind Variable, Mode=OneWay}" />
-                                            <TextBlock
-                                                FontSize="12"
-                                                Foreground="{ThemeResource TextFillColorSecondaryBrush}"
-                                                Text="{x:Bind Value, Mode=OneWay}"
-                                                TextTrimming="CharacterEllipsis" />
-                                        </StackPanel>
-                                    </Grid>
+                                    <toolkit:DataRow HorizontalAlignment="Left">
+                                        <TextBlock
+                                            Margin="0,0,8,0"
+                                            Text="{x:Bind Variable, Mode=OneWay}"
+                                            ToolTipService.ToolTip="{x:Bind Variable, Mode=OneWay}" />
+                                        <TextBlock
+                                            Text="{x:Bind Value, Mode=OneWay}"
+                                            TextTrimming="CharacterEllipsis"
+                                            ToolTipService.ToolTip="{x:Bind Value, Mode=OneWay}" />
+                                    </toolkit:DataRow>
                                 </DataTemplate>
                             </ListView.ItemTemplate>
+                            <ListView.ItemContainerStyle>
+                                <Style BasedOn="{StaticResource DefaultListViewItemStyle}" TargetType="ListViewItem">
+                                    <Setter Property="HorizontalContentAlignment" Value="Left" />
+                                </Style>
+                            </ListView.ItemContainerStyle>
                         </ListView>
                     </ScrollViewer>
                 </Grid>

@@ -15,7 +15,6 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Globalization;
-using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -185,16 +184,6 @@ internal sealed partial class ReliabilityMonitorViewModel : ObservableObject
         IsErrorsEmpty = Errors.Count <= 0;
         IsWarningsEmpty = Warnings.Count <= 0;
         IsInformationalEmpty = Informational.Count <= 0;
-    }
-
-    [RelayCommand]
-    public static void ViewAllEvents()
-    {
-        System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo
-        {
-            FileName = "eventvwr.exe",
-            UseShellExecute = true,
-        });
     }
 
     private async Task LoadIconsAsync()

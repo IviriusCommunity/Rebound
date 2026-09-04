@@ -10,7 +10,7 @@ using WinUIEx;
 
 namespace Rebound.ControlPanel.Windows;
 
-internal sealed partial class DisplayColorCalibrationWindow : Window
+internal sealed partial class DisplayColorCalibrationWindow : WindowEx
 {
     public DisplayColorCalibrationWindow()
     {

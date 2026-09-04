@@ -2,12 +2,9 @@
 // Licensed under the MIT License.
 
 using CommunityToolkit.Mvvm.ComponentModel;
-using CommunityToolkit.Mvvm.Input;
 using Rebound.Core.Environment;
 using Rebound.Core.Native.Helpers;
-using Rebound.Core.UI;
 using System.Collections.ObjectModel;
-using System.Diagnostics;
 
 namespace Rebound.ControlPanel.ViewModels;
 
@@ -32,19 +29,29 @@ internal partial class EnvironmentVariablesViewModel : ObservableObject
     public EnvironmentVariablesViewModel()
     { 
         IsAdmin = ApplicationEnvironment.IsRunningAsAdmin();
+        UserVariables.CollectionChanged += CollectionChanged;
+        SystemVariables.CollectionChanged += CollectionChanged;
         RefreshVariables();
     }
 
-    [RelayCommand]
-    public static void RelaunchAsAdmin()
+    private void CollectionChanged(object? sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
     {
-        App.SingleInstanceAppService.Relaunch(new InstanceRelaunchOptions
-        {
-            Elevated = true,
-            ShutdownCurrent = true,
-            ForceNewInstance = true,
-            Arguments = CplArgs.ENVIRONMENT_VARIABLES
-        });
+        if (SelectedUserVariable < 0 || SelectedUserVariable >= UserVariables.Count)
+            SelectedUserVariable = 0;
+        if (SelectedSystemVariable < 0 || SelectedSystemVariable >= SystemVariables.Count)
+            SelectedSystemVariable = 0;
+    }
+
+    partial void OnSelectedUserVariableChanged(int value)
+    {
+        if (SelectedUserVariable < 0 || SelectedUserVariable >= UserVariables.Count)
+            SelectedUserVariable = 0;
+    }
+
+    partial void OnSelectedSystemVariableChanged(int value)
+    {
+        if (SelectedSystemVariable < 0 || SelectedSystemVariable >= SystemVariables.Count)
+            SelectedSystemVariable = 0;
     }
 
     private void RefreshVariables()
