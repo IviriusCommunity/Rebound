@@ -6,3 +6,5 @@ CoInitializeEx
 CoInitializeSecurity
 CoCreateInstance
 ITaskService
+ControlService
+StartService

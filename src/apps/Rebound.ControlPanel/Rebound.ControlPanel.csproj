@@ -43,6 +43,7 @@
 		<EnableDefaultApplicationDefinition>false</EnableDefaultApplicationDefinition>
 		<EnableComInterop>true</EnableComInterop>
 		<UseSourceGenerators>true</UseSourceGenerators>
+		<CsWin32RunAsBuildTask>true</CsWin32RunAsBuildTask>
 		<DisableRuntimeMarshalling>true</DisableRuntimeMarshalling>
 		<OptimizationPreference>Speed</OptimizationPreference>
 		<IlcOptimizationPreference>Speed</IlcOptimizationPreference>

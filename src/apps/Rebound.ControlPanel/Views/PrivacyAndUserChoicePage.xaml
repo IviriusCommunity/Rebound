@@ -60,7 +60,7 @@
                     Title="About Privacy and User Choice settings"
                     IsClosable="False"
                     IsOpen="True"
-                    Message="These options may change across Windows versions and editions. Their availability and behavior can depend on system configuration, updates, policies, and Microsoft services. Review each option carefully to understand what it controls and the potential implications before applying changes.&#x0a;&#x0a;Bailing out. You're on your own." />
+                    Message="These options may change across Windows versions and editions. Their availability and behavior can depend on system configuration, updates, policies, and Microsoft services. Review each option carefully to understand what it controls and the potential implications before applying changes." />
                 <InfoBar
                     Title="Attention"
                     IsClosable="False"

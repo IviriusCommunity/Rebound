@@ -15,8 +15,6 @@ using Rebound.Forge.Engines;
 using System;
 using System.Diagnostics;
 using System.IO;
-using System.Runtime.InteropServices;
-using System.Runtime.InteropServices.Marshalling;
 using System.Threading.Tasks;
 using Windows.System;
 using Windows.Win32;
@@ -1872,160 +1870,83 @@ internal partial class PrivacyAndUserChoiceViewModel : ObservableObject
 
     partial void OnIsUcpdEnabledChanged(bool value)
     {
-        bool shouldDisableUcpd = !value;
-        _ = Task.Run(() => SetUcpdRestrictionAsync(disable: shouldDisableUcpd));
+        _ = Task.Run(() => ToggleUcpdAsync(value));
     }
 
     public void RefreshUcpdProperties()
-        => IsUcpdEnabled = !IsUcpdDisabled();
-
-    /// <summary>
-    /// Reads registry service start type using non-elevated KEY_QUERY_VALUE (AOT-safe).
-    /// </summary>
-    public static unsafe bool IsUcpdDisabled()
     {
-        SERVICE_START_TYPE? scmStartType = GetServiceStartup("UCPD");
-
-        if (scmStartType.HasValue)
-        {
-            return scmStartType.Value == SERVICE_START_TYPE.SERVICE_DISABLED;
-        }
-
-        ReboundLogger.WriteToLog("UCPD IsUcpdDisabled", "SCM lookup failed, falling back to registry", LogMessageSeverity.Error);
-
-        // Fallback if SCM fails (e.g. missing service)
-        return RegistrySettingsEngine.GetValue(
-            RegistryHive.LocalMachine,
-            RegistrySettingsCatalog.UserChoiceProtectionDriverService,
-            SERVICE_START_TYPE.SERVICE_AUTO_START) == SERVICE_START_TYPE.SERVICE_DISABLED;
+        if (IsElevated)
+            IsUcpdEnabled = GetIsUcpdEnabled();
     }
 
-    /// <summary>
-    /// Updates both SCM Service state (via Win32 PInvoke) and Task Scheduler state (via TerraFX COM).
-    /// Fully AOT-compatible with zero reflection.
-    /// </summary>
-    public static async Task SetUcpdRestrictionAsync(bool disable)
+    public static bool GetIsUcpdEnabled()
     {
-        SERVICE_START_TYPE serviceStartValue = disable ? SERVICE_START_TYPE.SERVICE_DISABLED : SERVICE_START_TYPE.SERVICE_AUTO_START;
-
-        if (!SetServiceStartup("UCPD", serviceStartValue))
-        {
-            ReboundLogger.WriteToLog("UCPD SetUcpdRestrictionAsync", "SetServiceStartup failed (likely requires Administrator elevation), applying registry fallback", LogMessageSeverity.Error);
-            RegistrySettingsEngine.SetValue(
-                RegistryHive.LocalMachine,
-                RegistrySettingsCatalog.UserChoiceProtectionDriverService,
-                serviceStartValue);
-        }
-
-        ExecuteTaskOperation(true, out _, disable);
+        return GetUcpdTask();
     }
 
-    private static SERVICE_START_TYPE? GetServiceStartup(string serviceName)
+    public static async Task ToggleUcpdAsync(bool enabled)
     {
-        try
+        if (!enabled)
         {
-            using var schSCManager = PInvoke.OpenSCManager(null, null, 0x0001);
-            using var schService = PInvoke.OpenService(schSCManager, serviceName, 0x0001);
+            StopService("UCPD");
 
-            PInvoke.QueryServiceConfig(schService, null, out uint bytesNeeded);
-            if (bytesNeeded == 0)
-            {
-                ReboundLogger.WriteToLog(
-                    "UCPD GetServiceStartup", 
-                    $"bytesNeeded is 0. Error: {Marshal.GetLastPInvokeError()}",
-                    LogMessageSeverity.Error);
-                return null;
-            }
-
-            QUERY_SERVICE_CONFIGW config = default;
-            if (PInvoke.QueryServiceConfig(schService, out config, out bytesNeeded))
-                return config.dwStartType;
-            else
-                ReboundLogger.WriteToLog(
-                    "UCPD GetServiceStartup", 
-                    $"QueryServiceConfigW failed during buffer read. Error: {Marshal.GetLastPInvokeError()}", 
-                    LogMessageSeverity.Error);
-
-            return null;
+            SetServiceStartup("UCPD", SERVICE_START_TYPE.SERVICE_DISABLED);
+            ToggleUcpdTask(false);
         }
-        catch (Exception ex)
+        else
         {
-            ReboundLogger.WriteToLog(
-                "UCPD GetServiceStartup", 
-                $"Exception: {ex.Message}", 
-                LogMessageSeverity.Error);
-            return null;
+            SetServiceStartup("UCPD", SERVICE_START_TYPE.SERVICE_AUTO_START);
+            ToggleUcpdTask(true);
+
+            StartService("UCPD");
         }
     }
 
     private static bool SetServiceStartup(string serviceName, SERVICE_START_TYPE startType)
     {
-        try
-        {
-            using var schSCManager = PInvoke.OpenSCManager(null, null, 0x0001);
-            if (schSCManager.IsInvalid)
-            {
-                ReboundLogger.WriteToLog(
-                    "UCPD SetServiceStartup",
-                    $"schSCManager is null. Error: {Marshal.GetLastPInvokeError()}",
-                    LogMessageSeverity.Error);
-                return false;
-            }
+        using var schSCManager = PInvoke.OpenSCManager(null, null, 0);
 
-            using var schService = PInvoke.OpenService(
-                schSCManager,
-                serviceName,
-                0x0001 | 0x0002);
+        using var schService = PInvoke.OpenService(
+            schSCManager,
+            serviceName,
+            0x0001 | 0x0002); // SERVICE_QUERY_CONFIG | SERVICE_CHANGE_CONFIG
 
-            if (schService.IsInvalid)
-            {
-                ReboundLogger.WriteToLog(
-                    "UCPD SetServiceStartup",
-                    $"schService is null. Error: {Marshal.GetLastPInvokeError()}",
-                    LogMessageSeverity.Error);
-                return false;
-            }
+        bool success = PInvoke.ChangeServiceConfig(
+            schService,
+            ENUM_SERVICE_TYPE.SERVICE_NO_CHANGE,
+            startType,
+            SERVICE_ERROR.SERVICE_NO_CHANGE,
+            null,
+            null,
+            out _,
+            null,
+            null,
+            null,
+            null);
 
-            bool success = PInvoke.ChangeServiceConfig(
-                schService,
-                ENUM_SERVICE_TYPE.SERVICE_NO_CHANGE,
-                startType,
-                SERVICE_ERROR.SERVICE_NO_CHANGE,
-                null,
-                null,
-                out _,
-                null,
-                null,
-                null,
-                null);
-
-            if (!success)
-            {
-                ReboundLogger.WriteToLog(
-                    "UCPD SetServiceStartup",
-                    $"ChangeServiceConfigW returned false. Error: {Marshal.GetLastPInvokeError()}",
-                    LogMessageSeverity.Error);
-            }
-
-            return success;
-        }
-        catch (Exception ex)
-        {
-            ReboundLogger.WriteToLog(
-                "UCPD SetServiceStartup",
-                $"Exception: {ex.Message}",
-                LogMessageSeverity.Error);
-            return false;
-        }
+        return success;
     }
 
-    public static unsafe bool ExecuteTaskOperation(
-            bool disableIfFound,
-            out bool isDisabled,
-            bool disableState = true)
+    private static bool StopService(string serviceName)
     {
-        isDisabled = false;
+        using var schSCManager = PInvoke.OpenSCManager(null, null, 0);
+        using var schService = PInvoke.OpenService(schSCManager, serviceName, 0x0020);
+        if (schService.IsInvalid) return false;
 
+        return PInvoke.ControlService(schService, 0x00000001, out _);
+    }
+
+    private static bool StartService(string serviceName)
+    {
+        using var schSCManager = PInvoke.OpenSCManager(null, null, 0);
+        using var schService = PInvoke.OpenService(schSCManager, serviceName, 0x0010);
+        if (schService.IsInvalid) return false;
+
+        return PInvoke.StartService(schService);
+    }
+
+    public static unsafe bool GetUcpdTask()
+    {
         int coInitResult = PInvoke.CoInitializeEx(null, COINIT.COINIT_MULTITHREADED);
         bool coInitialized = coInitResult >= 0;
 
@@ -2033,49 +1954,66 @@ internal partial class PrivacyAndUserChoiceViewModel : ObservableObject
             PSECURITY_DESCRIPTOR.Null, -1, null, null,
             RPC_C_AUTHN_LEVEL.RPC_C_AUTHN_LEVEL_NONE, RPC_C_IMP_LEVEL.RPC_C_IMP_LEVEL_IMPERSONATE, null, 0, null);
 
-        try
-        {
-            PInvoke.CoCreateInstance(
-                in *CLSID.CLSID_TaskScheduler,
-                null,
-                CLSCTX.CLSCTX_INPROC_SERVER | CLSCTX.CLSCTX_LOCAL_SERVER,
-                out ITaskService service);
+        PInvoke.CoCreateInstance<ITaskService>(
+            in *CLSID.CLSID_TaskScheduler,
+            null,
+            CLSCTX.CLSCTX_INPROC_SERVER | CLSCTX.CLSCTX_LOCAL_SERVER,
+            out ITaskService* service);
 
-            service.Connect(ComVariant.Null, ComVariant.Null, ComVariant.Null, ComVariant.Null);
+        service->Connect(default, default, default, default);
 
-            using StringPtr root = "\\";
-            service.GetFolder(new BSTR(root.GetChars()), out var folder);
+        ITaskFolder* folder = null;
+        using StringPtr root = "\\";
+        service->GetFolder(new BSTR(root.GetChars()), &folder);
 
-            using StringPtr subfolder = "Microsoft\\Windows\\AppxDeploymentClient";
-            folder.GetFolder(new BSTR(subfolder.GetChars()), out var folder2);
+        ITaskFolder* folder2 = null;
+        using StringPtr subfolder = "Microsoft\\Windows\\AppxDeploymentClient";
+        folder->GetFolder(new BSTR(subfolder.GetChars()), &folder2);
 
-            using StringPtr taskName = "UCPD velocity";
-            folder2.GetTask(new BSTR(taskName.GetChars()), out var task);
+        IRegisteredTask* task = null;
+        using StringPtr taskName = "UCPD velocity";
+        folder2->GetTask(new BSTR(taskName.GetChars()), &task);
 
-            task.get_Enabled(out VARIANT_BOOL enabled);
+        task->get_Enabled(out VARIANT_BOOL currentEnabled);
 
-            isDisabled = !enabled;
-
-            if (disableIfFound)
-            {
-                short newState = disableState ? (short)0 : (short)-1;
-                task.put_Enabled((VARIANT_BOOL)newState);
-
-                isDisabled = disableState;
-            }
-
-            return true;
-        }
-        catch (Exception ex)
-        {
-            ReboundLogger.WriteToLog(
-                "UCPD RawTaskScheduler",
-                $"Exception: {ex.Message} | Stack: {ex.StackTrace}",
-                LogMessageSeverity.Error);
-
-            return false;
-        }
+        return currentEnabled;
     }
+
+    public static unsafe void ToggleUcpdTask(bool enabled)
+    {
+        int coInitResult = PInvoke.CoInitializeEx(null, COINIT.COINIT_MULTITHREADED);
+        bool coInitialized = coInitResult >= 0;
+
+        PInvoke.CoInitializeSecurity(
+            PSECURITY_DESCRIPTOR.Null, -1, null, null,
+            RPC_C_AUTHN_LEVEL.RPC_C_AUTHN_LEVEL_NONE, RPC_C_IMP_LEVEL.RPC_C_IMP_LEVEL_IMPERSONATE, null, 0, null);
+
+        PInvoke.CoCreateInstance<ITaskService>(
+            in *CLSID.CLSID_TaskScheduler,
+            null,
+            CLSCTX.CLSCTX_INPROC_SERVER | CLSCTX.CLSCTX_LOCAL_SERVER,
+            out ITaskService* service);
+
+        service->Connect(default, default, default, default);
+
+        ITaskFolder* folder = null;
+        using StringPtr root = "\\";
+        service->GetFolder(new BSTR(root.GetChars()), &folder);
+
+        ITaskFolder* folder2 = null;
+        using StringPtr subfolder = "Microsoft\\Windows\\AppxDeploymentClient";
+        folder->GetFolder(new BSTR(subfolder.GetChars()), &folder2);
+
+        IRegisteredTask* task = null;
+        using StringPtr taskName = "UCPD velocity";
+        folder2->GetTask(new BSTR(taskName.GetChars()), &task);
+
+        task->get_Enabled(out VARIANT_BOOL currentEnabled);
+
+        if (currentEnabled != (enabled ? VARIANT_BOOL.VARIANT_TRUE : VARIANT_BOOL.VARIANT_FALSE))
+            task->put_Enabled(enabled ? VARIANT_BOOL.VARIANT_TRUE : VARIANT_BOOL.VARIANT_FALSE);
+    }
+
     #endregion
 
     #region DMA
