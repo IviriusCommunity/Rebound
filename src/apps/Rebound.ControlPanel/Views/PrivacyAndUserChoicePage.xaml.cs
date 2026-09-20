@@ -1,35 +1,51 @@
 // Copyright (C) Ivirius(TM) Community 2020 - 2026. All Rights Reserved.
 // Licensed under the MIT License.
 
-using Microsoft.UI.Xaml;
+using CommunityToolkit.Mvvm.Input;
+using CommunityToolkit.WinUI;
 using Microsoft.UI.Xaml.Controls;
-using Microsoft.UI.Xaml.Controls.Primitives;
-using Microsoft.UI.Xaml.Data;
-using Microsoft.UI.Xaml.Input;
-using Microsoft.UI.Xaml.Media;
-using Microsoft.UI.Xaml.Navigation;
 using Rebound.ControlPanel.ViewModels;
+using Rebound.Core.UI;
 using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Runtime.InteropServices.WindowsRuntime;
-using Windows.Foundation;
-using Windows.Foundation.Collections;
-
-// To learn more about WinUI, the WinUI project structure,
-// and more about our project templates, see: http://aka.ms/winui-project-info.
+using System.Threading.Tasks;
 
 namespace Rebound.ControlPanel.Views;
-/// <summary>
-/// An empty page that can be used on its own or navigated to within a Frame.
-/// </summary>
-public sealed partial class PrivacyAndUserChoicePage : Page
+
+internal sealed partial class PrivacyAndUserChoicePage : Page
 {
     private PrivacyAndUserChoiceViewModel ViewModel { get; } = new();
 
     public PrivacyAndUserChoicePage()
     {
         InitializeComponent();
+    }
+
+    [RelayCommand]
+    public async Task RelaunchAsAdminAsync()
+    {
+        try
+        {
+            App.SingleInstanceAppService.Relaunch(new InstanceRelaunchOptions
+            {
+                Elevated = true,
+                ShutdownCurrent = true,
+                ForceNewInstance = true,
+                Arguments = CplArgs.PRIVACY_USER_CHOICE
+            });
+        }
+        catch (Exception ex)
+        {
+            await DispatcherQueue.EnqueueAsync(async () =>
+            {
+                var cd = new ContentDialog()
+                {
+                    Title = "Rebound Control Panel",
+                    Content = $"Couldn't launch Rebound Control Panel as administrator.\n\n{ex.Message}",
+                    CloseButtonText = "Ok",
+                    XamlRoot = XamlRoot
+                };
+                await cd.ShowAsync();
+            }).ConfigureAwait(false);
+        }
     }
 }

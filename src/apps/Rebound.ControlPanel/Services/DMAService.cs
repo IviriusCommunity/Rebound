@@ -1,7 +1,6 @@
 ﻿// Copyright (C) Ivirius(TM) Community 2020 - 2026. All Rights Reserved.
 // Licensed under the MIT License.
 
-using Rebound.Core;
 using Rebound.Core.Native.Wrappers;
 using System;
 using System.Collections.Generic;
@@ -26,7 +25,7 @@ internal static unsafe class DMAService
         "IntegratedServicesRegionPolicySet.json"
     );
 
-    public sealed record FeatureFlag(
+    internal sealed record FeatureFlag(
         string Key,
         string Guid,
         string Description
@@ -135,24 +134,19 @@ internal static unsafe class DMAService
             STORE_REGION_SPECIFIC_OPTIONS,
             "Microsoft Store has specific options available in some regions")
     };
+
     /// <summary>
     /// Checks if a target DMA feature GUID is enabled for the current region.
     /// </summary>
     public static bool CheckIsDmaFeatureEnabled(string targetGuid)
     {
         if (string.IsNullOrEmpty(targetGuid))
-        {
-            ReboundLogger.WriteToLog(nameof(CheckIsDmaFeatureEnabled), "Target GUID was null or empty.", LogMessageSeverity.Warning);
             return false;
-        }
 
         string policyPath = PolicyFilePath;
 
         if (!File.Exists(policyPath))
-        {
-            ReboundLogger.WriteToLog(nameof(CheckIsDmaFeatureEnabled), $"Policy file not found at: {policyPath}", LogMessageSeverity.Error);
             return false;
-        }
 
         string currentUserCountryCode = RegionInfo.CurrentRegion.TwoLetterISORegionName;
 
@@ -162,10 +156,7 @@ internal static unsafe class DMAService
             var policies = json?["policies"]?.AsArray();
 
             if (policies == null)
-            {
-                ReboundLogger.WriteToLog(nameof(CheckIsDmaFeatureEnabled), "Failed to parse policies array from JSON file.", LogMessageSeverity.Error);
                 return false;
-            }
 
             foreach (var policyNode in policies)
             {
@@ -173,50 +164,39 @@ internal static unsafe class DMAService
 
                 var locatedGuid = policy["guid"]?.ToString();
                 if (!string.Equals(locatedGuid, targetGuid, StringComparison.OrdinalIgnoreCase))
-                {
                     continue;
-                }
 
                 var regionNode = policy["conditions"]?["region"];
                 var enabledRegions = regionNode?["enabled"]?.AsArray();
                 var disabledRegions = regionNode?["disabled"]?.AsArray();
 
-                // 1. Whitelist Check ('enabled' array)
+                // Whitelist check ('enabled' array)
                 if (enabledRegions != null && enabledRegions.Count > 0)
                 {
                     bool isWhitelisted = enabledRegions.Any(r => string.Equals(r?.ToString(), currentUserCountryCode, StringComparison.OrdinalIgnoreCase));
-                    ReboundLogger.WriteToLog(nameof(CheckIsDmaFeatureEnabled), $"Feature {targetGuid} (enabled array) status for region '{currentUserCountryCode}': {isWhitelisted}", LogMessageSeverity.Message);
                     return isWhitelisted;
                 }
 
-                // 2. Blacklist Check ('disabled' array)
+                // Blacklist check ('disabled' array)
                 if (disabledRegions != null && disabledRegions.Count > 0)
                 {
                     bool isBlacklisted = disabledRegions.Any(r => string.Equals(r?.ToString(), currentUserCountryCode, StringComparison.OrdinalIgnoreCase));
                     bool isEnabled = !isBlacklisted;
-                    ReboundLogger.WriteToLog(nameof(CheckIsDmaFeatureEnabled), $"Feature {targetGuid} (disabled array) status for region '{currentUserCountryCode}': {isEnabled}", LogMessageSeverity.Message);
                     return isEnabled;
                 }
 
-                // 3. Fallback to defaultState
-                string defaultState = policy["defaultState"]?.ToString();
+                // Fallback to defaultState
+                var defaultState = policy["defaultState"]?.ToString();
                 if (!string.IsNullOrEmpty(defaultState))
                 {
                     bool isEnabled = string.Equals(defaultState, "enabled", StringComparison.OrdinalIgnoreCase);
-                    ReboundLogger.WriteToLog(nameof(CheckIsDmaFeatureEnabled), $"Feature {targetGuid} using defaultState '{defaultState}': {isEnabled}", LogMessageSeverity.Message);
                     return isEnabled;
                 }
 
-                ReboundLogger.WriteToLog(nameof(CheckIsDmaFeatureEnabled), $"Policy GUID {targetGuid} found, but no valid region conditions or defaultState were present.", LogMessageSeverity.Warning);
                 return false;
             }
-
-            ReboundLogger.WriteToLog(nameof(CheckIsDmaFeatureEnabled), $"Target GUID {targetGuid} was not found in policy file.", LogMessageSeverity.Warning);
         }
-        catch (Exception ex)
-        {
-            ReboundLogger.WriteToLog(nameof(CheckIsDmaFeatureEnabled), $"Failed to check DMA feature state for GUID {targetGuid}.", LogMessageSeverity.Error, ex);
-        }
+        catch { }
 
         return false;
     }
@@ -227,28 +207,30 @@ internal static unsafe class DMAService
     public static void ToggleDmaFeature(string targetGuid, bool enable)
     {
         if (string.IsNullOrEmpty(targetGuid))
-        {
-            ReboundLogger.WriteToLog(nameof(ToggleDmaFeature), "Target GUID was null or empty.", LogMessageSeverity.Warning);
             return;
-        }
 
         string policyPath = PolicyFilePath;
 
         try
         {
-            string currentUserCountryCode = RegionInfo.CurrentRegion.TwoLetterISORegionName;
+            bool canWrite;
+            try
+            {
+                using FileStream fs = File.Open(policyPath, FileMode.Open, FileAccess.ReadWrite, FileShare.None);
+                canWrite = true;
+            }
+            catch { canWrite = false; }
 
-            TakeOwnershipAndGrantAccess(policyPath);
+            if (!canWrite)
+                TakeOwnershipAndGrantAccess(policyPath);
 
+            var currentUserCountryCode = RegionInfo.CurrentRegion.TwoLetterISORegionName;
             var jsonStr = File.ReadAllText(policyPath);
             var json = JsonNode.Parse(jsonStr);
             var policies = json?["policies"]?.AsArray();
 
             if (policies == null)
-            {
-                ReboundLogger.WriteToLog(nameof(ToggleDmaFeature), "Failed to parse policies array from JSON file.", LogMessageSeverity.Error);
                 return;
-            }
 
             bool modified = false;
 
@@ -258,35 +240,33 @@ internal static unsafe class DMAService
 
                 var locatedGuid = policy["guid"]?.ToString();
                 if (!string.Equals(locatedGuid, targetGuid, StringComparison.OrdinalIgnoreCase))
-                {
                     continue;
-                }
 
-                // 1. Determine baseline policy type (defaultState defaults to 'disabled' if unspecified)
+                // Determine baseline policy type (defaultState defaults to 'disabled' if unspecified)
                 string defaultState = policy["defaultState"]?.ToString() ?? "disabled";
                 bool isDefaultEnabled = string.Equals(defaultState, "enabled", StringComparison.OrdinalIgnoreCase);
 
-                // 2. Ensure nested JSON structures exist down to conditions.region
+                // Ensure nested JSON structures exist down to conditions.region
                 if (policy["conditions"] is not JsonObject conditionsNode)
                 {
-                    conditionsNode = new JsonObject();
+                    conditionsNode = [];
                     policy["conditions"] = conditionsNode;
                 }
 
                 if (conditionsNode["region"] is not JsonObject regionNode)
                 {
-                    regionNode = new JsonObject();
+                    regionNode = [];
                     conditionsNode["region"] = regionNode;
                 }
 
-                // 3. Execute logic based on defaultState strategy
+                // Execute logic based on defaultState strategy
                 if (isDefaultEnabled)
                 {
-                    // DEFAULT ENABLED -> Use Blacklist ('disabled' array)
+                    // Default enabled -> blacklist ('disabled' array)
                     var disabledArray = regionNode["disabled"]?.AsArray();
                     if (disabledArray == null)
                     {
-                        disabledArray = new JsonArray();
+                        disabledArray = [];
                         regionNode["disabled"] = disabledArray;
                     }
 
@@ -295,26 +275,24 @@ internal static unsafe class DMAService
 
                     if (enable && existingItem != null)
                     {
-                        // To ENABLE -> Remove from blacklist
+                        // To enable, remove from blacklist
                         disabledArray.Remove(existingItem);
                         modified = true;
-                        ReboundLogger.WriteToLog(nameof(ToggleDmaFeature), $"Removed region '{currentUserCountryCode}' from 'disabled' array for GUID {targetGuid}.", LogMessageSeverity.Message);
                     }
                     else if (!enable && existingItem == null)
                     {
-                        // To DISABLE -> Add to blacklist
-                        disabledArray.Add(JsonValue.Create(currentUserCountryCode));
+                        // To disable, add to blacklist
+                        disabledArray.Add((JsonNode?)JsonValue.Create(currentUserCountryCode));
                         modified = true;
-                        ReboundLogger.WriteToLog(nameof(ToggleDmaFeature), $"Added region '{currentUserCountryCode}' to 'disabled' array for GUID {targetGuid}.", LogMessageSeverity.Message);
                     }
                 }
                 else
                 {
-                    // DEFAULT DISABLED -> Use Whitelist ('enabled' array)
+                    // Default disabled -> use whitelist ('enabled' array)
                     var enabledArray = regionNode["enabled"]?.AsArray();
                     if (enabledArray == null)
                     {
-                        enabledArray = new JsonArray();
+                        enabledArray = [];
                         regionNode["enabled"] = enabledArray;
                     }
 
@@ -323,153 +301,133 @@ internal static unsafe class DMAService
 
                     if (enable && existingItem == null)
                     {
-                        // To ENABLE -> Add to whitelist
-                        enabledArray.Add(JsonValue.Create(currentUserCountryCode));
+                        // To enable, add to whitelist
+                        enabledArray.Add((JsonNode?)JsonValue.Create(currentUserCountryCode));
                         modified = true;
-                        ReboundLogger.WriteToLog(nameof(ToggleDmaFeature), $"Added region '{currentUserCountryCode}' to 'enabled' array for GUID {targetGuid}.", LogMessageSeverity.Message);
                     }
                     else if (!enable && existingItem != null)
                     {
-                        // To DISABLE -> Remove from whitelist
+                        // To disable, remove from whitelist
                         enabledArray.Remove(existingItem);
                         modified = true;
-                        ReboundLogger.WriteToLog(nameof(ToggleDmaFeature), $"Removed region '{currentUserCountryCode}' from 'enabled' array for GUID {targetGuid}.", LogMessageSeverity.Message);
                     }
                 }
             }
 
             if (modified)
             {
-                var options = new JsonSerializerOptions
-                {
-                    WriteIndented = true,
-                    TypeInfoResolver = new System.Text.Json.Serialization.Metadata.DefaultJsonTypeInfoResolver()
-                };
-                File.WriteAllText(policyPath, json.ToJsonString(options));
-                ReboundLogger.WriteToLog(nameof(ToggleDmaFeature), $"Successfully updated policy file for GUID {targetGuid}.", LogMessageSeverity.Message);
-            }
-            else
-            {
-                ReboundLogger.WriteToLog(nameof(ToggleDmaFeature), $"No changes required for GUID {targetGuid} (state already matches enable={enable}).", LogMessageSeverity.Message);
+                var options = new JsonSerializerOptions { WriteIndented = true };
+                File.WriteAllText(policyPath, json?.ToJsonString(options));
             }
         }
-        catch (Exception ex)
-        {
-            ReboundLogger.WriteToLog(nameof(ToggleDmaFeature), $"Failed to toggle DMA feature GUID {targetGuid}.", LogMessageSeverity.Error, ex);
-        }
+        catch { }
     }
+
     /// <summary>
     /// Uses TerraFX raw P/Invoke to adjust process token, take ownership, and set DACL.
     /// </summary>
-    private static void TakeOwnershipAndGrantAccess(string path)
+    private static unsafe void TakeOwnershipAndGrantAccess(string path)
     {
         HANDLE hToken;
         if (OpenProcessToken(GetCurrentProcess(), TOKEN_ADJUST_PRIVILEGES | TOKEN_QUERY, &hToken))
         {
-            // Enable BOTH Take Ownership and Restore privileges
             EnablePrivilege(hToken, "SeTakeOwnershipPrivilege");
             EnablePrivilege(hToken, "SeRestorePrivilege");
-
             CloseHandle(hToken);
         }
-        else
-        {
-            ReboundLogger.WriteToLog(nameof(TakeOwnershipAndGrantAccess), "Failed to open process token via OpenProcessToken.", LogMessageSeverity.Error);
-        }
 
+        // Handle SID allocation natively using Win32 FreeSid
         void* pAdminSid = null;
         SID_IDENTIFIER_AUTHORITY ntAuthority = default;
         ntAuthority.Value[5] = 5;
 
-        if (!AllocateAndInitializeSid(&ntAuthority, 2, SECURITY_BUILTIN_DOMAIN_RID, DOMAIN_ALIAS_RID_ADMINS, 0, 0, 0, 0, 0, 0, &pAdminSid))
+        if (!AllocateAndInitializeSid(
+            &ntAuthority,
+            2,
+            SECURITY_BUILTIN_DOMAIN_RID,
+            DOMAIN_ALIAS_RID_ADMINS,
+            0, 0, 0, 0, 0, 0,
+            &pAdminSid))
         {
-            ReboundLogger.WriteToLog(nameof(TakeOwnershipAndGrantAccess), "Failed to allocate and initialize Administrator SID.", LogMessageSeverity.Error);
             throw new InvalidOperationException("Failed to initialize Administrator SID.");
         }
 
-        using ManagedPtr<char> pPath = path;
+        try
+        {
+            using StringPtr pPath = path;
 
-        // 1. Take ownership
-        uint resultOwner = SetNamedSecurityInfoW(
-            (char*)pPath,
-            SE_OBJECT_TYPE.SE_FILE_OBJECT,
-            OWNER_SECURITY_INFORMATION,
-            pAdminSid,
-            null, null, null);
+            // Take ownership
+            uint resultOwner = SetNamedSecurityInfoW(
+                pPath.GetChars(),
+                SE_OBJECT_TYPE.SE_FILE_OBJECT,
+                OWNER_SECURITY_INFORMATION,
+                pAdminSid,
+                null, null, null);
 
-        if (resultOwner != 0)
+            if (resultOwner != 0)
+            {
+                throw new UnauthorizedAccessException($"Failed to set owner. Win32 Error Code: {resultOwner}");
+            }
+
+            // Build DACL
+            EXPLICIT_ACCESS_W ea = default;
+            ea.grfAccessPermissions = GENERIC_ALL;
+            ea.grfAccessMode = ACCESS_MODE.SET_ACCESS;
+            ea.grfInheritance = NO_INHERITANCE;
+            ea.Trustee.TrusteeForm = TRUSTEE_FORM.TRUSTEE_IS_SID;
+            ea.Trustee.TrusteeType = TRUSTEE_TYPE.TRUSTEE_IS_GROUP;
+            ea.Trustee.ptstrName = (char*)pAdminSid;
+
+            ACL* pNewDacl = null;
+            uint resultAcl = SetEntriesInAclW(1, &ea, null, &pNewDacl);
+            if (resultAcl != 0)
+            {
+                throw new UnauthorizedAccessException($"Failed to build ACL. Win32 Error Code: {resultAcl}");
+            }
+
+            try
+            {
+                // Apply new DACL
+                uint resultDacl = SetNamedSecurityInfoW(
+                    pPath.GetChars(),
+                    SE_OBJECT_TYPE.SE_FILE_OBJECT,
+                    DACL_SECURITY_INFORMATION,
+                    null,
+                    null,
+                    pNewDacl,
+                    null);
+
+                if (resultDacl != 0)
+                {
+                    throw new UnauthorizedAccessException($"Failed to set DACL. Win32 Error Code: {resultDacl}");
+                }
+            }
+            finally
+            {
+                LocalFree((HLOCAL)pNewDacl);
+            }
+        }
+        finally
         {
             FreeSid(pAdminSid);
-            var ex = new UnauthorizedAccessException($"Failed to set owner. Win32 Error Code: {resultOwner}");
-            ReboundLogger.WriteToLog(nameof(TakeOwnershipAndGrantAccess), $"SetNamedSecurityInfoW (Owner) failed for path: {path}", LogMessageSeverity.Error, ex);
-            throw ex;
         }
-
-        // 2. Build DACL granting Administrators full control
-        EXPLICIT_ACCESS_W ea = default;
-        ea.grfAccessPermissions = GENERIC_ALL;
-        ea.grfAccessMode = ACCESS_MODE.SET_ACCESS;
-        ea.grfInheritance = NO_INHERITANCE;
-        ea.Trustee.TrusteeForm = TRUSTEE_FORM.TRUSTEE_IS_SID;
-        ea.Trustee.TrusteeType = TRUSTEE_TYPE.TRUSTEE_IS_GROUP;
-        ea.Trustee.ptstrName = (char*)pAdminSid;
-
-        ACL* pNewDacl = null;
-        uint resultAcl = SetEntriesInAclW(1, &ea, null, &pNewDacl);
-        if (resultAcl != 0)
-        {
-            FreeSid(pAdminSid);
-            var ex = new UnauthorizedAccessException($"Failed to build ACL. Win32 Error Code: {resultAcl}");
-            ReboundLogger.WriteToLog(nameof(TakeOwnershipAndGrantAccess), "SetEntriesInAclW failed while constructing new DACL.", LogMessageSeverity.Error, ex);
-            throw ex;
-        }
-
-        // 3. Apply new DACL
-        uint resultDacl = SetNamedSecurityInfoW(
-            (char*)pPath,
-            SE_OBJECT_TYPE.SE_FILE_OBJECT,
-            DACL_SECURITY_INFORMATION,
-            null,
-            null,
-            pNewDacl,
-            null);
-
-        // Clean up memory
-        if (pNewDacl != null) LocalFree((HLOCAL)pNewDacl);
-        if (pAdminSid != null) FreeSid(pAdminSid);
-
-        if (resultDacl != 0)
-        {
-            var ex = new UnauthorizedAccessException($"Failed to set DACL. Win32 Error Code: {resultDacl}");
-            ReboundLogger.WriteToLog(nameof(TakeOwnershipAndGrantAccess), $"SetNamedSecurityInfoW (DACL) failed for path: {path}", LogMessageSeverity.Error, ex);
-            throw ex;
-        }
-
-        ReboundLogger.WriteToLog(nameof(TakeOwnershipAndGrantAccess), $"Successfully took ownership and granted DACL full permissions for path: {path}", LogMessageSeverity.Message);
     }
 
     private static void EnablePrivilege(HANDLE hToken, string privilegeName)
     {
-        using ManagedPtr<char> privName = privilegeName;
-        using ManagedPtr<TOKEN_PRIVILEGES> tp = new(default(TOKEN_PRIVILEGES));
+        using StringPtr privName = privilegeName;
+        using ObjectPtr<TOKEN_PRIVILEGES> tp = new();
 
-        TOKEN_PRIVILEGES* pTp = tp;
+        TOKEN_PRIVILEGES* pTp = tp.Get();
         pTp->PrivilegeCount = 1;
 
         LUID localLuid;
-        if (LookupPrivilegeValueW(null, privName, &localLuid))
+        if (LookupPrivilegeValueW(null, privName.GetChars(), &localLuid))
         {
             pTp->Privileges[0].Luid = localLuid;
             pTp->Privileges[0].Attributes = SE_PRIVILEGE_ENABLED;
 
-            if (!AdjustTokenPrivileges(hToken, FALSE, tp, (uint)sizeof(TOKEN_PRIVILEGES), null, null))
-            {
-                ReboundLogger.WriteToLog(nameof(EnablePrivilege), $"AdjustTokenPrivileges failed when enabling privilege: {privilegeName}", LogMessageSeverity.Warning);
-            }
-        }
-        else
-        {
-            ReboundLogger.WriteToLog(nameof(EnablePrivilege), $"LookupPrivilegeValueW failed for privilege: {privilegeName}", LogMessageSeverity.Warning);
+            AdjustTokenPrivileges(hToken, FALSE, tp.Get(), (uint)sizeof(TOKEN_PRIVILEGES), null, null);
         }
     }
 }

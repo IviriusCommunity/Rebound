@@ -191,14 +191,14 @@ internal partial class DisplayViewModel : ObservableObject
                         null,
                         TerraFX.Interop.Windows.Windows.SPIF_UPDATEINIFILE);
 
-                    var pDesktop = NativeString.Alloc("Control Panel\\Desktop");
+                    using StringPtr pDesktop = "Control Panel\\Desktop";
 
                     // Send WM_SETTINGCHANGE
                     TerraFX.Interop.Windows.Windows.SendMessageW(
                         HWND.HWND_BROADCAST,
                         WM.WM_SETTINGCHANGE,
                         (WPARAM)SPI.SPI_SETFONTSMOOTHING,
-                        (LPARAM)pDesktop.Pointer);
+                        (LPARAM)pDesktop.Get());
                 }
                 catch
                 {

@@ -5,23 +5,26 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Microsoft.Win32;
 using Rebound.ControlPanel.Services;
+using Rebound.Core;
 using Rebound.Core.Environment;
 using Rebound.Core.Native.Wrappers;
 using Rebound.Core.SystemInformation.Software;
-using Rebound.Core.TaskScheduler.Native;
 using Rebound.Forge;
 using Rebound.Forge.Cogs;
 using Rebound.Forge.Engines;
 using System;
 using System.Diagnostics;
 using System.IO;
+using System.Runtime.InteropServices;
+using System.Runtime.InteropServices.Marshalling;
 using System.Threading.Tasks;
-using TerraFX.Interop.Windows;
 using Windows.System;
-using static TerraFX.Interop.Windows.HKEY;
-using static TerraFX.Interop.Windows.KEY;
-using static TerraFX.Interop.Windows.REG;
-using static TerraFX.Interop.Windows.Windows;
+using Windows.Win32;
+using Windows.Win32.Foundation;
+using Windows.Win32.Security;
+using Windows.Win32.System.Com;
+using Windows.Win32.System.Services;
+using Windows.Win32.System.TaskScheduler;
 
 namespace Rebound.ControlPanel.ViewModels;
 
@@ -1863,6 +1866,218 @@ internal partial class PrivacyAndUserChoiceViewModel : ObservableObject
 
     #endregion
 
+    #region UCPD
+
+    [ObservableProperty] public partial bool IsUcpdEnabled { get; set; }
+
+    partial void OnIsUcpdEnabledChanged(bool value)
+    {
+        bool shouldDisableUcpd = !value;
+        _ = Task.Run(() => SetUcpdRestrictionAsync(disable: shouldDisableUcpd));
+    }
+
+    public void RefreshUcpdProperties()
+        => IsUcpdEnabled = !IsUcpdDisabled();
+
+    /// <summary>
+    /// Reads registry service start type using non-elevated KEY_QUERY_VALUE (AOT-safe).
+    /// </summary>
+    public static unsafe bool IsUcpdDisabled()
+    {
+        SERVICE_START_TYPE? scmStartType = GetServiceStartup("UCPD");
+
+        if (scmStartType.HasValue)
+        {
+            return scmStartType.Value == SERVICE_START_TYPE.SERVICE_DISABLED;
+        }
+
+        ReboundLogger.WriteToLog("UCPD IsUcpdDisabled", "SCM lookup failed, falling back to registry", LogMessageSeverity.Error);
+
+        // Fallback if SCM fails (e.g. missing service)
+        return RegistrySettingsEngine.GetValue(
+            RegistryHive.LocalMachine,
+            RegistrySettingsCatalog.UserChoiceProtectionDriverService,
+            SERVICE_START_TYPE.SERVICE_AUTO_START) == SERVICE_START_TYPE.SERVICE_DISABLED;
+    }
+
+    /// <summary>
+    /// Updates both SCM Service state (via Win32 PInvoke) and Task Scheduler state (via TerraFX COM).
+    /// Fully AOT-compatible with zero reflection.
+    /// </summary>
+    public static async Task SetUcpdRestrictionAsync(bool disable)
+    {
+        SERVICE_START_TYPE serviceStartValue = disable ? SERVICE_START_TYPE.SERVICE_DISABLED : SERVICE_START_TYPE.SERVICE_AUTO_START;
+
+        if (!SetServiceStartup("UCPD", serviceStartValue))
+        {
+            ReboundLogger.WriteToLog("UCPD SetUcpdRestrictionAsync", "SetServiceStartup failed (likely requires Administrator elevation), applying registry fallback", LogMessageSeverity.Error);
+            RegistrySettingsEngine.SetValue(
+                RegistryHive.LocalMachine,
+                RegistrySettingsCatalog.UserChoiceProtectionDriverService,
+                serviceStartValue);
+        }
+
+        ExecuteTaskOperation(true, out _, disable);
+    }
+
+    private static SERVICE_START_TYPE? GetServiceStartup(string serviceName)
+    {
+        try
+        {
+            using var schSCManager = PInvoke.OpenSCManager(null, null, 0x0001);
+            using var schService = PInvoke.OpenService(schSCManager, serviceName, 0x0001);
+
+            PInvoke.QueryServiceConfig(schService, null, out uint bytesNeeded);
+            if (bytesNeeded == 0)
+            {
+                ReboundLogger.WriteToLog(
+                    "UCPD GetServiceStartup", 
+                    $"bytesNeeded is 0. Error: {Marshal.GetLastPInvokeError()}",
+                    LogMessageSeverity.Error);
+                return null;
+            }
+
+            QUERY_SERVICE_CONFIGW config = default;
+            if (PInvoke.QueryServiceConfig(schService, out config, out bytesNeeded))
+                return config.dwStartType;
+            else
+                ReboundLogger.WriteToLog(
+                    "UCPD GetServiceStartup", 
+                    $"QueryServiceConfigW failed during buffer read. Error: {Marshal.GetLastPInvokeError()}", 
+                    LogMessageSeverity.Error);
+
+            return null;
+        }
+        catch (Exception ex)
+        {
+            ReboundLogger.WriteToLog(
+                "UCPD GetServiceStartup", 
+                $"Exception: {ex.Message}", 
+                LogMessageSeverity.Error);
+            return null;
+        }
+    }
+
+    private static bool SetServiceStartup(string serviceName, SERVICE_START_TYPE startType)
+    {
+        try
+        {
+            using var schSCManager = PInvoke.OpenSCManager(null, null, 0x0001);
+            if (schSCManager.IsInvalid)
+            {
+                ReboundLogger.WriteToLog(
+                    "UCPD SetServiceStartup",
+                    $"schSCManager is null. Error: {Marshal.GetLastPInvokeError()}",
+                    LogMessageSeverity.Error);
+                return false;
+            }
+
+            using var schService = PInvoke.OpenService(
+                schSCManager,
+                serviceName,
+                0x0001 | 0x0002);
+
+            if (schService.IsInvalid)
+            {
+                ReboundLogger.WriteToLog(
+                    "UCPD SetServiceStartup",
+                    $"schService is null. Error: {Marshal.GetLastPInvokeError()}",
+                    LogMessageSeverity.Error);
+                return false;
+            }
+
+            bool success = PInvoke.ChangeServiceConfig(
+                schService,
+                ENUM_SERVICE_TYPE.SERVICE_NO_CHANGE,
+                startType,
+                SERVICE_ERROR.SERVICE_NO_CHANGE,
+                null,
+                null,
+                out _,
+                null,
+                null,
+                null,
+                null);
+
+            if (!success)
+            {
+                ReboundLogger.WriteToLog(
+                    "UCPD SetServiceStartup",
+                    $"ChangeServiceConfigW returned false. Error: {Marshal.GetLastPInvokeError()}",
+                    LogMessageSeverity.Error);
+            }
+
+            return success;
+        }
+        catch (Exception ex)
+        {
+            ReboundLogger.WriteToLog(
+                "UCPD SetServiceStartup",
+                $"Exception: {ex.Message}",
+                LogMessageSeverity.Error);
+            return false;
+        }
+    }
+
+    public static unsafe bool ExecuteTaskOperation(
+            bool disableIfFound,
+            out bool isDisabled,
+            bool disableState = true)
+    {
+        isDisabled = false;
+
+        int coInitResult = PInvoke.CoInitializeEx(null, COINIT.COINIT_MULTITHREADED);
+        bool coInitialized = coInitResult >= 0;
+
+        PInvoke.CoInitializeSecurity(
+            PSECURITY_DESCRIPTOR.Null, -1, null, null,
+            RPC_C_AUTHN_LEVEL.RPC_C_AUTHN_LEVEL_NONE, RPC_C_IMP_LEVEL.RPC_C_IMP_LEVEL_IMPERSONATE, null, 0, null);
+
+        try
+        {
+            PInvoke.CoCreateInstance(
+                in *CLSID.CLSID_TaskScheduler,
+                null,
+                CLSCTX.CLSCTX_INPROC_SERVER | CLSCTX.CLSCTX_LOCAL_SERVER,
+                out ITaskService service);
+
+            service.Connect(ComVariant.Null, ComVariant.Null, ComVariant.Null, ComVariant.Null);
+
+            using StringPtr root = "\\";
+            service.GetFolder(new BSTR(root.GetChars()), out var folder);
+
+            using StringPtr subfolder = "Microsoft\\Windows\\AppxDeploymentClient";
+            folder.GetFolder(new BSTR(subfolder.GetChars()), out var folder2);
+
+            using StringPtr taskName = "UCPD velocity";
+            folder2.GetTask(new BSTR(taskName.GetChars()), out var task);
+
+            task.get_Enabled(out VARIANT_BOOL enabled);
+
+            isDisabled = !enabled;
+
+            if (disableIfFound)
+            {
+                short newState = disableState ? (short)0 : (short)-1;
+                task.put_Enabled((VARIANT_BOOL)newState);
+
+                isDisabled = disableState;
+            }
+
+            return true;
+        }
+        catch (Exception ex)
+        {
+            ReboundLogger.WriteToLog(
+                "UCPD RawTaskScheduler",
+                $"Exception: {ex.Message} | Stack: {ex.StackTrace}",
+                LogMessageSeverity.Error);
+
+            return false;
+        }
+    }
+    #endregion
+
     #region DMA
 
     [ObservableProperty] public partial bool IsEdgeUninstallable { get; set; }
@@ -2116,180 +2331,6 @@ internal partial class PrivacyAndUserChoiceViewModel : ObservableObject
         if (allOn) return 2;
 
         return 1;
-    }
-
-    #endregion
-
-    #region UCPD
-
-    private const string SubKey = @"SYSTEM\CurrentControlSet\Services\UCPD";
-    private const string ValueName = "Start";
-    private const string TaskPath = @"\Microsoft\Windows\AppxDeploymentClient\UCPD velocity";
-
-    private const uint ServiceStartAutomatic = 2; // Enforcement active
-    private const uint ServiceStartDisabled = 4;  // Restrictions relaxed
-
-    [ObservableProperty]
-    public partial bool IsUcpdEnabled { get; set; }
-
-    /// <summary>
-    /// Generator hook for property changes.
-    /// </summary>
-    partial void OnIsUcpdEnabledChanged(bool value)
-    {
-        // Target state: if IsUcpdEnabled == true, UCPD is enabled -> disable parameter is false
-        bool shouldDisableUcpd = !value;
-        Task.Run(() => SetUcpdRestriction(disable: shouldDisableUcpd));
-    }
-
-    public void RefreshUcpdProperties()
-    {
-        IsUcpdEnabled = !IsUcpdDisabled();
-    }
-
-    /// <summary>
-    /// Reads registry service start type using non-elevated KEY_QUERY_VALUE.
-    /// </summary>
-    public static unsafe bool IsUcpdDisabled()
-    {
-        fixed (char* lpSubKey = SubKey)
-        fixed (char* lpValueName = ValueName)
-        {
-            HKEY hKey;
-            int status = RegOpenKeyExW(
-                HKEY_LOCAL_MACHINE,
-                (char*)lpSubKey,
-                0,
-                KEY_QUERY_VALUE,
-                &hKey
-            );
-
-            if (status != 0) return false;
-
-            uint value = 0;
-            uint type = 0;
-            uint size = sizeof(uint);
-
-            status = RegQueryValueExW(
-                hKey,
-                (char*)lpValueName,
-                null,
-                &type,
-                (byte*)&value,
-                &size
-            );
-
-            RegCloseKey(hKey);
-
-            return status == 0 && value == ServiceStartDisabled;
-        }
-    }
-
-    /// <summary>
-    /// Updates both Registry and Task Scheduler state via TerraFX COM.
-    /// </summary>
-    public static unsafe int SetUcpdRestriction(bool disable)
-    {
-        uint serviceStartValue = disable ? ServiceStartDisabled : ServiceStartAutomatic;
-
-        // 1. Update Registry Service
-        fixed (char* lpSubKey = SubKey)
-        fixed (char* lpValueName = ValueName)
-        {
-            HKEY hKey;
-            int status = RegOpenKeyExW(
-                HKEY_LOCAL_MACHINE,
-                (char*)lpSubKey,
-                0,
-                KEY_SET_VALUE,
-                &hKey
-            );
-
-            if (status != 0) return status;
-
-            status = RegSetValueExW(
-                hKey,
-                (char*)lpValueName,
-                0,
-                REG_DWORD,
-                (byte*)&serviceStartValue,
-                sizeof(uint)
-            );
-
-            RegCloseKey(hKey);
-
-            if (status != 0) return status;
-        }
-
-        // 2. Update Task Scheduler directly via COM
-        ExecuteTaskOperationAsync(disableIfFound: true, disableState: disable);
-
-        return 0;
-    }
-
-    public static async Task<bool> ExecuteTaskOperationAsync(bool disableIfFound, bool disableState = true)
-    {
-        // Offload to MTA ThreadPool thread to prevent WinUI STA COM crashes & UI hangs
-        return await Task.Run(() => ExecuteTaskOperation(disableIfFound, out _, disableState));
-    }
-
-    public static unsafe bool ExecuteTaskOperation(bool disableIfFound, out bool isDisabled, bool disableState = true)
-    {
-        isDisabled = false;
-
-        ManagedPtr<Guid> clsid = new Guid("0F87369F-A4E5-4CFC-BD3E-73E6154572DD");
-
-        try
-        {
-            // 1. ManagedPtr is ONLY for real COM interfaces
-            using ComPtr<ITaskService> pService = default;
-            using ComPtr<ITaskFolder> pRootFolder = default;
-            using ComPtr<IRegisteredTask> pTask = default;
-
-            Guid iidService = *ITaskService.IID;
-
-            HRESULT hr = CoCreateInstance(clsid, null, (uint)CLSCTX.CLSCTX_INPROC_SERVER, &iidService, (void**)pService.GetAddressOf());
-            if (FAILED(hr)) return false;
-
-            VARIANT vNull = default;
-            hr = pService.Get()->Connect(vNull, vNull, vNull, vNull);
-            if (FAILED(hr)) return false;
-
-            fixed (char* pPath = @"\")
-            {
-                hr = pService.Get()->GetFolder((ushort*)pPath, pRootFolder.GetAddressOf());
-                if (FAILED(hr)) return false;
-            }
-
-            // 3. NO leading backslash for GetTask!
-            fixed (char* pTaskPath = @"Microsoft\Windows\AppxDeploymentClient\UCPD velocity")
-            {
-                hr = pRootFolder.Get()->GetTask((ushort*)pTaskPath, pTask.GetAddressOf());
-                if (FAILED(hr)) return false;
-            }
-
-            // 4. Query state (16-bit short)
-            short isEnabledVariant = 0;
-            hr = pTask.Get()->get_Enabled(&isEnabledVariant);
-            if (FAILED(hr)) return false;
-
-            isDisabled = (isEnabledVariant == 0);
-
-            if (disableIfFound)
-            {
-                short newEnabledState = disableState ? (short)0 : (short)(-1);
-                hr = pTask.Get()->put_Enabled(newEnabledState);
-                if (FAILED(hr)) return false;
-
-                isDisabled = disableState;
-            }
-
-            return true;
-        }
-        finally
-        {
-            clsid.Dispose();
-        }
     }
 
     #endregion

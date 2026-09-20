@@ -83,29 +83,29 @@
 	<ItemGroup>
 
 		<!-- NAOT fix -->
-		<PackageReference Include="Microsoft.DotNet.ILCompiler" Version="10.0.11" PrivateAssets="All" />
+		<PackageReference Include="Microsoft.DotNet.ILCompiler" Version="10.0.12" PrivateAssets="All" />
 
 		<!-- Windows SDK and WinUI -->
-		<PackageReference Include="Microsoft.WindowsAppSDK" Version="2.4.0" />
+		<PackageReference Include="Microsoft.WindowsAppSDK" Version="2.5.1" />
 
-		<PackageReference Include="Microsoft.WindowsAppSDK.AI" Version="2.4.4" ExcludeAssets="all" />
-		<PackageReference Include="Microsoft.WindowsAppSDK.ML" Version="2.1.74" ExcludeAssets="all" />
-		<PackageReference Include="Microsoft.Windows.AI.MachineLearning" Version="2.2.12" ExcludeAssets="all" />
-		<PackageReference Include="Microsoft.ML.OnnxRuntime" Version="1.29.0" ExcludeAssets="all" />
-		<PackageReference Include="Microsoft.Web.WebView2" Version="1.0.4129.50" ExcludeAssets="all" />
+		<PackageReference Include="Microsoft.WindowsAppSDK.AI" Version="2.5.5" ExcludeAssets="all" />
+		<PackageReference Include="Microsoft.WindowsAppSDK.ML" Version="2.1.94" ExcludeAssets="all" />
+		<PackageReference Include="Microsoft.Windows.AI.MachineLearning" Version="2.3.42" ExcludeAssets="all" />
+		<PackageReference Include="Microsoft.ML.OnnxRuntime" Version="1.30.0" ExcludeAssets="all" />
+		<PackageReference Include="Microsoft.Web.WebView2" Version="1.0.4191.47" ExcludeAssets="all" />
 
 		<PackageReference Include="WinUIEx" Version="2.9.3" />
 
 		<!-- CommunityToolkit -->
 		<PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.2" />
-		<PackageReference Include="CommunityToolkit.WinUI.Animations" Version="8.2.251219"/>
+		<PackageReference Include="CommunityToolkit.WinUI.Animations" Version="8.2.251219" />
 		<PackageReference Include="CommunityToolkit.WinUI.Behaviors" Version="8.2.251219" />
 		<PackageReference Include="CommunityToolkit.WinUI.Converters" Version="8.2.251219" />
 		<PackageReference Include="CommunityToolkit.WinUI.Controls.Primitives" Version="8.2.251219" />
-		<PackageReference Include="CommunityToolkit.WinUI.Controls.Segmented" Version="8.2.251219"/>
-		<PackageReference Include="CommunityToolkit.WinUI.Media" Version="8.2.251219"/>
-		<PackageReference Include="CommunityToolkit.WinUI.Triggers" Version="8.2.251219"/>
-		<PackageReference Include="CommunityToolkit.Labs.WinUI.DependencyPropertyGenerator" Version="0.1.260203-build.2518"/>
+		<PackageReference Include="CommunityToolkit.WinUI.Controls.Segmented" Version="8.2.251219" />
+		<PackageReference Include="CommunityToolkit.WinUI.Media" Version="8.2.251219" />
+		<PackageReference Include="CommunityToolkit.WinUI.Triggers" Version="8.2.251219" />
+		<PackageReference Include="CommunityToolkit.Labs.WinUI.DependencyPropertyGenerator" Version="0.1.260203-build.2518" />
 
 	</ItemGroup>
 
@@ -154,18 +154,14 @@
 	<!-- NAOT fix -->
 	<PropertyGroup>
 		<!-- Force the ILCompiler tool path variables manually right before targets evaluate them -->
-		<IlcToolsPath>$(UserProfile)\.nuget\packages\runtime.win-x64.microsoft.dotnet.ilcompiler\10.0.10\tools\</IlcToolsPath>
-		<IlcCompilerPath>$(UserProfile)\.nuget\packages\runtime.win-x64.microsoft.dotnet.ilcompiler\10.0.10\tools\ilc.exe</IlcCompilerPath>
+		<IlcToolsPath>$(UserProfile)\.nuget\packages\runtime.win-x64.microsoft.dotnet.ilcompiler\10.0.12\tools\</IlcToolsPath>
+		<IlcCompilerPath>$(UserProfile)\.nuget\packages\runtime.win-x64.microsoft.dotnet.ilcompiler\10.0.12\tools\ilc.exe</IlcCompilerPath>
 	</PropertyGroup>
 	<Target Name="CopyAotBinaryToExpectedMsixPath" BeforeTargets="Package">
 		<ItemGroup>
 			<_AotBinaryToCopy Include="$(TargetDir)native\$(TargetName).exe" />
 		</ItemGroup>
-		<Copy 
-			SourceFiles="@(_AotBinaryToCopy)" 
-			DestinationFolder="$(TargetDir)" 
-			SkipUnchangedFiles="true" 
-			Condition="Exists('$(TargetDir)native\$(TargetName).exe')" />
+		<Copy SourceFiles="@(_AotBinaryToCopy)" DestinationFolder="$(TargetDir)" SkipUnchangedFiles="true" Condition="Exists('$(TargetDir)native\$(TargetName).exe')" />
 	</Target>
 
 </Project>

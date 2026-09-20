@@ -25,17 +25,17 @@ public static class ApplicationLaunchEngine
     /// </param>
     public static unsafe void LaunchApp(string packageFamilyName, string entryPoint = "App")
     {
-        using var launchItem = NativeString.Alloc(packageFamilyName + "!" + entryPoint);
-        using var clsid = NativeValue<Guid>.Alloc(CLSID_ApplicationActivationManager);
-        using var iid = NativeValue<Guid>.Alloc(IID_IApplicationActivationManager);
+        using StringPtr launchItem =packageFamilyName + "!" + entryPoint;
+        using ObjectPtr<Guid> clsid = CLSID_ApplicationActivationManager;
+        using ObjectPtr<Guid> iid = IID_IApplicationActivationManager;
 
         using ComPtr<IApplicationActivationManager> manager = null;
 
         int hr = CoCreateInstance(
-            clsid,
+            clsid.Get(),
             null,
             (uint)CLSCTX.CLSCTX_INPROC_SERVER,
-            iid,
+            iid.Get(),
             (void**)manager.GetAddressOf()
         );
 
@@ -43,7 +43,7 @@ public static class ApplicationLaunchEngine
         {
             uint processId;
             manager.Get()->ActivateApplication(
-                launchItem.CharPointer,
+                launchItem.GetChars(),
                 null,
                 ACTIVATEOPTIONS.AO_NONE,
                 &processId

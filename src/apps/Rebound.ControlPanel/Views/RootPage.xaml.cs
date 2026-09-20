@@ -395,42 +395,42 @@ internal sealed partial class RootPage : Page
     private unsafe void CreateShortcutNative(CplItem item)
     {
         // Get the actual Desktop folder path
-        using NativeString desktopPath = NativeString.Alloc(Environment.GetFolderPath(Environment.SpecialFolder.Desktop));
-        using NativeString shortcutPath = NativeString.Alloc(Path.Combine(desktopPath.ToManagedString(), $"{item.Name} - Control Panel.lnk"));
+        using StringPtr desktopPath = Environment.GetFolderPath(Environment.SpecialFolder.Desktop);
+        using StringPtr shortcutPath = Path.Combine(desktopPath.ToManagedString()!, $"{item.Name} - Control Panel.lnk");
 
-        using NativeValue<Guid> clsidShellLink = NativeValue<Guid>.Alloc(CLSID.CLSID_ShellLink);
-        using NativeValue<Guid> iidShellLink = NativeValue<Guid>.Alloc(IID.IID_IShellLinkW);
-        using NativeValue<Guid> iidPersistFile = NativeValue<Guid>.Alloc(IID.IID_IPersistFile);
+        using ObjectPtr<Guid> clsidShellLink = CLSID.CLSID_ShellLink;
+        using ObjectPtr<Guid> iidShellLink = IID.IID_IShellLinkW;
+        using ObjectPtr<Guid> iidPersistFile = IID.IID_IPersistFile;
 
         // Create an instance of the ShellLink component
         using ComPtr<IShellLinkW> shellLink = default;
         HRESULT hr = CoCreateInstance(
-            clsidShellLink,
+            clsidShellLink.Get(),
             null,
             (uint)CLSCTX.CLSCTX_INPROC_SERVER,
-            iidShellLink,
+            iidShellLink.Get(),
             (void**)shellLink.GetAddressOf());
 
         if (hr.FAILED)
             throw new Win32Exception($"Failed to create IShellLink instance. HRESULT: {hr}");
 
         // Set the path to the application/executable the shortcut launches
-        using NativeString target = NativeString.Alloc($"rebound-controlpanel:{item.PageOpenUri}");
-        shellLink.Get()->SetPath(target.CharPointer);
+        using StringPtr target = $"rebound-controlpanel:{item.PageOpenUri}";
+        shellLink.Get()->SetPath(target.GetChars());
 
         // Set the shortcut's description
-        using NativeString description = NativeString.Alloc($"{item.Name} - Control Panel Shortcut");
-        shellLink.Get()->SetDescription(description.CharPointer);
+        using StringPtr description = $"{item.Name} - Control Panel Shortcut";
+        shellLink.Get()->SetDescription(description.GetChars());
 
         // Set the custom icon
-        using NativeString icon = NativeString.Alloc(Path.Combine(Path.GetDirectoryName(Environment.ProcessPath)!, item.PageOpenIconPath!));
-        shellLink.Get()->SetIconLocation(icon.CharPointer, 0);
+        using StringPtr icon = Path.Combine(Path.GetDirectoryName(Environment.ProcessPath)!, item.PageOpenIconPath!);
+        shellLink.Get()->SetIconLocation(icon.GetChars(), 0);
 
         // Query for IPersistFile to save the shortcut to disk
         using ComPtr<IPersistFile> persistFile = default;
-        shellLink.Get()->QueryInterface(iidPersistFile, (void**)persistFile.GetAddressOf());
+        shellLink.Get()->QueryInterface(iidPersistFile.Get(), (void**)persistFile.GetAddressOf());
 
         // Save the shortcut (.lnk) file
-        persistFile.Get()->Save(shortcutPath.CharPointer, true);
+        persistFile.Get()->Save(shortcutPath.GetChars(), true);
     }
 }

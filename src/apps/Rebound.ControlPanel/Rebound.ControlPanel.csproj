@@ -85,6 +85,10 @@
 
 		<!-- NAOT fix -->
 		<PackageReference Include="Microsoft.DotNet.ILCompiler" Version="10.0.10" PrivateAssets="All" />
+		<PackageReference Include="Microsoft.Windows.CsWin32" Version="0.3.333">
+		  <PrivateAssets>all</PrivateAssets>
+		  <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+		</PackageReference>
 
 		<!-- Windows SDK and WinUI -->
 		<PackageReference Include="Microsoft.WindowsAppSDK" Version="2.4.0" />

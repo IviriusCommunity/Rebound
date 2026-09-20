@@ -1,0 +1,8 @@
+﻿OpenSCManagerW
+OpenServiceW
+QueryServiceConfigW
+ChangeServiceConfig
+CoInitializeEx
+CoInitializeSecurity
+CoCreateInstance
+ITaskService

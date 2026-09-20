@@ -818,5 +818,11 @@ namespace Rebound.Forge
             KeyPath = @"SOFTWARE\Microsoft\Windows\CurrentVersion\ContentDeliveryManager",
             ValueName = "SubscribedContent-338389Enabled"
         };
+
+        public static readonly RegistrySetting UserChoiceProtectionDriverService = new()
+        {
+            KeyPath = @"SYSTEM\CurrentControlSet\Services\UCPD",
+            ValueName = "Start"
+        };
     }
 }
