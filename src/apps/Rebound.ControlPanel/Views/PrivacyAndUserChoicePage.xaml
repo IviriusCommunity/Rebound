@@ -260,7 +260,10 @@
                     IsOpen="True"
                     Message="Microsoft Store and Windows Update services will not be affected by these policies. It is advised against disabling Windows Update services via brute force as they may be turned on again by automatic repair."
                     Severity="Warning" />
-                <toolkit:SettingsExpander Description="Choose the behavior of Windows Update on your system. It is recommended that you keep security updates enabled. This setting will persist throughout your installation and won't be reverted by the system without your consent." Header="Windows Update">
+                <toolkit:SettingsExpander
+                    Description="Choose the behavior of Windows Update on your system. It is recommended that you keep security updates enabled. This setting will persist throughout your installation and won't be reverted by the system without your consent."
+                    Header="Windows Update"
+                    IsEnabled="{x:Bind ViewModel.IsElevated, Mode=OneWay}">
                     <toolkit:SettingsExpander.HeaderIcon>
                         <FontIcon Glyph="&#xEC76;" />
                     </toolkit:SettingsExpander.HeaderIcon>
@@ -320,7 +323,7 @@
                             <ToggleSwitch IsOn="{x:Bind ViewModel.HideSettingsPage, Mode=TwoWay}" />
                         </toolkit:SettingsCard>
                     </toolkit:SettingsExpander.Items>
-                    <ComboBox SelectedIndex="{x:Bind ViewModel.WindowsUpdateState, Mode=TwoWay}">
+                    <ComboBox SelectedIndex="{x:Bind ViewModel.WindowsUpdateState, Mode=TwoWay}" Visibility="{x:Bind ViewModel.IsElevated, Mode=OneWay}">
                         <ComboBoxItem Content="Automatic" ToolTipService.ToolTip="Automatically check for and install updates." />
                         <ComboBoxItem Content="Ask for consent (Recommended)" ToolTipService.ToolTip="Ask for consent before installing updates." />
                         <ComboBoxItem Content="Manual" ToolTipService.ToolTip="Manually check for and install updates." />
@@ -332,33 +335,64 @@
                         <FontIcon Glyph="&#xF4A5;" />
                     </toolkit:SettingsExpander.HeaderIcon>
                     <toolkit:SettingsExpander.ItemsHeader>
-                        <InfoBar
-                            Title="Attention"
-                            BorderThickness="0"
-                            CornerRadius="0"
-                            IsClosable="False"
-                            IsOpen="True"
-                            Message="AI features such as Recall and Click to Do are fully opt-in and require supported hardware, including a compatible Neural Processing Unit (NPU). On devices that don't meet Microsoft's hardware requirements, these features are unavailable regardless of the settings configured here.&#x0a;&#x0a;Cloud-based AI features, such as Copilot in Paint and Copilot in Notepad, do not require an NPU. These settings will take effect regardless of your hardware."
-                            Severity="Warning" />
+                        <StackPanel>
+                            <InfoBar
+                                Title="Attention"
+                                BorderThickness="0"
+                                CornerRadius="0"
+                                IsClosable="False"
+                                IsOpen="True"
+                                Message="AI features such as Recall and Click to Do are fully opt-in and require supported hardware, including a compatible Neural Processing Unit (NPU). On devices that don't meet Microsoft's hardware requirements, these features are unavailable regardless of the settings configured here.&#x0a;&#x0a;Cloud-based AI features, such as Copilot in Paint and Copilot in Notepad, do not require an NPU. These settings will take effect regardless of your hardware."
+                                Severity="Warning" />
+                            <InfoBar
+                                Title="Some of these settings require administrator privileges to view and edit."
+                                BorderThickness="0"
+                                CornerRadius="0"
+                                IsClosable="False"
+                                IsOpen="True"
+                                Visibility="{x:Bind ViewModel.IsElevated, Mode=OneWay, Converter={StaticResource BoolToInverseVisibilityConverter}}">
+                                <InfoBar.ActionButton>
+                                    <Button Command="{x:Bind RelaunchAsAdminCommand}" Style="{StaticResource AccentButtonStyle}">
+                                        <StackPanel Orientation="Horizontal" Spacing="8">
+                                            <FontIcon FontSize="16" Glyph="&#xEA18;" />
+                                            <TextBlock Text="Relaunch as Administrator" />
+                                        </StackPanel>
+                                    </Button>
+                                </InfoBar.ActionButton>
+                            </InfoBar>
+                        </StackPanel>
                     </toolkit:SettingsExpander.ItemsHeader>
                     <toolkit:SettingsExpander.Items>
-                        <toolkit:SettingsCard Description="Experimental AI program for on-device activity tracking." Header="Recall">
-                            <ToggleSwitch IsOn="{x:Bind ViewModel.IsRecallOn, Mode=TwoWay}" />
+                        <toolkit:SettingsCard
+                            Description="Experimental AI program for on-device activity tracking."
+                            Header="Recall"
+                            IsEnabled="{x:Bind ViewModel.IsElevated, Mode=OneWay}">
+                            <ToggleSwitch IsOn="{x:Bind ViewModel.IsRecallOn, Mode=TwoWay}" Visibility="{x:Bind ViewModel.IsElevated, Mode=OneWay}" />
                         </toolkit:SettingsCard>
                         <toolkit:SettingsCard
                             Description="Allows Recall to take screenshots of your desktop while running."
                             Header="Recall snapshots"
-                            IsEnabled="{x:Bind ViewModel.IsRecallOn, Mode=OneWay}">
-                            <ToggleSwitch IsOn="{x:Bind ViewModel.IsRecallSnapshotsOn, Mode=TwoWay}" />
+                            IsEnabled="{x:Bind ViewModel.IsElevated, Mode=OneWay}"
+                            Visibility="{x:Bind ViewModel.IsRecallOn, Mode=OneWay}">
+                            <ToggleSwitch IsOn="{x:Bind ViewModel.IsRecallSnapshotsOn, Mode=TwoWay}" Visibility="{x:Bind ViewModel.IsElevated, Mode=OneWay}" />
                         </toolkit:SettingsCard>
-                        <toolkit:SettingsCard Description="AI-powered contextual actions for text and images throughout Windows." Header="Click To Do">
-                            <ToggleSwitch IsOn="{x:Bind ViewModel.IsClickToDoOn, Mode=TwoWay}" />
+                        <toolkit:SettingsCard
+                            Description="AI-powered contextual actions for text and images throughout Windows."
+                            Header="Click To Do"
+                            IsEnabled="{x:Bind ViewModel.IsElevated, Mode=OneWay}">
+                            <ToggleSwitch IsOn="{x:Bind ViewModel.IsClickToDoOn, Mode=TwoWay}" Visibility="{x:Bind ViewModel.IsElevated, Mode=OneWay}" />
                         </toolkit:SettingsCard>
-                        <toolkit:SettingsCard Description="AI assistance integrated into the Settings app for searching and changing system options using natural language." Header="Copilot in Settings">
-                            <ToggleSwitch IsOn="{x:Bind ViewModel.CopilotInSettings, Mode=TwoWay}" />
+                        <toolkit:SettingsCard
+                            Description="AI assistance integrated into the Settings app for searching and changing system options using natural language."
+                            Header="Copilot in Settings"
+                            IsEnabled="{x:Bind ViewModel.IsElevated, Mode=OneWay}">
+                            <ToggleSwitch IsOn="{x:Bind ViewModel.CopilotInSettings, Mode=TwoWay}" Visibility="{x:Bind ViewModel.IsElevated, Mode=OneWay}" />
                         </toolkit:SettingsCard>
-                        <toolkit:SettingsCard Description="Generative AI features for creative tasks in Paint. This optin includes Cocreator, Generative Fill, and Image Creator." Header="Copilot in Paint">
-                            <ToggleSwitch IsOn="{x:Bind ViewModel.CopilotInPaint, Mode=TwoWay}" />
+                        <toolkit:SettingsCard
+                            Description="Generative AI features for creative tasks in Paint. This optin includes Cocreator, Generative Fill, and Image Creator."
+                            Header="Copilot in Paint"
+                            IsEnabled="{x:Bind ViewModel.IsElevated, Mode=OneWay}">
+                            <ToggleSwitch IsOn="{x:Bind ViewModel.CopilotInPaint, Mode=TwoWay}" Visibility="{x:Bind ViewModel.IsElevated, Mode=OneWay}" />
                         </toolkit:SettingsCard>
                         <toolkit:SettingsCard Description="AI writing assistance features integrated into Notepad, including rewrite and summarization tools." Header="Copilot in Notepad">
                             <ToggleSwitch IsOn="{x:Bind ViewModel.CopilotInNotepad, Mode=TwoWay}" />
@@ -369,17 +403,37 @@
                     Margin="0,32,0,0"
                     FontWeight="SemiBold"
                     Text="Security" />
-                <toolkit:SettingsCard Description="SmartScreen is a Windows security feature that uses reputation-based checks to help prevent the execution of unrecognized or known malicious apps, scripts, and downloaded files. It acts as an early protection layer before an application is run, complementing other security components such as Microsoft Defender and installed antivirus solutions. Disabling this option removes this reputation-based filtering and may allow unverified files to run without warning." Header="SmartScreen">
+                <InfoBar
+                    Title="These settings require administrator privileges to view and edit."
+                    IsClosable="False"
+                    IsOpen="True"
+                    Visibility="{x:Bind ViewModel.IsElevated, Mode=OneWay, Converter={StaticResource BoolToInverseVisibilityConverter}}">
+                    <InfoBar.ActionButton>
+                        <Button Command="{x:Bind RelaunchAsAdminCommand}" Style="{StaticResource AccentButtonStyle}">
+                            <StackPanel Orientation="Horizontal" Spacing="8">
+                                <FontIcon FontSize="16" Glyph="&#xEA18;" />
+                                <TextBlock Text="Relaunch as Administrator" />
+                            </StackPanel>
+                        </Button>
+                    </InfoBar.ActionButton>
+                </InfoBar>
+                <toolkit:SettingsCard
+                    Description="SmartScreen is a Windows security feature that uses reputation-based checks to help prevent the execution of unrecognized or known malicious apps, scripts, and downloaded files. It acts as an early protection layer before an application is run, complementing other security components such as Microsoft Defender and installed antivirus solutions. Disabling this option removes this reputation-based filtering and may allow unverified files to run without warning."
+                    Header="SmartScreen"
+                    IsEnabled="{x:Bind ViewModel.IsElevated, Mode=OneWay}">
                     <toolkit:SettingsCard.HeaderIcon>
                         <FontIcon Glyph="&#xE83D;" />
                     </toolkit:SettingsCard.HeaderIcon>
-                    <ToggleSwitch IsOn="{x:Bind ViewModel.IsSmartScreenEnabled, Mode=TwoWay}" />
+                    <ToggleSwitch IsOn="{x:Bind ViewModel.IsSmartScreenEnabled, Mode=TwoWay}" Visibility="{x:Bind ViewModel.IsElevated, Mode=OneWay}" />
                 </toolkit:SettingsCard>
-                <toolkit:SettingsCard Description="sudo for Windows allows you to run commands or applications with administrator privileges without manually opening an elevated terminal or using longer elevation workflows. It provides a familiar sudo-style entry point similar to UNIX systems, including support for elevating within the current session (for example, sudo powershell), while still relying on Windows’ built-in security model and UAC confirmation for permission approval." Header="sudo for Windows">
+                <toolkit:SettingsCard
+                    Description="sudo for Windows allows you to run commands or applications with administrator privileges without manually opening an elevated terminal or using longer elevation workflows. It provides a familiar sudo-style entry point similar to UNIX systems, including support for elevating within the current session (for example, sudo powershell), while still relying on Windows’ built-in security model and UAC confirmation for permission approval."
+                    Header="sudo for Windows"
+                    IsEnabled="{x:Bind ViewModel.IsElevated, Mode=OneWay}">
                     <toolkit:SettingsCard.HeaderIcon>
                         <FontIcon Glyph="&#xF760;" />
                     </toolkit:SettingsCard.HeaderIcon>
-                    <ComboBox SelectedIndex="{x:Bind ViewModel.SudoLevel, Mode=TwoWay}">
+                    <ComboBox SelectedIndex="{x:Bind ViewModel.SudoLevel, Mode=TwoWay}" Visibility="{x:Bind ViewModel.IsElevated, Mode=OneWay}">
                         <ComboBoxItem Content="Disabled" />
                         <ComboBoxItem Content="Inline (Recommended)" />
                         <ComboBoxItem Content="In a new window" />
