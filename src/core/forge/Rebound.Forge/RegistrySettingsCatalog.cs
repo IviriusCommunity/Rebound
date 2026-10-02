@@ -1,6 +1,8 @@
 ﻿// Copyright (C) Ivirius(TM) Community 2020 - 2026. All Rights Reserved.
 // Licensed under the MIT License.
 
+using Microsoft.Win32;
+
 namespace Rebound.Forge
 {
     /// <summary>
@@ -380,7 +382,10 @@ namespace Rebound.Forge
         };
 
         /// <summary>
-        /// Controls whether automatic updates are completely disabled (1) or enabled (0).
+        /// Controls Automatic Updates.
+        /// 0 = Automatic Updates enabled.
+        /// 1 = Automatic Updates disabled.
+        /// Policy-backed.
         /// </summary>
         public static readonly RegistrySetting NoAutoUpdate = new()
         {
@@ -389,8 +394,12 @@ namespace Rebound.Forge
         };
 
         /// <summary>
-        /// Controls automatic update behavior options:
-        /// 2 = Notify for download, 3 = Auto download/notify install, 4 = Auto download and schedule install.
+        /// Controls Automatic Updates behavior.
+        /// 1 = Disabled.
+        /// 2 = Notify for download and installation.
+        /// 3 = Automatically download and notify for installation.
+        /// 4 = Automatically download and schedule installation.
+        /// Policy-backed.
         /// </summary>
         public static readonly RegistrySetting AUOptions = new()
         {
@@ -399,56 +408,33 @@ namespace Rebound.Forge
         };
 
         /// <summary>
-        /// Controls whether recommended non-security updates are included along with essential updates.
+        /// Controls whether Windows receives the latest updates as soon as they're released.
+        /// 0 = Disabled.
+        /// 1 = Enabled.
         /// </summary>
-        public static readonly RegistrySetting IncludeRecommendedUpdates = new()
+        public static readonly RegistrySetting IsContinuousInnovationOptedIn = new()
         {
-            KeyPath = @"SOFTWARE\Policies\Microsoft\Windows\WindowsUpdate\AU",
-            ValueName = "IncludeRecommendedUpdates"
+            KeyPath = @"SOFTWARE\Microsoft\WindowsUpdate\UX\Settings",
+            ValueName = "IsContinuousInnovationOptedIn"
+        };
+
+        public static readonly RegistrySetting IsExpedited = new()
+        {
+            KeyPath = @"SOFTWARE\Microsoft\WindowsUpdate\UX\Settings",
+            ValueName = "IsExpedited"
+        };
+
+        public static readonly RegistrySetting RestartNotificationsAllowed2 = new()
+        {
+            KeyPath = @"SOFTWARE\Microsoft\WindowsUpdate\UX\Settings",
+            ValueName = "RestartNotificationsAllowed2"
         };
 
         /// <summary>
-        /// Controls whether feature updates are deferred/blocked (1 = Defer feature upgrades).
-        /// </summary>
-        public static readonly RegistrySetting DeferFeatureUpdates = new()
-        {
-            KeyPath = @"SOFTWARE\Policies\Microsoft\Windows\WindowsUpdate",
-            ValueName = "DeferFeatureUpdates"
-        };
-
-        /// <summary>
-        /// Specifies the deferral period in days for feature updates (up to 365 days).
-        /// </summary>
-        public static readonly RegistrySetting DeferFeatureUpdatesPeriodInDays = new()
-        {
-            KeyPath = @"SOFTWARE\Policies\Microsoft\Windows\WindowsUpdate",
-            ValueName = "DeferFeatureUpdatesPeriodInDays"
-        };
-
-        /// <summary>
-        /// Indicates whether the "Enable optional updates" policy is configured.
-        /// When enabled, <see cref="AllowOptionalContent"/> determines the behavior.
-        /// </summary>
-        public static readonly RegistrySetting SetAllowOptionalContent = new()
-        {
-            KeyPath = @"SOFTWARE\Policies\Microsoft\Windows\WindowsUpdate",
-            ValueName = "SetAllowOptionalContent"
-        };
-
-        /// <summary>
-        /// Controls whether Windows automatically receives optional updates.
-        /// 0 = User chooses (default)
-        /// 1 = Automatically receive optional updates
-        /// 2 = Automatically receive optional updates excluding controlled feature rollouts (CFRs)
-        /// </summary>
-        public static readonly RegistrySetting AllowOptionalContent = new()
-        {
-            KeyPath = @"SOFTWARE\Policies\Microsoft\Windows\WindowsUpdate",
-            ValueName = "AllowOptionalContent"
-        };
-
-        /// <summary>
-        /// Removes access to Windows Update features in the Settings app.
+        /// Removes access to Windows Update scanning, downloading, and installation.
+        /// 0 = Disabled.
+        /// 1 = Enabled.
+        /// Policy-backed.
         /// </summary>
         public static readonly RegistrySetting SetDisableUXWUAccess = new()
         {
@@ -457,7 +443,21 @@ namespace Rebound.Forge
         };
 
         /// <summary>
-        /// Excludes driver updates from Windows Update quality updates.
+        /// Controls whether updates for other Microsoft products are received through Windows Update.
+        /// 0 = Disabled.
+        /// 1 = Enabled.
+        /// </summary>
+        public static readonly RegistrySetting AllowMUUpdateService = new()
+        {
+            KeyPath = @"SOFTWARE\Microsoft\WindowsUpdate\UX\Settings",
+            ValueName = "AllowMUUpdateService"
+        };
+
+        /// <summary>
+        /// Controls whether Windows Update includes driver-classified updates.
+        /// 1 = Exclude Windows Update drivers.
+        /// Other value or absent = Allow Windows Update drivers.
+        /// Policy-backed.
         /// </summary>
         public static readonly RegistrySetting ExcludeWUDriversInQualityUpdate = new()
         {
@@ -823,6 +823,12 @@ namespace Rebound.Forge
         {
             KeyPath = @"SYSTEM\CurrentControlSet\Services\UCPD",
             ValueName = "Start"
+        };
+
+        public static readonly RegistrySetting SettingsPageVisibility = new()
+        {
+            KeyPath = @"SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\Explorer",
+            ValueName = "SettingsPageVisibility"
         };
     }
 }

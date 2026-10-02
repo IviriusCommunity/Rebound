@@ -56,8 +56,11 @@
                 Text="View information about your PC."
                 TextWrapping="WrapWholeWords" />
         </Grid>
-        <ScrollViewer Grid.Row="1">
-            <StackPanel Margin="40" Spacing="8">
+        <ScrollView Grid.Row="1">
+            <StackPanel
+                MaxWidth="1000"
+                Margin="40"
+                Spacing="8">
                 <Grid ColumnSpacing="16">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="Auto" />
@@ -235,6 +238,6 @@
                     </toolkit:SettingsExpander.Items>
                 </toolkit:SettingsExpander>
             </StackPanel>
-        </ScrollViewer>
+        </ScrollView>
     </Grid>
 </Page>

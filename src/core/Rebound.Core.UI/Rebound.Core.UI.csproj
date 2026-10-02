@@ -50,9 +50,9 @@
 	<!-- Package references -->
 	<ItemGroup>
 		<PackageReference Include="TerraFX.Interop.Windows" Version="10.0.26100.6" />
-		<PackageReference Include="Microsoft.WindowsAppSDK.WinUI" Version="2.2.1" />
+		<PackageReference Include="Microsoft.WindowsAppSDK.WinUI" Version="2.3.9" />
 		<PackageReference Include="Microsoft.Graphics.Win2D" Version="1.4.0" />
-		<PackageReference Include="WinUIEx" Version="2.9.1" />
+		<PackageReference Include="WinUIEx" Version="2.9.3" />
 		<PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.2" />
 
 		<PackageReference Include="CommunityToolkit.Labs.WinUI.DependencyPropertyGenerator" Version="0.1.260203-build.2518"> <ExcludeAssets>build;buildtransitive</ExcludeAssets> </PackageReference>

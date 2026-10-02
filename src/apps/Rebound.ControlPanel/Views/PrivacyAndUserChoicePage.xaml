@@ -13,6 +13,10 @@
     xmlns:ui="using:CommunityToolkit.WinUI"
     mc:Ignorable="d">
     <Page.Resources>
+        <converters:DoubleToVisibilityConverter
+            x:Key="WUDisabledToVisibilityConverter"
+            GreaterThan="2"
+            LessThan="4" />
         <converters:BoolToVisibilityConverter
             x:Key="BoolToInverseVisibilityConverter"
             FalseValue="Visible"
@@ -260,33 +264,67 @@
                     <toolkit:SettingsExpander.HeaderIcon>
                         <FontIcon Glyph="&#xEC76;" />
                     </toolkit:SettingsExpander.HeaderIcon>
-                    <toolkit:SettingsExpander.ItemsHeader>
-                        <InfoBar
-                            Title="Attention"
-                            BorderThickness="0"
-                            CornerRadius="0"
-                            IsClosable="False"
-                            IsOpen="True"
-                            Message="These options will be ignored if Windows Update is disabled."
-                            Severity="Warning" />
-                    </toolkit:SettingsExpander.ItemsHeader>
                     <toolkit:SettingsExpander.Items>
-                        <toolkit:SettingsCard Header="Windows Update configuration">
+                        <toolkit:SettingsCard
+                            Description="Allow installing optional and freshly released updates as soon as they're available."
+                            Header="Get updates as soon as possible"
+                            Visibility="{x:Bind ViewModel.WindowsUpdateState, Mode=OneWay, Converter={StaticResource WUDisabledToVisibilityConverter}, ConverterParameter=True}">
                             <toolkit:SettingsCard.HeaderIcon>
-                                <FontIcon Glyph="&#xF259;" />
+                                <FontIcon Glyph="&#xE789;" />
                             </toolkit:SettingsCard.HeaderIcon>
-                            <ComboBox SelectedIndex="{x:Bind ViewModel.WindowsUpdateConfig, Mode=TwoWay}">
-                                <ComboBoxItem Content="Get updates as soon as they're available" ToolTipService.ToolTip="Get the latest updates as soon as they roll out. This includes gradual rollouts and potentially untested features freshly rolling out of Windows Insider onto the stable channel." />
-                                <ComboBoxItem Content="Default" ToolTipService.ToolTip="(Recommended) Get stable updates when they roll out to everyone, alongside driver and application updates." />
-                                <ComboBoxItem Content="Important updates only" ToolTipService.ToolTip="Get important Windows feature and security updates only." />
-                            </ComboBox>
+                            <ToggleSwitch IsOn="{x:Bind ViewModel.GetUpdatesAsSoonAsPossible, Mode=TwoWay}" />
+                        </toolkit:SettingsCard>
+                        <toolkit:SettingsCard
+                            Description="Configures Windows Update to restart your computer as soon as updates are finished downloading and installing without asking for your consent."
+                            Header="Restart as soon as possible"
+                            Visibility="{x:Bind ViewModel.WindowsUpdateState, Mode=OneWay, Converter={StaticResource WUDisabledToVisibilityConverter}, ConverterParameter=True}">
+                            <toolkit:SettingsCard.HeaderIcon>
+                                <FontIcon Glyph="&#xE72C;" />
+                            </toolkit:SettingsCard.HeaderIcon>
+                            <ToggleSwitch IsOn="{x:Bind ViewModel.RestartAsSoonAsPossible, Mode=TwoWay}" />
+                        </toolkit:SettingsCard>
+                        <toolkit:SettingsCard
+                            Description="Sends a notification to remind you to restart whenever there's an update pending."
+                            Header="Notify on update"
+                            Visibility="{x:Bind ViewModel.WindowsUpdateState, Mode=OneWay, Converter={StaticResource WUDisabledToVisibilityConverter}, ConverterParameter=True}">
+                            <toolkit:SettingsCard.HeaderIcon>
+                                <FontIcon Glyph="&#xEA8F;" />
+                            </toolkit:SettingsCard.HeaderIcon>
+                            <ToggleSwitch IsOn="{x:Bind ViewModel.NotifyOnUpdate, Mode=TwoWay}" />
+                        </toolkit:SettingsCard>
+                        <toolkit:SettingsCard
+                            Description="Download and install 3rd party driver updates from Windows Update."
+                            Header="Allow driver updates"
+                            Visibility="{x:Bind ViewModel.WindowsUpdateState, Mode=OneWay, Converter={StaticResource WUDisabledToVisibilityConverter}, ConverterParameter=True}">
+                            <toolkit:SettingsCard.HeaderIcon>
+                                <FontIcon Glyph="&#xEB66;" />
+                            </toolkit:SettingsCard.HeaderIcon>
+                            <ToggleSwitch IsOn="{x:Bind ViewModel.AllowDriversInWindowsUpdate, Mode=TwoWay}" />
+                        </toolkit:SettingsCard>
+                        <toolkit:SettingsCard
+                            Description="Receive updates for other products distributed by Microsoft inside Windows Update."
+                            Header="Get updates for other Microsoft products as well"
+                            Visibility="{x:Bind ViewModel.WindowsUpdateState, Mode=OneWay, Converter={StaticResource WUDisabledToVisibilityConverter}, ConverterParameter=True}">
+                            <toolkit:SettingsCard.HeaderIcon>
+                                <FontIcon Glyph="&#xECAA;" />
+                            </toolkit:SettingsCard.HeaderIcon>
+                            <ToggleSwitch IsOn="{x:Bind ViewModel.AllowOtherUpdatesThroughWU, Mode=TwoWay}" />
+                        </toolkit:SettingsCard>
+                        <toolkit:SettingsCard
+                            Description="Completely hide the Windows Update page in Settings."
+                            Header="Hide Windows Update"
+                            Visibility="{x:Bind ViewModel.WindowsUpdateState, Mode=OneWay, Converter={StaticResource WUDisabledToVisibilityConverter}, ConverterParameter=False}">
+                            <toolkit:SettingsCard.HeaderIcon>
+                                <FontIcon Glyph="&#xED1A;" />
+                            </toolkit:SettingsCard.HeaderIcon>
+                            <ToggleSwitch IsOn="{x:Bind ViewModel.HideSettingsPage, Mode=TwoWay}" />
                         </toolkit:SettingsCard>
                     </toolkit:SettingsExpander.Items>
                     <ComboBox SelectedIndex="{x:Bind ViewModel.WindowsUpdateState, Mode=TwoWay}">
-                        <ComboBoxItem Content="Default" ToolTipService.ToolTip="Automatically check for and install updates." />
-                        <ComboBoxItem Content="Ask for consent" ToolTipService.ToolTip="(Recommended) Ask for consent before installing updates." />
+                        <ComboBoxItem Content="Automatic" ToolTipService.ToolTip="Automatically check for and install updates." />
+                        <ComboBoxItem Content="Ask for consent (Recommended)" ToolTipService.ToolTip="Ask for consent before installing updates." />
                         <ComboBoxItem Content="Manual" ToolTipService.ToolTip="Manually check for and install updates." />
-                        <ComboBoxItem Content="Disabled" ToolTipService.ToolTip="Disable Windows Update from downloading and installing updates entirely." />
+                        <ComboBoxItem Content="Disabled" ToolTipService.ToolTip="Stop Windows Update from downloading and installing updates." />
                     </ComboBox>
                 </toolkit:SettingsExpander>
                 <toolkit:SettingsExpander Description="Windows AI features such as Copilot in Paint, Windows Recall, Click To Do, etc. These settings are applied using Windows policies and will persist throughout your installation until you change them." Header="AI Features">

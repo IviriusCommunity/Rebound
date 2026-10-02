@@ -15,6 +15,7 @@ using Rebound.Forge.Engines;
 using System;
 using System.Diagnostics;
 using System.IO;
+using System.Linq;
 using System.Threading.Tasks;
 using Windows.System;
 using Windows.Win32;
@@ -1600,10 +1601,10 @@ internal partial class PrivacyAndUserChoiceViewModel : ObservableObject
 
     partial void OnCopilotInNotepadChanged(bool value)
     {
-        RegistrySettingsEngine.SetBool(
-            RegistryHive.LocalMachine,
-            RegistrySettingsCatalog.DisableAIFeaturesInNotepad,
-            !value);
+        Microsoft.Windows.Storage.ApplicationData
+            .GetForPackageFamily("Microsoft.WindowsNotepad_8wekyb3d8bbwe")
+            .LocalSettings
+            .Values["RewriteEnabled"] = value;
     }
 
     partial void OnIsRecallOnChanged(bool value)
@@ -1652,9 +1653,12 @@ internal partial class PrivacyAndUserChoiceViewModel : ObservableObject
                 RegistryHive.LocalMachine,
                 RegistrySettingsCatalog.DisableImageCreator);
 
-        CopilotInNotepad = !RegistrySettingsEngine.GetBool(
-            RegistryHive.LocalMachine,
-            RegistrySettingsCatalog.DisableAIFeaturesInNotepad);
+        var values = Microsoft.Windows.Storage.ApplicationData
+            .GetForPackageFamily("Microsoft.WindowsNotepad_8wekyb3d8bbwe")
+            .LocalSettings
+            .Values;
+        values.TryGetValue("RewriteEnabled", out var value);
+        CopilotInNotepad = value is not bool v || v;
 
         IsRecallOn = RegistrySettingsEngine.GetBool(
             RegistryHive.LocalMachine,
@@ -1676,13 +1680,23 @@ internal partial class PrivacyAndUserChoiceViewModel : ObservableObject
 
     [ObservableProperty] public partial int WindowsUpdateState { get; set; }
 
-    [ObservableProperty] public partial int WindowsUpdateConfig { get; set; }
+    [ObservableProperty] public partial bool AllowDriversInWindowsUpdate { get; set; }
+
+    [ObservableProperty] public partial bool GetUpdatesAsSoonAsPossible { get; set; }
+
+    [ObservableProperty] public partial bool RestartAsSoonAsPossible { get; set; }
+
+    [ObservableProperty] public partial bool AllowOtherUpdatesThroughWU { get; set; }
+
+    [ObservableProperty] public partial bool NotifyOnUpdate { get; set; }
+
+    [ObservableProperty] public partial bool HideSettingsPage { get; set; }
 
     partial void OnWindowsUpdateStateChanged(int value)
     {
         switch (value)
         {
-            case 0: // Default
+            case 0: // Automatic
                 RegistrySettingsEngine.SetValue(
                     RegistryHive.LocalMachine,
                     RegistrySettingsCatalog.NoAutoUpdate,
@@ -1696,6 +1710,8 @@ internal partial class PrivacyAndUserChoiceViewModel : ObservableObject
                 RegistrySettingsEngine.DeleteValue(
                     RegistryHive.LocalMachine,
                     RegistrySettingsCatalog.SetDisableUXWUAccess);
+
+                HideSettingsPage = false;
                 break;
 
             case 1: // Ask for consent
@@ -1712,6 +1728,8 @@ internal partial class PrivacyAndUserChoiceViewModel : ObservableObject
                 RegistrySettingsEngine.DeleteValue(
                     RegistryHive.LocalMachine,
                     RegistrySettingsCatalog.SetDisableUXWUAccess);
+
+                HideSettingsPage = false;
                 break;
 
             case 2: // Manual
@@ -1728,6 +1746,8 @@ internal partial class PrivacyAndUserChoiceViewModel : ObservableObject
                 RegistrySettingsEngine.DeleteValue(
                     RegistryHive.LocalMachine,
                     RegistrySettingsCatalog.SetDisableUXWUAccess);
+
+                HideSettingsPage = false;
                 break;
 
             case 3: // Disabled
@@ -1749,67 +1769,122 @@ internal partial class PrivacyAndUserChoiceViewModel : ObservableObject
         }
     }
 
-    partial void OnWindowsUpdateConfigChanged(int value)
+    partial void OnGetUpdatesAsSoonAsPossibleChanged(bool value)
     {
-        switch (value)
+        RegistrySettingsEngine.SetValue(
+            RegistryHive.LocalMachine,
+            RegistrySettingsCatalog.IsContinuousInnovationOptedIn,
+            value ? 1 : 0);
+    }
+
+    partial void OnRestartAsSoonAsPossibleChanged(bool value)
+    {
+        RegistrySettingsEngine.SetValue(
+            RegistryHive.LocalMachine,
+            RegistrySettingsCatalog.IsExpedited,
+            value ? 1 : 0);
+    }
+
+    partial void OnAllowDriversInWindowsUpdateChanged(bool value)
+    {
+        RegistrySettingsEngine.SetValue(
+            RegistryHive.LocalMachine,
+            RegistrySettingsCatalog.ExcludeWUDriversInQualityUpdate,
+            value ? 0 : 1);
+    }
+
+    partial void OnAllowOtherUpdatesThroughWUChanged(bool value)
+    {
+        RegistrySettingsEngine.SetValue(
+            RegistryHive.LocalMachine,
+            RegistrySettingsCatalog.AllowMUUpdateService,
+            value ? 1 : 0);
+    }
+
+    partial void OnNotifyOnUpdateChanged(bool value)
+    {
+        RegistrySettingsEngine.SetValue(
+            RegistryHive.LocalMachine,
+            RegistrySettingsCatalog.RestartNotificationsAllowed2,
+            value ? 1 : 0);
+    }
+
+    partial void OnHideSettingsPageChanged(bool value)
+    {
+        const string pageId = "windowsupdate";
+
+        string? current = RegistrySettingsEngine.GetValue<string>(
+            RegistryHive.LocalMachine,
+            RegistrySettingsCatalog.SettingsPageVisibility);
+
+        if (string.IsNullOrWhiteSpace(current))
         {
-            case 0: // Get updates as soon as they're available
-                RegistrySettingsEngine.SetValue(
-                    RegistryHive.LocalMachine,
-                    RegistrySettingsCatalog.SetAllowOptionalContent,
-                    1);
+            if (!value)
+                return;
 
-                RegistrySettingsEngine.SetValue(
-                    RegistryHive.LocalMachine,
-                    RegistrySettingsCatalog.AllowOptionalContent,
-                    1);
+            RegistrySettingsEngine.SetValue(
+                RegistryHive.LocalMachine,
+                RegistrySettingsCatalog.SettingsPageVisibility,
+                $"hide:{pageId}", RegistryValueKind.String);
 
-                RegistrySettingsEngine.SetValue(
-                    RegistryHive.LocalMachine,
-                    RegistrySettingsCatalog.ExcludeWUDriversInQualityUpdate,
-                    0);
-                break;
+            return;
+        }
 
-            case 1: // Default
-                RegistrySettingsEngine.SetValue(
-                    RegistryHive.LocalMachine,
-                    RegistrySettingsCatalog.SetAllowOptionalContent,
-                    1);
+        const string hidePrefix = "hide:";
+        const string showOnlyPrefix = "showonly:";
 
-                RegistrySettingsEngine.SetValue(
-                    RegistryHive.LocalMachine,
-                    RegistrySettingsCatalog.AllowOptionalContent,
-                    2);
+        if (current.StartsWith(showOnlyPrefix, StringComparison.OrdinalIgnoreCase))
+        {
+            if (!value)
+                return;
 
-                RegistrySettingsEngine.SetValue(
-                    RegistryHive.LocalMachine,
-                    RegistrySettingsCatalog.ExcludeWUDriversInQualityUpdate,
-                    0);
-                break;
+            var pages = current[showOnlyPrefix.Length..]
+                .Split(';', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
+                .ToList();
 
-            case 2: // Important updates only
-                RegistrySettingsEngine.SetValue(
-                    RegistryHive.LocalMachine,
-                    RegistrySettingsCatalog.SetAllowOptionalContent,
-                    1);
+            pages.RemoveAll(x =>
+                x.Equals(pageId, StringComparison.OrdinalIgnoreCase));
 
-                RegistrySettingsEngine.SetValue(
-                    RegistryHive.LocalMachine,
-                    RegistrySettingsCatalog.AllowOptionalContent,
-                    0);
+            RegistrySettingsEngine.SetValue(
+                RegistryHive.LocalMachine,
+                RegistrySettingsCatalog.SettingsPageVisibility,
+                $"{showOnlyPrefix}{string.Join(';', pages)}", RegistryValueKind.String);
 
-                RegistrySettingsEngine.SetValue(
-                    RegistryHive.LocalMachine,
-                    RegistrySettingsCatalog.ExcludeWUDriversInQualityUpdate,
-                    1);
-                break;
+            return;
+        }
+
+        if (!current.StartsWith(hidePrefix, StringComparison.OrdinalIgnoreCase))
+            return;
+
+        var hiddenPages = current[hidePrefix.Length..]
+            .Split(';', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
+            .ToList();
+
+        hiddenPages.RemoveAll(x =>
+            x.Equals(pageId, StringComparison.OrdinalIgnoreCase));
+
+        if (value)
+        {
+            hiddenPages.Add(pageId);
+        }
+
+        if (hiddenPages.Count == 0)
+        {
+            RegistrySettingsEngine.DeleteValue(
+                RegistryHive.LocalMachine,
+                RegistrySettingsCatalog.SettingsPageVisibility);
+        }
+        else
+        {
+            RegistrySettingsEngine.SetValue(
+                RegistryHive.LocalMachine,
+                RegistrySettingsCatalog.SettingsPageVisibility,
+                $"{hidePrefix}{string.Join(';', hiddenPages)}", RegistryValueKind.String);
         }
     }
 
     private void RefreshWindowsUpdateProperties()
     {
-        // WindowsUpdateState
-
         bool noUI = RegistrySettingsEngine.GetBool(
             RegistryHive.LocalMachine,
             RegistrySettingsCatalog.SetDisableUXWUAccess);
@@ -1843,23 +1918,34 @@ internal partial class PrivacyAndUserChoiceViewModel : ObservableObject
             }
         }
 
-        // WindowsUpdateConfig
-
-        int optionalContent = RegistrySettingsEngine.GetValue<int>(
-            RegistryHive.LocalMachine,
-            RegistrySettingsCatalog.AllowOptionalContent);
-
-        int excludeDrivers = RegistrySettingsEngine.GetValue<int>(
-            RegistryHive.LocalMachine,
-            RegistrySettingsCatalog.ExcludeWUDriversInQualityUpdate);
-
-        WindowsUpdateConfig = (optionalContent, excludeDrivers) switch
+        if (IsElevated)
         {
-            (1, 0) => 0, // Get updates as soon as they're available
-            (2, 0) => 1, // Default
-            (0, 1) => 2, // Important updates only
-            _ => 1       // Default fallback
-        };
+            AllowDriversInWindowsUpdate = RegistrySettingsEngine.GetValue<int>(
+                RegistryHive.LocalMachine,
+                RegistrySettingsCatalog.ExcludeWUDriversInQualityUpdate) == 0;
+            GetUpdatesAsSoonAsPossible = RegistrySettingsEngine.GetValue<int>(
+                RegistryHive.LocalMachine,
+                RegistrySettingsCatalog.IsContinuousInnovationOptedIn) == 1;
+            RestartAsSoonAsPossible = RegistrySettingsEngine.GetValue<int>(
+                RegistryHive.LocalMachine,
+                RegistrySettingsCatalog.IsExpedited) == 1;
+            AllowOtherUpdatesThroughWU = RegistrySettingsEngine.GetValue<int>(
+                RegistryHive.LocalMachine,
+                RegistrySettingsCatalog.AllowMUUpdateService) == 1;
+            NotifyOnUpdate = RegistrySettingsEngine.GetValue<int>(
+                RegistryHive.LocalMachine,
+                RegistrySettingsCatalog.RestartNotificationsAllowed2) == 1;
+
+            string? settingsPageVisibility = RegistrySettingsEngine.GetValue<string>(
+                RegistryHive.LocalMachine,
+                RegistrySettingsCatalog.SettingsPageVisibility);
+            HideSettingsPage =
+                settingsPageVisibility?
+                    .StartsWith("hide:", StringComparison.OrdinalIgnoreCase) == true &&
+                settingsPageVisibility["hide:".Length..]
+                    .Split(';', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
+                    .Contains("windowsupdate", StringComparer.OrdinalIgnoreCase) == true;
+        }
     }
 
     #endregion
