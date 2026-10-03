@@ -8,3 +8,8 @@ CoCreateInstance
 ITaskService
 ControlService
 StartService
+SetWindowDisplayAffinity
+CredDeleteW
+CredReadW
+CredWriteW
+CredEnumerateW

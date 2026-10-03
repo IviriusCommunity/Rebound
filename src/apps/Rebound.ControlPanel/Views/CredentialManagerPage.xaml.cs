@@ -11,12 +11,13 @@ namespace Rebound.ControlPanel.Views;
 
 internal sealed partial class CredentialManagerPage : Page
 {
+    private CredentialManagerViewModel ViewModel { get; }
+
     public CredentialManagerPage()
     {
         InitializeComponent();
-
-        // Always start fresh so search queries and such don't stick around when navigating back to the page
-        CredentialManagerViewModel.Singleton.ReloadState();
+        ViewModel = new CredentialManagerViewModel();
+        ViewModel.ReloadState();
     }
 
     protected override void OnNavigatedFrom(NavigationEventArgs e)
