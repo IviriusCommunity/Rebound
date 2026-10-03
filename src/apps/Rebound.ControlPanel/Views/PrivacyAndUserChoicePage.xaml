@@ -23,43 +23,36 @@
             TrueValue="Collapsed" />
     </Page.Resources>
     <Grid>
-        <Grid
-            Height="72"
-            VerticalAlignment="Top"
-            Background="{ThemeResource CardBackgroundFillColorDefaultBrush}">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+        <Grid VerticalAlignment="Top" Background="{ThemeResource CardBackgroundFillColorDefaultBrush}">
             <Image
-                Width="20"
+                Width="16"
                 Margin="16"
                 HorizontalAlignment="Left"
                 VerticalAlignment="Top"
-                Source="/Assets/Glyphs/PrivacyAndUserChoice.png" />
+                Source="/Assets/Glyphs/PrivacyAndUserChoice.ico" />
             <TextBlock
-                Margin="48,10"
-                FontSize="20"
+                Margin="48,10,16,0"
+                FontSize="18"
                 FontWeight="SemiBold"
                 Foreground="{ThemeResource AccentTextFillColorPrimaryBrush}"
-                Text="Privacy and User Choice" />
-            <TextBlock Margin="48,40,0,0" Text="Gain control of your computer." />
+                Text="Privacy and User Choice"
+                TextTrimming="CharacterEllipsis" />
+            <TextBlock
+                Margin="48,36,16,12"
+                FontSize="12"
+                Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                Text="Change hidden privacy and user choice and control settings in Windows."
+                TextWrapping="WrapWholeWords" />
         </Grid>
-        <ScrollViewer Margin="0,72,0,0" Padding="40,0,40,0">
+        <ScrollView Grid.Row="1">
             <StackPanel
                 MaxWidth="1000"
-                Margin="0,40"
+                Margin="40"
                 Spacing="8">
-                <InfoBar
-                    Title="These settings require administrator privileges to edit."
-                    IsClosable="False"
-                    IsOpen="True"
-                    Visibility="Collapsed">
-                    <InfoBar.ActionButton>
-                        <Button Style="{StaticResource AccentButtonStyle}">
-                            <StackPanel Orientation="Horizontal" Spacing="8">
-                                <FontIcon FontSize="16" Glyph="&#xEA18;" />
-                                <TextBlock Text="Relaunch as Administrator" />
-                            </StackPanel>
-                        </Button>
-                    </InfoBar.ActionButton>
-                </InfoBar>
                 <InfoBar
                     Title="About Privacy and User Choice settings"
                     IsClosable="False"
@@ -440,7 +433,10 @@
                         <ComboBoxItem Content="With input disabled" />
                     </ComboBox>
                 </toolkit:SettingsCard>
-                <toolkit:SettingsExpander Description="Change how Windows handles the execution of script-based automation, including PowerShell execution policies, Windows Script Host availability, and handling of downloaded scripts through Mark-of-the-Web. These settings determine what types of scripts can run, under what trust conditions, and how strongly external script sources are restricted before execution." Header="Execution policies">
+                <toolkit:SettingsExpander
+                    Description="Change how Windows handles the execution of script-based automation, including PowerShell execution policies, Windows Script Host availability, and handling of downloaded scripts through Mark-of-the-Web. These settings determine what types of scripts can run, under what trust conditions, and how strongly external script sources are restricted before execution."
+                    Header="Execution policies"
+                    IsEnabled="{x:Bind ViewModel.IsElevated, Mode=OneWay}">
                     <toolkit:SettingsExpander.HeaderIcon>
                         <FontIcon Glyph="&#xE8AD;" />
                     </toolkit:SettingsExpander.HeaderIcon>
@@ -462,11 +458,14 @@
                         </toolkit:SettingsCard>
                     </toolkit:SettingsExpander.Items>
                 </toolkit:SettingsExpander>
-                <toolkit:SettingsCard Description="Enables Windows developer features, including relaxed MSIX/AppX deployment rules for development scenarios, support for installing locally built or test-signed packages, and access to additional debugging and device portal interfaces used for app testing and deployment." Header="Developer Mode">
+                <toolkit:SettingsCard
+                    Description="Enables Windows developer features, including relaxed MSIX/AppX deployment rules for development scenarios, support for installing locally built or test-signed packages, and access to additional debugging and device portal interfaces used for app testing and deployment."
+                    Header="Developer Mode"
+                    IsEnabled="{x:Bind ViewModel.IsElevated, Mode=OneWay}">
                     <toolkit:SettingsCard.HeaderIcon>
                         <FontIcon Glyph="&#xE943;" />
                     </toolkit:SettingsCard.HeaderIcon>
-                    <ToggleSwitch IsOn="{x:Bind ViewModel.DeveloperMode, Mode=TwoWay}" />
+                    <ToggleSwitch IsOn="{x:Bind ViewModel.DeveloperMode, Mode=TwoWay}" Visibility="{x:Bind ViewModel.IsElevated, Mode=OneWay}" />
                 </toolkit:SettingsCard>
                 <toolkit:SettingsCard
                     Description="Enables Remote Desktop connections to this device, allowing authorized users to remotely sign in and control the system over the network using the RDP protocol. When disabled, incoming Remote Desktop connections are blocked."
@@ -477,11 +476,14 @@
                     </toolkit:SettingsCard.HeaderIcon>
                     <ToggleSwitch />
                 </toolkit:SettingsCard>
-                <toolkit:SettingsCard Description="User Account Control (UAC) is the Windows security mechanism that mediates elevation requests between standard user processes and system-level privileges. It acts as a permission broker that ensures administrative actions require explicit approval before being executed, helping prevent unauthorized or unintended changes to the system. This setting controls how often Windows prompts for consent when applications request elevated access." Header="User Account Control">
+                <toolkit:SettingsCard
+                    Description="User Account Control (UAC) is the Windows security mechanism that mediates elevation requests between standard user processes and system-level privileges. It acts as a permission broker that ensures administrative actions require explicit approval before being executed, helping prevent unauthorized or unintended changes to the system. This setting controls how often Windows prompts for consent when applications request elevated access."
+                    Header="User Account Control"
+                    IsEnabled="{x:Bind ViewModel.IsElevated, Mode=OneWay}">
                     <toolkit:SettingsCard.HeaderIcon>
                         <FontIcon Glyph="&#xEA0D;" />
                     </toolkit:SettingsCard.HeaderIcon>
-                    <ComboBox SelectedIndex="{x:Bind ViewModel.UacLevel, Mode=TwoWay}">
+                    <ComboBox SelectedIndex="{x:Bind ViewModel.UacLevel, Mode=TwoWay}" Visibility="{x:Bind ViewModel.IsElevated, Mode=OneWay}">
                         <ComboBoxItem Content="Always notify me (highest security)" />
                         <ComboBoxItem Content="Notify me only when apps try to make changes to my device" />
                         <ComboBoxItem Content="Notify me only when apps try to make changes (do not dim desktop)" />
@@ -492,6 +494,20 @@
                     Margin="0,32,0,0"
                     FontWeight="SemiBold"
                     Text="Privacy" />
+                <InfoBar
+                    Title="These settings require administrator privileges to view and edit."
+                    IsClosable="False"
+                    IsOpen="True"
+                    Visibility="{x:Bind ViewModel.IsElevated, Mode=OneWay, Converter={StaticResource BoolToInverseVisibilityConverter}}">
+                    <InfoBar.ActionButton>
+                        <Button Command="{x:Bind RelaunchAsAdminCommand}" Style="{StaticResource AccentButtonStyle}">
+                            <StackPanel Orientation="Horizontal" Spacing="8">
+                                <FontIcon FontSize="16" Glyph="&#xEA18;" />
+                                <TextBlock Text="Relaunch as Administrator" />
+                            </StackPanel>
+                        </Button>
+                    </InfoBar.ActionButton>
+                </InfoBar>
                 <InfoBar
                     Title="Verify the impact on your privacy"
                     IsClosable="False"
@@ -549,7 +565,10 @@
                         </Border>
                     </StackPanel>
                 </InfoBar>
-                <toolkit:SettingsCard Description="Important note: Windows Telemetry is not classified as spyware by mainstream security vendors or security agencies. It refers to diagnostic data collection used to improve system reliability, security, compatibility, and performance. This can include hardware details, system configuration, installed applications, application usage and diagnostics, performance data, device health information, and Microsoft Edge diagnostics. Disabling or limiting telemetry may affect certain features that rely on diagnostic data, such as Windows Insider program functionality and some Microsoft service integrations." Header="Telemetry">
+                <toolkit:SettingsCard
+                    Description="Important note: Windows Telemetry is not classified as spyware by mainstream security vendors or security agencies. It refers to diagnostic data collection used to improve system reliability, security, compatibility, and performance. This can include hardware details, system configuration, installed applications, application usage and diagnostics, performance data, device health information, and Microsoft Edge diagnostics. Disabling or limiting telemetry may affect certain features that rely on diagnostic data, such as Windows Insider program functionality and some Microsoft service integrations."
+                    Header="Telemetry"
+                    IsEnabled="{x:Bind ViewModel.IsElevated, Mode=OneWay}">
                     <toolkit:SettingsCard.HeaderIcon>
                         <FontIcon Glyph="&#xED15;" />
                     </toolkit:SettingsCard.HeaderIcon>
@@ -572,14 +591,17 @@
                                 Foreground="{ThemeResource SystemFillColorAttentionBrush}"
                                 Glyph="&#xE753;" />
                         </Border>
-                        <ComboBox SelectedIndex="{x:Bind ViewModel.TelemetryLevel, Mode=TwoWay}">
+                        <ComboBox SelectedIndex="{x:Bind ViewModel.TelemetryLevel, Mode=TwoWay}" Visibility="{x:Bind ViewModel.IsElevated, Mode=OneWay}">
                             <ComboBoxItem Content="No diagnostics data" />
                             <ComboBoxItem Content="Required only" />
-                            <ComboBoxItem Content="Required + optional" />
+                            <ComboBoxItem Content="Include optional data" />
                         </ComboBox>
                     </StackPanel>
                 </toolkit:SettingsCard>
-                <toolkit:SettingsCard Description="Allows Windows to use optional diagnostic data to provide personalized tips, recommendations, and suggestions within the operating system and Microsoft services. This may include tailored setup prompts, feature recommendations, and other contextual experiences. In some cases, personalization settings can also influence how Microsoft services display content and advertising." Header="Tailored Experiences">
+                <toolkit:SettingsCard
+                    Description="Allows Windows to use optional diagnostic data to provide personalized tips, recommendations, and suggestions within the operating system and Microsoft services. This may include tailored setup prompts, feature recommendations, and other contextual experiences. In some cases, personalization settings can also influence how Microsoft services display content and advertising."
+                    Header="Tailored Experiences"
+                    IsEnabled="{x:Bind ViewModel.IsElevated, Mode=OneWay}">
                     <toolkit:SettingsCard.HeaderIcon>
                         <FontIcon Glyph="&#xE771;" />
                     </toolkit:SettingsCard.HeaderIcon>
@@ -602,10 +624,13 @@
                                 Foreground="{ThemeResource SystemFillColorAttentionBrush}"
                                 Glyph="&#xE753;" />
                         </Border>
-                        <ToggleSwitch IsOn="{x:Bind ViewModel.IsTailoredExperiencesEnabled, Mode=TwoWay}" />
+                        <ToggleSwitch IsOn="{x:Bind ViewModel.IsTailoredExperiencesEnabled, Mode=TwoWay}" Visibility="{x:Bind ViewModel.IsElevated, Mode=OneWay}" />
                     </StackPanel>
                 </toolkit:SettingsCard>
-                <toolkit:SettingsCard Description="Enables a device-based advertising identifier that apps and some Microsoft services can use to provide personalized advertising and content based on your activity. When enabled, supported apps (including some Windows experiences such as Widgets) may use this identifier to show more relevant ads. Disabling it limits ad personalization based on this identifier." Header="Advertising ID">
+                <toolkit:SettingsCard
+                    Description="Enables a device-based advertising identifier that apps and some Microsoft services can use to provide personalized advertising and content based on your activity. When enabled, supported apps (including some Windows experiences such as Widgets) may use this identifier to show more relevant ads. Disabling it limits ad personalization based on this identifier."
+                    Header="Advertising ID"
+                    IsEnabled="{x:Bind ViewModel.IsElevated, Mode=OneWay}">
                     <toolkit:SettingsCard.HeaderIcon>
                         <FontIcon Glyph="&#xF571;" />
                     </toolkit:SettingsCard.HeaderIcon>
@@ -628,10 +653,13 @@
                                 Foreground="{ThemeResource SystemFillColorAttentionBrush}"
                                 Glyph="&#xE753;" />
                         </Border>
-                        <ToggleSwitch IsOn="{x:Bind ViewModel.IsAdvertisingIdEnabled, Mode=TwoWay}" />
+                        <ToggleSwitch IsOn="{x:Bind ViewModel.IsAdvertisingIdEnabled, Mode=TwoWay}" Visibility="{x:Bind ViewModel.IsElevated, Mode=OneWay}" />
                     </StackPanel>
                 </toolkit:SettingsCard>
-                <toolkit:SettingsCard Description="Stores a history of your activity on this device, such as apps you use and documents you open, to enable features like activity continuity and cross-device resume. When enabled and syncing is turned on, some of this data can be associated with your Microsoft account and synchronized across devices. Otherwise, the data remains stored locally on the device." Header="Activity History">
+                <toolkit:SettingsCard
+                    Description="Stores a history of your activity on this device, such as apps you use and documents you open, to enable features like activity continuity and cross-device resume. When enabled and syncing is turned on, some of this data can be associated with your Microsoft account and synchronized across devices. Otherwise, the data remains stored locally on the device."
+                    Header="Activity History"
+                    IsEnabled="{x:Bind ViewModel.IsElevated, Mode=OneWay}">
                     <toolkit:SettingsCard.HeaderIcon>
                         <FontIcon Glyph="&#xE81C;" />
                     </toolkit:SettingsCard.HeaderIcon>
@@ -665,10 +693,13 @@
                                 Foreground="{ThemeResource SystemFillColorAttentionBrush}"
                                 Glyph="&#xE977;" />
                         </Border>
-                        <ToggleSwitch IsOn="{x:Bind ViewModel.IsActivityHistoryEnabled, Mode=TwoWay}" />
+                        <ToggleSwitch IsOn="{x:Bind ViewModel.IsActivityHistoryEnabled, Mode=TwoWay}" Visibility="{x:Bind ViewModel.IsElevated, Mode=OneWay}" />
                     </StackPanel>
                 </toolkit:SettingsCard>
-                <toolkit:SettingsCard Description="Controls participation in Microsoft’s Customer Experience Improvement Program, which collects additional usage and feature interaction data to help improve Windows and its components. When disabled, Windows reduces optional behavioral data sharing related to how features are used." Header="Customer Experience Improvement Program">
+                <toolkit:SettingsCard
+                    Description="Controls participation in Microsoft’s Customer Experience Improvement Program, which collects additional usage and feature interaction data to help improve Windows and its components. When disabled, Windows reduces optional behavioral data sharing related to how features are used."
+                    Header="Customer Experience Improvement Program"
+                    IsEnabled="{x:Bind ViewModel.IsElevated, Mode=OneWay}">
                     <toolkit:SettingsCard.HeaderIcon>
                         <FontIcon Glyph="&#xE8E1;" />
                     </toolkit:SettingsCard.HeaderIcon>
@@ -691,10 +722,13 @@
                                 Foreground="{ThemeResource SystemFillColorAttentionBrush}"
                                 Glyph="&#xE753;" />
                         </Border>
-                        <ToggleSwitch IsOn="{x:Bind ViewModel.IsWindowsCeipEnabled, Mode=TwoWay}" />
+                        <ToggleSwitch IsOn="{x:Bind ViewModel.IsWindowsCeipEnabled, Mode=TwoWay}" Visibility="{x:Bind ViewModel.IsElevated, Mode=OneWay}" />
                     </StackPanel>
                 </toolkit:SettingsCard>
-                <toolkit:SettingsCard Description="Collects diagnostic information when applications, drivers, or Windows components crash, stop responding, or encounter unexpected errors. Crash reports may be sent to Microsoft and participating software or hardware vendors to help identify bugs, improve reliability, and resolve compatibility issues. Depending on the error, reports may include technical details such as exception information, loaded modules, and memory state at the time of the failure." Header="Error Reporting">
+                <toolkit:SettingsCard
+                    Description="Collects diagnostic information when applications, drivers, or Windows components crash, stop responding, or encounter unexpected errors. Crash reports may be sent to Microsoft and participating software or hardware vendors to help identify bugs, improve reliability, and resolve compatibility issues. Depending on the error, reports may include technical details such as exception information, loaded modules, and memory state at the time of the failure."
+                    Header="Error Reporting"
+                    IsEnabled="{x:Bind ViewModel.IsElevated, Mode=OneWay}">
                     <toolkit:SettingsCard.HeaderIcon>
                         <FontIcon Glyph="&#xEA39;" />
                     </toolkit:SettingsCard.HeaderIcon>
@@ -728,10 +762,13 @@
                                 Foreground="{ThemeResource SystemFillColorAttentionBrush}"
                                 Glyph="&#xE977;" />
                         </Border>
-                        <ToggleSwitch IsOn="{x:Bind ViewModel.IsErrorReportingEnabled, Mode=TwoWay}" />
+                        <ToggleSwitch IsOn="{x:Bind ViewModel.IsErrorReportingEnabled, Mode=TwoWay}" Visibility="{x:Bind ViewModel.IsElevated, Mode=OneWay}" />
                     </StackPanel>
                 </toolkit:SettingsCard>
-                <toolkit:SettingsCard Description="Enables cloud-based speech recognition for features such as voice dictation and speech-to-text. When enabled, spoken input is processed using Microsoft’s online speech services to improve accuracy and language understanding. When disabled, speech input is processed locally using on-device recognition models where available." Header="Online Speech Recognition">
+                <toolkit:SettingsCard
+                    Description="Enables cloud-based speech recognition for features such as voice dictation and speech-to-text. When enabled, spoken input is processed using Microsoft’s online speech services to improve accuracy and language understanding. When disabled, speech input is processed locally using on-device recognition models where available."
+                    Header="Online Speech Recognition"
+                    IsEnabled="{x:Bind ViewModel.IsElevated, Mode=OneWay}">
                     <toolkit:SettingsCard.HeaderIcon>
                         <FontIcon Glyph="&#xEFA9;" />
                     </toolkit:SettingsCard.HeaderIcon>
@@ -765,10 +802,13 @@
                                 Foreground="{ThemeResource SystemFillColorAttentionBrush}"
                                 Glyph="&#xE977;" />
                         </Border>
-                        <ToggleSwitch IsOn="{x:Bind ViewModel.IsOnlineSpeechRecognitionEnabled, Mode=TwoWay}" />
+                        <ToggleSwitch IsOn="{x:Bind ViewModel.IsOnlineSpeechRecognitionEnabled, Mode=TwoWay}" Visibility="{x:Bind ViewModel.IsElevated, Mode=OneWay}" />
                     </StackPanel>
                 </toolkit:SettingsCard>
-                <toolkit:SettingsCard Description="Allows apps and Windows services to access your device's real-time location when permission is granted. This enables features such as weather, maps, and location-based app functionality. Both Microsoft and third-party apps may request location data through the Windows location platform, depending on your permission settings. Disabling this prevents all apps from accessing device location services." Header="Location Services">
+                <toolkit:SettingsCard
+                    Description="Allows apps and Windows services to access your device's real-time location when permission is granted. This enables features such as weather, maps, and location-based app functionality. Both Microsoft and third-party apps may request location data through the Windows location platform, depending on your permission settings. Disabling this prevents all apps from accessing device location services."
+                    Header="Location Services"
+                    IsEnabled="{x:Bind ViewModel.IsElevated, Mode=OneWay}">
                     <toolkit:SettingsCard.HeaderIcon>
                         <FontIcon Glyph="&#xECAF;" />
                     </toolkit:SettingsCard.HeaderIcon>
@@ -780,10 +820,13 @@
                             CornerRadius="4">
                             <TextBlock Foreground="{ThemeResource SystemFillColorCautionBrush}" Text="Medium" />
                         </Border>
-                        <ToggleSwitch IsOn="{x:Bind ViewModel.IsLocationServicesEnabled, Mode=TwoWay}" />
+                        <ToggleSwitch IsOn="{x:Bind ViewModel.IsLocationServicesEnabled, Mode=TwoWay}" Visibility="{x:Bind ViewModel.IsElevated, Mode=OneWay}" />
                     </StackPanel>
                 </toolkit:SettingsCard>
-                <toolkit:SettingsCard Description="Controls whether Microsoft Store apps can send aggregated, anonymized usage and diagnostic data used in Partner Center analytics. This data is processed in a way that removes direct user identification and is not traceable to individual users. It is used by independent developers and companies to understand high-level usage metrics such as app adoption by country or region, app versions in use, feature engagement, performance trends, and reliability signals. This helps developers improve app stability and prioritize updates based on real-world usage patterns." Header="Application Telemetry">
+                <toolkit:SettingsCard
+                    Description="Controls whether Microsoft Store apps can send aggregated, anonymized usage and diagnostic data used in Partner Center analytics. This data is processed in a way that removes direct user identification and is not traceable to individual users. It is used by independent developers and companies to understand high-level usage metrics such as app adoption by country or region, app versions in use, feature engagement, performance trends, and reliability signals. This helps developers improve app stability and prioritize updates based on real-world usage patterns."
+                    Header="Application Telemetry"
+                    IsEnabled="{x:Bind ViewModel.IsElevated, Mode=OneWay}">
                     <toolkit:SettingsCard.HeaderIcon>
                         <FontIcon Glyph="&#xECAA;" />
                     </toolkit:SettingsCard.HeaderIcon>
@@ -806,10 +849,13 @@
                                 Foreground="{ThemeResource SystemFillColorAttentionBrush}"
                                 Glyph="&#xE753;" />
                         </Border>
-                        <ToggleSwitch IsOn="{x:Bind ViewModel.IsApplicationTelemetryEnabled, Mode=TwoWay}" />
+                        <ToggleSwitch IsOn="{x:Bind ViewModel.IsApplicationTelemetryEnabled, Mode=TwoWay}" Visibility="{x:Bind ViewModel.IsElevated, Mode=OneWay}" />
                     </StackPanel>
                 </toolkit:SettingsCard>
-                <toolkit:SettingsCard Description="Allows anonymized typing and handwriting diagnostic data to be used to improve Microsoft's text input, prediction, and handwriting recognition models. Data sharing may depend on your diagnostic data settings." Header="Help Improve Typing &amp; Inking">
+                <toolkit:SettingsCard
+                    Description="Allows anonymized typing and handwriting diagnostic data to be used to improve Microsoft's text input, prediction, and handwriting recognition models. Data sharing may depend on your diagnostic data settings."
+                    Header="Help Improve Typing &amp; Inking"
+                    IsEnabled="{x:Bind ViewModel.IsElevated, Mode=OneWay}">
                     <toolkit:SettingsCard.HeaderIcon>
                         <FontIcon Glyph="&#xF67B;" />
                     </toolkit:SettingsCard.HeaderIcon>
@@ -832,10 +878,13 @@
                                 Foreground="{ThemeResource SystemFillColorAttentionBrush}"
                                 Glyph="&#xE753;" />
                         </Border>
-                        <ToggleSwitch IsOn="{x:Bind ViewModel.IsTypingAndInkingDataCollectionEnabled, Mode=TwoWay}" />
+                        <ToggleSwitch IsOn="{x:Bind ViewModel.IsTypingAndInkingDataCollectionEnabled, Mode=TwoWay}" Visibility="{x:Bind ViewModel.IsElevated, Mode=OneWay}" />
                     </StackPanel>
                 </toolkit:SettingsCard>
-                <toolkit:SettingsCard Description="Allows Windows to build a local language and handwriting model based on your typing, corrections, and pen input. This information is used to improve text prediction, autocorrect, and handwriting recognition on this device." Header="Typing &amp; Inking Personalization">
+                <toolkit:SettingsCard
+                    Description="Allows Windows to build a local language and handwriting model based on your typing, corrections, and pen input. This information is used to improve text prediction, autocorrect, and handwriting recognition on this device."
+                    Header="Typing &amp; Inking Personalization"
+                    IsEnabled="{x:Bind ViewModel.IsElevated, Mode=OneWay}">
                     <toolkit:SettingsCard.HeaderIcon>
                         <FontIcon Glyph="&#xEDC6;" />
                     </toolkit:SettingsCard.HeaderIcon>
@@ -858,10 +907,13 @@
                                 Foreground="{ThemeResource SystemFillColorAttentionBrush}"
                                 Glyph="&#xE977;" />
                         </Border>
-                        <ToggleSwitch IsOn="{x:Bind ViewModel.IsTypingAndInkingPersonalizationEnabled, Mode=TwoWay}" />
+                        <ToggleSwitch IsOn="{x:Bind ViewModel.IsTypingAndInkingPersonalizationEnabled, Mode=TwoWay}" Visibility="{x:Bind ViewModel.IsElevated, Mode=OneWay}" />
                     </StackPanel>
                 </toolkit:SettingsCard>
-                <toolkit:SettingsCard Description="Maintains a local index of application launch activity used to improve Search results, Start menu recommendations, and other app discovery features. Windows uses this information to identify frequently used applications and make them easier to access." Header="Application Launches Tracking">
+                <toolkit:SettingsCard
+                    Description="Maintains a local index of application launch activity used to improve Search results, Start menu recommendations, and other app discovery features. Windows uses this information to identify frequently used applications and make them easier to access."
+                    Header="Application Launches Tracking"
+                    IsEnabled="{x:Bind ViewModel.IsElevated, Mode=OneWay}">
                     <toolkit:SettingsCard.HeaderIcon>
                         <FontIcon Glyph="&#xE8A7;" />
                     </toolkit:SettingsCard.HeaderIcon>
@@ -884,48 +936,80 @@
                                 Foreground="{ThemeResource SystemFillColorAttentionBrush}"
                                 Glyph="&#xE977;" />
                         </Border>
-                        <ToggleSwitch IsOn="{x:Bind ViewModel.IsApplicationLaunchTrackingEnabled, Mode=TwoWay}" />
+                        <ToggleSwitch IsOn="{x:Bind ViewModel.IsApplicationLaunchTrackingEnabled, Mode=TwoWay}" Visibility="{x:Bind ViewModel.IsElevated, Mode=OneWay}" />
                     </StackPanel>
                 </toolkit:SettingsCard>
                 <TextBlock
                     Margin="0,32,0,0"
                     FontWeight="SemiBold"
                     Text="Content" />
-                <toolkit:SettingsCard Description="Controls whether Windows shows tips, recommendations, and related links within Settings pages. These suggestions help guide users to relevant system features and Microsoft support content based on local usage and system configuration." Header="Suggested content in Settings">
+                <InfoBar
+                    Title="These settings require administrator privileges to view and edit."
+                    IsClosable="False"
+                    IsOpen="True"
+                    Visibility="{x:Bind ViewModel.IsElevated, Mode=OneWay, Converter={StaticResource BoolToInverseVisibilityConverter}}">
+                    <InfoBar.ActionButton>
+                        <Button Command="{x:Bind RelaunchAsAdminCommand}" Style="{StaticResource AccentButtonStyle}">
+                            <StackPanel Orientation="Horizontal" Spacing="8">
+                                <FontIcon FontSize="16" Glyph="&#xEA18;" />
+                                <TextBlock Text="Relaunch as Administrator" />
+                            </StackPanel>
+                        </Button>
+                    </InfoBar.ActionButton>
+                </InfoBar>
+                <toolkit:SettingsCard
+                    Description="Controls whether Windows shows tips, recommendations, and related links within Settings pages. These suggestions help guide users to relevant system features and Microsoft support content based on local usage and system configuration."
+                    Header="Suggested content in Settings"
+                    IsEnabled="{x:Bind ViewModel.IsElevated, Mode=OneWay}">
                     <toolkit:SettingsCard.HeaderIcon>
                         <FontIcon Glyph="&#xE713;" />
                     </toolkit:SettingsCard.HeaderIcon>
-                    <ToggleSwitch IsOn="{x:Bind ViewModel.IsSuggestedSettingsContentEnabled, Mode=TwoWay}" />
+                    <ToggleSwitch IsOn="{x:Bind ViewModel.IsSuggestedSettingsContentEnabled, Mode=TwoWay}" Visibility="{x:Bind ViewModel.IsElevated, Mode=OneWay}" />
                 </toolkit:SettingsCard>
-                <toolkit:SettingsCard Description="Controls whether Windows can show suggested notifications containing tips, feature recommendations, and setup guidance. These notifications are generated by the system to highlight relevant features and improvements based on device state and usage patterns." Header="Suggested notifications">
+                <toolkit:SettingsCard
+                    Description="Controls whether Windows can show suggested notifications containing tips, feature recommendations, and setup guidance. These notifications are generated by the system to highlight relevant features and improvements based on device state and usage patterns."
+                    Header="Suggested notifications"
+                    IsEnabled="{x:Bind ViewModel.IsElevated, Mode=OneWay}">
                     <toolkit:SettingsCard.HeaderIcon>
                         <FontIcon Glyph="&#xEA8F;" />
                     </toolkit:SettingsCard.HeaderIcon>
-                    <ToggleSwitch IsOn="{x:Bind ViewModel.IsSuggestedNotificationsEnabled, Mode=TwoWay}" />
+                    <ToggleSwitch IsOn="{x:Bind ViewModel.IsSuggestedNotificationsEnabled, Mode=TwoWay}" Visibility="{x:Bind ViewModel.IsElevated, Mode=OneWay}" />
                 </toolkit:SettingsCard>
-                <toolkit:SettingsCard Description="Shows occasional tips, feature highlights, and informational messages on the lock screen. These are intended to surface Windows features and usage hints while the device is locked." Header="Lock screen tips">
+                <toolkit:SettingsCard
+                    Description="Shows occasional tips, feature highlights, and informational messages on the lock screen. These are intended to surface Windows features and usage hints while the device is locked."
+                    Header="Lock screen tips"
+                    IsEnabled="{x:Bind ViewModel.IsElevated, Mode=OneWay}">
                     <toolkit:SettingsCard.HeaderIcon>
                         <FontIcon Glyph="&#xE82F;" />
                     </toolkit:SettingsCard.HeaderIcon>
-                    <ToggleSwitch IsOn="{x:Bind ViewModel.IsLockScreenTipsEnabled, Mode=TwoWay}" />
+                    <ToggleSwitch IsOn="{x:Bind ViewModel.IsLockScreenTipsEnabled, Mode=TwoWay}" Visibility="{x:Bind ViewModel.IsElevated, Mode=OneWay}" />
                 </toolkit:SettingsCard>
-                <toolkit:SettingsCard Description="Shows tips, feature highlights, and informational prompts in notification form, especially after Windows updates or system changes. These messages introduce new features and help users discover system capabilities following updates." Header="Windows tips">
+                <toolkit:SettingsCard
+                    Description="Shows tips, feature highlights, and informational prompts in notification form, especially after Windows updates or system changes. These messages introduce new features and help users discover system capabilities following updates."
+                    Header="Windows tips"
+                    IsEnabled="{x:Bind ViewModel.IsElevated, Mode=OneWay}">
                     <toolkit:SettingsCard.HeaderIcon>
                         <FontIcon Glyph="&#xE897;" />
                     </toolkit:SettingsCard.HeaderIcon>
-                    <ToggleSwitch IsOn="{x:Bind ViewModel.IsWindowsTipsEnabled, Mode=TwoWay}" />
+                    <ToggleSwitch IsOn="{x:Bind ViewModel.IsWindowsTipsEnabled, Mode=TwoWay}" Visibility="{x:Bind ViewModel.IsElevated, Mode=OneWay}" />
                 </toolkit:SettingsCard>
-                <toolkit:SettingsCard Description="Displays a guided experience after updates or first sign-in, highlighting new features, recommended settings, and changes in Windows. It helps introduce system capabilities and optional setup improvements." Header="Windows Welcome Experience">
+                <toolkit:SettingsCard
+                    Description="Displays a guided experience after updates or first sign-in, highlighting new features, recommended settings, and changes in Windows. It helps introduce system capabilities and optional setup improvements."
+                    Header="Windows Welcome Experience"
+                    IsEnabled="{x:Bind ViewModel.IsElevated, Mode=OneWay}">
                     <toolkit:SettingsCard.HeaderIcon>
                         <FontIcon Glyph="&#xE774;" />
                     </toolkit:SettingsCard.HeaderIcon>
-                    <ToggleSwitch IsOn="{x:Bind ViewModel.IsWindowsWelcomeExperienceEnabled, Mode=TwoWay}" />
+                    <ToggleSwitch IsOn="{x:Bind ViewModel.IsWindowsWelcomeExperienceEnabled, Mode=TwoWay}" Visibility="{x:Bind ViewModel.IsElevated, Mode=OneWay}" />
                 </toolkit:SettingsCard>
-                <toolkit:SettingsCard Description="Shows reminders to complete optional setup steps such as account sign-in, backup configuration, and device personalization. These prompts help ensure key Windows features are fully configured." Header="Finish setting up your device">
+                <toolkit:SettingsCard
+                    Description="Shows reminders to complete optional setup steps such as account sign-in, backup configuration, and device personalization. These prompts help ensure key Windows features are fully configured."
+                    Header="Finish setting up your device"
+                    IsEnabled="{x:Bind ViewModel.IsElevated, Mode=OneWay}">
                     <toolkit:SettingsCard.HeaderIcon>
                         <FontIcon Glyph="&#xEC76;" />
                     </toolkit:SettingsCard.HeaderIcon>
-                    <ToggleSwitch IsOn="{x:Bind ViewModel.IsFinishSettingUpDeviceEnabled, Mode=TwoWay}" />
+                    <ToggleSwitch IsOn="{x:Bind ViewModel.IsFinishSettingUpDeviceEnabled, Mode=TwoWay}" Visibility="{x:Bind ViewModel.IsElevated, Mode=OneWay}" />
                 </toolkit:SettingsCard>
                 <TextBlock
                     Margin="0,32,0,0"
@@ -936,7 +1020,7 @@
                         <FontIcon Glyph="&#xE770;" />
                     </toolkit:SettingsExpander.HeaderIcon>
                     <toolkit:SettingsExpander.Items>
-                        <toolkit:SettingsCard Description="Send feedback to Microsoft." Header="Feedback Hub">
+                        <toolkit:SettingsCard Description="Feedback Hub allows you to send feedback to Microsoft about Windows and other products. Some feedback workflows require this app to be installed." Header="Feedback Hub">
                             <Grid>
                                 <Button
                                     Width="120"
@@ -959,7 +1043,30 @@
                                 </Button>
                             </Grid>
                         </toolkit:SettingsCard>
-                        <toolkit:SettingsCard Description="Get help with Windows." Header="Get Help">
+                        <toolkit:SettingsCard Description="Game assistant overlay with XBOX services." Header="Game Bar">
+                            <Grid>
+                                <Button
+                                    Width="120"
+                                    Command="{x:Bind ViewModel.XboxGameBar.UninstallCommand}"
+                                    Style="{StaticResource AccentButtonStyle}"
+                                    Visibility="{x:Bind ViewModel.XboxGameBar.IsInstalled, Mode=OneWay}">
+                                    <StackPanel Orientation="Horizontal" Spacing="8">
+                                        <FontIcon FontSize="16" Glyph="&#xEC91;" />
+                                        <TextBlock Text="Uninstall" />
+                                    </StackPanel>
+                                </Button>
+                                <Button
+                                    Width="120"
+                                    Command="{x:Bind ViewModel.XboxGameBar.InstallCommand}"
+                                    Visibility="{x:Bind ViewModel.XboxGameBar.IsInstalled, Mode=OneWay, Converter={StaticResource BoolToInverseVisibilityConverter}}">
+                                    <StackPanel Orientation="Horizontal" Spacing="8">
+                                        <FontIcon FontSize="16" Glyph="&#xE896;" />
+                                        <TextBlock Text="Install" />
+                                    </StackPanel>
+                                </Button>
+                            </Grid>
+                        </toolkit:SettingsCard>
+                        <toolkit:SettingsCard Description="Contains guides and some troubleshooting utilities which cannot be found elsewhere in the operating system." Header="Get Help">
                             <Grid>
                                 <Button
                                     Width="120"
@@ -982,19 +1089,73 @@
                                 </Button>
                             </Grid>
                         </toolkit:SettingsCard>
-                        <toolkit:SettingsCard Description="Does nothing particularly useful." Header="Get Started">
-                            <ToggleSwitch IsOn="{x:Bind ViewModel.IsGetStartedEnabled, Mode=TwoWay}" />
+                        <toolkit:SettingsCard Description="This option will only prevent Get Started from being opened - it won't remove the app from the start menu." Header="Get Started">
+                            <ToggleSwitch IsOn="{x:Bind ViewModel.IsGetStartedEnabled, Mode=TwoWay}" Visibility="{x:Bind ViewModel.IsElevated, Mode=OneWay}" />
                         </toolkit:SettingsCard>
                         <toolkit:SettingsCard
-                            Description="Default browser for Windows. Due to a security feature in Windows, we cannot uninstall it for you, and you will have to uninstall it manually, with some guidance."
-                            Header="Microsoft Edge"
-                            Visibility="Collapsed">
+                            Background="{ThemeResource SystemFillColorAttentionBackgroundBrush}"
+                            Header="This setting requires administrator privileges to view and edit."
+                            Visibility="{x:Bind ViewModel.IsElevated, Mode=OneWay, Converter={StaticResource BoolToInverseVisibilityConverter}}">
+                            <toolkit:SettingsCard.HeaderIcon>
+                                <FontIcon Foreground="{ThemeResource SystemFillColorAttentionBrush}" Glyph="&#xF167;" />
+                            </toolkit:SettingsCard.HeaderIcon>
+                            <Button Command="{x:Bind RelaunchAsAdminCommand}" Style="{StaticResource AccentButtonStyle}">
+                                <StackPanel Orientation="Horizontal" Spacing="8">
+                                    <FontIcon FontSize="16" Glyph="&#xEA18;" />
+                                    <TextBlock Text="Relaunch as Administrator" />
+                                </StackPanel>
+                            </Button>
+                        </toolkit:SettingsCard>
+                        <toolkit:SettingsCard
+                            Background="{ThemeResource SystemFillColorAttentionBackgroundBrush}"
+                            Description="In order to remove Microsoft Edge, you need to enable the Digital Markets Act option that allows you to uninstall it. You will need to restart your PC after enabling this option for it to take effect."
+                            Header="Allow Microsoft Edge to be removed"
+                            Visibility="{x:Bind ViewModel.IsEdgeUninstallable, Mode=OneWay, Converter={StaticResource BoolToInverseVisibilityConverter}}">
+                            <toolkit:SettingsCard.HeaderIcon>
+                                <FontIcon Foreground="{ThemeResource SystemFillColorAttentionBrush}" Glyph="&#xF167;" />
+                            </toolkit:SettingsCard.HeaderIcon>
+                            <ToggleSwitch IsOn="{x:Bind ViewModel.IsEdgeUninstallable, Mode=TwoWay}" Visibility="{x:Bind ViewModel.IsElevated, Mode=OneWay}" />
+                        </toolkit:SettingsCard>
+                        <toolkit:SettingsCard Description="Chromium-based web browser for Windows with Copilot integration. Uninstalling this will not remove WebView2." Header="Microsoft Edge">
                             <Grid>
-                                <Button Content="Begin uninstalling" Visibility="Collapsed" />
-                                <Button Content="Install" />
+                                <Button
+                                    Width="120"
+                                    Command="{x:Bind ViewModel.UninstallEdgeCommand}"
+                                    IsEnabled="{x:Bind ViewModel.IsEdgeUninstallable, Mode=OneWay}"
+                                    Style="{StaticResource AccentButtonStyle}"
+                                    Visibility="{x:Bind ViewModel.IsEdgeInstalled, Mode=OneWay}">
+                                    <StackPanel Orientation="Horizontal" Spacing="8">
+                                        <FontIcon FontSize="16" Glyph="&#xEC91;" />
+                                        <TextBlock Text="Uninstall" />
+                                    </StackPanel>
+                                </Button>
+                                <HyperlinkButton
+                                    Width="120"
+                                    NavigateUri="https://explore.microsoft.com/en-us/edge/download"
+                                    Visibility="{x:Bind ViewModel.IsEdgeInstalled, Mode=OneWay, Converter={StaticResource BoolToInverseVisibilityConverter}}">
+                                    <StackPanel Orientation="Horizontal" Spacing="8">
+                                        <FontIcon FontSize="16" Glyph="&#xEBD3;" />
+                                        <TextBlock Text="Download" />
+                                    </StackPanel>
+                                </HyperlinkButton>
                             </Grid>
                         </toolkit:SettingsCard>
-                        <toolkit:SettingsCard Description="Frontend application for the Store APIs. Removing this will not remove application package support from Windows." Header="Microsoft Store">
+                        <toolkit:SettingsCard
+                            Background="{ThemeResource SystemFillColorAttentionBackgroundBrush}"
+                            Description="If the option above doesn't successfully install Microsoft Store, you can download the installation program manually."
+                            Header="Note"
+                            Visibility="{x:Bind ViewModel.MicrosoftStore.IsInstalled, Mode=OneWay, Converter={StaticResource BoolToInverseVisibilityConverter}}">
+                            <toolkit:SettingsCard.HeaderIcon>
+                                <FontIcon Foreground="{ThemeResource SystemFillColorAttentionBrush}" Glyph="&#xF167;" />
+                            </toolkit:SettingsCard.HeaderIcon>
+                            <HyperlinkButton Width="120" NavigateUri="https://apps.microsoft.com/detail/9wzdncrfjbmp">
+                                <StackPanel Orientation="Horizontal" Spacing="8">
+                                    <FontIcon FontSize="16" Glyph="&#xEBD3;" />
+                                    <TextBlock Text="Download" />
+                                </StackPanel>
+                            </HyperlinkButton>
+                        </toolkit:SettingsCard>
+                        <toolkit:SettingsCard Description="Built-in Windows storefront application for MSIX distributed applications and XBOX games from Microsoft and verified developers. Removing this will not remove application package support from Windows, so you will still be able to install MSIX packages." Header="Microsoft Store">
                             <Grid>
                                 <Button
                                     Width="120"
@@ -1017,7 +1178,7 @@
                                 </Button>
                             </Grid>
                         </toolkit:SettingsCard>
-                        <toolkit:SettingsCard Description="Simple text editor." Header="Notepad">
+                        <toolkit:SettingsCard Description="Built-in plain text editor." Header="Notepad">
                             <Grid>
                                 <Button
                                     Width="120"
@@ -1040,7 +1201,7 @@
                                 </Button>
                             </Grid>
                         </toolkit:SettingsCard>
-                        <toolkit:SettingsCard Description="Simple drawing app." Header="Paint">
+                        <toolkit:SettingsCard Description="Built-in simple pixel drawing application." Header="Paint">
                             <Grid>
                                 <Button
                                     Width="120"
@@ -1063,7 +1224,7 @@
                                 </Button>
                             </Grid>
                         </toolkit:SettingsCard>
-                        <toolkit:SettingsCard Description="Deprecated." Header="People">
+                        <toolkit:SettingsCard Description="Contacts application from Microsoft for Windows 10 Phone. Deprecated." Header="People">
                             <Grid>
                                 <Button
                                     Width="120"
@@ -1086,7 +1247,7 @@
                                 </Button>
                             </Grid>
                         </toolkit:SettingsCard>
-                        <toolkit:SettingsCard Description="Connects your phone and PC to access your files, notifications, texts, etc. from Windows." Header="Phone Link">
+                        <toolkit:SettingsCard Description="Connect your phone and PC to access your files, notifications, texts, etc. from Windows." Header="Phone Link">
                             <Grid>
                                 <Button
                                     Width="120"
@@ -1109,7 +1270,7 @@
                                 </Button>
                             </Grid>
                         </toolkit:SettingsCard>
-                        <toolkit:SettingsCard Description="Screenshot utility. You can still take full screenshots via the PrtSc key." Header="Snipping Tool">
+                        <toolkit:SettingsCard Description="Screenshot utility. You can still take full screenshots via the PrtSc key if you uninstall Snipping Tool." Header="Snipping Tool">
                             <Grid>
                                 <Button
                                     Width="120"
@@ -1132,7 +1293,7 @@
                                 </Button>
                             </Grid>
                         </toolkit:SettingsCard>
-                        <toolkit:SettingsCard Description="WinUI command line emulator." Header="Terminal">
+                        <toolkit:SettingsCard Description="Built-in terminal emulator for modern Windows." Header="Windows Terminal">
                             <Grid>
                                 <Button
                                     Width="120"
@@ -1178,13 +1339,20 @@
                                 </Button>
                             </Grid>
                         </toolkit:SettingsCard>
-                        <toolkit:SettingsCard Description="Game assistant overlay." Header="Xbox Game Bar">
+                    </toolkit:SettingsExpander.Items>
+                </toolkit:SettingsExpander>
+                <toolkit:SettingsExpander Description="Applications that can be safely removed and will not impact your system." Header="Preinstalled Apps">
+                    <toolkit:SettingsExpander.HeaderIcon>
+                        <FontIcon Glyph="&#xE71D;" />
+                    </toolkit:SettingsExpander.HeaderIcon>
+                    <toolkit:SettingsExpander.Items>
+                        <toolkit:SettingsCard Description="Web search provider for Windows Search." Header="Bing">
                             <Grid>
                                 <Button
                                     Width="120"
-                                    Command="{x:Bind ViewModel.XboxGameBar.UninstallCommand}"
+                                    Command="{x:Bind ViewModel.Bing.UninstallCommand}"
                                     Style="{StaticResource AccentButtonStyle}"
-                                    Visibility="{x:Bind ViewModel.XboxGameBar.IsInstalled, Mode=OneWay}">
+                                    Visibility="{x:Bind ViewModel.Bing.IsInstalled, Mode=OneWay}">
                                     <StackPanel Orientation="Horizontal" Spacing="8">
                                         <FontIcon FontSize="16" Glyph="&#xEC91;" />
                                         <TextBlock Text="Uninstall" />
@@ -1192,8 +1360,354 @@
                                 </Button>
                                 <Button
                                     Width="120"
-                                    Command="{x:Bind ViewModel.XboxGameBar.InstallCommand}"
-                                    Visibility="{x:Bind ViewModel.XboxGameBar.IsInstalled, Mode=OneWay, Converter={StaticResource BoolToInverseVisibilityConverter}}">
+                                    Command="{x:Bind ViewModel.Bing.InstallCommand}"
+                                    Visibility="{x:Bind ViewModel.Bing.IsInstalled, Mode=OneWay, Converter={StaticResource BoolToInverseVisibilityConverter}}">
+                                    <StackPanel Orientation="Horizontal" Spacing="8">
+                                        <FontIcon FontSize="16" Glyph="&#xE896;" />
+                                        <TextBlock Text="Install" />
+                                    </StackPanel>
+                                </Button>
+                            </Grid>
+                        </toolkit:SettingsCard>
+                        <toolkit:SettingsCard Description="Built-in calculator app for Windows." Header="Calculator">
+                            <Grid>
+                                <Button
+                                    Width="120"
+                                    Command="{x:Bind ViewModel.Calculator.UninstallCommand}"
+                                    Style="{StaticResource AccentButtonStyle}"
+                                    Visibility="{x:Bind ViewModel.Calculator.IsInstalled, Mode=OneWay}">
+                                    <StackPanel Orientation="Horizontal" Spacing="8">
+                                        <FontIcon FontSize="16" Glyph="&#xEC91;" />
+                                        <TextBlock Text="Uninstall" />
+                                    </StackPanel>
+                                </Button>
+                                <Button
+                                    Width="120"
+                                    Command="{x:Bind ViewModel.Calculator.InstallCommand}"
+                                    Visibility="{x:Bind ViewModel.Calculator.IsInstalled, Mode=OneWay, Converter={StaticResource BoolToInverseVisibilityConverter}}">
+                                    <StackPanel Orientation="Horizontal" Spacing="8">
+                                        <FontIcon FontSize="16" Glyph="&#xE896;" />
+                                        <TextBlock Text="Install" />
+                                    </StackPanel>
+                                </Button>
+                            </Grid>
+                        </toolkit:SettingsCard>
+                        <toolkit:SettingsCard Description="Photo and video capture app for Windows." Header="Camera">
+                            <Grid>
+                                <Button
+                                    Width="120"
+                                    Command="{x:Bind ViewModel.Camera.UninstallCommand}"
+                                    Style="{StaticResource AccentButtonStyle}"
+                                    Visibility="{x:Bind ViewModel.Camera.IsInstalled, Mode=OneWay}">
+                                    <StackPanel Orientation="Horizontal" Spacing="8">
+                                        <FontIcon FontSize="16" Glyph="&#xEC91;" />
+                                        <TextBlock Text="Uninstall" />
+                                    </StackPanel>
+                                </Button>
+                                <Button
+                                    Width="120"
+                                    Command="{x:Bind ViewModel.Camera.InstallCommand}"
+                                    Visibility="{x:Bind ViewModel.Camera.IsInstalled, Mode=OneWay, Converter={StaticResource BoolToInverseVisibilityConverter}}">
+                                    <StackPanel Orientation="Horizontal" Spacing="8">
+                                        <FontIcon FontSize="16" Glyph="&#xE896;" />
+                                        <TextBlock Text="Install" />
+                                    </StackPanel>
+                                </Button>
+                            </Grid>
+                        </toolkit:SettingsCard>
+                        <toolkit:SettingsCard Description="Cloud-based video editor for Microsoft 365." Header="Clipchamp">
+                            <Grid>
+                                <Button
+                                    Width="120"
+                                    Command="{x:Bind ViewModel.Clipchamp.UninstallCommand}"
+                                    Style="{StaticResource AccentButtonStyle}"
+                                    Visibility="{x:Bind ViewModel.Clipchamp.IsInstalled, Mode=OneWay}">
+                                    <StackPanel Orientation="Horizontal" Spacing="8">
+                                        <FontIcon FontSize="16" Glyph="&#xEC91;" />
+                                        <TextBlock Text="Uninstall" />
+                                    </StackPanel>
+                                </Button>
+                                <Button
+                                    Width="120"
+                                    Command="{x:Bind ViewModel.Clipchamp.InstallCommand}"
+                                    Visibility="{x:Bind ViewModel.Clipchamp.IsInstalled, Mode=OneWay, Converter={StaticResource BoolToInverseVisibilityConverter}}">
+                                    <StackPanel Orientation="Horizontal" Spacing="8">
+                                        <FontIcon FontSize="16" Glyph="&#xE896;" />
+                                        <TextBlock Text="Install" />
+                                    </StackPanel>
+                                </Button>
+                            </Grid>
+                        </toolkit:SettingsCard>
+                        <toolkit:SettingsCard Description="Built-in clock application for Windows." Header="Clock">
+                            <Grid>
+                                <Button
+                                    Width="120"
+                                    Command="{x:Bind ViewModel.Clock.UninstallCommand}"
+                                    Style="{StaticResource AccentButtonStyle}"
+                                    Visibility="{x:Bind ViewModel.Clock.IsInstalled, Mode=OneWay}">
+                                    <StackPanel Orientation="Horizontal" Spacing="8">
+                                        <FontIcon FontSize="16" Glyph="&#xEC91;" />
+                                        <TextBlock Text="Uninstall" />
+                                    </StackPanel>
+                                </Button>
+                                <Button
+                                    Width="120"
+                                    Command="{x:Bind ViewModel.Clock.InstallCommand}"
+                                    Visibility="{x:Bind ViewModel.Clock.IsInstalled, Mode=OneWay, Converter={StaticResource BoolToInverseVisibilityConverter}}">
+                                    <StackPanel Orientation="Horizontal" Spacing="8">
+                                        <FontIcon FontSize="16" Glyph="&#xE896;" />
+                                        <TextBlock Text="Install" />
+                                    </StackPanel>
+                                </Button>
+                            </Grid>
+                        </toolkit:SettingsCard>
+                        <toolkit:SettingsCard Description="Microsoft's web-based AI assistant." Header="Copilot">
+                            <Grid>
+                                <Button
+                                    Width="120"
+                                    Command="{x:Bind ViewModel.Copilot.UninstallCommand}"
+                                    Style="{StaticResource AccentButtonStyle}"
+                                    Visibility="{x:Bind ViewModel.Copilot.IsInstalled, Mode=OneWay}">
+                                    <StackPanel Orientation="Horizontal" Spacing="8">
+                                        <FontIcon FontSize="16" Glyph="&#xEC91;" />
+                                        <TextBlock Text="Uninstall" />
+                                    </StackPanel>
+                                </Button>
+                                <Button
+                                    Width="120"
+                                    Command="{x:Bind ViewModel.Copilot.InstallCommand}"
+                                    Visibility="{x:Bind ViewModel.Copilot.IsInstalled, Mode=OneWay, Converter={StaticResource BoolToInverseVisibilityConverter}}">
+                                    <StackPanel Orientation="Horizontal" Spacing="8">
+                                        <FontIcon FontSize="16" Glyph="&#xE896;" />
+                                        <TextBlock Text="Install" />
+                                    </StackPanel>
+                                </Button>
+                            </Grid>
+                        </toolkit:SettingsCard>
+                        <toolkit:SettingsCard Description="Modern media player for Windows 11." Header="Media Player">
+                            <Grid>
+                                <Button
+                                    Width="120"
+                                    Command="{x:Bind ViewModel.MediaPlayer.UninstallCommand}"
+                                    Style="{StaticResource AccentButtonStyle}"
+                                    Visibility="{x:Bind ViewModel.MediaPlayer.IsInstalled, Mode=OneWay}">
+                                    <StackPanel Orientation="Horizontal" Spacing="8">
+                                        <FontIcon FontSize="16" Glyph="&#xEC91;" />
+                                        <TextBlock Text="Uninstall" />
+                                    </StackPanel>
+                                </Button>
+                                <Button
+                                    Width="120"
+                                    Command="{x:Bind ViewModel.MediaPlayer.InstallCommand}"
+                                    Visibility="{x:Bind ViewModel.MediaPlayer.IsInstalled, Mode=OneWay, Converter={StaticResource BoolToInverseVisibilityConverter}}">
+                                    <StackPanel Orientation="Horizontal" Spacing="8">
+                                        <FontIcon FontSize="16" Glyph="&#xE896;" />
+                                        <TextBlock Text="Install" />
+                                    </StackPanel>
+                                </Button>
+                            </Grid>
+                        </toolkit:SettingsCard>
+                        <toolkit:SettingsCard Description="Lets you access the web versions of Microsoft Office." Header="Microsoft 365 Copilot (Office web app)">
+                            <Grid>
+                                <Button
+                                    Width="120"
+                                    Command="{x:Bind ViewModel.Microsoft365Copilot.UninstallCommand}"
+                                    Style="{StaticResource AccentButtonStyle}"
+                                    Visibility="{x:Bind ViewModel.Microsoft365Copilot.IsInstalled, Mode=OneWay}">
+                                    <StackPanel Orientation="Horizontal" Spacing="8">
+                                        <FontIcon FontSize="16" Glyph="&#xEC91;" />
+                                        <TextBlock Text="Uninstall" />
+                                    </StackPanel>
+                                </Button>
+                                <Button
+                                    Width="120"
+                                    Command="{x:Bind ViewModel.Microsoft365Copilot.InstallCommand}"
+                                    Visibility="{x:Bind ViewModel.Microsoft365Copilot.IsInstalled, Mode=OneWay, Converter={StaticResource BoolToInverseVisibilityConverter}}">
+                                    <StackPanel Orientation="Horizontal" Spacing="8">
+                                        <FontIcon FontSize="16" Glyph="&#xE896;" />
+                                        <TextBlock Text="Install" />
+                                    </StackPanel>
+                                </Button>
+                            </Grid>
+                        </toolkit:SettingsCard>
+                        <toolkit:SettingsCard Description="Cards game developed by Microsoft in collaboration with King." Header="Microsoft Solitaire Collection">
+                            <Grid>
+                                <Button
+                                    Width="120"
+                                    Command="{x:Bind ViewModel.MicrosoftSolitaireCollection.UninstallCommand}"
+                                    Style="{StaticResource AccentButtonStyle}"
+                                    Visibility="{x:Bind ViewModel.MicrosoftSolitaireCollection.IsInstalled, Mode=OneWay}">
+                                    <StackPanel Orientation="Horizontal" Spacing="8">
+                                        <FontIcon FontSize="16" Glyph="&#xEC91;" />
+                                        <TextBlock Text="Uninstall" />
+                                    </StackPanel>
+                                </Button>
+                                <Button
+                                    Width="120"
+                                    Command="{x:Bind ViewModel.MicrosoftSolitaireCollection.InstallCommand}"
+                                    Visibility="{x:Bind ViewModel.MicrosoftSolitaireCollection.IsInstalled, Mode=OneWay, Converter={StaticResource BoolToInverseVisibilityConverter}}">
+                                    <StackPanel Orientation="Horizontal" Spacing="8">
+                                        <FontIcon FontSize="16" Glyph="&#xE896;" />
+                                        <TextBlock Text="Install" />
+                                    </StackPanel>
+                                </Button>
+                            </Grid>
+                        </toolkit:SettingsCard>
+                        <toolkit:SettingsCard Description="Web-based news dashboard for Windows 10. Deprecated." Header="News">
+                            <Grid>
+                                <Button
+                                    Width="120"
+                                    Command="{x:Bind ViewModel.News.UninstallCommand}"
+                                    Style="{StaticResource AccentButtonStyle}"
+                                    Visibility="{x:Bind ViewModel.News.IsInstalled, Mode=OneWay}">
+                                    <StackPanel Orientation="Horizontal" Spacing="8">
+                                        <FontIcon FontSize="16" Glyph="&#xEC91;" />
+                                        <TextBlock Text="Uninstall" />
+                                    </StackPanel>
+                                </Button>
+                                <Button
+                                    Width="120"
+                                    Command="{x:Bind ViewModel.News.InstallCommand}"
+                                    Visibility="{x:Bind ViewModel.News.IsInstalled, Mode=OneWay, Converter={StaticResource BoolToInverseVisibilityConverter}}">
+                                    <StackPanel Orientation="Horizontal" Spacing="8">
+                                        <FontIcon FontSize="16" Glyph="&#xE896;" />
+                                        <TextBlock Text="Install" />
+                                    </StackPanel>
+                                </Button>
+                            </Grid>
+                        </toolkit:SettingsCard>
+                        <toolkit:SettingsCard Description="Cloud storage from Microsoft." Header="OneDrive">
+                            <Grid>
+                                <Button
+                                    Width="120"
+                                    Command="{x:Bind ViewModel.UninstallOneDriveCommand}"
+                                    IsEnabled="{x:Bind ViewModel.IsElevated, Mode=OneWay}"
+                                    Style="{StaticResource AccentButtonStyle}"
+                                    Visibility="{x:Bind ViewModel.IsOneDriveInstalled, Mode=OneWay}">
+                                    <StackPanel Orientation="Horizontal" Spacing="8">
+                                        <FontIcon FontSize="16" Glyph="&#xEC91;" />
+                                        <TextBlock Text="Uninstall" />
+                                    </StackPanel>
+                                </Button>
+                                <HyperlinkButton
+                                    Width="120"
+                                    NavigateUri="https://www.microsoft.com/en-us/microsoft-365/onedrive/download"
+                                    Visibility="{x:Bind ViewModel.IsOneDriveInstalled, Mode=OneWay, Converter={StaticResource BoolToInverseVisibilityConverter}}">
+                                    <StackPanel Orientation="Horizontal" Spacing="8">
+                                        <FontIcon FontSize="16" Glyph="&#xEBD3;" />
+                                        <TextBlock Text="Download" />
+                                    </StackPanel>
+                                </HyperlinkButton>
+                            </Grid>
+                        </toolkit:SettingsCard>
+                        <toolkit:SettingsCard Description="Built-in photo viewer and editor." Header="Photos">
+                            <Grid>
+                                <Button
+                                    Width="120"
+                                    Command="{x:Bind ViewModel.Photos.UninstallCommand}"
+                                    Style="{StaticResource AccentButtonStyle}"
+                                    Visibility="{x:Bind ViewModel.Photos.IsInstalled, Mode=OneWay}">
+                                    <StackPanel Orientation="Horizontal" Spacing="8">
+                                        <FontIcon FontSize="16" Glyph="&#xEC91;" />
+                                        <TextBlock Text="Uninstall" />
+                                    </StackPanel>
+                                </Button>
+                                <Button
+                                    Width="120"
+                                    Command="{x:Bind ViewModel.Photos.InstallCommand}"
+                                    Visibility="{x:Bind ViewModel.Photos.IsInstalled, Mode=OneWay, Converter={StaticResource BoolToInverseVisibilityConverter}}">
+                                    <StackPanel Orientation="Horizontal" Spacing="8">
+                                        <FontIcon FontSize="16" Glyph="&#xE896;" />
+                                        <TextBlock Text="Install" />
+                                    </StackPanel>
+                                </Button>
+                            </Grid>
+                        </toolkit:SettingsCard>
+                        <toolkit:SettingsCard Description="Sound recording application for Windows." Header="Sound Recorder">
+                            <Grid>
+                                <Button
+                                    Width="120"
+                                    Command="{x:Bind ViewModel.SoundRecorder.UninstallCommand}"
+                                    Style="{StaticResource AccentButtonStyle}"
+                                    Visibility="{x:Bind ViewModel.SoundRecorder.IsInstalled, Mode=OneWay}">
+                                    <StackPanel Orientation="Horizontal" Spacing="8">
+                                        <FontIcon FontSize="16" Glyph="&#xEC91;" />
+                                        <TextBlock Text="Uninstall" />
+                                    </StackPanel>
+                                </Button>
+                                <Button
+                                    Width="120"
+                                    Command="{x:Bind ViewModel.SoundRecorder.InstallCommand}"
+                                    Visibility="{x:Bind ViewModel.SoundRecorder.IsInstalled, Mode=OneWay, Converter={StaticResource BoolToInverseVisibilityConverter}}">
+                                    <StackPanel Orientation="Horizontal" Spacing="8">
+                                        <FontIcon FontSize="16" Glyph="&#xE896;" />
+                                        <TextBlock Text="Install" />
+                                    </StackPanel>
+                                </Button>
+                            </Grid>
+                        </toolkit:SettingsCard>
+                        <toolkit:SettingsCard Description="Microsoft cloud-based notes application." Header="To Do">
+                            <Grid>
+                                <Button
+                                    Width="120"
+                                    Command="{x:Bind ViewModel.ToDo.UninstallCommand}"
+                                    Style="{StaticResource AccentButtonStyle}"
+                                    Visibility="{x:Bind ViewModel.ToDo.IsInstalled, Mode=OneWay}">
+                                    <StackPanel Orientation="Horizontal" Spacing="8">
+                                        <FontIcon FontSize="16" Glyph="&#xEC91;" />
+                                        <TextBlock Text="Uninstall" />
+                                    </StackPanel>
+                                </Button>
+                                <Button
+                                    Width="120"
+                                    Command="{x:Bind ViewModel.ToDo.InstallCommand}"
+                                    Visibility="{x:Bind ViewModel.ToDo.IsInstalled, Mode=OneWay, Converter={StaticResource BoolToInverseVisibilityConverter}}">
+                                    <StackPanel Orientation="Horizontal" Spacing="8">
+                                        <FontIcon FontSize="16" Glyph="&#xE896;" />
+                                        <TextBlock Text="Install" />
+                                    </StackPanel>
+                                </Button>
+                            </Grid>
+                        </toolkit:SettingsCard>
+                        <toolkit:SettingsCard Description="Web-based weather application for Windows 10. Deprecated." Header="Weather">
+                            <Grid>
+                                <Button
+                                    Width="120"
+                                    Command="{x:Bind ViewModel.Weather.UninstallCommand}"
+                                    Style="{StaticResource AccentButtonStyle}"
+                                    Visibility="{x:Bind ViewModel.Weather.IsInstalled, Mode=OneWay}">
+                                    <StackPanel Orientation="Horizontal" Spacing="8">
+                                        <FontIcon FontSize="16" Glyph="&#xEC91;" />
+                                        <TextBlock Text="Uninstall" />
+                                    </StackPanel>
+                                </Button>
+                                <Button
+                                    Width="120"
+                                    Command="{x:Bind ViewModel.Weather.InstallCommand}"
+                                    Visibility="{x:Bind ViewModel.Weather.IsInstalled, Mode=OneWay, Converter={StaticResource BoolToInverseVisibilityConverter}}">
+                                    <StackPanel Orientation="Horizontal" Spacing="8">
+                                        <FontIcon FontSize="16" Glyph="&#xE896;" />
+                                        <TextBlock Text="Install" />
+                                    </StackPanel>
+                                </Button>
+                            </Grid>
+                        </toolkit:SettingsCard>
+                        <toolkit:SettingsCard Description="Videogame store and launcher." Header="XBOX">
+                            <Grid>
+                                <Button
+                                    Width="120"
+                                    Command="{x:Bind ViewModel.Xbox.UninstallCommand}"
+                                    Style="{StaticResource AccentButtonStyle}"
+                                    Visibility="{x:Bind ViewModel.Xbox.IsInstalled, Mode=OneWay}">
+                                    <StackPanel Orientation="Horizontal" Spacing="8">
+                                        <FontIcon FontSize="16" Glyph="&#xEC91;" />
+                                        <TextBlock Text="Uninstall" />
+                                    </StackPanel>
+                                </Button>
+                                <Button
+                                    Width="120"
+                                    Command="{x:Bind ViewModel.Xbox.InstallCommand}"
+                                    Visibility="{x:Bind ViewModel.Xbox.IsInstalled, Mode=OneWay, Converter={StaticResource BoolToInverseVisibilityConverter}}">
                                     <StackPanel Orientation="Horizontal" Spacing="8">
                                         <FontIcon FontSize="16" Glyph="&#xE896;" />
                                         <TextBlock Text="Install" />
@@ -1203,206 +1717,7 @@
                         </toolkit:SettingsCard>
                     </toolkit:SettingsExpander.Items>
                 </toolkit:SettingsExpander>
-                <toolkit:SettingsExpander Description="Applications that can be safely removed and will not impact your system. Beware, the list is long." Header="Preinstalled Apps">
-                    <toolkit:SettingsExpander.HeaderIcon>
-                        <FontIcon Glyph="&#xE71D;" />
-                    </toolkit:SettingsExpander.HeaderIcon>
-                    <toolkit:SettingsExpander.Items>
-                        <toolkit:SettingsCard Description="Web search provider for Windows Search." Header="Bing">
-                            <Grid>
-                                <Button
-                                    Command="{x:Bind ViewModel.Bing.UninstallCommand}"
-                                    Content="Uninstall"
-                                    Visibility="{x:Bind ViewModel.Bing.IsInstalled, Mode=OneWay}" />
-                                <Button
-                                    Command="{x:Bind ViewModel.Bing.InstallCommand}"
-                                    Content="Install"
-                                    Visibility="{x:Bind ViewModel.Bing.IsInstalled, Mode=OneWay, Converter={StaticResource BoolToInverseVisibilityConverter}}" />
-                            </Grid>
-                        </toolkit:SettingsCard>
-                        <toolkit:SettingsCard Description="Do math." Header="Calculator">
-                            <Grid>
-                                <Button
-                                    Command="{x:Bind ViewModel.Calculator.UninstallCommand}"
-                                    Content="Uninstall"
-                                    Visibility="{x:Bind ViewModel.Calculator.IsInstalled, Mode=OneWay}" />
-                                <Button
-                                    Command="{x:Bind ViewModel.Calculator.InstallCommand}"
-                                    Content="Install"
-                                    Visibility="{x:Bind ViewModel.Calculator.IsInstalled, Mode=OneWay, Converter={StaticResource BoolToInverseVisibilityConverter}}" />
-                            </Grid>
-                        </toolkit:SettingsCard>
-                        <toolkit:SettingsCard Description="Take a picture. Smile!" Header="Camera">
-                            <Grid>
-                                <Button
-                                    Command="{x:Bind ViewModel.Camera.UninstallCommand}"
-                                    Content="Uninstall"
-                                    Visibility="{x:Bind ViewModel.Camera.IsInstalled, Mode=OneWay}" />
-                                <Button
-                                    Command="{x:Bind ViewModel.Camera.InstallCommand}"
-                                    Content="Install"
-                                    Visibility="{x:Bind ViewModel.Camera.IsInstalled, Mode=OneWay, Converter={StaticResource BoolToInverseVisibilityConverter}}" />
-                            </Grid>
-                        </toolkit:SettingsCard>
-                        <toolkit:SettingsCard Description="Cloud-based video editor." Header="Clipchamp">
-                            <Grid>
-                                <Button
-                                    Command="{x:Bind ViewModel.Clipchamp.UninstallCommand}"
-                                    Content="Uninstall"
-                                    Visibility="{x:Bind ViewModel.Clipchamp.IsInstalled, Mode=OneWay}" />
-                                <Button
-                                    Command="{x:Bind ViewModel.Clipchamp.InstallCommand}"
-                                    Content="Install"
-                                    Visibility="{x:Bind ViewModel.Clipchamp.IsInstalled, Mode=OneWay, Converter={StaticResource BoolToInverseVisibilityConverter}}" />
-                            </Grid>
-                        </toolkit:SettingsCard>
-                        <toolkit:SettingsCard Description="Set timers and stopwatches." Header="Clock">
-                            <Grid>
-                                <Button
-                                    Command="{x:Bind ViewModel.Clock.UninstallCommand}"
-                                    Content="Uninstall"
-                                    Visibility="{x:Bind ViewModel.Clock.IsInstalled, Mode=OneWay}" />
-                                <Button
-                                    Command="{x:Bind ViewModel.Clock.InstallCommand}"
-                                    Content="Install"
-                                    Visibility="{x:Bind ViewModel.Clock.IsInstalled, Mode=OneWay, Converter={StaticResource BoolToInverseVisibilityConverter}}" />
-                            </Grid>
-                        </toolkit:SettingsCard>
-                        <toolkit:SettingsCard Description="AI assistant." Header="Copilot">
-                            <Grid>
-                                <Button
-                                    Command="{x:Bind ViewModel.Copilot.UninstallCommand}"
-                                    Content="Uninstall"
-                                    Visibility="{x:Bind ViewModel.Copilot.IsInstalled, Mode=OneWay}" />
-                                <Button
-                                    Command="{x:Bind ViewModel.Copilot.InstallCommand}"
-                                    Content="Install"
-                                    Visibility="{x:Bind ViewModel.Copilot.IsInstalled, Mode=OneWay, Converter={StaticResource BoolToInverseVisibilityConverter}}" />
-                            </Grid>
-                        </toolkit:SettingsCard>
-                        <toolkit:SettingsCard Description="Play songs and videos." Header="Media Player">
-                            <Grid>
-                                <Button
-                                    Command="{x:Bind ViewModel.MediaPlayer.UninstallCommand}"
-                                    Content="Uninstall"
-                                    Visibility="{x:Bind ViewModel.MediaPlayer.IsInstalled, Mode=OneWay}" />
-                                <Button
-                                    Command="{x:Bind ViewModel.MediaPlayer.InstallCommand}"
-                                    Content="Install"
-                                    Visibility="{x:Bind ViewModel.MediaPlayer.IsInstalled, Mode=OneWay, Converter={StaticResource BoolToInverseVisibilityConverter}}" />
-                            </Grid>
-                        </toolkit:SettingsCard>
-                        <toolkit:SettingsCard Description="Lets you access the web versions of Microsoft Office. (Web wrapper)" Header="Microsoft 365 Copilot (Office web app)">
-                            <Grid>
-                                <Button
-                                    Command="{x:Bind ViewModel.Microsoft365Copilot.UninstallCommand}"
-                                    Content="Uninstall"
-                                    Visibility="{x:Bind ViewModel.Microsoft365Copilot.IsInstalled, Mode=OneWay}" />
-                                <Button
-                                    Command="{x:Bind ViewModel.Microsoft365Copilot.InstallCommand}"
-                                    Content="Install"
-                                    Visibility="{x:Bind ViewModel.Microsoft365Copilot.IsInstalled, Mode=OneWay, Converter={StaticResource BoolToInverseVisibilityConverter}}" />
-                            </Grid>
-                        </toolkit:SettingsCard>
-                        <toolkit:SettingsCard Description="Classic cards game." Header="Microsoft Solitaire Collection">
-                            <Grid>
-                                <Button
-                                    Command="{x:Bind ViewModel.MicrosoftSolitaireCollection.UninstallCommand}"
-                                    Content="Uninstall"
-                                    Visibility="{x:Bind ViewModel.MicrosoftSolitaireCollection.IsInstalled, Mode=OneWay}" />
-                                <Button
-                                    Command="{x:Bind ViewModel.MicrosoftSolitaireCollection.InstallCommand}"
-                                    Content="Install"
-                                    Visibility="{x:Bind ViewModel.MicrosoftSolitaireCollection.IsInstalled, Mode=OneWay, Converter={StaticResource BoolToInverseVisibilityConverter}}" />
-                            </Grid>
-                        </toolkit:SettingsCard>
-                        <toolkit:SettingsCard Description="Deprecated." Header="News">
-                            <Grid>
-                                <Button
-                                    Command="{x:Bind ViewModel.News.UninstallCommand}"
-                                    Content="Uninstall"
-                                    Visibility="{x:Bind ViewModel.News.IsInstalled, Mode=OneWay}" />
-                                <Button
-                                    Command="{x:Bind ViewModel.News.InstallCommand}"
-                                    Content="Install"
-                                    Visibility="{x:Bind ViewModel.News.IsInstalled, Mode=OneWay, Converter={StaticResource BoolToInverseVisibilityConverter}}" />
-                            </Grid>
-                        </toolkit:SettingsCard>
-                        <toolkit:SettingsCard Description="Cloud storage from Microsoft." Header="OneDrive">
-                            <Grid>
-                                <Button
-                                    Command="{x:Bind ViewModel.UninstallOneDriveSafelyCommand}"
-                                    Content="Uninstall"
-                                    Visibility="{x:Bind ViewModel.IsOneDriveInstalled, Mode=OneWay}" />
-                                <Button
-                                    Command="{x:Bind ViewModel.OpenOneDriveDownloadPageCommand}"
-                                    Content="Download"
-                                    Visibility="{x:Bind ViewModel.IsOneDriveInstalled, Mode=OneWay, Converter={StaticResource BoolToInverseVisibilityConverter}}" />
-                            </Grid>
-                        </toolkit:SettingsCard>
-                        <toolkit:SettingsCard Description="View and edit pictures." Header="Photos">
-                            <Grid>
-                                <Button
-                                    Command="{x:Bind ViewModel.Photos.UninstallCommand}"
-                                    Content="Uninstall"
-                                    Visibility="{x:Bind ViewModel.Photos.IsInstalled, Mode=OneWay}" />
-                                <Button
-                                    Command="{x:Bind ViewModel.Photos.InstallCommand}"
-                                    Content="Install"
-                                    Visibility="{x:Bind ViewModel.Photos.IsInstalled, Mode=OneWay, Converter={StaticResource BoolToInverseVisibilityConverter}}" />
-                            </Grid>
-                        </toolkit:SettingsCard>
-                        <toolkit:SettingsCard Description="Record sounds." Header="Sound Recorder">
-                            <Grid>
-                                <Button
-                                    Command="{x:Bind ViewModel.SoundRecorder.UninstallCommand}"
-                                    Content="Uninstall"
-                                    Visibility="{x:Bind ViewModel.SoundRecorder.IsInstalled, Mode=OneWay}" />
-                                <Button
-                                    Command="{x:Bind ViewModel.SoundRecorder.InstallCommand}"
-                                    Content="Install"
-                                    Visibility="{x:Bind ViewModel.SoundRecorder.IsInstalled, Mode=OneWay, Converter={StaticResource BoolToInverseVisibilityConverter}}" />
-                            </Grid>
-                        </toolkit:SettingsCard>
-                        <toolkit:SettingsCard Description="Make lists and manage tasks." Header="To Do">
-                            <Grid>
-                                <Button
-                                    Command="{x:Bind ViewModel.ToDo.UninstallCommand}"
-                                    Content="Uninstall"
-                                    Visibility="{x:Bind ViewModel.ToDo.IsInstalled, Mode=OneWay}" />
-                                <Button
-                                    Command="{x:Bind ViewModel.ToDo.InstallCommand}"
-                                    Content="Install"
-                                    Visibility="{x:Bind ViewModel.ToDo.IsInstalled, Mode=OneWay, Converter={StaticResource BoolToInverseVisibilityConverter}}" />
-                            </Grid>
-                        </toolkit:SettingsCard>
-                        <toolkit:SettingsCard Description="Deprecated." Header="Weather">
-                            <Grid>
-                                <Button
-                                    Command="{x:Bind ViewModel.Weather.UninstallCommand}"
-                                    Content="Uninstall"
-                                    Visibility="{x:Bind ViewModel.Weather.IsInstalled, Mode=OneWay}" />
-                                <Button
-                                    Command="{x:Bind ViewModel.Weather.InstallCommand}"
-                                    Content="Install"
-                                    Visibility="{x:Bind ViewModel.Weather.IsInstalled, Mode=OneWay, Converter={StaticResource BoolToInverseVisibilityConverter}}" />
-                            </Grid>
-                        </toolkit:SettingsCard>
-                        <toolkit:SettingsCard Description="Videogame store and launcher." Header="Xbox">
-                            <Grid>
-                                <Button
-                                    Command="{x:Bind ViewModel.Xbox.UninstallCommand}"
-                                    Content="Uninstall"
-                                    Visibility="{x:Bind ViewModel.Xbox.IsInstalled, Mode=OneWay}" />
-                                <Button
-                                    Command="{x:Bind ViewModel.Xbox.InstallCommand}"
-                                    Content="Install"
-                                    Visibility="{x:Bind ViewModel.Xbox.IsInstalled, Mode=OneWay, Converter={StaticResource BoolToInverseVisibilityConverter}}" />
-                            </Grid>
-                        </toolkit:SettingsCard>
-                    </toolkit:SettingsExpander.Items>
-                </toolkit:SettingsExpander>
             </StackPanel>
-        </ScrollViewer>
+        </ScrollView>
     </Grid>
 </Page>

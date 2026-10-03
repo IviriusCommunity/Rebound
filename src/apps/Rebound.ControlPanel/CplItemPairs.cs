@@ -203,7 +203,20 @@ internal static partial class CplItemPairs
             Name = "Privacy & Security",
             Icon = "img:ms-appx:///Assets/Glyphs/PrivacyAndSecurity.png",
             Children = [
-                new() { Name = "Privacy and User Choice", Tag = "privacyanduserchoice", Args = [CplArgs.PRIVACY_USER_CHOICE], Icon = "glyph:\uEF58", Page = typeof(PrivacyAndUserChoicePage) },
+                new() 
+                {
+                    Name = "Privacy and User Choice",
+                    Tag = "privacyanduserchoice",
+                    Icon = "glyph:\uEF58",
+                    Page = typeof(PrivacyAndUserChoicePage),
+                    Args = [CplArgs.PRIVACY_USER_CHOICE],
+                    PageOpenUri = "privacyanduserchoice",
+                    PageOpenIconPath = "Assets/Glyphs/PrivacyAndUserChoice.ico",
+                    LegacyLaunchItems =
+                    [
+                        // TODO
+                    ],
+                },
                 new() { Name = "Credentials Manager", Tag = "credentialsmanager", Icon = "glyph:\uF540", Page = typeof(CredentialManagerPage) },
                 ]
         },

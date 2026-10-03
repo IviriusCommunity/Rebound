@@ -26,6 +26,7 @@ public static class RegistrySettingsEngine
         T value,
         RegistryValueKind kind = RegistryValueKind.DWord)
     {
+        EnsureKeyExists(hive, keyPath);
         using var key = OpenHive(hive).CreateSubKey(keyPath);
 
         if (key == null)

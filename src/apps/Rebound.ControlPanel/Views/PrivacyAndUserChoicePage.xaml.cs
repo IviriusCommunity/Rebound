@@ -18,6 +18,35 @@ internal sealed partial class PrivacyAndUserChoicePage : Page
     public PrivacyAndUserChoicePage()
     {
         InitializeComponent();
+        Loaded += async (s, e) =>
+        {
+            await ViewModel.FeedbackHub.UpdateIntegrityAsync().ConfigureAwait(false);
+            await ViewModel.GetHelp.UpdateIntegrityAsync().ConfigureAwait(false);
+            await ViewModel.MicrosoftStore.UpdateIntegrityAsync().ConfigureAwait(false);
+            await ViewModel.Notepad.UpdateIntegrityAsync().ConfigureAwait(false);
+            await ViewModel.Paint.UpdateIntegrityAsync().ConfigureAwait(false);
+            await ViewModel.People.UpdateIntegrityAsync().ConfigureAwait(false);
+            await ViewModel.PhoneLink.UpdateIntegrityAsync().ConfigureAwait(false);
+            await ViewModel.SnippingTool.UpdateIntegrityAsync().ConfigureAwait(false);
+            await ViewModel.Terminal.UpdateIntegrityAsync().ConfigureAwait(false);
+            await ViewModel.WindowsWebExperiencePack.UpdateIntegrityAsync().ConfigureAwait(false);
+            await ViewModel.XboxGameBar.UpdateIntegrityAsync().ConfigureAwait(false);
+            await ViewModel.Bing.UpdateIntegrityAsync().ConfigureAwait(false);
+            await ViewModel.Calculator.UpdateIntegrityAsync().ConfigureAwait(false);
+            await ViewModel.Camera.UpdateIntegrityAsync().ConfigureAwait(false);
+            await ViewModel.Clipchamp.UpdateIntegrityAsync().ConfigureAwait(false);
+            await ViewModel.Clock.UpdateIntegrityAsync().ConfigureAwait(false);
+            await ViewModel.Copilot.UpdateIntegrityAsync().ConfigureAwait(false);
+            await ViewModel.MediaPlayer.UpdateIntegrityAsync().ConfigureAwait(false);
+            await ViewModel.Microsoft365Copilot.UpdateIntegrityAsync().ConfigureAwait(false);
+            await ViewModel.MicrosoftSolitaireCollection.UpdateIntegrityAsync().ConfigureAwait(false);
+            await ViewModel.News.UpdateIntegrityAsync().ConfigureAwait(false);
+            await ViewModel.Photos.UpdateIntegrityAsync().ConfigureAwait(false);
+            await ViewModel.SoundRecorder.UpdateIntegrityAsync().ConfigureAwait(false);
+            await ViewModel.ToDo.UpdateIntegrityAsync().ConfigureAwait(false);
+            await ViewModel.Weather.UpdateIntegrityAsync().ConfigureAwait(false);
+            await ViewModel.Xbox.UpdateIntegrityAsync().ConfigureAwait(false);
+        };
     }
 
     [RelayCommand]

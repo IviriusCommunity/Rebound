@@ -5,10 +5,8 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Microsoft.Win32;
 using Rebound.ControlPanel.Services;
-using Rebound.Core;
 using Rebound.Core.Environment;
 using Rebound.Core.Native.Wrappers;
-using Rebound.Core.SystemInformation.Software;
 using Rebound.Forge;
 using Rebound.Forge.Cogs;
 using Rebound.Forge.Engines;
@@ -17,7 +15,6 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
-using Windows.System;
 using Windows.Win32;
 using Windows.Win32.Foundation;
 using Windows.Win32.Security;
@@ -49,32 +46,7 @@ internal partial class PrivacyAndUserChoiceViewModel : ObservableObject
         RefreshPrivacyLowProperties();
         RefreshContentProperties();
         RefreshGetStartedProperties();
-        FeedbackHub.UpdateIntegrityAsync();
-        GetHelp.UpdateIntegrityAsync();
-        MicrosoftStore.UpdateIntegrityAsync();
-        Notepad.UpdateIntegrityAsync();
-        Paint.UpdateIntegrityAsync();
-        People.UpdateIntegrityAsync();
-        PhoneLink.UpdateIntegrityAsync();
-        SnippingTool.UpdateIntegrityAsync();
-        Terminal.UpdateIntegrityAsync();
-        WindowsWebExperiencePack.UpdateIntegrityAsync();
-        XboxGameBar.UpdateIntegrityAsync();
-        Bing.UpdateIntegrityAsync();
-        Calculator.UpdateIntegrityAsync();
-        Camera.UpdateIntegrityAsync();
-        Clipchamp.UpdateIntegrityAsync();
-        Clock.UpdateIntegrityAsync();
-        Copilot.UpdateIntegrityAsync();
-        MediaPlayer.UpdateIntegrityAsync();
-        Microsoft365Copilot.UpdateIntegrityAsync();
-        MicrosoftSolitaireCollection.UpdateIntegrityAsync();
-        News.UpdateIntegrityAsync();
-        Photos.UpdateIntegrityAsync();
-        SoundRecorder.UpdateIntegrityAsync();
-        ToDo.UpdateIntegrityAsync();
-        Weather.UpdateIntegrityAsync();
-        Xbox.UpdateIntegrityAsync();
+        RefreshEdgeProperties();
         IsOneDriveInstalled = CheckIsOneDriveInstalled();
     }
 
@@ -83,42 +55,25 @@ internal partial class PrivacyAndUserChoiceViewModel : ObservableObject
     [ObservableProperty] public partial bool IsOneDriveInstalled { get; set; }
 
     /// <summary>
-    /// For when the regret kicks in. 
-    /// Hands the URL off to the Windows shell to open in the user's default browser.
-    /// </summary>
-    [RelayCommand]
-    public static void OpenOneDriveDownloadPage()
-    {
-        Launcher.LaunchUriAsync(new Uri("https://www.microsoft.com/en-us/microsoft-365/onedrive/download"));
-    }
-
-    /// <summary>
     /// Kills OneDrive, runs the official hidden uninstaller, and wipes remaining folders.
     /// </summary>
     [RelayCommand]
-    public async Task UninstallOneDriveSafelyAsync()
+    public async Task UninstallOneDriveAsync()
     {
-        // 1. Terminate running OneDrive processes
         foreach (var process in Process.GetProcessesByName("OneDrive"))
         {
-            try { process.Kill(); } catch { /* Process might already be closing */ }
+            try { process.Kill(); } catch (System.ComponentModel.Win32Exception) { }
         }
 
-        // Give it a second to release file locks
-        await Task.Delay(1000);
-
-        // 2. Locate the built-in OneDrive setup executable
         string sysWow64 = Environment.GetFolderPath(Environment.SpecialFolder.SystemX86);
         string uninstallerPath = Path.Combine(sysWow64, "OneDriveSetup.exe");
 
         if (!File.Exists(uninstallerPath))
         {
-            // Fallback for 32-bit Windows installs
             string system32 = Environment.GetFolderPath(Environment.SpecialFolder.System);
             uninstallerPath = Path.Combine(system32, "OneDriveSetup.exe");
         }
 
-        // 3. Execute the silent uninstaller
         if (File.Exists(uninstallerPath))
         {
             var processInfo = new ProcessStartInfo
@@ -132,30 +87,7 @@ internal partial class PrivacyAndUserChoiceViewModel : ObservableObject
             using var process = Process.Start(processInfo);
             if (process != null)
             {
-                await process.WaitForExitAsync();
-            }
-        }
-
-        // 4. Nuke the leftover directories
-        string[] directoriesToClean =
-        {
-            Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "Microsoft", "OneDrive"),
-            Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData), "Microsoft OneDrive"),
-            Path.Combine(WindowsInformation.GetWindowsInstallationDrivePath(), "OneDriveTemp"),
-        };
-
-        foreach (var dir in directoriesToClean)
-        {
-            if (Directory.Exists(dir))
-            {
-                try
-                {
-                    Directory.Delete(dir, recursive: true);
-                }
-                catch
-                {
-                    // Silently ignore access denied errors for locked system files
-                }
+                await process.WaitForExitAsync().ConfigureAwait(false);
             }
         }
         IsOneDriveInstalled = CheckIsOneDriveInstalled();
@@ -166,37 +98,103 @@ internal partial class PrivacyAndUserChoiceViewModel : ObservableObject
     /// in both per-user and per-machine installation directories.
     /// </summary>
     /// <returns>True if OneDrive is found, otherwise false.</returns>
-    public bool CheckIsOneDriveInstalled()
+    public static bool CheckIsOneDriveInstalled()
     {
-        // 1. Check per-user installation (Most common on Windows 11)
         string localAppData = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
         string userPath = Path.Combine(localAppData, "Microsoft", "OneDrive", "OneDrive.exe");
 
         if (File.Exists(userPath))
-        {
             return true;
-        }
 
-        // 2. Check per-machine installation (64-bit Program Files)
         string programFiles = Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles);
         string machinePath = Path.Combine(programFiles, "Microsoft OneDrive", "OneDrive.exe");
 
         if (File.Exists(machinePath))
-        {
             return true;
-        }
 
-        // 3. Check per-machine installation (32-bit Program Files fallback)
         string programFilesX86 = Environment.GetFolderPath(Environment.SpecialFolder.ProgramFilesX86);
         string machinePathX86 = Path.Combine(programFilesX86, "Microsoft OneDrive", "OneDrive.exe");
 
         if (File.Exists(machinePathX86))
-        {
             return true;
+
+        return false;
+    }
+
+    #endregion
+
+    #region Edge
+
+    [ObservableProperty]
+    public partial bool IsEdgeInstalled { get; set; }
+
+    private static readonly string _edgeRoot =
+        Path.Combine(
+            Environment.GetFolderPath(Environment.SpecialFolder.ProgramFilesX86),
+            "Microsoft",
+            "Edge",
+            "Application");
+
+    private void RefreshEdgeProperties()
+    {
+        IsEdgeInstalled = FindEdgeSetup() is not null;
+    }
+
+    [RelayCommand]
+    public void UninstallEdge()
+    {
+        var setupPath = FindEdgeSetup();
+
+        if (setupPath is null)
+        {
+            IsEdgeInstalled = false;
+            return;
         }
 
-        // Not found anywhere
-        return false;
+        try
+        {
+            var command = $"& '{setupPath.Replace("'", "''", StringComparison.InvariantCultureIgnoreCase)}' " + "--uninstall --force-uninstall --system-level";
+            Process.Start(new ProcessStartInfo
+            {
+                FileName = "powershell.exe",
+                ArgumentList =
+                {
+                    "-NoProfile",
+                    "-WindowStyle", "Hidden",
+                    "-Command",
+                    command
+                },
+                UseShellExecute = true,
+                Verb = "runas"
+            });
+        }
+        catch (System.ComponentModel.Win32Exception)
+        {
+            // UAC cancelled
+        }
+    }
+
+    private static string? FindEdgeSetup()
+    {
+        if (!Directory.Exists(_edgeRoot))
+            return null;
+
+        var setup = Directory.EnumerateDirectories(_edgeRoot)
+            .Select(path => new
+            {
+                Path = path,
+                Version = Version.TryParse(
+                    Path.GetFileName(path),
+                    out var version)
+                    ? version
+                    : null
+            })
+            .Where(x => x.Version is not null)
+            .OrderByDescending(x => x.Version)
+            .Select(x => Path.Combine(x.Path, "Installer", "setup.exe"))
+            .FirstOrDefault(File.Exists);
+
+        return setup;
     }
 
     #endregion
@@ -1079,8 +1077,8 @@ internal partial class PrivacyAndUserChoiceViewModel : ObservableObject
     {
         RegistrySettingsEngine.SetBool(
             RegistryHive.LocalMachine,
-            RegistrySettingsCatalog.ApplicationTelemetryEnabled,
-            value);
+            RegistrySettingsCatalog.ApplicationTelemetryDisabled,
+            !value);
     }
 
     partial void OnIsTypingAndInkingDataCollectionEnabledChanged(bool value)
@@ -1118,10 +1116,10 @@ internal partial class PrivacyAndUserChoiceViewModel : ObservableObject
             return;
 
         IsApplicationTelemetryEnabled =
-            RegistrySettingsEngine.GetBool(
+            !RegistrySettingsEngine.GetBool(
                 RegistryHive.LocalMachine,
-                RegistrySettingsCatalog.ApplicationTelemetryEnabled,
-                true);
+                RegistrySettingsCatalog.ApplicationTelemetryDisabled,
+                false);
 
         IsTypingAndInkingDataCollectionEnabled =
             RegistrySettingsEngine.GetBool(
@@ -1180,7 +1178,7 @@ internal partial class PrivacyAndUserChoiceViewModel : ObservableObject
     {
         RegistrySettingsEngine.SetBool(
             RegistryHive.LocalMachine,
-            RegistrySettingsCatalog.OnlineSpeechRecognition,
+            RegistrySettingsCatalog.AllowOnlineSpeechRecognition,
             value);
     }
 
@@ -1191,7 +1189,7 @@ internal partial class PrivacyAndUserChoiceViewModel : ObservableObject
     {
         RegistrySettingsEngine.SetValue(
             RegistryHive.LocalMachine,
-            RegistrySettingsCatalog.LocationServices,
+            RegistrySettingsCatalog.LocationServicesDisabled,
             value ? 0 : 1);
     }
 
@@ -1210,11 +1208,11 @@ internal partial class PrivacyAndUserChoiceViewModel : ObservableObject
             false);
         IsOnlineSpeechRecognitionEnabled = RegistrySettingsEngine.GetBool(
             RegistryHive.LocalMachine,
-            RegistrySettingsCatalog.OnlineSpeechRecognition,
+            RegistrySettingsCatalog.AllowOnlineSpeechRecognition,
             true);
         IsLocationServicesEnabled = RegistrySettingsEngine.GetValue<int>(
             RegistryHive.LocalMachine,
-            RegistrySettingsCatalog.LocationServices,
+            RegistrySettingsCatalog.LocationServicesDisabled,
             0) == 0;
     }
 
@@ -1255,7 +1253,7 @@ internal partial class PrivacyAndUserChoiceViewModel : ObservableObject
     partial void OnIsAdvertisingIdEnabledChanged(bool value)
     {
         RegistrySettingsEngine.SetBool(
-            RegistryHive.CurrentUser,
+            RegistryHive.LocalMachine,
             RegistrySettingsCatalog.AdvertisingId,
             value);
     }
@@ -1293,7 +1291,7 @@ internal partial class PrivacyAndUserChoiceViewModel : ObservableObject
 
         IsAdvertisingIdEnabled =
             RegistrySettingsEngine.GetBool(
-                RegistryHive.CurrentUser,
+                RegistryHive.LocalMachine,
                 RegistrySettingsCatalog.AdvertisingId,
                 true);
 
@@ -1638,6 +1636,16 @@ internal partial class PrivacyAndUserChoiceViewModel : ObservableObject
 
     private void RefreshCopilotProperties()
     {
+        var values = Microsoft.Windows.Storage.ApplicationData
+            .GetForPackageFamily("Microsoft.WindowsNotepad_8wekyb3d8bbwe")
+            .LocalSettings
+            .Values;
+        values.TryGetValue("RewriteEnabled", out var value);
+        CopilotInNotepad = value is not bool v || v;
+
+        if (!IsElevated)
+            return;
+
         CopilotInSettings = !RegistrySettingsEngine.GetBool(
             RegistryHive.LocalMachine,
             RegistrySettingsCatalog.DisableSettingsAgent);
@@ -1652,13 +1660,6 @@ internal partial class PrivacyAndUserChoiceViewModel : ObservableObject
             !RegistrySettingsEngine.GetBool(
                 RegistryHive.LocalMachine,
                 RegistrySettingsCatalog.DisableImageCreator);
-
-        var values = Microsoft.Windows.Storage.ApplicationData
-            .GetForPackageFamily("Microsoft.WindowsNotepad_8wekyb3d8bbwe")
-            .LocalSettings
-            .Values;
-        values.TryGetValue("RewriteEnabled", out var value);
-        CopilotInNotepad = value is not bool v || v;
 
         IsRecallOn = RegistrySettingsEngine.GetBool(
             RegistryHive.LocalMachine,
@@ -1885,6 +1886,9 @@ internal partial class PrivacyAndUserChoiceViewModel : ObservableObject
 
     private void RefreshWindowsUpdateProperties()
     {
+        if (!IsElevated) 
+            return;
+
         bool noUI = RegistrySettingsEngine.GetBool(
             RegistryHive.LocalMachine,
             RegistrySettingsCatalog.SetDisableUXWUAccess);
@@ -1918,34 +1922,31 @@ internal partial class PrivacyAndUserChoiceViewModel : ObservableObject
             }
         }
 
-        if (IsElevated)
-        {
-            AllowDriversInWindowsUpdate = RegistrySettingsEngine.GetValue<int>(
-                RegistryHive.LocalMachine,
-                RegistrySettingsCatalog.ExcludeWUDriversInQualityUpdate) == 0;
-            GetUpdatesAsSoonAsPossible = RegistrySettingsEngine.GetValue<int>(
-                RegistryHive.LocalMachine,
-                RegistrySettingsCatalog.IsContinuousInnovationOptedIn) == 1;
-            RestartAsSoonAsPossible = RegistrySettingsEngine.GetValue<int>(
-                RegistryHive.LocalMachine,
-                RegistrySettingsCatalog.IsExpedited) == 1;
-            AllowOtherUpdatesThroughWU = RegistrySettingsEngine.GetValue<int>(
-                RegistryHive.LocalMachine,
-                RegistrySettingsCatalog.AllowMUUpdateService) == 1;
-            NotifyOnUpdate = RegistrySettingsEngine.GetValue<int>(
-                RegistryHive.LocalMachine,
-                RegistrySettingsCatalog.RestartNotificationsAllowed2) == 1;
+        AllowDriversInWindowsUpdate = RegistrySettingsEngine.GetValue<int>(
+            RegistryHive.LocalMachine,
+            RegistrySettingsCatalog.ExcludeWUDriversInQualityUpdate) == 0;
+        GetUpdatesAsSoonAsPossible = RegistrySettingsEngine.GetValue<int>(
+            RegistryHive.LocalMachine,
+            RegistrySettingsCatalog.IsContinuousInnovationOptedIn) == 1;
+        RestartAsSoonAsPossible = RegistrySettingsEngine.GetValue<int>(
+            RegistryHive.LocalMachine,
+            RegistrySettingsCatalog.IsExpedited) == 1;
+        AllowOtherUpdatesThroughWU = RegistrySettingsEngine.GetValue<int>(
+            RegistryHive.LocalMachine,
+            RegistrySettingsCatalog.AllowMUUpdateService) == 1;
+        NotifyOnUpdate = RegistrySettingsEngine.GetValue<int>(
+            RegistryHive.LocalMachine,
+            RegistrySettingsCatalog.RestartNotificationsAllowed2) == 1;
 
-            string? settingsPageVisibility = RegistrySettingsEngine.GetValue<string>(
-                RegistryHive.LocalMachine,
-                RegistrySettingsCatalog.SettingsPageVisibility);
-            HideSettingsPage =
-                settingsPageVisibility?
-                    .StartsWith("hide:", StringComparison.OrdinalIgnoreCase) == true &&
-                settingsPageVisibility["hide:".Length..]
-                    .Split(';', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
-                    .Contains("windowsupdate", StringComparer.OrdinalIgnoreCase) == true;
-        }
+        string? settingsPageVisibility = RegistrySettingsEngine.GetValue<string>(
+            RegistryHive.LocalMachine,
+            RegistrySettingsCatalog.SettingsPageVisibility);
+        HideSettingsPage =
+            settingsPageVisibility?
+                .StartsWith("hide:", StringComparison.OrdinalIgnoreCase) == true &&
+            settingsPageVisibility["hide:".Length..]
+                .Split(';', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
+                .Contains("windowsupdate", StringComparer.OrdinalIgnoreCase) == true;
     }
 
     #endregion
@@ -2277,7 +2278,7 @@ internal partial class PrivacyAndUserChoiceViewModel : ObservableObject
         }
     }
 
-    private void SetAllFeatures(bool state)
+    private static void SetAllFeatures(bool state)
     {
         DMAService.ToggleDmaFeature(DMAService.EDGE_UNINSTALLABLE, state);
         DMAService.ToggleDmaFeature(DMAService.EDGE_DEFAULT_LOCK, !state);
@@ -2303,6 +2304,9 @@ internal partial class PrivacyAndUserChoiceViewModel : ObservableObject
 
     public void RefreshDMAProperties()
     {
+        if (!IsElevated)
+            return;
+
         IsEdgeUninstallable = DMAService.CheckIsDmaFeatureEnabled(DMAService.EDGE_UNINSTALLABLE);
         EdgeDefaultLock = !DMAService.CheckIsDmaFeatureEnabled(DMAService.EDGE_DEFAULT_LOCK);
         DefaultAppsExtraTypes = DMAService.CheckIsDmaFeatureEnabled(DMAService.DEFAULT_APPS_EXTRA_TYPES);

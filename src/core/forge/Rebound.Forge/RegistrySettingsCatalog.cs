@@ -656,7 +656,7 @@ namespace Rebound.Forge
         /// </summary>
         public static readonly RegistrySetting AllowTelemetry = new()
         {
-            KeyPath = @"SOFTWARE\Policies\Microsoft\Windows\DataCollection",
+            KeyPath = @"SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\DataCollection",
             ValueName = "AllowTelemetry"
         };
 
@@ -689,7 +689,7 @@ namespace Rebound.Forge
 
         public static readonly RegistrySetting WindowsCeipEnabled = new()
         {
-            KeyPath = @"SOFTWARE\Policies\Microsoft\SQMClient\Windows",
+            KeyPath = @"SOFTWARE\Microsoft\SQMClient\Windows",
             ValueName = "CEIPEnable"
         };
 
@@ -699,19 +699,19 @@ namespace Rebound.Forge
             ValueName = "Disabled"
         };
 
-        public static readonly RegistrySetting OnlineSpeechRecognition = new()
+        public static readonly RegistrySetting AllowOnlineSpeechRecognition = new()
         {
             KeyPath = @"SOFTWARE\Policies\Microsoft\InputPersonalization",
             ValueName = "AllowInputPersonalization"
         };
 
-        public static readonly RegistrySetting LocationServices = new()
+        public static readonly RegistrySetting LocationServicesDisabled = new()
         {
             KeyPath = @"SOFTWARE\Policies\Microsoft\Windows\LocationAndSensors",
             ValueName = "DisableLocation"
         };
 
-        public static readonly RegistrySetting ApplicationTelemetryEnabled = new()
+        public static readonly RegistrySetting ApplicationTelemetryDisabled = new()
         {
             KeyPath = @"SOFTWARE\Policies\Microsoft\Windows\AppCompat",
             ValueName = "AITEnable"
@@ -723,22 +723,10 @@ namespace Rebound.Forge
             ValueName = "AllowLinguisticDataCollection"
         };
 
-        public static readonly RegistrySetting HandwritingPersonalization = new()
-        {
-            KeyPath = @"Software\Policies\Microsoft\InputPersonalization",
-            ValueName = "RestrictImplicitTextCollection"
-        };
-
         public static readonly RegistrySetting TrackApplicationLaunches = new()
         {
             KeyPath = @"SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Advanced",
             ValueName = "Start_TrackProgs"
-        };
-
-        public static readonly RegistrySetting DisableApplicationUsageTracking = new()
-        {
-            KeyPath = @"SOFTWARE\Policies\Microsoft\Windows\EdgeUI",
-            ValueName = "DisableMFUTracking"
         };
 
         public static readonly RegistrySetting RestrictImplicitTextCollection = new()
@@ -751,18 +739,6 @@ namespace Rebound.Forge
         {
             KeyPath = @"SOFTWARE\Microsoft\InputPersonalization",
             ValueName = "RestrictImplicitInkCollection"
-        };
-
-        public static readonly RegistrySetting AllowOnlineTips = new()
-        {
-            KeyPath = @"SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\Explorer",
-            ValueName = "AllowOnlineTips"
-        };
-
-        public static readonly RegistrySetting SoftLandingEnabled = new()
-        {
-            KeyPath = @"SOFTWARE\Microsoft\Windows\CurrentVersion\ContentDeliveryManager",
-            ValueName = "SoftLandingEnabled"
         };
 
         public static readonly RegistrySetting LockScreenTipsEnabled = new()
