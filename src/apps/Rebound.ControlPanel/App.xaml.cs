@@ -406,6 +406,9 @@ public partial class App : Application, IReboundLegacySupportApp, IReboundPipeCl
             MainWindow.AppWindow.TitleBar.ButtonHoverBackgroundColor = Color.FromArgb(80, 120, 120, 120);
             MainWindow.AppWindow.TitleBar.ButtonPressedBackgroundColor = Color.FromArgb(40, 120, 120, 120);
             MainWindow.AppWindow?.SetIcon($"{AppContext.BaseDirectory}\\Assets\\ControlPanel.ico");
+
+            ReboundWindowBackdrop.Register(MainWindow);
+            ReboundWindowTheme.Register(MainWindow);
         }
         catch (Exception ex)
         {

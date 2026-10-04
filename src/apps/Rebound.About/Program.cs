@@ -5,7 +5,9 @@ using Microsoft.UI.Composition;
 using Microsoft.UI.Dispatching;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Settings;
+using Rebound.Core;
 using System;
+using System.IO;
 using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
@@ -29,7 +31,8 @@ internal static class Program
         var attestation = FeatureTokenGenerator.GenerateAttestation(featureId);
 
         var accessResult = LimitedAccessFeatures.TryUnlockFeature(featureId, token, attestation);
-        CompositionEngine.TrySetProcessEngine(CompositionEngineType.System);
+        if (!File.Exists(Path.Combine(Variables.ReboundDataFolder, "use_lifted_compositor")))
+            CompositionEngine.TrySetProcessEngine(CompositionEngineType.System);
 
         XamlOptionalChanges.EnableChange(XamlChangeId.IconNoGridOptimization);
         XamlOptionalChanges.EnableChange(XamlChangeId.DeferContextFlyoutInit);
