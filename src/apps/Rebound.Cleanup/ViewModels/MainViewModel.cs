@@ -43,6 +43,10 @@ internal partial class MainViewModel : ObservableObject
 
     [ObservableProperty] public partial long FilesSize { get; set; } = 0;
 
+    [ObservableProperty] public partial int SelectedFilesCount { get; set; }
+
+    [ObservableProperty] public partial long SelectedFilesSize { get; set; } = 0;
+
     [ObservableProperty] public partial bool IsLoading { get; set; } = false;
 
     [ObservableProperty] public partial bool? IsEverythingSelected { get; set; }
@@ -58,6 +62,8 @@ internal partial class MainViewModel : ObservableObject
     [ObservableProperty] public partial string CurrentTask { get; set; }
 
     [ObservableProperty] public partial string CurrentOperation { get; set; }
+
+    [ObservableProperty] public partial bool CompactLayout { get; set; }
 
     partial void OnIsEverythingSelectedChanged(bool? oldValue, bool? newValue)
     {

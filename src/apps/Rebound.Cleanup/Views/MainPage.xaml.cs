@@ -7,17 +7,12 @@ using Microsoft.UI.Xaml.Controls;
 using Rebound.Cleanup.DiskAnalyzer.Ntfs;
 using Rebound.Cleanup.ViewModels;
 using Rebound.Core;
-using Rebound.Core.Native.Wrappers;
 using System;
 using System.ComponentModel;
-using System.Diagnostics;
-using System.IO;
 using System.Runtime.InteropServices;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using TerraFX.Interop.Windows;
-using WinUIEx;
 using static TerraFX.Interop.Windows.Windows;
 
 namespace Rebound.Cleanup.Views;
@@ -223,15 +218,20 @@ internal sealed partial class MainPage : Page
         }
     }
 
-    private async void CheckBox_Checked(object sender, Microsoft.UI.Xaml.RoutedEventArgs e)
+    private async void CheckBox_Checked(object sender, RoutedEventArgs e)
     {
-        await Task.Delay(50).ConfigureAwait(true);
+        await Task.Yield();
+
+        ViewModel.SelectedFilesCount = 0;
+        ViewModel.SelectedFilesSize = 0;
 
         var selectedItems = 0;
         foreach (var item in ViewModel.CleanItems)
         {
             if (item.IsChecked)
             {
+                ViewModel.SelectedFilesCount += item.FileCount;
+                ViewModel.SelectedFilesSize += item.Size;
                 selectedItems++;
             }
         }
@@ -258,6 +258,7 @@ internal sealed partial class MainPage : Page
 
         if (e.NewSize.Width < 760)
         {
+            ViewModel.CompactLayout = true;
             if (!_forcedTop)
             {
                 nav.PaneDisplayMode = NavigationViewPaneDisplayMode.Top;
@@ -266,6 +267,7 @@ internal sealed partial class MainPage : Page
         }
         else
         {
+            ViewModel.CompactLayout = false;
             if (_forcedTop)
             {
                 nav.PaneDisplayMode = NavigationViewPaneDisplayMode.Auto;
