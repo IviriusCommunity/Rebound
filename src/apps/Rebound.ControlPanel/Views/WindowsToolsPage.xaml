@@ -10,25 +10,176 @@
     xmlns:muxc="using:Microsoft.UI.Xaml.Controls"
     xmlns:toolkit="using:CommunityToolkit.WinUI.Controls"
     mc:Ignorable="d">
+    <Page.Resources>
+        <DataTemplate x:Key="ListViewItemTemplate" x:DataType="local:Tool">
+            <Button
+                Width="240"
+                Padding="0"
+                HorizontalContentAlignment="Stretch"
+                Background="Transparent"
+                BorderBrush="Transparent">
+                <Grid
+                    Margin="8"
+                    Background="Transparent"
+                    DoubleTapped="Grid_DoubleTapped"
+                    Tag="{x:Bind}"
+                    ToolTipService.ToolTip="{x:Bind Description}">
+                    <Grid.ContextFlyout>
+                        <MenuFlyout>
+                            <MenuFlyoutItem Command="{x:Bind LaunchAppCommand}" Text="Open">
+                                <MenuFlyoutItem.Icon>
+                                    <ImageIcon Source="{x:Bind Icon}" />
+                                </MenuFlyoutItem.Icon>
+                            </MenuFlyoutItem>
+                            <MenuFlyoutSeparator />
+                            <MenuFlyoutItem Command="{x:Bind CreateShortcutCommand}" Text="Create shortcut on Desktop">
+                                <MenuFlyoutItem.Icon>
+                                    <FontIcon Glyph="&#xE8A7;" />
+                                </MenuFlyoutItem.Icon>
+                            </MenuFlyoutItem>
+                        </MenuFlyout>
+                    </Grid.ContextFlyout>
+                    <Image
+                        Width="16"
+                        HorizontalAlignment="Left"
+                        Source="{x:Bind Icon}" />
+                    <Grid Margin="24,0,0,0">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                        </Grid.RowDefinitions>
+                        <TextBlock Text="{x:Bind DisplayName}" TextTrimming="CharacterEllipsis" />
+                    </Grid>
+                </Grid>
+            </Button>
+        </DataTemplate>
+        <DataTemplate x:Key="DetailsViewItemTemplate" x:DataType="local:Tool">
+            <Button
+                Width="240"
+                Padding="0"
+                HorizontalContentAlignment="Stretch"
+                Background="Transparent"
+                BorderBrush="Transparent">
+                <Grid
+                    Margin="8"
+                    Background="Transparent"
+                    DoubleTapped="Grid_DoubleTapped"
+                    Tag="{x:Bind}"
+                    ToolTipService.ToolTip="{x:Bind Description}">
+                    <Grid.ContextFlyout>
+                        <MenuFlyout>
+                            <MenuFlyoutItem Command="{x:Bind LaunchAppCommand}" Text="Open">
+                                <MenuFlyoutItem.Icon>
+                                    <ImageIcon Source="{x:Bind Icon}" />
+                                </MenuFlyoutItem.Icon>
+                            </MenuFlyoutItem>
+                            <MenuFlyoutSeparator />
+                            <MenuFlyoutItem Command="{x:Bind CreateShortcutCommand}" Text="Create shortcut on Desktop">
+                                <MenuFlyoutItem.Icon>
+                                    <FontIcon Glyph="&#xE8A7;" />
+                                </MenuFlyoutItem.Icon>
+                            </MenuFlyoutItem>
+                        </MenuFlyout>
+                    </Grid.ContextFlyout>
+                    <Image
+                        Width="32"
+                        HorizontalAlignment="Left"
+                        Source="{x:Bind Icon}" />
+                    <Grid Margin="40,0,0,0">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                        </Grid.RowDefinitions>
+                        <TextBlock Text="{x:Bind DisplayName}" TextTrimming="CharacterEllipsis" />
+                        <TextBlock
+                            Grid.Row="1"
+                            FontSize="12"
+                            Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                            Text="{x:Bind Description}"
+                            TextAlignment="Left"
+                            TextTrimming="CharacterEllipsis" />
+                    </Grid>
+                </Grid>
+            </Button>
+        </DataTemplate>
+        <DataTemplate x:Key="TilesViewItemTemplate" x:DataType="local:Tool">
+            <Button
+                Width="120"
+                Padding="0"
+                HorizontalContentAlignment="Stretch"
+                Background="Transparent"
+                BorderBrush="Transparent">
+                <Grid
+                    Margin="12,8"
+                    Background="Transparent"
+                    DoubleTapped="Grid_DoubleTapped"
+                    Tag="{x:Bind}"
+                    ToolTipService.ToolTip="{x:Bind Description}">
+                    <Grid.ContextFlyout>
+                        <MenuFlyout>
+                            <MenuFlyoutItem Command="{x:Bind LaunchAppCommand}" Text="Open">
+                                <MenuFlyoutItem.Icon>
+                                    <ImageIcon Source="{x:Bind Icon}" />
+                                </MenuFlyoutItem.Icon>
+                            </MenuFlyoutItem>
+                            <MenuFlyoutSeparator />
+                            <MenuFlyoutItem Command="{x:Bind CreateShortcutCommand}" Text="Create shortcut on Desktop">
+                                <MenuFlyoutItem.Icon>
+                                    <FontIcon Glyph="&#xE8A7;" />
+                                </MenuFlyoutItem.Icon>
+                            </MenuFlyoutItem>
+                        </MenuFlyout>
+                    </Grid.ContextFlyout>
+                    <Image
+                        Width="64"
+                        VerticalAlignment="Top"
+                        Source="{x:Bind Icon}" />
+                    <Grid Margin="0,72,0,0">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                        </Grid.RowDefinitions>
+                        <TextBlock
+                            HorizontalAlignment="Center"
+                            HorizontalTextAlignment="Center"
+                            Text="{x:Bind DisplayName}"
+                            TextTrimming="CharacterEllipsis" />
+                    </Grid>
+                </Grid>
+            </Button>
+        </DataTemplate>
+    </Page.Resources>
     <Grid>
-        <Grid
-            Height="72"
-            VerticalAlignment="Top"
-            Background="{ThemeResource CardBackgroundFillColorDefaultBrush}">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+        <Grid VerticalAlignment="Top" Background="{ThemeResource CardBackgroundFillColorDefaultBrush}">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="Auto" />
+            </Grid.ColumnDefinitions>
             <Image
-                Width="20"
+                Width="16"
                 Margin="16"
                 HorizontalAlignment="Left"
                 VerticalAlignment="Top"
-                Source="/Assets/WindowsTools.ico" />
+                Source="/Assets/Glyphs/WindowsTools.ico" />
             <TextBlock
-                Margin="48,10"
-                FontSize="20"
+                Margin="48,10,16,0"
+                FontSize="18"
                 FontWeight="SemiBold"
                 Foreground="{ThemeResource AccentTextFillColorPrimaryBrush}"
-                Text="Windows Tools" />
-            <TextBlock Margin="48,40,0,0" Text="Built-in apps and programs made for various tasks." />
+                Text="Windows Tools"
+                TextTrimming="CharacterEllipsis" />
+            <TextBlock
+                Margin="48,36,16,12"
+                FontSize="12"
+                Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                Text="Built-in apps and programs made for various tasks."
+                TextWrapping="WrapWholeWords" />
             <muxc:DropDownButton
+                Grid.Column="1"
                 Margin="16"
                 Padding="8"
                 HorizontalAlignment="Right"
@@ -39,177 +190,251 @@
                 <muxc:DropDownButton.Flyout>
                     <MenuFlyout>
                         <muxc:RadioMenuFlyoutItem x:Name="ListItem" Text="List" />
-                        <muxc:RadioMenuFlyoutItem x:Name="DetailsItem" Text="Details" />
                         <muxc:RadioMenuFlyoutItem
-                            x:Name="TilesItem"
+                            x:Name="DetailsItem"
                             IsChecked="True"
-                            Text="Tiles" />
+                            Text="Details" />
+                        <muxc:RadioMenuFlyoutItem x:Name="TilesItem" Text="Tiles" />
                     </MenuFlyout>
                 </muxc:DropDownButton.Flyout>
             </muxc:DropDownButton>
         </Grid>
-        <ScrollViewer Margin="0,72,0,0">
-            <Grid>
-                <ItemsControl
-                    Margin="12"
-                    HorizontalAlignment="Stretch"
-                    ItemsSource="{x:Bind Tools}"
-                    Visibility="{x:Bind ListItem.IsChecked, Mode=OneWay}">
-                    <ItemsControl.ItemsPanel>
-                        <ItemsPanelTemplate>
-                            <toolkit:StaggeredPanel
-                                ColumnSpacing="8"
-                                DesiredColumnWidth="280"
-                                RowSpacing="8" />
-                        </ItemsPanelTemplate>
-                    </ItemsControl.ItemsPanel>
-                    <ItemsControl.ItemTemplate>
-                        <DataTemplate x:DataType="local:Tool">
-                            <Button
-                                Padding="8,4"
-                                HorizontalAlignment="Stretch"
-                                HorizontalContentAlignment="Stretch"
-                                Background="Transparent"
-                                BorderBrush="Transparent"
-                                Command="{x:Bind LaunchAppCommand}"
-                                CommandParameter="{x:Bind Name}"
-                                ToolTipService.ToolTip="{x:Bind Description}">
-                                <Grid>
-                                    <Image
-                                        Width="16"
-                                        HorizontalAlignment="Left"
-                                        Source="{x:Bind Icon}" />
-                                    <Grid Margin="24,0,0,0">
-                                        <Grid.RowDefinitions>
-                                            <RowDefinition Height="Auto" />
-                                            <RowDefinition Height="Auto" />
-                                        </Grid.RowDefinitions>
-                                        <TextBlock
-                                            Height="20"
-                                            Text="{x:Bind DisplayName}"
-                                            TextTrimming="CharacterEllipsis"
-                                            TextWrapping="WrapWholeWords" />
-                                        <TextBlock
-                                            Grid.Row="1"
-                                            Height="32"
-                                            FontSize="12"
-                                            Opacity="0.75"
-                                            Text="{x:Bind Description}"
-                                            TextAlignment="Left"
-                                            TextTrimming="CharacterEllipsis"
-                                            TextWrapping="WrapWholeWords"
-                                            Visibility="Collapsed" />
-                                    </Grid>
-                                </Grid>
-                            </Button>
-                        </DataTemplate>
-                    </ItemsControl.ItemTemplate>
-                </ItemsControl>
-                <ItemsControl
-                    Margin="12"
-                    HorizontalAlignment="Stretch"
-                    ItemsSource="{x:Bind Tools}"
-                    Visibility="{x:Bind DetailsItem.IsChecked, Mode=OneWay}">
-                    <ItemsControl.ItemsPanel>
-                        <ItemsPanelTemplate>
-                            <StackPanel Spacing="8" />
-                        </ItemsPanelTemplate>
-                    </ItemsControl.ItemsPanel>
-                    <ItemsControl.ItemTemplate>
-                        <DataTemplate x:DataType="local:Tool">
-                            <Button
-                                Padding="8,4"
-                                HorizontalAlignment="Stretch"
-                                HorizontalContentAlignment="Stretch"
-                                Background="Transparent"
-                                BorderBrush="Transparent"
-                                Command="{x:Bind LaunchAppCommand}"
-                                CommandParameter="{x:Bind Name}">
-                                <Grid>
-                                    <Image
-                                        Width="16"
-                                        HorizontalAlignment="Left"
-                                        Source="{x:Bind Icon}" />
-                                    <Grid Margin="24,0,0,0">
-                                        <Grid.ColumnDefinitions>
-                                            <ColumnDefinition Width="*" />
-                                            <ColumnDefinition Width="*" />
-                                        </Grid.ColumnDefinitions>
-                                        <TextBlock
-                                            Height="20"
-                                            Text="{x:Bind DisplayName}"
-                                            TextTrimming="CharacterEllipsis"
-                                            TextWrapping="WrapWholeWords" />
-                                        <TextBlock
-                                            Grid.Column="1"
-                                            Height="16"
-                                            FontSize="12"
-                                            Opacity="0.75"
-                                            Text="{x:Bind Description}"
-                                            TextAlignment="Left"
-                                            TextTrimming="CharacterEllipsis"
-                                            TextWrapping="WrapWholeWords" />
-                                    </Grid>
-                                </Grid>
-                            </Button>
-                        </DataTemplate>
-                    </ItemsControl.ItemTemplate>
-                </ItemsControl>
-                <ItemsControl
-                    Margin="12"
-                    HorizontalAlignment="Stretch"
-                    ItemsSource="{x:Bind Tools}"
-                    Visibility="{x:Bind TilesItem.IsChecked, Mode=OneWay}">
-                    <ItemsControl.ItemsPanel>
-                        <ItemsPanelTemplate>
-                            <toolkit:StaggeredPanel
-                                ColumnSpacing="8"
-                                DesiredColumnWidth="280"
-                                RowSpacing="8" />
-                        </ItemsPanelTemplate>
-                    </ItemsControl.ItemsPanel>
-                    <ItemsControl.ItemTemplate>
-                        <DataTemplate x:DataType="local:Tool">
-                            <Button
-                                Padding="8"
-                                HorizontalAlignment="Stretch"
-                                HorizontalContentAlignment="Stretch"
-                                Background="Transparent"
-                                BorderBrush="Transparent"
-                                Command="{x:Bind LaunchAppCommand}"
-                                CommandParameter="{x:Bind Name}">
-                                <Grid>
-                                    <Image
-                                        Width="48"
-                                        HorizontalAlignment="Left"
-                                        Source="{x:Bind Icon}" />
-                                    <Grid Margin="64,0,0,0" RowSpacing="4">
-                                        <Grid.RowDefinitions>
-                                            <RowDefinition Height="Auto" />
-                                            <RowDefinition Height="Auto" />
-                                        </Grid.RowDefinitions>
-                                        <TextBlock
-                                            Height="20"
-                                            FontWeight="SemiBold"
-                                            Text="{x:Bind DisplayName}"
-                                            TextTrimming="CharacterEllipsis"
-                                            TextWrapping="WrapWholeWords" />
-                                        <TextBlock
-                                            Grid.Row="1"
-                                            Height="32"
-                                            FontSize="12"
-                                            Opacity="0.75"
-                                            Text="{x:Bind Description}"
-                                            TextAlignment="Left"
-                                            TextTrimming="CharacterEllipsis"
-                                            TextWrapping="WrapWholeWords" />
-                                    </Grid>
-                                </Grid>
-                            </Button>
-                        </DataTemplate>
-                    </ItemsControl.ItemTemplate>
-                </ItemsControl>
-            </Grid>
-        </ScrollViewer>
+        <Grid Grid.Row="1">
+            <ScrollViewer>
+                <Grid>
+                    <StackPanel Spacing="8" Visibility="{x:Bind ListItem.IsChecked, Mode=OneWay}">
+                        <TextBlock
+                            Margin="16,16,0,0"
+                            FontSize="20"
+                            FontWeight="SemiBold"
+                            Text="General" />
+                        <ItemsControl
+                            Margin="8"
+                            ItemTemplate="{StaticResource ListViewItemTemplate}"
+                            ItemsSource="{x:Bind GeneralTools}">
+                            <ItemsControl.ItemsPanel>
+                                <ItemsPanelTemplate>
+                                    <toolkit:WrapPanel HorizontalSpacing="8" VerticalSpacing="8" />
+                                </ItemsPanelTemplate>
+                            </ItemsControl.ItemsPanel>
+                        </ItemsControl>
+                        <TextBlock
+                            Margin="16,16,0,0"
+                            FontSize="20"
+                            FontWeight="SemiBold"
+                            Text="Management" />
+                        <ItemsControl
+                            Margin="8"
+                            ItemTemplate="{StaticResource ListViewItemTemplate}"
+                            ItemsSource="{x:Bind ManagementTools}">
+                            <ItemsControl.ItemsPanel>
+                                <ItemsPanelTemplate>
+                                    <toolkit:WrapPanel HorizontalSpacing="8" VerticalSpacing="8" />
+                                </ItemsPanelTemplate>
+                            </ItemsControl.ItemsPanel>
+                        </ItemsControl>
+                        <TextBlock
+                            Margin="16,16,0,0"
+                            FontSize="20"
+                            FontWeight="SemiBold"
+                            Text="Command line" />
+                        <ItemsControl
+                            Margin="8"
+                            ItemTemplate="{StaticResource ListViewItemTemplate}"
+                            ItemsSource="{x:Bind CommandTools}">
+                            <ItemsControl.ItemsPanel>
+                                <ItemsPanelTemplate>
+                                    <toolkit:WrapPanel HorizontalSpacing="8" VerticalSpacing="8" />
+                                </ItemsPanelTemplate>
+                            </ItemsControl.ItemsPanel>
+                        </ItemsControl>
+                        <TextBlock
+                            Margin="16,16,0,0"
+                            FontSize="20"
+                            FontWeight="SemiBold"
+                            Text="Miscellaneous" />
+                        <ItemsControl
+                            Margin="8"
+                            ItemTemplate="{StaticResource ListViewItemTemplate}"
+                            ItemsSource="{x:Bind MiscellaneousTools}">
+                            <ItemsControl.ItemsPanel>
+                                <ItemsPanelTemplate>
+                                    <toolkit:WrapPanel HorizontalSpacing="8" VerticalSpacing="8" />
+                                </ItemsPanelTemplate>
+                            </ItemsControl.ItemsPanel>
+                        </ItemsControl>
+                        <TextBlock
+                            Margin="16,16,0,0"
+                            FontSize="20"
+                            FontWeight="SemiBold"
+                            Text="Legacy" />
+                        <ItemsControl
+                            Margin="8"
+                            ItemTemplate="{StaticResource ListViewItemTemplate}"
+                            ItemsSource="{x:Bind LegacyTools}">
+                            <ItemsControl.ItemsPanel>
+                                <ItemsPanelTemplate>
+                                    <toolkit:WrapPanel HorizontalSpacing="8" VerticalSpacing="8" />
+                                </ItemsPanelTemplate>
+                            </ItemsControl.ItemsPanel>
+                        </ItemsControl>
+                    </StackPanel>
+                    <StackPanel Spacing="8" Visibility="{x:Bind DetailsItem.IsChecked, Mode=OneWay}">
+                        <TextBlock
+                            Margin="16,16,0,0"
+                            FontSize="20"
+                            FontWeight="SemiBold"
+                            Text="General" />
+                        <ItemsControl
+                            Margin="8"
+                            ItemTemplate="{StaticResource DetailsViewItemTemplate}"
+                            ItemsSource="{x:Bind GeneralTools}">
+                            <ItemsControl.ItemsPanel>
+                                <ItemsPanelTemplate>
+                                    <toolkit:WrapPanel HorizontalSpacing="8" VerticalSpacing="8" />
+                                </ItemsPanelTemplate>
+                            </ItemsControl.ItemsPanel>
+                        </ItemsControl>
+                        <TextBlock
+                            Margin="16,16,0,0"
+                            FontSize="20"
+                            FontWeight="SemiBold"
+                            Text="Management" />
+                        <ItemsControl
+                            Margin="8"
+                            ItemTemplate="{StaticResource DetailsViewItemTemplate}"
+                            ItemsSource="{x:Bind ManagementTools}">
+                            <ItemsControl.ItemsPanel>
+                                <ItemsPanelTemplate>
+                                    <toolkit:WrapPanel HorizontalSpacing="8" VerticalSpacing="8" />
+                                </ItemsPanelTemplate>
+                            </ItemsControl.ItemsPanel>
+                        </ItemsControl>
+                        <TextBlock
+                            Margin="16,16,0,0"
+                            FontSize="20"
+                            FontWeight="SemiBold"
+                            Text="Command line" />
+                        <ItemsControl
+                            Margin="8"
+                            ItemTemplate="{StaticResource DetailsViewItemTemplate}"
+                            ItemsSource="{x:Bind CommandTools}">
+                            <ItemsControl.ItemsPanel>
+                                <ItemsPanelTemplate>
+                                    <toolkit:WrapPanel HorizontalSpacing="8" VerticalSpacing="8" />
+                                </ItemsPanelTemplate>
+                            </ItemsControl.ItemsPanel>
+                        </ItemsControl>
+                        <TextBlock
+                            Margin="16,16,0,0"
+                            FontSize="20"
+                            FontWeight="SemiBold"
+                            Text="Miscellaneous" />
+                        <ItemsControl
+                            Margin="8"
+                            ItemTemplate="{StaticResource DetailsViewItemTemplate}"
+                            ItemsSource="{x:Bind MiscellaneousTools}">
+                            <ItemsControl.ItemsPanel>
+                                <ItemsPanelTemplate>
+                                    <toolkit:WrapPanel HorizontalSpacing="8" VerticalSpacing="8" />
+                                </ItemsPanelTemplate>
+                            </ItemsControl.ItemsPanel>
+                        </ItemsControl>
+                        <TextBlock
+                            Margin="16,16,0,0"
+                            FontSize="20"
+                            FontWeight="SemiBold"
+                            Text="Legacy" />
+                        <ItemsControl
+                            Margin="8"
+                            ItemTemplate="{StaticResource DetailsViewItemTemplate}"
+                            ItemsSource="{x:Bind LegacyTools}">
+                            <ItemsControl.ItemsPanel>
+                                <ItemsPanelTemplate>
+                                    <toolkit:WrapPanel HorizontalSpacing="8" VerticalSpacing="8" />
+                                </ItemsPanelTemplate>
+                            </ItemsControl.ItemsPanel>
+                        </ItemsControl>
+                    </StackPanel>
+                    <StackPanel Spacing="8" Visibility="{x:Bind TilesItem.IsChecked, Mode=OneWay}">
+                        <TextBlock
+                            Margin="16,16,0,0"
+                            FontSize="20"
+                            FontWeight="SemiBold"
+                            Text="General" />
+                        <ItemsControl
+                            Margin="8"
+                            ItemTemplate="{StaticResource TilesViewItemTemplate}"
+                            ItemsSource="{x:Bind GeneralTools}">
+                            <ItemsControl.ItemsPanel>
+                                <ItemsPanelTemplate>
+                                    <toolkit:WrapPanel HorizontalSpacing="8" VerticalSpacing="8" />
+                                </ItemsPanelTemplate>
+                            </ItemsControl.ItemsPanel>
+                        </ItemsControl>
+                        <TextBlock
+                            Margin="16,16,0,0"
+                            FontSize="20"
+                            FontWeight="SemiBold"
+                            Text="Management" />
+                        <ItemsControl
+                            Margin="8"
+                            ItemTemplate="{StaticResource TilesViewItemTemplate}"
+                            ItemsSource="{x:Bind ManagementTools}">
+                            <ItemsControl.ItemsPanel>
+                                <ItemsPanelTemplate>
+                                    <toolkit:WrapPanel HorizontalSpacing="8" VerticalSpacing="8" />
+                                </ItemsPanelTemplate>
+                            </ItemsControl.ItemsPanel>
+                        </ItemsControl>
+                        <TextBlock
+                            Margin="16,16,0,0"
+                            FontSize="20"
+                            FontWeight="SemiBold"
+                            Text="Command line" />
+                        <ItemsControl
+                            Margin="8"
+                            ItemTemplate="{StaticResource TilesViewItemTemplate}"
+                            ItemsSource="{x:Bind CommandTools}">
+                            <ItemsControl.ItemsPanel>
+                                <ItemsPanelTemplate>
+                                    <toolkit:WrapPanel HorizontalSpacing="8" VerticalSpacing="8" />
+                                </ItemsPanelTemplate>
+                            </ItemsControl.ItemsPanel>
+                        </ItemsControl>
+                        <TextBlock
+                            Margin="16,16,0,0"
+                            FontSize="20"
+                            FontWeight="SemiBold"
+                            Text="Miscellaneous" />
+                        <ItemsControl
+                            Margin="8"
+                            ItemTemplate="{StaticResource TilesViewItemTemplate}"
+                            ItemsSource="{x:Bind MiscellaneousTools}">
+                            <ItemsControl.ItemsPanel>
+                                <ItemsPanelTemplate>
+                                    <toolkit:WrapPanel HorizontalSpacing="8" VerticalSpacing="8" />
+                                </ItemsPanelTemplate>
+                            </ItemsControl.ItemsPanel>
+                        </ItemsControl>
+                        <TextBlock
+                            Margin="16,16,0,0"
+                            FontSize="20"
+                            FontWeight="SemiBold"
+                            Text="Legacy" />
+                        <ItemsControl
+                            Margin="8"
+                            ItemTemplate="{StaticResource TilesViewItemTemplate}"
+                            ItemsSource="{x:Bind LegacyTools}">
+                            <ItemsControl.ItemsPanel>
+                                <ItemsPanelTemplate>
+                                    <toolkit:WrapPanel HorizontalSpacing="8" VerticalSpacing="8" />
+                                </ItemsPanelTemplate>
+                            </ItemsControl.ItemsPanel>
+                        </ItemsControl>
+                    </StackPanel>
+                </Grid>
+            </ScrollViewer>
+        </Grid>
     </Grid>
 </Page>

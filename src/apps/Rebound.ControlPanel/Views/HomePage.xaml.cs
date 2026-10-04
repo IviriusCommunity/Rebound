@@ -220,7 +220,11 @@ internal sealed partial class HomePage : Page
     {
         try
         {
-            Process.Start(path);
+            Process.Start(new ProcessStartInfo()
+            {
+                FileName = path,
+                UseShellExecute = true
+            });
         }
         catch (Exception ex)
         {

@@ -196,7 +196,7 @@
                         Header="Management Console"
                         IsClickEnabled="True">
                         <toolkit:SettingsCard.HeaderIcon>
-                            <ImageIcon Source="/Assets/Apps/ManagementConsole.png" />
+                            <ImageIcon Source="/Assets/Apps/ManagementConsole.ico" />
                         </toolkit:SettingsCard.HeaderIcon>
                         <toolkit:SettingsCard.ActionIcon>
                             <FontIcon Glyph="&#xE8A7;" />
@@ -208,7 +208,7 @@
                         Header="View all Windows tools"
                         IsClickEnabled="True">
                         <toolkit:SettingsCard.HeaderIcon>
-                            <ImageIcon Source="/Assets/Glyphs/WindowsTools.png" />
+                            <ImageIcon Source="/Assets/Glyphs/WindowsTools.ico" />
                         </toolkit:SettingsCard.HeaderIcon>
                     </toolkit:SettingsCard>
 

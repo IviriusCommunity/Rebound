@@ -217,41 +217,72 @@ internal static partial class CplItemPairs
                         // TODO
                     ],
                 },
-                new() { Name = "Credentials Manager", Tag = "credentialsmanager", Icon = "glyph:\uF540", Page = typeof(CredentialManagerPage) },
-                ]
+                new() 
+                {
+                    Name = "Credentials Manager", 
+                    Tag = "credentialsmanager", 
+                    Icon = "glyph:\uF540", 
+                    Page = typeof(CredentialManagerPage),
+                    Args = [ /* TODO */ ],
+                    PageOpenUri = "credentialsmanager",
+                    PageOpenIconPath = "Assets/Glyphs/CredentialManager.ico",
+                    LegacyLaunchItems =
+                    [
+                        // TODO
+                    ],
+                },
+            ]
         },
         new()
         {
             Name = "Apps & Programs",
-            Icon = "img:ms-appx:///Assets/Glyphs/AppsAndPrograms.png"
+            Icon = "img:ms-appx:///Assets/Glyphs/AppsAndPrograms.png",
+            Uri = "ms-settings:appsfeatures"
         },
         new()
         {
             Name = "User Accounts",
-            Icon = "img:ms-appx:///Assets/Glyphs/UserAccounts.png"
+            Icon = "img:ms-appx:///Assets/Glyphs/UserAccounts.png",
+            Uri = "ms-settings:accounts"
         },
         new()
         {
             Name = "Time & Language",
-            Icon = "img:ms-appx:///Assets/Glyphs/TimeAndLanguage.png"
+            Icon = "img:ms-appx:///Assets/Glyphs/TimeAndLanguage.png",
+            Uri = "ms-settings:dateandtime"
         },
         new()
         {
             Name = "Gaming",
-            Icon = "img:ms-appx:///Assets/Glyphs/Gaming.png"
+            Icon = "img:ms-appx:///Assets/Glyphs/Gaming.png",
+            Uri = "ms-settings:gaming-gamemode"
         },
-        new()
+        // TODO: implement
+        /*new()
         {
             Name = "Enterprise Administration",
             Icon = "img:ms-appx:///Assets/Glyphs/EnterpriseAdministration.png"
-        },
+        },*/
         new()
         {
             Name = "Windows Update",
-            Icon = "img:ms-appx:///Assets/Glyphs/WindowsUpdate.png"
+            Icon = "img:ms-appx:///Assets/Glyphs/WindowsUpdate.png",
+            Uri = "ms-settings:windowsupdate"
         },
-        new() { Name = "Windows Tools", Icon = "img:ms-appx:///Assets/Glyphs/WindowsTools.png", Tag = "windowstools", Page = typeof(WindowsToolsPage),
-            Args = [CplArgs.appWizCplPath, CplArgs.ADMINISTRATIVE_TOOLS_UTIL] },
+        new() 
+        {
+            Name = "Windows Tools",
+            Tag = "windowstools",
+            Icon = "img:ms-appx:///Assets/Glyphs/WindowsTools.ico",
+            Page = typeof(WindowsToolsPage),
+            Args = [CplArgs.appWizCplPath, CplArgs.ADMINISTRATIVE_TOOLS_UTIL],
+            PageOpenUri = "windowstools",
+            PageOpenIconPath = "Assets/Glyphs/WindowsTools.ico",
+            LegacyLaunchItems =
+            [
+                // TODO
+            ],
+        },
     ];
 
     // Searches top level only - for items that have pages and can be selected

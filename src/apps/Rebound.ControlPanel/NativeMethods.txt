@@ -13,3 +13,5 @@ CredDeleteW
 CredReadW
 CredWriteW
 CredEnumerateW
+IShellLinkW
+IPersistFile

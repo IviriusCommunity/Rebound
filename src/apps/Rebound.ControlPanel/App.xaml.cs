@@ -275,7 +275,7 @@ public partial class App : Application, IReboundLegacySupportApp, IReboundPipeCl
             content: "Could not find Rebound Service Host. This process is required for multiple features to work properly.",
             primaryButtonText: "Launch",
             closeButtonText: "Ok",
-            defaultButton: ContentDialogButton.Primary).ConfigureAwait(false);
+            defaultButton: ContentDialogButton.Primary).ConfigureAwait(true);
 
         switch (result)
         {
@@ -291,7 +291,7 @@ public partial class App : Application, IReboundLegacySupportApp, IReboundPipeCl
                         await ReboundDialog.ShowAsync(
                             title: "Couldn't launch Rebound Service Host.",
                             content: "Your Rebound installation might be corrupted. Please open Rebound Hub and check.",
-                            closeButtonText: "Ok").ConfigureAwait(false);
+                            closeButtonText: "Ok").ConfigureAwait(true);
                     }
                     break;
                 }
@@ -335,32 +335,47 @@ public partial class App : Application, IReboundLegacySupportApp, IReboundPipeCl
     public void LaunchLegacy(string args)
         => LaunchLegacy(LegacyExecutableName, args);
 
-    public void LaunchLegacy(string executable, string args)
+    public async void LaunchLegacy(string executable, string args)
     {
-        Task.Run(async () =>
+        try
         {
-            try
+            if (!ReboundPresenceEngine.IsReboundInstalled())
             {
-                // Disable the IFEO entry via Rebound Service Host
-                await (ReboundPipeClient?.SendAsync($"IFEOEngine::Pause#{executable}"))!.ConfigureAwait(false);
-
-                // Launch the original application
                 Process.Start(new ProcessStartInfo
                 {
                     FileName = executable,
                     UseShellExecute = true,
                     Arguments = args
                 });
-
-                // Resume the IFEO entry
-                await (ReboundPipeClient?.SendAsync($"IFEOEngine::Resume#{executable}"))!.ConfigureAwait(false);
+                return;
             }
-            catch
+
+            if (ReboundPipeClient is null)
             {
                 // Rebound Service Host doesn't exist, fall back to UI solutions
                 RunServiceHostFailedToLaunchFallback();
+                return;
             }
-        });
+
+            // Disable the IFEO entry via Rebound Service Host
+            await(ReboundPipeClient.SendAsync($"IFEOEngine::Pause#{executable}"))!.ConfigureAwait(false);
+
+            // Launch the original application
+            Process.Start(new ProcessStartInfo
+            {
+                FileName = executable,
+                UseShellExecute = true,
+                Arguments = args
+            });
+
+            // Resume the IFEO entry
+            await(ReboundPipeClient.SendAsync($"IFEOEngine::Resume#{executable}"))!.ConfigureAwait(false);
+        }
+        catch
+        {
+            // Rebound Service Host doesn't exist, fall back to UI solutions
+            RunServiceHostFailedToLaunchFallback();
+        }
     }
 
     public static void CreateMainWindow()
