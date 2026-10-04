@@ -2,7 +2,6 @@
   <Configurations>
     <Platform Name="ARM64" />
     <Platform Name="x64" />
-    <Platform Name="x86" />
   </Configurations>
   <Folder Name="/build/">
     <File Path="build/Build-Distribution.ps1" />
@@ -27,19 +26,16 @@
     <Project Path="eng/distribution/standalone/Rebound.Installer/Rebound.Installer.csproj" Id="f21ea290-6928-45c6-97c1-c54a53826e76">
       <Platform Solution="*|ARM64" Project="ARM64" />
       <Platform Solution="*|x64" Project="x64" />
-      <Platform Solution="*|x86" Project="x86" />
       <Deploy />
     </Project>
     <Project Path="eng/distribution/standalone/Rebound.Uninstaller/Rebound.Uninstaller.csproj" Id="faffec5b-d7cd-44bb-922b-e994b7367d92">
       <Platform Solution="*|ARM64" Project="ARM64" />
       <Platform Solution="*|x64" Project="x64" />
-      <Platform Solution="*|x86" Project="x86" />
       <Deploy />
     </Project>
     <Project Path="eng/distribution/standalone/Rebound.Updater/Rebound.Updater.csproj" Id="231136da-1e80-4180-947b-a65af7cf4612">
       <Platform Solution="*|ARM64" Project="ARM64" />
       <Platform Solution="*|x64" Project="x64" />
-      <Platform Solution="*|x86" Project="x86" />
       <Deploy />
     </Project>
   </Folder>
@@ -54,27 +50,36 @@
       <Deploy Solution="*|x64" />
     </Project>
     <Project Path="src/apps/Rebound.Cleanup/Rebound.Cleanup.csproj">
-      <Platform Project="x64" />
+      <Platform Solution="*|ARM64" Project="ARM64" />
+      <Platform Solution="*|x64" Project="x64" />
+      <Deploy Solution="*|ARM64" />
       <Deploy Solution="*|x64" />
     </Project>
     <Project Path="src/apps/Rebound.ControlPanel/Rebound.ControlPanel.csproj">
-      <Platform Project="x64" />
+      <Platform Solution="*|ARM64" Project="ARM64" />
+      <Platform Solution="*|x64" Project="x64" />
+      <Deploy Solution="*|ARM64" />
       <Deploy Solution="*|x64" />
     </Project>
     <Project Path="src/apps/Rebound.Defrag/Rebound.Defrag.csproj">
-      <Platform Project="x64" />
+      <Platform Solution="*|ARM64" Project="ARM64" />
+      <Platform Solution="*|x64" Project="x64" />
     </Project>
     <Project Path="src/apps/Rebound.Dialer/Rebound.Dialer.csproj">
-      <Platform Project="x64" />
+      <Platform Solution="*|ARM64" Project="ARM64" />
+      <Platform Solution="*|x64" Project="x64" />
     </Project>
     <Project Path="src/apps/Rebound.Keyboard/Rebound.Keyboard.csproj">
-      <Platform Project="x64" />
+      <Platform Solution="*|ARM64" Project="ARM64" />
+      <Platform Solution="*|x64" Project="x64" />
     </Project>
     <Project Path="src/apps/Rebound.OnScreenKeyboard/Rebound.OnScreenKeyboard.vcxproj" Id="b461b611-1a7b-4397-9c9f-7d99bbcbc85f">
       <Platform Solution="*|ARM64" Project="x64" />
+      <Platform Solution="*|x64" Project="x64" />
     </Project>
     <Project Path="src/apps/Rebound.UserAccountControlSettings/Rebound.UserAccountControlSettings.csproj">
-      <Platform Project="x64" />
+      <Platform Solution="*|ARM64" Project="ARM64" />
+      <Platform Solution="*|x64" Project="x64" />
       <Deploy Solution="*|x64" />
     </Project>
   </Folder>
@@ -107,7 +112,10 @@
       <Platform Solution="*|ARM64" Project="ARM64" />
       <Platform Solution="*|x64" Project="x64" />
     </Project>
-    <Project Path="src/core/Rebound.Core.TaskScheduler/Rebound.Core.TaskScheduler.csproj" Id="e4df9307-ef97-406e-9f59-d23bdcd2313a" />
+    <Project Path="src/core/Rebound.Core.TaskScheduler/Rebound.Core.TaskScheduler.csproj" Id="e4df9307-ef97-406e-9f59-d23bdcd2313a">
+      <Platform Solution="*|ARM64" Project="ARM64" />
+      <Platform Solution="*|x64" Project="x64" />
+    </Project>
     <Project Path="src/core/Rebound.Core.UI/Rebound.Core.UI.csproj">
       <Platform Solution="*|ARM64" Project="ARM64" />
       <Platform Solution="*|x64" Project="x64" />
@@ -131,18 +139,23 @@
   <Folder Name="/src/core/forge/hooks/">
     <Project Path="src/core/forge/hooks/Rebound.Forge.Hooks.ActionCenter/Rebound.Forge.Hooks.ActionCenter.vcxproj" Id="bec2c8d3-2d92-4f8a-a388-adcea0254973">
       <Platform Solution="*|ARM64" Project="x64" />
+      <Platform Solution="*|x64" Project="x64" />
     </Project>
     <Project Path="src/core/forge/hooks/Rebound.Forge.Hooks.AltTab/Rebound.Forge.Hooks.AltTab.vcxproj" Id="ced3195e-5c7b-41aa-a77f-4c2d515960db">
       <Platform Solution="*|ARM64" Project="x64" />
+      <Platform Solution="*|x64" Project="x64" />
     </Project>
     <Project Path="src/core/forge/hooks/Rebound.Forge.Hooks.Run/Rebound.Forge.Hooks.Run.vcxproj" Id="27009764-e84a-40b3-932b-e6096272f365">
       <Platform Solution="*|ARM64" Project="x64" />
+      <Platform Solution="*|x64" Project="x64" />
     </Project>
     <Project Path="src/core/forge/hooks/Rebound.Forge.Hooks.ShutdownWindow/Rebound.Forge.Hooks.ShutdownWindow.vcxproj" Id="6b18fe88-a000-4d5d-9674-c6927847e1ae">
       <Platform Solution="*|ARM64" Project="x64" />
+      <Platform Solution="*|x64" Project="x64" />
     </Project>
     <Project Path="src/core/forge/hooks/Rebound.Forge.Hooks.Start/Rebound.Forge.Hooks.Start.vcxproj" Id="bed05205-d2b8-43f3-b63f-5d2c6fbb9a79">
       <Platform Solution="*|ARM64" Project="x64" />
+      <Platform Solution="*|x64" Project="x64" />
     </Project>
   </Folder>
   <Folder Name="/src/platforms/" Id="cbff53eb-5ead-4b57-8ed6-53491d4790e6" />
@@ -156,7 +169,8 @@
     <Project Path="src/platforms/shell/Rebound.Shell/Rebound.Shell.csproj">
       <Platform Solution="*|ARM64" Project="ARM64" />
       <Platform Solution="*|x64" Project="x64" />
-      <Deploy />
+      <Deploy Solution="*|ARM64" />
+      <Deploy Solution="*|x64" />
     </Project>
   </Folder>
   <Folder Name="/src/platforms/shell/lib/">
@@ -170,13 +184,18 @@
     <Project Path="src/system/Rebound.Hub/Rebound.Hub.csproj">
       <Platform Solution="*|ARM64" Project="ARM64" />
       <Platform Solution="*|x64" Project="x64" />
-      <Deploy />
+      <Deploy Solution="*|ARM64" />
+      <Deploy Solution="*|x64" />
     </Project>
-    <Project Path="src/system/Rebound.Launcher/Rebound.Launcher.vcxproj" Id="d771123e-cef3-4055-8a95-9c9930e06cd3" />
+    <Project Path="src/system/Rebound.Launcher/Rebound.Launcher.vcxproj" Id="d771123e-cef3-4055-8a95-9c9930e06cd3">
+      <Platform Solution="*|ARM64" Project="ARM64" />
+      <Platform Solution="*|x64" Project="x64" />
+    </Project>
     <Project Path="src/system/Rebound.ServiceHost/Rebound.ServiceHost.csproj">
       <Platform Solution="*|ARM64" Project="ARM64" />
       <Platform Solution="*|x64" Project="x64" />
-      <Deploy />
+      <Deploy Solution="*|ARM64" />
+      <Deploy Solution="*|x64" />
     </Project>
   </Folder>
   <Folder Name="/var/">
