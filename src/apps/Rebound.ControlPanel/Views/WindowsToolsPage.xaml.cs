@@ -73,7 +73,7 @@ internal partial class Tool
             throw new Win32Exception($"Failed to create IShellLink instance. HRESULT: {hr}");
 
         // Set the path to the application/executable the shortcut launches
-        using StringPtr target = $"{Name}";
+        using StringPtr target = $"{path}";
         shellLink->SetPath(target.GetChars());
 
         // Set arguments
