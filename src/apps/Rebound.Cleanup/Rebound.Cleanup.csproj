@@ -206,6 +206,7 @@
 		<!-- Force the ILCompiler tool path variables manually right before targets evaluate them -->
 		<IlcToolsPath>$(UserProfile)\.nuget\packages\runtime.win-x64.microsoft.dotnet.ilcompiler\10.0.12\tools\</IlcToolsPath>
 		<IlcCompilerPath>$(UserProfile)\.nuget\packages\runtime.win-x64.microsoft.dotnet.ilcompiler\10.0.12\tools\ilc.exe</IlcCompilerPath>
+		<AppxSymbolPackageEnabled>True</AppxSymbolPackageEnabled>
 	</PropertyGroup>
 	<Target Name="CopyAotBinaryToExpectedMsixPath" BeforeTargets="Package">
 		<ItemGroup>

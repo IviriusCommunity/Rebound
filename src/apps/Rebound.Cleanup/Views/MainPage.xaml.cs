@@ -5,14 +5,17 @@ using CommunityToolkit.Mvvm.Input;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Rebound.Cleanup.DiskAnalyzer.Ntfs;
+using Rebound.Cleanup.Items;
 using Rebound.Cleanup.ViewModels;
 using Rebound.Core;
 using System;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.Runtime.InteropServices;
 using System.Threading;
 using System.Threading.Tasks;
 using TerraFX.Interop.Windows;
+using Windows.System;
 using static TerraFX.Interop.Windows.Windows;
 
 namespace Rebound.Cleanup.Views;
@@ -27,13 +30,47 @@ internal sealed partial class MainPage : Page
         Loaded += MainPage_Loaded;
     }
 
+    private bool _init = true;
+
     private async void MainPage_Loaded(object sender, RoutedEventArgs e)
     {
         Loaded -= MainPage_Loaded;
 
         await Task.Yield(); // Ensure the UI is fully loaded before proceeding
 
+        ViewModel.CleanItems.CollectionChanged += CleanItems_CollectionChanged;
+
         await CleanupReloadItems().ConfigureAwait(false);
+
+        RefreshSelectedFilesCountAndSize();
+        _init = false;
+    }
+
+    private void CleanItems_CollectionChanged(object? sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
+    {
+        DispatcherQueue.TryEnqueue(() =>
+        {
+            if (e.OldItems != null)
+                foreach (var item in e.OldItems)
+                {
+                    if (item is CleanItem cleanItem)
+                        cleanItem.PropertyChanged -= CleanItem_PropertyChanged;
+                }
+            if (e.NewItems != null)
+                foreach (var item in e.NewItems)
+                {
+                    if (item is CleanItem cleanItem)
+                        cleanItem.PropertyChanged += CleanItem_PropertyChanged;
+                }
+            if (!_init)
+                RefreshSelectedFilesCountAndSize();
+        });
+    }
+
+    private void CleanItem_PropertyChanged(object? sender, PropertyChangedEventArgs e)
+    {
+        if (sender is CleanItem cleanItem && e.PropertyName is nameof(cleanItem.IsChecked) or nameof(cleanItem.FileCount) or nameof(cleanItem.Size))
+            RefreshSelectedFilesCountAndSize();
     }
 
     [RelayCommand]
@@ -41,11 +78,28 @@ internal sealed partial class MainPage : Page
         => await CleanupReloadItems().ConfigureAwait(false);
 
     [RelayCommand]
-    public static void Close() => App.MainWindow.Close();
+    public static void Close() => App.MainWindow?.Close();
 
     private async Task CleanupReloadItems()
     {
         await ViewModel.RefreshCleanupListAsync(ViewModel.DriveItems[ViewModel.SelectedDriveIndex]).ConfigureAwait(true);
+    }
+
+    private void RefreshSelectedFilesCountAndSize()
+    {
+        DispatcherQueue.TryEnqueue(() =>
+        {
+            ViewModel.SelectedFilesCount = 0;
+            ViewModel.SelectedFilesSize = 0;
+            foreach (var selectedItem in ViewModel.CleanItems)
+            {
+                if (selectedItem.IsChecked)
+                {
+                    ViewModel.SelectedFilesCount += selectedItem.FileCount;
+                    ViewModel.SelectedFilesSize += selectedItem.Size;
+                }
+            }
+        });
     }
 
     private unsafe void Stuff()
@@ -222,18 +276,11 @@ internal sealed partial class MainPage : Page
     {
         await Task.Yield();
 
-        ViewModel.SelectedFilesCount = 0;
-        ViewModel.SelectedFilesSize = 0;
-
         var selectedItems = 0;
         foreach (var item in ViewModel.CleanItems)
         {
             if (item.IsChecked)
-            {
-                ViewModel.SelectedFilesCount += item.FileCount;
-                ViewModel.SelectedFilesSize += item.Size;
                 selectedItems++;
-            }
         }
         var totalItems = ViewModel.CleanItems.Count; // Store the count in a variable
         switch (selectedItems)
@@ -258,6 +305,7 @@ internal sealed partial class MainPage : Page
 
         if (e.NewSize.Width < 760)
         {
+            TitleBarControl.IsPaneToggleButtonVisible = false;
             ViewModel.CompactLayout = true;
             if (!_forcedTop)
             {
@@ -267,12 +315,85 @@ internal sealed partial class MainPage : Page
         }
         else
         {
+            TitleBarControl.IsPaneToggleButtonVisible = true;
             ViewModel.CompactLayout = false;
             if (_forcedTop)
             {
                 nav.PaneDisplayMode = NavigationViewPaneDisplayMode.Auto;
                 _forcedTop = false;
             }
+        }
+    }
+
+    private void TitleBar_PaneToggleRequested(TitleBar sender, object args)
+    {
+        NavView.IsPaneOpen = !NavView.IsPaneOpen;
+    }
+
+    private async void NavView_ItemInvoked(NavigationView sender, NavigationViewItemInvokedEventArgs args)
+    {
+        switch (args.InvokedItemContainer.Tag)
+        {
+            case "DeleteShadowCopies":
+                {
+                    var dialog = new ContentDialog
+                    {
+                        Title = "Delete Shadow Copies",
+                        Content = "Are you sure you want to delete all shadow copies? This action cannot be undone.",
+                        PrimaryButtonText = "Delete",
+                        CloseButtonText = "Cancel",
+                        DefaultButton = ContentDialogButton.Close,
+                        XamlRoot = XamlRoot
+                    };
+                    var result = await dialog.ShowAsync();
+                    if (result == ContentDialogResult.Primary)
+                    {
+                        Process.Start(new ProcessStartInfo
+                        {
+                            FileName = "vssadmin.exe",
+                            Arguments = "delete shadows /all /quiet",
+                            UseShellExecute = true,
+                            Verb = "runas"
+                        });
+                    }
+                    break;
+                }
+            case "ProgramsAndFeatures":
+                {
+                    await Launcher.LaunchUriAsync(new("ms-settings:appsfeatures"));
+                    break;
+                }
+            case "StorageSense":
+                {
+                    await Launcher.LaunchUriAsync(new("ms-settings:storagesense"));
+                    break;
+                }
+            case "DiskManagement":
+                {
+                    try
+                    {
+                        Process.Start(new ProcessStartInfo()
+                        {
+                            FileName = "diskmgmt.msc",
+                            UseShellExecute = true
+                        });
+                    }
+                    catch { }
+                    break;
+                }
+            case "OptimizeDrives":
+                {
+                    try
+                    {
+                        Process.Start(new ProcessStartInfo()
+                        {
+                            FileName = "dfrgui.exe",
+                            UseShellExecute = true
+                        });
+                    }
+                    catch { }
+                    break;
+                }
         }
     }
 }

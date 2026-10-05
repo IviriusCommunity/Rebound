@@ -9,7 +9,7 @@
     xmlns:winuiex="using:WinUIEx"
     mc:Ignorable="d">
     <winuiex:WindowEx.SystemBackdrop>
-        <MicaBackdrop />
+        <winuiex:TransparentTintBackdrop />
     </winuiex:WindowEx.SystemBackdrop>
     <Frame x:Name="RootFrame" />
 </winuiex:WindowEx>

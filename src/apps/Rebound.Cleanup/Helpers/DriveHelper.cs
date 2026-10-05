@@ -1,8 +1,9 @@
-﻿using System;
+﻿// Copyright (C) Ivirius(TM) Community 2020 - 2026. All Rights Reserved.
+// Licensed under the MIT License.
+
 using System.Collections.ObjectModel;
 using Rebound.Cleanup.Items;
 using Rebound.Core.Native.Wrappers;
-using Rebound.Core.SystemInformation.Software;
 using static TerraFX.Interop.Windows.Windows;
 
 namespace Rebound.Cleanup.Helpers;
@@ -86,26 +87,10 @@ internal static partial class DriveHelper
                 ? $"({driveLetter})"
                 : $"{volumeNameString} ({driveLetter})";
 
-            // Select an icon based on media type
-            var imagePath = mediaType switch
-            {
-                "Removable" => "ms-appx:///Assets/DriveRemovable.png",
-                "CD-ROM" => "ms-appx:///Assets/DriveOptical.png",
-                "Unknown" => "ms-appx:///Assets/DriveUnknown.png",
-                _ => "ms-appx:///Assets/Drive.ico"
-            };
-
-            // Use a special icon if this is the Windows installation drive
-            if (driveLetter == WindowsInformation.GetWindowsInstallationDrivePath().DrivePathToLetter())
-            {
-                imagePath = "ms-appx:///Assets/DriveWindows.ico";
-            }
-
             // Add the fully constructed drive item to the collection
             items.Add(new DriveComboBoxItem
             {
                 DriveName = name,
-                ImagePath = imagePath,
                 MediaType = mediaType,
                 DrivePath = drivePath,
             });

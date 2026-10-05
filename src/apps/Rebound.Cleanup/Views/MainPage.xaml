@@ -28,66 +28,79 @@
                 <MicaBackdrop />
             </SystemBackdropElement.SystemBackdrop>
         </SystemBackdropElement>
-        <StackPanel
-            Margin="12,8,12,0"
+        <TitleBar
+            x:Name="TitleBarControl"
+            Title="Disk Cleanup"
             VerticalAlignment="Top"
-            Orientation="Horizontal"
-            Spacing="8">
-            <Image Width="16" Source="/Assets/cleanmgr.ico" />
-            <TextBlock FontSize="12" Text="Disk Cleanup" />
-            <Border
-                Padding="6,2,6,3"
-                VerticalAlignment="Center"
-                Background="{ThemeResource AccentFillColorDefaultBrush}"
-                CornerRadius="2">
-                <TextBlock
-                    FontSize="10"
-                    FontWeight="SemiBold"
-                    Foreground="{ThemeResource TextOnAccentFillColorPrimaryBrush}"
-                    Text="BETA" />
-            </Border>
-        </StackPanel>
+            IsPaneToggleButtonVisible="True"
+            PaneToggleRequested="TitleBar_PaneToggleRequested"
+            Subtitle="BETA">
+            <TitleBar.IconSource>
+                <ImageIconSource ImageSource="/Assets/cleanmgr.ico" />
+            </TitleBar.IconSource>
+        </TitleBar>
         <Grid Margin="0,32,0,0" RowSpacing="8">
             <NavigationView
+                x:Name="NavView"
                 IsBackButtonVisible="Collapsed"
+                IsPaneToggleButtonVisible="False"
                 IsSettingsVisible="False"
+                ItemInvoked="NavView_ItemInvoked"
+                OpenPaneLength="240"
                 SizeChanged="NavigationView_SizeChanged">
                 <NavigationView.MenuItems>
                     <NavigationViewItem
                         x:Name="DiskCleanupItem"
-                        Content="Disk Cleanup"
+                        Content="Cleanup"
                         IsSelected="True">
                         <NavigationViewItem.Icon>
                             <FontIcon Glyph="&#xEA99;" />
                         </NavigationViewItem.Icon>
                     </NavigationViewItem>
-                    <NavigationViewItem Content="Disk Analyzer">
+                    <NavigationViewItem Content="Disk Analyzer" IsEnabled="False">
                         <NavigationViewItem.Icon>
                             <FontIcon Glyph="&#xEB05;" />
                         </NavigationViewItem.Icon>
                     </NavigationViewItem>
-                    <NavigationViewItem x:Name="MoreOptionsItem" Content="More Options">
-                        <NavigationViewItem.Icon>
-                            <FontIcon Glyph="&#xE90F;" />
-                        </NavigationViewItem.Icon>
-                    </NavigationViewItem>
                     <NavigationViewItemSeparator />
-                    <NavigationViewItem Content="Disk Management">
+                    <NavigationViewItem
+                        Content="Delete Shadow Copies"
+                        SelectsOnInvoked="False"
+                        Tag="DeleteShadowCopies">
                         <NavigationViewItem.Icon>
-                            <FontIcon Glyph="&#xE713;" />
+                            <FontIcon Glyph="&#xED62;" />
                         </NavigationViewItem.Icon>
                     </NavigationViewItem>
-                    <NavigationViewItem Content="Storage Sense">
+                    <NavigationViewItem
+                        Content="Programs and Features"
+                        SelectsOnInvoked="False"
+                        Tag="ProgramsAndFeatures">
                         <NavigationViewItem.Icon>
-                            <PathIcon
-                                HorizontalAlignment="Center"
-                                VerticalAlignment="Center"
-                                Data="F1 M 4.52 6.2 C 4.679999 5.88 4.913333 5.619999 5.22 5.42 C 5.526667 5.219999 5.853333 5.119999 6.2 5.119999 L 13.799999 5.119999 C 14.146666 5.119999 14.473333 5.219999 14.78 5.42 C 15.086666 5.619999 15.319999 5.88 15.48 6.2 L 18.08 11.52 C 18.239998 11.893333 18.32 12.280001 18.32 12.679999 L 18.32 15.759999 C 18.32 16.266666 18.139999 16.706667 17.779999 17.08 C 17.419998 17.453333 16.973333 17.639999 16.440001 17.639999 L 3.56 17.639999 C 3.026667 17.639999 2.58 17.453333 2.22 17.08 C 1.86 16.706667 1.68 16.266666 1.68 15.759999 L 1.68 12.679999 C 1.68 12.280001 1.76 11.893333 1.92 11.52 Z M 14.36 6.719999 C 14.253333 6.506667 14.066666 6.400001 13.799999 6.4 L 6.2 6.4 C 5.933333 6.400001 5.746666 6.506667 5.64 6.719999 L 3.6 10.959999 L 16.4 10.959999 Z M 2.92 12.839999 L 2.92 15.759999 C 2.92 15.92 2.98 16.066666 3.1 16.199999 C 3.22 16.333332 3.373333 16.4 3.56 16.4 L 16.440001 16.4 C 16.626667 16.4 16.779999 16.333332 16.9 16.199999 C 17.02 16.066666 17.08 15.92 17.08 15.759999 L 17.08 12.839999 C 17.08 12.68 17.02 12.533333 16.9 12.4 C 16.779999 12.266666 16.626667 12.200001 16.440001 12.2 L 3.56 12.2 C 3.373333 12.200001 3.22 12.266666 3.1 12.4 C 2.98 12.533333 2.92 12.68 2.92 12.839999 Z M 15 15.119999 C 15.239999 15.12 15.439999 15.039999 15.599999 14.879999 C 15.759998 14.719999 15.839998 14.526667 15.839999 14.299999 C 15.839998 14.073334 15.759998 13.88 15.599999 13.719999 C 15.439999 13.559999 15.239999 13.48 15 13.48 C 14.759999 13.48 14.559999 13.559999 14.4 13.719999 C 14.24 13.88 14.16 14.073334 14.16 14.299999 C 14.16 14.526667 14.24 14.719999 14.4 14.879999 C 14.559999 15.039999 14.759999 15.12 15 15.119999 Z " />
+                            <FontIcon Glyph="&#xE74C;" />
                         </NavigationViewItem.Icon>
                     </NavigationViewItem>
-                    <NavigationViewItem Content="Optimize Drives (Deprecated)">
+                    <NavigationViewItem
+                        Content="Storage Sense"
+                        SelectsOnInvoked="False"
+                        Tag="StorageSense">
                         <NavigationViewItem.Icon>
-                            <ImageIcon Source="/Assets/dfrgui.ico" />
+                            <FontIcon Glyph="&#xEDA2;" />
+                        </NavigationViewItem.Icon>
+                    </NavigationViewItem>
+                    <NavigationViewItem
+                        Content="Disk Management"
+                        SelectsOnInvoked="False"
+                        Tag="DiskManagement">
+                        <NavigationViewItem.Icon>
+                            <ImageIcon Source="/Assets/Tools/DiskManagement.ico" />
+                        </NavigationViewItem.Icon>
+                    </NavigationViewItem>
+                    <NavigationViewItem
+                        Content="Optimize Drives"
+                        SelectsOnInvoked="False"
+                        Tag="OptimizeDrives">
+                        <NavigationViewItem.Icon>
+                            <ImageIcon Source="/Assets/Tools/Defragment.ico" />
                         </NavigationViewItem.Icon>
                     </NavigationViewItem>
                 </NavigationView.MenuItems>
@@ -97,11 +110,7 @@
                             <Grid.RowDefinitions>
                                 <RowDefinition Height="Auto" />
                                 <RowDefinition Height="Auto" />
-                                <RowDefinition Height="Auto" />
                                 <RowDefinition Height="*" />
-                                <RowDefinition Height="Auto" />
-                                <RowDefinition Height="Auto" />
-                                <RowDefinition Height="Auto" />
                                 <RowDefinition Height="Auto" />
                             </Grid.RowDefinitions>
                             <Grid Margin="16">
@@ -119,12 +128,10 @@
                                     <ComboBox.ItemTemplate>
                                         <DataTemplate x:DataType="items:DriveComboBoxItem">
                                             <Grid>
-                                                <ImageIcon
-                                                    Width="20"
-                                                    Margin="-2"
+                                                <FontIcon
                                                     HorizontalAlignment="Left"
-                                                    VerticalAlignment="Center"
-                                                    Source="{x:Bind ImagePath, Mode=OneWay}" />
+                                                    FontSize="16"
+                                                    Glyph="&#xEDA2;" />
                                                 <TextBlock
                                                     Margin="24,0,0,0"
                                                     HorizontalAlignment="Stretch"
@@ -162,7 +169,7 @@
                                 </Button>
                             </Grid>
                             <Grid
-                                Grid.Row="2"
+                                Grid.Row="1"
                                 Padding="0,8,16,8"
                                 Background="{ThemeResource CardBackgroundFillColorDefaultBrush}">
                                 <Grid.ColumnDefinitions>
@@ -197,21 +204,21 @@
                                     Grid.Column="2"
                                     Margin="0,0,16,0"
                                     VerticalAlignment="Center">
-                                    <TextBlock Opacity="0.5">
+                                    <TextBlock Foreground="{ThemeResource TextFillColorSecondaryBrush}">
                                         <Run Text="{x:Bind ViewModel.SelectedFilesCount, Mode=OneWay}" />
                                         <Run Text=" selected files" />
                                     </TextBlock>
-                                    <TextBlock Opacity="0.5">
+                                    <TextBlock Foreground="{ThemeResource TextFillColorSecondaryBrush}">
                                         <Run Text="{x:Bind ViewModel.SelectedFilesSize, Mode=OneWay, Converter={StaticResource FileSizeToFriendlyStringConverter}}" />
                                         <Run Text=" selected file size" />
                                     </TextBlock>
                                 </StackPanel>
                                 <StackPanel Grid.Column="3" VerticalAlignment="Center">
-                                    <TextBlock Opacity="0.5">
+                                    <TextBlock Foreground="{ThemeResource TextFillColorSecondaryBrush}">
                                         <Run Text="{x:Bind ViewModel.FilesCount, Mode=OneWay}" />
                                         <Run Text=" total files" />
                                     </TextBlock>
-                                    <TextBlock Opacity="0.5">
+                                    <TextBlock Foreground="{ThemeResource TextFillColorSecondaryBrush}">
                                         <Run Text="{x:Bind ViewModel.FilesSize, Mode=OneWay, Converter={StaticResource FileSizeToFriendlyStringConverter}}" />
                                         <Run Text=" total file size" />
                                     </TextBlock>
@@ -219,21 +226,24 @@
                             </Grid>
                             <ListView
                                 x:Name="ItemsListViewLarge"
-                                Grid.Row="3"
-                                Padding="4,6"
-                                Background="{ThemeResource LayerFillColorDefaultBrush}"
+                                Grid.Row="2"
+                                Padding="0,2"
                                 IsEnabled="{x:Bind ViewModel.CanItemsBeClicked, Mode=OneWay}"
                                 ItemsSource="{x:Bind ViewModel.CleanItems, Mode=OneWay}"
                                 SelectedIndex="0">
                                 <ListView.ItemTemplate>
                                     <DataTemplate x:DataType="items:CleanItem">
-                                        <Grid ColumnSpacing="8" ToolTipService.ToolTip="{x:Bind Description, Mode=OneWay}">
+                                        <Grid
+                                            Margin="0,6"
+                                            ColumnSpacing="8"
+                                            ToolTipService.ToolTip="{x:Bind Description, Mode=OneWay}">
                                             <Grid.ColumnDefinitions>
                                                 <ColumnDefinition Width="Auto" />
                                                 <ColumnDefinition Width="Auto" />
+                                                <ColumnDefinition Width="4*" />
+                                                <ColumnDefinition Width="Auto" />
                                                 <ColumnDefinition Width="*" />
-                                                <ColumnDefinition Width="Auto" />
-                                                <ColumnDefinition Width="Auto" />
+                                                <ColumnDefinition Width="*" />
                                             </Grid.ColumnDefinitions>
                                             <CheckBox
                                                 MinWidth="0"
@@ -245,11 +255,14 @@
                                                 Width="16"
                                                 HorizontalAlignment="Left"
                                                 Source="{x:Bind ImagePath, Mode=OneWay}" />
-                                            <TextBlock
-                                                Grid.Column="2"
-                                                VerticalAlignment="Center"
-                                                Text="{x:Bind Name, Mode=OneWay}"
-                                                TextTrimming="CharacterEllipsis" />
+                                            <StackPanel Grid.Column="2">
+                                                <TextBlock Text="{x:Bind Name, Mode=OneWay}" TextTrimming="CharacterEllipsis" />
+                                                <TextBlock
+                                                    FontSize="12"
+                                                    Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                                                    Text="{x:Bind Description, Mode=OneWay}"
+                                                    TextTrimming="CharacterEllipsis" />
+                                            </StackPanel>
                                             <StackPanel
                                                 Grid.Column="3"
                                                 Orientation="Horizontal"
@@ -267,18 +280,25 @@
                                             <TextBlock
                                                 Grid.Column="4"
                                                 VerticalAlignment="Center"
-                                                Opacity="0.5"
+                                                Foreground="{ThemeResource TextFillColorSecondaryBrush}">
+                                                <Run Text="{x:Bind FileCount, Mode=OneWay}" />
+                                                <Run Text=" files" />
+                                            </TextBlock>
+                                            <TextBlock
+                                                Grid.Column="5"
+                                                VerticalAlignment="Center"
+                                                Foreground="{ThemeResource TextFillColorSecondaryBrush}"
                                                 Text="{x:Bind Size, Mode=OneWay, Converter={StaticResource FileSizeToFriendlyStringConverter}}" />
                                         </Grid>
                                     </DataTemplate>
                                 </ListView.ItemTemplate>
                             </ListView>
                             <Grid
-                                Grid.Row="7"
+                                Grid.Row="3"
                                 Height="80"
                                 Padding="24"
                                 Background="{ThemeResource SystemControlBackgroundAltMediumLowBrush}">
-                                <Grid MaxWidth="800">
+                                <Grid>
                                     <Grid.ColumnDefinitions>
                                         <ColumnDefinition Width="*" />
                                         <ColumnDefinition Width="Auto" />
@@ -286,8 +306,7 @@
                                         <ColumnDefinition Width="Auto" />
                                     </Grid.ColumnDefinitions>
                                     <Button
-                                        Background="Transparent"
-                                        BorderBrush="Transparent"
+                                        Width="120"
                                         Command="{x:Bind ViewModel.ViewFilesCommand}"
                                         CommandParameter="{x:Bind ItemsListViewLarge.SelectedIndex, Mode=OneWay}"
                                         IsEnabled="{x:Bind ViewModel.CanItemsBeClicked, Mode=OneWay}">
@@ -300,9 +319,13 @@
                                         Grid.Column="1"
                                         Width="120"
                                         Command="{x:Bind ViewModel.DeleteCommand}"
-                                        Content="Clean"
                                         IsEnabled="{x:Bind ViewModel.CanItemsBeClicked, Mode=OneWay}"
-                                        Style="{ThemeResource AccentButtonStyle}" />
+                                        Style="{ThemeResource AccentButtonStyle}">
+                                        <StackPanel Orientation="Horizontal" Spacing="8">
+                                            <FontIcon FontSize="16" Glyph="&#xEA99;" />
+                                            <TextBlock Text="Clean" />
+                                        </StackPanel>
+                                    </Button>
                                     <Button
                                         Grid.Column="3"
                                         Width="120"
@@ -338,12 +361,10 @@
                                 <ComboBox.ItemTemplate>
                                     <DataTemplate x:DataType="items:DriveComboBoxItem">
                                         <Grid>
-                                            <ImageIcon
-                                                Width="20"
-                                                Margin="-2"
+                                            <FontIcon
                                                 HorizontalAlignment="Left"
-                                                VerticalAlignment="Center"
-                                                Source="{x:Bind ImagePath, Mode=OneWay}" />
+                                                FontSize="16"
+                                                Glyph="&#xEDA2;" />
                                             <TextBlock
                                                 Margin="24,0,0,0"
                                                 HorizontalAlignment="Stretch"
@@ -428,13 +449,13 @@
                                                     IsIndeterminate="True" />
                                                 <TextBlock
                                                     VerticalAlignment="Center"
-                                                    Opacity="0.5"
+                                                    Foreground="{ThemeResource TextFillColorSecondaryBrush}"
                                                     Text="Indexing..." />
                                             </StackPanel>
                                             <TextBlock
                                                 Grid.Column="4"
                                                 VerticalAlignment="Center"
-                                                Opacity="0.5"
+                                                Foreground="{ThemeResource TextFillColorSecondaryBrush}"
                                                 Text="{x:Bind Size, Mode=OneWay, Converter={StaticResource FileSizeToFriendlyStringConverter}}" />
                                         </Grid>
                                     </DataTemplate>
@@ -444,14 +465,17 @@
                                 Grid.Row="4"
                                 MaxWidth="800"
                                 Margin="24,0">
-                                <TextBlock Opacity="0.5">
+                                <TextBlock Foreground="{ThemeResource TextFillColorSecondaryBrush}">
+                                    <Run Text="{x:Bind ViewModel.SelectedFilesCount, Mode=OneWay}" />
+                                    <Run Text="/" />
                                     <Run Text="{x:Bind ViewModel.FilesCount, Mode=OneWay}" />
                                     <Run Text=" files" />
                                 </TextBlock>
-                                <TextBlock
-                                    HorizontalAlignment="Right"
-                                    Opacity="0.5"
-                                    Text="{x:Bind ViewModel.FilesSize, Mode=OneWay, Converter={StaticResource FileSizeToFriendlyStringConverter}}" />
+                                <TextBlock HorizontalAlignment="Right" Foreground="{ThemeResource TextFillColorSecondaryBrush}">
+                                    <Run Text="{x:Bind ViewModel.SelectedFilesSize, Mode=OneWay, Converter={StaticResource FileSizeToFriendlyStringConverter}}" />
+                                    <Run Text="/" />
+                                    <Run Text="{x:Bind ViewModel.FilesSize, Mode=OneWay, Converter={StaticResource FileSizeToFriendlyStringConverter}}" />
+                                </TextBlock>
                             </Grid>
                             <StackPanel
                                 Grid.Row="5"
@@ -514,9 +538,13 @@
                                         Grid.Column="1"
                                         Width="120"
                                         Command="{x:Bind ViewModel.DeleteCommand}"
-                                        Content="Clean"
                                         IsEnabled="{x:Bind ViewModel.CanItemsBeClicked, Mode=OneWay}"
-                                        Style="{ThemeResource AccentButtonStyle}" />
+                                        Style="{ThemeResource AccentButtonStyle}">
+                                        <StackPanel Orientation="Horizontal" Spacing="8">
+                                            <FontIcon FontSize="16" Glyph="&#xEA99;" />
+                                            <TextBlock Text="Clean" />
+                                        </StackPanel>
+                                    </Button>
                                     <Button
                                         Grid.Column="3"
                                         Width="120"
@@ -529,148 +557,6 @@
                                     </Button>
                                 </Grid>
                             </Grid>
-                        </Grid>
-                    </Grid>
-                    <Grid Visibility="{x:Bind MoreOptionsItem.IsSelected, Mode=OneWay}">
-                        <StackPanel Margin="24" Spacing="8">
-                            <Button
-                                Padding="18,16,14,16"
-                                HorizontalAlignment="Stretch"
-                                HorizontalContentAlignment="Stretch"
-                                Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
-                                BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
-                                Command="{x:Bind ViewModel.DeleteOldRestorePointsAndShadowCopiesCommand}">
-                                <Grid ColumnSpacing="20">
-                                    <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="Auto" />
-                                        <ColumnDefinition Width="*" />
-                                        <ColumnDefinition Width="Auto" />
-                                    </Grid.ColumnDefinitions>
-                                    <Grid.RowDefinitions>
-                                        <RowDefinition Height="Auto" />
-                                        <RowDefinition Height="Auto" />
-                                    </Grid.RowDefinitions>
-                                    <FontIcon Grid.RowSpan="2" Glyph="&#xED62;" />
-                                    <TextBlock
-                                        Grid.Column="1"
-                                        Text="Delete shadow copies"
-                                        TextWrapping="WrapWholeWords" />
-                                    <TextBlock
-                                        Grid.Row="1"
-                                        Grid.Column="1"
-                                        FontSize="12"
-                                        Opacity="0.75"
-                                        Text="Remove all but the latest restore point and all shadow copies."
-                                        TextWrapping="WrapWholeWords" />
-                                    <FontIcon
-                                        Grid.RowSpan="2"
-                                        Grid.Column="2"
-                                        FontSize="14"
-                                        Glyph="" />
-                                </Grid>
-                            </Button>
-                            <Button
-                                Padding="18,16,14,16"
-                                HorizontalAlignment="Stretch"
-                                HorizontalContentAlignment="Stretch"
-                                Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
-                                BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}">
-                                <interactivity:Interaction.Behaviors>
-                                    <interactivity:EventTriggerBehavior EventName="Click">
-                                        <behaviors:NavigateToUriAction NavigateUri="ms-settings:appsfeatures" />
-                                    </interactivity:EventTriggerBehavior>
-                                </interactivity:Interaction.Behaviors>
-                                <Grid ColumnSpacing="20">
-                                    <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="Auto" />
-                                        <ColumnDefinition Width="*" />
-                                        <ColumnDefinition Width="Auto" />
-                                    </Grid.ColumnDefinitions>
-                                    <Grid.RowDefinitions>
-                                        <RowDefinition Height="Auto" />
-                                        <RowDefinition Height="Auto" />
-                                    </Grid.RowDefinitions>
-                                    <FontIcon Grid.RowSpan="2" Glyph="&#xE74C;" />
-                                    <TextBlock
-                                        Grid.Column="1"
-                                        Text="Programs and features"
-                                        TextWrapping="WrapWholeWords" />
-                                    <TextBlock
-                                        Grid.Row="1"
-                                        Grid.Column="1"
-                                        FontSize="12"
-                                        Opacity="0.75"
-                                        Text="Remove programs you no longer need."
-                                        TextWrapping="WrapWholeWords" />
-                                    <FontIcon
-                                        Grid.RowSpan="2"
-                                        Grid.Column="2"
-                                        FontSize="14"
-                                        Glyph="&#xE8A7;" />
-                                </Grid>
-                            </Button>
-                            <Button
-                                Padding="18,16,14,16"
-                                HorizontalAlignment="Stretch"
-                                HorizontalContentAlignment="Stretch"
-                                Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
-                                BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
-                                Command="{x:Bind ViewModel.LaunchDefragCommand}">
-                                <Grid ColumnSpacing="20">
-                                    <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="Auto" />
-                                        <ColumnDefinition Width="*" />
-                                        <ColumnDefinition Width="Auto" />
-                                    </Grid.ColumnDefinitions>
-                                    <Grid.RowDefinitions>
-                                        <RowDefinition Height="Auto" />
-                                        <RowDefinition Height="Auto" />
-                                    </Grid.RowDefinitions>
-                                    <ImageIcon
-                                        Grid.RowSpan="2"
-                                        Width="20"
-                                        Source="/Assets/dfrgui.ico" />
-                                    <TextBlock
-                                        Grid.Column="1"
-                                        Text="Optimize drives"
-                                        TextWrapping="WrapWholeWords" />
-                                    <TextBlock
-                                        Grid.Row="1"
-                                        Grid.Column="1"
-                                        FontSize="12"
-                                        Opacity="0.75"
-                                        Text="Defragment or trim your drives to speed them up."
-                                        TextWrapping="WrapWholeWords" />
-                                    <FontIcon
-                                        Grid.RowSpan="2"
-                                        Grid.Column="2"
-                                        FontSize="14"
-                                        Glyph="&#xE8A7;" />
-                                </Grid>
-                            </Button>
-                        </StackPanel>
-                        <Grid
-                            Grid.Row="5"
-                            Height="80"
-                            Padding="24"
-                            VerticalAlignment="Bottom"
-                            Background="{ThemeResource SystemControlBackgroundAltMediumLowBrush}">
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition />
-                                <ColumnDefinition Width="8" />
-                                <ColumnDefinition />
-                            </Grid.ColumnDefinitions>
-                            <Button
-                                Grid.Column="2"
-                                HorizontalAlignment="Stretch"
-                                Command="{x:Bind CloseCommand}"
-                                Content="OK"
-                                IsEnabled="{x:Bind ViewModel.CanItemsBeClicked, Mode=OneWay}"
-                                Style="{ThemeResource AccentButtonStyle}">
-                                <Button.KeyboardAccelerators>
-                                    <KeyboardAccelerator Key="Escape" />
-                                </Button.KeyboardAccelerators>
-                            </Button>
                         </Grid>
                     </Grid>
                 </Grid>

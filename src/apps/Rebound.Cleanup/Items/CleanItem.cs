@@ -9,7 +9,6 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using static CommunityToolkit.WinUI.Animations.Expressions.ExpressionValues;
 
 #pragma warning disable CA1031 // Do not catch general exception types
 

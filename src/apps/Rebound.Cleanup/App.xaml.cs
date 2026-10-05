@@ -290,6 +290,9 @@ public partial class App : Application
             MainWindow.AppWindow.TitleBar.ButtonHoverBackgroundColor = Color.FromArgb(80, 120, 120, 120);
             MainWindow.AppWindow.TitleBar.ButtonPressedBackgroundColor = Color.FromArgb(40, 120, 120, 120);
             MainWindow.AppWindow.SetTaskbarIcon($"{AppContext.BaseDirectory}\\Assets\\cleanmgr.ico");
+
+            ReboundWindowBackdrop.Register(MainWindow);
+            ReboundWindowTheme.Register(MainWindow);
         }
         catch (Exception ex)
         {

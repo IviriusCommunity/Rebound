@@ -11,8 +11,5 @@ internal partial class DriveComboBoxItem : ObservableObject
     public partial string DrivePath { get; set; }
 
     [ObservableProperty]
-    public partial string ImagePath { get; set; }
-
-    [ObservableProperty]
     public partial string MediaType { get; set; }
 }
