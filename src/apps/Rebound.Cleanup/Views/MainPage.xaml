@@ -146,7 +146,7 @@
                                     VerticalAlignment="Bottom"
                                     Background="Transparent"
                                     BorderBrush="Transparent"
-                                    Command="{x:Bind ViewModel.RelaunchAsAdminCommand}"
+                                    Command="{x:Bind RelaunchAsAdminCommand}"
                                     IsEnabled="{x:Bind ViewModel.CanItemsBeClicked, Mode=OneWay}"
                                     Visibility="{x:Bind ViewModel.IsRunningAsAdmin, Converter={StaticResource BoolToInverseVisibilityConverter}}">
                                     <StackPanel Orientation="Horizontal" Spacing="8">
@@ -501,7 +501,7 @@
                                     <Button
                                         Background="Transparent"
                                         BorderBrush="Transparent"
-                                        Command="{x:Bind ViewModel.RelaunchAsAdminCommand}"
+                                        Command="{x:Bind RelaunchAsAdminCommand}"
                                         IsEnabled="{x:Bind ViewModel.CanItemsBeClicked, Mode=OneWay}"
                                         Visibility="{x:Bind ViewModel.IsRunningAsAdmin, Converter={StaticResource BoolToInverseVisibilityConverter}}">
                                         <StackPanel Orientation="Horizontal" Spacing="8">

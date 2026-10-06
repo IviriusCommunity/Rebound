@@ -30,7 +30,7 @@ public partial class App : Application
 {
     public PipeClient? ReboundPipeClient { get; private set; }
 
-    private SingleInstanceAppService SingleInstanceAppService { get; } = new("Rebound.Cleanup");
+    public static SingleInstanceAppService SingleInstanceAppService { get; } = new("Rebound.Cleanup");
 
     public string LegacyExecutableName { get; } = "cleanmgr.exe";
 

@@ -1148,16 +1148,4 @@ internal partial class MainViewModel : ObservableObject
             App.MainWindow?.CreateMessageDialog("The contents of this item cannot be viewed.", "No access");
         }
     }
-
-    [RelayCommand]
-    public static void RelaunchAsAdmin()
-    {
-        Process.Start(new ProcessStartInfo
-        {
-            FileName = Environment.ProcessPath,
-            UseShellExecute = true,
-            Verb = "runas"
-        });
-        Process.GetCurrentProcess().Kill();
-    }
 }

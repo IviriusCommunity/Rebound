@@ -2,12 +2,14 @@
 // Licensed under the MIT License.
 
 using CommunityToolkit.Mvvm.Input;
+using CommunityToolkit.WinUI;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Rebound.Cleanup.DiskAnalyzer.Ntfs;
 using Rebound.Cleanup.Items;
 using Rebound.Cleanup.ViewModels;
 using Rebound.Core;
+using Rebound.Core.UI;
 using System;
 using System.ComponentModel;
 using System.Diagnostics;
@@ -394,6 +396,36 @@ internal sealed partial class MainPage : Page
                     catch { }
                     break;
                 }
+        }
+    }
+
+    [RelayCommand]
+    public async Task RelaunchAsAdminAsync()
+    {
+        try
+        {
+            App.SingleInstanceAppService.Relaunch(new InstanceRelaunchOptions
+            {
+                Elevated = true,
+                ShutdownCurrent = true,
+                ForceNewInstance = true
+            });
+        }
+        catch (Exception ex)
+        {
+            await DispatcherQueue.EnqueueAsync(async () =>
+            {
+                var cd = new ContentDialog()
+                {
+                    Title = "Rebound Disk Cleanup",
+                    Content = 
+                        ex.HResult == -2147467259 ? $"Couldn't launch Rebound Disk Cleanup as administrator.\n\nThe operation was canceled by the user."
+                        : $"Couldn't launch Rebound Disk Cleanup as administrator.\n\n{ex.Message}",
+                    CloseButtonText = "Ok",
+                    XamlRoot = XamlRoot
+                };
+                await cd.ShowAsync();
+            }).ConfigureAwait(false);
         }
     }
 }
