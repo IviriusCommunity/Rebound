@@ -28,6 +28,8 @@ internal partial class PrivacyAndUserChoiceViewModel : ObservableObject
 {
     [ObservableProperty] public partial bool IsElevated { get; set; }
 
+    private bool _initializing = true;
+
     public PrivacyAndUserChoiceViewModel()
     {
         IsElevated = ApplicationEnvironment.IsRunningAsAdmin();
@@ -48,6 +50,8 @@ internal partial class PrivacyAndUserChoiceViewModel : ObservableObject
         RefreshGetStartedProperties();
         RefreshEdgeProperties();
         IsOneDriveInstalled = CheckIsOneDriveInstalled();
+
+        _initializing = false;
     }
 
     #region OneDrive
@@ -1310,6 +1314,9 @@ internal partial class PrivacyAndUserChoiceViewModel : ObservableObject
 
     partial void OnUacLevelChanged(int value)
     {
+        if (_initializing)
+            return;
+
         RegistrySettingsEngine.SetValue(
             RegistryHive.LocalMachine,
             RegistrySettingsCatalog.EnableLUA,
