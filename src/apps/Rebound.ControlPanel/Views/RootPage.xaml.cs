@@ -379,7 +379,8 @@ internal sealed partial class RootPage : Page
     {
         try
         {
-            RootFrame.Navigate(typeof(HomePage));
+            if (RootFrame.Content is not HomePage)
+                RootFrame.Navigate(typeof(HomePage));
 
             // Update the navigation state
             ViewModel.CanGoBack = RootFrame.CanGoBack;
