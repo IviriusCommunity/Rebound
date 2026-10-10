@@ -806,5 +806,17 @@ namespace Rebound.Forge
             KeyPath = @"SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\Explorer",
             ValueName = "SettingsPageVisibility"
         };
+
+        public static readonly RegistrySetting EnableUIADesktopToggle = new()
+        {
+            KeyPath = @"SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System",
+            ValueName = "EnableUIADesktopToggle"
+        };
+
+        public static readonly RegistrySetting EnableVirtualization = new()
+        {
+            KeyPath = @"SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System",
+            ValueName = "EnableVirtualization"
+        };
     }
 }

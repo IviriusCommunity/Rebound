@@ -217,11 +217,11 @@ internal static partial class CplItemPairs
                         // TODO
                     ],
                 },
-                new() 
+                new()
                 {
-                    Name = "Credentials Manager", 
-                    Tag = "credentialsmanager", 
-                    Icon = "glyph:\uF540", 
+                    Name = "Credentials Manager",
+                    Tag = "credentialsmanager",
+                    Icon = "glyph:\uF540",
                     Page = typeof(CredentialManagerPage),
                     Args = [ /* TODO */ ],
                     PageOpenUri = "credentialsmanager",
@@ -229,6 +229,24 @@ internal static partial class CplItemPairs
                     LegacyLaunchItems =
                     [
                         // TODO
+                    ],
+                },
+                new()
+                {
+                    Name = "User Account Control Settings",
+                    Tag = "useraccountcontrolsettings",
+                    Icon = "glyph:\uEA18",
+                    Page = typeof(UserAccountControlSettingsPage),
+                    Args = [ CplArgs.UAC_SETTINGS ],
+                    PageOpenUri = "useraccountcontrolsettings",
+                    PageOpenIconPath = "Assets/Glyphs/UserAccountControlSettings.ico",
+                    LegacyLaunchItems =
+                    [
+                        new()
+                        {
+                            Name = "User Account Control Settings",
+                            Path = CplArgs.UserAccountControlSettingsExePath
+                        }
                     ],
                 },
             ]

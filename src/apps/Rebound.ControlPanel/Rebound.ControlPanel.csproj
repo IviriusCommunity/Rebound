@@ -175,6 +175,9 @@
 		<Page Include="Views\HomePage.xaml" />
 		<Page Include="Views\RootPage.xaml" />
 		<Page Include="Views\SystemConfigurationPage.xaml" />
+		<Page Include="Views\UserAccountControlSettingsPage.xaml">
+		  <Generator>MSBuild:Compile</Generator>
+		</Page>
 		<Page Include="Views\WindowsToolsPage.xaml" />
 		<Page Include="MainWindow.xaml" />
 		<Page Include="Windows\DisplayColorCalibrationWindow.xaml">
@@ -207,6 +210,7 @@
 		<None Remove="Views\CredentialManagerPage.xaml" />
 		<None Remove="Views\DisplayColorCalibrationPage.xaml" />
 		<None Remove="Views\PrivacyAndUserChoicePage.xaml" />
+		<None Remove="Views\UserAccountControlSettingsPage.xaml" />
 		<None Remove="Windows\DisplayColorCalibrationWindow.xaml" />
 		<Content Update="Assets\**\*">
 			<CopyToOutputDirectory>Always</CopyToOutputDirectory>

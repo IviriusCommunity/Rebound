@@ -25,6 +25,7 @@ internal class CplArgs
     public static readonly string DisplayColorCalibrationExePath = Path.Combine(systemFolder, "dccw.exe");
     public static readonly string EnvironmentVariablesExePath = Path.Combine(systemFolder, "rundll32.exe sysdm.cpl,EditEnvironmentVariables");
     public static readonly string ClearTypeTunerExePath = Path.Combine(systemFolder, "cttune.exe");
+    public static readonly string UserAccountControlSettingsExePath = Path.Combine(systemFolder, "useraccountcontrolsettings.exe");
 
     public const string ADMINISTRATIVE_TOOLS_UTIL = @"/name Microsoft.AdministrativeTools";
     public const string ADMINISTRATIVE_TOOLS = @"admintools";
@@ -32,4 +33,5 @@ internal class CplArgs
     public const string ENVIRONMENT_VARIABLES = @"/name Microsoft.EnvironmentVariables";
     public const string BOOT_AND_BSOD_CONFIGURATION = @"/name Rebound.BootAndBsodConfiguration";
     public const string PRIVACY_USER_CHOICE = @"/name Rebound.PrivacyUserChoice";
+    public const string UAC_SETTINGS = @"/name Rebound.UserAccountControlSettings";
 }

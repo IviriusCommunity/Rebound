@@ -1,0 +1,275 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<Page
+    x:Class="Rebound.ControlPanel.Views.UserAccountControlSettingsPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:behaviors="using:CommunityToolkit.WinUI.Behaviors"
+    xmlns:converters="using:CommunityToolkit.WinUI.Converters"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:interactivity="using:Microsoft.Xaml.Interactivity"
+    xmlns:local="using:Rebound.ControlPanel.Views"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:toolkit="using:CommunityToolkit.WinUI.Controls"
+    mc:Ignorable="d">
+    <Page.Resources>
+        <converters:BoolToVisibilityConverter
+            x:Key="BoolToInverseVisibilityConverter"
+            FalseValue="Visible"
+            TrueValue="Collapsed" />
+    </Page.Resources>
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+        <Grid VerticalAlignment="Top" Background="{ThemeResource CardBackgroundFillColorDefaultBrush}">
+            <Image
+                Width="16"
+                Margin="16"
+                HorizontalAlignment="Left"
+                VerticalAlignment="Top"
+                Source="/Assets/Glyphs/UserAccountControlSettings.ico" />
+            <TextBlock
+                Margin="48,10,16,0"
+                FontSize="18"
+                FontWeight="SemiBold"
+                Foreground="{ThemeResource AccentTextFillColorPrimaryBrush}"
+                Text="User Account Control Settings"
+                TextTrimming="CharacterEllipsis" />
+            <TextBlock
+                Margin="48,36,16,12"
+                FontSize="12"
+                Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                Text="Manage elevation behaviors and User Account Control policies."
+                TextWrapping="WrapWholeWords" />
+        </Grid>
+        <ScrollViewer Grid.Row="1" Padding="40,0">
+            <StackPanel
+                MaxWidth="1000"
+                Margin="0,40"
+                Spacing="8">
+                <InfoBar
+                    Title="These settings require administrator privileges to view and edit."
+                    Margin="0,0,0,32"
+                    IsClosable="False"
+                    IsOpen="True"
+                    Visibility="{x:Bind ViewModel.IsAdmin, Mode=OneWay, Converter={StaticResource BoolToInverseVisibilityConverter}}">
+                    <InfoBar.ActionButton>
+                        <Button Command="{x:Bind RelaunchAsAdminCommand}" Style="{StaticResource AccentButtonStyle}">
+                            <StackPanel Orientation="Horizontal" Spacing="8">
+                                <FontIcon FontSize="16" Glyph="&#xEA18;" />
+                                <TextBlock Text="Relaunch as Administrator" />
+                            </StackPanel>
+                        </Button>
+                    </InfoBar.ActionButton>
+                </InfoBar>
+                <TextBlock FontWeight="SemiBold" Text="Presets" />
+                <toolkit:SettingsCard
+                    Command="{x:Bind ApplyTemplateCommand}"
+                    Description="Always notify me when apps try to install software or make changes to my computer when I make changes to Windows"
+                    Header="Always notify"
+                    IsClickEnabled="True"
+                    IsEnabled="{x:Bind ViewModel.IsAdmin, Mode=OneWay}">
+                    <toolkit:SettingsCard.CommandParameter>
+                        <x:Int32>0</x:Int32>
+                    </toolkit:SettingsCard.CommandParameter>
+                    <toolkit:SettingsCard.ActionIcon>
+                        <FontIcon Glyph="&#xE713;" />
+                    </toolkit:SettingsCard.ActionIcon>
+                    <toolkit:SettingsCard.HeaderIcon>
+                        <FontIcon Foreground="{ThemeResource SystemFillColorSuccessBrush}" Glyph="&#xEC61;" />
+                    </toolkit:SettingsCard.HeaderIcon>
+                </toolkit:SettingsCard>
+                <toolkit:SettingsCard
+                    Command="{x:Bind ApplyTemplateCommand}"
+                    Description="Prompt me for credentials when apps try to install software or make changes to my computer when I make changes to Windows"
+                    Header="Prompt me for credentials (Recommended)"
+                    IsClickEnabled="True"
+                    IsEnabled="{x:Bind ViewModel.IsAdmin, Mode=OneWay}">
+                    <toolkit:SettingsCard.CommandParameter>
+                        <x:Int32>1</x:Int32>
+                    </toolkit:SettingsCard.CommandParameter>
+                    <toolkit:SettingsCard.ActionIcon>
+                        <FontIcon Glyph="&#xE713;" />
+                    </toolkit:SettingsCard.ActionIcon>
+                    <toolkit:SettingsCard.HeaderIcon>
+                        <FontIcon Foreground="{ThemeResource SystemFillColorSuccessBrush}" Glyph="&#xEC61;" />
+                    </toolkit:SettingsCard.HeaderIcon>
+                </toolkit:SettingsCard>
+                <toolkit:SettingsCard
+                    Command="{x:Bind ApplyTemplateCommand}"
+                    Description="Notify me on the secure desktop when apps try to install software or make changes to my computer, but not when I make changes to Windows"
+                    Header="Notify on secure desktop when apps make changes (Default)"
+                    IsClickEnabled="True"
+                    IsEnabled="{x:Bind ViewModel.IsAdmin, Mode=OneWay}">
+                    <toolkit:SettingsCard.CommandParameter>
+                        <x:Int32>2</x:Int32>
+                    </toolkit:SettingsCard.CommandParameter>
+                    <toolkit:SettingsCard.ActionIcon>
+                        <FontIcon Glyph="&#xE713;" />
+                    </toolkit:SettingsCard.ActionIcon>
+                    <toolkit:SettingsCard.HeaderIcon>
+                        <FontIcon Foreground="{ThemeResource SystemFillColorSuccessBrush}" Glyph="&#xE930;" />
+                    </toolkit:SettingsCard.HeaderIcon>
+                </toolkit:SettingsCard>
+                <toolkit:SettingsCard
+                    Command="{x:Bind ApplyTemplateCommand}"
+                    Description="Notify me when apps try to install software or make changes to my computer, but not when I make changes to Windows"
+                    Header="Notify when apps make changes"
+                    IsClickEnabled="True"
+                    IsEnabled="{x:Bind ViewModel.IsAdmin, Mode=OneWay}">
+                    <toolkit:SettingsCard.CommandParameter>
+                        <x:Int32>3</x:Int32>
+                    </toolkit:SettingsCard.CommandParameter>
+                    <toolkit:SettingsCard.ActionIcon>
+                        <FontIcon Glyph="&#xE713;" />
+                    </toolkit:SettingsCard.ActionIcon>
+                    <toolkit:SettingsCard.HeaderIcon>
+                        <FontIcon Foreground="{ThemeResource SystemFillColorCautionBrush}" Glyph="&#xE783;" />
+                    </toolkit:SettingsCard.HeaderIcon>
+                </toolkit:SettingsCard>
+                <toolkit:SettingsCard
+                    Command="{x:Bind ApplyTemplateCommand}"
+                    Description="Elevate every app that requests it without prompting for consent or credentials"
+                    Header="Never notify (Not recommended)"
+                    IsClickEnabled="True"
+                    IsEnabled="{x:Bind ViewModel.IsAdmin, Mode=OneWay}">
+                    <toolkit:SettingsCard.CommandParameter>
+                        <x:Int32>4</x:Int32>
+                    </toolkit:SettingsCard.CommandParameter>
+                    <toolkit:SettingsCard.ActionIcon>
+                        <FontIcon Glyph="&#xE713;" />
+                    </toolkit:SettingsCard.ActionIcon>
+                    <toolkit:SettingsCard.HeaderIcon>
+                        <FontIcon Foreground="{ThemeResource SystemFillColorCriticalBrush}" Glyph="&#xEA39;" />
+                    </toolkit:SettingsCard.HeaderIcon>
+                </toolkit:SettingsCard>
+                <TextBlock
+                    Margin="0,32,0,0"
+                    FontWeight="SemiBold"
+                    Text="UAC prompt behavior" />
+                <toolkit:SettingsCard
+                    Description="Allow UIAccess applications to prompt for elevation without using the secure desktop"
+                    Header="Allow silent elevation"
+                    IsEnabled="{x:Bind ViewModel.IsAdmin, Mode=OneWay}">
+                    <toolkit:SettingsCard.HeaderIcon>
+                        <FontIcon Glyph="&#xF5EF;" />
+                    </toolkit:SettingsCard.HeaderIcon>
+                    <CheckBox
+                        MinWidth="0"
+                        IsChecked="{x:Bind ViewModel.AllowSilentElevation, Mode=TwoWay}"
+                        Visibility="{x:Bind ViewModel.IsAdmin, Mode=OneWay}" />
+                </toolkit:SettingsCard>
+                <toolkit:SettingsCard
+                    Description="Define UAC prompt display behavior for administrators in Admin Approval Mode"
+                    Header="Administrators in Admin Approval Mode"
+                    IsEnabled="{x:Bind ViewModel.IsAdmin, Mode=OneWay}">
+                    <toolkit:SettingsCard.HeaderIcon>
+                        <FontIcon Glyph="&#xECA7;" />
+                    </toolkit:SettingsCard.HeaderIcon>
+                    <ComboBox SelectedIndex="{x:Bind ViewModel.AdministratorsInAdminApprovalMode, Mode=TwoWay}" Visibility="{x:Bind ViewModel.IsAdmin, Mode=OneWay}">
+                        <ComboBoxItem Content="Elevate without prompting" />
+                        <ComboBoxItem Content="Prompt for credentials on the secure desktop" />
+                        <ComboBoxItem Content="Prompt for consent on the secure desktop" />
+                        <ComboBoxItem Content="Prompt for credentials" />
+                        <ComboBoxItem Content="Prompt for consent" />
+                        <ComboBoxItem Content="Prompt for consent for non-Windows binaries" />
+                    </ComboBox>
+                </toolkit:SettingsCard>
+                <toolkit:SettingsCard
+                    Description="Define UAC prompt display behavior for standard users"
+                    Header="Elevation prompt for standard users"
+                    IsEnabled="{x:Bind ViewModel.IsAdmin, Mode=OneWay}">
+                    <toolkit:SettingsCard.HeaderIcon>
+                        <FontIcon Glyph="&#xE77B;" />
+                    </toolkit:SettingsCard.HeaderIcon>
+                    <ComboBox SelectedIndex="{x:Bind ViewModel.ElevationPromptForStandardUsers, Mode=TwoWay}" Visibility="{x:Bind ViewModel.IsAdmin, Mode=OneWay}">
+                        <ComboBoxItem Content="Automatically deny elevation requests" />
+                        <ComboBoxItem Content="Prompt for credentials on the secure desktop" />
+                        <ComboBoxItem Content="Prompt for consent on the secure desktop" />
+                    </ComboBox>
+                </toolkit:SettingsCard>
+                <toolkit:SettingsCard
+                    Description="Detect application installations and prompt for elevation"
+                    Header="Prompt on application installation"
+                    IsEnabled="{x:Bind ViewModel.IsAdmin, Mode=OneWay}">
+                    <toolkit:SettingsCard.HeaderIcon>
+                        <FontIcon Glyph="&#xE896;" />
+                    </toolkit:SettingsCard.HeaderIcon>
+                    <ToggleSwitch
+                        MinWidth="0"
+                        IsOn="{x:Bind ViewModel.DetectApplicationInstallations, Mode=TwoWay}"
+                        Visibility="{x:Bind ViewModel.IsAdmin, Mode=OneWay}" />
+                </toolkit:SettingsCard>
+                <toolkit:SettingsCard
+                    Description="Switch to the secure desktop when prompting for elevation"
+                    Header="Prompt on secure desktop"
+                    IsEnabled="{x:Bind ViewModel.IsAdmin, Mode=OneWay}">
+                    <toolkit:SettingsCard.HeaderIcon>
+                        <FontIcon Glyph="&#xE727;" />
+                    </toolkit:SettingsCard.HeaderIcon>
+                    <ToggleSwitch
+                        MinWidth="0"
+                        IsOn="{x:Bind ViewModel.PromptOnSecureDesktop, Mode=TwoWay}"
+                        Visibility="{x:Bind ViewModel.IsAdmin, Mode=OneWay}" />
+                </toolkit:SettingsCard>
+                <TextBlock
+                    Margin="0,32,0,0"
+                    FontWeight="SemiBold"
+                    Text="Elevation settings" />
+                <toolkit:SettingsCard
+                    Description="Only elevate executables that are signed and validated with a digital certificate"
+                    Header="Signed only"
+                    IsEnabled="{x:Bind ViewModel.IsAdmin, Mode=OneWay}">
+                    <toolkit:SettingsCard.HeaderIcon>
+                        <FontIcon Glyph="&#xEB95;" />
+                    </toolkit:SettingsCard.HeaderIcon>
+                    <ToggleSwitch
+                        MinWidth="0"
+                        IsOn="{x:Bind ViewModel.ValidateAdminCodeSignatures, Mode=TwoWay}"
+                        Visibility="{x:Bind ViewModel.IsAdmin, Mode=OneWay}" />
+                </toolkit:SettingsCard>
+                <toolkit:SettingsCard
+                    Description="Only elevate UIAccess applications that are installed in secure locations"
+                    Header="Silent UIAccess elevation for trusted paths only"
+                    IsEnabled="{x:Bind ViewModel.IsAdmin, Mode=OneWay}">
+                    <toolkit:SettingsCard.HeaderIcon>
+                        <FontIcon Glyph="&#xF5EF;" />
+                    </toolkit:SettingsCard.HeaderIcon>
+                    <ToggleSwitch
+                        MinWidth="0"
+                        IsOn="{x:Bind ViewModel.EnableSecureUIAPaths, Mode=TwoWay}"
+                        Visibility="{x:Bind ViewModel.IsAdmin, Mode=OneWay}" />
+                </toolkit:SettingsCard>
+                <toolkit:SettingsCard
+                    Description="Virtualize file and registry write failures to per-user locations"
+                    Header="File and registry virtualization"
+                    IsEnabled="{x:Bind ViewModel.IsAdmin, Mode=OneWay}">
+                    <toolkit:SettingsCard.HeaderIcon>
+                        <FontIcon Glyph="&#xEEA3;" />
+                    </toolkit:SettingsCard.HeaderIcon>
+                    <ToggleSwitch
+                        MinWidth="0"
+                        IsOn="{x:Bind ViewModel.EnableVirtualization, Mode=TwoWay}"
+                        Visibility="{x:Bind ViewModel.IsAdmin, Mode=OneWay}" />
+                </toolkit:SettingsCard>
+                <TextBlock
+                    Margin="0,32,0,0"
+                    FontWeight="SemiBold"
+                    Text="Administrator settings" />
+                <toolkit:SettingsCard Header="Run all administrators in Admin Approval Mode" IsEnabled="{x:Bind ViewModel.IsAdmin, Mode=OneWay}">
+                    <ToggleSwitch
+                        MinWidth="0"
+                        IsOn="{x:Bind ViewModel.RunAllAdministratorsInAdminApprovalMode, Mode=TwoWay}"
+                        Visibility="{x:Bind ViewModel.IsAdmin, Mode=OneWay}" />
+                </toolkit:SettingsCard>
+                <toolkit:SettingsCard Header="Admin Approval mode for built-in administrator account" IsEnabled="{x:Bind ViewModel.IsAdmin, Mode=OneWay}">
+                    <ToggleSwitch
+                        MinWidth="0"
+                        IsOn="{x:Bind ViewModel.BuiltInAdministratorApprovalMode, Mode=TwoWay}"
+                        Visibility="{x:Bind ViewModel.IsAdmin, Mode=OneWay}" />
+                </toolkit:SettingsCard>
+            </StackPanel>
+        </ScrollViewer>
+    </Grid>
+</Page>
