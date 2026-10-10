@@ -50,7 +50,10 @@ internal sealed partial class HomePage : Page
             return (w, u);
         }).ConfigureAwait(true);
 
-        WallpaperPath = wallpaper;
+        if (!string.IsNullOrEmpty(wallpaper) && File.Exists(wallpaper))
+            WallpaperPath = wallpaper;
+        else
+            BKGImage.Visibility = Visibility.Collapsed;
         UserPicturePath = userPicture;
 
         // ViewModel init

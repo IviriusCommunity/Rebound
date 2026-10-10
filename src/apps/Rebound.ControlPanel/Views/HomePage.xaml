@@ -28,6 +28,7 @@
 
                 <!--  Header section  -->
                 <Grid>
+                    <Grid Height="320" />
                     <header:HomePageHeaderImage
                         x:Name="BKGImage"
                         Height="320"
