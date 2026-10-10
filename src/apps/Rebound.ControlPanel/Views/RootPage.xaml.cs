@@ -182,6 +182,12 @@ internal sealed partial class RootPage : Page
         CreateDocsItems(DocsDropDownButtonFlyout.Items, item?.DocsItems ?? []);
         CreateDocsItems(DocsFlyoutItem.Items, item?.DocsItems ?? []);
 
+        // Set taskbar icon and label
+        App.MainWindow?.AppWindow.SetIcon(item?.Page?.Name is nameof(HomePage) ? 
+            Path.Combine(AppContext.BaseDirectory, "Assets", "ControlPanel.ico") :
+            Path.Combine(AppContext.BaseDirectory, item?.PageOpenIconPath ?? "Assets\\ControlPanel.ico"));
+        App.MainWindow?.Title = $"{item?.Name} - Control Panel";
+
         ViewModel.CanGoBack = RootFrame.CanGoBack;
         ViewModel.CanGoForward = RootFrame.CanGoForward;
     }
