@@ -42,7 +42,6 @@ internal partial class PrivacyAndUserChoiceViewModel : ObservableObject
         RefreshSudoProperties();
         RefreshExecutionPolicies();
         RefreshDeveloperModeProperties();
-        RefreshUacProperties();
         RefreshPrivacyHighProperties();
         RefreshPrivacyMediumProperties();
         RefreshPrivacyLowProperties();
@@ -1308,96 +1307,6 @@ internal partial class PrivacyAndUserChoiceViewModel : ObservableObject
 
     #endregion
 
-    #region UAC
-
-    [ObservableProperty] public partial int UacLevel { get; set; }
-
-    partial void OnUacLevelChanged(int value)
-    {
-        if (_initializing)
-            return;
-
-        RegistrySettingsEngine.SetValue(
-            RegistryHive.LocalMachine,
-            RegistrySettingsCatalog.EnableLUA,
-            1);
-
-        switch (value)
-        {
-            case 0: // Always notify
-                RegistrySettingsEngine.SetValue(
-                    RegistryHive.LocalMachine,
-                    RegistrySettingsCatalog.ConsentPromptBehaviorAdmin,
-                    2);
-
-                RegistrySettingsEngine.SetValue(
-                    RegistryHive.LocalMachine,
-                    RegistrySettingsCatalog.PromptOnSecureDesktop,
-                    1);
-                break;
-
-            case 1: // Notify me only when apps try to make changes
-                RegistrySettingsEngine.SetValue(
-                    RegistryHive.LocalMachine,
-                    RegistrySettingsCatalog.ConsentPromptBehaviorAdmin,
-                    5);
-
-                RegistrySettingsEngine.SetValue(
-                    RegistryHive.LocalMachine,
-                    RegistrySettingsCatalog.PromptOnSecureDesktop,
-                    1);
-                break;
-
-            case 2: // Notify me only when apps try to make changes (no secure desktop)
-                RegistrySettingsEngine.SetValue(
-                    RegistryHive.LocalMachine,
-                    RegistrySettingsCatalog.ConsentPromptBehaviorAdmin,
-                    5);
-
-                RegistrySettingsEngine.SetValue(
-                    RegistryHive.LocalMachine,
-                    RegistrySettingsCatalog.PromptOnSecureDesktop,
-                    0);
-                break;
-
-            case 3: // Never notify
-                RegistrySettingsEngine.SetValue(
-                    RegistryHive.LocalMachine,
-                    RegistrySettingsCatalog.ConsentPromptBehaviorAdmin,
-                    0);
-
-                RegistrySettingsEngine.SetValue(
-                    RegistryHive.LocalMachine,
-                    RegistrySettingsCatalog.PromptOnSecureDesktop,
-                    0);
-                break;
-        }
-    }
-
-    private void RefreshUacProperties()
-    {
-        int consent = RegistrySettingsEngine.GetValue<int>(
-            RegistryHive.LocalMachine,
-            RegistrySettingsCatalog.ConsentPromptBehaviorAdmin,
-            5);
-
-        int secureDesktop = RegistrySettingsEngine.GetValue<int>(
-            RegistryHive.LocalMachine,
-            RegistrySettingsCatalog.PromptOnSecureDesktop,
-            1);
-
-        UacLevel = (consent, secureDesktop) switch
-        {
-            (2, 1) => 0,
-            (5, 1) => 1,
-            (5, 0) => 2,
-            (0, 0) => 3,
-            _ => 1 // Windows default
-        };
-    }
-
-    #endregion
-
     #region Developer mode
 
     [ObservableProperty] public partial bool DeveloperMode { get; set; }
@@ -1556,6 +1465,9 @@ internal partial class PrivacyAndUserChoiceViewModel : ObservableObject
 
     private void RefreshSmartScreenProperties()
     {
+        if (!IsElevated)
+            return;
+
         IsSmartScreenEnabled = RegistrySettingsEngine.GetBool(
             RegistryHive.LocalMachine,
             RegistrySettingsCatalog.EnableSmartScreen,
@@ -1893,7 +1805,7 @@ internal partial class PrivacyAndUserChoiceViewModel : ObservableObject
 
     private void RefreshWindowsUpdateProperties()
     {
-        if (!IsElevated) 
+        if (!IsElevated)
             return;
 
         bool noUI = RegistrySettingsEngine.GetBool(
@@ -1969,8 +1881,10 @@ internal partial class PrivacyAndUserChoiceViewModel : ObservableObject
 
     public void RefreshUcpdProperties()
     {
-        if (IsElevated)
-            IsUcpdEnabled = GetIsUcpdEnabled();
+        if (!IsElevated)
+            return;
+
+        IsUcpdEnabled = GetIsUcpdEnabled();
     }
 
     public static bool GetIsUcpdEnabled()

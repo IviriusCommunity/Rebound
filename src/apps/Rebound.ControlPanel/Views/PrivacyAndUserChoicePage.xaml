@@ -476,20 +476,6 @@
                     </toolkit:SettingsCard.HeaderIcon>
                     <ToggleSwitch />
                 </toolkit:SettingsCard>
-                <toolkit:SettingsCard
-                    Description="User Account Control (UAC) is the Windows security mechanism that mediates elevation requests between standard user processes and system-level privileges. It acts as a permission broker that ensures administrative actions require explicit approval before being executed, helping prevent unauthorized or unintended changes to the system. This setting controls how often Windows prompts for consent when applications request elevated access."
-                    Header="User Account Control"
-                    IsEnabled="{x:Bind ViewModel.IsElevated, Mode=OneWay}">
-                    <toolkit:SettingsCard.HeaderIcon>
-                        <FontIcon Glyph="&#xEA0D;" />
-                    </toolkit:SettingsCard.HeaderIcon>
-                    <ComboBox SelectedIndex="{x:Bind ViewModel.UacLevel, Mode=TwoWay}" Visibility="{x:Bind ViewModel.IsElevated, Mode=OneWay}">
-                        <ComboBoxItem Content="Always notify me (highest security)" />
-                        <ComboBoxItem Content="Notify me only when apps try to make changes to my device" />
-                        <ComboBoxItem Content="Notify me only when apps try to make changes (do not dim desktop)" />
-                        <ComboBoxItem Content="Never notify (not recommended)" />
-                    </ComboBox>
-                </toolkit:SettingsCard>
                 <TextBlock
                     Margin="0,32,0,0"
                     FontWeight="SemiBold"
