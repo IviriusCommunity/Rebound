@@ -252,9 +252,10 @@ public partial class App : Application, IReboundLegacySupportApp, IReboundPipeCl
         {
             foreach (var arg in item.Args)
             {
-                bool isMatch = string.IsNullOrEmpty(arg)
-                    ? string.IsNullOrEmpty(arguments)
-                    : arguments.Contains(arg.Trim(), StringComparison.InvariantCultureIgnoreCase);
+                bool isMatch = string.Equals(
+                    arg.Trim(),
+                    arguments.Trim(),
+                    StringComparison.OrdinalIgnoreCase);
 
                 if (isMatch)
                     return item.Page ?? (object?)item.Uri;
