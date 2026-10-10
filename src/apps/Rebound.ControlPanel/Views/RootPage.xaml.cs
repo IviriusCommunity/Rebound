@@ -33,6 +33,8 @@ internal sealed partial class RootPage : Page
     // Remove once fixed
     [GeneratedDependencyProperty(DefaultValue = "C:\\\\")] public partial string UserPicturePath { get; set; }
 
+    [GeneratedDependencyProperty] public partial CornerRadius FrameCornerRadius { get; set; }
+
     private RootViewModel ViewModel { get; set; }
 
     public RootPage()
@@ -45,6 +47,12 @@ internal sealed partial class RootPage : Page
             // Collapse items depending on window size
             ViewModel.CollapseLeftItems = e.NewSize.Width <= 440;
             ViewModel.CollapseRightItems = e.NewSize.Width <= 640;
+
+            // Update corner radius for the root frame
+            if (RootFrame.ActualWidth == e.NewSize.Width)
+                FrameCornerRadius = new CornerRadius(0);
+            else
+                FrameCornerRadius = new CornerRadius(7, 0, 0, 0);
         };
         Loaded += async (s, e) =>
         {

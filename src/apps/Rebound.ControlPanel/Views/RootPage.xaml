@@ -540,6 +540,7 @@
             <Frame
                 x:Name="RootFrame"
                 x:FieldModifier="public"
+                CornerRadius="{x:Bind FrameCornerRadius, Mode=OneWay}"
                 Navigated="RootFrame_Navigated" />
         </NavigationView>
         <TitleBar Title="Control Panel" Subtitle="BETA">
