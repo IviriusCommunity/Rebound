@@ -62,14 +62,6 @@
       <Platform Solution="*|ARM64" Project="ARM64" />
       <Platform Solution="*|x64" Project="x64" />
     </Project>
-    <Project Path="src/apps/Rebound.Dialer/Rebound.Dialer.csproj">
-      <Platform Solution="*|ARM64" Project="ARM64" />
-      <Platform Solution="*|x64" Project="x64" />
-    </Project>
-    <Project Path="src/apps/Rebound.Keyboard/Rebound.Keyboard.csproj">
-      <Platform Solution="*|ARM64" Project="ARM64" />
-      <Platform Solution="*|x64" Project="x64" />
-    </Project>
     <Project Path="src/apps/Rebound.OnScreenKeyboard/Rebound.OnScreenKeyboard.vcxproj" Id="b461b611-1a7b-4397-9c9f-7d99bbcbc85f">
       <Platform Project="x64" />
     </Project>
