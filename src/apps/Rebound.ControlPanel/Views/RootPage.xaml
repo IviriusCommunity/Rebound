@@ -4,6 +4,7 @@
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:animatedvisuals="using:Microsoft.UI.Xaml.Controls.AnimatedVisuals"
+    xmlns:animations="using:CommunityToolkit.WinUI.Animations"
     xmlns:behaviors="using:CommunityToolkit.WinUI.Behaviors"
     xmlns:converters="using:CommunityToolkit.WinUI.Converters"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
@@ -184,6 +185,23 @@
                     BorderBrush="Transparent"
                     ToolTipService.ToolTip="See more"
                     Visibility="{x:Bind ViewModel.CollapseLeftItems, Mode=OneWay}">
+                    <animations:Implicit.ShowAnimations>
+                        <animations:TranslationAnimation
+                            From="24, 0, 0"
+                            To="0"
+                            Duration="0:0:0.2" />
+                        <animations:OpacityAnimation
+                            From="0"
+                            To="1.0"
+                            Duration="0:0:0.2" />
+                    </animations:Implicit.ShowAnimations>
+                    <animations:Implicit.HideAnimations>
+                        <animations:OpacityAnimation To="0.0" Duration="0:0:0.2" />
+                        <animations:TranslationAnimation
+                            From="0"
+                            To="24, 0, 0"
+                            Duration="0:0:0.2" />
+                    </animations:Implicit.HideAnimations>
                     <Button.Flyout>
                         <MenuFlyout>
                             <MenuFlyoutItem
@@ -219,6 +237,23 @@
                     Style="{StaticResource DisabledButtonStyle}"
                     ToolTipService.ToolTip="Go forward"
                     Visibility="{x:Bind ViewModel.CollapseLeftItems, Mode=OneWay, Converter={StaticResource BoolToInverseVisibilityConverter}}">
+                    <animations:Implicit.ShowAnimations>
+                        <animations:TranslationAnimation
+                            From="-24, 0, 0"
+                            To="0"
+                            Duration="0:0:0.2" />
+                        <animations:OpacityAnimation
+                            From="0"
+                            To="1.0"
+                            Duration="0:0:0.2" />
+                    </animations:Implicit.ShowAnimations>
+                    <animations:Implicit.HideAnimations>
+                        <animations:OpacityAnimation To="0.0" Duration="0:0:0.2" />
+                        <animations:TranslationAnimation
+                            From="0"
+                            To="-24, 0, 0"
+                            Duration="0:0:0.2" />
+                    </animations:Implicit.HideAnimations>
                     <Grid
                         Width="20"
                         Height="20"
@@ -240,6 +275,23 @@
                     Command="{x:Bind RefreshCommand}"
                     ToolTipService.ToolTip="Refresh"
                     Visibility="{x:Bind ViewModel.CollapseLeftItems, Mode=OneWay, Converter={StaticResource BoolToInverseVisibilityConverter}}">
+                    <animations:Implicit.ShowAnimations>
+                        <animations:TranslationAnimation
+                            From="-32, 0, 0"
+                            To="0"
+                            Duration="0:0:0.2" />
+                        <animations:OpacityAnimation
+                            From="0"
+                            To="1.0"
+                            Duration="0:0:0.2" />
+                    </animations:Implicit.ShowAnimations>
+                    <animations:Implicit.HideAnimations>
+                        <animations:OpacityAnimation To="0.0" Duration="0:0:0.2" />
+                        <animations:TranslationAnimation
+                            From="0"
+                            To="-32, 0, 0"
+                            Duration="0:0:0.2" />
+                    </animations:Implicit.HideAnimations>
                     <FontIcon FontSize="16" Glyph="&#xE72C;" />
                 </Button>
                 <Button
@@ -251,6 +303,23 @@
                     Command="{x:Bind GoHomeCommand}"
                     ToolTipService.ToolTip="Home"
                     Visibility="{x:Bind ViewModel.CollapseLeftItems, Mode=OneWay, Converter={StaticResource BoolToInverseVisibilityConverter}}">
+                    <animations:Implicit.ShowAnimations>
+                        <animations:TranslationAnimation
+                            From="-48, 0, 0"
+                            To="0"
+                            Duration="0:0:0.2" />
+                        <animations:OpacityAnimation
+                            From="0"
+                            To="1.0"
+                            Duration="0:0:0.2" />
+                    </animations:Implicit.ShowAnimations>
+                    <animations:Implicit.HideAnimations>
+                        <animations:OpacityAnimation To="0.0" Duration="0:0:0.2" />
+                        <animations:TranslationAnimation
+                            From="0"
+                            To="-48, 0, 0"
+                            Duration="0:0:0.2" />
+                    </animations:Implicit.HideAnimations>
                     <FontIcon FontSize="16" Glyph="&#xE80F;" />
                 </Button>
             </StackPanel>
@@ -262,7 +331,13 @@
                 VerticalAlignment="Center"
                 FontWeight="SemiBold"
                 Text="{x:Bind ViewModel.PageAddress, Mode=OneWay}"
-                TextTrimming="CharacterEllipsis" />
+                TextTrimming="CharacterEllipsis">
+                <TextBlock.Transitions>
+                    <TransitionCollection>
+                        <RepositionThemeTransition IsStaggeringEnabled="False" />
+                    </TransitionCollection>
+                </TextBlock.Transitions>
+            </TextBlock>
             <StackPanel
                 Grid.Column="2"
                 VerticalAlignment="Top"
@@ -275,6 +350,11 @@
                     Background="Transparent"
                     BorderBrush="Transparent"
                     ToolTipService.ToolTip="Profile">
+                    <Button.Transitions>
+                        <TransitionCollection>
+                            <RepositionThemeTransition />
+                        </TransitionCollection>
+                    </Button.Transitions>
                     <Button.Flyout>
                         <Flyout ShouldConstrainToRootBounds="False">
                             <Grid>
@@ -333,6 +413,23 @@
                     Orientation="Horizontal"
                     Spacing="4"
                     Visibility="{x:Bind ViewModel.CollapseRightItems, Mode=OneWay, Converter={StaticResource BoolToInverseVisibilityConverter}}">
+                    <animations:Implicit.ShowAnimations>
+                        <animations:TranslationAnimation
+                            From="48, 0, 0"
+                            To="0"
+                            Duration="0:0:0.3" />
+                        <animations:OpacityAnimation
+                            From="0"
+                            To="1.0"
+                            Duration="0:0:0.3" />
+                    </animations:Implicit.ShowAnimations>
+                    <animations:Implicit.HideAnimations>
+                        <animations:OpacityAnimation To="0.0" Duration="0:0:0.3" />
+                        <animations:TranslationAnimation
+                            From="0"
+                            To="48, 0, 0"
+                            Duration="0:0:0.3" />
+                    </animations:Implicit.HideAnimations>
                     <Button
                         Width="36"
                         Height="36"
@@ -385,6 +482,23 @@
                     BorderBrush="Transparent"
                     ToolTipService.ToolTip="All actions"
                     Visibility="{x:Bind ViewModel.CollapseRightItems, Mode=OneWay}">
+                    <animations:Implicit.ShowAnimations>
+                        <animations:TranslationAnimation
+                            From="32, 0, 0"
+                            To="0"
+                            Duration="0:0:0.2" />
+                        <animations:OpacityAnimation
+                            From="0"
+                            To="1.0"
+                            Duration="0:0:0.2" />
+                    </animations:Implicit.ShowAnimations>
+                    <animations:Implicit.HideAnimations>
+                        <animations:OpacityAnimation To="0.0" Duration="0:0:0.2" />
+                        <animations:TranslationAnimation
+                            From="0"
+                            To="32, 0, 0"
+                            Duration="0:0:0.2" />
+                    </animations:Implicit.HideAnimations>
                     <DropDownButton.Flyout>
                         <MenuFlyout>
                             <MenuFlyoutItem Command="{x:Bind OpenSettingsCommand}" Text="Windows Settings">
