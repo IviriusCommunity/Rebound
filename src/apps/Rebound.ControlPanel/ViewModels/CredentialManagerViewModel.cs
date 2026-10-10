@@ -306,31 +306,38 @@ internal partial class WindowsCredential : ObservableObject
             return;
         }
 
-        using StringPtr targetNamePtr = newTargetName;
-        using StringPtr usernamePtr = newUsername ?? string.Empty;
-        using StringPtr passwordPtr = newPassword;
-
-        CREDENTIALW updatedCredential = *credential;
-
-        updatedCredential.TargetName = new(targetNamePtr.GetChars());
-        updatedCredential.UserName = new(usernamePtr.GetChars());
-        updatedCredential.CredentialBlob = (byte*)passwordPtr.GetChars();
-        updatedCredential.CredentialBlobSize = (uint)(newPassword.Length * sizeof(char));
-        updatedCredential.Persist = Persist ? CRED_PERSIST.CRED_PERSIST_LOCAL_MACHINE : CRED_PERSIST.CRED_PERSIST_SESSION;
-
-        if (Name != newTargetName)
+        try
         {
-            PInvoke.CredDelete(Name, Type);
+            using StringPtr targetNamePtr = newTargetName;
+            using StringPtr usernamePtr = newUsername ?? string.Empty;
+            using StringPtr passwordPtr = newPassword;
+
+            CREDENTIALW updatedCredential = *credential;
+
+            updatedCredential.TargetName = new(targetNamePtr.GetChars());
+            updatedCredential.UserName = new(usernamePtr.GetChars());
+            updatedCredential.CredentialBlob = (byte*)passwordPtr.GetChars();
+            updatedCredential.CredentialBlobSize = (uint)(newPassword.Length * sizeof(char));
+            updatedCredential.Persist = Persist ? CRED_PERSIST.CRED_PERSIST_LOCAL_MACHINE : CRED_PERSIST.CRED_PERSIST_SESSION;
+
+            if (Name != newTargetName)
+            {
+                PInvoke.CredDelete(Name, Type);
+            }
+
+            if (PInvoke.CredWrite(&updatedCredential, 0))
+            {
+                Url = CredentialManagerViewModel.ExtractTargetWithRegex(newTargetName);
+                Username = newUsername;
+                Name = newTargetName;
+                LastWritten = DateTime.Now.ToString((IFormatProvider?)null);
+
+                _owner.RefreshDisplayedWindowsCredentials(_owner.WindowsCredentialSearchQuery);
+            }
         }
-
-        if (PInvoke.CredWrite(&updatedCredential, 0))
+        finally
         {
-            Url = CredentialManagerViewModel.ExtractTargetWithRegex(newTargetName);
-            Username = newUsername;
-            Name = newTargetName;
-            LastWritten = DateTime.Now.ToString((IFormatProvider?)null);
-
-            _owner.RefreshDisplayedWindowsCredentials(_owner.WindowsCredentialSearchQuery);
+            PInvoke.CredFree(credential);
         }
     }
 }
@@ -585,45 +592,52 @@ internal partial class CredentialManagerViewModel : ObservableObject
             return [];
 
         var list = new List<WindowsCredential>((int)count);
-        for (int i = 0; i < count; i++)
+        try
         {
-            var c = creds[i];
-
-            string password = string.Empty;
-            bool isPasswordAvailable = false;
-
-            try
+            for (int i = 0; i < count; i++)
             {
-                if (c->CredentialBlob != null && c->CredentialBlobSize > 0)
+                var c = creds[i];
+
+                string password = string.Empty;
+                bool isPasswordAvailable = false;
+
+                try
                 {
-                    password = Marshal.PtrToStringUni((nint)c->CredentialBlob, (int)c->CredentialBlobSize / sizeof(char)) ?? string.Empty;
-                    isPasswordAvailable = true;
+                    if (c->CredentialBlob != null && c->CredentialBlobSize > 0)
+                    {
+                        password = Marshal.PtrToStringUni((nint)c->CredentialBlob, (int)c->CredentialBlobSize / sizeof(char)) ?? string.Empty;
+                        isPasswordAvailable = true;
+                    }
                 }
-            }
-            catch
-            {
-                // Some Windows credentials protect or restrict blob reading based on token/integrity level
-                password = string.Empty;
-                isPasswordAvailable = false;
-            }
-
-            list.Add(new WindowsCredential(this)
-            {
-                Url = ExtractTargetWithRegex(c->TargetName.ToString()),
-                Username = c->UserName.ToString(),
-                Persist = c->Persist switch
+                catch
                 {
-                    CRED_PERSIST.CRED_PERSIST_NONE => false,
-                    _ => true
-                },
-                LastWritten = (c->LastWritten.dwHighDateTime == 0 && c->LastWritten.dwLowDateTime == 0)
-                    ? string.Empty
-                    : TryGetFileTime(c->LastWritten),
-                Type = c->Type,
-                Name = c->TargetName.ToString(),
-                Password = password,
-                IsPasswordAvailable = isPasswordAvailable
-            });
+                    // Some Windows credentials protect or restrict blob reading based on token/integrity level
+                    password = string.Empty;
+                    isPasswordAvailable = false;
+                }
+
+                list.Add(new WindowsCredential(this)
+                {
+                    Url = ExtractTargetWithRegex(c->TargetName.ToString()),
+                    Username = c->UserName.ToString(),
+                    Persist = c->Persist switch
+                    {
+                        CRED_PERSIST.CRED_PERSIST_NONE => false,
+                        _ => true
+                    },
+                    LastWritten = (c->LastWritten.dwHighDateTime == 0 && c->LastWritten.dwLowDateTime == 0)
+                        ? string.Empty
+                        : TryGetFileTime(c->LastWritten),
+                    Type = c->Type,
+                    Name = c->TargetName.ToString(),
+                    Password = password,
+                    IsPasswordAvailable = isPasswordAvailable
+                });
+            }
+        }
+        finally
+        {
+            PInvoke.CredFree(creds);
         }
 
         return list;

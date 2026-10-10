@@ -15,3 +15,4 @@ CredWriteW
 CredEnumerateW
 IShellLinkW
 IPersistFile
+CredFree
