@@ -155,9 +155,9 @@
                     <toolkit:SettingsCard.HeaderIcon>
                         <FontIcon Glyph="&#xF5EF;" />
                     </toolkit:SettingsCard.HeaderIcon>
-                    <CheckBox
+                    <ToggleSwitch
                         MinWidth="0"
-                        IsChecked="{x:Bind ViewModel.AllowSilentElevation, Mode=TwoWay}"
+                        IsOn="{x:Bind ViewModel.AllowSilentElevation, Mode=TwoWay}"
                         Visibility="{x:Bind ViewModel.IsAdmin, Mode=OneWay}" />
                 </toolkit:SettingsCard>
                 <toolkit:SettingsCard
