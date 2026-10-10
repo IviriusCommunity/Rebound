@@ -19,7 +19,7 @@
                 Background="Transparent"
                 BorderBrush="Transparent">
                 <Grid
-                    Margin="8"
+                    Margin="8,6"
                     Background="Transparent"
                     DoubleTapped="Grid_DoubleTapped"
                     Tag="{x:Bind}"
@@ -214,7 +214,7 @@
                             ItemsSource="{x:Bind GeneralTools}">
                             <ItemsControl.ItemsPanel>
                                 <ItemsPanelTemplate>
-                                    <toolkit:WrapPanel HorizontalSpacing="8" VerticalSpacing="8" />
+                                    <toolkit:WrapPanel HorizontalSpacing="4" VerticalSpacing="4" />
                                 </ItemsPanelTemplate>
                             </ItemsControl.ItemsPanel>
                         </ItemsControl>
@@ -229,7 +229,7 @@
                             ItemsSource="{x:Bind ManagementTools}">
                             <ItemsControl.ItemsPanel>
                                 <ItemsPanelTemplate>
-                                    <toolkit:WrapPanel HorizontalSpacing="8" VerticalSpacing="8" />
+                                    <toolkit:WrapPanel HorizontalSpacing="4" VerticalSpacing="4" />
                                 </ItemsPanelTemplate>
                             </ItemsControl.ItemsPanel>
                         </ItemsControl>
@@ -244,7 +244,7 @@
                             ItemsSource="{x:Bind CommandTools}">
                             <ItemsControl.ItemsPanel>
                                 <ItemsPanelTemplate>
-                                    <toolkit:WrapPanel HorizontalSpacing="8" VerticalSpacing="8" />
+                                    <toolkit:WrapPanel HorizontalSpacing="4" VerticalSpacing="4" />
                                 </ItemsPanelTemplate>
                             </ItemsControl.ItemsPanel>
                         </ItemsControl>
@@ -259,7 +259,7 @@
                             ItemsSource="{x:Bind MiscellaneousTools}">
                             <ItemsControl.ItemsPanel>
                                 <ItemsPanelTemplate>
-                                    <toolkit:WrapPanel HorizontalSpacing="8" VerticalSpacing="8" />
+                                    <toolkit:WrapPanel HorizontalSpacing="4" VerticalSpacing="4" />
                                 </ItemsPanelTemplate>
                             </ItemsControl.ItemsPanel>
                         </ItemsControl>
@@ -274,7 +274,7 @@
                             ItemsSource="{x:Bind LegacyTools}">
                             <ItemsControl.ItemsPanel>
                                 <ItemsPanelTemplate>
-                                    <toolkit:WrapPanel HorizontalSpacing="8" VerticalSpacing="8" />
+                                    <toolkit:WrapPanel HorizontalSpacing="4" VerticalSpacing="4" />
                                 </ItemsPanelTemplate>
                             </ItemsControl.ItemsPanel>
                         </ItemsControl>
