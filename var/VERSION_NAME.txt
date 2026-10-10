@@ -1,1 +1,1 @@
-Pipeline Test
+Control Panel Test

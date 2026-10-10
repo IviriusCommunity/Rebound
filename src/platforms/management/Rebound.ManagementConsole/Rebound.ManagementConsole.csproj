@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
 	<!-- Properties -->
 	<PropertyGroup>
@@ -12,6 +12,11 @@
 		<!-- Deployment -->
 		<EnableMsixTooling>true</EnableMsixTooling>
 		<WindowsPackageType>None</WindowsPackageType>
+
+		<!-- Versioning -->
+		<AssemblyVersion>0.0.10</AssemblyVersion>
+		<Version>0.0.10</Version>
+		<FileVersion>0.0.10</FileVersion>
 
 	</PropertyGroup>
 	<ItemGroup>

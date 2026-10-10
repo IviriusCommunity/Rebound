@@ -107,7 +107,7 @@ try {
 
     $script:versionFile     = Join-Path $root "var/VERSION.txt"
     $script:versionNameFile = Join-Path $root "var/VERSION_NAME.txt"
-    $targetFile             = Join-Path $root "src/core/Rebound.Core/Version.cs"
+    $targetFile             = Join-Path $root "src/core/Rebound.Core/Environment/Version.cs"
 
     # Validate files exist
     Write-Step "Validating version files"
@@ -123,7 +123,7 @@ try {
     $newVersion = "v$number $title"
 
     $content = Get-Content $targetFile -Raw
-    $pattern = '(public\s+static\s+string\s+ReboundVersion\s*=\s*")([^"]*)(";)'
+    $pattern = '(public\s+static\s+string\s+ReboundVersion\s*\{\s*get;\s*\}\s*=\s*")([^"]*)(";)'
 
     if ($content -notmatch $pattern) {
         throw "ReboundVersion field not found or format changed"
@@ -138,8 +138,10 @@ try {
     
     $csprojFiles = @(
         "src/apps/Rebound.About/Rebound.About.csproj",
-        "src/apps/Rebound.UserAccountControlSettings/Rebound.UserAccountControlSettings.csproj",
+        "src/apps/Rebound.Cleanup/Rebound.Cleanup.csproj",
+        "src/apps/Rebound.ControlPanel/Rebound.ControlPanel.csproj",
         "src/platforms/shell/Rebound.Shell/Rebound.Shell.csproj",
+        "src/platforms/management/Rebound.ManagementConsole/Rebound.ManagementConsole.csproj",
         "src/system/Rebound.Hub/Rebound.Hub.csproj",
         "src/system/Rebound.ServiceHost/Rebound.ServiceHost.csproj",
         "eng/distribution/standalone/Rebound.Uninstaller/Rebound.Uninstaller.csproj",
@@ -157,8 +159,10 @@ try {
     
     $manifestFiles = @(
         "src/apps/Rebound.About/Package.appxmanifest",
-        "src/apps/Rebound.UserAccountControlSettings/Package.appxmanifest",
+        "src/apps/Rebound.Cleanup/Package.appxmanifest",
+        "src/apps/Rebound.ControlPanel/Package.appxmanifest",
         "src/platforms/shell/Rebound.Shell/Package.appxmanifest",
+        "src/platforms/management/Rebound.ManagementConsole/Package.appxmanifest",
         "src/system/Rebound.Hub/Package.appxmanifest"
     )
 

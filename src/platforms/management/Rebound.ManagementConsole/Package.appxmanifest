@@ -9,14 +9,14 @@
   IgnorableNamespaces="uap rescap virtualization">
 
 	<Identity
-	  Name="Rebound.ControlPanel"
+	  Name="Rebound.ManagementConsole"
 	  Publisher="CN=Ivirius Community"
 	  Version="0.0.10.7" />
 
 	<mp:PhoneIdentity PhoneProductId="6be5c1d5-5262-4a91-ad84-5203ad52917e" PhonePublisherId="00000000-0000-0000-0000-000000000000"/>
 
 	<Properties>
-		<DisplayName>Rebound Control Panel</DisplayName>
+		<DisplayName>Rebound Management Console</DisplayName>
 		<PublisherDisplayName>Ivirius Community</PublisherDisplayName>
 		<Logo>Assets\Package\StoreLogo.png</Logo>
 		<virtualization:FileSystemWriteVirtualization>
@@ -40,8 +40,8 @@
 		  Executable="$targetnametoken$.exe"
 		  EntryPoint="$targetentrypoint$">
 			<uap:VisualElements
-			  DisplayName="Rebound Control Panel"
-			  Description="Rebound Control Panel"
+			  DisplayName="Rebound Management Console"
+			  Description="Rebound Management Console"
 			  BackgroundColor="transparent"
 			  Square150x150Logo="Assets\Package\Square150x150Logo.png"
 			  Square44x44Logo="Assets\Package\Square44x44Logo.png">
@@ -50,7 +50,7 @@
 			</uap:VisualElements>
 			<Extensions>
 				<uap:Extension Category="windows.protocol">
-					<uap:Protocol Name="rebound-controlpanel"/>
+					<uap:Protocol Name="rebound-managementconsole"/>
 				</uap:Extension>
 			</Extensions>
 		</Application>

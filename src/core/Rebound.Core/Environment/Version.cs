@@ -8,5 +8,5 @@ public static partial class Variables
     /// <summary>
     /// Represents the current version identifier for Rebound as a whole.
     /// </summary>
-    public static string ReboundVersion { get; } = "v0.0.10.6 Pipeline Test";
+    public static string ReboundVersion { get; } = "v0.0.10.7 Control Panel Test";
 }

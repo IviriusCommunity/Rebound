@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 
 <Package
   xmlns="http://schemas.microsoft.com/appx/manifest/foundation/windows10"
@@ -10,7 +10,7 @@
   <Identity
     Name="Rebound.Cleanup"
     Publisher="CN=Ivirius"
-    Version="0.0.10.6" />
+    Version="0.0.10.7" />
 
   <mp:PhoneIdentity PhoneProductId="e8dfd11c-954d-46a2-b700-9cbc6201f056" PhonePublisherId="00000000-0000-0000-0000-000000000000"/>
 
