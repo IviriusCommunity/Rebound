@@ -19,6 +19,7 @@
             x:Key="BoolToInverseVisibilityConverter"
             FalseValue="Visible"
             TrueValue="Collapsed" />
+        <converters:BoolNegationConverter x:Key="BoolNegationConverter" />
         <rconverters:StringToUriConverter x:Key="StringToUriConverter" />
         <Style x:Key="DisabledButtonStyle" TargetType="Button">
             <Setter Property="Background" Value="{ThemeResource ButtonBackground}" />
@@ -217,7 +218,10 @@
                                     <FontIcon Glyph="&#xE72C;" />
                                 </MenuFlyoutItem.Icon>
                             </MenuFlyoutItem>
-                            <MenuFlyoutItem Command="{x:Bind GoHomeCommand}" Text="Home">
+                            <MenuFlyoutItem
+                                Command="{x:Bind GoHomeCommand}"
+                                IsEnabled="{x:Bind IsOnHomePage, Mode=OneWay, Converter={StaticResource BoolNegationConverter}}"
+                                Text="Home">
                                 <MenuFlyoutItem.Icon>
                                     <FontIcon Glyph="&#xE80F;" />
                                 </MenuFlyoutItem.Icon>
@@ -301,6 +305,8 @@
                     Background="Transparent"
                     BorderBrush="Transparent"
                     Command="{x:Bind GoHomeCommand}"
+                    IsEnabled="{x:Bind IsOnHomePage, Mode=OneWay, Converter={StaticResource BoolNegationConverter}}"
+                    Style="{StaticResource DisabledButtonStyle}"
                     ToolTipService.ToolTip="Home"
                     Visibility="{x:Bind ViewModel.CollapseLeftItems, Mode=OneWay, Converter={StaticResource BoolToInverseVisibilityConverter}}">
                     <animations:Implicit.ShowAnimations>

@@ -35,6 +35,8 @@ internal sealed partial class RootPage : Page
 
     [GeneratedDependencyProperty] public partial CornerRadius FrameCornerRadius { get; set; }
 
+    [GeneratedDependencyProperty] public partial bool IsOnHomePage { get; set; }
+
     private RootViewModel ViewModel { get; set; }
 
     public RootPage()
@@ -195,6 +197,8 @@ internal sealed partial class RootPage : Page
             Path.Combine(AppContext.BaseDirectory, "Assets", "ControlPanel.ico") :
             Path.Combine(AppContext.BaseDirectory, item?.PageOpenIconPath ?? "Assets\\ControlPanel.ico"));
         App.MainWindow?.Title = $"{item?.Name} - Control Panel";
+
+        IsOnHomePage = e.SourcePageType == typeof(HomePage);
 
         ViewModel.CanGoBack = RootFrame.CanGoBack;
         ViewModel.CanGoForward = RootFrame.CanGoForward;
