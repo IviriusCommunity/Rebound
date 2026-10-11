@@ -277,7 +277,7 @@ public partial class App : Application
             if (WindowManager.PersistenceStorage?.TryGetValue("Rebound.Cleanup.MainWindow", out _) != true)
             {
                 MainWindow.Width = 400;
-                MainWindow.Height = 600;
+                MainWindow.Height = 640;
             }
 
             // Spawn the window

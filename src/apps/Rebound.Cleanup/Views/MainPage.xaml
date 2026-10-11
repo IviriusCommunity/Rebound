@@ -15,6 +15,7 @@
     xmlns:winuiex="using:WinUIEx"
     mc:Ignorable="d">
     <Page.Resources>
+        <converters:DoubleToVisibilityConverter x:Key="ZeroToVsibilityConverter" GreaterThan="0" />
         <converters:FileSizeToFriendlyStringConverter x:Key="FileSizeToFriendlyStringConverter" />
         <converters:BoolNegationConverter x:Key="BoolNegationConverter" />
         <converters:BoolToObjectConverter
@@ -234,7 +235,7 @@
                                 <ListView.ItemTemplate>
                                     <DataTemplate x:DataType="items:CleanItem">
                                         <Grid
-                                            Margin="0,6"
+                                            Margin="0,10"
                                             ColumnSpacing="8"
                                             ToolTipService.ToolTip="{x:Bind Description, Mode=OneWay}">
                                             <Grid.ColumnDefinitions>
@@ -374,13 +375,29 @@
                                     </DataTemplate>
                                 </ComboBox.ItemTemplate>
                             </ComboBox>
-                            <InfoBar
-                                Title="Hover over an item for its description."
+                            <Grid
                                 Grid.Row="1"
-                                MaxWidth="800"
                                 Margin="24,0"
-                                IsClosable="False"
-                                IsOpen="True" />
+                                Padding="12,8"
+                                Background="{ThemeResource SystemFillColorAttentionBackgroundBrush}"
+                                BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                                BorderThickness="1"
+                                ColumnSpacing="8"
+                                CornerRadius="4">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto" />
+                                    <ColumnDefinition Width="Auto" />
+                                </Grid.ColumnDefinitions>
+                                <FontIcon
+                                    FontSize="16"
+                                    Foreground="{ThemeResource SystemFillColorAttentionBrush}"
+                                    Glyph="&#xF167;" />
+                                <TextBlock
+                                    Grid.Column="1"
+                                    VerticalAlignment="Center"
+                                    FontSize="12"
+                                    Text="Hover over an item for its description." />
+                            </Grid>
                             <Grid
                                 Grid.Row="2"
                                 MaxWidth="800"
@@ -481,7 +498,8 @@
                                 Grid.Row="5"
                                 MaxWidth="800"
                                 Margin="24,0"
-                                Spacing="8">
+                                Spacing="8"
+                                Visibility="{x:Bind ViewModel.CurrentProgress, Mode=OneWay, Converter={StaticResource ZeroToVsibilityConverter}}">
                                 <TextBlock Text="{x:Bind ViewModel.CurrentOperation, Mode=OneWay}" />
                                 <ProgressBar Maximum="{x:Bind ViewModel.MaxProgress, Mode=OneWay}" Value="{x:Bind ViewModel.CurrentProgress, Mode=OneWay}" />
                                 <TextBlock
