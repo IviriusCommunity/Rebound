@@ -644,7 +644,8 @@ internal partial class MainViewModel : ObservableObject
                     "ms-appx:///Assets/CleanupItems/Downloads.ico",
                     "Default location for files downloaded from the internet or transferred from other devices.",
                     "DOWNLOADS",
-                    downloadsPath).ConfigureAwait(false);
+                    downloadsPath,
+                    false).ConfigureAwait(false);
 
                 // --------------------
                 // DirectX Shader Cache
