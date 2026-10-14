@@ -1,41 +1,34 @@
 ﻿// Copyright (C) Ivirius(TM) Community 2020 - 2026. All Rights Reserved.
 // Licensed under the MIT License.
 
-using Rebound.Core;
+using Microsoft.UI.Dispatching;
+using Microsoft.UI.Xaml;
 using Rebound.Core.DLLInjection;
-using Rebound.Core.Helpers;
 using Rebound.Core.IPC;
-using Rebound.Core.Native.Helpers;
-using Rebound.Forge;
-using Rebound.Forge.Cogs;
+using Rebound.Core.UI;
 using Rebound.Forge.Engines;
-using Rebound.Generators;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Threading;
-using System.Threading.Tasks;
 using TerraFX.Interop.Windows;
-using Windows.System;
-using Windows.UI.Xaml;
-using Windows.UI.Xaml.Controls;
-using Windows.Win32;
-using Windows.Win32.System.Shutdown;
 
 namespace Rebound.ServiceHost;
 
-[ReboundApp("Rebound.ServiceHost", "")]
 public partial class App : Application
 {
+    public App()
+    {
+        InitializeComponent();
+    }
+
     private static PipeHost? PipeServer;
 
-    private void OnSingleInstanceLaunched(object sender, SingleInstanceLaunchEventArgs e) => UIThreadQueue.QueueAction(async () =>
+    private void OnSingleInstanceLaunched(object sender, SingleInstanceLaunchEventArgs e) => DispatcherQueue.GetForCurrentThread().TryEnqueue(async () =>
     {
         if (e.IsFirstLaunch)
         {
-            WindowList.KeepAlive = true;
-
             // Since some processes like task manager are heavily locked down to prevent malicious injection,
             // it's required to enable SeDebugPrivilege to allow injection inside those processes.
             _ = DLLInjectionAPI.TryEnableSeDebugPrivilege(out _);
@@ -66,9 +59,6 @@ public partial class App : Application
                         Name = $"Process Monitor for {dllInjectionDefinition.dllName}"
                     };
                     monitorThread.Start();
-
-                    // Keep message loop running for hooks
-                    NativeMessageLoop();
                 })
                 {
                     IsBackground = true,
@@ -95,34 +85,6 @@ public partial class App : Application
         else Process.GetCurrentProcess().Kill();
     });
 
-    private static readonly SHUTDOWN_REASON[] MajorReasons =
-    [
-        SHUTDOWN_REASON.SHTDN_REASON_MAJOR_OTHER,
-        SHUTDOWN_REASON.SHTDN_REASON_MAJOR_HARDWARE,
-        SHUTDOWN_REASON.SHTDN_REASON_MAJOR_OPERATINGSYSTEM,
-        SHUTDOWN_REASON.SHTDN_REASON_MAJOR_HARDWARE,
-        SHUTDOWN_REASON.SHTDN_REASON_MAJOR_POWER,
-        SHUTDOWN_REASON.SHTDN_REASON_MAJOR_SYSTEM
-    ];
-
-    private static readonly SHUTDOWN_REASON[] MinorReasons =
-    [
-        SHUTDOWN_REASON.SHTDN_REASON_MINOR_OTHER,
-        SHUTDOWN_REASON.SHTDN_REASON_MINOR_MAINTENANCE,
-        SHUTDOWN_REASON.SHTDN_REASON_MINOR_INSTALLATION,
-        SHUTDOWN_REASON.SHTDN_REASON_MINOR_HARDWARE_DRIVER,
-        SHUTDOWN_REASON.SHTDN_REASON_MINOR_POWER_SUPPLY,
-        SHUTDOWN_REASON.SHTDN_REASON_MINOR_BLUESCREEN
-    ];
-
-    private static readonly SHUTDOWN_REASON[] Flags =
-    [
-        SHUTDOWN_REASON.SHTDN_REASON_FLAG_PLANNED,
-        0x00000000, // Unplanned
-        SHUTDOWN_REASON.SHTDN_REASON_FLAG_USER_DEFINED,
-        SHUTDOWN_REASON.SHTDN_REASON_FLAG_DIRTY_UI
-    ];
-
     private async void PipeServer_MessageReceived(PipeConnection connection, string arg)
     {
         if (string.IsNullOrEmpty(arg))
@@ -144,23 +106,6 @@ public partial class App : Application
         {
             RunShutdownCommand("/r /t 0");
         }
-        else if (arg.StartsWith("Shell::ShutdownServer#", StringComparison.InvariantCultureIgnoreCase))
-        {
-            var parts = arg["Shell::ShutdownServer#".Length..].ToCharArray();
-
-            if (parts.Length >= 2 &&
-                int.TryParse(parts[0].ToString(), out var reasonIndex) &&
-                int.TryParse(parts[1].ToString(), out var modeIndex))
-            {
-                // Clamp to array length just to be safe
-                reasonIndex = Math.Clamp(reasonIndex, 0, MajorReasons.Length - 1);
-                modeIndex = Math.Clamp(modeIndex, 0, Flags.Length - 1);
-
-                var reasonCode = MajorReasons[reasonIndex] | MinorReasons[reasonIndex] | Flags[modeIndex];
-
-                RunShutdownCommand("/s /t 0", reasonCode);
-            }
-        }
         else if (arg.StartsWith("Shell::BringWindowToFront#", StringComparison.InvariantCultureIgnoreCase))
         {
             var raw = arg["Shell::BringWindowToFront#".Length..];
@@ -170,7 +115,7 @@ public partial class App : Application
                 if (nint.TryParse(raw, out var handle))
                 {
                     var hWnd = new HWND((void*)handle);
-                    WindowHelper.ForceBringToFront(hWnd);
+                    //WindowHelper.ForceBringToFront(hWnd);
                 }
             }
         }
@@ -191,9 +136,9 @@ public partial class App : Application
         return;
     }
 
-    private static unsafe void RunShutdownCommand(string args, SHUTDOWN_REASON reason) => _ = PInvoke.InitiateSystemShutdownEx(
+    /*private static unsafe void RunShutdownCommand(string args, SHUTDOWN_REASON reason) => _ = PInvoke.InitiateSystemShutdownEx(
             null, new((nint)"Shutdown initiated via broker".ToPointer()),
-            0, true, args.Contains("/r", StringComparison.InvariantCultureIgnoreCase), reason);
+            0, true, args.Contains("/r", StringComparison.InvariantCultureIgnoreCase), reason);*/
 
     private static void RunShutdownCommand(string arguments)
     {
@@ -212,16 +157,6 @@ public partial class App : Application
         {
             // Log or handle error here if needed
             Debug.WriteLine($"Failed to execute shutdown command: {ex.Message}");
-        }
-    }
-
-    private static void NativeMessageLoop()
-    {
-        while (true)
-        {
-            _ = PInvoke.GetMessage(out var msg, Windows.Win32.Foundation.HWND.Null, 0, 0);
-            _ = PInvoke.TranslateMessage(msg);
-            _ = PInvoke.DispatchMessage(msg);
         }
     }
 }
