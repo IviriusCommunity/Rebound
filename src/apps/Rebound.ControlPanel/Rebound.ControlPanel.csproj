@@ -24,7 +24,6 @@
 		<DefaultLanguage>en-US</DefaultLanguage>
 		<ApplicationIcon>Assets\ControlPanel.ico</ApplicationIcon>
 		<ApplicationManifest>app.manifest</ApplicationManifest>
-		<RootNamespace>Rebound.ControlPanel</RootNamespace>
 
 		<!-- Targets -->
 		<TargetFramework>net10.0-windows10.0.26100.0</TargetFramework>

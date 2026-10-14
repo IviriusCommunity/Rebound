@@ -24,7 +24,6 @@
 		<DefaultLanguage>en-US</DefaultLanguage>
 		<ApplicationIcon>Assets\AboutWindows.ico</ApplicationIcon>
 		<ApplicationManifest>app.manifest</ApplicationManifest>
-		<RootNamespace>Rebound.About</RootNamespace>
 
 		<!-- Targets -->
 		<TargetFramework>net10.0-windows10.0.26100.0</TargetFramework>
