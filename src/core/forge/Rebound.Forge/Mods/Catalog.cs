@@ -405,13 +405,6 @@ public partial class Catalog : ObservableObject
                                     Path.Combine(AppContext.BaseDirectory, "Modding", "Packages", "Rebound.About.msixbundle"),
                                     "Rebound.About_rcz2tbwv5qzb8")
                             },
-                            new IFEOCog()
-                            {
-                                CogName = "Rebound About IFEOCog",
-                                CogId = new("20a581d1-19dc-4c9e-9123-4d3f49dede97"),
-                                OriginalExecutableName = "winver.exe",
-                                LauncherPath = Variables.ReboundLauncherPath
-                            },
                             new LauncherAssociationCog()
                             {
                                 CogName = "Rebound About Launcher Association",

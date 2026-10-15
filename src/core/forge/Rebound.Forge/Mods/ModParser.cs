@@ -221,14 +221,6 @@ public static class ModParser
                     RequiresElevation = GetBool(cogElem, "RequiresElevation")
                 },
 
-                "IFEOCog" => new IFEOCog
-                {
-                    CogId = cogId,
-                    CogName = cogName,
-                    OriginalExecutableName = GetString(cogElem, "OriginalExecutableName", path),
-                    LauncherPath = GetString(cogElem, "LauncherPath", path)
-                },
-
                 "LauncherAssociationCog" => new LauncherAssociationCog
                 {
                     CogId = cogId,
