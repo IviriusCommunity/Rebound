@@ -29,6 +29,14 @@ public static partial class Variables
                      "Rebound");
 
     /// <summary>
+    /// Represents the full path to Rebound's program associations folder within the current user's profile directory.
+    /// </summary>
+    /// <remarks>This folder holds program association configuration files for associating executables with
+    /// a redirection application.</remarks>
+    public static readonly string ReboundProgramAssociationsFolder =
+        Path.Combine(ReboundDataFolder, "Program Associations");
+
+    /// <summary>
     /// Represents the full path to the temporary log file used by the application.
     /// </summary>
     /// <remarks>The log file is located in the 'Temp' subdirectory within the application's data folder. This
