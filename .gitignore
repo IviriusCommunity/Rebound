@@ -404,3 +404,5 @@ FodyWeavers.xsd
 /src/system/Rebound.ServiceHost/Hooks/Rebound.Forge.Hooks.Start.dll
 /src/system/Rebound.ServiceHost/Hooks/Rebound.Forge.Hooks.ActionCenter.dll
 /src/system/Rebound.ServiceHost/Hooks/Rebound.Forge.Hooks.AltTab.dll
+/src/core/forge/hooks/Rebound.Forge.Hooks.About/build
+/src/core/forge/hooks/Rebound.Forge.Hooks.Run/build
