@@ -1,42 +1,66 @@
-# ℹ️ Rebound About
+<!-- Title -->
+<h1 align="center">
+  <span style="display:inline-block; vertical-align:middle;">
+    <img width="32" height="32" alt="AppIcon" src="https://raw.githubusercontent.com/IviriusCommunity/Rebound/refs/heads/main/src/apps/Rebound.About/Assets/AboutWindows.ico" />
+  </span>
+  <span style="display:inline-block; vertical-align:middle;">
+    <strong>Rebound About</strong>
+  </span>
+</h1>
 
-Replacement for: **About Windows (winver)**
+<p align="center">
+  A modern WinUI replacement for the classic Windows <code>winver</code> utility.
+</p>
 
 ## Overview
 
-**Rebound About** is a modern replacement for *winver* (About Windows), built with WinUI to match the Windows 11 design language. It replicates the core functionality of the original dialog and introduces improvements, including copyable Windows version information, support for custom banners, system specifications, user information, and additional version details for Rebound itself.
+**Rebound About** is a modern take on Windows' classic *About Windows* dialog, designed for Rebound. Built with WinUI, it preserves the original purpose of `winver` while providing a more detailed view of your operating system, hardware, and Rebound installation.
 
 ## Features
 
-* **Original winver**
-	* Windows version information
-	* Microsoft license terms
-	* License owners
-* **Rebound About**
-	* Windows version information
-	* Rebound version information
-	* Computer specs
-	* User information
-	* Microsoft license terms
-	* License owners
-	* Expanded view
-	* Activation info
+### Compact layout
 
-### Rebound version information
-You can view the currently installed Rebound version here.
+<p align="center">
+  <img width="413" alt="Rebound About compact layout in light theme" src="https://github.com/user-attachments/assets/f51aacb5-3321-49e6-b903-3fb3c107549c" />
+</p>
 
-### Computer specs
-You can visualize computer specs such as CPU, GPU, memory (normal view) + Storage (expanded view).
+Get a quick overview of your system, including:
 
-### User information
-User information will be shown in the form of either a greeting at the bottom (normal view) or an informational card (expanded view).
+- Windows version and edition
+- Windows installation date and activation status
+- Computer name
+- CPU, GPU, and installed RAM
+- Current Rebound version
 
-### Expanded view
-Resize the window to a larger size to see the expanded layout. **This option cannot be turned off.**
+The hardware cards and Rebound version information can be independently toggled in Rebound Hub settings.
 
-### Activation info
-See whether your current Windows installation is activated with a valid key or not.
+### Expanded layout
 
-## Screenshots
-<img width="1919" height="1150" alt="Light mode" src="https://github.com/user-attachments/assets/8a413d02-1cff-4542-b956-92ce0733d105" />
-<img width="1919" height="1151" alt="Dark mode" src="https://github.com/user-attachments/assets/b841636a-f368-4cda-8658-6816f3b5d210" />
+<p align="center">
+  <img width="1440" alt="Rebound About expanded system information layout" src="https://github.com/user-attachments/assets/927c664d-e4bd-46d1-9bb0-f81aa68fed76" />
+</p>
+
+Explore a more detailed collection of system information, including:
+
+- Local IP address and device details
+- Motherboard and hardware model information
+- System accent colors and gradients
+- Live resource usage
+- Additional Windows and Rebound version details
+
+The expanded layout is designed to provide all the information you would need to grab quickly without digging through menus.
+
+## Light and dark themes
+
+Rebound About supports both light and dark appearances.
+
+| Light theme | Dark theme |
+|:---:|:---:|
+| <img width="413" alt="Compact layout in light theme" src="https://github.com/user-attachments/assets/f51aacb5-3321-49e6-b903-3fb3c107549c" /> | <img width="423" alt="Compact layout in dark theme" src="https://github.com/user-attachments/assets/860f894b-0c38-4121-b203-39263a4dbed3" /> |
+| <img width="1440" alt="Expanded layout in light theme" src="https://github.com/user-attachments/assets/927c664d-e4bd-46d1-9bb0-f81aa68fed76" /> | <img width="1440" alt="Expanded layout in dark theme" src="https://github.com/user-attachments/assets/a1301e35-3f1b-40a1-820c-1cd3c870f913" /> |
+
+## Legacy compatibility
+
+Need the original Windows dialog? Select the pizza button in the bottom-right corner, next to **OK**, to launch the original `winver` utility.
+
+The legacy launch option remains available even when Rebound is not installed.
