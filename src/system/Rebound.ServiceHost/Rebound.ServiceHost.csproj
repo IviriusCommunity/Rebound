@@ -142,11 +142,6 @@
 		<Content Update="Assets\**\*">
 			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
 		</Content>
-		<Content Include="Strings\**\*.resw">
-			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-			<SubType>Designer</SubType>
-		</Content>
-		<Folder Include="Hooks\" />
 	  <Content Remove="Assets\Rebound.ico" />
 	</ItemGroup>
 

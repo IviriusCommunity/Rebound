@@ -3,161 +3,292 @@
 
 using Microsoft.UI.Dispatching;
 using Microsoft.UI.Xaml;
+using Microsoft.UI.Xaml.Controls;
+using Rebound.Core;
 using Rebound.Core.DLLInjection;
+using Rebound.Core.DLLInjection.Structure;
 using Rebound.Core.IPC;
-using Rebound.Core.UI;
-using Rebound.Forge.Engines;
+using Rebound.Core.UI.Windowing;
 using System;
-using System.Collections.Generic;
-using System.Diagnostics;
+using System.Collections.Concurrent;
 using System.IO;
 using System.Threading;
-using TerraFX.Interop.Windows;
+using System.Threading.Tasks;
+using WinUIEx;
 
 namespace Rebound.ServiceHost;
 
 public partial class App : Application
 {
+    private static PipeHost? PipeServer;
+    private static FileSystemWatcher? DllWatcher;
+
+    private static readonly string CloneDirectory =
+        Path.Combine(Path.GetTempPath(), "Rebound", "InjectedDLLs");
+
+    private static readonly ConcurrentDictionary<string, SemaphoreSlim>
+        FileLocks = new(StringComparer.OrdinalIgnoreCase);
+
+    // Track active injectors per DLL path to manage them if needed
+    private static readonly ConcurrentDictionary<string, DLLInjector>
+        ActiveInjectors = new(StringComparer.OrdinalIgnoreCase);
+
     public App()
     {
         InitializeComponent();
+
+        DLLInjectionAPI.TryEnableSeDebugPrivilege(out _);
+
+        Directory.CreateDirectory(Variables.ReboundInjectedDLLsFolder);
+        Directory.CreateDirectory(CloneDirectory);
+
+        PipeServer = new PipeHost(
+            "REBOUND_DLL_INJECTION",
+            AccessLevel.Everyone);
+        PipeServer.MessageReceived += PipeServer_MessageReceived;
+
+        StartDllMonitoring();
+
+        _ = StartPipeServerAsync();
+
+        while (true)
+        {
+            Thread.Sleep(1000);
+        }
     }
 
-    private static PipeHost? PipeServer;
-
-    private void OnSingleInstanceLaunched(object sender, SingleInstanceLaunchEventArgs e) => DispatcherQueue.GetForCurrentThread().TryEnqueue(async () =>
+    private async void PipeServer_MessageReceived(PipeConnection arg1, string arg2)
     {
-        if (e.IsFirstLaunch)
+        if (arg2.StartsWith("DIALOG:", StringComparison.InvariantCultureIgnoreCase))
         {
-            // Since some processes like task manager are heavily locked down to prevent malicious injection,
-            // it's required to enable SeDebugPrivilege to allow injection inside those processes.
-            _ = DLLInjectionAPI.TryEnableSeDebugPrivilege(out _);
+            string trimmed = arg2.Substring(7);
+            var title = trimmed.Split("\\lnbrk\\")[0];
+            var content = trimmed.Split("\\lnbrk\\")[1];
 
-            List<(string dllName, List<string> targetProcesses)> dllInjectionDefinitions =
-            [
-                //("Rebound.Forge.Hooks.ActionCenter.dll", ["explorer.exe"]),
-                ("Rebound.Forge.Hooks.AltTab.dll", ["explorer.exe"]),
-                ("Rebound.Forge.Hooks.Run.dll", ["taskmgr.exe", "procexp.exe", "explorer.exe"]),
-                ("Rebound.Forge.Hooks.ShutdownWindow.dll", ["explorer.exe"]),
-                ("Rebound.Forge.Hooks.Start.dll", ["explorer.exe"]),
-            ];
-
-            foreach (var dllInjectionDefinition in dllInjectionDefinitions)
-            {
-                // Hook thread
-                var hookThread = new Thread(() =>
-                {
-                    string dllPath = Path.Combine(AppContext.BaseDirectory, "Hooks", dllInjectionDefinition.dllName);
-                    var monitorThread = new Thread(() =>
-                    {
-                        var injector = new DLLInjector(dllPath);
-                        injector.TargetProcesses.AddRange(dllInjectionDefinition.targetProcesses);
-                        injector.StartInjection();
-                    })
-                    {
-                        IsBackground = true,
-                        Name = $"Process Monitor for {dllInjectionDefinition.dllName}"
-                    };
-                    monitorThread.Start();
-                })
-                {
-                    IsBackground = true,
-                    Name = $"DLL Injector Thread for {dllInjectionDefinition.dllName}"
-                };
-                hookThread.SetApartmentState(ApartmentState.STA);
-                hookThread.Start();
-            }
-
-            // Pipe server thread
-            var pipeThread = new Thread(async () =>
-            {
-                PipeServer = new("REBOUND_SERVICE_HOST", AccessLevel.Everyone);
-                PipeServer.MessageReceived += PipeServer_MessageReceived;
-                await PipeServer.StartAsync().ConfigureAwait(false);
-            })
-            {
-                IsBackground = true,
-                Name = "Pipe Server Thread"
-            };
-            pipeThread.SetApartmentState(ApartmentState.STA);
-            pipeThread.Start();
+            var dialog = await ReboundDialog.ShowAsync(title, content, null, "Close", ContentDialogButton.None).ConfigureAwait(false);
         }
-        else Process.GetCurrentProcess().Kill();
-    });
-
-    private async void PipeServer_MessageReceived(PipeConnection connection, string arg)
-    {
-        if (string.IsNullOrEmpty(arg))
-            return;
-
-        if (arg == "Shell::RestartToUEFI")
-        {
-            RunShutdownCommand("/r /fw /t 0");
-        }
-        else if (arg == "Shell::RestartToRecovery")
-        {
-            RunShutdownCommand("/r /o /t 0");
-        }
-        else if (arg == "Shell::Shutdown")
-        {
-            RunShutdownCommand("/s /t 0");
-        }
-        else if (arg == "Shell::Restart")
-        {
-            RunShutdownCommand("/r /t 0");
-        }
-        else if (arg.StartsWith("Shell::BringWindowToFront#", StringComparison.InvariantCultureIgnoreCase))
-        {
-            var raw = arg["Shell::BringWindowToFront#".Length..];
-            
-            unsafe
-            {
-                if (nint.TryParse(raw, out var handle))
-                {
-                    var hWnd = new HWND((void*)handle);
-                    //WindowHelper.ForceBringToFront(hWnd);
-                }
-            }
-        }
-
-        else if (arg.StartsWith("IFEOEngine::Pause#", StringComparison.InvariantCultureIgnoreCase))
-        {
-            var part = arg["IFEOEngine::Pause#".Length..];
-
-            await IFEOEngine.PauseIFEOEntryAsync(part);
-        }
-        else if (arg.StartsWith("IFEOEngine::Resume#", StringComparison.InvariantCultureIgnoreCase))
-        {
-            var part = arg["IFEOEngine::Resume#".Length..];
-
-            await IFEOEngine.ResumeIFEOEntryAsync(part);
-        }
-
-        return;
     }
 
-    /*private static unsafe void RunShutdownCommand(string args, SHUTDOWN_REASON reason) => _ = PInvoke.InitiateSystemShutdownEx(
-            null, new((nint)"Shutdown initiated via broker".ToPointer()),
-            0, true, args.Contains("/r", StringComparison.InvariantCultureIgnoreCase), reason);*/
-
-    private static void RunShutdownCommand(string arguments)
+    private static async Task StartPipeServerAsync()
     {
-        var psi = new ProcessStartInfo
-        {
-            FileName = "shutdown.exe",
-            Arguments = arguments,
-            UseShellExecute = true,
-            CreateNoWindow = true
-        };
         try
         {
-            _ = Process.Start(psi);
+            await PipeServer!.StartAsync().ConfigureAwait(false);
         }
         catch (Exception ex)
         {
-            // Log or handle error here if needed
-            Debug.WriteLine($"Failed to execute shutdown command: {ex.Message}");
+            ReboundLogger.WriteToLog("DLL injection",
+                $"Pipe server failed: {ex}",
+            LogMessageSeverity.Error);
         }
     }
-}
 
+    private static void StartDllMonitoring()
+    {
+        ReboundLogger.WriteToLog("DLL injection",
+            $"aaaaa",
+            LogMessageSeverity.Error);
+
+        DllWatcher = new FileSystemWatcher(Variables.ReboundInjectedDLLsFolder)
+        {
+            Filter = "*.dll",
+            IncludeSubdirectories = false,
+            NotifyFilter =
+                NotifyFilters.FileName |
+                NotifyFilters.LastWrite |
+                NotifyFilters.Size,
+            EnableRaisingEvents = false
+        };
+
+        DllWatcher.Created += OnDllCreatedOrChanged;
+        DllWatcher.Changed += OnDllCreatedOrChanged;
+        DllWatcher.Renamed += OnDllRenamed;
+        DllWatcher.Deleted += OnDllDeleted;
+        DllWatcher.Error += OnWatcherError;
+
+        // Reconcile existing files before enabling event notifications.
+        foreach (string file in Directory.EnumerateFiles(
+                     Variables.ReboundInjectedDLLsFolder, "*.dll"))
+        {
+            _ = CloneAndInjectDllAsync(file); // Updated to handle cloning + injection
+        }
+
+        DllWatcher.EnableRaisingEvents = true;
+    }
+
+    private static void OnDllCreatedOrChanged(
+        object sender, FileSystemEventArgs e)
+    {
+        _ = CloneAndInjectDllAsync(e.FullPath);
+    }
+
+    private static void OnDllRenamed(
+        object sender, RenamedEventArgs e)
+    {
+        RemoveCloneAndNotify(e.OldFullPath);
+        _ = CloneAndInjectDllAsync(e.FullPath);
+    }
+
+    private static void OnDllDeleted(
+        object sender, FileSystemEventArgs e)
+    {
+        RemoveCloneAndNotify(e.FullPath);
+    }
+
+    private static async Task CloneAndInjectDllAsync(string originalPath)
+    {
+        string fullPath = Path.GetFullPath(originalPath);
+
+        SemaphoreSlim fileLock = FileLocks.GetOrAdd(
+            fullPath, _ => new SemaphoreSlim(1, 1));
+
+        await fileLock.WaitAsync().ConfigureAwait(false);
+
+        try
+        {
+            if (!File.Exists(fullPath))
+                return;
+
+            string fileName = Path.GetFileName(fullPath);
+            string clonePath = Path.Combine(CloneDirectory, fileName);
+
+            // Retry briefly while another process finishes writing the file.
+            for (int attempt = 0; attempt < 10; attempt++)
+            {
+                try
+                {
+                    await Task.Delay(200).ConfigureAwait(false);
+
+                    if (!File.Exists(fullPath))
+                        return;
+
+                    using (var source = new FileStream(
+                               fullPath, FileMode.Open, FileAccess.Read,
+                               FileShare.ReadWrite | FileShare.Delete))
+                    using (var destination = new FileStream(
+                               clonePath, FileMode.Create, FileAccess.Write,
+                               FileShare.None))
+                    {
+                        await source.CopyToAsync(destination)
+                            .ConfigureAwait(false);
+                    }
+
+                    // --- INTEGRATED DLL INJECTOR FUNCTION CALL ---
+                    // Once safely cloned, start the injection process using the clone path.
+                    StartInjectorForDll(clonePath, fullPath + "meta");
+                    return;
+                }
+                catch (IOException) when (attempt < 9)
+                {
+                    await Task.Delay(300).ConfigureAwait(false);
+                }
+            }
+
+            ReboundLogger.WriteToLog("DLL injection",
+                $"Could not clone DLL: {fullPath}",
+            LogMessageSeverity.Error);
+        }
+        catch (Exception ex)
+        {
+            ReboundLogger.WriteToLog("DLL injection",
+                $"DLL clone failed: {ex}",
+            LogMessageSeverity.Error);
+        }
+        finally
+        {
+            fileLock.Release();
+        }
+    }
+
+    /// <summary>
+    /// Initializes and starts the DLLInjector for a given cloned DLL path.
+    /// </summary>
+    private static void StartInjectorForDll(string clonePath, string dllMetaPath)
+    {
+        // Avoid starting duplicate injectors for the exact same file path
+        var injector = ActiveInjectors.GetOrAdd(clonePath, path =>
+        {
+            ReboundLogger.WriteToLog("DLL injection", dllMetaPath,
+            LogMessageSeverity.Error);
+
+            var newInjector = new DLLInjector(path);
+
+            var meta = DllMeta.TryParse(File.ReadAllText(dllMetaPath));
+            foreach (var proc in meta.TargetProcesses)
+                newInjector.TargetProcesses.Add(proc);
+            foreach (var proc in meta.ExcludedProcesses)
+                newInjector.ExcludedProcesses.Add(proc);
+
+            ReboundLogger.WriteToLog("DLL injection", string.Join(";", meta.TargetProcesses),
+            LogMessageSeverity.Error);
+            return newInjector;
+        });
+
+        try
+        {
+            // Call StartInjection from the provided snippet
+            injector.StartInjection();
+            ReboundLogger.WriteToLog("DLL injection", $"Started injection monitoring for: {clonePath}",
+            LogMessageSeverity.Error);
+        }
+        catch (Exception ex)
+        {
+            ReboundLogger.WriteToLog("DLL injection",
+                $"Injector start failed for { clonePath}: { ex}",
+            LogMessageSeverity.Error);
+        }
+    }
+
+    private static void RemoveCloneAndNotify(string originalPath)
+    {
+        string fileName = Path.GetFileName(originalPath);
+        string clonePath = Path.Combine(CloneDirectory, fileName);
+
+        // Remove from tracking dictionary if present
+        if (ActiveInjectors.TryRemove(clonePath, out var injector))
+            injector.StopInjection();
+
+        try
+        {
+            if (File.Exists(clonePath))
+                File.Delete(clonePath);
+        }
+        catch (IOException ex)
+        {
+            ReboundLogger.WriteToLog("DLL injection",
+                $"Could not delete clone {clonePath}: {ex.Message}",
+            LogMessageSeverity.Error);
+        }
+        catch (UnauthorizedAccessException ex)
+        {
+            ReboundLogger.WriteToLog("DLL injection",
+                $"Access denied deleting clone {clonePath}: {ex.Message}",
+            LogMessageSeverity.Error);
+        }
+
+        try
+        {
+            PipeServer?.Broadcast($"UNINJECT {fileName}");
+        }
+        catch (Exception ex)
+        {
+            ReboundLogger.WriteToLog("DLL injection",
+                $"UNINJECT broadcast failed: {ex}",
+            LogMessageSeverity.Error);
+        }
+    }
+
+    private static void OnWatcherError(
+        object sender, ErrorEventArgs e)
+    {
+        ReboundLogger.WriteToLog("DLL injection",
+        $"DLL watcher error: {e.GetException()}",
+            LogMessageSeverity.Error);
+    }
+
+    private void Win_Closed(object sender, WindowEventArgs args)
+    {
+        PipeServer?.Broadcast(
+            "UNINJECT Rebound.Forge.Hooks.Run.dll");
+    }
+}

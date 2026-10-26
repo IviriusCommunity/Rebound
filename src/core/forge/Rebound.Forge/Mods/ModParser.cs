@@ -199,7 +199,8 @@ public static class ModParser
                     CogName = cogName,
                     DLLPathx64 = GetString(cogElem, "DLLPathx64", path),
                     DLLPathARM64 = GetString(cogElem, "DLLPathARM64", path),
-                    TargetProcesses = GetStringList(cogElem, "TargetProcesses", "Process")
+                    TargetProcesses = GetStringList(cogElem, "TargetProcesses", "Process"),
+                    ExcludedProcesses = GetStringList(cogElem, "ExcludedProcesses", "Process")
                 },
 
                 "FileCopyCog" => new FileCopyCog

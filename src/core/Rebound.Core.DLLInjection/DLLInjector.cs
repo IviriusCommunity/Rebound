@@ -1,101 +1,234 @@
 ﻿// Copyright (C) Ivirius(TM) Community 2020 - 2026. All Rights Reserved.
 // Licensed under the MIT License.
 
-using Rebound.Core.Native.Wrappers;
+using Microsoft.Win32.SafeHandles;
 using System.Collections.Concurrent;
+using System.Collections.ObjectModel;
 using System.Diagnostics;
+using System.Globalization;
 using System.Runtime.InteropServices;
-using TerraFX.Interop.Windows;
+using System.Text;
+using Windows.Win32;
+using Windows.Win32.Foundation;
+using Windows.Win32.Security;
+using Windows.Win32.System.Diagnostics.ToolHelp;
+using Windows.Win32.System.Memory;
+using Windows.Win32.System.ProcessStatus;
+using Windows.Win32.System.Threading;
 
 #pragma warning disable CA1031 // Do not catch general exception types
+#pragma warning disable CS0436 // Type conflicts with imported type
 
 namespace Rebound.Core.DLLInjection;
 
-public class DLLInjector
+/// <summary>
+/// Initializes a new instance of the DLLInjector class with the specified DLL file path.
+/// </summary>
+/// <param name="dllPath">The full path to the DLL file to be injected. Must not be null or empty.</param>
+public class DLLInjector(string dllPath) : IDisposable
 {
-    string _dllPath;
+    readonly string _dllPath = dllPath;
+    readonly Lock _gate = new();
+    CancellationTokenSource? _cts;
 
     /// <summary>
     /// Contains the names of processes that are targeted for monitoring or interaction.
     /// </summary>
     /// <remarks>Add process names to this list to specify which processes should be included in the
-    /// operation. The list is initialized as empty and can be modified at runtime.
+    /// operation. Use "*" to target all processes. The list is initialized as empty and can be modified at runtime.
     /// If the list is left empty, all processes will be targeted.</remarks>
-    public List<string> TargetProcesses { get; set; } = [];
+    public Collection<string> TargetProcesses { get; } = [];
 
     /// <summary>
-    /// Initializes a new instance of the DLLInjector class with the specified DLL file path.
+    /// Contains the names of processes that are excluded from injection.
     /// </summary>
-    /// <param name="dllPath">The full path to the DLL file to be injected. Must not be null or empty.</param>
-    public DLLInjector(string dllPath) => _dllPath = dllPath;
+    /// <remarks>Add process names to this list to specify which processes should be excluded from injection.
+    /// The list is initialized as empty and can be modified at runtime.
+    /// If the list is left empty, no processes will be excluded.</remarks>
+    public Collection<string> ExcludedProcesses { get; } = [];
 
     /// <summary>
     /// Starts the DLL injection process for existing and newly launched target processes.
+    /// Calling this more than once is harmless.
     /// </summary>
-    /// <remarks>This method initiates injection into all currently running target processes and begins
-    /// monitoring for new processes to inject as they start. The monitoring runs asynchronously and continues until the
-    /// application is terminated. Ensure that the DLL path and target process list are correctly configured before
-    /// calling this method.</remarks>
     public void StartInjection()
     {
-        Debug.WriteLine($"[DLLInjector] Starting injection process...");
-        Debug.WriteLine($"[DLLInjector] Target processes: {(TargetProcesses.Count > 0 ? string.Join(", ", TargetProcesses) : "ALL")}");
+        CancellationToken token;
 
-        DLLInjectionAPI.InjectIntoExistingProcesses(_dllPath, TargetProcesses);
-        Task.Run(() => DLLInjectionAPI.MonitorNewProcessesLoop(_dllPath, TargetProcesses));
+        lock (_gate)
+        {
+            if (_cts is not null)
+                return;
 
-        Debug.WriteLine($"[DLLInjector] Injection monitoring started");
+            _cts = new CancellationTokenSource();
+            token = _cts.Token;
+        }
+
+        // The monitor loop's first pass covers processes that already exist.
+        _ = Task.Factory.StartNew(
+            () => DLLInjectionAPI.MonitorNewProcessesLoop(
+                _dllPath, 
+                TargetProcesses, 
+                ExcludedProcesses, 
+                100, 
+                token),
+            token,
+            TaskCreationOptions.LongRunning,
+            TaskScheduler.Default);
+    }
+
+    /// <summary>
+    /// Stops monitoring for new processes for this DLL.
+    /// </summary>
+    public void StopInjection()
+    {
+        CancellationTokenSource? cts;
+
+        lock (_gate)
+        {
+            cts = _cts;
+            _cts = null;
+        }
+
+        // Not disposed on purpose: the monitor loop may still be observing the token.
+        cts?.Cancel();
+    }
+
+    public void Dispose()
+    {
+        Dispose(true);
+        GC.SuppressFinalize(this);
+    }
+
+    protected virtual void Dispose(bool disposing)
+    {
+        if (disposing)
+        {
+            _cts?.Dispose();
+            _cts = null;
+        }
     }
 }
 
-
 public static class DLLInjectionAPI
 {
-    private static ConcurrentDictionary<(int pid, string dllPath), int> InjectedProcessDlls = new();
-    private static readonly SemaphoreSlim InjectionSemaphore = new(4);
-    private static readonly HashSet<string> ExcludedProcesses = new(StringComparer.OrdinalIgnoreCase)
+    private enum InjectResult
     {
-        "csrss.exe","winlogon.exe","smss.exe","lsass.exe","dwm.exe","services.exe",
-        "Rebound.Shell.exe","Rebound.ServiceHost.exe"
-    };
+        Success,
+        AlreadyLoaded,
+        Retry,
+        Skip,
+        Exited
+    }
+
+    // One claim per (process, DLL), so the initial scan, the monitor loop and
+    // retry workers can never inject the same process twice.
+    private static readonly ConcurrentDictionary<(uint pid, string dllPath), byte> InjectionClaims = new();
+
+    // One live monitor per DLL (not one for the whole process).
+    private static readonly ConcurrentDictionary<string, byte> ActiveMonitors = new(StringComparer.OrdinalIgnoreCase);
+
+    private static readonly SemaphoreSlim InjectionSemaphore = new(8);
+
+    private static readonly HashSet<string> DefaultExcludedProcesses =
+    [
+        with(StringComparer.OrdinalIgnoreCase),
+        "csrss.exe", "winlogon.exe", "smss.exe", "lsass.exe", "dwm.exe", "services.exe",
+        Path.GetFileName(System.Environment.ProcessPath ?? "Rebound.ServiceHost.exe")
+    ];
+
+    private readonly record struct ProcessEntry(int Pid, string ExeName);
+
+    #region Target / exclusion helpers
+
+    private static HashSet<string> BuildExclusionSet(IEnumerable<string>? userExcludedProcesses)
+    {
+        var exclusions = new HashSet<string>(DefaultExcludedProcesses, StringComparer.OrdinalIgnoreCase);
+        if (userExcludedProcesses != null)
+        {
+            foreach (var proc in userExcludedProcesses)
+            {
+                if (string.IsNullOrWhiteSpace(proc)) continue;
+                var trimmed = proc.Trim();
+                if (!trimmed.EndsWith(".exe", StringComparison.OrdinalIgnoreCase))
+                    trimmed += ".exe";
+                exclusions.Add(trimmed);
+            }
+        }
+        return exclusions;
+    }
+
+    private static HashSet<string>? NormalizeTargets(IEnumerable<string>? targetProcesses)
+    {
+        if (targetProcesses == null)
+            return null;
+
+        HashSet<string>? normalized = null;
+
+        foreach (var t in targetProcesses)
+        {
+            if (string.IsNullOrWhiteSpace(t)) continue;
+
+            normalized ??= [with(StringComparer.OrdinalIgnoreCase)];
+
+            var n = t.Trim();
+            if (n == "*")
+            {
+                normalized.Add("*");
+                break;
+            }
+            if (n.EndsWith(".exe", StringComparison.OrdinalIgnoreCase))
+                n = n[..^4];
+            normalized.Add(n);
+        }
+
+        return normalized;
+    }
+
+    private static bool IsTargetProcess(string processName, HashSet<string>? normalizedTargets)
+    {
+        // If targets are null, empty, or contain "*", everything matches.
+        if (normalizedTargets == null || normalizedTargets.Count == 0 || normalizedTargets.Contains("*"))
+            return true;
+
+        if (string.IsNullOrEmpty(processName))
+            return false;
+
+        var cleanName = processName;
+        if (cleanName.EndsWith(".exe", StringComparison.OrdinalIgnoreCase))
+            cleanName = cleanName[..^4];
+
+        return normalizedTargets.Contains(cleanName) || normalizedTargets.Contains(processName);
+    }
+
+    #endregion
 
     /// <summary>
-    /// Attempts to enable the SeDebugPrivilege for the current process, allowing it to debug and access protected
-    /// system processes.
+    /// Attempts to enable the SeDebugPrivilege for the current process.
     /// </summary>
-    /// <remarks>Enabling SeDebugPrivilege may require administrative rights. This method does not throw
-    /// exceptions; instead, any error encountered is returned in the <paramref name="error"/> parameter. If the
-    /// privilege is already enabled, the method will still return true. Use this method before attempting operations
-    /// that require elevated debugging privileges on Windows.</remarks>
-    /// <param name="error">When the method returns <see langword="false"/>, contains a description of the error that occurred; otherwise,
-    /// <see langword="null"/>.</param>
-    /// <returns>true if the SeDebugPrivilege was successfully enabled for the current process; otherwise, false.</returns>
     public static unsafe bool TryEnableSeDebugPrivilege(out string? error)
     {
-        Debug.WriteLine("[Privilege] Attempting to enable SeDebugPrivilege...");
         error = null;
-        HANDLE processToken;
-        LUID luid;
 
         try
         {
-            if (!TerraFX.Interop.Windows.Windows.OpenProcessToken(
-                new((void*)Process.GetCurrentProcess().Handle),
-                0x0020 | 0x0008,
-                &processToken))
+            // The Process object owns its handle; it must not be wrapped in a second owning handle.
+            using var self = Process.GetCurrentProcess();
+
+            if (!PInvoke.OpenProcessToken(
+                self.SafeHandle,
+                TOKEN_ACCESS_MASK.TOKEN_ADJUST_PRIVILEGES | TOKEN_ACCESS_MASK.TOKEN_QUERY,
+                out var processToken))
             {
                 error = $"OpenProcessToken failed: {Marshal.GetLastWin32Error()}";
-                Debug.WriteLine($"[Privilege] ERROR: {error}");
                 return false;
             }
 
             try
             {
-                using ManagedPtr<char> seDebugName = SE.SE_DEBUG_NAME;
-                if (!TerraFX.Interop.Windows.Windows.LookupPrivilegeValue(null, seDebugName, &luid))
+                if (!PInvoke.LookupPrivilegeValue(null, "SeDebugPrivilege", out var luid))
                 {
                     error = $"LookupPrivilegeValue failed: {Marshal.GetLastWin32Error()}";
-                    Debug.WriteLine($"[Privilege] ERROR: {error}");
                     return false;
                 }
 
@@ -107,15 +240,14 @@ public static class DLLInjectionAPI
                         e0 = new()
                         {
                             Luid = luid,
-                            Attributes = SE.SE_PRIVILEGE_ENABLED
+                            Attributes = TOKEN_PRIVILEGES_ATTRIBUTES.SE_PRIVILEGE_ENABLED
                         }
                     }
                 };
 
-                if (!TerraFX.Interop.Windows.Windows.AdjustTokenPrivileges(processToken, false, &tp, 0, null, null))
+                if (!PInvoke.AdjustTokenPrivileges(processToken, false, &tp))
                 {
                     error = $"AdjustTokenPrivileges failed: {Marshal.GetLastWin32Error()}";
-                    Debug.WriteLine($"[Privilege] ERROR: {error}");
                     return false;
                 }
 
@@ -123,653 +255,590 @@ public static class DLLInjectionAPI
                 if (last != 0)
                 {
                     error = $"AdjustTokenPrivileges succeeded but returned last error {last}";
-                    Debug.WriteLine($"[Privilege] WARNING: {error}");
                     return false;
                 }
 
-                Debug.WriteLine("[Privilege] Successfully enabled SeDebugPrivilege");
                 return true;
             }
             finally
             {
-                _ = TerraFX.Interop.Windows.Windows.CloseHandle(processToken);
+                processToken.Close();
             }
         }
         catch (Exception ex)
         {
             error = ex.Message;
-            Debug.WriteLine($"[Privilege] EXCEPTION: {ex.Message}");
             return false;
         }
     }
 
+    #region Scanning and monitoring
+
     /// <summary>
-    /// Attempts to asynchronously inject a DLL into the specified process if it meets eligibility criteria and has not
-    /// already been injected.
+    /// Cheap process list (one Toolhelp snapshot, no Process objects).
     /// </summary>
-    /// <remarks>The method performs several checks before attempting injection, including process state,
-    /// session ID, exclusion lists, and required permissions. If the process is ineligible or injection fails, the
-    /// method returns without throwing an exception. Injection is skipped for 32-bit processes on 64-bit operating
-    /// systems. The method is thread-safe and prevents concurrent injection attempts for the same process.</remarks>
-    /// <param name="proc">The target <see cref="System.Diagnostics.Process"/> instance into which the DLL will be injected. Must not be
-    /// null and must reference a running process.</param>
-    /// <param name="injectTimeoutMs">The maximum time, in milliseconds, to wait for the injection operation to complete. Defaults to 10,000
-    /// milliseconds.</param>
-    /// <returns>A task that represents the asynchronous injection operation. The task completes when the injection attempt
-    /// finishes, regardless of success or failure.</returns>
-    public static async Task InjectIntoProcessAsync(Process proc, string dllPath, int injectTimeoutMs = 10_000)
+    private static unsafe List<ProcessEntry> EnumerateProcesses()
     {
-        if (proc == null)
-        {
-            Debug.WriteLine("[Inject] Process is null, skipping");
-            return;
-        }
-
-        int pid = proc.Id;
-        var key = (pid, dllPath);
-
+        var ret = new List<ProcessEntry>();
+        HANDLE snap = HANDLE.Null;
         try
         {
-            if (InjectedProcessDlls.ContainsKey(key))
-            {
-                Debug.WriteLine($"[Inject] PID {pid} with DLL {dllPath} already injected, skipping");
-                return;
-            }
+            snap = PInvoke.CreateToolhelp32Snapshot(CREATE_TOOLHELP_SNAPSHOT_FLAGS.TH32CS_SNAPPROCESS, 0);
 
-            proc.Refresh();
-            if (proc.HasExited)
-            {
-                Debug.WriteLine($"[Inject] PID {pid} has exited, skipping");
-                return;
-            }
+            if ((nint)snap is 0 or -1)
+                return ret;
 
-            if (ExcludedProcesses.Contains(proc.ProcessName + ".exe"))
-            {
-                Debug.WriteLine($"[Inject] PID {pid} ({proc.ProcessName}) is excluded, skipping");
-                return;
-            }
+            var pe = new PROCESSENTRY32W { dwSize = (uint)sizeof(PROCESSENTRY32W) };
 
-            if (proc.SessionId == 0)
-            {
-                Debug.WriteLine($"[Inject] PID {pid} ({proc.ProcessName}) is in session 0 (system process), skipping");
-                return;
-            }
+            if (!PInvoke.Process32FirstW(snap, &pe))
+                return ret;
 
-            if (!CanOpenProcess(pid))
-            {
-                Debug.WriteLine($"[Inject] Cannot open PID {pid} ({proc.ProcessName}), insufficient permissions");
-                return;
-            }
-
-            if (!InjectedProcessDlls.TryAdd(key, 2))
-            {
-                Debug.WriteLine($"[Inject] PID {pid} with DLL {dllPath} injection already in progress, skipping");
-                return;
-            }
-
-            Debug.WriteLine($"[Inject] Starting injection of DLL '{Path.GetFileName(dllPath)}' into PID {pid} ({proc.ProcessName})...");
-
-            using var cts = new CancellationTokenSource(injectTimeoutMs);
-            try
-            {
-                await InjectionSemaphore.WaitAsync(cts.Token).ConfigureAwait(false);
-            }
-            catch (OperationCanceledException)
-            {
-                InjectedProcessDlls.TryRemove(key, out _);
-                Debug.WriteLine($"[Inject] Timed out waiting for semaphore slot for PID {pid} with DLL '{Path.GetFileName(dllPath)}'");
-                return;
-            }
-
-            try
-            {
-                proc.Refresh();
-                if (proc.HasExited)
-                {
-                    InjectedProcessDlls.TryRemove(key, out _);
-                    Debug.WriteLine($"[Inject] PID {pid} exited while waiting for semaphore");
-                    return;
-                }
-
-                if (Environment.Is64BitOperatingSystem)
-                {
-                    try
-                    {
-                        BOOL isWow64 = false;
-                        unsafe
-                        {
-#pragma warning disable CS9123
-                            _ = TerraFX.Interop.Windows.Windows.IsWow64Process(new((void*)proc.Handle), &isWow64);
-#pragma warning restore CS9123
-                        }
-                        if (isWow64)
-                        {
-                            InjectedProcessDlls.TryRemove(key, out _);
-                            Debug.WriteLine($"[Inject] PID {pid} is 32-bit on 64-bit OS, skipping");
-                            return;
-                        }
-                    }
-                    catch (Exception ex)
-                    {
-                        Debug.WriteLine($"[Inject] Wow64 check warning for PID {pid}: {ex.Message}");
-                    }
-                }
-
-                var injectTask = Task.Run(() =>
-                {
-                    try
-                    {
-                        return Inject((uint)pid, dllPath, (uint)injectTimeoutMs);
-                    }
-                    catch (Exception e)
-                    {
-                        Debug.WriteLine($"[Inject] Injector threw exception for PID {pid}: {e.Message}");
-                        return false;
-                    }
-                }, cts.Token);
-
-                var finished = await Task.WhenAny(injectTask, Task.Delay(injectTimeoutMs, cts.Token)).ConfigureAwait(false);
-                if (finished != injectTask)
-                {
-                    InjectedProcessDlls.TryRemove(key, out _);
-                    Debug.WriteLine($"[Inject] Injection timed out for PID {pid} with DLL '{Path.GetFileName(dllPath)}'");
-                    return;
-                }
-
-                bool success = false;
-                try
-                {
-                    success = await injectTask.ConfigureAwait(false);
-                }
-                catch (Exception e)
-                {
-                    Debug.WriteLine($"[Inject] Injection fault for PID {pid}: {e.Message}");
-                }
-
-                if (success)
-                {
-                    InjectedProcessDlls[key] = 0;
-                    Debug.WriteLine($"[Inject] ✓ Successfully injected DLL '{Path.GetFileName(dllPath)}' into PID {pid} ({proc.ProcessName})");
-                }
-                else
-                {
-                    InjectedProcessDlls.TryRemove(key, out _);
-                    Debug.WriteLine($"[Inject] ✗ Injection failed for PID {pid} ({proc.ProcessName}) with DLL '{Path.GetFileName(dllPath)}'");
-                }
-            }
-            finally
-            {
-                InjectionSemaphore.Release();
-            }
+            do ret.Add(new ProcessEntry((int)pe.th32ProcessID, pe.szExeFile.ToString()));
+            while (PInvoke.Process32NextW(snap, &pe));
         }
-        catch (Exception ex)
+        finally
         {
-            Debug.WriteLine($"[Inject] InjectIntoProcessAsync error for PID {pid}: {ex.Message}");
-            InjectedProcessDlls.TryRemove(key, out _);
+            if (snap != HANDLE.Null)
+                _ = PInvoke.CloseHandle(snap);
+        }
+        return ret;
+    }
+
+    private static void ReleaseClaims(int pid)
+    {
+        foreach (var key in InjectionClaims.Keys)
+            if (key.pid == pid)
+                InjectionClaims.TryRemove(key, out _);
+    }
+
+    /// <summary>
+    /// One pass over the process list. Every process not seen before gets its own retrying worker.
+    /// </summary>
+    private static void ScanOnce(
+        string dllPath,
+        HashSet<string>? targets,
+        HashSet<string> exclusions,
+        Dictionary<int, string> tracked,
+        bool discoveredAfterStart,
+        CancellationToken ct)
+    {
+        var snapshot = EnumerateProcesses();
+        var alive = new HashSet<int>(snapshot.Count);
+
+        foreach (var entry in snapshot)
+            alive.Add(entry.Pid);
+
+        // Forget processes that are gone so a recycled PID is treated as a new process.
+        foreach (var pid in tracked.Keys.Where(p => !alive.Contains(p)).ToList())
+        {
+            tracked.Remove(pid);
+            InjectionClaims.TryRemove(((uint)pid, dllPath), out _);
+        }
+
+        foreach (var entry in snapshot)
+        {
+            if (entry.Pid <= 4 || entry.Pid == System.Environment.ProcessId)
+                continue;
+
+            if (tracked.ContainsKey(entry.Pid))
+                continue;
+
+            tracked[entry.Pid] = entry.ExeName;
+
+            if (exclusions.Contains(entry.ExeName) || !IsTargetProcess(entry.ExeName, targets))
+                continue;
+
+            int capturedPid = entry.Pid;
+            string capturedName = entry.ExeName;
+
+            _ = Task.Run(
+                () => InjectWithRetryAsync((uint)capturedPid, capturedName, dllPath, discoveredAfterStart, ct),
+                ct);
         }
     }
 
     /// <summary>
     /// Initiates DLL injection into all currently running processes using the specified DLL path.
     /// </summary>
-    /// <remarks>Injection is performed asynchronously for each process to avoid blocking the main thread and
-    /// to minimize the impact of processes with DLL injection security. This method does not guarantee successful
-    /// injection into every process; processes with elevated security or insufficient permissions may prevent
-    /// injection. Exceptions encountered during injection are logged for diagnostic purposes.</remarks>
-    /// <param name="dllPath">The full file path to the DLL to be injected into each process. Must refer to a valid, accessible DLL file.</param>
-    public static void InjectIntoExistingProcesses(string dllPath, List<string>? targetProcesses)
+    public static void InjectIntoExistingProcesses(string dllPath, Collection<string>? targetProcesses, Collection<string>? excludedProcesses)
     {
-        var procs = Process.GetProcesses();
-        Debug.WriteLine($"[Scan] Scanning {procs.Length} processes...");
-
-        HashSet<string>? normalizedTargets = null;
-
-        if (targetProcesses != null && targetProcesses.Count > 0)
-        {
-            normalizedTargets = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
-            foreach (var t in targetProcesses)
-            {
-                if (string.IsNullOrWhiteSpace(t)) continue;
-                var n = t.Trim();
-                if (n.EndsWith(".exe", StringComparison.OrdinalIgnoreCase))
-                    n = n.Substring(0, n.Length - 4);
-                normalizedTargets.Add(n);
-            }
-            Debug.WriteLine($"[Scan] Targeting specific processes: {string.Join(", ", normalizedTargets)}");
-        }
-        else
-        {
-            Debug.WriteLine("[Scan] No target filter specified - will attempt injection into all eligible processes");
-        }
-
-        List<Process> filteredProcs;
-        if (normalizedTargets != null)
-        {
-            filteredProcs = new List<Process>();
-            foreach (var proc in procs)
-            {
-                try
-                {
-                    if (normalizedTargets.Contains(proc.ProcessName ?? string.Empty))
-                    {
-                        filteredProcs.Add(proc);
-                    }
-                }
-                catch
-                {
-                    // Ignore processes that can't be accessed
-                }
-            }
-            Debug.WriteLine($"[Scan] Filtered to {filteredProcs.Count} target processes");
-        }
-        else
-        {
-            filteredProcs = new List<Process>(procs);
-        }
-
-        foreach (var p in filteredProcs)
-        {
-            var capture = p;
-            Task.Run(() =>
-                InjectIntoProcessAsync(capture, dllPath).ContinueWith(t =>
-                {
-                    if (t.Exception != null)
-                        Debug.WriteLine($"[Scan] Task exception: {t.Exception.Flatten().InnerException?.Message}");
-                },
-                TaskScheduler.Default));
-        }
+        ScanOnce(
+            dllPath,
+            NormalizeTargets(targetProcesses),
+            BuildExclusionSet(excludedProcesses),
+            [],
+            discoveredAfterStart: false,
+            CancellationToken.None);
     }
 
-    // Monitor new processes using CreateToolhelp32Snapshot; trim-friendly and fast when polled frequently
-    private static volatile bool _monitorRunning;
-
     /// <summary>
-    /// Continuously monitors for newly started processes and injects the specified DLL into each eligible process as
-    /// they are detected.
+    /// Continuously monitors for newly started processes and injects the specified DLL.
+    /// The first pass also covers processes that already exist.
     /// </summary>
-    /// <remarks>This method runs an infinite loop and should be executed on a background thread to avoid
-    /// blocking the main application. It skips processes that have already been injected or previously observed. The
-    /// method is not thread-safe and should not be called concurrently. Errors encountered during process enumeration
-    /// or injection are logged and do not stop the monitoring loop.</remarks>
-    /// <param name="dllPath">The full path to the DLL file to inject into new processes. Must not be null or empty.</param>
-    /// <param name="pollMs">The interval, in milliseconds, between each scan for new processes. Must be greater than zero. The default is
-    /// 200 milliseconds.</param>
-    public static void MonitorNewProcessesLoop(string dllPath, List<string> targetProcesses, int pollMs = 200)
+    public static void MonitorNewProcessesLoop(
+        string dllPath,
+        Collection<string> targetProcesses,
+        Collection<string> excludedProcesses,
+        int pollMs = 100,
+        CancellationToken cancellationToken = default)
     {
-        if (_monitorRunning)
+        if (!ActiveMonitors.TryAdd(dllPath, 0))
         {
-            Debug.WriteLine("[Monitor] Already running, skipping start.");
+            ReboundLogger.WriteToLog(
+                "DLL injection monitor",
+                $"Already monitoring for '{Path.GetFileName(dllPath)}', skipping start.",
+                LogMessageSeverity.Message);
             return;
         }
 
-        _monitorRunning = true;
-        Debug.WriteLine("[Monitor] Starting Toolhelp-based process monitor...");
-
-        HashSet<string> normalizedTargets = null;
-        if (targetProcesses != null && targetProcesses.Count > 0)
-        {
-            normalizedTargets = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
-            foreach (var t in targetProcesses)
-            {
-                if (string.IsNullOrWhiteSpace(t)) continue;
-                var n = t.Trim();
-                if (n.EndsWith(".exe", StringComparison.OrdinalIgnoreCase))
-                    n = n.Substring(0, n.Length - 4);
-                normalizedTargets.Add(n);
-            }
-            Debug.WriteLine($"[Monitor] Tracking targets: {string.Join(", ", normalizedTargets)}");
-        }
-        else
-        {
-            Debug.WriteLine("[Monitor] No specific target processes specified, injecting into all.");
-        }
-
-        var seen = new HashSet<int>();
-        while (true)
-        {
-            try
-            {
-                var pids = EnumerateProcessIds();
-
-                foreach (var pid in pids)
-                {
-                    // Skip if this pid with this dllPath was already injected
-                    if (InjectedProcessDlls.ContainsKey((pid, dllPath)))
-                    {
-                        seen.Add(pid);
-                        continue;
-                    }
-                    if (seen.Contains(pid))
-                        continue;
-
-                    try
-                    {
-                        var proc = Process.GetProcessById(pid);
-                        if (proc.HasExited)
-                        {
-                            Debug.WriteLine($"[Monitor] Process {pid} has exited.");
-                            seen.Add(pid);
-                            continue;
-                        }
-
-                        if (normalizedTargets != null)
-                        {
-                            var procName = proc.ProcessName ?? string.Empty;
-                            if (!normalizedTargets.Contains(procName))
-                            {
-                                seen.Add(pid);
-                                continue;
-                            }
-                        }
-
-                        Debug.WriteLine($"[Monitor] Attempting injection of DLL '{Path.GetFileName(dllPath)}' into process {pid} ({proc.ProcessName})...");
-                        Task.Run(() => InjectIntoProcessAsync(proc, dllPath));
-                    }
-                    catch (Exception ex)
-                    {
-                        Debug.WriteLine($"[Monitor] Exception handling process {pid}: {ex.Message}");
-                    }
-                    finally
-                    {
-                        seen.Add(pid);
-                    }
-                }
-
-                // Cleanup dead process+DLL injection entries
-                var toRemove = new List<(int pid, string dll)>();
-                foreach (var kvp in InjectedProcessDlls)
-                {
-                    int pid = kvp.Key.pid;
-                    try
-                    {
-                        var p = Process.GetProcessById(pid);
-                        if (p.HasExited) toRemove.Add(kvp.Key);
-                    }
-                    catch
-                    {
-                        toRemove.Add(kvp.Key);
-                    }
-                }
-                foreach (var key in toRemove)
-                {
-                    Debug.WriteLine($"[Monitor] Cleaning up dead injected PID+DLL: {key.pid} + {Path.GetFileName(key.dll)}");
-                    InjectedProcessDlls.TryRemove(key, out _);
-                }
-            }
-            catch (Exception ex)
-            {
-                Debug.WriteLine($"[Monitor] Monitor loop error: {ex.Message}");
-            }
-            Thread.Sleep(pollMs);
-        }
-    }
-
-    /// <summary>
-    /// Retrieves a list of process identifiers (PIDs) for all processes currently running on the system.
-    /// </summary>
-    /// <remarks>This method uses the Windows Toolhelp API to enumerate processes. The returned list may not
-    /// include processes that start or terminate during enumeration. This method requires appropriate permissions to
-    /// access process information.</remarks>
-    /// <returns>A list of integers containing the process IDs of all active processes. The list will be empty if no processes
-    /// are found or if the snapshot cannot be created.</returns>
-    private static unsafe List<int> EnumerateProcessIds()
-    {
-        var ret = new List<int>();
-        HANDLE snap = HANDLE.NULL;
         try
         {
-            snap = TerraFX.Interop.Windows.Windows.CreateToolhelp32Snapshot(0x00000002, 0); // TH32CS_SNAPPROCESS
+            var exclusions = BuildExclusionSet(excludedProcesses);
+            var targets = NormalizeTargets(targetProcesses);
+            var tracked = new Dictionary<int, string>();
+            bool firstPass = true;
 
-            if (snap == IntPtr.Zero || snap == new IntPtr(-1))
+            while (!cancellationToken.IsCancellationRequested)
             {
-                return ret;
+                try
+                {
+                    ScanOnce(dllPath, targets, exclusions, tracked, discoveredAfterStart: !firstPass, cancellationToken);
+                    firstPass = false;
+                }
+                catch (OperationCanceledException)
+                {
+                    break;
+                }
+                catch (Exception ex)
+                {
+                    ReboundLogger.WriteToLog(
+                        "DLL injection monitor",
+                        "Process scan failed.",
+                        LogMessageSeverity.Message,
+                        ex);
+                }
+
+                if (cancellationToken.WaitHandle.WaitOne(pollMs))
+                    break;
             }
-
-            var pe = new PROCESSENTRY32W
-            {
-                dwSize = (uint)sizeof(PROCESSENTRY32W)
-            };
-
-            if (!TerraFX.Interop.Windows.Windows.Process32FirstW(snap, &pe))
-            {
-                return ret;
-            }
-
-            do
-            {
-                ret.Add((int)pe.th32ProcessID);
-            }
-            while (TerraFX.Interop.Windows.Windows.Process32NextW(snap, &pe));
-        }
-        catch (Exception ex)
-        {
         }
         finally
         {
-            if (snap != HANDLE.NULL && snap != HANDLE.INVALID_VALUE)
-            {
-                _ = TerraFX.Interop.Windows.Windows.CloseHandle(snap);
-            }
+            ActiveMonitors.TryRemove(dllPath, out _);
+
+            foreach (var key in InjectionClaims.Keys)
+                if (string.Equals(key.dllPath, dllPath, StringComparison.OrdinalIgnoreCase))
+                    InjectionClaims.TryRemove(key, out _);
         }
-        return ret;
     }
 
-    /// <summary>
-    /// Determines whether a process with the specified process ID can be opened with all access rights.
-    /// </summary>
-    /// <remarks>This method attempts to open the process with full access rights. A return value of <see
-    /// langword="false"/> may indicate insufficient privileges, a non-existent process, or system restrictions. No
-    /// handle is retained after the check.</remarks>
-    /// <param name="pid">The identifier of the process to check. Must correspond to an existing process; otherwise, the method returns
-    /// <see langword="false"/>.</param>
-    /// <returns>Returns <see langword="true"/> if the process can be opened with all access rights; otherwise, <see
-    /// langword="false"/>.</returns>
-    public static bool CanOpenProcess(int pid)
-    {
-        var hProcess = TerraFX.Interop.Windows.Windows.OpenProcess(PROCESS_ALL_ACCESS, false, (uint)pid);
-        if (hProcess == IntPtr.Zero)
-        {
-            Debug.WriteLine($"[CanOpenProcess] Cannot open process {pid}.");
-            return false;
-        }
-        TerraFX.Interop.Windows.Windows.CloseHandle(hProcess);
-        Debug.WriteLine($"[CanOpenProcess] Can open process {pid}.");
-        return true;
-    }
+    #endregion
 
-    private const uint PROCESS_ALL_ACCESS = 0x1F0FFF;
-    private const uint MEM_COMMIT = 0x1000;
-    private const uint MEM_RESERVE = 0x2000;
-    private const uint PAGE_READWRITE = 0x04;
-    private const uint MEM_RELEASE = 0x8000;
+    #region Injection
 
     /// <summary>
-    /// Attempts to inject a DLL into a running process by creating a remote thread that loads the specified DLL.
+    /// Injects into one process, retrying while it is still starting up.
+    /// Brand-new processes get a long retry window; processes that were already running get a few tries.
     /// </summary>
-    /// <remarks>This method requires sufficient privileges to open and modify the target process. If the
-    /// operation fails due to permission issues, invalid process ID, or timeout, the method returns false. The caller
-    /// is responsible for ensuring that the DLL is compatible with the target process architecture and environment. Use
-    /// with caution, as DLL injection can have security and stability implications.</remarks>
-    /// <param name="pid">The identifier of the target process into which the DLL will be injected.</param>
-    /// <param name="dllPath">The full file system path to the DLL to be injected. Must not be null or empty.</param>
-    /// <param name="waitTimeoutMs">The maximum time, in milliseconds, to wait for the remote thread to complete the DLL injection. Must be a
-    /// non-negative value. The default is 10,000 milliseconds.</param>
-    /// <returns>true if the DLL was successfully injected into the target process; otherwise, false.</returns>
-    public static unsafe bool Inject(uint pid, string dllPath, uint waitTimeoutMs = 10_000)
+    private static async Task InjectWithRetryAsync(
+        uint pid, string exeName, string dllPath, bool isNewProcess, CancellationToken ct)
     {
-        Debug.WriteLine($"[Inject] Starting injection into PID {pid} with DLL '{dllPath}'");
-        HANDLE hProcess = HANDLE.NULL;
-        void* allocMem = null;
-        HANDLE hThread = HANDLE.NULL;
+        var key = (pid, dllPath);
+
+        if (!InjectionClaims.TryAdd(key, 0))
+            return;
+
+        int maxAttempts = isNewProcess ? 100 : 3;
+        var delay = TimeSpan.FromMilliseconds(isNewProcess ? 100 : 500);
+        string? lastReason = null;
 
         try
         {
-            try
+            for (int attempt = 1; attempt <= maxAttempts && !ct.IsCancellationRequested; attempt++)
             {
-                var proc = Process.GetProcessById((int)pid);
+                InjectResult result;
+                string? reason;
 
-                BOOL isWow64 = false;
-                TerraFX.Interop.Windows.Windows.IsWow64Process(new((void*)proc.Handle), &isWow64);
-
-                if (File.Exists(dllPath))
+                await InjectionSemaphore.WaitAsync(ct).ConfigureAwait(false);
+                try
                 {
-                    using var fs = new FileStream(dllPath, FileMode.Open, FileAccess.Read);
-                    using var reader = new BinaryReader(fs);
-
-                    fs.Seek(0x3C, SeekOrigin.Begin);
-                    int peHeaderOffset = reader.ReadInt32();
-
-                    fs.Seek(peHeaderOffset, SeekOrigin.Begin);
-                    uint peSignature = reader.ReadUInt32();
-
-                    if (peSignature == 0x00004550) // "PE\0\0"
-                    {
-                        ushort machine = reader.ReadUInt16();
-                        string architecture = machine switch
-                        {
-                            0x014c => "x86 (32-bit)",
-                            0x8664 => "x64 (64-bit)",
-                            0xAA64 => "ARM64",
-                            _ => $"Unknown (0x{machine:X4})"
-                        };
-                        Debug.WriteLine($"[Inject] DLL architecture: {architecture}, Target isWow64: {isWow64}");
-
-                        if ((machine == 0x014c && !isWow64) || (machine == 0x8664 && isWow64))
-                        {
-                            Debug.WriteLine("[Inject] Architecture mismatch, cannot inject.");
-                            return false;
-                        }
-                    }
+                    (result, reason) = TryInjectOnce(pid, dllPath, 5_000);
                 }
+                finally
+                {
+                    InjectionSemaphore.Release();
+                }
+
+                switch (result)
+                {
+                    case InjectResult.Success:
+                        ReboundLogger.WriteToLog(
+                            "DLL injection",
+                            $"Injected '{Path.GetFileName(dllPath)}' into {exeName} ({pid}) on attempt {attempt}.",
+                            LogMessageSeverity.Message);
+                        return;
+
+                    case InjectResult.AlreadyLoaded:
+                        return;
+
+                    case InjectResult.Exited:
+                        InjectionClaims.TryRemove(key, out _);
+                        return;
+
+                    case InjectResult.Skip:
+                        ReboundLogger.WriteToLog(
+                            "DLL injection",
+                            $"Skipped {exeName} ({pid}): {reason}",
+                            LogMessageSeverity.Message);
+                        return;
+                }
+
+                lastReason = reason;
+                await Task.Delay(delay, ct).ConfigureAwait(false);
             }
-            catch (Exception ex)
+
+            if (!ct.IsCancellationRequested && isNewProcess)
             {
-                Debug.WriteLine($"[Inject] Exception checking architecture: {ex.Message}");
+                ReboundLogger.WriteToLog(
+                    "DLL injection",
+                    $"Gave up on {exeName} ({pid}) after {maxAttempts} attempts: {lastReason}",
+                    LogMessageSeverity.Message);
             }
-
-            hProcess = TerraFX.Interop.Windows.Windows.OpenProcess(PROCESS_ALL_ACCESS, false, pid);
-
-            if (hProcess == IntPtr.Zero)
-            {
-                Debug.WriteLine($"[Inject] Failed to open process {pid}.");
-                return false;
-            }
-
-            var dllPathBytes = System.Text.Encoding.Unicode.GetBytes(dllPath + "\0");
-            allocMem = TerraFX.Interop.Windows.Windows.VirtualAllocEx(hProcess, null, (uint)dllPathBytes.Length, MEM_COMMIT | MEM_RESERVE, PAGE_READWRITE);
-
-            if ((nint)allocMem == IntPtr.Zero)
-            {
-                Debug.WriteLine($"[Inject] VirtualAllocEx failed for process {pid}.");
-                TerraFX.Interop.Windows.Windows.CloseHandle(hProcess);
-                return false;
-            }
-
-            bool writeSuccess;
-            fixed (byte* pBytes = dllPathBytes)
-            {
-                writeSuccess = TerraFX.Interop.Windows.Windows.WriteProcessMemory(hProcess, allocMem, pBytes, (uint)dllPathBytes.Length, null);
-            }
-
-            if (!writeSuccess)
-            {
-                Debug.WriteLine($"[Inject] WriteProcessMemory failed for process {pid}.");
-                TerraFX.Interop.Windows.Windows.VirtualFreeEx(hProcess, allocMem, 0, MEM_RELEASE);
-                TerraFX.Interop.Windows.Windows.CloseHandle(hProcess);
-                return false;
-            }
-
-            using ManagedPtr<char> kernel32 = "kernel32.dll";
-            var hKernel32 = TerraFX.Interop.Windows.Windows.GetModuleHandleW(kernel32);
-            if (hKernel32 == IntPtr.Zero)
-            {
-                Debug.WriteLine("[Inject] GetModuleHandleW failed for kernel32.dll.");
-                TerraFX.Interop.Windows.Windows.VirtualFreeEx(hProcess, allocMem, 0, MEM_RELEASE);
-                TerraFX.Interop.Windows.Windows.CloseHandle(hProcess);
-                return false;
-            }
-
-            var loadLibraryAddr = TerraFX.Interop.Windows.Windows.GetProcAddress(hKernel32, (sbyte*)Marshal.StringToHGlobalAnsi("LoadLibraryW").ToPointer());
-
-            if (loadLibraryAddr == null)
-            {
-                Debug.WriteLine("[Inject] GetProcAddress failed for LoadLibraryW.");
-                TerraFX.Interop.Windows.Windows.VirtualFreeEx(hProcess, allocMem, 0, MEM_RELEASE);
-                TerraFX.Interop.Windows.Windows.CloseHandle(hProcess);
-                return false;
-            }
-
-            var loadLibraryFunc = (delegate* unmanaged<void*, uint>)loadLibraryAddr;
-            hThread = TerraFX.Interop.Windows.Windows.CreateRemoteThread(hProcess, null, 0, loadLibraryFunc, allocMem, 0, null);
-
-            if (hThread == IntPtr.Zero)
-            {
-                Debug.WriteLine($"[Inject] CreateRemoteThread failed for process {pid}.");
-                TerraFX.Interop.Windows.Windows.VirtualFreeEx(hProcess, allocMem, 0, MEM_RELEASE);
-                TerraFX.Interop.Windows.Windows.CloseHandle(hProcess);
-                return false;
-            }
-
-            uint waitResult = TerraFX.Interop.Windows.Windows.WaitForSingleObject(hThread, waitTimeoutMs);
-
-            if (waitResult == WAIT.WAIT_TIMEOUT)
-            {
-                Debug.WriteLine($"[Inject] WaitForSingleObject timed out for process {pid}.");
-                TerraFX.Interop.Windows.Windows.VirtualFreeEx(hProcess, allocMem, 0, MEM_RELEASE);
-                TerraFX.Interop.Windows.Windows.CloseHandle(hThread);
-                TerraFX.Interop.Windows.Windows.CloseHandle(hProcess);
-                return false;
-            }
-            else if (waitResult != WAIT.WAIT_OBJECT_0)
-            {
-                Debug.WriteLine($"[Inject] WaitForSingleObject returned unexpected code {waitResult} for process {pid}.");
-                TerraFX.Interop.Windows.Windows.VirtualFreeEx(hProcess, allocMem, 0, MEM_RELEASE);
-                TerraFX.Interop.Windows.Windows.CloseHandle(hThread);
-                TerraFX.Interop.Windows.Windows.CloseHandle(hProcess);
-                return false;
-            }
-
-            uint exitCode;
-            bool getExitSuccess = TerraFX.Interop.Windows.Windows.GetExitCodeThread(hThread, &exitCode);
-
-            if (!getExitSuccess)
-            {
-                Debug.WriteLine($"[Inject] GetExitCodeThread failed for process {pid}.");
-                TerraFX.Interop.Windows.Windows.VirtualFreeEx(hProcess, allocMem, 0, MEM_RELEASE);
-                TerraFX.Interop.Windows.Windows.CloseHandle(hThread);
-                TerraFX.Interop.Windows.Windows.CloseHandle(hProcess);
-                return false;
-            }
-
-            Debug.WriteLine($"[Inject] Remote thread exit code: {exitCode}");
-
-            if (exitCode == 0)
-            {
-                Debug.WriteLine("[Inject] Remote thread exit code 0 indicates LoadLibraryW failed.");
-                TerraFX.Interop.Windows.Windows.VirtualFreeEx(hProcess, allocMem, 0, MEM_RELEASE);
-                TerraFX.Interop.Windows.Windows.CloseHandle(hThread);
-                TerraFX.Interop.Windows.Windows.CloseHandle(hProcess);
-                return false;
-            }
-
-            TerraFX.Interop.Windows.Windows.VirtualFreeEx(hProcess, allocMem, 0, MEM_RELEASE);
-            TerraFX.Interop.Windows.Windows.CloseHandle(hThread);
-            TerraFX.Interop.Windows.Windows.CloseHandle(hProcess);
-
-            Debug.WriteLine($"[Inject] Successfully injected DLL into process {pid}.");
-            return true;
+        }
+        catch (OperationCanceledException)
+        {
         }
         catch (Exception ex)
         {
-            Debug.WriteLine($"[Inject] Exception during injection: {ex.Message}");
-            if (allocMem != null && hProcess != IntPtr.Zero)
-                TerraFX.Interop.Windows.Windows.VirtualFreeEx(hProcess, allocMem, 0, MEM_RELEASE);
-            if (hThread != IntPtr.Zero)
-                TerraFX.Interop.Windows.Windows.CloseHandle(hThread);
-            if (hProcess != IntPtr.Zero)
-                TerraFX.Interop.Windows.Windows.CloseHandle(hProcess);
+            ReboundLogger.WriteToLog(
+                "DLL injection",
+                $"Injection into {exeName} ({pid}) failed with exception.",
+                LogMessageSeverity.Message,
+                ex);
+        }
+    }
 
+    /// <summary>
+    /// Attempts to asynchronously inject a DLL into the specified process.
+    /// </summary>
+    public static async Task InjectIntoProcessAsync(Process proc, string dllPath, int injectTimeoutMs = 10_000)
+    {
+        if (proc == null)
+            return;
+
+        int pid = proc.Id;
+        string exeName;
+
+        try
+        {
+            exeName = proc.ProcessName + ".exe";
+        }
+        catch
+        {
+            exeName = pid.ToString(CultureInfo.CurrentCulture);
+        }
+
+        if (DefaultExcludedProcesses.Contains(exeName))
+            return;
+
+        using var cts = new CancellationTokenSource(injectTimeoutMs);
+        await InjectWithRetryAsync((uint)pid, exeName, dllPath, isNewProcess: false, cts.Token).ConfigureAwait(false);
+    }
+
+    private static (InjectResult Result, string? Reason) TryInjectOnce(
+        uint pid, string dllPath, uint timeoutMs)
+    {
+        var raw = PInvoke.OpenProcess(
+            PROCESS_ACCESS_RIGHTS.PROCESS_CREATE_THREAD
+                | PROCESS_ACCESS_RIGHTS.PROCESS_VM_OPERATION
+                | PROCESS_ACCESS_RIGHTS.PROCESS_VM_READ
+                | PROCESS_ACCESS_RIGHTS.PROCESS_VM_WRITE
+                | PROCESS_ACCESS_RIGHTS.PROCESS_QUERY_INFORMATION,
+            false,
+            pid);
+
+        if (raw == 0)
+        {
+            int error = Marshal.GetLastWin32Error();
+            return (InjectResult.Retry, $"OpenProcess failed (error {error})");
+        }
+
+        using var hProcess = new SafeProcessHandle(raw, true);
+
+        if (!PInvoke.GetExitCodeProcess(hProcess, out var exitCode))
+        {
+            int error = Marshal.GetLastWin32Error();
+            return (InjectResult.Retry, $"GetExitCodeProcess failed (error {error})");
+        }
+
+        if (exitCode != 259) // STILL_ACTIVE;
+            return (InjectResult.Exited, null);
+
+        if (PInvoke.ProcessIdToSessionId(pid, out var sessionId))
+        {
+            if (sessionId == 0)
+                return (InjectResult.Skip, "session 0 process");
+        }
+
+        ushort targetMachine = GetTargetMachine(hProcess);
+        ushort dllMachine = ReadDllMachine(dllPath);
+
+        if (targetMachine != 0 && dllMachine != 0 &&
+            targetMachine != dllMachine)
+        {
+            string reason =
+                $"architecture mismatch (process 0x{targetMachine:X4}, DLL 0x{dllMachine:X4})";
+            return (InjectResult.Skip, reason);
+        }
+
+        var modules = TryGetModuleNames(hProcess);
+
+        if (modules is null)
+            return (InjectResult.Retry, "process module list unavailable");
+
+        if (modules.Contains(Path.GetFileName(dllPath)))
+            return (InjectResult.AlreadyLoaded, null);
+
+        if (!modules.Contains("kernel32.dll"))
+            return (InjectResult.Retry, "kernel32 is not loaded yet");
+
+        // Before injecting the desired DLL, the MinHook-Detours runtime
+        // must be injected first in order for the DLL in question to load.
+        var libPath = Path.Combine(Variables.ReboundLibsFolder,
+            RuntimeInformation.ProcessArchitecture == Architecture.X64 ? "minhook-detours.x64.Release.dll" :
+            RuntimeInformation.ProcessArchitecture == Architecture.Arm64 ? "minhook-detours.ARM64.Release.dll" : 
+            throw new NotImplementedException());
+
+        var (okLib, errorReasonLib) = InjectCore(hProcess, libPath, timeoutMs);
+
+        if (!okLib)
+            return (InjectResult.Retry, errorReasonLib);
+
+        // After injecting the required lib, inject the requested DLL itself
+        var (ok, errorReason) = InjectCore(hProcess, dllPath, timeoutMs);
+
+        return ok
+            ? (InjectResult.Success, null)
+            : (InjectResult.Retry, errorReason);
+    }
+
+    private static ushort GetTargetMachine(SafeHandle hProcess)
+    {
+        try
+        {
+            if (!PInvoke.IsWow64Process2(hProcess, out var processMachine, out var nativeMachine))
+                return 0;
+
+            // processMachine is 0 (IMAGE_FILE_MACHINE_UNKNOWN) when the process runs natively.
+            return (ushort)(processMachine != 0 ? processMachine : nativeMachine);
+        }
+        catch
+        {
+            return 0;
+        }
+    }
+
+    private static ushort ReadDllMachine(string dllPath)
+    {
+        try
+        {
+            using var fs = new FileStream(
+                dllPath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite | FileShare.Delete);
+            using var reader = new BinaryReader(fs);
+
+            fs.Seek(0x3C, SeekOrigin.Begin);
+            int peHeaderOffset = reader.ReadInt32();
+
+            fs.Seek(peHeaderOffset, SeekOrigin.Begin);
+
+            if (reader.ReadUInt32() != 0x00004550) // "PE\0\0"
+                return 0;
+
+            return reader.ReadUInt16();
+        }
+        catch
+        {
+            return 0;
+        }
+    }
+
+    /// <summary>
+    /// File names of every module loaded in the process, or null if the list
+    /// cannot be read yet (typical for a process that is still being created).
+    /// </summary>
+    private unsafe static HashSet<string>? TryGetModuleNames(SafeHandle hProcess)
+    {
+        using var handle = new SafeProcessHandle(hProcess.DangerousGetHandle(), false);
+        uint pid = PInvoke.GetProcessId(handle);
+
+        Span<nint> modules = stackalloc nint[64];
+
+        for (int pass = 0; pass < 2; pass++)
+        {
+            if (!PInvoke.EnumProcessModulesEx(
+                hProcess,
+                MemoryMarshal.AsBytes(modules),
+                out var needed,
+                ENUM_PROCESS_MODULES_EX_FLAGS.LIST_MODULES_ALL))
+            {
+                int error = Marshal.GetLastWin32Error();
+                return null;
+            }
+
+            int count = checked((int)(needed / (uint)sizeof(nint)));
+
+            if (count == 0)
+                return null;
+
+            if (count > modules.Length)
+            {
+                if (pass == 1)
+                    return null;
+
+                modules = new nint[count + 32];
+                continue;
+            }
+
+            var names = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+            char[] buffer = new char[2048];
+
+            fixed (char* pBuffer = buffer)
+            {
+                for (int i = 0; i < count; i++)
+                {
+                    uint length = PInvoke.GetModuleFileNameEx(
+                        new(hProcess.DangerousGetHandle()),
+                        (HMODULE)modules[i],
+                        new PWSTR(pBuffer),
+                        (uint)buffer.Length);
+
+                    if (length == 0)
+                        continue;
+
+                    if (length >= buffer.Length)
+                        continue;
+
+                    string fullPath = new(buffer, 0, (int)length);
+                    string name = Path.GetFileName(fullPath);
+                    names.Add(name);
+                }
+            }
+
+            return names;
+        }
+
+        return null;
+    }
+
+    private static unsafe (bool Ok, string? Error) InjectCore(
+        SafeProcessHandle hProcess, string dllPath, uint waitTimeoutMs)
+    {
+        using var kernel32 = PInvoke.GetModuleHandle("kernel32.dll");
+        nint loadLibraryW = kernel32.IsInvalid ? 0 : PInvoke.GetProcAddress(kernel32, "LoadLibraryW");
+
+        if (loadLibraryW == 0)
+            return (false, "LoadLibraryW address not found");
+
+        uint pid = PInvoke.GetProcessId(hProcess);
+
+        ReadOnlySpan<byte> dllPathBytes = Encoding.Unicode.GetBytes(dllPath + "\0");
+
+        var allocMem = PInvoke.VirtualAllocEx(
+            hProcess, null, (uint)dllPathBytes.Length,
+            VIRTUAL_ALLOCATION_TYPE.MEM_COMMIT | VIRTUAL_ALLOCATION_TYPE.MEM_RESERVE,
+            PAGE_PROTECTION_FLAGS.PAGE_READWRITE);
+
+        if ((nint)allocMem == 0)
+            return (false, "VirtualAllocEx failed");
+
+        if (!PInvoke.WriteProcessMemory(hProcess, allocMem, dllPathBytes))
+        {
+            PInvoke.VirtualFreeEx(hProcess, allocMem, 0, VIRTUAL_FREE_TYPE.MEM_RELEASE);
+            return (false, "WriteProcessMemory failed");
+        }
+
+        var loadLibraryFunc = (delegate* unmanaged[Stdcall]<void*, uint>)loadLibraryW;
+        using var hThread = PInvoke.CreateRemoteThread(hProcess, null, 0, loadLibraryFunc, allocMem, 0);
+
+        if (hThread.IsInvalid)
+        {
+            PInvoke.VirtualFreeEx(hProcess, allocMem, 0, VIRTUAL_FREE_TYPE.MEM_RELEASE);
+            return (false, "CreateRemoteThread failed");
+        }
+
+        var waitResult = PInvoke.WaitForSingleObject(hThread, waitTimeoutMs);
+
+        if (waitResult == WAIT_EVENT.WAIT_TIMEOUT)
+        {
+            // The remote thread may still be reading the path, so the buffer is
+            // deliberately NOT freed. A late success is picked up by the
+            // "already loaded" check on the next attempt.
+            return (false, "remote LoadLibraryW timed out");
+        }
+
+        if (waitResult != WAIT_EVENT.WAIT_OBJECT_0)
+        {
+            PInvoke.VirtualFreeEx(hProcess, allocMem, 0, VIRTUAL_FREE_TYPE.MEM_RELEASE);
+            return (false, $"WaitForSingleObject returned {waitResult}");
+        }
+
+        if (!PInvoke.GetExitCodeThread(hThread, out var threadExitCode))
+        {
+            var error = Marshal.GetLastWin32Error();
+            PInvoke.VirtualFreeEx(hProcess, allocMem, 0, VIRTUAL_FREE_TYPE.MEM_RELEASE);
+            return (false, $"GetExitCodeThread failed: {error}");
+        }
+
+        PInvoke.VirtualFreeEx(
+            hProcess, allocMem, 0, VIRTUAL_FREE_TYPE.MEM_RELEASE);
+
+        ReboundLogger.WriteToLog(
+            "DLL injection",
+            $"Remote LoadLibraryW completed: PID={pid}, " +
+            $"threadExitCode=0x{threadExitCode:X8}",
+            LogMessageSeverity.Message);
+
+        return threadExitCode == 0
+            ? (false, "remote LoadLibraryW returned 0")
+            : (true, null);
+    }
+
+    /// <summary>
+    /// Injects the DLL into a single process by id (single attempt, no retries).
+    /// </summary>
+    public static bool Inject(uint pid, string dllPath, uint waitTimeoutMs = 10_000)
+    {
+        try
+        {
+            var (result, _) = TryInjectOnce(pid, dllPath, waitTimeoutMs);
+            return result is InjectResult.Success or InjectResult.AlreadyLoaded;
+        }
+        catch (Exception ex)
+        {
+            ReboundLogger.WriteToLog(
+                "DLL injector",
+                "Exception during injection.",
+                LogMessageSeverity.Message,
+                ex);
             return false;
         }
     }
+
+    public static bool CanOpenProcess(int pid)
+    {
+        nint handle = PInvoke.OpenProcess(
+            PROCESS_ACCESS_RIGHTS.PROCESS_CREATE_THREAD
+            | PROCESS_ACCESS_RIGHTS.PROCESS_VM_OPERATION
+            | PROCESS_ACCESS_RIGHTS.PROCESS_VM_READ
+            | PROCESS_ACCESS_RIGHTS.PROCESS_VM_WRITE
+            | PROCESS_ACCESS_RIGHTS.PROCESS_QUERY_INFORMATION, false, (uint)pid);
+
+        if (handle == 0)
+            return false;
+
+        _ = PInvoke.CloseHandle((HANDLE)handle);
+        return true;
+    }
+
+    #endregion
 }

@@ -29,6 +29,12 @@ public static partial class Variables
                      "Rebound");
 
     /// <summary>
+    /// Contains dynamically linked libraries (DLLs) for Rebound apps to use.
+    /// </summary>
+    public static readonly string ReboundLibsFolder =
+        Path.Combine(ReboundDataFolder, "Libs");
+
+    /// <summary>
     /// Represents the full path to Rebound's program associations folder within the current user's profile directory.
     /// </summary>
     /// <remarks>This folder holds program association configuration files for associating executables with
@@ -71,10 +77,10 @@ public static partial class Variables
         Path.Combine(ReboundSharedDataFolder, "Mods");
 
     /// <summary>
-    /// Represents the full path to the DLLs folder within the application's program data directory.
+    /// Represents the full path to the DLLs folder within Rebound's data directory.
     /// </summary>
     public static readonly string ReboundInjectedDLLsFolder =
-        Path.Combine(ReboundSharedDataFolder, "DLLs");
+        Path.Combine(ReboundDataFolder, "InjectedDLLs");
 
     /// <summary>
     /// Represents the full path to the launcher associations folder within the application's program data directory.

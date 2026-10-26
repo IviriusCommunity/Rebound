@@ -7,28 +7,26 @@ namespace Rebound.Core.DLLInjection.Structure;
 /// Parsed representation of a <c>.dllmeta</c> file. Used for declaring a DLL for injection.
 /// </summary>
 /// <param name="TargetProcesses">
-/// Target processes for the DLL injection. Leave empty to target all processes.
+/// Target processes for DLL injection. Use "*" to target all processes.
 /// </param>
-/// <param name="DllHash">
-/// The DLL's hash.
+/// <param name="ExcludedProcesses">
+/// Processes to exclude from the DLL injection.
 /// </param>
-public sealed record DllMeta(
-    IReadOnlyList<string> TargetProcesses,
-    string? DllHash)
+public sealed record DllMeta(IReadOnlyList<string> TargetProcesses, IReadOnlyList<string> ExcludedProcesses)
 {
     private const string ProcessesKey = "TARGET_PROCESSES=";
-    private const string HashKey = "DLL_HASH=";
+    private const string ExcludedProcessesKey = "EXCLUDED_PROCESSES=";
 
     /// <summary>
     /// Attempts to parse the specified string into a DllMeta instance.
     /// </summary>
     /// <remarks>
-    /// The input string should contain lines starting with recognized keys for processes, hash, and
-    /// optionally signature. If the required process information is missing or cannot be parsed, the method returns
+    /// The input string should contain lines starting with recognized keys for included processes and optionally 
+    /// excluded processes. If the required process information is missing or cannot be parsed, the method returns
     /// null.
     /// </remarks>
     /// <param name="content">
-    /// The string content to parse. Must contain process, hash, and optionally signature information in the expected
+    /// The string content to parse. Must contain included process and optionally excluded processes
     /// format.
     /// </param>
     /// <returns>
@@ -36,51 +34,67 @@ public sealed record DllMeta(
     /// </returns>
     public static DllMeta? TryParse(string content)
     {
-        List<string>? processes = null;
-        string? hash = null;
+        if (string.IsNullOrWhiteSpace(content))
+            return null;
 
-        foreach (var rawLine in content?.Split(['\r', '\n'], StringSplitOptions.RemoveEmptyEntries)!)
+        List<string>? processes = null;
+        List<string>? excludedProcesses = null;
+
+        foreach (var rawLine in content.Split(
+                     ['\r', '\n'],
+                     StringSplitOptions.RemoveEmptyEntries))
         {
             var line = rawLine.Trim();
 
             if (line.StartsWith(ProcessesKey, StringComparison.OrdinalIgnoreCase))
             {
-                var value = line[ProcessesKey.Length..];
-                processes = [.. value.Split('\\', StringSplitOptions.RemoveEmptyEntries)];
+                var value = line[ProcessesKey.Length..].Trim();
+
+                processes = value == "*"
+                    ? ["*"]
+                    : [.. value.Split(';', StringSplitOptions.RemoveEmptyEntries)
+                    .Select(p => p.Trim())
+                    .Where(p => p.Length > 0)];
             }
-            else if (line.StartsWith(HashKey, StringComparison.OrdinalIgnoreCase))
+            else if (line.StartsWith(ExcludedProcessesKey, StringComparison.OrdinalIgnoreCase))
             {
-                hash = line[HashKey.Length..].Trim();
+                var value = line[ExcludedProcessesKey.Length..];
+
+                excludedProcesses = [.. value.Split(
+                    ';', StringSplitOptions.RemoveEmptyEntries)
+                .Select(p => p.Trim())
+                .Where(p => p.Length > 0)];
             }
         }
 
-        if (processes is null)
+        if (processes is null || processes.Count == 0)
             return null;
 
-        return new DllMeta(processes, hash);
+        return new DllMeta(processes, excludedProcesses ?? []);
     }
 
     /// <summary>
-    /// Serializes the current object's process and hash information into a string format, excluding any signature data.
+    /// Serializes the target and excluded process lists into the <c>.dllmeta</c> format.
     /// </summary>
     /// <remarks>
-    /// The output string includes the list of target processes separated by backslashes, followed by
-    /// the DLL hash if it is present.
+    /// Target processes are separated by semicolons. Excluded processes are included
+    /// only when the exclusion list is not empty.
     /// </remarks>
     /// <returns>
-    /// A string containing the serialized representation of the target processes and, if available, the DLL hash.
+    /// A string containing the serialized target processes and, if present, excluded processes.
     /// </returns>
     public string Serialize()
     {
         var sb = new System.Text.StringBuilder();
         sb.Append(ProcessesKey);
-        sb.AppendJoin('\\', TargetProcesses);
+        sb.AppendJoin(';', TargetProcesses);
         sb.AppendLine();
 
-        if (DllHash is not null)
+        if (ExcludedProcesses.Count > 0)
         {
-            sb.Append(HashKey);
-            sb.AppendLine(DllHash);
+            sb.Append(ExcludedProcessesKey);
+            sb.AppendJoin(';', ExcludedProcesses);
+            sb.AppendLine();
         }
 
         return sb.ToString();
