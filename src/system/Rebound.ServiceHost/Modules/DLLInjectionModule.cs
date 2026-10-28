@@ -47,6 +47,7 @@ internal partial class DLLInjectionModule : IDisposable
     public void Start()
     {
         CleanPreviousClones();
+        CloneLibs();
         StartDllMonitoring();
         _ = StartPipeServerAsync();
     }
@@ -54,6 +55,25 @@ internal partial class DLLInjectionModule : IDisposable
     private async void DLLPipeServer_MessageReceived(PipeConnection arg1, string arg2)
     {
 
+    }
+
+    private async void CloneLibs()
+    {
+        try
+        {
+            File.Copy(
+                Path.Combine(Variables.ReboundLibsFolder, "minhook-detours.ARM64.Release.dll"),
+                Path.Combine(CloneDirectory, "minhook-detours.ARM64.Release.dll"),
+                true);
+            File.Copy(
+                Path.Combine(Variables.ReboundLibsFolder, "minhook-detours.x64.Release.dll"),
+                Path.Combine(CloneDirectory, "minhook-detours.x64.Release.dll"),
+                true);
+        }
+        catch (Exception ex)
+        {
+
+        }
     }
 
     private async Task StartPipeServerAsync()
@@ -107,10 +127,6 @@ internal partial class DLLInjectionModule : IDisposable
 
     private void StartDllMonitoring()
     {
-        ReboundLogger.WriteToLog("DLL injection",
-            $"aaaaa",
-            LogMessageSeverity.Error);
-
         DllWatcher = new FileSystemWatcher(Variables.ReboundInjectedDLLsFolder)
         {
             Filter = "*.dll",

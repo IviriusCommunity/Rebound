@@ -32,14 +32,10 @@
                     <RowDefinition Height="Auto" />
                 </Grid.RowDefinitions>
                 <StackPanel
-                    Grid.Row="3"
                     Grid.ColumnSpan="3"
                     Margin="0,8,0,0"
-                    Spacing="8">
-                    <TextBlock
-                        Margin="0,0,0,8"
-                        Style="{StaticResource BodyStrongTextBlockStyle}"
-                        Text="General" />
+                    Spacing="4">
+                    <TextBlock Style="{StaticResource BodyStrongTextBlockStyle}" Text="General" />
                     <toolkitControls:SettingsCard Description="Display blur and glow effects in Rebound apps." Header="Glow and blur">
                         <toolkitControls:SettingsCard.HeaderIcon>
                             <FontIcon Glyph="&#xEABC;" />
@@ -52,6 +48,22 @@
                         </toolkitControls:SettingsCard.HeaderIcon>
                         <ToggleSwitch IsOn="{x:Bind ViewModel.ManageStoreApps, Mode=TwoWay}" />
                     </toolkitControls:SettingsCard>
+                    <toolkitControls:SettingsExpander Description="Log every action inside Rebound rather than only warnings and errors." Header="Verbose logging">
+                        <toolkitControls:SettingsExpander.HeaderIcon>
+                            <FontIcon Glyph="&#xE90A;" />
+                        </toolkitControls:SettingsExpander.HeaderIcon>
+                        <toolkitControls:SettingsExpander.Items>
+                            <toolkitControls:SettingsCard
+                                Command="{x:Bind OpenLogFileCommand}"
+                                Header="Open log file"
+                                IsClickEnabled="True">
+                                <toolkitControls:SettingsCard.ActionIcon>
+                                    <FontIcon Glyph="&#xE8A7;" />
+                                </toolkitControls:SettingsCard.ActionIcon>
+                            </toolkitControls:SettingsCard>
+                        </toolkitControls:SettingsExpander.Items>
+                        <ToggleSwitch IsOn="{x:Bind ViewModel.Verbose, Mode=TwoWay}" />
+                    </toolkitControls:SettingsExpander>
                 </StackPanel>
             </Grid>
         </Grid>

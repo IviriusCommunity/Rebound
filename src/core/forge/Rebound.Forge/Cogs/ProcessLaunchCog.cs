@@ -3,6 +3,7 @@
 
 using Rebound.Core;
 using Rebound.Core.Native.Wrappers;
+using Rebound.Forge.Engines;
 using System.Runtime.InteropServices;
 using TerraFX.Interop.Windows;
 using Windows.Management.Deployment;
@@ -251,32 +252,7 @@ public class ProcessLaunchCog : IConfirmationPromptCog
 
         try
         {
-            using ComPtr<IApplicationActivationManager> activationManager = default;
-            using ManagedPtr<Guid> clsid = CLSID.CLSID_ApplicationActivationManager;
-            using ManagedPtr<Guid> iid = IID.IID_IApplicationActivationManager;
-
-            HRESULT hr = TerraFX.Interop.Windows.Windows.CoCreateInstance(
-                clsid,
-                null,
-                (uint)CLSCTX.CLSCTX_LOCAL_SERVER,
-                iid,
-                (void**)activationManager.GetAddressOf());
-
-            if (TerraFX.Interop.Windows.Windows.FAILED(hr))
-            {
-                ReboundLogger.WriteToLog(
-                    "ProcessLaunchCog LaunchPackage",
-                    $"Failed to create Application Activation Manager instance. HRESULT: 0x{hr:X}",
-                    LogMessageSeverity.Error);
-                return Task.FromResult(new CogOperationResult(false, "ACTIVATION_MANAGER_CREATION_FAILED", true, true));
-            }
-
-            using ManagedPtr<char> appUserModelId = LaunchTarget.Target + "!App";
-            activationManager.Get()->ActivateApplication(
-                appUserModelId, 
-                null, 
-                (ACTIVATEOPTIONS)0x20000000, 
-                null);
+            ApplicationLaunchEngine.LaunchApp(LaunchTarget.Target);
 
             ReboundLogger.WriteToLog(
                 "ProcessLaunchCog LaunchPackage",

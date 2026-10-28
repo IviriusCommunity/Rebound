@@ -190,8 +190,12 @@ public class ProcessKillCog : IConfirmationPromptCog
                 }
             }
 
+            // Give the system time to release file locks
+            await Task.Delay(500, cancellationToken).ConfigureAwait(true);
+
             return new CogOperationResult(true, null, true);
         }
+
         // If not confirmed, return a failure result indicating the operation was aborted
         else
             return new CogOperationResult(false, "USER_ABORTED", false);

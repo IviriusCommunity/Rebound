@@ -11,13 +11,19 @@ public static class ReboundPresenceEngine
     /// <summary>
     /// Checks if Rebound is installed.
     /// </summary>
-    public static async Task<bool> IsReboundInstalledAsync()
+    public static Task<bool> IsReboundInstalledAsync()
     {
-        var pm = new PackageManager();
         var sid = WindowsIdentity.GetCurrent().User?.Value;
-        var installed = pm
-            .FindPackagesForUser(sid, "Rebound.ServiceHost_rcz2tbwv5qzb8")
-            .Any();
-        return installed;
+
+        if (sid is null)
+            return Task.FromResult(false);
+
+        var pm = new PackageManager();
+
+        return Task.FromResult(
+            pm.FindPackagesForUser(
+                sid,
+                "Rebound.ServiceHost_rcz2tbwv5qzb8")
+            .Any());
     }
 }

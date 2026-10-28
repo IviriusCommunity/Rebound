@@ -114,7 +114,7 @@ internal sealed partial class WindowsToolsPage : Page
         new() { Name = "uri:zune:", DisplayName = "Microsoft Store", Description = "Browse and purchase apps, games, and other content.", Icon = "ms-appx:///Assets/Apps/MicrosoftStore.ico" },
         new() { Name = "notepad.exe", DisplayName = "Notepad", Description = "Create and edit text files.", Icon = "ms-appx:///Assets/Apps/Notepad.ico" },
         new() { Name = "mspaint.exe", DisplayName = "Paint", Description = "Create and edit images.", Icon = "ms-appx:///Assets/Apps/Paint.ico" },
-        new() { Name = "uri:ms-photos:", DisplayName = "Photos", Description = "View and edit photos.", Icon = "ms-appx:///Assets/Apps/Photos.ico" },
+        new() { Name = "uri:ms-photos:", DisplayName = "Photo Viewer", Description = "View and edit photos.", Icon = "ms-appx:///Assets/Apps/Photos.ico" },
         new() { Name = "uri:ms-quick-assist:", DisplayName = "Quick Assist", Description = "Connect to remote computers.", Icon = "ms-appx:///Assets/Apps/QuickAssist.ico" },
         new() { Name = "regedit", DisplayName = "Registry Editor", Description = "View and edit the Windows registry.", Icon = "ms-appx:///Assets/Apps/RegistryEditor.ico" },
         new() { Name = "explorer", Arguments = "shell:::{2559A1F3-21D7-11D4-BDAF-00C04F60B9F0}", DisplayName = "Run", Description = "Run programs and commands.", Icon = "ms-appx:///Assets/Apps/Run.ico" },

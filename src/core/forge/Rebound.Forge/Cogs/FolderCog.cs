@@ -148,6 +148,9 @@ public partial class FolderCog : ICog
     {
         Directory.CreateDirectory(path);
 
+        var user = new SecurityIdentifier(
+            WellKnownSidType.AuthenticatedUserSid, null);
+
         var administrators = new SecurityIdentifier(
             WellKnownSidType.BuiltinAdministratorsSid, null);
 
@@ -161,20 +164,26 @@ public partial class FolderCog : ICog
 
         security.SetOwner(administrators);
 
-        const FileSystemRights rights = FileSystemRights.FullControl;
         const InheritanceFlags inheritance =
             InheritanceFlags.ContainerInherit | InheritanceFlags.ObjectInherit;
 
         security.AddAccessRule(new FileSystemAccessRule(
+            user,
+            FileSystemRights.ReadAndExecute,
+            inheritance,
+            PropagationFlags.None,
+            AccessControlType.Allow));
+
+        security.AddAccessRule(new FileSystemAccessRule(
             administrators,
-            rights,
+            FileSystemRights.FullControl,
             inheritance,
             PropagationFlags.None,
             AccessControlType.Allow));
 
         security.AddAccessRule(new FileSystemAccessRule(
             system,
-            rights,
+            FileSystemRights.FullControl,
             inheritance,
             PropagationFlags.None,
             AccessControlType.Allow));

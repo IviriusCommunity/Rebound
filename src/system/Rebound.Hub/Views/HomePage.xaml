@@ -27,7 +27,7 @@
             </ResourceDictionary.ThemeDictionaries>
         </ResourceDictionary>
     </Page.Resources>
-    <ScrollViewer CornerRadius="8,0,0,0">
+    <ScrollViewer>
         <Grid>
             <Grid.RowDefinitions>
                 <RowDefinition Height="280" />
@@ -39,22 +39,6 @@
 
             <userControls:LightSceneHeader>
                 <userControls:LightSceneHeader.SceneContent>
-                    <!--<StackPanel Orientation="Horizontal" Spacing="20">
-                        <Image Width="64" Source="/Assets/AppIcons/Rebound.ico" />
-                        <TextBlock
-                            FontSize="42"
-                            FontWeight="Bold"
-                            Text="Rebound">
-                            <TextBlock.Foreground>
-                                <LinearGradientBrush StartPoint="0, 0" EndPoint="1, 1">
-                                    <LinearGradientBrush.GradientStops>
-                                        <GradientStop Offset="1" Color="{ThemeResource SystemAccentColorLight3}" />
-                                        <GradientStop Color="{ThemeResource SystemAccentColorLight1}" />
-                                    </LinearGradientBrush.GradientStops>
-                                </LinearGradientBrush>
-                            </TextBlock.Foreground>
-                        </TextBlock>
-                    </StackPanel>-->
                     <StackPanel Margin="24,0,0,0" Spacing="8">
                         <StackPanel Orientation="Horizontal" Spacing="20">
                             <Image Width="48" Source="/Assets/AppIcons/IviriusCommunityIcon.png" />

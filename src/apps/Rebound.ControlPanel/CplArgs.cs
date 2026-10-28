@@ -19,19 +19,28 @@ internal class CplArgs
 
     public static readonly string intlCplPath = Path.Combine(systemFolder, "intl.cpl");
     public static readonly string appWizCplPath = Path.Combine(systemFolder, "appwiz.cpl");
+    public static readonly string SystemConfigurationExePath = Path.Combine(systemFolder, "msconfig.exe");
+    public static readonly string SystemPropertiesAdvancedExePath = Path.Combine(systemFolder, "SystemPropertiesAdvanced.exe");
     public static readonly string SystemPropertiesComputerNameExePath = Path.Combine(systemFolder, "SystemPropertiesComputerName.exe");
+    public static readonly string SystemPropertiesHardwareExePath = Path.Combine(systemFolder, "SystemPropertiesHardware.exe");
+    public static readonly string SystemPropertiesPerformanceExePath = Path.Combine(systemFolder, "SystemPropertiesPerformance.exe");
     public static readonly string DirectXControlPanelExePath = Path.Combine(systemFolder, "dxcpl.exe");
     public static readonly string DirectXDiagExePath = Path.Combine(systemFolder, "dxdiag.exe");
     public static readonly string DisplayColorCalibrationExePath = Path.Combine(systemFolder, "dccw.exe");
-    public static readonly string EnvironmentVariablesExePath = Path.Combine(systemFolder, "rundll32.exe sysdm.cpl,EditEnvironmentVariables");
+    public static readonly string RunDllExePath = Path.Combine(systemFolder, "rundll32.exe");
     public static readonly string ClearTypeTunerExePath = Path.Combine(systemFolder, "cttune.exe");
     public static readonly string UserAccountControlSettingsExePath = Path.Combine(systemFolder, "useraccountcontrolsettings.exe");
+    public static readonly string WinverExePath = Path.Combine(systemFolder, "winver.exe");
 
     public const string ADMINISTRATIVE_TOOLS_UTIL = @"/name Microsoft.AdministrativeTools";
     public const string ADMINISTRATIVE_TOOLS = @"admintools";
     public const string INTLCPL_DATE = ",,/p:date";
+    public const string RELIABILITY_MONITOR = @"/name Microsoft.ActionCenter /page pageReliabilityView";
+    public const string ENVIRONMENT_VARIABLES_1 = "sysdm.cpl,EditEnvironmentVariables";
     public const string ENVIRONMENT_VARIABLES = @"/name Microsoft.EnvironmentVariables";
     public const string BOOT_AND_BSOD_CONFIGURATION = @"/name Rebound.BootAndBsodConfiguration";
     public const string PRIVACY_USER_CHOICE = @"/name Rebound.PrivacyUserChoice";
     public const string UAC_SETTINGS = @"/name Rebound.UserAccountControlSettings";
+    public const string ABOUT = @"/name Rebound.AboutWindows";
+    public const string CREDENTIAL_MANAGER = @"/name Microsoft.CredentialManager";
 }

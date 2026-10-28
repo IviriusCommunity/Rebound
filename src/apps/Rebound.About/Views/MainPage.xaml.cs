@@ -62,6 +62,8 @@ internal sealed partial class MainPage : Page
         if (wallpaper != null) WallpaperPath = wallpaper;
         UserPicturePath = userPicture;
 
+        ViewModel.IsReboundInstalled = await ReboundPresenceEngine.IsReboundInstalledAsync().ConfigureAwait(true);
+
         // Fast init - these are probably cheap, keep on UI thread
         ViewModel.InitializePrimarySoftware();
         ViewModel.InitializePrimaryHardware();
@@ -69,7 +71,6 @@ internal sealed partial class MainPage : Page
 
         // All heavy work off UI thread
         _ = LoadDeferredAsync();
-        ViewModel.IsReboundInstalled = ReboundPresenceEngine.IsReboundInstalledAsync().GetResultOrDefault();
 
         ViewModel._liveHardwareFeed.OnUpdate += LiveHardwareFeed_OnUpdate;
         ViewModel._liveHardwareFeed.Start();

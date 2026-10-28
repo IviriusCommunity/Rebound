@@ -27,16 +27,13 @@
     <Content Include="$(MSBuildThisFileDirectory)Assets\ReboundApps\InjectionDLLs.ico">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="$(MSBuildThisFileDirectory)Assets\ReboundApps\Launcher.ico">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
     <Content Include="$(MSBuildThisFileDirectory)Assets\ReboundApps\OSK.ico">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="$(MSBuildThisFileDirectory)Assets\ReboundApps\RunBox.ico">
+    <Content Include="$(MSBuildThisFileDirectory)Assets\ReboundApps\ServiceHost.ico">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="$(MSBuildThisFileDirectory)Assets\ReboundApps\ServiceHost.ico">
+    <Content Include="$(MSBuildThisFileDirectory)Assets\ReboundApps\RunBox.ico">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <Content Include="$(MSBuildThisFileDirectory)Assets\ReboundApps\Shell.ico">
@@ -65,8 +62,7 @@
     <Content Include="$(MSBuildThisFileDirectory)Modding\DLLs\Rebound.Forge.Hooks.About.x64.dll">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-  </ItemGroup>
-  <ItemGroup>
-    <Folder Include="$(MSBuildThisFileDirectory)Modding\Packages\" />
+    <None Include="$(MSBuildThisFileDirectory)Modding\Packages\Rebound.About.msixbundle" />
+    <None Include="$(MSBuildThisFileDirectory)Modding\Packages\Rebound.ServiceHost.msixbundle" />
   </ItemGroup>
 </Project>

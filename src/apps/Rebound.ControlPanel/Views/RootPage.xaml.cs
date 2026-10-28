@@ -64,9 +64,6 @@ internal sealed partial class RootPage : Page
             // Let the app know that the window is ready
             App.WindowReady = true;
 
-            // Check if Rebound is installed or not
-            ViewModel.IsReboundInstalled = ReboundPresenceEngine.IsReboundInstalled();
-
             // Load profile picture and username
             UserPicturePath = UserInformation.GetUserPicturePath();
             ViewModel.Username = $"Hello, {UserInformation.GetDisplayName()}!";

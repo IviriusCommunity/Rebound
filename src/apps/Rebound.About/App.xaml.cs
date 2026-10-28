@@ -20,7 +20,6 @@ using System.Threading.Tasks;
 using Windows.UI;
 using WinUIEx;
 
-#pragma warning disable CA1515
 #pragma warning disable CA1031
 
 namespace Rebound.About;

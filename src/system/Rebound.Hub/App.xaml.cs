@@ -43,7 +43,7 @@ public partial class App : Application
     private async void OnSingleInstanceLaunched(object? sender, SingleInstanceLaunchEventArgs e)
     {
         if (MainWindow != null)
-            MainWindow.Activate();
+            MainWindow.DispatcherQueue.TryEnqueue(MainWindow.Activate);
         else
             CreateMainWindow();
     }
@@ -52,7 +52,7 @@ public partial class App : Application
     {
         MainWindow = new MainWindow()
         {
-            MinWidth = 640,
+            MinWidth = 440,
             MinHeight = 400,
             PersistenceId = "Rebound.Hub.MainWindow",
             Title = "Rebound Hub"

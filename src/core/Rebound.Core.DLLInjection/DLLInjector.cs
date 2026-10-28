@@ -604,7 +604,7 @@ public static class DLLInjectionAPI
 
         // Before injecting the desired DLL, the MinHook-Detours runtime
         // must be injected first in order for the DLL in question to load.
-        var libPath = Path.Combine(Variables.ReboundLibsFolder,
+        var libPath = Path.Combine(Path.GetDirectoryName(dllPath)!,
             RuntimeInformation.ProcessArchitecture == Architecture.X64 ? "minhook-detours.x64.Release.dll" :
             RuntimeInformation.ProcessArchitecture == Architecture.Arm64 ? "minhook-detours.ARM64.Release.dll" : 
             throw new NotImplementedException());

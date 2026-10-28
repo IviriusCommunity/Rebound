@@ -144,9 +144,7 @@ try {
         "src/platforms/management/Rebound.ManagementConsole/Rebound.ManagementConsole.csproj",
         "src/system/Rebound.Hub/Rebound.Hub.csproj",
         "src/system/Rebound.ServiceHost/Rebound.ServiceHost.csproj",
-        "eng/distribution/standalone/Rebound.Uninstaller/Rebound.Uninstaller.csproj",
-        "eng/distribution/standalone/Rebound.Installer/Rebound.Installer.csproj",
-        "eng/distribution/standalone/Rebound.Updater/Rebound.Updater.csproj"
+        "eng/distribution/standalone/Rebound.Installer/Rebound.Installer.csproj"
     )
 
     foreach ($file in $csprojFiles) {
@@ -163,7 +161,8 @@ try {
         "src/apps/Rebound.ControlPanel/Package.appxmanifest",
         "src/platforms/shell/Rebound.Shell/Package.appxmanifest",
         "src/platforms/management/Rebound.ManagementConsole/Package.appxmanifest",
-        "src/system/Rebound.Hub/Package.appxmanifest"
+        "src/system/Rebound.Hub/Package.appxmanifest",
+        "src/system/Rebound.ServiceHost/Package.appxmanifest"
     )
 
     foreach ($file in $manifestFiles) {

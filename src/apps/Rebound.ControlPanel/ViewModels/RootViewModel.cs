@@ -7,8 +7,6 @@ namespace Rebound.ControlPanel.ViewModels;
 
 internal partial class RootViewModel : ObservableObject
 {
-    [ObservableProperty] public partial bool IsReboundInstalled { get; set; }
-
     [ObservableProperty] public partial bool CanGoBack { get; set; }
 
     [ObservableProperty] public partial bool CanGoForward { get; set; }

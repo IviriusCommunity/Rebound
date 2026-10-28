@@ -112,7 +112,7 @@ public class DLLInjectionCog : ICog
 
             // Copy the DLL first. If anything after this fails, we clean up so we don't
             // leave an orphaned DLL on disk with no metadata to go with it.
-            FileEx.Copy(DLLPath, InstalledDllPath);
+            FileEx.Copy(DLLPath, InstalledDllPath, true);
 
             string metaContent;
 

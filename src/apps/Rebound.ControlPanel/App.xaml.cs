@@ -3,7 +3,6 @@
 
 using Microsoft.UI;
 using Microsoft.UI.Xaml;
-using Microsoft.UI.Xaml.Controls;
 using Microsoft.Windows.AppLifecycle;
 using Rebound.ControlPanel.Views;
 using Rebound.Core;
@@ -15,6 +14,7 @@ using Rebound.Forge.Engines;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Windows.ApplicationModel.Activation;
@@ -80,8 +80,10 @@ public partial class App : Application, IReboundLegacySupportApp, IReboundPipeCl
 
             _validatedItem = ResolveFromArgs(arguments);
 
+            var isReboundInstalled = await ReboundPresenceEngine.IsReboundInstalledAsync().ConfigureAwait(false);
+
             // Check if Rebound is installed or not
-            if (!ReboundPresenceEngine.IsReboundInstalled())
+            if (!isReboundInstalled)
             {
                 ReboundLogger.WriteToLog(
                     "Rebound Installation Check",
@@ -94,44 +96,51 @@ public partial class App : Application, IReboundLegacySupportApp, IReboundPipeCl
             // If this is the application's initial launch, handle the required environment
             if (e.IsFirstLaunch)
             {
-                // Pipe server thread
-                var pipeThread = new Thread(async () =>
+                ReboundLogger.WriteToLog(
+                    "Rebound Environment Initialization",
+                    "Initializing the Rebound environment for the current app...",
+                    LogMessageSeverity.Message);
+
+                var ipcThread = new Thread(async () =>
                 {
                     try
                     {
                         // Initialize pipe client if not already initialized
-                        ReboundPipeClient ??= new();
+                        ReboundPipeClient ??= new("REBOUND_LAUNCHER");
 
                         // Make sure Rebound Service Host exists
                         var started = ServiceHostEngine.StartServiceHost();
                         if (!started)
+                        {
+                            ReboundLogger.WriteToLog(
+                                "Rebound Environment Initialization",
+                                "Could not initialize Rebound Service Host.",
+                                LogMessageSeverity.Error);
                             throw new InvalidOperationException("Rebound Service Host couldn't be started.");
+                        }
 
                         // Connect to it
-                        await ReboundPipeClient.ConnectAsync().ConfigureAwait(false);
+                        await ReboundPipeClient.ConnectAsync().ConfigureAwait(true);
                     }
                     catch
                     {
-                        // Rebound Service Host doesn't exist, fall back to UI solutions
-                        RunServiceHostFailedToLaunchFallback();
+                        ReboundLogger.WriteToLog(
+                            "Rebound Environment Initialization",
+                            "Notifying the user of Rebound Service Host failure.",
+                            LogMessageSeverity.Message);
                     }
                 })
                 {
-                    IsBackground = true,
-                    Name = "Pipe Server Thread"
+                    Name = "IPC Thread",
+                    IsBackground = true
                 };
-                pipeThread.SetApartmentState(ApartmentState.STA);
-                pipeThread.Start();
+                ipcThread.SetApartmentState(ApartmentState.STA);
+                ipcThread.Start();
 
-                // Service host watchdog thread
-                // This ensures Rebound Service Host can't die randomly
-                var watchdogThread = new Thread(ServiceHostEngine.StartWatchdog)
-                {
-                    IsBackground = true,
-                    Name = "Service Host Watchdog Thread"
-                };
-                watchdogThread.SetApartmentState(ApartmentState.STA);
-                watchdogThread.Start();
+                ReboundLogger.WriteToLog(
+                    "Rebound Environment Initialization",
+                    "Initializing the Rebound Service Host watchdog...",
+                    LogMessageSeverity.Message);
             }
 
         DirectStartup:
@@ -268,41 +277,6 @@ public partial class App : Application, IReboundLegacySupportApp, IReboundPipeCl
         return null;
     }
 
-    public async void RunServiceHostFailedToLaunchFallback()
-    {
-        // Request an action from the user
-        var result = await ReboundDialog.ShowAsync(
-            title: "Rebound Service Host not found.",
-            content: "Could not find Rebound Service Host. This process is required for multiple features to work properly.",
-            primaryButtonText: "Launch",
-            closeButtonText: "Ok",
-            defaultButton: ContentDialogButton.Primary).ConfigureAwait(true);
-
-        switch (result)
-        {
-            // Launch
-            case ContentDialogResult.Primary:
-                {
-                    // Make sure Rebound Service Host exists
-                    var launched = ServiceHostEngine.StartServiceHost();
-
-                    // If it still doesn't, it's possible that Rebound is corrupted - inform the user
-                    if (!launched)
-                    {
-                        await ReboundDialog.ShowAsync(
-                            title: "Couldn't launch Rebound Service Host.",
-                            content: "Your Rebound installation might be corrupted. Please open Rebound Hub and check.",
-                            closeButtonText: "Ok").ConfigureAwait(true);
-                    }
-                    break;
-                }
-
-            // Ok button
-            default:
-                break;
-        }
-    }
-
     private static async Task LaunchPageOrUriAsync(object? target)
     {
         // Wait asynchronously until the window is marked ready
@@ -336,46 +310,34 @@ public partial class App : Application, IReboundLegacySupportApp, IReboundPipeCl
     public void LaunchLegacy(string args)
         => LaunchLegacy(LegacyExecutableName, args);
 
-    public async void LaunchLegacy(string executable, string args)
+    public void LaunchLegacy(string executable, string args)
     {
-        try
+        Task.Run(async () =>
         {
-            if (!ReboundPresenceEngine.IsReboundInstalled())
+            try
             {
-                Process.Start(new ProcessStartInfo
+                if (Process.GetProcessesByName("Rebound.ServiceHost").ToList().Count > 0)
                 {
-                    FileName = executable,
-                    UseShellExecute = true,
-                    Arguments = args
-                });
-                return;
+                    await (ReboundPipeClient?.ConnectAsync())!.ConfigureAwait(true);
+                    await (ReboundPipeClient?.SendAsync($"LAUNCH:{executable}"))!.ConfigureAwait(true);
+                }
+                else StartDirectly();
             }
-
-            if (ReboundPipeClient is null)
+            catch
             {
-                // Rebound Service Host doesn't exist, fall back to UI solutions
-                RunServiceHostFailedToLaunchFallback();
-                return;
+                StartDirectly();
             }
+        });
 
-            // Disable the IFEO entry via Rebound Service Host
-            await(ReboundPipeClient.SendAsync($"IFEOEngine::Pause#{executable}"))!.ConfigureAwait(false);
-
-            // Launch the original application
-            Process.Start(new ProcessStartInfo
+        void StartDirectly()
+        {
+            // Rebound Service Host doesn't exist, launch directly
+            Process.Start(new ProcessStartInfo()
             {
                 FileName = executable,
-                UseShellExecute = true,
-                Arguments = args
+                Arguments = args,
+                UseShellExecute = true
             });
-
-            // Resume the IFEO entry
-            await(ReboundPipeClient.SendAsync($"IFEOEngine::Resume#{executable}"))!.ConfigureAwait(false);
-        }
-        catch
-        {
-            // Rebound Service Host doesn't exist, fall back to UI solutions
-            RunServiceHostFailedToLaunchFallback();
         }
     }
 

@@ -30,7 +30,7 @@ internal static partial class CplItemPairs
                 new() 
                 {
                     Name = "Control Panel - Home", 
-                    Path = "control.exe"
+                    Executable = "control.exe"
                 }
             ],
         },
@@ -53,9 +53,14 @@ internal static partial class CplItemPairs
                     [
                         new()
                         {
-                            Name = "System Properties",
-                            Path = CplArgs.SystemPropertiesComputerNameExePath
-                        }
+                            Name = "System Properties - Computer Name",
+                            Executable = CplArgs.SystemPropertiesComputerNameExePath
+                        },
+                        new()
+                        {
+                            Name = "System Properties - Hardware",
+                            Executable = CplArgs.SystemPropertiesHardwareExePath
+                        },
                     ],
                 },
 
@@ -73,12 +78,12 @@ internal static partial class CplItemPairs
                         new()
                         {
                             Name = "Display Color Calibration",
-                            Path = CplArgs.DisplayColorCalibrationExePath
+                            Executable = CplArgs.DisplayColorCalibrationExePath
                         },
                         new()
                         {
                             Name = "ClearType Text Tuner",
-                            Path = CplArgs.ClearTypeTunerExePath
+                            Executable = CplArgs.ClearTypeTunerExePath
                         }
                     ],
                 },
@@ -102,12 +107,12 @@ internal static partial class CplItemPairs
                         new()
                         {
                             Name = "DirectX Properties",
-                            Path = CplArgs.DirectXControlPanelExePath
+                            Executable = CplArgs.DirectXControlPanelExePath
                         },
                         new()
                         {
                             Name = "DirectX Diagnostic Tool",
-                            Path = CplArgs.DirectXDiagExePath
+                            Executable = CplArgs.DirectXDiagExePath
                         }
                     ],
                 },
@@ -126,7 +131,8 @@ internal static partial class CplItemPairs
                         new()
                         {
                             Name = "Environment Variables",
-                            Path = CplArgs.EnvironmentVariablesExePath
+                            Executable = CplArgs.RunDllExePath,
+                            Path = CplArgs.ENVIRONMENT_VARIABLES_1
                         }
                     ],
                 },
@@ -141,7 +147,12 @@ internal static partial class CplItemPairs
                     PageOpenIconPath = "Assets/Glyphs/ReliabilityMonitor.ico",
                     LegacyLaunchItems =
                     [
-                        // TODO
+                        new()
+                        {
+                            Name = "Reliability Monitor",
+                            Executable = "control.exe",
+                            Path = CplArgs.RELIABILITY_MONITOR
+                        }
                     ], 
                 },
                 new() 
@@ -155,7 +166,21 @@ internal static partial class CplItemPairs
                     PageOpenIconPath = "Assets/Glyphs/Advanced.ico",
                     LegacyLaunchItems =
                     [
-                        // TODO
+                        new()
+                        {
+                            Name = "System Configuration",
+                            Executable = CplArgs.SystemConfigurationExePath
+                        },
+                        new()
+                        {
+                            Name = "System Properties - Advanced",
+                            Executable = CplArgs.SystemPropertiesAdvancedExePath
+                        },
+                        new()
+                        {
+                            Name = "System Properties - Performance",
+                            Executable = CplArgs.SystemPropertiesPerformanceExePath
+                        }
                     ],
                 },
                 new() 
@@ -164,12 +189,16 @@ internal static partial class CplItemPairs
                     Tag = "about", 
                     Icon = "glyph:\uE946",
                     Page = typeof(AboutWindowsPage),
-                    Args = [ /* TODO */],
+                    Args = [CplArgs.ABOUT],
                     PageOpenUri = "about",
                     PageOpenIconPath = "Assets/Glyphs/About.ico",
                     LegacyLaunchItems =
                     [
-                        // TODO
+                        new()
+                        {
+                            Name = "About Windows",
+                            Executable = CplArgs.WinverExePath
+                        }
                     ],
                 },
             ]
@@ -214,21 +243,26 @@ internal static partial class CplItemPairs
                     PageOpenIconPath = "Assets/Glyphs/PrivacyAndUserChoice.ico",
                     LegacyLaunchItems =
                     [
-                        // TODO
+                        // Doesn't exist
                     ],
                 },
                 new()
                 {
-                    Name = "Credentials Manager",
-                    Tag = "credentialsmanager",
+                    Name = "Credential Manager",
+                    Tag = "credentialmanager",
                     Icon = "glyph:\uF540",
                     Page = typeof(CredentialManagerPage),
                     Args = [ /* TODO */ ],
-                    PageOpenUri = "credentialsmanager",
+                    PageOpenUri = "credentialmanager",
                     PageOpenIconPath = "Assets/Glyphs/CredentialManager.ico",
                     LegacyLaunchItems =
                     [
-                        // TODO
+                        new()
+                        {
+                            Name = "Credential Manager",
+                            Executable = "control.exe",
+                            Path = CplArgs.CREDENTIAL_MANAGER
+                        }
                     ],
                 },
                 new()
@@ -245,7 +279,7 @@ internal static partial class CplItemPairs
                         new()
                         {
                             Name = "User Account Control Settings",
-                            Path = CplArgs.UserAccountControlSettingsExePath
+                            Executable = CplArgs.UserAccountControlSettingsExePath
                         }
                     ],
                 },
@@ -293,12 +327,16 @@ internal static partial class CplItemPairs
             Tag = "windowstools",
             Icon = "img:ms-appx:///Assets/Glyphs/WindowsTools.ico",
             Page = typeof(WindowsToolsPage),
-            Args = [CplArgs.appWizCplPath, CplArgs.ADMINISTRATIVE_TOOLS_UTIL],
+            Args = [CplArgs.ADMINISTRATIVE_TOOLS, CplArgs.ADMINISTRATIVE_TOOLS_UTIL],
             PageOpenUri = "windowstools",
             PageOpenIconPath = "Assets/Glyphs/WindowsTools.ico",
             LegacyLaunchItems =
             [
-                // TODO
+                new()
+                {
+                    Name = "Windows Tools",
+                    Executable = CplArgs.ADMINISTRATIVE_TOOLS
+                }
             ],
         },
     ];

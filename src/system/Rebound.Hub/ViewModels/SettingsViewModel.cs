@@ -13,12 +13,15 @@ internal partial class SettingsViewModel : ObservableObject
 
     [ObservableProperty] public partial bool ManageStoreApps { get; set; }
 
+    [ObservableProperty] public partial bool Verbose { get; set; }
+
     public SettingsViewModel()
     {
         DispatcherQueue.GetForCurrentThread().TryEnqueue(() =>
         {
             ShowBlurAndGlow = SettingsManager.GetValue("ShowBlurAndGlow", "rebound", true);
             ManageStoreApps = SettingsManager.GetValue("ManageStoreApps", "rebound", true);
+            Verbose = SettingsManager.GetValue("Verbose", "rebound", false);
         });
     }
 
@@ -32,12 +35,18 @@ internal partial class SettingsViewModel : ObservableObject
         UpdateSettings();
     }
 
+    partial void OnVerboseChanged(bool value)
+    {
+        UpdateSettings();
+    }
+
     private void UpdateSettings()
     {
         DispatcherQueue.GetForCurrentThread().TryEnqueue(() =>
         {
             SettingsManager.SetValue("ShowBlurAndGlow", "rebound", ShowBlurAndGlow);
             SettingsManager.SetValue("ManageStoreApps", "rebound", ManageStoreApps);
+            SettingsManager.SetValue("Verbose", "rebound", Verbose);
         });
     }
 }

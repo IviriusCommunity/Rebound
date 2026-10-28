@@ -42,6 +42,9 @@ public static partial class Variables
     public static readonly string ReboundLogFile =
         Path.Combine(ReboundDataFolder, "Temp", ".log");
 
+    public static readonly string ReboundCurrentVersionFile =
+        Path.Combine(ReboundDataFolder, "version.txt");
+
     /// <summary>
     /// Represents the full path to the Mods folder within the application's program data directory.
     /// </summary>

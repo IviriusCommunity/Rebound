@@ -103,7 +103,7 @@ public partial class Catalog : ObservableObject
             },*/
             
             // Rebound Shell
-            new()
+            /*new()
             {
                 Name = "Rebound Shell",
                 Id = new("5545cc21-f12c-4ce2-b36d-b4b0127a462b"),
@@ -152,7 +152,7 @@ public partial class Catalog : ObservableObject
                         ],
                     }
                 ]
-            },
+            },*/
             
             /*// Run
             new()
@@ -378,7 +378,7 @@ public partial class Catalog : ObservableObject
                 Id = new("9fe3d6bd-2d64-45bc-b230-f4a605d67de7"),
                 Description = "Replacement for the winver applet. Details about the currently installed Rebound version can be found here.",
                 Icon = "ms-appx:///Assets/ReboundApps/AboutWindows.ico",
-                Category = ModCategory.Customization,
+                Category = ModCategory.General,
                 PreferredInstallationTemplate = InstallationTemplate.Basic,
                 Variants = [
                     new()
@@ -387,6 +387,14 @@ public partial class Catalog : ObservableObject
                         Id = new("2917ef5b-c290-4414-ae2e-348e0c38f3c4"),
                         Cogs =
                         [
+                            new ProcessKillCog()
+                            {
+                                CogName = "Kill Rebound About",
+                                CogId = new("7c521c7d-bfd1-4c38-bb4e-f791e9281915"),
+                                ProcessName = "Rebound.About",
+                                KillOn = ProcessKillOn.Remove,
+                                RequiresElevation = true
+                            },
                             new PackageCog()
                             {
                                 CogName = "Rebound About Package Manager",
@@ -394,7 +402,7 @@ public partial class Catalog : ObservableObject
                                 Target = new PackageTarget(
                                     PackageTargetType.Local,
                                     Path.Combine(AppContext.BaseDirectory, "Modding", "Packages", "Rebound.About.msixbundle"),
-                                    "Rebound.About_rcz2tbwv5qzb8")
+                                    PackageFamilyName: "Rebound.About_rcz2tbwv5qzb8")
                             },
                             new DLLInjectionCog()
                             {
@@ -535,6 +543,12 @@ public partial class Catalog : ObservableObject
                                 PersistAfterRemoving = false,
                                 RequiresElevation = false,
                                 LockBehindAdmin = false
+                            },
+                            new TaskFolderCog()
+                            {
+                                CogName = "Rebound Task Scheduler folder",
+                                CogId = new("53842f38-8781-4fce-8aea-c7fec031502b"),
+                                TaskFolderName = "Rebound"
                             }
                         ],
                     }
@@ -547,7 +561,7 @@ public partial class Catalog : ObservableObject
                 Name = "MinHook-Detours",
                 Id = new Guid("4e6c6105-6ae8-4ca0-8247-180f893604b1"),
                 Description = "DLL injection runtime required for Rebound to work properly.",
-                Icon = "ms-appx:///Assets/ReboundApps/Environment.ico",
+                Icon = "ms-appx:///Assets/ReboundApps/InjectionDLLs.ico",
                 Category = ModCategory.Mandatory,
                 PreferredInstallationTemplate = InstallationTemplate.Mandatory,
                 Variants =
@@ -614,7 +628,18 @@ public partial class Catalog : ObservableObject
                                 Target = new PackageTarget(
                                     PackageTargetType.Local,
                                     Path.Combine(AppContext.BaseDirectory, "Modding", "Packages", "Rebound.ServiceHost.msixbundle"),
-                                    "Rebound.ServiceHost_rcz2tbwv5qzb8")
+                                    PackageFamilyName: "Rebound.ServiceHost_rcz2tbwv5qzb8")
+                            },
+                            new StartupTaskCog()
+                            {
+                                CogName = "Rebound (Service Host) Startup Task",
+                                CogId = new("f93090af-c0a2-48ab-932c-e8f98734ec33"),
+                                StartupTarget = new StartupTaskTarget(
+                                    "Rebound.ServiceHost_rcz2tbwv5qzb8",
+                                    StartupTaskTargetType.PackageFamilyName),
+                                TaskRequiresElevation = true,
+                                TaskDescription = "Rebound (Service Host) elevated helper for Rebound apps.",
+                                TaskName = "Rebound (Service Host)"
                             },
                             new ProcessLaunchCog()
                             {
@@ -622,7 +647,8 @@ public partial class Catalog : ObservableObject
                                 CogId = new("69c7c511-e45d-4369-b73f-43f6e87d6551"),
                                 LaunchOn = ProcessLaunchOn.Apply,
                                 LaunchTarget = new ProcessLaunchTarget("Rebound.ServiceHost_rcz2tbwv5qzb8", ProcessLaunchTargetType.PackageFamilyName),
-                                RequiresElevation = true
+                                RequiresElevation = true,
+                                RequiresUserConfirmation = false
                             }
                         ],
                     }

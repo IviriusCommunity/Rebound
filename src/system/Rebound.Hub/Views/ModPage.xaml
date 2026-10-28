@@ -193,22 +193,6 @@
             <ContentControl.ContentTemplate>
                 <DataTemplate x:DataType="forge:Mod">
                     <Grid>
-                        <!--  Header image  -->
-                        <gallery:HomePageHeaderImage
-                            x:Name="BKGImage"
-                            Height="320"
-                            MaxWidth="800"
-                            VerticalAlignment="Top"
-                            Image="{x:Bind Icon}"
-                            Opacity="0.15" />
-
-                        <!--  Blur  -->
-                        <Grid Height="600" VerticalAlignment="Top">
-                            <Grid.Background>
-                                <media:BackdropBlurBrush Amount="64.0" />
-                            </Grid.Background>
-                        </Grid>
-
                         <Grid
                             MaxWidth="1000"
                             Margin="32"
@@ -384,10 +368,16 @@
                                     IsOpen="True">
                                     <ContentPresenter Content="{x:Bind Converter={StaticResource ModToTasksListConverter}}" />
                                 </muxc:InfoBar>
-                                <muxc:ProgressRing Tag="ItemsControlRing" HorizontalAlignment="Center" Width="32" Height="32" Margin="0, 32, 0, 0"/>
-                                <ItemsControl Loaded="ItemsControl_Loaded"
+                                <muxc:ProgressRing
+                                    Width="32"
+                                    Height="32"
+                                    Margin="0,32,0,0"
+                                    HorizontalAlignment="Center"
+                                    Tag="ItemsControlRing" />
+                                <ItemsControl
                                     Margin="0,16,0,0"
                                     ItemTemplateSelector="{StaticResource ModSettingSelector}"
+                                    Loaded="ItemsControl_Loaded"
                                     Tag="{x:Bind}">
                                     <ItemsControl.ItemsPanel>
                                         <ItemsPanelTemplate>

@@ -462,8 +462,7 @@
                         Padding="8"
                         Background="Transparent"
                         BorderBrush="Transparent"
-                        ToolTipService.ToolTip="Legacy launch"
-                        Visibility="{x:Bind ViewModel.IsReboundInstalled, Mode=OneWay}">
+                        ToolTipService.ToolTip="Legacy launch">
                         <DropDownButton.Flyout>
                             <MenuFlyout x:Name="LegacyLaunchDropDownButtonFlyout" />
                         </DropDownButton.Flyout>
@@ -517,10 +516,7 @@
                                     <FontIcon Glyph="&#xE8A7;" />
                                 </MenuFlyoutItem.Icon>
                             </MenuFlyoutItem>
-                            <MenuFlyoutSubItem
-                                x:Name="LegacyLaunchFlyoutItem"
-                                Text="Legacy launch"
-                                Visibility="{x:Bind ViewModel.IsReboundInstalled, Mode=OneWay}">
+                            <MenuFlyoutSubItem x:Name="LegacyLaunchFlyoutItem" Text="Legacy launch">
                                 <MenuFlyoutSubItem.Icon>
                                     <FontIcon Glyph="&#xED56;" />
                                 </MenuFlyoutSubItem.Icon>

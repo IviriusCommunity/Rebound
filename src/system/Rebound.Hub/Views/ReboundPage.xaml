@@ -19,6 +19,7 @@
     xmlns:mods="using:Rebound.Forge.Mods"
     xmlns:muxc="using:Microsoft.UI.Xaml.Controls"
     xmlns:ui="using:CommunityToolkit.WinUI"
+    xmlns:userControls="using:Rebound.Core.UI.UserControls"
     x:Name="ReboundView"
     Loaded="ReboundView_Loaded"
     mc:Ignorable="d">
@@ -478,11 +479,11 @@
         </ResourceDictionary>
     </Page.Resources>
     <Grid>
-        <ScrollViewer CornerRadius="8,0,0,0">
+        <ScrollViewer>
             <Grid>
                 <Grid.RowDefinitions>
-                    <RowDefinition x:Name="Row1" Height="400" />
-                    <RowDefinition x:Name="Row2" Height="64" />
+                    <RowDefinition Height="280" />
+                    <RowDefinition Height="200" />
                     <RowDefinition Height="Auto" />
                     <RowDefinition Height="Auto" />
                     <RowDefinition Height="Auto" />
@@ -498,28 +499,50 @@
                     <RowDefinition Height="Auto" />
                 </Grid.RowDefinitions>
 
-                <!--  Header image  -->
-                <gallery:HomePageHeaderImage x:Name="BKGImage" Image="{ThemeResource HeroImage}" />
-
-                <!--  Header title  -->
-                <Grid
-                    x:Name="TitleGrid"
-                    Height="200"
-                    Margin="48,0,0,0"
-                    VerticalAlignment="Top">
-                    <Grid VerticalAlignment="Center">
-                        <StackPanel>
+                <userControls:LightSceneHeader>
+                    <userControls:LightSceneHeader.SceneContent>
+                        <StackPanel Margin="24,0,0,0" Spacing="8">
+                            <StackPanel Orientation="Horizontal" Spacing="20">
+                                <Image Width="48" Source="/Assets/AppIcons/Rebound.ico" />
+                                <TextBlock
+                                    FontSize="36"
+                                    FontWeight="Bold"
+                                    Text="Rebound">
+                                    <TextBlock.Foreground>
+                                        <LinearGradientBrush StartPoint="0, 0" EndPoint="1, 1">
+                                            <LinearGradientBrush.GradientStops>
+                                                <GradientStop Offset="1" Color="#7dd1ff" />
+                                                <GradientStop Color="#367ef1" />
+                                            </LinearGradientBrush.GradientStops>
+                                        </LinearGradientBrush>
+                                    </TextBlock.Foreground>
+                                </TextBlock>
+                            </StackPanel>
                             <TextBlock
+                                FontSize="20"
                                 FontWeight="SemiBold"
-                                Style="{StaticResource TitleLargeTextBlockStyle}"
-                                Text="Rebound" />
-                            <TextBlock
-                                FontSize="18"
-                                Text="Windows 11 made consistent. Featuring WinUI 3 apps for your everyday tasks."
-                                TextWrapping="WrapWholeWords" />
+                                Foreground="White"
+                                Text="WinUI, brought to you everywhere." />
+                            <TextBlock Foreground="LightGray" Text="System apps ported to WinUI with attention to detail." />
                         </StackPanel>
+                    </userControls:LightSceneHeader.SceneContent>
+                </userControls:LightSceneHeader>
+
+                <StackPanel Grid.Row="1">
+                    <Grid Height="2">
+                        <Grid.Background>
+                            <LinearGradientBrush StartPoint="0, 0" EndPoint="1, 1">
+                                <LinearGradientBrush.GradientStops>
+                                    <GradientStop Color="{ThemeResource SystemAccentColorLight2}" />
+                                    <GradientStop Offset="1" Color="{ThemeResource SystemAccentColor}" />
+                                </LinearGradientBrush.GradientStops>
+                            </LinearGradientBrush>
+                        </Grid.Background>
+                        <ui:Effects.Shadow>
+                            <media:AttachedCardShadow Color="{ThemeResource SystemAccentColorLight2}" />
+                        </ui:Effects.Shadow>
                     </Grid>
-                </Grid>
+                </StackPanel>
 
                 <!--  Header cards  -->
                 <ScrollViewer
@@ -541,9 +564,12 @@
                         </ItemsControl.ItemsPanel>
                         <ItemsControl.ItemTemplate>
                             <DataTemplate x:DataType="cards:LinkCard">
-                                <Grid CornerRadius="6">
+                                <Grid CornerRadius="8">
                                     <Grid.Background>
-                                        <media:AcrylicBrush BlurAmount="16" TintColor="{ThemeResource SolidBackgroundFillColorBase}" />
+                                        <media:AcrylicBrush
+                                            BlurAmount="12"
+                                            TintColor="{ThemeResource SolidBackgroundFillColorBase}"
+                                            TintOpacity="0.5" />
                                     </Grid.Background>
                                     <Button
                                         Width="240"

@@ -114,7 +114,6 @@
             IsPaneToggleButtonVisible="False"
             ItemInvoked="NavigationViewControl_ItemInvoked"
             OpenPaneLength="248"
-            PaneDisplayMode="Left"
             PaneTitle="">
             <NavigationView.MenuItems>
                 <NavigationViewItem
@@ -170,17 +169,14 @@
                 </NavigationViewItem>
             </NavigationView.FooterMenuItems>
             <NavigationView.Content>
-                <Frame
-                    x:Name="MainFrame"
-                    BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
-                    BorderThickness="1,1,0,0"
-                    CornerRadius="8,0,0,0" />
+                <Frame x:Name="MainFrame" />
             </NavigationView.Content>
         </NavigationView>
         <TitleBar
             Title="Rebound Hub"
             VerticalAlignment="Top"
-            IsPaneToggleButtonVisible="True" PaneToggleRequested="TitleBar_PaneToggleRequested"
+            IsPaneToggleButtonVisible="True"
+            PaneToggleRequested="TitleBar_PaneToggleRequested"
             Subtitle="{x:Bind core:Variables.ReboundVersion, Mode=OneTime}">
             <TitleBar.IconSource>
                 <ImageIconSource ImageSource="/Assets/AppIcons/ReboundHub.ico" />
@@ -196,7 +192,7 @@
                 <AutoSuggestBox
                     x:Name="AutoSuggestBoxControl"
                     MaxWidth="540"
-                    Margin="32,0,-64,-4"
+                    Margin="0,0,0,-4"
                     HorizontalAlignment="Stretch"
                     VerticalAlignment="Center"
                     BorderBrush="{ThemeResource ControlElevationBorderBrush}"

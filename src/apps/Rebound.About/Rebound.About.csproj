@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
 	<!-- Application -->
 	<PropertyGroup>
@@ -95,7 +95,7 @@
 
 	<!-- Shared package versions -->
 	<PropertyGroup>
-		<IlCompilerVersion>10.0.13</IlCompilerVersion>
+		<IlCompilerVersion>10.0.14</IlCompilerVersion>
 		<CommunityToolkitWinUIVersion></CommunityToolkitWinUIVersion>
 	</PropertyGroup>
 

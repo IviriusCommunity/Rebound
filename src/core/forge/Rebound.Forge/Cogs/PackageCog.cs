@@ -302,12 +302,30 @@ public partial class PackageCog : ObservableObject, ICog
                     return new(false, result.ErrorText, false);
                 }
 
-                if (result.IsRegistered)
+                // Wait up to 2 seconds for the package to become unregistered.
+                var stillRegistered = true;
+
+                for (var i = 0; i < 8; i++)
+                {
+                    cancellationToken.ThrowIfCancellationRequested();
+
+                    await Task.Delay(250, cancellationToken).ConfigureAwait(false);
+
+                    stillRegistered = pm
+                        .FindPackagesForUser(sid, Target.PackageFamilyName)
+                        .Any();
+
+                    if (!stillRegistered)
+                        break;
+                }
+
+                if (stillRegistered)
                 {
                     ReboundLogger.WriteToLog(
                         "PackageCog RemoveLocal",
-                        $"Local package {Target.PackageFamilyName} removal did not fully deregister.",
+                        $"Local package {Target.PackageFamilyName} remains registered after removal.",
                         LogMessageSeverity.Error);
+
                     return new(false, "STILL_REGISTERED", false);
                 }
             }
