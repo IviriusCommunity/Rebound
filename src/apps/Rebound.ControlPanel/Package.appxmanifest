@@ -11,7 +11,7 @@
 	<Identity
 	  Name="Rebound.ControlPanel"
 	  Publisher="CN=Ivirius Community"
-	  Version="0.0.10.7" />
+	  Version="0.0.11.0" />
 
 	<mp:PhoneIdentity PhoneProductId="6be5c1d5-5262-4a91-ad84-5203ad52917e" PhonePublisherId="00000000-0000-0000-0000-000000000000"/>
 

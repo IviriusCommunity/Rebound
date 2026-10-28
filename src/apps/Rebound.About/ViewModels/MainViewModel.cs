@@ -2,18 +2,16 @@
 // Licensed under the MIT License.
 
 using CommunityToolkit.Mvvm.ComponentModel;
-using Rebound.Core;
 using Rebound.Core.Settings;
 using Rebound.Core.SystemInformation.Hardware;
 using Rebound.Core.SystemInformation.Software;
 using Rebound.Core.UI.Localizer;
 using System;
-using System.IO;
 
 namespace Rebound.About.ViewModels;
 
 #pragma warning disable CA1001 // Types that own disposable fields should be disposable
-internal partial class MainViewModel : ObservableObject
+internal sealed partial class MainViewModel : ObservableObject
 #pragma warning restore CA1001 // Types that own disposable fields should be disposable
 {
     public readonly SettingsListener _listener;
@@ -28,7 +26,6 @@ internal partial class MainViewModel : ObservableObject
 
     public MainViewModel()
     {
-        IsReboundInstalled = File.Exists(Variables.ReboundCurrentVersionPath);
         UpdateSettings();
         _listener = new SettingsListener();
         _liveHardwareFeed = new LiveHardwareFeed();

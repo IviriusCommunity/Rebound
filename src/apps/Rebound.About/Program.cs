@@ -6,11 +6,9 @@ using Microsoft.UI.Dispatching;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Settings;
 using Rebound.Core;
+using Rebound.Core.Native.Helpers;
 using System;
 using System.IO;
-using System.Linq;
-using System.Security.Cryptography;
-using System.Text;
 using System.Threading;
 using Windows.ApplicationModel;
 using WinRT;
@@ -31,7 +29,9 @@ internal static class Program
         var attestation = FeatureTokenGenerator.GenerateAttestation(featureId);
 
         var accessResult = LimitedAccessFeatures.TryUnlockFeature(featureId, token, attestation);
-        if (!File.Exists(Path.Combine(Variables.ReboundDataFolder, "use_lifted_compositor")))
+
+        // If experimental system compositor support is requested, enable it
+        if (File.Exists(Path.Combine(Variables.ReboundDataFolder, "use_system_compositor")))
             CompositionEngine.TrySetProcessEngine(CompositionEngineType.System);
 
         XamlOptionalChanges.EnableChange(XamlChangeId.IconNoGridOptimization);
@@ -45,24 +45,5 @@ internal static class Program
             SynchronizationContext.SetSynchronizationContext(context);
             var app = new App();
         });
-    }
-}
-
-static class FeatureTokenGenerator
-{
-    public static string GenerateTokenFromFeatureId(string featureId, string code)
-        => GenerateFeatureToken(featureId, code, AppInfo.Current.PackageFamilyName);
-
-    public static string GenerateAttestation(string featureId)
-        => $"{AppInfo.Current.PackageFamilyName.Split('_').Last()} has registered their use of {featureId} with Microsoft and agrees to the terms of use.";
-
-    private static string GenerateFeatureToken(string featureId, string featureKey, string packageIdentity)
-    {
-        var fullBytes = Encoding.UTF8.GetBytes($"{featureId}!{featureKey}!{packageIdentity}");
-        var tokenBytes = new byte[16];
-        var hash = SHA256.HashData(fullBytes);
-        Array.Copy(hash, tokenBytes, tokenBytes.Length);
-
-        return Convert.ToBase64String(tokenBytes);
     }
 }

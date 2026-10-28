@@ -28,16 +28,6 @@
       <Platform Solution="*|x64" Project="x64" />
       <Deploy />
     </Project>
-    <Project Path="eng/distribution/standalone/Rebound.Uninstaller/Rebound.Uninstaller.csproj" Id="faffec5b-d7cd-44bb-922b-e994b7367d92">
-      <Platform Solution="*|ARM64" Project="ARM64" />
-      <Platform Solution="*|x64" Project="x64" />
-      <Deploy />
-    </Project>
-    <Project Path="eng/distribution/standalone/Rebound.Updater/Rebound.Updater.csproj" Id="231136da-1e80-4180-947b-a65af7cf4612">
-      <Platform Solution="*|ARM64" Project="ARM64" />
-      <Platform Solution="*|x64" Project="x64" />
-      <Deploy />
-    </Project>
   </Folder>
   <Folder Name="/src/" Id="02ea681e-c7d8-13c7-8484-4ac65e1b71e8">
     <File Path="src/Rebound.Hub_TemporaryKey.pfx" />
@@ -58,19 +48,8 @@
       <Platform Solution="*|x64" Project="x64" />
       <Deploy />
     </Project>
-    <Project Path="src/apps/Rebound.Defrag/Rebound.Defrag.csproj">
-      <Platform Solution="*|ARM64" Project="ARM64" />
-      <Platform Solution="*|x64" Project="x64" />
-    </Project>
-    <Project Path="src/apps/Rebound.OnScreenKeyboard/Rebound.OnScreenKeyboard.vcxproj" Id="b461b611-1a7b-4397-9c9f-7d99bbcbc85f">
-      <Platform Project="x64" />
-    </Project>
   </Folder>
   <Folder Name="/src/core/" Id="fb5d6fae-fad5-4679-aec2-b8fb3878993e">
-    <Project Path="src/core/Rebound.Core.Defrag/Rebound.Core.Defrag.csproj" Id="e4dcb082-6a6d-43b2-9103-4654977ac1bd">
-      <Platform Solution="*|ARM64" Project="ARM64" />
-      <Platform Solution="*|x64" Project="x64" />
-    </Project>
     <Project Path="src/core/Rebound.Core.DLLInjection/Rebound.Core.DLLInjection.csproj" Id="0ebdf941-ee7e-4cc8-bf8b-65dd9361af3e">
       <Platform Solution="*|ARM64" Project="ARM64" />
       <Platform Solution="*|x64" Project="x64" />
@@ -92,10 +71,6 @@
       <Platform Solution="*|x64" Project="x64" />
     </Project>
     <Project Path="src/core/Rebound.Core.SystemInformation/Rebound.Core.SystemInformation.csproj" Id="0779e817-1c61-45cd-80c3-21224dfac145">
-      <Platform Solution="*|ARM64" Project="ARM64" />
-      <Platform Solution="*|x64" Project="x64" />
-    </Project>
-    <Project Path="src/core/Rebound.Core.TaskScheduler/Rebound.Core.TaskScheduler.csproj" Id="e4df9307-ef97-406e-9f59-d23bdcd2313a">
       <Platform Solution="*|ARM64" Project="ARM64" />
       <Platform Solution="*|x64" Project="x64" />
     </Project>
@@ -160,7 +135,6 @@
       <Platform Solution="*|x64" Project="x64" />
       <Deploy />
     </Project>
-    <Project Path="src/system/Rebound.Launcher/Rebound.Launcher.vcxproj" Id="d771123e-cef3-4055-8a95-9c9930e06cd3" />
     <Project Path="src/system/Rebound.ServiceHost/Rebound.ServiceHost.csproj">
       <Platform Solution="*|ARM64" Project="ARM64" />
       <Platform Solution="*|x64" Project="x64" />
@@ -168,9 +142,7 @@
     </Project>
   </Folder>
   <Folder Name="/var/">
-    <File Path="docfx.json" />
     <File Path="LICENSE.md" />
-    <File Path="toc.yml" />
     <File Path="var/Version.props" />
     <File Path="var/VERSION.txt" />
     <File Path="var/VERSION_NAME.txt" />

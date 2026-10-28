@@ -1,8 +1,12 @@
 // Copyright (C) Ivirius(TM) Community 2020 - 2026. All Rights Reserved.
 // Licensed under the MIT License.
 
+using Microsoft.UI.Text;
+using Microsoft.UI.Xaml;
+using Microsoft.UI.Xaml.Controls;
+using Microsoft.UI.Xaml.Data;
+using Microsoft.UI.Xaml.Documents;
 using Rebound.Core;
-using Rebound.Core.Helpers;
 using Rebound.Core.UI;
 using Rebound.Forge;
 using Rebound.Hub.ViewModels;
@@ -13,11 +17,8 @@ using System.Reflection;
 using Windows.UI;
 using Windows.UI.Text;
 using Windows.UI.Xaml;
-using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Data;
-using Windows.UI.Xaml.Documents;
 using Windows.UI.Xaml.Markup;
-using Windows.UI.Xaml.Media;
 
 namespace Rebound.Hub.Views;
 
@@ -215,7 +216,7 @@ internal partial class ModToTasksListConverter : IValueConverter
                 {
                     tb.Inlines.Add(new Run()
                     {
-                        Text = $"\n•   {cog.TaskDescription}",
+                        Text = $"\n•   {cog.CogDescription}",
                     });
                 }
             }

@@ -135,15 +135,6 @@ public partial class Catalog : ObservableObject
                                     Path.Combine(AppContext.BaseDirectory, "Modding", "Packages", "Rebound.Shell.msixbundle"), 
                                     PackageFamilyName: "Rebound.Shell_rcz2tbwv5qzb8")
                             },
-                            new StartupTaskCog()
-                            {
-                                CogName = "Rebound Shell Startup Task",
-                                CogId = new("b43d1a69-671a-4eb6-bce4-d18b18d54342"),
-                                TaskDescription = "Rebound Shell task for overlapping the Windows shell.",
-                                TaskName = "Rebound Shell",
-                                TaskRequiresElevation = false,
-                                StartupTarget = new StartupTaskTarget("Rebound.Shell_rcz2tbwv5qzb8", StartupTaskTargetType.PackageFamilyName)
-                            },
                             new ProcessLaunchCog()
                             {
                                 CogName = "Rebound Shell Launcher",
@@ -405,20 +396,14 @@ public partial class Catalog : ObservableObject
                                     Path.Combine(AppContext.BaseDirectory, "Modding", "Packages", "Rebound.About.msixbundle"),
                                     "Rebound.About_rcz2tbwv5qzb8")
                             },
-                            new LauncherAssociationCog()
+                            new DLLInjectionCog()
                             {
-                                CogName = "Rebound About Launcher Association",
+                                CogName = "Rebound About Redirection DLL",
                                 CogId = new("d34554fc-f202-400a-80a9-cdbdc7a6f91a"),
-                                ConfigurationFileName = "winver",
-                                OriginalExecutable = "winver.exe",
-                                Targets =
-                                [
-                                    new LauncherTarget("default",
-                                        new LauncherTargetPackage()
-                                        {
-                                            FamilyName = "Rebound.About_rcz2tbwv5qzb8"
-                                        })
-                                ]
+                                DLLPathARM64 = Path.Combine(AppContext.BaseDirectory, "Modding", "DLLs", "Rebound.Forge.Hooks.About.ARM64.dll"),
+                                DLLPathx64 = Path.Combine(AppContext.BaseDirectory, "Modding", "DLLs", "Rebound.Forge.Hooks.About.x64.dll"),
+                                TargetProcesses = [ "*" ],
+                                ExcludedProcesses = [ ]
                             }
                         ],
                         Settings =
@@ -485,7 +470,7 @@ public partial class Catalog : ObservableObject
                 ]
             }
         };
-        return new(mods.OrderBy(m => m.Name));
+        return [with(mods.OrderBy(m => m.Name))];
     }
 
     /// <summary>
@@ -497,12 +482,12 @@ public partial class Catalog : ObservableObject
     private static ObservableCollection<Mod> CreateMandatoryMods()
     {
         var mods = new List<Mod>()
-        {
-        /*// Environment
+        {   
+            // Environment
             new()
             {
                 Name = "Environment",
-                Id = "Rebound.Environment",
+                Id = new Guid("569a252d-86c2-4cfc-aa33-25c4a49623b8"),
                 Description = "Mandatory mod required for Rebound to run properly.",
                 Icon = "ms-appx:///Assets/ReboundApps/Environment.ico",
                 Category = ModCategory.Mandatory,
@@ -512,43 +497,95 @@ public partial class Catalog : ObservableObject
                     new()
                     {
                         Name = "Default",
-                        Id = "Rebound.Environment.Default",
+                        Id = new("36f9393f-b6c1-473e-814a-89041688c86f"),
                         Cogs =
                         [
                             new FolderCog()
                             {
+                                CogName = "Data folder",
+                                CogId = new("41bc34e9-8be2-4d7a-95a7-15fc5ed5c9f9"),
                                 Path = Variables.ReboundDataFolder,
-                                AllowPersistence = true
+                                PersistAfterRemoving = true,
+                                RequiresElevation = false,
+                                LockBehindAdmin = false
                             },
                             new FolderCog()
                             {
-                                Path = Variables.ReboundProgramFilesFolder,
-                                AllowPersistence = true
-                            },
-                            new FolderCog()
-                            {
+                                CogName = "Mods folder",
+                                CogId = new("266105cd-5581-4b95-afd5-a30ac0d003be"),
                                 Path = Variables.ReboundModsFolder,
-                                AllowPersistence = true
+                                PersistAfterRemoving = true,
+                                RequiresElevation = true,
+                                LockBehindAdmin = true
                             },
                             new FolderCog()
                             {
-                                Path = Variables.ReboundStartMenuFolder,
-                                AllowPersistence = false
+                                CogName = "DLLs folder",
+                                CogId = new("6e9bd59d-1108-4a2e-b2af-5dfa97530dfc"),
+                                Path = Variables.ReboundInjectedDLLsFolder,
+                                PersistAfterRemoving = true,
+                                RequiresElevation = true,
+                                LockBehindAdmin = true
                             },
-                            new TaskFolderCog()
+                            new FolderCog()
                             {
-                                Name = "Rebound"
+                                CogName = "Start menu folder",
+                                CogId = new("c7856ce9-587b-4851-a388-ee8446e2bfba"),
+                                Path = Variables.ReboundStartMenuFolder,
+                                PersistAfterRemoving = false,
+                                RequiresElevation = false,
+                                LockBehindAdmin = false
                             }
                         ],
                     }
                 ]
             },
 
-            // Service Host
+            // MinHook-Detours
             new()
             {
-                Name = "Service Host",
-                Id = "Rebound.ServiceHost",
+                Name = "MinHook-Detours",
+                Id = new Guid("4e6c6105-6ae8-4ca0-8247-180f893604b1"),
+                Description = "DLL injection runtime required for Rebound to work properly.",
+                Icon = "ms-appx:///Assets/ReboundApps/Environment.ico",
+                Category = ModCategory.Mandatory,
+                PreferredInstallationTemplate = InstallationTemplate.Mandatory,
+                Variants =
+                [
+                    new()
+                    {
+                        Name = "Default",
+                        Id = new("c6ce0751-7500-4d8d-9f9a-d564054bec6c"),
+                        Cogs =
+                        [
+                            new FileCopyCog()
+                            {
+                                CogName = "ARM64 lib",
+                                CogId = new("d65d4ff6-2a6a-4f56-9660-b0722cb5d734"),
+                                IsDirectory = false,
+                                RequiresElevation = true,
+                                Path = Path.Combine(AppContext.BaseDirectory, "Libs", "minhook-detours.ARM64.Release.dll"),
+                                TargetPath = Path.Combine(Variables.ReboundLibsFolder, "minhook-detours.ARM64.Release.dll")
+                            },
+                            new FileCopyCog()
+                            {
+                                CogName = "x64 lib",
+                                CogId = new("ac162429-94bd-4a7f-857f-74400e72c391"),
+                                IsDirectory = false,
+                                RequiresElevation = true,
+                                Path = Path.Combine(AppContext.BaseDirectory, "Libs", "minhook-detours.x64.Release.dll"),
+                                TargetPath = Path.Combine(Variables.ReboundLibsFolder, "minhook-detours.x64.Release.dll")
+                            }
+                        ],
+                    }
+                ]
+            },
+
+            // Rebound (Service Host)
+            new()
+            {
+                Name = "Rebound (Service Host)",
+                Id = new Guid("c855b4cf-4f26-40dd-a38c-ac7aecb14029"),
                 Description = "Mandatory background service required for Rebound apps to run properly.",
                 Icon = "ms-appx:///Assets/ReboundApps/ServiceHost.ico",
                 Category = ModCategory.Mandatory,
@@ -558,62 +595,41 @@ public partial class Catalog : ObservableObject
                     new()
                     {
                         Name = "Default",
-                        Id = "Rebound.ServiceHost.Default",
+                        Id = new("e0acb7fb-2681-4c7f-b921-38a8b40100a9"),
                         Cogs =
                         [
                             new ProcessKillCog()
                             {
-                                ProcessName = "Rebound Service Host"
+                                CogName = "Kill Rebound (Service Host)",
+                                CogId = new("bbb3d616-c07d-4ff5-84a9-dc1336cb1882"),
+                                ProcessName = "Rebound.ServiceHost",
+                                KillOn = ProcessKillOn.Remove,
+                                RequiresElevation = true,
+                                RequiresUserConfirmation = false
                             },
-                            new ZipExtractCog()
+                            new PackageCog()
                             {
-                                ZipFilePath = Path.Combine(AppContext.BaseDirectory, "Modding", "ServiceHost", "ServiceHost.zip"),
-                                DestinationFolder = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles), "Rebound", "ServiceHost")
-                            },
-                            new StartupTaskCog()
-                            {
-                                TargetPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles), "Rebound", "ServiceHost", "Rebound Service Host.exe"),
-                                Description = "Rebound Service Host task for managing Rebound actions as admin.",
-                                Name = "Service Host",
-                                RequireAdmin = true
+                                CogName = "Rebound (Service Host) Package Manager",
+                                CogId = new("5690655c-4c78-482f-acc9-b9398d9cc03d"),
+                                Target = new PackageTarget(
+                                    PackageTargetType.Local,
+                                    Path.Combine(AppContext.BaseDirectory, "Modding", "Packages", "Rebound.ServiceHost.msixbundle"),
+                                    "Rebound.ServiceHost_rcz2tbwv5qzb8")
                             },
                             new ProcessLaunchCog()
                             {
-                                ExecutablePath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles), "Rebound", "ServiceHost", "Rebound Service Host.exe")
+                                CogName = "Start Rebound (Service Host)",
+                                CogId = new("69c7c511-e45d-4369-b73f-43f6e87d6551"),
+                                LaunchOn = ProcessLaunchOn.Apply,
+                                LaunchTarget = new ProcessLaunchTarget("Rebound.ServiceHost_rcz2tbwv5qzb8", ProcessLaunchTargetType.PackageFamilyName),
+                                RequiresElevation = true
                             }
                         ],
                     }
                 ]
             },
-            
-            // Launcher
-            new()
-            {
-                Name = "Launcher",
-                Id = "Rebound.Launcher",
-                Description = "Mandatory executable for Rebound apps to run properly.",
-                Icon = "ms-appx:///Assets/ReboundApps/Launcher.ico",
-                Category = ModCategory.Mandatory,
-                PreferredInstallationTemplate = InstallationTemplate.Mandatory,
-                Variants =
-                [
-                    new()
-                    {
-                        Name = "Default",
-                        Id = "Rebound.Launcher.Default",
-                        Cogs =
-                        [
-                            new FileCopyCog
-                            {
-                                Path = Path.Combine(AppContext.BaseDirectory, "Modding", "Launchers", "Rebound.Launcher.exe"),
-                                TargetPath = Variables.ReboundLauncherPath
-                            }
-                        ],
-                    }
-                ]
-            },*/
         };
-        return new(mods.OrderBy(m => m.Name));
+        return [with(mods.OrderBy(m => m.Name))];
     }
 
     /// <summary>
@@ -655,45 +671,8 @@ public partial class Catalog : ObservableObject
         ]
     };
 
-    /*/// <summary>
-    /// Represents the built-in mod definition for the Rebound uninstaller executable.
-    /// </summary>
-    /// <remarks>This mod is categorized as mandatory and is used to install the Rebound uninstaller,
-    /// including its executable and a desktop shortcut. It is intended to be present in all installations to allow
-    /// users to uninstall Rebound through the provided shortcut.</remarks>
-    public readonly static Mod Uninstaller = new()
-    {
-        Name = "Rebound Uninstaller",
-        Id = "Rebound.Uninstaller",
-        Description = "The Rebound uninstaller executable.",
-        Icon = string.Empty,
-        Category = ModCategory.Mandatory,
-        PreferredInstallationTemplate = InstallationTemplate.Mandatory,
-        Variants =
-        [
-            new()
-            {
-                Name = "Default",
-                Id = "Rebound.Uninstaller.Default",
-                Cogs =
-                [
-                    new FileCopyCog
-                    {
-                        Path = Path.Combine(AppContext.BaseDirectory, "Rebound Uninstaller.exe"),
-                        TargetPath = Variables.ReboundUninstallerPath
-                    },
-                    new ShortcutCog()
-                    {
-                        ExePath = Variables.ReboundUninstallerPath,
-                        ShortcutName = "Uninstall Rebound"
-                    }
-                ],
-            }
-        ]
-    };*/
-
     /// <summary>
     /// Custom mods that are loaded from a folder at runtime.
     /// </summary>
-    public static ObservableCollection<Mod> SideloadedMods => new(ModParser.ParseMods());
+    public static ObservableCollection<Mod> SideloadedMods => [with(ModParser.ParseMods())];
 }

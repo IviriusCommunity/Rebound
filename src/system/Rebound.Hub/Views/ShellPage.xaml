@@ -10,52 +10,201 @@
     xmlns:interactivity="using:Microsoft.Xaml.Interactivity"
     xmlns:local="using:Rebound.Hub.Views"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-    xmlns:muxc="using:Microsoft.UI.Xaml.Controls"
-    muxc:BackdropMaterial.ApplyToRootOrPageBackground="True"
+    xmlns:primitives="using:Microsoft.UI.Xaml.Controls.Primitives"
     mc:Ignorable="d">
     <Page.Resources>
         <PathIcon x:Key="ReboundIcon" Data="M 0 2 C 0 1 1 0 2 0 L 7 0 L 7 7 L 0 7 M 0 9 L 7 9 L 7 16 L 2 16 C 1 16 0 15 0 14 M 9 0 L 14 0 C 15 0 16 1 16 2 L 16 7 L 9 7  M 9 9 L 16 9 L 16 14 C 16 15 15 16 14 16 L 9 16 M 10 10 L 10 15 L 14 15 C 14.52 14.996 14.991 14.578 15 14 L 15 10 M 6 1 L 2 1 C 1.488 1.009 1.003 1.462 1 2 L 1 6 L 6 6 M 6 10 L 1 10 L 1 14 C 0.995 14.523 1.488 14.994 2 15 L 6 15 M 10 1 L 10 6 L 15 6 L 15 2 C 14.995 1.474 14.534 1.012 14 1" />
+        <Style x:Key="RoundedAutoSuggestBoxStyle" TargetType="AutoSuggestBox">
+            <Setter Property="VerticalAlignment" Value="Stretch" />
+            <Setter Property="VerticalContentAlignment" Value="Stretch" />
+            <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+            <Setter Property="IsTabStop" Value="False" />
+            <Setter Property="Foreground" Value="{ThemeResource TextControlForeground}" />
+            <Setter Property="Background" Value="{ThemeResource TextControlBackground}" />
+            <Setter Property="BorderBrush" Value="{ThemeResource TextControlBorderBrush}" />
+            <Setter Property="BorderThickness" Value="{ThemeResource TextControlBorderThemeThickness}" />
+            <Setter Property="FontFamily" Value="{ThemeResource ContentControlThemeFontFamily}" />
+            <Setter Property="FontSize" Value="{ThemeResource ControlContentThemeFontSize}" />
+            <Setter Property="TextBoxStyle" Value="{StaticResource AutoSuggestBoxTextBoxStyle}" />
+            <Setter Property="UseSystemFocusVisuals" Value="{ThemeResource IsApplicationFocusVisualKindReveal}" />
+            <Setter Property="CornerRadius" Value="{ThemeResource ControlCornerRadius}" />
+            <Setter Property="primitives:AutoSuggestBoxHelper.KeepInteriorCornersSquare" Value="false" />
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="AutoSuggestBox">
+                        <Grid x:Name="LayoutRoot">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*" />
+                            </Grid.ColumnDefinitions>
+
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="*" />
+                            </Grid.RowDefinitions>
+                            <TextBox
+                                x:Name="TextBox"
+                                Width="{TemplateBinding Width}"
+                                Margin="0"
+                                Padding="14,5,8,6"
+                                HorizontalContentAlignment="{TemplateBinding HorizontalContentAlignment}"
+                                VerticalContentAlignment="{TemplateBinding VerticalContentAlignment}"
+                                Background="{TemplateBinding Background}"
+                                BorderBrush="{TemplateBinding BorderBrush}"
+                                BorderThickness="{TemplateBinding BorderThickness}"
+                                Canvas.ZIndex="0"
+                                CornerRadius="{TemplateBinding CornerRadius}"
+                                Description="{TemplateBinding Description}"
+                                DesiredCandidateWindowAlignment="BottomEdge"
+                                FontFamily="{TemplateBinding FontFamily}"
+                                FontSize="{TemplateBinding FontSize}"
+                                FontStretch="{TemplateBinding FontStretch}"
+                                FontWeight="{TemplateBinding FontWeight}"
+                                Foreground="{TemplateBinding Foreground}"
+                                Header="{TemplateBinding Header}"
+                                PlaceholderText="{TemplateBinding PlaceholderText}"
+                                ScrollViewer.BringIntoViewOnFocusChange="False"
+                                Style="{TemplateBinding TextBoxStyle}"
+                                UseSystemFocusVisuals="{TemplateBinding UseSystemFocusVisuals}" />
+
+                            <Popup
+                                x:Name="SuggestionsPopup"
+                                Margin="0,8,0,0"
+                                ShouldConstrainToRootBounds="False">
+                                <Border
+                                    x:Name="SuggestionsContainer"
+                                    Padding="{ThemeResource AutoSuggestListMargin}"
+                                    Background="{ThemeResource AutoSuggestBoxSuggestionsListBackground}"
+                                    BorderBrush="{ThemeResource AutoSuggestBoxSuggestionsListBorderBrush}"
+                                    BorderThickness="{ThemeResource AutoSuggestListBorderThemeThickness}"
+                                    CornerRadius="{ThemeResource OverlayCornerRadius}">
+                                    <ListView
+                                        x:Name="SuggestionsList"
+                                        MaxHeight="{ThemeResource AutoSuggestListMaxHeight}"
+                                        Margin="{ThemeResource AutoSuggestListPadding}"
+                                        DisplayMemberPath="{TemplateBinding DisplayMemberPath}"
+                                        IsItemClickEnabled="True"
+                                        ItemContainerStyle="{TemplateBinding ItemContainerStyle}"
+                                        ItemTemplate="{TemplateBinding ItemTemplate}"
+                                        ItemTemplateSelector="{TemplateBinding ItemTemplateSelector}">
+                                        <ListView.ItemContainerTransitions />
+                                    </ListView>
+                                </Border>
+                            </Popup>
+
+                            <VisualStateManager.VisualStateGroups>
+                                <VisualStateGroup x:Name="Orientation">
+                                    <VisualState x:Name="Landscape" />
+                                    <VisualState x:Name="Portrait" />
+
+                                </VisualStateGroup>
+
+                            </VisualStateManager.VisualStateGroups>
+                        </Grid>
+
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
     </Page.Resources>
     <Grid>
-        <StackPanel
-            Margin="16,16"
-            VerticalAlignment="Top"
-            Orientation="Horizontal"
-            Spacing="8">
-            <Image
-                Grid.Column="1"
-                Width="16"
-                VerticalAlignment="Center"
-                x:FieldModifier="public"
-                Source="/Assets/AppIcons/ReboundHub.ico" />
-            <TextBlock FontSize="12" Text="Rebound Hub" />
-            <Border
-                Padding="6,2,6,3"
-                VerticalAlignment="Center"
-                Background="{ThemeResource AccentFillColorDefaultBrush}"
-                CornerRadius="2">
-                <TextBlock
-                    FontSize="10"
-                    FontWeight="SemiBold"
-                    Foreground="{ThemeResource TextOnAccentFillColorPrimaryBrush}"
-                    Text="BETA" />
-            </Border>
-        </StackPanel>
-        <muxc:NavigationView
+        <NavigationView
             x:Name="NavigationViewControl"
             Margin="0,48,0,0"
             x:FieldModifier="public"
             IsBackButtonVisible="Collapsed"
+            IsPaneToggleButtonVisible="False"
             ItemInvoked="NavigationViewControl_ItemInvoked"
-            OpenPaneLength="280"
+            OpenPaneLength="248"
             PaneDisplayMode="Left"
-            PaneTitle="{x:Bind core:Variables.ReboundVersion, Mode=OneTime}">
-            <muxc:NavigationView.AutoSuggestBox>
+            PaneTitle="">
+            <NavigationView.MenuItems>
+                <NavigationViewItem
+                    x:Name="HomeItem"
+                    Content="Home"
+                    Tag="Home">
+                    <NavigationViewItem.Icon>
+                        <FontIcon Glyph="&#xE80F;" />
+                    </NavigationViewItem.Icon>
+                </NavigationViewItem>
+                <NavigationViewItem
+                    x:Name="ReboundItem"
+                    Content="Rebound"
+                    Tag="Rebound">
+                    <NavigationViewItem.Icon>
+                        <PathIcon Data="F1 M 0 2 C 0 1 1 0 2 0 L 7 0 L 7 7 L 0 7 M 0 9 L 7 9 L 7 16 L 2 16 C 1 16 0 15 0 14 M 9 0 L 14 0 C 15 0 16 1 16 2 L 16 7 L 9 7 M 9 9 L 16 9 L 16 14 C 16 15 15 16 14 16 L 9 16 M 10 10 L 10 15 L 14 15 C 14.52 14.996 14.991 14.578 15 14 L 15 10 M 6 1 L 2 1 C 1.488 1.009 1.003 1.462 1 2 L 1 6 L 6 6 M 6 10 L 1 10 L 1 14 C 0.995 14.523 1.488 14.994 2 15 L 6 15 M 10 1 L 10 6 L 15 6 L 15 2 C 14.995 1.474 14.534 1.012 14 1" />
+                    </NavigationViewItem.Icon>
+                </NavigationViewItem>
+                <NavigationViewItem
+                    x:Name="ModStudioItem"
+                    Content="Mod Studio (Coming Soon)"
+                    IsEnabled="False"
+                    SelectsOnInvoked="False">
+                    <NavigationViewItem.Icon>
+                        <FontIcon Glyph="&#xEB3C;" />
+                    </NavigationViewItem.Icon>
+                </NavigationViewItem>
+                <NavigationViewItem
+                    x:Name="UpdateItem"
+                    Content="Update available"
+                    SelectsOnInvoked="False"
+                    Tag="Update"
+                    Visibility="Collapsed">
+                    <NavigationViewItem.Icon>
+                        <FontIcon Glyph="&#xE72C;" />
+                    </NavigationViewItem.Icon>
+                </NavigationViewItem>
+                <NavigationViewItemSeparator Visibility="{x:Bind app:App.ReboundService.IsReboundEnabled, Mode=OneWay}" />
+            </NavigationView.MenuItems>
+            <NavigationView.FooterMenuItems>
+                <NavigationViewItem
+                    x:Name="FeedbackItem"
+                    Content="Feedback"
+                    SelectsOnInvoked="False">
+                    <NavigationViewItem.Icon>
+                        <FontIcon Glyph="&#xED15;" />
+                    </NavigationViewItem.Icon>
+                    <interactivity:Interaction.Behaviors>
+                        <interactivity:EventTriggerBehavior EventName="Tapped">
+                            <behaviors:NavigateToUriAction NavigateUri="https://ivirius.com/contact" />
+                        </interactivity:EventTriggerBehavior>
+                    </interactivity:Interaction.Behaviors>
+                </NavigationViewItem>
+            </NavigationView.FooterMenuItems>
+            <NavigationView.Content>
+                <Frame
+                    x:Name="MainFrame"
+                    BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                    BorderThickness="1,1,0,0"
+                    CornerRadius="8,0,0,0" />
+            </NavigationView.Content>
+        </NavigationView>
+        <TitleBar
+            Title="Rebound Hub"
+            VerticalAlignment="Top"
+            IsPaneToggleButtonVisible="True" PaneToggleRequested="TitleBar_PaneToggleRequested"
+            Subtitle="{x:Bind core:Variables.ReboundVersion, Mode=OneTime}">
+            <TitleBar.IconSource>
+                <ImageIconSource ImageSource="/Assets/AppIcons/ReboundHub.ico" />
+            </TitleBar.IconSource>
+            <TitleBar.Resources>
+                <!--
+                    TitleBar.Content uses Center alignment by default. Override to
+                    Stretch so the AutoSuggestBox grows with the title bar.
+                -->
+                <HorizontalAlignment x:Key="TitleBarContentHorizontalAlignment">Stretch</HorizontalAlignment>
+            </TitleBar.Resources>
+            <TitleBar.Content>
                 <AutoSuggestBox
                     x:Name="AutoSuggestBoxControl"
+                    MaxWidth="540"
+                    Margin="32,0,-64,-4"
+                    HorizontalAlignment="Stretch"
+                    VerticalAlignment="Center"
+                    BorderBrush="{ThemeResource ControlElevationBorderBrush}"
+                    CornerRadius="16"
                     ItemsSource="{x:Bind Suggestions}"
-                    PlaceholderText="Search"
+                    PlaceholderText="Search..."
                     QueryIcon="Find"
+                    Style="{StaticResource RoundedAutoSuggestBoxStyle}"
                     SuggestionChosen="AutoSuggestBox_SuggestionChosen"
                     TextChanged="AutoSuggestBox_TextChanged">
                     <AutoSuggestBox.ItemTemplate>
@@ -64,72 +213,7 @@
                         </DataTemplate>
                     </AutoSuggestBox.ItemTemplate>
                 </AutoSuggestBox>
-            </muxc:NavigationView.AutoSuggestBox>
-            <muxc:NavigationView.MenuItems>
-                <muxc:NavigationViewItem
-                    x:Name="HomeItem"
-                    Content="Home"
-                    Tag="Home">
-                    <muxc:NavigationViewItem.Icon>
-                        <FontIcon Glyph="&#xE80F;" />
-                    </muxc:NavigationViewItem.Icon>
-                </muxc:NavigationViewItem>
-                <muxc:NavigationViewItem
-                    x:Name="ReboundItem"
-                    Content="Rebound"
-                    Tag="Rebound">
-                    <muxc:NavigationViewItem.Icon>
-                        <PathIcon Data="F1 M 0 2 C 0 1 1 0 2 0 L 7 0 L 7 7 L 0 7 M 0 9 L 7 9 L 7 16 L 2 16 C 1 16 0 15 0 14 M 9 0 L 14 0 C 15 0 16 1 16 2 L 16 7 L 9 7 M 9 9 L 16 9 L 16 14 C 16 15 15 16 14 16 L 9 16 M 10 10 L 10 15 L 14 15 C 14.52 14.996 14.991 14.578 15 14 L 15 10 M 6 1 L 2 1 C 1.488 1.009 1.003 1.462 1 2 L 1 6 L 6 6 M 6 10 L 1 10 L 1 14 C 0.995 14.523 1.488 14.994 2 15 L 6 15 M 10 1 L 10 6 L 15 6 L 15 2 C 14.995 1.474 14.534 1.012 14 1" />
-                    </muxc:NavigationViewItem.Icon>
-                </muxc:NavigationViewItem>
-                <muxc:NavigationViewItem
-                    x:Name="ModStudioItem"
-                    Content="Mod Studio (Coming Soon)"
-                    IsEnabled="False"
-                    SelectsOnInvoked="False">
-                    <muxc:NavigationViewItem.Icon>
-                        <FontIcon Glyph="&#xEB3C;" />
-                    </muxc:NavigationViewItem.Icon>
-                </muxc:NavigationViewItem>
-                <muxc:NavigationViewItem
-                    x:Name="UpdateItem"
-                    Content="Update available"
-                    SelectsOnInvoked="False"
-                    Tag="Update"
-                    Visibility="Collapsed">
-                    <muxc:NavigationViewItem.Icon>
-                        <FontIcon Glyph="&#xE72C;" />
-                    </muxc:NavigationViewItem.Icon>
-                </muxc:NavigationViewItem>
-                <muxc:NavigationViewItemSeparator Visibility="{x:Bind app:App.ReboundService.IsReboundEnabled, Mode=OneWay}" />
-            </muxc:NavigationView.MenuItems>
-            <muxc:NavigationView.FooterMenuItems>
-                <muxc:NavigationViewItem
-                    x:Name="FeedbackItem"
-                    Content="Feedback"
-                    SelectsOnInvoked="False">
-                    <muxc:NavigationViewItem.Icon>
-                        <FontIcon Glyph="&#xED15;" />
-                    </muxc:NavigationViewItem.Icon>
-                    <interactivity:Interaction.Behaviors>
-                        <interactivity:EventTriggerBehavior EventName="Tapped">
-                            <behaviors:NavigateToUriAction NavigateUri="https://ivirius.com/contact" />
-                        </interactivity:EventTriggerBehavior>
-                    </interactivity:Interaction.Behaviors>
-                </muxc:NavigationViewItem>
-            </muxc:NavigationView.FooterMenuItems>
-            <muxc:NavigationView.Content>
-                <Frame
-                    x:Name="MainFrame"
-                    BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
-                    BorderThickness="1,1,0,0"
-                    CornerRadius="8,0,0,0" />
-            </muxc:NavigationView.Content>
-        </muxc:NavigationView>
-        <Frame
-            x:Name="OverlayFrame"
-            Margin="0,48,0,0"
-            Background="{ThemeResource LayerFillColorDefaultBrush}"
-            Visibility="Collapsed" />
+            </TitleBar.Content>
+        </TitleBar>
     </Grid>
 </Page>

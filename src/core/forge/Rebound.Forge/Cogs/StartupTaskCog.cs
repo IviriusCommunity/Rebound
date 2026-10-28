@@ -3,9 +3,12 @@
 
 using Rebound.Core;
 using Rebound.Core.Native.Wrappers;
-using Rebound.Core.TaskScheduler.Native;
-using TerraFX.Interop.Windows;
-using static TerraFX.Interop.Windows.Windows;
+using System.Xml.Linq;
+using Windows.Management.Deployment;
+using Windows.Win32;
+using Windows.Win32.Foundation;
+using Windows.Win32.System.Com;
+using Windows.Win32.System.TaskScheduler;
 
 #pragma warning disable CA1031 // Do not catch general exception types
 
@@ -83,102 +86,186 @@ public class StartupTaskCog : ICog
     {
         try
         {
-            if (!TryGetTaskService(out var taskService))
-            {
-                ReboundLogger.WriteToLog(
-                    "StartupTaskCog Apply",
-                    "Failed to create Task Scheduler service.",
-                    LogMessageSeverity.Error);
-                return Task.FromResult(new CogOperationResult(false, "Failed to create Task Scheduler service.", false));
-            }
+            if (!TryGetTaskService(out var service))
+                return Task.FromResult(new CogOperationResult(
+                    false, "TASK_SERVICE_NOT_CREATED", false));
 
-            using (taskService)
+            using (service)
             {
-                if (!TryGetOrCreateReboundFolder(taskService, out var reboundFolder))
-                    return Task.FromResult(new CogOperationResult(false, "Failed to create or get Rebound folder.", false));
+                if (!TryGetOrCreateReboundFolder(service, out var folder))
+                    return Task.FromResult(new CogOperationResult(
+                        false, "FOLDER_NOT_CREATED", false));
 
-                using (reboundFolder)
+                using (folder)
                 {
                     using ComPtr<ITaskDefinition> taskDef = default;
-                    taskService.Get()->NewTask(0, taskDef.GetAddressOf());
+                    HRESULT hr = service.Get()->NewTask(
+                        0, taskDef.GetAddressOf());
 
-                    // Registration info
-                    using ComPtr<IRegistrationInfo> registrationInfo = default;
-                    taskDef.Get()->get_RegistrationInfo(registrationInfo.GetAddressOf());
-                    using ManagedPtr<ushort> description = TaskDescription;
-                    registrationInfo.Get()->put_Description(description);
+                    if (hr.Failed)
+                        return Task.FromResult(new CogOperationResult(
+                            false, "TASK_DEFINITION_NOT_CREATED", false));
 
-                    // Settings
+                    // Registration information.
+                    using ComPtr<IRegistrationInfo> registration = default;
+                    hr = taskDef.Get()->get_RegistrationInfo(
+                        registration.GetAddressOf());
+
+                    if (hr.Failed)
+                        return Task.FromResult(new CogOperationResult(
+                            false, "REGISTRATION_INFO_FAILED", false));
+
+                    using StringPtr description = TaskDescription;
+                    hr = registration.Get()->put_Description(
+                        new BSTR(description.GetChars()));
+
+                    if (hr.Failed)
+                        return Task.FromResult(new CogOperationResult(
+                            false, "DESCRIPTION_FAILED", false));
+
+                    // Settings.
                     using ComPtr<ITaskSettings> settings = default;
-                    taskDef.Get()->get_Settings(settings.GetAddressOf());
-                    settings.Get()->put_DisallowStartIfOnBatteries(false);
+                    hr = taskDef.Get()->get_Settings(
+                        settings.GetAddressOf());
 
-                    // Principal / elevation
+                    if (hr.Failed)
+                        return Task.FromResult(new CogOperationResult(
+                            false, "SETTINGS_FAILED", false));
+
+                    hr = settings.Get()->put_DisallowStartIfOnBatteries(false);
+
+                    if (hr.Failed)
+                        return Task.FromResult(new CogOperationResult(
+                            false, "SETTINGS_UPDATE_FAILED", false));
+
+                    // Principal / run level.
                     using ComPtr<IPrincipal> principal = default;
-                    taskDef.Get()->get_Principal(principal.GetAddressOf());
-                    principal.Get()->put_RunLevel(TaskRequiresElevation
-                        ? TASK_RUNLEVEL_TYPE.TASK_RUNLEVEL_HIGHEST
-                        : TASK_RUNLEVEL_TYPE.TASK_RUNLEVEL_LUA);
+                    hr = taskDef.Get()->get_Principal(
+                        principal.GetAddressOf());
 
-                    // Logon trigger
+                    if (hr.Failed)
+                        return Task.FromResult(new CogOperationResult(
+                            false, "PRINCIPAL_FAILED", false));
+
+                    hr = principal.Get()->put_RunLevel(
+                        TaskRequiresElevation
+                            ? TASK_RUNLEVEL_TYPE.TASK_RUNLEVEL_HIGHEST
+                            : TASK_RUNLEVEL_TYPE.TASK_RUNLEVEL_LUA);
+
+                    if (hr.Failed)
+                        return Task.FromResult(new CogOperationResult(
+                            false, "RUN_LEVEL_FAILED", false));
+
+                    // Logon trigger.
                     using ComPtr<ITriggerCollection> triggers = default;
-                    taskDef.Get()->get_Triggers(triggers.GetAddressOf());
-                    using ComPtr<ILogonTrigger> trigger = default;
-                    triggers.Get()->Create(TASK_TRIGGER_TYPE2.TASK_TRIGGER_LOGON, (ITrigger**)trigger.GetAddressOf());
+                    hr = taskDef.Get()->get_Triggers(
+                        triggers.GetAddressOf());
 
-                    // Exec action
+                    if (hr.Failed)
+                        return Task.FromResult(new CogOperationResult(
+                            false, "TRIGGERS_FAILED", false));
+
+                    using ComPtr<ILogonTrigger> logonTrigger = default;
+                    hr = triggers.Get()->Create(
+                        TASK_TRIGGER_TYPE2.TASK_TRIGGER_LOGON,
+                        (ITrigger**)logonTrigger.GetAddressOf());
+
+                    if (hr.Failed)
+                        return Task.FromResult(new CogOperationResult(
+                            false, "LOGON_TRIGGER_FAILED", false));
+
+                    // Executable action.
                     using ComPtr<IActionCollection> actions = default;
-                    taskDef.Get()->get_Actions(actions.GetAddressOf());
-                    using ComPtr<IExecAction> action = default;
-                    actions.Get()->Create(TASK_ACTION_TYPE.TASK_ACTION_EXEC, (IAction**)action.GetAddressOf());
+                    hr = taskDef.Get()->get_Actions(
+                        actions.GetAddressOf());
+
+                    if (hr.Failed)
+                        return Task.FromResult(new CogOperationResult(
+                            false, "ACTIONS_FAILED", false));
+
+                    using ComPtr<IExecAction> execAction = default;
+                    hr = actions.Get()->Create(
+                        TASK_ACTION_TYPE.TASK_ACTION_EXEC,
+                        (IAction**)execAction.GetAddressOf());
+
+                    if (hr.Failed)
+                        return Task.FromResult(new CogOperationResult(
+                            false, "EXEC_ACTION_FAILED", false));
+
+                    string executablePath;
+
                     switch (StartupTarget.TargetType)
                     {
                         case StartupTaskTargetType.ExecutablePath:
-                            {
-                                using ManagedPtr<ushort> pszCommand = StartupTarget.Target;
-                                action.Get()->put_Path(pszCommand);
-                                action.Get()->put_Arguments(null);
-                                break;
-                            }
+                            executablePath = StartupTarget.Target;
+                            break;
 
                         case StartupTaskTargetType.PackageFamilyName:
-                            {
-                                using ManagedPtr<ushort> pszCommand = Variables.ReboundLauncherPath;
-                                using ManagedPtr<ushort> pszArguments = $"--launchPackage {StartupTarget.Target}!App";
-
-                                action.Get()->put_Path(pszCommand);
-                                action.Get()->put_Arguments(pszArguments);
-                                break;
-                            }
+                            // Resolve the package's installed executable
+                            // for application ID "App" here.
+                            executablePath = ResolvePackageExecutable(
+                                StartupTarget.Target, "App");
+                            break;
 
                         default:
-                            return Task.FromResult(new CogOperationResult(false, "INVALID_TARGET_TYPE", false));
+                            return Task.FromResult(new CogOperationResult(
+                                false, "INVALID_TARGET_TYPE", false));
                     }
 
-                    // Register
+                    using StringPtr path = executablePath;
+                    hr = execAction.Get()->put_Path(
+                        new BSTR(path.GetChars()));
+
+                    if (hr.Failed)
+                        return Task.FromResult(new CogOperationResult(
+                            false, "EXECUTABLE_PATH_FAILED", false));
+
+                    hr = execAction.Get()->put_Arguments(new BSTR());
+
+                    if (hr.Failed)
+                        return Task.FromResult(new CogOperationResult(
+                            false, "EXECUTABLE_ARGUMENTS_FAILED", false));
+
+                    // Register task.
+                    using StringPtr taskName = TaskName;
                     using ComPtr<IRegisteredTask> registeredTask = default;
-                    using ManagedPtr<ushort> pszName = TaskName;
-                    reboundFolder.Get()->RegisterTaskDefinition(
-                        pszName,
-                        taskDef,
-                        0x6,
-                        new(), new(),
+
+                    hr = folder.Get()->RegisterTaskDefinition(
+                        new BSTR(taskName.GetChars()),
+                        taskDef.Get(),
+                        0x6, // TASK_CREATE_OR_UPDATE | TASK_IGNORE_REGISTRATION_TRIGGERS
+                        new(),
+                        new(),
                         TASK_LOGON_TYPE.TASK_LOGON_INTERACTIVE_TOKEN,
                         new(),
                         registeredTask.GetAddressOf());
+
+                    if (hr.Failed)
+                    {
+                        ReboundLogger.WriteToLog(
+                            "StartupTaskCog Apply",
+                            $"RegisterTaskDefinition failed. HRESULT=0x{hr.Value:X}",
+                            LogMessageSeverity.Error);
+
+                        return Task.FromResult(new CogOperationResult(
+                            false, "TASK_REGISTRATION_FAILED", false));
+                    }
                 }
             }
+
+            return Task.FromResult(new CogOperationResult(true, null, true));
         }
         catch (Exception ex)
         {
             ReboundLogger.WriteToLog(
                 "StartupTaskCog Apply",
-                "An exception occurred while applying the startup task cog.",
+                "Failed to apply startup task.",
                 LogMessageSeverity.Error,
                 ex);
-        }
 
-        return Task.FromResult(new CogOperationResult(true, null, true));
+            return Task.FromResult(new CogOperationResult(
+                false, "EXCEPTION", false));
+        }
     }
 
     /// <inheritdoc/>
@@ -186,40 +273,52 @@ public class StartupTaskCog : ICog
     {
         try
         {
-            if (!TryGetTaskService(out var taskService))
-                return Task.FromResult(new CogOperationResult(false, "Failed to get task service.", false));
+            if (!TryGetTaskService(out var service))
+                return Task.FromResult(new CogOperationResult(
+                    false, "TASK_SERVICE_NOT_CREATED", false));
 
-            using (taskService)
+            using (service)
             {
-                using ComPtr<ITaskFolder> reboundFolder = default;
-                using ManagedPtr<ushort> pszRebound = "Rebound";
-                var hr = taskService.Get()->GetFolder(pszRebound, reboundFolder.GetAddressOf());
+                using StringPtr folderName = "Rebound";
+                using StringPtr taskName = TaskName;
+                using ComPtr<ITaskFolder> folder = default;
 
-                if (hr.FAILED || reboundFolder.Get() is null)
-                    return Task.FromResult(new CogOperationResult(false, "Failed to get rebound folder.", false));
+                HRESULT hr = service.Get()->GetFolder(
+                    new BSTR(folderName.GetChars()),
+                    folder.GetAddressOf());
 
-                using ManagedPtr<ushort> pszName = TaskName;
-                hr = reboundFolder.Get()->DeleteTask(pszName, new());
+                if (hr.Failed || folder.Get() is null)
+                    return Task.FromResult(new CogOperationResult(
+                        false, "TASK_FOLDER_NOT_FOUND", false));
 
-                if (hr.FAILED)
+                hr = folder.Get()->DeleteTask(
+                    new BSTR(taskName.GetChars()), 0);
+
+                if (hr.Failed)
                 {
                     ReboundLogger.WriteToLog(
                         "StartupTaskCog Remove",
                         $"Failed to delete task '{TaskName}'. HRESULT=0x{hr.Value:X}",
                         LogMessageSeverity.Error);
+
+                    return Task.FromResult(new CogOperationResult(
+                        false, "TASK_DELETE_FAILED", false));
                 }
             }
+
+            return Task.FromResult(new CogOperationResult(true, null, true));
         }
         catch (Exception ex)
         {
             ReboundLogger.WriteToLog(
                 "StartupTaskCog Remove",
-                "An exception occurred while removing the startup task cog.",
+                "Failed to remove startup task.",
                 LogMessageSeverity.Error,
                 ex);
-        }
 
-        return Task.FromResult(new CogOperationResult(true, null, true));
+            return Task.FromResult(new CogOperationResult(
+                false, "EXCEPTION", false));
+        }
     }
 
     /// <inheritdoc/>
@@ -227,162 +326,296 @@ public class StartupTaskCog : ICog
     {
         try
         {
-            if (!TryGetTaskService(out var taskService))
-                return Task.FromResult(new CogStatus(CogState.Unknown, "Couldn't access Task Scheduler service."));
+            if (!TryGetTaskService(out var service))
+                return Task.FromResult(new CogStatus(
+                    CogState.Unknown, "Could not create Task Scheduler service."));
 
-            using (taskService)
+            using (service)
             {
-                using ComPtr<ITaskFolder> reboundFolder = default;
-                using ManagedPtr<ushort> pszRebound = "Rebound";
+                using StringPtr folderName = "Rebound";
+                using StringPtr taskName = TaskName;
+                using ComPtr<ITaskFolder> folder = default;
 
-                var hr = taskService.Get()->GetFolder(pszRebound, reboundFolder.GetAddressOf());
-                if (hr.FAILED || reboundFolder.Get() is null)
-                    return Task.FromResult(new CogStatus(CogState.NotInstalled, "Rebound folder not found."));
+                HRESULT hr = service.Get()->GetFolder(
+                    new BSTR(folderName.GetChars()),
+                    folder.GetAddressOf());
+
+                if (hr.Failed || folder.Get() is null)
+                    return Task.FromResult(new CogStatus(
+                        CogState.NotInstalled, "Rebound folder not found."));
 
                 using ComPtr<IRegisteredTask> registeredTask = default;
-                using ManagedPtr<ushort> pszName = TaskName;
+                hr = folder.Get()->GetTask(
+                    new BSTR(taskName.GetChars()),
+                    registeredTask.GetAddressOf());
 
-                hr = reboundFolder.Get()->GetTask(pszName, registeredTask.GetAddressOf());
-                if (hr.FAILED || registeredTask.Get() is null)
-                    return Task.FromResult(new CogStatus(CogState.NotInstalled, $"Task '{TaskName}' not found."));
+                if (hr.Failed || registeredTask.Get() is null)
+                    return Task.FromResult(new CogStatus(
+                        CogState.NotInstalled, $"Task '{TaskName}' not found."));
 
-                // Enabled state
-                short enabled;
-                registeredTask.Get()->get_Enabled(&enabled);
+                hr = registeredTask.Get()->get_Enabled(out var enabled);
+
+                if (hr.Failed)
+                    return Task.FromResult(new CogStatus(
+                        CogState.Unknown, "Failed to read task enabled state."));
+
                 if (enabled == 0)
-                    return Task.FromResult(new CogStatus(CogState.NotInstalled, "Task is disabled."));
+                    return Task.FromResult(new CogStatus(
+                        CogState.NotInstalled, "Task is disabled."));
 
-                // Pull definition
                 using ComPtr<ITaskDefinition> taskDef = default;
-                registeredTask.Get()->get_Definition(taskDef.GetAddressOf());
+                hr = registeredTask.Get()->get_Definition(
+                    taskDef.GetAddressOf());
+
+                if (hr.Failed)
+                    return Task.FromResult(new CogStatus(
+                        CogState.PartiallyInstalled, "Failed to read task definition."));
 
                 using ComPtr<IActionCollection> actions = default;
-                taskDef.Get()->get_Actions(actions.GetAddressOf());
+                hr = taskDef.Get()->get_Actions(actions.GetAddressOf());
 
-                int count;
-                if (actions.Get()->get_Count(&count).FAILED)
-                    return Task.FromResult(new CogStatus(CogState.PartiallyInstalled, "Failed to read actions."));
+                if (hr.Failed)
+                    return Task.FromResult(new CogStatus(
+                        CogState.PartiallyInstalled, "Failed to read task actions."));
 
-                if (count < 1)
-                    return Task.FromResult(new CogStatus(CogState.PartiallyInstalled, "No actions found."));
+                int count = 0;
+                hr = actions.Get()->get_Count(&count);
 
-                ComPtr<IAction> actionPtr = default;
-                actions.Get()->get_Item(1, actionPtr.GetAddressOf());
+                if (hr.Failed || count < 1)
+                    return Task.FromResult(new CogStatus(
+                        CogState.PartiallyInstalled, "No task actions found."));
 
-                if (actions.Get()->get_Item(1, actionPtr.GetAddressOf()).FAILED || actionPtr.Get() is null)
-                    return Task.FromResult(new CogStatus(CogState.PartiallyInstalled, "No action found."));
+                using ComPtr<IAction> action = default;
+                hr = actions.Get()->get_Item(1, action.GetAddressOf());
 
-                using ComPtr<IExecAction> execAction = default;
-                if (actionPtr.Get()->QueryInterface(IExecAction.IID, (void**)execAction.GetAddressOf()).FAILED)
-                    return Task.FromResult(new CogStatus(CogState.PartiallyInstalled, "Action is not an exec action."));
+                if (hr.Failed || action.Get() is null)
+                    return Task.FromResult(new CogStatus(
+                        CogState.PartiallyInstalled, "Failed to read task action."));
 
-                ushort* pathPtr;
-                ushort* argsPtr;
+                hr = action.Get()->QueryInterface<IExecAction>(out var execAction);
 
-                execAction.Get()->get_Path(&pathPtr);
-                execAction.Get()->get_Arguments(&argsPtr);
+                if (hr.Failed || execAction is null)
+                    return Task.FromResult(new CogStatus(
+                        CogState.PartiallyInstalled, "Action is not an executable action."));
 
-                string actualPath = pathPtr != null ? new string((char*)pathPtr) : string.Empty;
-                string actualArgs = argsPtr != null ? new string((char*)argsPtr) : string.Empty;
+                BSTR pathPtr = default;
+                hr = execAction->get_Path(ref pathPtr);
 
-                if (pathPtr != null) CoTaskMemFree(pathPtr);
-                if (argsPtr != null) CoTaskMemFree(argsPtr);
+                if (hr.Failed)
+                    return Task.FromResult(new CogStatus(
+                        CogState.PartiallyInstalled, "Failed to read executable path."));
 
-                bool valid = StartupTarget.TargetType switch
+                string actualPath = new string((char*)pathPtr);
+
+                string expectedPath;
+
+                switch (StartupTarget.TargetType)
                 {
-                    StartupTaskTargetType.ExecutablePath =>
-                        string.Equals(actualPath, StartupTarget.Target, StringComparison.OrdinalIgnoreCase),
+                    case StartupTaskTargetType.ExecutablePath:
+                        expectedPath = StartupTarget.Target;
+                        break;
 
-                    StartupTaskTargetType.PackageFamilyName =>
-                        string.Equals(actualPath, Variables.ReboundLauncherPath, StringComparison.OrdinalIgnoreCase) &&
-                        string.Equals(actualArgs, $"--launchPackage {StartupTarget.Target}!App", StringComparison.Ordinal),
+                    case StartupTaskTargetType.PackageFamilyName:
+                        expectedPath = ResolvePackageExecutable(
+                            StartupTarget.Target, "App");
+                        break;
 
-                    _ => false
-                };
+                    default:
+                        return Task.FromResult(new CogStatus(
+                            CogState.PartiallyInstalled, "Invalid target type."));
+                }
 
-                if (!valid)
-                    return Task.FromResult(new CogStatus(CogState.PartiallyInstalled, "Task configuration mismatch."));
+                bool valid = string.Equals(
+                    actualPath,
+                    expectedPath,
+                    StringComparison.OrdinalIgnoreCase);
 
-                return Task.FromResult(new CogStatus(CogState.Installed, null));
+                return Task.FromResult(valid
+                    ? new CogStatus(CogState.Installed, null)
+                    : new CogStatus(
+                        CogState.PartiallyInstalled,
+                        "Task executable path does not match."));
             }
         }
         catch (Exception ex)
         {
             ReboundLogger.WriteToLog(
                 "StartupTaskCog GetStatus",
-                "An exception occurred while checking the startup task cog.",
+                "Failed to check startup task status.",
                 LogMessageSeverity.Error,
                 ex);
 
-            return Task.FromResult(new CogStatus(CogState.Unknown, "Exception during status check."));
+            return Task.FromResult(new CogStatus(
+                CogState.Unknown, "Exception during status check."));
         }
     }
 
     #region Native wrappers
 
-    private unsafe bool TryGetTaskService(out ComPtr<ITaskService> taskService)
+    private unsafe bool TryGetTaskService(out ComPtr<ITaskService> service)
     {
-        taskService = default;
+        service = default;
 
-        HRESULT hr;
-        using ManagedPtr<Guid> iid = *ITaskService.IID;
-        using ManagedPtr<Guid> clsid = new("0F87369F-A4E5-4CFC-BD3E-73E6154572DD");
-        hr = CoCreateInstance(
-            clsid,
+        using ObjectPtr<Guid> iid = ITaskService.IID_Guid;
+        Guid clsid = Guid.Parse(
+            "0F87369F-A4E5-4CFC-BD3E-73E6154572DD");
+
+        HRESULT hr = PInvoke.CoCreateInstance(
+            in clsid,
             null,
-            (uint)CLSCTX.CLSCTX_INPROC_SERVER,
-            iid,
-            (void**)taskService.GetAddressOf());
+            CLSCTX.CLSCTX_INPROC_SERVER,
+            out ITaskService* taskService);
 
-        if (hr.FAILED || taskService.Get() is null)
+        if (hr.Failed || taskService is null)
         {
             ReboundLogger.WriteToLog(
                 "StartupTaskCog TryGetTaskService",
-                $"Failed to create ITaskService. HRESULT=0x{hr.Value:X}",
+                $"CoCreateInstance failed. HRESULT=0x{hr.Value:X}",
                 LogMessageSeverity.Error);
+
             return false;
         }
 
-        taskService.Get()->Connect(new(), new(), new(), new());
+        service.Attach(taskService);
+
+        hr = service.Get()->Connect(new(), new(), new(), new());
+
+        if (hr.Failed)
+        {
+            ReboundLogger.WriteToLog(
+                "StartupTaskCog TryGetTaskService",
+                $"Task Scheduler Connect failed. HRESULT=0x{hr.Value:X}",
+                LogMessageSeverity.Error);
+
+            service.Dispose();
+            service = default;
+            return false;
+        }
+
         return true;
     }
 
-    private unsafe bool TryGetOrCreateReboundFolder(ComPtr<ITaskService> taskService, out ComPtr<ITaskFolder> reboundFolder)
+    private unsafe bool TryGetOrCreateReboundFolder(ComPtr<ITaskService> service, out ComPtr<ITaskFolder> reboundFolder)
     {
         reboundFolder = default;
 
-        using ManagedPtr<ushort> pszRoot = "\\";
-        using ManagedPtr<ushort> pszRebound = "Rebound";
+        using StringPtr rootName = "\\";
+        using StringPtr folderName = "Rebound";
 
-        var hr = taskService.Get()->GetFolder(pszRebound, reboundFolder.GetAddressOf());
+        HRESULT hr = service.Get()->GetFolder(
+            new BSTR(folderName.GetChars()),
+            reboundFolder.GetAddressOf());
 
-        if (hr.SUCCEEDED && reboundFolder.Get() is not null)
+        if (hr.Succeeded && reboundFolder.Get() is not null)
             return true;
 
         using ComPtr<ITaskFolder> rootFolder = default;
-        hr = taskService.Get()->GetFolder(pszRoot, rootFolder.GetAddressOf());
 
-        if (hr.FAILED)
+        hr = service.Get()->GetFolder(
+            new BSTR(rootName.GetChars()),
+            rootFolder.GetAddressOf());
+
+        if (hr.Failed || rootFolder.Get() is null)
         {
             ReboundLogger.WriteToLog(
                 "StartupTaskCog TryGetOrCreateReboundFolder",
-                $"Failed to get root Task Scheduler folder. HRESULT=0x{hr.Value:X}",
+                $"Failed to get root folder. HRESULT=0x{hr.Value:X}",
                 LogMessageSeverity.Error);
+
             return false;
         }
 
-        hr = rootFolder.Get()->CreateFolder(pszRebound, new(), reboundFolder.GetAddressOf());
+        hr = rootFolder.Get()->CreateFolder(
+            new BSTR(folderName.GetChars()),
+            new(),
+            reboundFolder.GetAddressOf());
 
-        if (hr.FAILED)
+        if (hr.Failed || reboundFolder.Get() is null)
         {
             ReboundLogger.WriteToLog(
                 "StartupTaskCog TryGetOrCreateReboundFolder",
-                $"Failed to create Rebound Task Scheduler folder. HRESULT=0x{hr.Value:X}",
+                $"Failed to create Rebound folder. HRESULT=0x{hr.Value:X}",
                 LogMessageSeverity.Error);
+
             return false;
         }
 
         return true;
+    }
+
+    /// <summary>
+    /// Resolves the executable declared by an installed MSIX application's manifest.
+    /// </summary>
+    /// <param name="packageFamilyName">The package family name.</param>
+    /// <param name="applicationId">The application ID declared in the package manifest.</param>
+    /// <returns>The absolute path to the application's executable.</returns>
+    /// <exception cref="InvalidOperationException">
+    /// The package or application executable could not be resolved.
+    /// </exception>
+    private static string ResolvePackageExecutable(string packageFamilyName, string applicationId = "App")
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(packageFamilyName);
+        ArgumentException.ThrowIfNullOrWhiteSpace(applicationId);
+
+        var packageManager = new PackageManager();
+
+        var packages = packageManager.FindPackagesForUser(
+            string.Empty,
+            packageFamilyName);
+
+        foreach (var package in packages)
+        {
+            string installPath = package.InstalledLocation.Path;
+            string manifestPath = Path.Combine(
+                installPath,
+                "AppxManifest.xml");
+
+            if (!File.Exists(manifestPath))
+                continue;
+
+            XDocument manifest;
+
+            try
+            {
+                manifest = XDocument.Load(manifestPath);
+            }
+            catch (System.Xml.XmlException)
+            {
+                continue;
+            }
+
+            XElement? root = manifest.Root;
+
+            if (root is null)
+                continue;
+
+            XNamespace ns = root.Name.Namespace;
+
+            XElement? application = root
+                .Element(ns + "Applications")?
+                .Elements(ns + "Application")
+                .FirstOrDefault(element =>
+                    string.Equals(
+                        (string?)element.Attribute("Id"),
+                        applicationId,
+                        StringComparison.OrdinalIgnoreCase));
+
+            string? executable = (string?)application?
+                .Attribute("Executable");
+
+            if (string.IsNullOrWhiteSpace(executable))
+                continue;
+
+            string executablePath = Path.GetFullPath(
+                Path.Combine(installPath, executable));
+
+            if (File.Exists(executablePath))
+                return executablePath;
+        }
+
+        throw new InvalidOperationException(
+            $"Could not resolve executable for application '{applicationId}' " +
+            $"in package '{packageFamilyName}'.");
     }
 
     #endregion

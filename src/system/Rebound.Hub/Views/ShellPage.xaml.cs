@@ -3,10 +3,13 @@
 
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.WinUI.Helpers;
+using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
+using Microsoft.UI.Xaml.Media.Imaging;
 using Rebound.Core;
 using Rebound.Core.UI;
 using Rebound.Forge;
+using Rebound.Forge.Mods;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -15,10 +18,7 @@ using System.Net.Http;
 using System.Threading.Tasks;
 using Windows.System;
 using Windows.UI.Xaml;
-using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Markup;
-using Windows.UI.Xaml.Media;
-using Windows.UI.Xaml.Media.Imaging;
 using NavigationViewItem = Microsoft.UI.Xaml.Controls.NavigationViewItem;
 
 #pragma warning disable CA2007 // Consider calling ConfigureAwait on the awaited task
@@ -201,11 +201,10 @@ internal sealed partial class ShellPage : Page
                 var url = "https://ivirius.com/reboundhubversion.txt";
                 var webContent = await client.GetStringAsync(new Uri(url));
 
-                await UIThreadQueue.QueueActionAsync(() =>
+                DispatcherQueue.TryEnqueue(() =>
                 {
                     if (Variables.ReboundVersion != webContent)
                         UpdateItem.Visibility = Visibility.Visible;
-                    return Task.CompletedTask;
                 });
             }
         }
@@ -346,5 +345,10 @@ internal sealed partial class ShellPage : Page
         Suggestions.Clear();
         foreach (var item in suitableItems)
             Suggestions.Add(item);
+    }
+
+    private void TitleBar_PaneToggleRequested(TitleBar sender, object args)
+    {
+        NavigationViewControl.IsPaneOpen = !NavigationViewControl.IsPaneOpen;
     }
 }

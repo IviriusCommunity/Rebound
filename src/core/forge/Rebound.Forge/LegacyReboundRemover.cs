@@ -1,10 +1,7 @@
 ﻿// Copyright (C) Ivirius(TM) Community 2020 - 2026. All Rights Reserved.
 // Licensed under the MIT License.
 
-using System;
-using System.Collections.Generic;
 using System.Diagnostics;
-using System.Text;
 
 namespace Rebound.Forge;
 
@@ -43,10 +40,9 @@ public static class LegacyReboundRemover
                     proc.WaitForExit(5000); // wait up to 5 seconds for exit
                 }
             }
-            catch (Exception ex)
+            catch
             {
-                // Optional: log or handle failures to kill processes
-                Debug.WriteLine($"Failed to kill process {processName}: {ex.Message}");
+
             }
         }
     }
@@ -58,10 +54,9 @@ public static class LegacyReboundRemover
             if (Directory.Exists(path))
                 Directory.Delete(path, recursive: true);
         }
-        catch (Exception ex)
+        catch
         {
-            // Optional: log or handle delete failure
-            Debug.WriteLine($"Failed to delete directory {path}: {ex.Message}");
+
         }
     }
 
@@ -72,10 +67,9 @@ public static class LegacyReboundRemover
             if (File.Exists(path))
                 File.Delete(path);
         }
-        catch (Exception ex)
+        catch
         {
-            // Optional: log or handle delete failure
-            Debug.WriteLine($"Failed to delete file {path}: {ex.Message}");
+
         }
     }
 }

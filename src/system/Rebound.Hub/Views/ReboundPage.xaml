@@ -16,6 +16,7 @@
     xmlns:local="using:Rebound.Hub.Views"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:media="using:CommunityToolkit.WinUI.Media"
+    xmlns:mods="using:Rebound.Forge.Mods"
     xmlns:muxc="using:Microsoft.UI.Xaml.Controls"
     xmlns:ui="using:CommunityToolkit.WinUI"
     x:Name="ReboundView"
@@ -698,7 +699,7 @@
                     Margin="48,16"
                     HorizontalAlignment="Stretch">
                     <ContentControl HorizontalContentAlignment="Stretch" IsEnabled="{x:Bind app:App.ReboundService.IsReboundEnabled, Mode=OneWay}">
-                        <ItemsControl ItemTemplate="{StaticResource ModCardTemplate}" ItemsSource="{x:Bind forge:Catalog.MandatoryMods}">
+                        <ItemsControl ItemTemplate="{StaticResource ModCardTemplate}" ItemsSource="{x:Bind mods:Catalog.MandatoryMods}">
                             <ItemsControl.ItemsPanel>
                                 <ItemsPanelTemplate>
                                     <controls:WrapPanel HorizontalSpacing="8" VerticalSpacing="8" />
@@ -722,7 +723,7 @@
                     Margin="48,16,48,48"
                     HorizontalAlignment="Stretch">
                     <ContentControl HorizontalContentAlignment="Stretch" IsEnabled="{x:Bind app:App.ReboundService.IsReboundEnabled, Mode=OneWay}">
-                        <ItemsControl ItemTemplate="{StaticResource ModCardTemplate}" ItemsSource="{x:Bind forge:Catalog.Mods, Mode=OneWay}">
+                        <ItemsControl ItemTemplate="{StaticResource ModCardTemplate}" ItemsSource="{x:Bind mods:Catalog.Mods, Mode=OneWay}">
                             <ItemsControl.ItemsPanel>
                                 <ItemsPanelTemplate>
                                     <controls:WrapPanel HorizontalSpacing="8" VerticalSpacing="8" />
@@ -748,7 +749,7 @@
                     HorizontalAlignment="Stretch"
                     Visibility="{x:Bind app:App.ReboundService.HasSideloadedMods, Mode=OneWay}">
                     <ContentControl HorizontalContentAlignment="Stretch" IsEnabled="{x:Bind app:App.ReboundService.IsReboundEnabled, Mode=OneWay}">
-                        <ItemsControl ItemTemplate="{StaticResource ModCardTemplate}" ItemsSource="{x:Bind forge:Catalog.SideloadedMods, Mode=OneWay}">
+                        <ItemsControl ItemTemplate="{StaticResource ModCardTemplate}" ItemsSource="{x:Bind mods:Catalog.SideloadedMods, Mode=OneWay}">
                             <ItemsControl.ItemsPanel>
                                 <ItemsPanelTemplate>
                                     <controls:WrapPanel HorizontalSpacing="8" VerticalSpacing="8" />

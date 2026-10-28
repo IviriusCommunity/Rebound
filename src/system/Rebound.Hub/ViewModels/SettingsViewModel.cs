@@ -2,12 +2,8 @@
 // Licensed under the MIT License.
 
 using CommunityToolkit.Mvvm.ComponentModel;
-using Rebound.Core;
-using Rebound.Core.Helpers;
-using Rebound.Core.UI;
-using System;
-using System.Collections.Generic;
-using System.Text;
+using Microsoft.UI.Dispatching;
+using Rebound.Core.Settings;
 
 namespace Rebound.Hub.ViewModels;
 
@@ -19,7 +15,7 @@ internal partial class SettingsViewModel : ObservableObject
 
     public SettingsViewModel()
     {
-        UIThreadQueue.QueueAction(() =>
+        DispatcherQueue.GetForCurrentThread().TryEnqueue(() =>
         {
             ShowBlurAndGlow = SettingsManager.GetValue("ShowBlurAndGlow", "rebound", true);
             ManageStoreApps = SettingsManager.GetValue("ManageStoreApps", "rebound", true);
@@ -38,7 +34,7 @@ internal partial class SettingsViewModel : ObservableObject
 
     private void UpdateSettings()
     {
-        UIThreadQueue.QueueAction(() =>
+        DispatcherQueue.GetForCurrentThread().TryEnqueue(() =>
         {
             SettingsManager.SetValue("ShowBlurAndGlow", "rebound", ShowBlurAndGlow);
             SettingsManager.SetValue("ManageStoreApps", "rebound", ManageStoreApps);

@@ -1,182 +1,205 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
-	<!-- Framework and platform configuration  -->
-	<PropertyGroup Label="Framework Configuration">
+	<!-- Application -->
+	<PropertyGroup>
+		<OutputType>WinExe</OutputType>
+		<UseWinUI>true</UseWinUI>
+		<UseWinUITools>true</UseWinUITools>
+		<WinUISDKReferences>false</WinUISDKReferences>
+		<EnableMsixTooling>true</EnableMsixTooling>
 
-		<!-- .NET and Windows targets -->
+		<AssemblyName>Rebound.Hub</AssemblyName>
+		<RootNamespace>Rebound.Hub</RootNamespace>
+		<DefaultLanguage>en-US</DefaultLanguage>
+		<ApplicationIcon>Assets\AppIcons\ReboundHub.ico</ApplicationIcon>
+		<ApplicationManifest>app.manifest</ApplicationManifest>
+	</PropertyGroup>
+
+	<!-- Framework and platforms -->
+	<PropertyGroup>
 		<TargetFramework>net10.0-windows10.0.26100.0</TargetFramework>
 		<TargetPlatformMinVersion>10.0.22000.0</TargetPlatformMinVersion>
 
-		<!-- UWP properties -->
-		<UseUwp>true</UseUwp>
-		<UseUwpTools>true</UseUwpTools>
+		<Platforms>x64;ARM64</Platforms>
+		<RuntimeIdentifiers>win-x64;win-arm64</RuntimeIdentifiers>
+		<RuntimeIdentifier Condition="'$(RuntimeIdentifier)' == '' and '$(Platform)' == 'ARM64'">win-arm64</RuntimeIdentifier>
+		<RuntimeIdentifier Condition="'$(RuntimeIdentifier)' == '' and '$(Platform)' == 'x64'">win-x64</RuntimeIdentifier>
+		<RuntimeIdentifier Condition="'$(RuntimeIdentifier)' == ''">win-x64</RuntimeIdentifier>
 
+		<PlatformTarget Condition="'$(RuntimeIdentifier)' == 'win-arm64' or '$(Platform)' == 'ARM64'">arm64</PlatformTarget>
+		<PlatformTarget Condition="'$(RuntimeIdentifier)' == 'win-x64' or '$(Platform)' == 'x64'">x64</PlatformTarget>
+		<PlatformTarget Condition="'$(PlatformTarget)' == ''">x64</PlatformTarget>
 	</PropertyGroup>
 
-	<!-- General application properties -->
-	<PropertyGroup Label="Application Properties">
-
-		<!-- Specific -->
-		<AssemblyName>Rebound Hub</AssemblyName>
-		<RootNamespace>Rebound.Hub</RootNamespace>
-		<ApplicationIcon>Assets\AppIcons\ReboundHub.ico</ApplicationIcon>
-
-		<!-- Generic -->
-		<OutputType>WinExe</OutputType>
-		<DefaultLanguage>en-US</DefaultLanguage>
-		<ApplicationManifest>app.manifest</ApplicationManifest>
-		<DefineConstants>DISABLE_XAML_GENERATED_MAIN;$(DefineConstants)</DefineConstants>
-
-		<!-- Versioning -->
-		<AssemblyVersion>0.0.10</AssemblyVersion>
-		<Version>0.0.10</Version>
-		<FileVersion>0.0.10</FileVersion>
-
+	<!-- Language and analysis -->
+	<PropertyGroup>
+		<AnalysisMode>All</AnalysisMode>
+		<LangVersion>preview</LangVersion>
+		<Nullable>enable</Nullable>
+		<AllowUnsafeBlocks>true</AllowUnsafeBlocks>
 	</PropertyGroup>
 
-	<!-- Advanced build features -->
-	<PropertyGroup Label="Advanced Features">
-
-		<!-- Generic -->
-		<EnableMsixTooling>true</EnableMsixTooling>
-		<WindowsAppSDKSelfContained>true</WindowsAppSDKSelfContained>
-
-		<!-- Native AOT -->
-		<!-- Enable COM interop support -->
-		<EnableComInterop>true</EnableComInterop>
-		<!-- Enable source generators -->
-		<UseSourceGenerators>true</UseSourceGenerators>
-		<!-- Disable runtime marshalling for better API handling -->
-		<DisableRuntimeMarshalling>true</DisableRuntimeMarshalling>
-		<!-- Run CsWin32 as a build task for COM NAOT compatibility -->
-		<CsWin32RunAsBuildTask>true</CsWin32RunAsBuildTask>
-		<!-- No idea what this is for but it fixes package publishing (thanks Rafael) -->
-		<EnableSourceLink>false</EnableSourceLink>
-
-	</PropertyGroup>
-
-	<!-- Publishing and optimization -->
-	<PropertyGroup Label="Publishing Configuration">
-
-		<!-- Generic -->
-		<PublishProfile>win-$(Platform).pubxml</PublishProfile>
-		<PublishReadyToRun>true</PublishReadyToRun>
-
-		<!-- Native AOT -->
+	<!-- NativeAOT and trimming -->
+	<PropertyGroup>
+		<PublishTrimmed>true</PublishTrimmed>
 		<PublishAot>true</PublishAot>
 		<SelfContained>true</SelfContained>
-		<PublishTrimmed>true</PublishTrimmed>
+
+		<EnableComInterop>true</EnableComInterop>
+		<DisableRuntimeMarshalling>true</DisableRuntimeMarshalling>
+		<UseSourceGenerators>true</UseSourceGenerators>
+		<CsWin32RunAsBuildTask>true</CsWin32RunAsBuildTask>
+
 		<OptimizationPreference>Speed</OptimizationPreference>
 		<IlcOptimizationPreference>Speed</IlcOptimizationPreference>
 
+		<EnableDefaultPageItems>false</EnableDefaultPageItems>
+		<EnableDefaultApplicationDefinition>false</EnableDefaultApplicationDefinition>
+		<EnableDefaultPriItems>true</EnableDefaultPriItems>
+
+		<UseWindowsAppSDKBootstrapper>true</UseWindowsAppSDKBootstrapper>
+		<WindowsAppSdkSelfContained>false</WindowsAppSdkSelfContained>
+
+		<DefineConstants>$(DefineConstants);DISABLE_XAML_GENERATED_MAIN</DefineConstants>
 	</PropertyGroup>
 
-	<!-- Packaging and signing -->
-	<PropertyGroup Label="Packaging Settings">
+	<!-- Versioning -->
+	<PropertyGroup>
+		<Version>0.0.11</Version>
+		<AssemblyVersion>0.0.11</AssemblyVersion>
+		<FileVersion>0.0.11</FileVersion>
+	</PropertyGroup>
 
-		<!-- Common certificate file -->
-		<PackageCertificateKeyFile>$(SolutionDir)\src\Rebound.Hub_TemporaryKey.pfx</PackageCertificateKeyFile>
+	<!-- Publishing -->
+	<PropertyGroup>
+		<PublishProfile>win-$(Platform).pubxml</PublishProfile>
+		<DisableTransitiveProjectReferences>true</DisableTransitiveProjectReferences>
+	</PropertyGroup>
 
-		<!-- Generic -->
-		<AppxPackageSigningEnabled>True</AppxPackageSigningEnabled>
+	<!-- MSIX packaging -->
+	<PropertyGroup>
+		<AppxPackageSigningEnabled>true</AppxPackageSigningEnabled>
 		<AppxPackageSigningTimestampDigestAlgorithm>SHA256</AppxPackageSigningTimestampDigestAlgorithm>
-		<AppxAutoIncrementPackageRevision>False</AppxAutoIncrementPackageRevision>
+		<AppxAutoIncrementPackageRevision>false</AppxAutoIncrementPackageRevision>
+
 		<AppxBundle>Always</AppxBundle>
-		<AppxBundlePlatforms>x64</AppxBundlePlatforms>
-		<GenerateTestArtifacts>True</GenerateTestArtifacts>
-		<GenerateAppInstallerFile>True</GenerateAppInstallerFile>
+		<AppxBundlePlatforms>x64|arm64</AppxBundlePlatforms>
+
+		<GenerateTestArtifacts>true</GenerateTestArtifacts>
+		<GenerateAppInstallerFile>true</GenerateAppInstallerFile>
 		<AppInstallerUri>C:\</AppInstallerUri>
 		<HoursBetweenUpdateChecks>0</HoursBetweenUpdateChecks>
 
+		<PackageCertificateKeyFile>$(SolutionDir)\src\Rebound.Hub_TemporaryKey.pfx</PackageCertificateKeyFile>
 	</PropertyGroup>
 
-	<!-- Packages -->
+	<!-- Shared package versions -->
+	<PropertyGroup>
+		<IlCompilerVersion>10.0.13</IlCompilerVersion>
+		<CommunityToolkitWinUIVersion>8.2.251219</CommunityToolkitWinUIVersion>
+	</PropertyGroup>
 
-	<!-- Windows SDK & WinUI -->
-	<ItemGroup Label="Windows Platform">
-		<PackageReference Include="Microsoft.UI.Xaml" Version="2.8.7" />
-		<PackageReference Include="Microsoft.Windows.SDK.BuildTools.MSIX" Version="1.7.20250829.1" />
-		<PackageReference Include="Microsoft.WindowsAppSDK.Base" Version="1.8.250831001" />
-		<PackageReference Include="Microsoft.WindowsAppSDK.InteractiveExperiences" Version="1.8.251104001" />
-		<PackageReference Include="MicaForUWP" Version="0.2.13" />
-	</ItemGroup>
+	<!-- NuGet dependencies -->
+	<ItemGroup>
+		<!-- NativeAOT compiler -->
+		<PackageReference Include="Microsoft.DotNet.ILCompiler" Version="$(IlCompilerVersion)" PrivateAssets="All" />
 
-	<!-- Windows Interop -->
-	<ItemGroup Label="Windows Interop">
-		<PackageReference Include="Dongle.GuidRVAGen" Version="1.0.5" />
-		<PackageReference Include="Microsoft.Windows.CsWin32" Version="0.3.264">
+		<!-- Windows interop -->
+		<PackageReference Include="Microsoft.Windows.CsWin32" Version="0.3.333">
 			<PrivateAssets>all</PrivateAssets>
 			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
 		</PackageReference>
-		<PackageReference Include="TerraFX.Interop.Windows" Version="10.0.26100.6" />
-	</ItemGroup>
 
-	<!-- System & Management -->
-	<ItemGroup Label="System Libraries">
-		<PackageReference Include="System.Diagnostics.PerformanceCounter" Version="10.0.3" />
-		<PackageReference Include="System.IO.Pipes.AccessControl" Version="6.0.0-preview.5.21301.5" />
-		<PackageReference Include="OwlCore.Storage" Version="0.14.0" />
-		<PackageReference Include="TaskScheduler" Version="2.12.2" />
-	</ItemGroup>
+		<!-- Windows App SDK -->
+		<PackageReference Include="Microsoft.WindowsAppSDK" Version="2.5.1" />
+		<PackageReference Include="WinUIEx" Version="2.9.3" />
 
-	<!-- CommunityToolkit -->
-	<ItemGroup Label="CommunityToolkit">
+		<!-- Excluded runtime and compile assets -->
+		<PackageReference Include="Microsoft.WindowsAppSDK.AI" Version="2.5.5" ExcludeAssets="all" />
+		<PackageReference Include="Microsoft.WindowsAppSDK.ML" Version="2.1.94" ExcludeAssets="all" />
+		<PackageReference Include="Microsoft.Windows.AI.MachineLearning" Version="2.3.42" ExcludeAssets="all" />
+		<PackageReference Include="Microsoft.ML.OnnxRuntime" Version="1.30.0" ExcludeAssets="all" />
+		<PackageReference Include="Microsoft.Web.WebView2" Version="1.0.4191.47" ExcludeAssets="all" />
+
+		<!-- CommunityToolkit -->
 		<PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.2" />
-		<PackageReference Include="CommunityToolkit.Uwp.Animations" Version="8.2.251219" />
-		<PackageReference Include="CommunityToolkit.Uwp.Behaviors" Version="8.2.251219" />
-		<PackageReference Include="CommunityToolkit.Uwp.Converters" Version="8.2.251219" />
-		<PackageReference Include="CommunityToolkit.Uwp.Controls.Primitives" Version="8.2.251219" />
-		<PackageReference Include="CommunityToolkit.Uwp.Controls.Segmented" Version="8.2.251219" />
-		<PackageReference Include="CommunityToolkit.Uwp.Controls.SettingsControls" Version="8.2.251219" />
-		<PackageReference Include="CommunityToolkit.Uwp.Extensions" Version="8.2.251219" />
-		<PackageReference Include="CommunityToolkit.Uwp.Helpers" Version="8.2.251219" />
-		<PackageReference Include="CommunityToolkit.Uwp.Media" Version="8.2.251219" />
-		<PackageReference Include="CommunityToolkit.Uwp.Triggers" Version="8.2.251219" />
+		<PackageReference Include="CommunityToolkit.WinUI.Animations" Version="$(CommunityToolkitWinUIVersion)" />
+		<PackageReference Include="CommunityToolkit.WinUI.Behaviors" Version="$(CommunityToolkitWinUIVersion)" />
+		<PackageReference Include="CommunityToolkit.WinUI.Converters" Version="$(CommunityToolkitWinUIVersion)" />
+		<PackageReference Include="CommunityToolkit.WinUI.Controls.Primitives" Version="$(CommunityToolkitWinUIVersion)" />
+		<PackageReference Include="CommunityToolkit.WinUI.Controls.Segmented" Version="$(CommunityToolkitWinUIVersion)" />
+		<PackageReference Include="CommunityToolkit.WinUI.Controls.SettingsControls" Version="$(CommunityToolkitWinUIVersion)" />
+		<PackageReference Include="CommunityToolkit.WinUI.Extensions" Version="$(CommunityToolkitWinUIVersion)" />
+		<PackageReference Include="CommunityToolkit.WinUI.Helpers" Version="$(CommunityToolkitWinUIVersion)" />
+		<PackageReference Include="CommunityToolkit.WinUI.Media" Version="$(CommunityToolkitWinUIVersion)" />
+		<PackageReference Include="CommunityToolkit.WinUI.Triggers" Version="$(CommunityToolkitWinUIVersion)" />
+		<PackageReference Include="CommunityToolkit.Labs.WinUI.DependencyPropertyGenerator" Version="0.1.260203-build.2518" />
 	</ItemGroup>
 
-	<!-- Content -->
+	<!-- Application content and XAML -->
 	<ItemGroup Label="Content">
+		<AppxTargetDeviceFamilyItem Include="Windows.Desktop" />
+
+		<Manifest Include="$(ApplicationManifest)" />
+
+		<ApplicationDefinition Include="App.xaml" />
 		<Content Update="Assets\**\*">
 			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
 		</Content>
-	</ItemGroup>
-
-	<!-- Excluded items -->
-	<ItemGroup Label="Exclusions">
 		<Compile Remove="Styles\**" />
 		<EmbeddedResource Remove="Styles\**" />
 		<None Remove="Styles\**" />
 		<None Remove="Assets\AppIcons\ReboundIcon.ico" />
+		<None Remove="MainWindow.xaml" />
+		<None Remove="Views\HomePage.xaml" />
+		<None Remove="Views\ModPage.xaml" />
+		<None Remove="Views\ReboundPage.xaml" />
+		<None Remove="Views\SettingsPage.xaml" />
+		<None Remove="Views\ShellPage.xaml" />
 		<Page Remove="Styles\**" />
 		<PRIResource Remove="Styles\**" />
 		<PRIResource Remove="Assets\Wallpapers\**" />
 		<CustomAdditionalCompileInputs Remove="Views\HomePage.xaml" />
 		<Resource Remove="Views\HomePage.xaml" />
-	</ItemGroup>
-
-	<!-- Additional files (CsWin32) -->
-	<ItemGroup Label="Additional Files">
 		<AdditionalFiles Include="NativeMethods.txt" />
 	</ItemGroup>
-
-	<!-- App manifest -->
 	<ItemGroup>
-		<Manifest Include="$(ApplicationManifest)" />
+	  <Page Include="MainWindow.xaml">
+	    <Generator>MSBuild:Compile</Generator>
+	  </Page>
+	  <Page Include="Views\HomePage.xaml" />
+	  <Page Include="Views\ModPage.xaml" />
+	  <Page Include="Views\ReboundPage.xaml" />
+	  <Page Include="Views\SettingsPage.xaml" />
+	  <Page Include="Views\ShellPage.xaml" />
 	</ItemGroup>
 
 	<!-- Project references -->
-	<ItemGroup Label="Project References">
-		<ProjectReference Include="..\..\core\forge\Rebound.Forge.UWP\Rebound.Forge.csproj" />
-		<ProjectReference Include="..\..\core\generators\Rebound.Core.SourceGeneratorAttributes\Rebound.Core.SourceGeneratorAttributes.csproj" />
-		<ProjectReference Include="..\..\core\generators\Rebound.Core.SourceGenerator\Rebound.Core.SourceGenerator.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
+	<ItemGroup>
+		<ProjectReference Include="..\..\core\Rebound.Core\Rebound.Core.csproj" />
 		<ProjectReference Include="..\..\core\Rebound.Core.IPC\Rebound.Core.IPC.csproj" />
 		<ProjectReference Include="..\..\core\Rebound.Core.Native\Rebound.Core.Native.csproj" />
 		<ProjectReference Include="..\..\core\Rebound.Core.SystemInformation\Rebound.Core.SystemInformation.csproj" />
-		<ProjectReference Include="..\..\core\Rebound.Core.UI.UWP\Rebound.Core.UI.csproj" />
-		<ProjectReference Include="..\..\core\Rebound.Core\Rebound.Core.csproj" />
+		<ProjectReference Include="..\..\core\Rebound.Core.UI\Rebound.Core.UI.csproj" />
+		<ProjectReference Include="..\..\core\forge\Rebound.Forge\Rebound.Forge.csproj" />
 	</ItemGroup>
 
 	<!-- Shared imports -->
 	<Import Project="..\..\core\forge\Rebound.Forge.Assets\Rebound.Forge.Assets.projitems" Label="Shared" />
+
+	<!-- NativeAOT compiler paths -->
+	<PropertyGroup>
+		<IlcToolsPath>$(UserProfile)\.nuget\packages\runtime.win-x64.microsoft.dotnet.ilcompiler\$(IlCompilerVersion)\tools\</IlcToolsPath>
+		<IlcCompilerPath>$(IlcToolsPath)ilc.exe</IlcCompilerPath>
+	</PropertyGroup>
+
+	<!-- Place the NativeAOT executable where MSIX packaging expects it -->
+	<Target Name="CopyAotBinaryToExpectedMsixPath" BeforeTargets="Package">
+		<ItemGroup>
+			<_AotBinaryToCopy Include="$(TargetDir)native\$(TargetName).exe" />
+		</ItemGroup>
+
+		<Copy SourceFiles="@(_AotBinaryToCopy)" DestinationFolder="$(TargetDir)" SkipUnchangedFiles="true" Condition="Exists('$(TargetDir)native\$(TargetName).exe')" />
+	</Target>
 
 </Project>

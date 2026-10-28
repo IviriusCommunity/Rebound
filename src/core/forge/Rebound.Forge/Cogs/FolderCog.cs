@@ -3,6 +3,8 @@
 
 using Rebound.Core;
 using Rebound.Core.Storage;
+using System.Security.AccessControl;
+using System.Security.Principal;
 
 #pragma warning disable CA1031 // Do not catch general exception types
 
@@ -35,6 +37,12 @@ public partial class FolderCog : ICog
     /// </summary>
     public required bool PersistAfterRemoving { get; set; }
 
+    /// <summary>
+    /// Determines if the folder should be locked behind admin privileges. If <see langword="true"/>,
+    /// also set <see cref="RequiresElevation"/> to <see langword="true"/>.
+    /// </summary>
+    public required bool LockBehindAdmin { get; set; }
+
     /// <inheritdoc/>
     public async Task<CogOperationResult> ApplyAsync(CancellationToken cancellationToken = default)
     {
@@ -45,6 +53,8 @@ public partial class FolderCog : ICog
                 $"Creating folder at {Path}...");
 
             DirectoryEx.Create(Path);
+            if (LockBehindAdmin)
+                EnsureProtectedDirectory(Path);
 
             ReboundLogger.WriteToLog(
                 "FolderCog Apply", 
@@ -126,5 +136,49 @@ public partial class FolderCog : ICog
 
             return Task.FromResult(new CogStatus(CogState.Unknown, ex.Message));
         }
+    }
+
+    /// <summary>
+    /// Creates a directory at the specified path and sets access permissions to allow only the local Administrators
+    /// group and the Local System account full control.
+    /// </summary>
+    /// <remarks>Existing permissions are replaced and inheritance is disabled.</remarks>
+    /// <param name="path">The path of the directory to create and protect.</param>
+    private static void EnsureProtectedDirectory(string path)
+    {
+        Directory.CreateDirectory(path);
+
+        var administrators = new SecurityIdentifier(
+            WellKnownSidType.BuiltinAdministratorsSid, null);
+
+        var system = new SecurityIdentifier(
+            WellKnownSidType.LocalSystemSid, null);
+
+        var security = new DirectorySecurity();
+        security.SetAccessRuleProtection(
+            isProtected: true,
+            preserveInheritance: false);
+
+        security.SetOwner(administrators);
+
+        const FileSystemRights rights = FileSystemRights.FullControl;
+        const InheritanceFlags inheritance =
+            InheritanceFlags.ContainerInherit | InheritanceFlags.ObjectInherit;
+
+        security.AddAccessRule(new FileSystemAccessRule(
+            administrators,
+            rights,
+            inheritance,
+            PropagationFlags.None,
+            AccessControlType.Allow));
+
+        security.AddAccessRule(new FileSystemAccessRule(
+            system,
+            rights,
+            inheritance,
+            PropagationFlags.None,
+            AccessControlType.Allow));
+
+        new DirectoryInfo(path).SetAccessControl(security);
     }
 }

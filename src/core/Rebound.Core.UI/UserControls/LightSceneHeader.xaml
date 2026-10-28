@@ -1,0 +1,57 @@
+﻿<UserControl
+    x:Class="Rebound.Core.UI.UserControls.LightSceneHeader"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:local="using:Rebound.Core.UI.UserControls"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:ui="using:CommunityToolkit.WinUI"
+    Loaded="OnLoaded"
+    Unloaded="OnUnloaded"
+    mc:Ignorable="d">
+
+    <Grid
+        x:Name="RootGrid"
+        ui:UIElementExtensions.ClipToBounds="True"
+        Background="Transparent"
+        PointerExited="OnPointerExited"
+        PointerMoved="OnPointerMoved"
+        SizeChanged="OnHostSizeChanged">
+
+        <Image x:Name="WallpaperSurface" Stretch="UniformToFill" />
+
+        <Grid>
+            <Grid.Background>
+                <AcrylicBrush
+                    TintColor="#323232"
+                    TintLuminosityOpacity="0.5"
+                    TintOpacity="0" />
+            </Grid.Background>
+        </Grid>
+
+        <!--  Darken the area behind the foreground object.  -->
+        <Rectangle IsHitTestVisible="False" Opacity="0.5">
+            <Rectangle.Fill>
+                <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
+                    <GradientStop Offset="0" Color="{ThemeResource SystemAccentColorDark3}" />
+                    <GradientStop Offset="1" Color="#000" />
+                </LinearGradientBrush>
+            </Rectangle.Fill>
+        </Rectangle>
+
+        <!--  Composition visuals are inserted into this layer.  -->
+        <Grid x:Name="CompositionHost" />
+
+        <Grid x:Name="ShadowHost" IsHitTestVisible="False" />
+
+        <!--  Arbitrary foreground XAML content.  -->
+        <ContentPresenter
+            x:Name="SceneContentPresenter"
+            Margin="32"
+            HorizontalAlignment="Left"
+            VerticalAlignment="Center"
+            Content="{x:Bind SceneContent, Mode=OneWay}"
+            IsHitTestVisible="True" />
+
+    </Grid>
+</UserControl>

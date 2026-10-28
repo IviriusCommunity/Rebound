@@ -59,5 +59,14 @@
     <None Include="$(MSBuildThisFileDirectory)Libs\minhook-detours.x64.Release.dll">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <Content Include="$(MSBuildThisFileDirectory)Modding\DLLs\Rebound.Forge.Hooks.About.ARM64.dll">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="$(MSBuildThisFileDirectory)Modding\DLLs\Rebound.Forge.Hooks.About.x64.dll">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="$(MSBuildThisFileDirectory)Modding\Packages\" />
   </ItemGroup>
 </Project>

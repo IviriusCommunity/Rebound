@@ -167,27 +167,6 @@
                     Stretch="Uniform" />
             </Grid>
 
-            <!--  Title bar  -->
-            <StackPanel
-                Margin="12,8"
-                VerticalAlignment="Top"
-                Orientation="Horizontal"
-                Spacing="8">
-                <TextBlock x:Uid="Title" FontSize="12" />
-                <Border
-                    Padding="6,2,6,3"
-                    VerticalAlignment="Center"
-                    Background="{ThemeResource AccentFillColorDefaultBrush}"
-                    CornerRadius="2"
-                    Visibility="Collapsed">
-                    <TextBlock
-                        x:Uid="Beta"
-                        FontSize="10"
-                        FontWeight="SemiBold"
-                        Foreground="{ThemeResource TextOnAccentFillColorPrimaryBrush}" />
-                </Border>
-            </StackPanel>
-
             <!--  Glow line  -->
             <Grid Margin="0,142,0,0" Visibility="{x:Bind ViewModel.ShowBlurAndGlow, Mode=OneWay}">
                 <Grid.Background>
@@ -682,8 +661,7 @@
                         VerticalAlignment="Center"
                         Background="Transparent"
                         BorderBrush="Transparent"
-                        Command="{x:Bind LegacyLaunchCommand}"
-                        Visibility="{x:Bind ViewModel.IsReboundInstalled, Mode=OneWay}">
+                        Command="{x:Bind LegacyLaunchCommand}">
                         <FontIcon FontSize="16" Glyph="&#xED56;" />
                     </Button>
                     <Button
@@ -848,28 +826,6 @@
                     Source="{x:Bind CustomLogoPath, Mode=OneWay}"
                     Stretch="Uniform" />
             </Grid>
-
-            <!--  Title bar  -->
-            <StackPanel
-                Grid.ColumnSpan="2"
-                Margin="12,8"
-                VerticalAlignment="Top"
-                Orientation="Horizontal"
-                Spacing="8">
-                <TextBlock x:Uid="Title" FontSize="12" />
-                <Border
-                    Padding="6,2,6,3"
-                    VerticalAlignment="Center"
-                    Background="{ThemeResource AccentFillColorDefaultBrush}"
-                    CornerRadius="2"
-                    Visibility="Collapsed">
-                    <TextBlock
-                        x:Uid="Beta"
-                        FontSize="10"
-                        FontWeight="SemiBold"
-                        Foreground="{ThemeResource TextOnAccentFillColorPrimaryBrush}" />
-                </Border>
-            </StackPanel>
 
             <!--  Glow line  -->
             <Grid
@@ -1885,8 +1841,7 @@
                         VerticalAlignment="Center"
                         Background="Transparent"
                         BorderBrush="Transparent"
-                        Command="{x:Bind LegacyLaunchCommand}"
-                        Visibility="{x:Bind ViewModel.IsReboundInstalled, Mode=OneWay}">
+                        Command="{x:Bind LegacyLaunchCommand}">
                         <StackPanel Orientation="Horizontal" Spacing="8">
                             <FontIcon FontSize="16" Glyph="&#xED56;" />
                             <TextBlock x:Uid="LegacyWinver" />
@@ -1905,5 +1860,8 @@
                 </StackPanel>
             </Grid>
         </Grid>
+
+        <!--  Title bar  -->
+        <TitleBar Title="About Windows" VerticalAlignment="Top" />
     </Grid>
 </Page>

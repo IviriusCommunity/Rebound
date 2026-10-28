@@ -2,8 +2,8 @@
 // Licensed under the MIT License.
 
 using Microsoft.UI;
+using Microsoft.UI.Dispatching;
 using Microsoft.UI.Xaml;
-using Microsoft.UI.Xaml.Controls;
 using Rebound.Core;
 using Rebound.Core.IPC;
 using Rebound.Core.UI;
@@ -13,6 +13,8 @@ using Rebound.Core.UI.Windowing;
 using Rebound.Forge.Engines;
 using System;
 using System.Diagnostics;
+using System.IO;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Windows.UI;
@@ -30,6 +32,8 @@ public partial class App : Application, IReboundLegacySupportApp, IReboundPipeCl
     private SingleInstanceAppService SingleInstanceAppService { get; } = new("Rebound.About");
 
     public string LegacyExecutableName { get; } = "winver.exe";
+
+    public static DispatcherQueue? UIDispatcher { get; private set; }
 
     public App() => InitializeComponent();
 
@@ -59,11 +63,17 @@ public partial class App : Application, IReboundLegacySupportApp, IReboundPipeCl
                 "The application is starting.",
                 LogMessageSeverity.Message);
 
+            UIDispatcher = DispatcherQueue.GetForCurrentThread()
+                ?? throw new InvalidOperationException(
+                    "The WinUI UI DispatcherQueue is unavailable.");
+
             // Set locale
             Windows.Globalization.ApplicationLanguages.PrimaryLanguageOverride = string.Empty;
 
+            var isReboundInstalled = await ReboundPresenceEngine.IsReboundInstalledAsync().ConfigureAwait(true);
+
             // Check if Rebound is installed or not
-            if (!ReboundPresenceEngine.IsReboundInstalled())
+            if (!isReboundInstalled)
             {
                 ReboundLogger.WriteToLog(
                     "Rebound Installation Check",
@@ -81,13 +91,12 @@ public partial class App : Application, IReboundLegacySupportApp, IReboundPipeCl
                     "Initializing the Rebound environment for the current app...",
                     LogMessageSeverity.Message);
 
-                // Pipe server thread
-                var pipeThread = new Thread(async () =>
+                var ipcThread = new Thread(async () =>
                 {
                     try
                     {
                         // Initialize pipe client if not already initialized
-                        ReboundPipeClient ??= new();
+                        ReboundPipeClient ??= new("REBOUND_LAUNCHER");
 
                         // Make sure Rebound Service Host exists
                         var started = ServiceHostEngine.StartServiceHost();
@@ -101,7 +110,7 @@ public partial class App : Application, IReboundLegacySupportApp, IReboundPipeCl
                         }
 
                         // Connect to it
-                        await ReboundPipeClient.ConnectAsync().ConfigureAwait(false);
+                        await ReboundPipeClient.ConnectAsync().ConfigureAwait(true);
                     }
                     catch
                     {
@@ -109,32 +118,19 @@ public partial class App : Application, IReboundLegacySupportApp, IReboundPipeCl
                             "Rebound Environment Initialization",
                             "Notifying the user of Rebound Service Host failure.",
                             LogMessageSeverity.Message);
-
-                        // Rebound Service Host doesn't exist, fall back to UI solutions
-                        RunServiceHostFailedToLaunchFallback();
                     }
                 })
                 {
-                    IsBackground = true,
-                    Name = "Pipe Server Thread"
+                    Name = "IPC Thread",
+                    IsBackground = true
                 };
-                pipeThread.SetApartmentState(ApartmentState.STA);
-                pipeThread.Start();
+                ipcThread.SetApartmentState(ApartmentState.STA);
+                ipcThread.Start();
 
                 ReboundLogger.WriteToLog(
                     "Rebound Environment Initialization",
                     "Initializing the Rebound Service Host watchdog...",
                     LogMessageSeverity.Message);
-
-                // Service host watchdog thread
-                // This ensures Rebound Service Host can't die randomly
-                var watchdogThread = new Thread(ServiceHostEngine.StartWatchdog)
-                {
-                    IsBackground = true,
-                    Name = "Service Host Watchdog Thread"
-                };
-                watchdogThread.SetApartmentState(ApartmentState.STA);
-                watchdogThread.Start();
             }
 
             // Legacy launch
@@ -193,67 +189,35 @@ public partial class App : Application, IReboundLegacySupportApp, IReboundPipeCl
         }
     }
 
-    public async void RunServiceHostFailedToLaunchFallback()
-    {
-        // Request an action from the user
-        var result = await ReboundDialog.ShowAsync(
-            title: LocalizedResource.GetLocalizedString("ServiceHostNotFound"),
-            content: LocalizedResource.GetLocalizedString("ServiceHostNotFoundInfo"),
-            primaryButtonText: "Launch",
-            closeButtonText: "Ok",
-            defaultButton: ContentDialogButton.Primary).ConfigureAwait(false);
-
-        switch (result)
-        {
-            // Launch
-            case ContentDialogResult.Primary:
-                {
-                    // Make sure Rebound Service Host exists
-                    var launched = ServiceHostEngine.StartServiceHost();
-
-                    // If it still doesn't, it's possible that Rebound is corrupted - inform the user
-                    if (!launched)
-                    {
-                        await ReboundDialog.ShowAsync(
-                            title: LocalizedResource.GetLocalizedString("CouldntLaunchServiceHost"),
-                            content: LocalizedResource.GetLocalizedString("CouldntLaunchServiceHostInfo"),
-                            closeButtonText: "Ok").ConfigureAwait(false);
-                    }
-                    break;
-                }
-
-            // Ok button
-            default:
-                break;
-        }
-    }
-
     public void LaunchLegacy(string args)
     {
         Task.Run(async () =>
         {
             try
             {
-                // Disable the IFEO entry via Rebound Service Host
-                await (ReboundPipeClient?.SendAsync($"IFEOEngine::Pause#{LegacyExecutableName}"))!.ConfigureAwait(false);
-
-                // Launch the original application
-                Process.Start(new ProcessStartInfo
+                if (Process.GetProcessesByName("Rebound.ServiceHost").ToList().Count > 0)
                 {
-                    FileName = LegacyExecutableName,
-                    UseShellExecute = true,
-                    Arguments = args
-                });
-
-                // Resume the IFEO entry
-                await (ReboundPipeClient?.SendAsync($"IFEOEngine::Resume#{LegacyExecutableName}"))!.ConfigureAwait(false);
+                    await (ReboundPipeClient?.ConnectAsync())!.ConfigureAwait(true);
+                    await (ReboundPipeClient?.SendAsync($"LAUNCH:{LegacyExecutableName}"))!.ConfigureAwait(true);
+                }
+                else StartDirectly();
             }
             catch
             {
-                // Rebound Service Host doesn't exist, fall back to UI solutions
-                RunServiceHostFailedToLaunchFallback();
+                StartDirectly();
             }
         });
+
+        void StartDirectly()
+        {
+            // Rebound Service Host doesn't exist, launch directly
+            Process.Start(new ProcessStartInfo()
+            {
+                FileName = LegacyExecutableName,
+                Arguments = args,
+                UseShellExecute = true
+            });
+        }
     }
 
     public static void CreateMainWindow()
@@ -284,7 +248,7 @@ public partial class App : Application, IReboundLegacySupportApp, IReboundPipeCl
             MainWindow.AppWindow.TitleBar.ButtonInactiveBackgroundColor = Colors.Transparent;
             MainWindow.AppWindow.TitleBar.ButtonHoverBackgroundColor = Color.FromArgb(80, 120, 120, 120);
             MainWindow.AppWindow.TitleBar.ButtonPressedBackgroundColor = Color.FromArgb(40, 120, 120, 120);
-            MainWindow.AppWindow.SetIcon($"{AppContext.BaseDirectory}\\Assets\\AboutWindows.ico");
+            MainWindow.AppWindow.SetIcon(Path.Combine(AppContext.BaseDirectory, "Assets", "AboutWindows.ico"));
 
             ReboundWindowBackdrop.Register(MainWindow);
             ReboundWindowTheme.Register(MainWindow);

@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
 	<!-- Generic -->
 	<PropertyGroup>
@@ -51,9 +51,9 @@
 		<WindowsAppSdkSelfContained>false</WindowsAppSdkSelfContained>
 
 		<!-- Versioning -->
-		<AssemblyVersion>0.0.10</AssemblyVersion>
-		<Version>0.0.10</Version>
-		<FileVersion>0.0.10</FileVersion>
+		<AssemblyVersion>0.0.11</AssemblyVersion>
+		<Version>0.0.11</Version>
+		<FileVersion>0.0.11</FileVersion>
 
 		<!-- Publishing Settings -->
 		<PublishProfile>win-$(Platform).pubxml</PublishProfile>
@@ -142,7 +142,9 @@
 		<Content Update="Assets\**\*">
 			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
 		</Content>
-	  <Content Remove="Assets\Rebound.ico" />
+	</ItemGroup>
+	<ItemGroup>
+	  <None Remove="Assets\Rebound.ico" />
 	</ItemGroup>
 
 	<!-- Project references -->

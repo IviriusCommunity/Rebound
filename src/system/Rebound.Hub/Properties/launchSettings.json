@@ -1,12 +1,10 @@
 {
   "profiles": {
     "Rebound Hub (Package)": {
-      "commandName": "MsixPackage",
-      "nativeDebugging": true
+      "commandName": "MsixPackage"
     },
     "Rebound Hub (Unpackaged)": {
-      "commandName": "Project",
-      "nativeDebugging": true
+      "commandName": "Project"
     }
   }
 }

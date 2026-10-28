@@ -1,18 +1,18 @@
 ﻿// Copyright (C) Ivirius(TM) Community 2020 - 2026. All Rights Reserved.
 // Licensed under the MIT License.
 
+using Microsoft.UI.Text;
+using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
+using Microsoft.UI.Xaml.Data;
+using Microsoft.UI.Xaml.Documents;
+using Microsoft.UI.Xaml.Media;
+using Microsoft.UI.Xaml.Navigation;
 using Rebound.Core.UI;
 using Rebound.Forge;
 using System;
 using System.Threading.Tasks;
 using Windows.UI.Text;
-using Windows.UI.Xaml;
-using Windows.UI.Xaml.Controls;
-using Windows.UI.Xaml.Data;
-using Windows.UI.Xaml.Documents;
-using Windows.UI.Xaml.Media;
-using Windows.UI.Xaml.Navigation;
 
 namespace Rebound.Hub.Views;
 
@@ -73,7 +73,7 @@ internal partial class ModToTasksListConverter_Page : IValueConverter
                 {
                     tb.Inlines.Add(new Run()
                     {
-                        Text = $"\n•   {cog.TaskDescription}",
+                        Text = $"\n•   {cog.CogDescription}",
                     });
                 }
             }
@@ -214,7 +214,7 @@ internal sealed partial class ModPage : Page
         // Small delay to ensure visual tree is ready
         await Task.Delay(50);
 
-        UIThreadQueue.QueueAction(() =>
+        DispatcherQueue.TryEnqueue(() =>
         {
             var itemsControl = FindItemsControlInVisualTree(Content);
             var progressRing = FindProgressRingInVisualTree(Content);

@@ -2,9 +2,8 @@
 // Licensed under the MIT License.
 
 using Windows.UI.Xaml;
-using Windows.UI.Xaml.Controls;
-using Rebound.Core.Helpers;
 using Rebound.Hub.ViewModels;
+using Microsoft.UI.Xaml.Controls;
 
 namespace Rebound.Hub.Views;
 

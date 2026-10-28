@@ -1,6 +1,7 @@
 ﻿// Copyright (C) Ivirius(TM) Community 2020 - 2026. All Rights Reserved.
 // Licensed under the MIT License.
 
+using CommunityToolkit.Common;
 using CommunityToolkit.Mvvm.Input;
 using CommunityToolkit.WinUI;
 using Microsoft.UI.Xaml;
@@ -12,6 +13,7 @@ using Rebound.Core.SystemInformation.Hardware;
 using Rebound.Core.SystemInformation.Software;
 using Rebound.Core.Threading;
 using Rebound.Core.UI.Localizer;
+using Rebound.Forge.Engines;
 using System;
 using System.Diagnostics;
 using System.Threading.Tasks;
@@ -57,7 +59,7 @@ internal sealed partial class MainPage : Page
             return (w, u);
         }).ConfigureAwait(true);
 
-        WallpaperPath = wallpaper;
+        if (wallpaper != null) WallpaperPath = wallpaper;
         UserPicturePath = userPicture;
 
         // Fast init - these are probably cheap, keep on UI thread
@@ -67,6 +69,7 @@ internal sealed partial class MainPage : Page
 
         // All heavy work off UI thread
         _ = LoadDeferredAsync();
+        ViewModel.IsReboundInstalled = ReboundPresenceEngine.IsReboundInstalledAsync().GetResultOrDefault();
 
         ViewModel._liveHardwareFeed.OnUpdate += LiveHardwareFeed_OnUpdate;
         ViewModel._liveHardwareFeed.Start();
@@ -267,6 +270,9 @@ internal sealed partial class MainPage : Page
     }
 
     [RelayCommand]
-    private static void CloseWindow()
-        => App.MainWindow?.Close();
+    private void CloseWindow()
+    {
+        ViewModel._liveHardwareFeed.Stop();
+        App.MainWindow?.Close();
+    }
 }

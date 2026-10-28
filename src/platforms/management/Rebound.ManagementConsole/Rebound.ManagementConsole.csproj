@@ -14,9 +14,9 @@
 		<WindowsPackageType>None</WindowsPackageType>
 
 		<!-- Versioning -->
-		<AssemblyVersion>0.0.10</AssemblyVersion>
-		<Version>0.0.10</Version>
-		<FileVersion>0.0.10</FileVersion>
+		<AssemblyVersion>0.0.11</AssemblyVersion>
+		<Version>0.0.11</Version>
+		<FileVersion>0.0.11</FileVersion>
 
 	</PropertyGroup>
 	<ItemGroup>

@@ -213,50 +213,14 @@ public static class ModParser
                     RequiresElevation = GetBool(cogElem, "RequiresElevation")
                 },
 
-                "FolderCog" => new FolderCog
+                /*"FolderCog" => new FolderCog
                 {
                     CogId = cogId,
                     CogName = cogName,
                     Path = GetString(cogElem, "Path", path),
                     PersistAfterRemoving = GetBool(cogElem, "PersistAfterRemoving"),
                     RequiresElevation = GetBool(cogElem, "RequiresElevation")
-                },
-
-                "LauncherAssociationCog" => new LauncherAssociationCog
-                {
-                    CogId = cogId,
-                    CogName = cogName,
-                    ConfigurationFileName = GetString(cogElem, "ConfigurationFileName", path),
-                    OriginalExecutable = GetString(cogElem, "OriginalExecutable", path),
-                    Targets = new(
-                        cogElem.Element("Targets")?
-                            .Elements("Target")
-                            .Select(t =>
-                            {
-                                var value = t.Attribute("Value")?.Value
-                                    ?? throw new InvalidOperationException(
-                                        $"<Target> missing Value attribute in '{declarationFile}'.");
-
-                                if (t.Element("Package") is XElement pkg)
-                                    return new LauncherTarget(value, new LauncherTargetPackage
-                                    {
-                                        FamilyName = pkg.Attribute("FamilyName")?.Value ?? string.Empty,
-                                        EntryPoint = pkg.Attribute("EntryPoint")?.Value ?? "App",
-                                        ArgumentOverride = pkg.Attribute("ArgumentOverride")?.Value
-                                    });
-
-                                if (t.Element("Executable") is XElement exe)
-                                    return new LauncherTarget(value, new LauncherTargetExecutable
-                                    {
-                                        ExecutablePath = Expand(exe.Attribute("Path")?.Value ?? string.Empty, path),
-                                        ArgumentOverride = exe.Attribute("ArgumentOverride")?.Value
-                                    });
-
-                                throw new InvalidOperationException(
-                                    $"<Target Value=\"{value}\"> has no <Package> or <Executable> child in '{declarationFile}'.");
-                            })
-                            .ToList() ?? [])
-                },
+                },*/
 
                 "PackageCog" => new PackageCog
                 {
@@ -299,41 +263,6 @@ public static class ModParser
                     CogName = cogName,
                     ShortcutName = GetString(cogElem, "ShortcutName", path),
                     ExePath = GetString(cogElem, "ExePath", path),
-                    RequiresElevation = GetBool(cogElem, "RequiresElevation")
-                },
-
-                "StartupTaskCog" => new StartupTaskCog
-                {
-                    CogId = cogId,
-                    CogName = cogName,
-                    TaskName = GetString(cogElem, "TaskName", path),
-                    TaskDescription = GetString(cogElem, "TaskDescription", path),
-                    TaskRequiresElevation = GetBool(cogElem, "TaskRequiresElevation"),
-                    StartupTarget = cogElem.Element("Executable") is XElement exe
-                        ? new StartupTaskTarget(
-                            Expand(exe.Attribute("Path")?.Value ?? string.Empty, path),
-                            StartupTaskTargetType.ExecutablePath)
-                        : cogElem.Element("Package") is XElement pkg
-                            ? new StartupTaskTarget(
-                                pkg.Attribute("FamilyName")?.Value ?? string.Empty,
-                                StartupTaskTargetType.PackageFamilyName)
-                            : throw new InvalidOperationException(
-                                $"<StartupTaskCog> has no <Executable> or <Package> child in '{declarationFile}'.")
-                },
-
-                "TaskFolderCog" => new TaskFolderCog
-                {
-                    CogId = cogId,
-                    CogName = cogName,
-                    TaskFolderName = GetString(cogElem, "TaskFolderName", path)
-                },
-
-                "ZipExtractCog" => new ZipExtractCog
-                {
-                    CogId = cogId,
-                    CogName = cogName,
-                    ZipFilePath = GetString(cogElem, "ZipFilePath", path),
-                    DestinationFolder = GetString(cogElem, "DestinationFolder", path),
                     RequiresElevation = GetBool(cogElem, "RequiresElevation")
                 },
 

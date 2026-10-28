@@ -38,6 +38,9 @@
 		<PlatformTarget Condition="'$(Platform)' == 'x64'">x64</PlatformTarget>
 		<PlatformTarget Condition="'$(Platform)' == 'ARM64' or $(RuntimeIdentifier.EndsWith('-arm64'))">arm64</PlatformTarget>
 	</PropertyGroup>
+	<ItemGroup>
+	  <None Remove="UserControls\LightSceneHeader.xaml" />
+	</ItemGroup>
 
 	<!-- Project content -->
 	<ItemGroup>
@@ -45,6 +48,9 @@
 		  <Generator>MSBuild:Compile</Generator>
 		</Page>
 		<Page Include="UserControls\HomePageHeaderImage.xaml" />
+		<Page Include="UserControls\LightSceneHeader.xaml">
+		  <Generator>MSBuild:Compile</Generator>
+		</Page>
 	</ItemGroup>
 
 	<!-- Package references -->

@@ -37,9 +37,4 @@ public interface IReboundPipeClientApp
     /// The pipe client class responsible for communicating with Rebound Service Host.
     /// </summary>
     PipeClient? ReboundPipeClient { get; }
-
-    /// <summary>
-    /// In case Rebound Service Host fails to launch by various reasons, call this function.
-    /// </summary>
-    void RunServiceHostFailedToLaunchFallback();
 }

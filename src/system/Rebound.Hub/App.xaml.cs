@@ -1,73 +1,85 @@
 ﻿// Copyright (C) Ivirius(TM) Community 2020 - 2026. All Rights Reserved.
 // Licensed under the MIT License.
 
+using Microsoft.UI;
 using Microsoft.UI.Windowing;
-using Rebound.Core.Helpers;
+using Microsoft.UI.Xaml;
+using Rebound.Core;
 using Rebound.Core.UI;
-using Rebound.Generators;
+using Rebound.Core.UI.Windowing;
 using Rebound.Hub.ViewModels;
 using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Threading.Tasks;
+using System.IO;
 using Windows.UI;
-using Windows.UI.Xaml;
-using Windows.UI.Xaml.Controls;
-using WinRT;
-using Colors = Windows.UI.Colors;
+using WinUIEx;
 
 namespace Rebound.Hub;
 
-[ReboundApp("Rebound.Hub", "")]
 public partial class App : Application
 {
-    public static ReboundService ReboundService { get; } = new();
+    private SingleInstanceAppService SingleInstanceAppService { get; } = new("Rebound.Hub");
 
-    private void OnSingleInstanceLaunched(object sender, SingleInstanceLaunchEventArgs e)
+    internal static ReboundService ReboundService { get; } = new();
+
+    public App() => InitializeComponent();
+
+    protected override void OnLaunched(LaunchActivatedEventArgs args)
     {
-        UIThreadQueue.QueueAction(async () =>
+        UnhandledException += (s, e) =>
         {
-            if (MainWindow != null)
-                MainWindow.Activate();
-            else
-                await CreateMainWindow();
-        });
+            ReboundLogger.WriteToLog(
+                "Unhandled Exception",
+                "An unhandled exception was caught in the application.",
+                LogMessageSeverity.Error,
+                e.Exception);
+            // The environment is too unstable for execution to continue
+            Current.Exit();
+        };
+
+        SingleInstanceAppService.Launched += OnSingleInstanceLaunched;
+        SingleInstanceAppService.Launch();
     }
 
-    public static async Task CreateMainWindow()
+    private async void OnSingleInstanceLaunched(object? sender, SingleInstanceLaunchEventArgs e)
     {
-        MainWindow = new()
-        {
-            IsPersistenceEnabled = true,
-            PersistenceFileName = "reboundhub",
-            PersistenceKey = "Rebound.Hub.MainWindow"
-        };
-        
-        MainWindow.AppWindowInitialized += (s, e) =>
-        {
-            MainWindow.Title = "Rebound Hub";
-            MainWindow.AppWindow?.TitleBar.ExtendsContentIntoTitleBar = true;
-            MainWindow.AppWindow?.TitleBar.PreferredHeightOption = TitleBarHeightOption.Tall;
-            MainWindow.AppWindow?.TitleBar.ButtonBackgroundColor = Colors.Transparent;
-            MainWindow.AppWindow?.TitleBar.ButtonHoverBackgroundColor = Color.FromArgb(40, 120, 120, 120);
-            MainWindow.AppWindow?.TitleBar.ButtonPressedBackgroundColor = Color.FromArgb(24, 120, 120, 120);
-            MainWindow.AppWindow?.TitleBar.ButtonInactiveBackgroundColor = Colors.Transparent;
-            MainWindow.AppWindow?.SetTaskbarIcon($"{AppContext.BaseDirectory}\\Assets\\AppIcons\\ReboundHub.ico");
-        };
-        MainWindow.XamlInitialized += (s, e) =>
-        {
-            var frame = new Frame();
-            frame.Navigate(typeof(Views.ShellPage));
-            MainWindow.Content = frame;
-            frame.Loaded += async (sender, e) =>
-            {
-                await ReboundService.LoadModsStatesAsync().ConfigureAwait(false);
-                await ReboundService.InitializeAsync().ConfigureAwait(false);
-                await ReboundService.CheckForUpdatesAsync().ConfigureAwait(false);
-            };
-        };
-        MainWindow.Create();
+        if (MainWindow != null)
+            MainWindow.Activate();
+        else
+            CreateMainWindow();
     }
 
-    public static IslandsWindow? MainWindow { get; set; }
+    public static void CreateMainWindow()
+    {
+        MainWindow = new MainWindow()
+        {
+            MinWidth = 640,
+            MinHeight = 400,
+            PersistenceId = "Rebound.Hub.MainWindow",
+            Title = "Rebound Hub"
+        };
+
+        // Default window size
+        if (WindowManager.PersistenceStorage?.TryGetValue("Rebound.Hub.MainWindow", out _) != true)
+        {
+            MainWindow.Width = 1000;
+            MainWindow.Height = 800;
+        }
+
+        // Spawn the window
+        MainWindow.Activate();
+
+        // Window properties
+        MainWindow.AppWindow.TitleBar.ExtendsContentIntoTitleBar = true;
+        MainWindow.AppWindow.TitleBar.PreferredHeightOption = TitleBarHeightOption.Tall;
+        MainWindow.AppWindow.TitleBar.ButtonBackgroundColor =
+        MainWindow.AppWindow.TitleBar.ButtonInactiveBackgroundColor = Colors.Transparent;
+        MainWindow.AppWindow.TitleBar.ButtonHoverBackgroundColor = Color.FromArgb(80, 120, 120, 120);
+        MainWindow.AppWindow.TitleBar.ButtonPressedBackgroundColor = Color.FromArgb(40, 120, 120, 120);
+        MainWindow.AppWindow.SetIcon(Path.Combine(AppContext.BaseDirectory, "Assets", "AppIcons", "ReboundHub.ico"));
+
+        ReboundWindowBackdrop.Register(MainWindow);
+        ReboundWindowTheme.Register(MainWindow);
+    }
+
+    public static WindowEx? MainWindow { get; set; }
 }

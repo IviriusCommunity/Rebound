@@ -32,7 +32,7 @@ public class PipeClient : IPipeClient, IDisposable
     /// Initializes a new instance of the PipeClient class using the specified named pipe.
     /// </summary>
     /// <param name="pipeName">The name of the pipe to connect to. If not specified, defaults to "REBOUND_SERVICE_HOST".</param>
-    public PipeClient(string pipeName = "REBOUND_SERVICE_HOST")
+    public PipeClient(string pipeName)
     {
         _pipeName = pipeName;
     }
@@ -69,7 +69,7 @@ public class PipeClient : IPipeClient, IDisposable
 
         try
         {
-            await _pipe.ConnectAsync(2000); // wait for connection
+            await _pipe.ConnectAsync(1000); // wait for connection
         }
         catch (Exception ex)
         {

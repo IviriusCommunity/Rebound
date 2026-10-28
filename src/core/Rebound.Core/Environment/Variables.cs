@@ -35,14 +35,6 @@ public static partial class Variables
         Path.Combine(ReboundDataFolder, "Libs");
 
     /// <summary>
-    /// Represents the full path to Rebound's program associations folder within the current user's profile directory.
-    /// </summary>
-    /// <remarks>This folder holds program association configuration files for associating executables with
-    /// a redirection application.</remarks>
-    public static readonly string ReboundProgramAssociationsFolder =
-        Path.Combine(ReboundDataFolder, "Program Associations");
-
-    /// <summary>
     /// Represents the full path to the temporary log file used by the application.
     /// </summary>
     /// <remarks>The log file is located in the 'Temp' subdirectory within the application's data folder. This
@@ -51,62 +43,16 @@ public static partial class Variables
         Path.Combine(ReboundDataFolder, "Temp", ".log");
 
     /// <summary>
-    /// Represents the full path to the application's shared program data folder under the system's Common Program Files
-    /// directory.
-    /// </summary>
-    /// <remarks>This path is intended for storing data that is accessible to all users of the system and modding components that
-    /// are applied for all users. The folder is created by combining the Common Program Files directory with the "Rebound" subfolder. 
-    /// Ensure that the application has appropriate permissions to read from and write to this location.</remarks>
-    public static readonly string ReboundProgramFilesFolder =
-        Path.Combine(System.Environment.GetFolderPath(System.Environment.SpecialFolder.ProgramFiles),
-                     "Rebound");
-
-    /// <summary>
-    /// Rebound program data folder for storing common data accessible for every user.
-    /// </summary>
-    /// <remarks>
-    /// To be used for storing binaries, mods, and other data requested by system level changes.
-    /// </remarks>
-    public static readonly string ReboundSharedDataFolder =
-        Path.Combine(System.Environment.GetFolderPath(System.Environment.SpecialFolder.CommonApplicationData), "Rebound");
-
-    /// <summary>
     /// Represents the full path to the Mods folder within the application's program data directory.
     /// </summary>
     public static readonly string ReboundModsFolder =
-        Path.Combine(ReboundSharedDataFolder, "Mods");
+        Path.Combine(ReboundDataFolder, "Mods");
 
     /// <summary>
     /// Represents the full path to the DLLs folder within Rebound's data directory.
     /// </summary>
     public static readonly string ReboundInjectedDLLsFolder =
         Path.Combine(ReboundDataFolder, "InjectedDLLs");
-
-    /// <summary>
-    /// Represents the full path to the launcher associations folder within the application's program data directory.
-    /// </summary>
-    public static readonly string ReboundLauncherAssociationsFolder =
-        Path.Combine(ReboundSharedDataFolder, "LauncherAssociations");
-
-    /// <summary>
-    /// Represents the full file system path to the Rebound Launcher executable.
-    /// </summary>
-    public static readonly string ReboundLauncherPath =
-        Path.Combine(ReboundSharedDataFolder, "Rebound.Launcher.exe");
-
-    /// <summary>
-    /// Gets the full file system path to the Rebound Uninstaller executable.
-    /// </summary>
-    /// <remarks>This path is constructed by combining the Rebound uninstaller folder with the executable file
-    /// name. Use this value when launching or referencing the Rebound Uninstaller from code.</remarks>
-    public static readonly string ReboundUninstallerPath =
-        Path.Combine(ReboundProgramFilesFolder, "Rebound.Uninstaller.exe");
-
-    /// <summary>
-    /// File containing information about the currently installed version of Rebound.
-    /// </summary>
-    public static readonly string ReboundCurrentVersionPath =
-        Path.Combine(ReboundDataFolder, "version.txt");
 
     /// <summary>
     /// Argument used to launch the legacy versions of Rebound apps.

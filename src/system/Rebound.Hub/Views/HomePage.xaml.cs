@@ -1,10 +1,10 @@
 ﻿// Copyright (C) Ivirius(TM) Community 2020 - 2026. All Rights Reserved.
 // Licensed under the MIT License.
 
+using Microsoft.UI.Xaml.Controls;
 using Rebound.Hub.Cards;
 using System.Collections.ObjectModel;
 using Windows.UI;
-using Windows.UI.Xaml.Controls;
 
 namespace Rebound.Hub.Views;
 
