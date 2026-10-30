@@ -62,10 +62,6 @@ public partial class App : Application, IReboundLegacySupportApp, IReboundPipeCl
                 "The application is starting.",
                 LogMessageSeverity.Message);
 
-            UIDispatcher = DispatcherQueue.GetForCurrentThread()
-                ?? throw new InvalidOperationException(
-                    "The WinUI UI DispatcherQueue is unavailable.");
-
             // Set locale
             Windows.Globalization.ApplicationLanguages.PrimaryLanguageOverride = string.Empty;
 
@@ -85,6 +81,10 @@ public partial class App : Application, IReboundLegacySupportApp, IReboundPipeCl
             // If this is the application's initial launch, handle the required environment
             if (e.IsFirstLaunch)
             {
+                UIDispatcher = DispatcherQueue.GetForCurrentThread()
+                    ?? throw new InvalidOperationException(
+                        "The WinUI UI DispatcherQueue is unavailable.");
+
                 ReboundLogger.WriteToLog(
                     "Rebound Environment Initialization",
                     "Initializing the Rebound environment for the current app...",
