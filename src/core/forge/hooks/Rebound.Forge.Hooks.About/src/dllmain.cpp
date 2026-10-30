@@ -730,30 +730,40 @@ static BOOL WINAPI ShellAboutA_Hook(
 // ShellExecute hooks
 // ---------------------------------------------------------------------------
 
+
 /// <summary>
-/// Shared success path for SHELLEXECUTEINFOA/W: honours
-/// SEE_MASK_NOCLOSEPROCESS by handing back a real process handle.
+/// Shared success path for SHELLEXECUTEINFOA/W.
+/// Preserves caller-provided site pointers and reports no process handle
+/// because package activation does not guarantee a newly created process.
 /// </summary>
-template <typename TInfo>
+template <typename TInfo> 
 static bool TryRedirectShellExecuteInfo(TInfo* info)
 {
-    const bool wantsProcess =
-        (info->fMask & SEE_MASK_NOCLOSEPROCESS) != 0;
-
-    PROCESS_INFORMATION pi{};
-
-    if (!RedirectWinverLaunch(wantsProcess ? &pi : nullptr))
+    if (!info)
         return false;
 
-    if (wantsProcess)
-        info->hProcess = pi.hProcess;
+    const bool hasSite =
+        (info->fMask & SEE_MASK_FLAG_HINST_IS_SITE) != 0;
 
-    if (pi.hThread)
-        CloseHandle(pi.hThread);
+    if (!RedirectWinverLaunch(nullptr))
+        return false;
 
-    info->hInstApp = reinterpret_cast<HINSTANCE>(static_cast<INT_PTR>(33));
+    // ActivateApplication does not guarantee a newly created process.
+    // Therefore, no process handle can safely be returned.
+    info->hProcess = nullptr;
+
+    // With SEE_MASK_FLAG_HINST_IS_SITE, hInstApp is an input
+    // IUnknown site pointer. Never overwrite it.
+    if (!hasSite)
+    {
+        info->hInstApp =
+            reinterpret_cast<HINSTANCE>(
+                static_cast<INT_PTR>(33));
+    }
+
     return true;
 }
+
 
 /// <summary>
 /// Explorer, Search and file dialogs launch items by PIDL and leave lpFile
