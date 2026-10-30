@@ -1,75 +1,29 @@
-
 $ErrorActionPreference = "Stop"
 
-$projectDir = $PSScriptRoot
-$vsRoot = "C:\Program Files\Microsoft Visual Studio\18\Community"
-$vcvars = Join-Path $vsRoot "VC\Auxiliary\Build\vcvarsall.bat"
+$VS = "C:\Program Files\Microsoft Visual Studio\18\Community"
+$VCVARS = "$VS\VC\Auxiliary\Build\vcvarsall.bat"
 
-if (!(Test-Path -LiteralPath $vcvars)) {
-    throw "MSVC environment script not found: $vcvars"
-}
+$Builds = @(
+    @{ Name = "x64";   VcArch = "x64" }
+    @{ Name = "ARM64"; VcArch = "x64_arm64" }
+)
 
-function Build-ReboundDll {
-    param(
-        [Parameter(Mandatory)]
-        [ValidateSet("x64", "ARM64")]
-        [string]$Architecture
-    )
+foreach ($Build in $Builds) {
+    $BuildDir = "build\$($Build.Name)"
 
-    $buildDir = Join-Path $projectDir "build\$Architecture"
-    $dllPath = Join-Path $projectDir "bin\Rebound.Forge.Hooks.About.$Architecture.dll"
-    $workerPath = Join-Path $projectDir "build\worker-$Architecture.cmd"
+    Write-Host "`n=== Building $($Build.Name) ===" -ForegroundColor Cyan
 
-    $vcvarsArch = if ($Architecture -eq "x64") {
-        "x64"
-    } else {
-        "x64_arm64"
-    }
+    $Command = @(
+        "call `"$VCVARS`" $($Build.VcArch)",
+        "cmake -S . -B `"$BuildDir`" -G Ninja",
+        "cmake --build `"$BuildDir`" --config Release"
+    ) -join " && "
 
-    New-Item -ItemType Directory -Force -Path (Split-Path $workerPath) |
-        Out-Null
-
-    $worker = @"
-@echo off
-setlocal
-call "$vcvars" $vcvarsArch
-if errorlevel 1 exit /b 1
-
-echo.
-echo Target environment: %VSCMD_ARG_TGT_ARCH%
-where cl
-if errorlevel 1 exit /b 1
-
-cl 2>&1 | findstr /C:"for x64" /C:"for ARM64"
-if errorlevel 1 exit /b 1
-
-cmake -S "$projectDir" -B "$buildDir" --fresh -G Ninja -DCMAKE_BUILD_TYPE=Release -DREBOUND_TARGET_ARCH=$Architecture
-if errorlevel 1 exit /b 1
-
-cmake --build "$buildDir"
-if errorlevel 1 exit /b 1
-
-endlocal
-"@
-
-    Set-Content -LiteralPath $workerPath -Value $worker -Encoding ascii
-
-    Write-Host "`nBuilding $Architecture..."
-
-    & $env:ComSpec /d /c "`"$workerPath`""
+    & cmd.exe /d /c $Command
 
     if ($LASTEXITCODE -ne 0) {
-        throw "$Architecture build failed with exit code $LASTEXITCODE"
+        throw "Build failed for $($Build.Name) (exit code $LASTEXITCODE)"
     }
-
-    if (!(Test-Path -LiteralPath $dllPath)) {
-        throw "Expected DLL was not produced: $dllPath"
-    }
-
-    Write-Host "Built: $dllPath"
 }
 
-Build-ReboundDll -Architecture x64
-Build-ReboundDll -Architecture ARM64
-
-Write-Host "`nBoth builds completed."
+Write-Host "`nAll builds completed." -ForegroundColor Green
