@@ -215,6 +215,11 @@ static HRESULT ActivateReboundAbout(DWORD* processIdOut = nullptr)
 
     if (SUCCEEDED(hr))
     {
+        // Transfer foreground activation permission to the
+        // Application Activation Manager's COM server.
+        const HRESULT foregroundHr =
+            CoAllowSetForegroundWindow(manager, nullptr);
+
         DWORD processId = 0;
 
         hr = manager->ActivateApplication(
