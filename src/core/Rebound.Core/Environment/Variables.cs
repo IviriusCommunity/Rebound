@@ -34,6 +34,9 @@ public static partial class Variables
     public static readonly string ReboundLibsFolder =
         Path.Combine(ReboundDataFolder, "Libs");
 
+    public static readonly string ReboundProgramAssociationsFolder =
+        Path.Combine(ReboundDataFolder, "ProgramAssociations");
+
     /// <summary>
     /// Represents the full path to the temporary log file used by the application.
     /// </summary>

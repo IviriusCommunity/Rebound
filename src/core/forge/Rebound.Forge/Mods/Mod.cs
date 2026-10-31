@@ -366,8 +366,12 @@ public partial class Mod : ObservableObject
             else
                 await UninstallDependentAsync(selectedVariant).ConfigureAwait(false);
 
+            var orderedVariants = Variants
+                .Where(v => v.Id != selectedVariant.Id)
+                .Append(selectedVariant);
+
             // Iterate over all variants: apply the selected one, remove all others
-            foreach (var variant in Variants)
+            foreach (var variant in orderedVariants)
             {
                 if (variant.Cogs is null || variant.Cogs.Count == 0)
                 {

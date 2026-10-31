@@ -322,6 +322,44 @@ public partial class Catalog : ObservableObject
                         ],
                     }
                 ],
+            },*/
+            
+            // Launcher
+            new()
+            {
+                Name = "Launcher",
+                Id = new("80439df9-6cca-4d5e-89f8-96c10f4e6c59"),
+                Description = "A small utility that allows Rebound to open one program instead of the other.",
+                Icon = "ms-appx:///Assets/ReboundApps/Launcher.ico",
+                Category = ModCategory.General,
+                PreferredInstallationTemplate = InstallationTemplate.Basic,
+                Variants = [
+                    new()
+                    {
+                        Name = "Default",
+                        Id = new("2f38d061-3a05-460c-a3a1-57339c45ee7c"),
+                        Cogs =
+                        [
+                            new DLLInjectionCog()
+                            {
+                                CogName = "Redirection DLL",
+                                CogId = new("b1781ee2-0823-454c-bccc-f24baa11523e"),
+                                DLLPathARM64 = Path.Combine(AppContext.BaseDirectory, "Modding", "DLLs", "Rebound.Forge.Hooks.Launcher.ARM64.dll"),
+                                DLLPathx64 = Path.Combine(AppContext.BaseDirectory, "Modding", "DLLs", "Rebound.Forge.Hooks.Launcher.x64.dll"),
+                                TargetProcesses = [ "*" ],
+                                ExcludedProcesses = [ ]
+                            }
+                        ],
+                        Settings =
+                        [
+                            new ModInfoBar()
+                            {
+                                IsClosable = false,
+                                Title = "There are no settings available for this mod."
+                            }
+                        ]
+                    }
+                ]
             },
 
             // Character Map
@@ -330,7 +368,7 @@ public partial class Catalog : ObservableObject
                 Name = "Character Map",
                 Id = new("3b18b8e7-1a56-45f0-849b-4abccc85db3f"),
                 Description = "Utility for searching through characters in any installed font. (3rd party)",
-                Icon = "ms-appx:///Assets/AppIcons/PartnerApps/Character Map UWP.png",
+                Icon = "ms-appx:///Assets/PartnerApps/CharacterMapUWP.png",
                 Category = ModCategory.Productivity,
                 PreferredInstallationTemplate = InstallationTemplate.Extras,
                 Variants = [
@@ -338,19 +376,35 @@ public partial class Catalog : ObservableObject
                     {
                         Name = "Default",
                         Id = new("4dc88441-a519-4097-83f6-16c1b7b544dc"),
+                        Dependencies = [new("80439df9-6cca-4d5e-89f8-96c10f4e6c59")],
                         Cogs =
                         [
-                            new IFEOCog()
+                            new ProcessKillCog()
                             {
-                                CogName = "Rebound Character Map IFEOCog",
-                                OriginalExecutableName = "charmap.exe",
-                                LauncherPath = Variables.ReboundLauncherPath
+                                CogName = "Kill Character Map UWP",
+                                CogId = new("6b4d5759-af00-48a8-a877-e3b3c5725328"),
+                                ProcessName = "CharacterMap",
+                                KillOn = ProcessKillOn.Both,
+                                RequiresElevation = false
                             },
-                            new StorePackageCog()
+                            new PackageCog()
                             {
-                                StoreProductId = "9WZDNCRDXF41",
-                                PackageFamilyName = "58027.265370AB8DB33_fjemmk5ta3a5g"
+                                CogName = "Character Map UWP Package Manager",
+                                CogId = new("df390a26-a0cd-4350-b046-2f37666800e3"),
+                                Target = new PackageTarget(
+                                    PackageTargetType.Store,
+                                    StoreProductId: "9WZDNCRDXF41",
+                                    PackageFamilyName: "58027.265370AB8DB33_fjemmk5ta3a5g")
                             },
+                            new ProgramAssociationCog()
+                            {
+                                CogName = "Character Map UWP Program Association",
+                                CogId = new("a1d0b615-6400-4234-b14a-a803af9a9366"),
+                                OriginalExecutable = "charmap.exe",
+                                Target = new ProgramAssociationTarget(
+                                    ProgramAssociationType.AUMID,
+                                    "58027.265370AB8DB33_fjemmk5ta3a5g!App")
+                            }
                         ],
                         Settings =
                         [
@@ -369,7 +423,7 @@ public partial class Catalog : ObservableObject
                         ],
                     }
                 ]
-            },*/
+            },
 
             // Rebound About Windows
             new()
@@ -383,8 +437,9 @@ public partial class Catalog : ObservableObject
                 Variants = [
                     new()
                     {
-                        Name = "Default",
+                        Name = "Rebound About",
                         Id = new("2917ef5b-c290-4414-ae2e-348e0c38f3c4"),
+                        Dependencies = [new("80439df9-6cca-4d5e-89f8-96c10f4e6c59")],
                         Cogs =
                         [
                             new ProcessKillCog()
@@ -392,7 +447,7 @@ public partial class Catalog : ObservableObject
                                 CogName = "Kill Rebound About",
                                 CogId = new("7c521c7d-bfd1-4c38-bb4e-f791e9281915"),
                                 ProcessName = "Rebound.About",
-                                KillOn = ProcessKillOn.Remove,
+                                KillOn = ProcessKillOn.Both,
                                 RequiresElevation = true
                             },
                             new PackageCog()
@@ -406,12 +461,21 @@ public partial class Catalog : ObservableObject
                             },
                             new DLLInjectionCog()
                             {
-                                CogName = "Rebound About Redirection DLL",
+                                CogName = "ShellAbout Redirection DLL",
                                 CogId = new("d34554fc-f202-400a-80a9-cdbdc7a6f91a"),
                                 DLLPathARM64 = Path.Combine(AppContext.BaseDirectory, "Modding", "DLLs", "Rebound.Forge.Hooks.About.ARM64.dll"),
                                 DLLPathx64 = Path.Combine(AppContext.BaseDirectory, "Modding", "DLLs", "Rebound.Forge.Hooks.About.x64.dll"),
                                 TargetProcesses = [ "*" ],
-                                ExcludedProcesses = [ ]
+                                ExcludedProcesses = [ "winver.exe" ]
+                            },
+                            new ProgramAssociationCog()
+                            {
+                                CogName = "Rebound About Program Association",
+                                CogId = new("90472e74-0bc2-4588-b619-90969bed67c8"),
+                                OriginalExecutable = "winver.exe",
+                                Target = new ProgramAssociationTarget(
+                                    ProgramAssociationType.AUMID,
+                                    "Rebound.About_rcz2tbwv5qzb8!App")
                             }
                         ],
                         Settings =
@@ -474,6 +538,31 @@ public partial class Catalog : ObservableObject
                                 PackageFamilyName = "Rebound.About_rcz2tbwv5qzb8"
                             }
                         ],
+                    },
+                    new()
+                    {
+                        Name = "Windows Settings - About",
+                        Id = new("10044773-7031-4008-855e-accc0738899a"),
+                        Dependencies = [new("80439df9-6cca-4d5e-89f8-96c10f4e6c59")],
+                        Cogs =
+                        [
+                            new ProgramAssociationCog()
+                            {
+                                CogName = "Rebound About Program Association",
+                                CogId = new("134aac09-5627-4eee-9586-2e84fb824c70"),
+                                OriginalExecutable = "winver.exe",
+                                Target = new ProgramAssociationTarget(
+                                    ProgramAssociationType.URI,
+                                    "ms-settings:about")
+                            }
+                        ],
+                        Launchers =
+                        [
+                            new UriLauncher()
+                            {
+                                Uri = new("ms-settings:about")
+                            }
+                        ],
                     }
                 ]
             }
@@ -531,7 +620,16 @@ public partial class Catalog : ObservableObject
                                 CogName = "DLLs folder",
                                 CogId = new("6e9bd59d-1108-4a2e-b2af-5dfa97530dfc"),
                                 Path = Variables.ReboundInjectedDLLsFolder,
-                                PersistAfterRemoving = true,
+                                PersistAfterRemoving = false,
+                                RequiresElevation = true,
+                                LockBehindAdmin = true
+                            },
+                            new FolderCog()
+                            {
+                                CogName = "Program associations folder",
+                                CogId = new("6b3729f7-75bf-4de5-ad89-bc2edf5cb7a2"),
+                                Path = Variables.ReboundProgramAssociationsFolder,
+                                PersistAfterRemoving = false,
                                 RequiresElevation = true,
                                 LockBehindAdmin = true
                             },
@@ -617,7 +715,7 @@ public partial class Catalog : ObservableObject
                                 CogName = "Kill Rebound (Service Host)",
                                 CogId = new("bbb3d616-c07d-4ff5-84a9-dc1336cb1882"),
                                 ProcessName = "Rebound.ServiceHost",
-                                KillOn = ProcessKillOn.Remove,
+                                KillOn = ProcessKillOn.Both,
                                 RequiresElevation = true,
                                 RequiresUserConfirmation = false
                             },

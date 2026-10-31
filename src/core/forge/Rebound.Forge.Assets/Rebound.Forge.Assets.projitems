@@ -9,6 +9,9 @@
     <Import_RootNamespace>Rebound.Forge.Assets</Import_RootNamespace>
   </PropertyGroup>
   <ItemGroup>
+    <Content Include="$(MSBuildThisFileDirectory)Assets\PartnerApps\CharacterMapUWP.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
     <Content Include="$(MSBuildThisFileDirectory)Assets\ReboundApps\AboutWindows.ico">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
@@ -25,6 +28,9 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <Content Include="$(MSBuildThisFileDirectory)Assets\ReboundApps\InjectionDLLs.ico">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="$(MSBuildThisFileDirectory)Assets\ReboundApps\Launcher.ico">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <Content Include="$(MSBuildThisFileDirectory)Assets\ReboundApps\OSK.ico">
@@ -60,6 +66,12 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <Content Include="$(MSBuildThisFileDirectory)Modding\DLLs\Rebound.Forge.Hooks.About.x64.dll">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="$(MSBuildThisFileDirectory)Modding\DLLs\Rebound.Forge.Hooks.Launcher.ARM64.dll">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="$(MSBuildThisFileDirectory)Modding\DLLs\Rebound.Forge.Hooks.Launcher.x64.dll">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <None Include="$(MSBuildThisFileDirectory)Modding\Packages\Rebound.About.msixbundle" />

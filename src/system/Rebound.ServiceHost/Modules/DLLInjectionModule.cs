@@ -310,7 +310,7 @@ internal partial class DLLInjectionModule : IDisposable
 
         try
         {
-            DLLPipeServer?.Broadcast($"UNINJECT {fileName}");
+            DLLPipeServer?.Broadcast($"UNINJECT {fileName.Replace(".x64", "", StringComparison.InvariantCultureIgnoreCase).Replace(".ARM64", "", StringComparison.InvariantCultureIgnoreCase)}");
         }
         catch (Exception ex)
         {
