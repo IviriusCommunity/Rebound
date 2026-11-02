@@ -218,7 +218,7 @@ internal partial class ReboundService : ObservableObject
                 LogMessageSeverity.Error,
                 ex);
 
-            DispatcherQueue.GetForCurrentThread().TryEnqueue(async () =>
+            App.MainWindow?.DispatcherQueue.TryEnqueue(async () =>
             {
                 IsUpdateAvailable = false;
                 VersionText = "Unable to check for updates";

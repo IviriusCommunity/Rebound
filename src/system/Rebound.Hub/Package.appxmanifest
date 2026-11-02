@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Package xmlns="http://schemas.microsoft.com/appx/manifest/foundation/windows10" xmlns:mp="http://schemas.microsoft.com/appx/2014/phone/manifest" xmlns:uap="http://schemas.microsoft.com/appx/manifest/uap/windows10" xmlns:uap5="http://schemas.microsoft.com/appx/manifest/uap/windows10/5" xmlns:rescap="http://schemas.microsoft.com/appx/manifest/foundation/windows10/restrictedcapabilities" xmlns:desktop4="http://schemas.microsoft.com/appx/manifest/desktop/windows10/4" xmlns:iot2="http://schemas.microsoft.com/appx/manifest/iot/windows10/2" IgnorableNamespaces="uap uap5 mp rescap desktop4 iot2">
 	<Identity Name="Rebound.Hub" Publisher="CN=Ivirius Community" Version="0.0.11.0" />
 	<mp:PhoneIdentity PhoneProductId="d6ef5e04-e9da-4e22-9782-8031af8beae7" PhonePublisherId="00000000-0000-0000-0000-000000000000" />
@@ -20,6 +20,11 @@
 				<uap:DefaultTile Wide310x150Logo="Assets\Package\Wide310x150Logo.png" Square71x71Logo="Assets\Package\SmallTile.png" Square310x310Logo="Assets\Package\LargeTile.png" />
 				<uap:SplashScreen Image="Assets\Package\SplashScreen.png" />
 			</uap:VisualElements>
+			<Extensions>
+				<uap:Extension Category="windows.protocol">
+					<uap:Protocol Name="rebound-hub"/>
+				</uap:Extension>
+			</Extensions>
 		</Application>
 	</Applications>
 	<Capabilities>

@@ -1,6 +1,5 @@
 param(
     [string]$Configuration = "Release",
-    [string]$Platform = "x64",
     [switch]$Verbose
 )
 
@@ -37,6 +36,35 @@ function Write-ErrorMessage {
     Write-Host $Message
 }
 
+function Resolve-MSBuild {
+    # First, check whether MSBuild is already available.
+    $command = Get-Command msbuild.exe -ErrorAction SilentlyContinue
+
+    if ($command) {
+        return $command.Source
+    }
+
+    # Locate Visual Studio using vswhere.
+    $vswhere = Join-Path ${env:ProgramFiles(x86)} "Microsoft Visual Studio\Installer\vswhere.exe"
+
+    if (-not (Test-Path $vswhere)) {
+        throw "vswhere.exe not found. Is Visual Studio installed?"
+    }
+
+    $msbuild = & $vswhere `
+        -latest `
+        -products '*' `
+        -requires Microsoft.Component.MSBuild `
+        -find 'MSBuild\Current\Bin\MSBuild.exe' |
+        Select-Object -First 1
+
+    if (-not $msbuild -or -not (Test-Path $msbuild)) {
+        throw "Could not locate MSBuild. Ensure the MSBuild component is installed in Visual Studio."
+    }
+
+    return $msbuild
+}
+
 function Build-MsixPackage {
     param(
         [Parameter(Mandatory)]
@@ -52,9 +80,6 @@ function Build-MsixPackage {
         [string]$Configuration,
         
         [Parameter(Mandatory)]
-        [string]$Platform,
-
-        [Parameter(Mandatory)]
         [string]$SolutionDir
     )
 
@@ -66,7 +91,6 @@ function Build-MsixPackage {
         $ProjectPath
         "/t:Build"
         "/p:Configuration=$Configuration"
-        "/p:Platform=$Platform"
         "/p:AppxBundle=Always"
         "/p:UapAppxPackageBuildMode=SideloadOnly"
         "/p:GenerateAppxPackageOnBuild=true"
@@ -75,9 +99,9 @@ function Build-MsixPackage {
     )
 
     Write-Info "MSBuild: msbuild.exe $($msbuildArgs -join ' ')"
-    
-    & msbuild.exe @msbuildArgs
-    
+
+    & $script:MSBuildPath @msbuildArgs
+
     if ($LASTEXITCODE -ne 0) {
         throw "MSBuild failed for $projectName with exit code $LASTEXITCODE"
     }
@@ -131,6 +155,8 @@ Write-Header "Rebound Package Builder"
 
 try {
     $root = Resolve-Path "$PSScriptRoot\.."
+    $script:MSBuildPath = Resolve-MSBuild
+    Write-Info "Using MSBuild: $script:MSBuildPath"
     $versionFile = Join-Path $root "var\VERSION.txt"
 
     # Read version
@@ -150,14 +176,9 @@ try {
             Destination = Join-Path $root "src\core\forge\Rebound.Forge.Assets\Modding\Packages\Rebound.About.msixbundle"
         },
         @{
-            Name = "Rebound.Shell"
-            Project = Join-Path $root "src\platforms\shell\Rebound.Shell\Rebound.Shell.csproj"
-            Destination = Join-Path $root "src\core\forge\Rebound.Forge.Assets\Modding\Packages\Rebound.Shell.msixbundle"
-        },
-        @{
-            Name = "Rebound.UserAccountControlSettings"
-            Project = Join-Path $root "src\apps\Rebound.UserAccountControlSettings\Rebound.UserAccountControlSettings.csproj"
-            Destination = Join-Path $root "src\core\forge\Rebound.Forge.Assets\Modding\Packages\Rebound.UserAccountControlSettings.msixbundle"
+            Name = "Rebound.ServiceHost"
+            Project = Join-Path $root "src\system\Rebound.ServiceHost\Rebound.ServiceHost.csproj"
+            Destination = Join-Path $root "src\core\forge\Rebound.Forge.Assets\Modding\Packages\Rebound.ServiceHost.msixbundle"
         }
     )
 
@@ -173,7 +194,6 @@ try {
                 -DestinationPath $package.Destination `
                 -MsixVersion $msixVersion `
                 -Configuration $Configuration `
-                -Platform $Platform `
                 -SolutionDir $solutionDir
             
             $successCount++

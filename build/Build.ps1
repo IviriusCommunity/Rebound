@@ -35,9 +35,10 @@ try {
     
     $scriptsToRun = @(
         "Update-Versions.ps1",
-        "Build-Forge-Assets.ps1",
-        "Build-Distribution.ps1",
-        "Build-Installer-Updater.ps1"
+        "Build-DLLs.ps1",
+        "Build-Apps.ps1",
+        "Build-Hub.ps1",
+        "Build-Installer.ps1"
     )
 
     $completedCount = 0

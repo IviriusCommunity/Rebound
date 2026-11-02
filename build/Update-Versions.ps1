@@ -144,7 +144,7 @@ try {
         "src/platforms/management/Rebound.ManagementConsole/Rebound.ManagementConsole.csproj",
         "src/system/Rebound.Hub/Rebound.Hub.csproj",
         "src/system/Rebound.ServiceHost/Rebound.ServiceHost.csproj",
-        "eng/distribution/standalone/Rebound.Installer/Rebound.Installer.csproj"
+        "eng/Rebound.Installer/Rebound.Installer.csproj"
     )
 
     foreach ($file in $csprojFiles) {

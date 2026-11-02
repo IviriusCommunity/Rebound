@@ -7,13 +7,15 @@ using System.Diagnostics;
 using System.Linq;
 using WinUIEx;
 
+#pragma warning disable CA1515 // Consider making public types internal
+
 namespace Rebound.Installer;
 
 public partial class App : Application
 {
-    public static WindowEx _window;
+    public static WindowEx? MainWindow { get; set; }
 
-    public static bool canClose = true;
+    public static bool CanClose { get; set; } = true;
 
     public App()
     {
@@ -24,7 +26,8 @@ public partial class App : Application
     {
         if (Process.GetProcesses().Contains(Process.GetCurrentProcess())) Process.GetCurrentProcess().Close();
 
-        _window = new MainWindow();
-        _window.Activate();
+        MainWindow = new MainWindow();
+        MainWindow.CenterOnScreen();
+        MainWindow.Activate();
     }
 }

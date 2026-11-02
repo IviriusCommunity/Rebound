@@ -17,6 +17,9 @@ public static class LegacyReboundRemover
         "Rebound.About"
     };
 
+    public static bool OldReboundExists()
+        => Directory.Exists(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles), "ReboundHub"));
+
     public static void DeleteOldRebound()
     {
         KillProcesses();
@@ -25,6 +28,34 @@ public static class LegacyReboundRemover
         TryDeleteDirectory(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles), "ReboundHub"));
         TryDeleteDirectory(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.CommonStartMenu), "Rebound"));
         TryDeleteFile(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.CommonStartMenu), "Rebound Hub.lnk"));
+        DeleteImageFileExecutionOptions();
+    }
+
+    private static void DeleteImageFileExecutionOptions()
+    {
+        string[] executables =
+        [
+            "charmap.exe",
+            "control.exe",
+            "useraccountcontrolsettings.exe",
+            "winver.exe"
+        ];
+
+        const string registryPath = @"SOFTWARE\Microsoft\Windows NT\CurrentVersion\Image File Execution Options";
+
+        using var key = Microsoft.Win32.Registry.LocalMachine.OpenSubKey(registryPath, writable: true);
+
+        if (key is null)
+            return;
+
+        foreach (var executable in executables)
+        {
+            try
+            {
+                key.DeleteSubKeyTree(executable, throwOnMissingSubKey: false);
+            }
+            catch { }
+        }
     }
 
     private static void KillProcesses()
@@ -40,10 +71,7 @@ public static class LegacyReboundRemover
                     proc.WaitForExit(5000); // wait up to 5 seconds for exit
                 }
             }
-            catch
-            {
-
-            }
+            catch { }
         }
     }
 

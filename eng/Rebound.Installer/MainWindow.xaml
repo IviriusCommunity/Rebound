@@ -7,9 +7,9 @@
     xmlns:local="using:Rebound.Installer"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:winuiex="using:WinUIEx"
-    Title="Rebound Installer"
-    Width="560"
-    Height="320"
+    Title="Rebound Hub Installer"
+    Width="640"
+    Height="300"
     IsMaximizable="False"
     IsResizable="False"
     mc:Ignorable="d">
@@ -18,7 +18,5 @@
         <MicaBackdrop />
     </winuiex:WindowEx.SystemBackdrop>
 
-    <Grid>
-        <Frame x:Name="RootFrame" />
-    </Grid>
+    <Frame x:Name="RootFrame" />
 </winuiex:WindowEx>

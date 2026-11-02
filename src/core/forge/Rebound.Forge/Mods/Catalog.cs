@@ -787,7 +787,7 @@ public partial class Catalog : ObservableObject
                     {
                         CogName = "Rebound Hub Package",
                         CogId = new("71951744-33f4-44d1-bd6a-4dad64c47b1f"),
-                        Target = new PackageTarget(PackageTargetType.Local, Path.Combine(AppContext.BaseDirectory, "Rebound.Hub.msixbundle"), PackageFamilyName: "Rebound.Hub_rcz2tbwv5qzb8"),
+                        Target = new PackageTarget(PackageTargetType.Local, Path.Combine(AppContext.BaseDirectory, "Hub", "Rebound.Hub.msixbundle"), PackageFamilyName: "Rebound.Hub_rcz2tbwv5qzb8"),
                         DoPackageManagementOn = PackageManagementTriggeredOn.Both
                     },
                 ],
