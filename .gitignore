@@ -414,3 +414,5 @@ FodyWeavers.xsd
 /src/core/forge/Rebound.Forge.Assets/Modding/DLLs/Rebound.Forge.Hooks.About.x64.dll
 /src/core/forge/Rebound.Forge.Assets/Modding/DLLs/Rebound.Forge.Hooks.Launcher.ARM64.dll
 /src/core/forge/Rebound.Forge.Assets/Modding/DLLs/Rebound.Forge.Hooks.Launcher.x64.dll
+/eng/Rebound.Installer/Hub/Rebound.Hub.cer
+/eng/Rebound.Installer/Hub/Rebound.Hub.msixbundle
