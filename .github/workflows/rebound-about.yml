@@ -1,0 +1,45 @@
+name: Rebound.About
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - 'src/apps/Rebound.About/**'
+      - '.github/workflows/rebound-about.yml'
+
+jobs:
+  package:
+    name: Build MSIX Bundle
+    runs-on: windows-2022
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Locate MSBuild
+        uses: microsoft/setup-msbuild@v2
+
+      - name: Build MSIX
+        shell: cmd
+        run: >
+          msbuild src/apps/Rebound.About/Rebound.About.csproj
+          -restore
+          -t:Build
+          -p:Configuration=Release
+          -p:Platform=x64
+          -p:AppxBundle=Always
+          "-p:AppxBundlePlatforms=x64|ARM64"
+          -p:UapAppxPackageBuildMode=SideloadOnly
+          -p:GenerateAppxPackageOnBuild=true
+          -p:GenerateAppInstallerFile=false
+          -p:AppxPackageSigningEnabled=false
+          -p:SolutionDir=%GITHUB_WORKSPACE%\
+          -verbosity:minimal
+
+      - name: Upload MSIX Bundle
+        uses: actions/upload-artifact@v4
+        with:
+          name: Rebound.About-MSIX
+          path: src/apps/Rebound.About/AppPackages/**/*.msixbundle
+          if-no-files-found: error
+          retention-days: 14
