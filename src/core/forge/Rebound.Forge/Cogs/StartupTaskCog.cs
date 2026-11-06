@@ -460,11 +460,13 @@ public class StartupTaskCog : ICog
         Guid clsid = Guid.Parse(
             "0F87369F-A4E5-4CFC-BD3E-73E6154572DD");
 
+#pragma warning disable CS0436 // Type conflicts with imported type
         HRESULT hr = PInvoke.CoCreateInstance(
             in clsid,
             null,
             CLSCTX.CLSCTX_INPROC_SERVER,
             out ITaskService* taskService);
+#pragma warning restore CS0436 // Type conflicts with imported type
 
         if (hr.Failed || taskService is null)
         {

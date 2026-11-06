@@ -38,9 +38,9 @@ public static class GPU
     {
         using ComPtr<IDXGIFactory> factory = default;
         using ComPtr<IDXGIAdapter> adapter = default;
-        using ManagedPtr<Guid> iid = IID.IID_IDXGIFactory;
+        using ObjectPtr<Guid> iid = IID.IID_IDXGIFactory;
 
-        DirectX.CreateDXGIFactory(iid, (void**)&factory);
+        DirectX.CreateDXGIFactory(iid.Get(), (void**)&factory);
         factory.Get()->EnumAdapters(0, adapter.GetAddressOf());
         DXGI_ADAPTER_DESC desc;
         adapter.Get()->GetDesc(&desc);

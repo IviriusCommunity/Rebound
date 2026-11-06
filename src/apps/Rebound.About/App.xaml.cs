@@ -21,10 +21,13 @@ using Windows.UI;
 using WinUIEx;
 
 #pragma warning disable CA1031
+#pragma warning disable CA1724
 
 namespace Rebound.About;
 
+#pragma warning disable CA1515 // Consider making public types internal
 public partial class App : Application, IReboundLegacySupportApp, IReboundPipeClientApp
+#pragma warning restore CA1515 // Consider making public types internal
 {
     public PipeClient? ReboundPipeClient { get; private set; }
 

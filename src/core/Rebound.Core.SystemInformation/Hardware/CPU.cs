@@ -22,6 +22,7 @@ public static class CPU
     /// A string representing the CPU architecture of the current process. Possible values include "x64", "x86",
     /// "ARM64", "ARM", "WASM", "S390x", "LoongArch64", "ARMv6", "PPC64LE", or "Unknown" if the architecture cannot be determined.
     /// </returns>
+#pragma warning disable CA1024 // Use properties where appropriate
     public static string GetArchitecture() => RuntimeInformation.ProcessArchitecture switch
     {
         Architecture.X64 => "x64",
@@ -35,6 +36,7 @@ public static class CPU
         Architecture.Ppc64le => "PPC64LE",
         _ => "Unknown"
     };
+#pragma warning restore CA1024 // Use properties where appropriate
 
     /// <returns>
     /// The current CPU usage, in percentage.

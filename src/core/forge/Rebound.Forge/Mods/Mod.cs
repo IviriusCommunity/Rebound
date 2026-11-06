@@ -180,7 +180,7 @@ public partial class ModVariant : ObservableObject
 /// install based on given instructions.
 /// </summary>
 #pragma warning disable CA1716
-public partial class Mod : ObservableObject
+public partial class Mod : ObservableObject, IDisposable
 #pragma warning restore CA1716
 {
     [ObservableProperty] public partial bool IsInstalled { get; set; } = false;
@@ -857,5 +857,16 @@ public partial class Mod : ObservableObject
         all.AddRange(Catalog.Mods);
         all.AddRange(Catalog.SideloadedMods);
         return all;
+    }
+
+    public void Dispose()
+    {
+        Dispose(true);
+        GC.SuppressFinalize(this);
+    }
+
+    protected virtual void Dispose(bool disposing)
+    {
+        _operationLock.Dispose();
     }
 }

@@ -43,15 +43,15 @@ namespace WinUIGallery.Controls
         public static readonly DependencyProperty HorizontalAlignmentRatioProperty =
             DependencyProperty.Register("HorizontalAlignmentRatio", typeof(double), typeof(HomePageHeaderImage), new PropertyMetadata((double)0));
 
-        private Compositor _compositor;
-        private CompositionLinearGradientBrush _imageGridBottomGradientBrush;
-        private CompositionEffectBrush _imageGridEffectBrush;
-        private ExpressionAnimation _imageGridSizeAnimation;
-        private ExpressionAnimation _bottomGradientStartPointAnimation;
-        private SpriteVisual _imageGridSpriteVisual;
-        private CompositionSurfaceBrush _imageGridSurfaceBrush;
-        private Visual _imageGridVisual;
-        private CompositionVisualSurface _imageGridVisualSurface;
+        private Compositor? _compositor;
+        private CompositionLinearGradientBrush? _imageGridBottomGradientBrush;
+        private CompositionEffectBrush? _imageGridEffectBrush;
+        private ExpressionAnimation? _imageGridSizeAnimation;
+        private ExpressionAnimation? _bottomGradientStartPointAnimation;
+        private SpriteVisual? _imageGridSpriteVisual;
+        private CompositionSurfaceBrush? _imageGridSurfaceBrush;
+        private Visual? _imageGridVisual;
+        private CompositionVisualSurface? _imageGridVisualSurface;
         private const string GradientSizeKey = "GradientSize";
         public HomePageHeaderImage()
         {
@@ -79,11 +79,11 @@ namespace WinUIGallery.Controls
 
             _imageGridBottomGradientBrush = _compositor.CreateLinearGradientBrush();
             _imageGridBottomGradientBrush.MappingMode = CompositionMappingMode.Absolute;
-            _imageGridBottomGradientBrush.StartAnimation(_bottomGradientStartPointAnimation);
-            _imageGridBottomGradientBrush.StartAnimation(CreateExpressionAnimation(nameof(CompositionLinearGradientBrush.EndPoint), "Vector2(0.5, Visual.Size.Y)"));
+            _imageGridBottomGradientBrush.StartAnimation(_bottomGradientStartPointAnimation!);
+            _imageGridBottomGradientBrush.StartAnimation(CreateExpressionAnimation(nameof(CompositionLinearGradientBrush.EndPoint), "Vector2(0.5, Visual.Size.Y)")!);
             _imageGridBottomGradientBrush.CreateColorStopsWithEasingFunction(EasingType.Sine, EasingMode.EaseInOut, 0f, 1f);
 
-            var alphaMask = new AlphaMaskEffect
+            using var alphaMask = new AlphaMaskEffect
             {
                 Source = new CompositionEffectSourceParameter("ImageGrid"),
                 AlphaMask = new CompositionEffectSourceParameter("Gradient")
@@ -172,47 +172,47 @@ namespace WinUIGallery.Controls
         }
 
 
-        private ExpressionAnimation CreateExpressionAnimation(string target, string expression)
+        private ExpressionAnimation? CreateExpressionAnimation(string target, string expression)
         {
-            var ani = _compositor.CreateExpressionAnimation(expression);
-            ani.SetReferenceParameter("Visual", _imageGridVisual);
-            ani.Target = target;
-            return ani;
+            var ani = _compositor?.CreateExpressionAnimation(expression);
+            ani?.SetReferenceParameter("Visual", _imageGridVisual);
+            ani?.Target = target;
+            return ani ?? _compositor?.CreateExpressionAnimation(expression);
         }
 
-        public event PropertyChangedEventHandler PropertyChanged;
+        public event PropertyChangedEventHandler? PropertyChanged;
 
-        private void OnPropertyChanged([CallerMemberName] string name = null)
+        private void OnPropertyChanged([CallerMemberName] string? name = null)
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
         }
     }
-}
 
-public static class CompositionGradientBrushExtensions
-{
-    /// <summary>
-    /// Create color stops by using easing function
-    /// </summary>
-    public static void CreateColorStopsWithEasingFunction(this CompositionGradientBrush compositionGradientBrush, EasingType easingType, EasingMode easingMode, float colorStopBegin, float colorStopEnd, float gap = 0.05f)
+    public static class CompositionGradientBrushExtensions
     {
-        var compositor = compositionGradientBrush.Compositor;
-        var easingFunc = easingType.ToEasingFunction(easingMode);
-        if (easingFunc != null)
+        /// <summary>
+        /// Create color stops by using easing function
+        /// </summary>
+        public static void CreateColorStopsWithEasingFunction(this CompositionGradientBrush compositionGradientBrush, EasingType easingType, EasingMode easingMode, float colorStopBegin, float colorStopEnd, float gap = 0.05f)
         {
-            for (var i = colorStopBegin; i < colorStopEnd; i += gap)
+            var compositor = compositionGradientBrush?.Compositor;
+            var easingFunc = easingType.ToEasingFunction(easingMode);
+            if (easingFunc != null)
             {
-                var progress = (i - colorStopBegin) / (colorStopEnd - colorStopBegin);
+                for (var i = colorStopBegin; i < colorStopEnd; i += gap)
+                {
+                    var progress = (i - colorStopBegin) / (colorStopEnd - colorStopBegin);
 
-                var colorStop = compositor.CreateColorGradientStop(i, Color.FromArgb((byte)(0xff * easingFunc.Ease(1 - progress)), 0, 0, 0));
-                compositionGradientBrush.ColorStops.Add(colorStop);
+                    var colorStop = compositor?.CreateColorGradientStop(i, Color.FromArgb((byte)(0xff * easingFunc.Ease(1 - progress)), 0, 0, 0));
+                    compositionGradientBrush?.ColorStops.Add(colorStop);
+                }
             }
-        }
-        else
-        {
-            compositionGradientBrush.ColorStops.Add(compositor.CreateColorGradientStop(colorStopBegin, Colors.Black));
-        }
+            else
+            {
+                compositionGradientBrush?.ColorStops.Add(compositor?.CreateColorGradientStop(colorStopBegin, Colors.Black));
+            }
 
-        compositionGradientBrush.ColorStops.Add(compositor.CreateColorGradientStop(colorStopEnd, Colors.Transparent));
+            compositionGradientBrush?.ColorStops.Add(compositor?.CreateColorGradientStop(colorStopEnd, Colors.Transparent));
+        }
     }
 }

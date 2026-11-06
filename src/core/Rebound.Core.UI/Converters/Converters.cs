@@ -18,6 +18,7 @@ public partial class IconStringToIconSourceConverter : IValueConverter
 
     public static object? ConvertIcon(object value, Type targetType, object? parameter, string? language)
     {
+#pragma warning disable CA1031 // Do not catch general exception types
         try
         {
             if (value is not string icon || string.IsNullOrEmpty(icon))
@@ -55,6 +56,7 @@ public partial class IconStringToIconSourceConverter : IValueConverter
         {
             return null;
         }
+#pragma warning restore CA1031 // Do not catch general exception types
     }
 
     private static PathGeometry? PathMarkupToGeometry(string pathMarkup)

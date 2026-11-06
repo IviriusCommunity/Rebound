@@ -29,13 +29,13 @@ public static class EnvironmentVariablesHelper
         HKEY hKeyRoot = scope == EnvironmentScope.User ? HKEY.HKEY_CURRENT_USER : HKEY.HKEY_LOCAL_MACHINE;
         string subKey = scope == EnvironmentScope.User ? UserSubKey : SystemSubKey;
 
-        using ManagedPtr<char> lpSubKey = subKey;
-        using ManagedPtr<char> lpValueName = name;
+        using StringPtr lpSubKey = subKey;
+        using StringPtr lpValueName = name;
 
         HKEY hKey = default;
 
         // Open the registry key (we all love it when some functions in Windows don't return HRESULT)
-        var status = RegOpenKeyExW(hKeyRoot, lpSubKey, 0, KEY.KEY_READ, &hKey);
+        var status = RegOpenKeyExW(hKeyRoot, lpSubKey.GetChars(), 0, KEY.KEY_READ, &hKey);
         if (status != ERROR_SUCCESS) 
             return null;
 
@@ -45,7 +45,7 @@ public static class EnvironmentVariablesHelper
             uint cbData = 0;
 
             // Query first for buffer size requirements
-            status = RegQueryValueExW(hKey, lpValueName, null, &type, null, &cbData);
+            status = RegQueryValueExW(hKey, lpValueName.GetChars(), null, &type, null, &cbData);
             
             if (status == ERROR_FILE_NOT_FOUND) 
                 return null;
@@ -56,7 +56,7 @@ public static class EnvironmentVariablesHelper
             byte* pBuffer = (byte*)NativeMemory.Alloc(cbData);
             try
             {
-                status = RegQueryValueExW(hKey, lpValueName, null, &type, pBuffer, &cbData);
+                status = RegQueryValueExW(hKey, lpValueName.GetChars(), null, &type, pBuffer, &cbData);
                 if (status != ERROR_SUCCESS) return null;
 
                 // Marshal string depending on data type (REG_SZ or REG_EXPAND_SZ)
@@ -81,10 +81,10 @@ public static class EnvironmentVariablesHelper
         HKEY hKeyRoot = scope == EnvironmentScope.User ? HKEY.HKEY_CURRENT_USER : HKEY.HKEY_LOCAL_MACHINE;
         string subKey = scope == EnvironmentScope.User ? UserSubKey : SystemSubKey;
 
-        using ManagedPtr<char> lpSubKey = subKey;
+        using StringPtr lpSubKey = subKey;
         HKEY hKey = default;
 
-        if (RegOpenKeyExW(hKeyRoot, lpSubKey, 0, KEY.KEY_READ, &hKey) != ERROR_SUCCESS)
+        if (RegOpenKeyExW(hKeyRoot, lpSubKey.GetChars(), 0, KEY.KEY_READ, &hKey) != ERROR_SUCCESS)
             return new Collection<KeyValuePair<string, string>>();
 
         var results = new Collection<KeyValuePair<string, string>>();
@@ -143,12 +143,12 @@ public static class EnvironmentVariablesHelper
         // Elevate privileges warning: Modifying System scope requires administrative access.
         uint samDesired = KEY.KEY_WRITE | KEY.KEY_READ;
 
-        using ManagedPtr<char> lpSubKey = subKey;
-        using ManagedPtr<char> lpValueName = name;
+        using StringPtr lpSubKey = subKey;
+        using StringPtr lpValueName = name;
 
         HKEY hKey = default;
 
-        int status = RegOpenKeyExW(hKeyRoot, lpSubKey, 0, samDesired, &hKey);
+        int status = RegOpenKeyExW(hKeyRoot, lpSubKey.GetChars(), 0, samDesired, &hKey);
         if (status != ERROR_SUCCESS) return false;
 
         try
@@ -156,7 +156,7 @@ public static class EnvironmentVariablesHelper
             if (value == null)
             {
                 // Deleting the environment variable
-                status = RegDeleteValueW(hKey, lpValueName);
+                status = RegDeleteValueW(hKey, lpValueName.GetChars());
                 if (status is not ERROR_SUCCESS and not ERROR_FILE_NOT_FOUND)
                     return false;
             }
@@ -170,7 +170,7 @@ public static class EnvironmentVariablesHelper
                     // Use REG_EXPAND_SZ if it contains variable references like %USERPROFILE%
                     uint type = value.Contains('%', StringComparison.InvariantCultureIgnoreCase) ? REG.REG_EXPAND_SZ : REG.REG_SZ;
 
-                    status = RegSetValueExW(hKey, lpValueName, 0, type, (byte*)lpData, cbData);
+                    status = RegSetValueExW(hKey, lpValueName.GetChars(), 0, type, (byte*)lpData, cbData);
                     if (status != ERROR_SUCCESS) return false;
                 }
             }
@@ -193,14 +193,14 @@ public static class EnvironmentVariablesHelper
         // "Environment" string pointer required by WM_SETTINGCHANGE lParam
         string environmentParam = "Environment";
 
-        using ManagedPtr<char> lpEnv = environmentParam;
+        using StringPtr lpEnv = environmentParam;
 
         // SendMessageTimeoutW blocks up to 5000ms per window hanging on it
         _ = SendMessageTimeoutW(
             HWND.HWND_BROADCAST,
             WM.WM_SETTINGCHANGE,
             0,
-            (nint)lpEnv.ObjectPointer,
+            (nint)lpEnv.GetVoid(),
             SMTO_ABORTIFHUNG,
             5000,
             null

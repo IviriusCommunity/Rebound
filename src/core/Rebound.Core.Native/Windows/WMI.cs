@@ -61,11 +61,11 @@ public sealed unsafe class WmiConnection(string wmiNamespace = "ROOT\\CIMV2")
 
             try
             {
-                using ManagedPtr<char> lang = "WQL";
-                using ManagedPtr<char> query = wql;
+                using StringPtr lang = "WQL";
+                using StringPtr query = wql;
 
                 var hr = _services.Get()->ExecQuery(
-                    lang, query,
+                    lang.GetChars(), query.GetChars(),
                     (int)(WBEM_GENERIC_FLAG_TYPE.WBEM_FLAG_FORWARD_ONLY |
                           WBEM_GENERIC_FLAG_TYPE.WBEM_FLAG_RETURN_IMMEDIATELY),
                     null,
@@ -119,8 +119,8 @@ public sealed unsafe class WmiConnection(string wmiNamespace = "ROOT\\CIMV2")
 
         try
         {
-            using ManagedPtr<char> prop = propertyName;
-            obj->Get(prop, 0, &v, null, null);
+            using StringPtr prop = propertyName;
+            obj->Get(prop.GetChars(), 0, &v, null, null);
 
             return v.vt switch
             {
@@ -228,17 +228,17 @@ public sealed unsafe class WmiConnection(string wmiNamespace = "ROOT\\CIMV2")
         if (_services.Get() != null) return true;
 
         ComPtr<IWbemLocator> locator = default;
-        using var clsid = new ManagedPtr<Guid>(CLSID.CLSID_WbemLocator);
-        using var iid = new ManagedPtr<Guid>(IID.IID_IWbemLocator);
+        using var clsid = new ObjectPtr<Guid>(CLSID.CLSID_WbemLocator);
+        using var iid = new ObjectPtr<Guid>(IID.IID_IWbemLocator);
 
-        if (FAILED(CoCreateInstance(clsid, null, (uint)CLSCTX.CLSCTX_INPROC_SERVER, iid, (void**)locator.GetAddressOf())))
+        if (FAILED(CoCreateInstance(clsid.Get(), null, (uint)CLSCTX.CLSCTX_INPROC_SERVER, iid.Get(), (void**)locator.GetAddressOf())))
             return false;
 
         try
         {
-            using ManagedPtr<char> ns = _namespace;
+            using StringPtr ns = new(_namespace);
 
-            if (FAILED(locator.Get()->ConnectServer(ns, null, null, null, 0, null, null, _services.GetAddressOf())))
+            if (FAILED(locator.Get()->ConnectServer(ns.GetChars(), null, null, null, 0, null, null, _services.GetAddressOf())))
                 return false;
 
             if (FAILED(CoSetProxyBlanket(

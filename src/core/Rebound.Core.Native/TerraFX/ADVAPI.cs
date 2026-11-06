@@ -6,6 +6,7 @@ using TerraFX.Interop.Windows;
 
 namespace Rebound.Core.Native.TerraFX;
 
+#pragma warning disable CA1724 // The type name Windows conflicts in whole or in part with the namespace name 'System.Windows.Forms' defined in the .NET Framework.
 #pragma warning disable CA1707 // Identifiers should not contain underscores
 #pragma warning disable CA1028 // Enum Storage should be Int32
 public enum SERVICE_START_TYPE : uint

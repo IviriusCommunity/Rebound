@@ -3,6 +3,7 @@
 
 using Microsoft.Win32;
 using Rebound.Core.Native.Wrappers;
+using System.ComponentModel;
 using System.Globalization;
 using System.Net;
 using System.Net.NetworkInformation;
@@ -11,7 +12,7 @@ using TerraFX.Interop.Windows;
 using static TerraFX.Interop.Windows.Windows;
 using HRESULT = TerraFX.Interop.Windows.HRESULT;
 
-#pragma warning disable CA1416 // Validate platform compatibility
+#pragma warning disable CA1031 // Do not catch general exception types
 
 namespace Rebound.Core.SystemInformation.Software;
 
@@ -56,15 +57,6 @@ public static class WindowsInformation
         return fallbackValue.HasValue && fallbackValue.Value != 0;
     }
 
-    [Obsolete]
-    private static unsafe char* ToPointer(this string value)
-    {
-        fixed (char* valueCharPtr = value)
-        {
-            return valueCharPtr;
-        }
-    }
-    
     /// <returns>
     /// The computer description as a string.
     /// </returns>
@@ -125,8 +117,8 @@ public static class WindowsInformation
     /// <returns>True if successful.</returns>
     public static unsafe bool SetComputerName(string newName)
     {
-        using ManagedPtr<char> pName = newName;
-        return SetComputerNameExW(COMPUTER_NAME_FORMAT.ComputerNamePhysicalNetBIOS, pName) != BOOL.FALSE;
+        using StringPtr pName = newName;
+        return SetComputerNameExW(COMPUTER_NAME_FORMAT.ComputerNamePhysicalNetBIOS, pName.GetChars()) != BOOL.FALSE;
     }
 
     /// <summary>
@@ -213,8 +205,10 @@ public static class WindowsInformation
     /// "French (France)", etc.). This value reflects the culture settings of the operating system 
     /// and may influence how dates, times, numbers, and other culture-specific information are formatted and displayed.
     /// </returns>
+#pragma warning disable CA1024 // Use properties where appropriate
     public static string GetLocale()
         => CultureInfo.CurrentCulture.DisplayName;
+#pragma warning restore CA1024 // Use properties where appropriate
 
     /// <summary>
     /// Retrieves the local IP address of the machine by creating a UDP socket and connecting to a dummy IP address.
@@ -270,11 +264,13 @@ public static class WindowsInformation
                 (void**)&pLocator
             );
             if (FAILED(hr))
-                throw new Exception($"CoCreateInstance failed: 0x{hr.Value:X8}");
+                throw new Win32Exception($"CoCreateInstance failed: 0x{hr.Value:X8}");
+
+            using StringPtr pNamespace = @"ROOT\CIMV2";
 
             // Connect to WMI namespace ROOT\CIMV2
             hr = pLocator.Get()->ConnectServer(
-                "ROOT\\CIMV2".ToPointer(),
+                pNamespace.GetChars(),
                 null,
                 null,
                 null,
@@ -284,7 +280,7 @@ public static class WindowsInformation
                 pServices.GetAddressOf()
             );
             if (FAILED(hr))
-                throw new Exception($"ConnectServer failed: 0x{hr.Value:X8}");
+                throw new Win32Exception($"ConnectServer failed: 0x{hr.Value:X8}");
 
             // Set security levels on the proxy
             hr = CoSetProxyBlanket(
@@ -298,29 +294,34 @@ public static class WindowsInformation
                 (uint)EOAC_NONE
             );
             if (FAILED(hr))
-                throw new Exception($"CoSetProxyBlanket failed: 0x{hr.Value:X8}");
+                throw new Win32Exception($"CoSetProxyBlanket failed: 0x{hr.Value:X8}");
+
+            using StringPtr strQueryLanguage = "WQL";
+            using StringPtr strQuery = "SELECT LicenseStatus FROM SoftwareLicensingProduct WHERE PartialProductKey IS NOT NULL";
 
             // Query for SoftwareLicensingProduct entries
             hr = pServices.Get()->ExecQuery(
-                "WQL".ToPointer(),
-                "SELECT LicenseStatus FROM SoftwareLicensingProduct WHERE PartialProductKey IS NOT NULL".ToPointer(),
+                strQueryLanguage.GetChars(),
+                strQuery.GetChars(),
                 WBEM_FLAG_FORWARD_ONLY | WBEM_FLAG_RETURN_IMMEDIATELY,
                 null,
                 pEnumerator.GetAddressOf()
             );
             if (FAILED(hr))
-                throw new Exception($"ExecQuery failed: 0x{hr.Value:X8}");
+                throw new Win32Exception($"ExecQuery failed: 0x{hr.Value:X8}");
 
             // Enumerate results
             IWbemClassObject* pObj = null;
             uint returned = 0;
 
-            while (pEnumerator.Get()->Next(unchecked((int)WBEM_INFINITE), 1, &pObj, &returned) == S_OK && returned != 0)
+            while (pEnumerator.Get()->Next(unchecked((int)WBEM_INFINITE), 1, &pObj, &returned) == S_OK)
             {
                 VARIANT vtStatus;
                 VariantInit(&vtStatus);
 
-                pObj->Get("LicenseStatus".ToPointer(), 0, &vtStatus, null, null);
+                using StringPtr strLicenseStatus = "LicenseStatus";
+
+                pObj->Get(strLicenseStatus.GetChars(), 0, &vtStatus, null, null);
                 uint status = vtStatus.uintVal;
                 VariantClear(&vtStatus);
                 pObj->Release();

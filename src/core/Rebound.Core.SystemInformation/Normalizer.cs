@@ -3,7 +3,7 @@
 
 namespace Rebound.Core.SystemInformation;
 
-internal class Normalizer
+internal static class Normalizer
 {
     public static string NormalizeTrademarkSymbols(string input) => input
             .Replace("(R)", "®", StringComparison.InvariantCultureIgnoreCase)

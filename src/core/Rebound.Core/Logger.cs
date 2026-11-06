@@ -4,6 +4,8 @@
 using Rebound.Core.Settings;
 using System.Diagnostics;
 
+#pragma warning disable CA1031 // Do not catch general exception types
+
 namespace Rebound.Core;
 
 /// <summary>
@@ -33,20 +35,14 @@ public static class ReboundLogger
 
     private static readonly Lock _lock = new();
 
-    [Obsolete("Old log method. Use WriteToLog instead.")]
-    public static void Log(string msg, Exception? ex = null)
-    {
-        WriteToLog("Old Log", msg, LogMessageSeverity.Message, ex);
-    }
-
     /// <summary>
     /// Writes a log message to the Rebound log file. 
     /// </summary>
     /// <param name="actionType">
-    /// The type of the action being logged. For example, "IFEOCog Apply".
+    /// The type of the action being logged. For example, "FolderCog Apply".
     /// </param>
     /// <param name="message">
-    /// The message of the action being logged. For example, "Applied IFEOCog to winver.exe".
+    /// The message of the action being logged. For example, "Applied FolderCog.".
     /// </param>
     /// <param name="messageSeverity">
     /// The severity of the message.

@@ -148,7 +148,9 @@ public sealed partial class LightSceneHeader : UserControl
         var wallpaper = await STAThread.RunOnSTAThread(() =>
         {
             string w = string.Empty;
+#pragma warning disable CA1031 // Do not catch general exception types
             try { w = UserInformation.GetWallpaperPath()!; } catch { }
+#pragma warning restore CA1031 // Do not catch general exception types
             return w;
         }).ConfigureAwait(true);
 
@@ -454,7 +456,7 @@ public sealed partial class LightSceneHeader : UserControl
     // Layout
     // ------------------------------------------------------------------
 
-    private Vector2 GetRestingFocus(float width, float height) =>
+    private static Vector2 GetRestingFocus(float width, float height) =>
         new(width * 0.3f, height / 2f);
 
     private void LayoutScene()

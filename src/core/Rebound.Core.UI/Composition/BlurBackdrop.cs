@@ -42,7 +42,7 @@ public partial class BlurBackdrop : CompositionBrushBackdrop
     protected override Windows.UI.Composition.CompositionBrush CreateBrush(Windows.UI.Composition.Compositor compositor)
     {
         //var compositor = new Windows.UI.Composition.Compositor();
-        return brush = compositor.CreateBackdropBrush(); //compositor.CreateColorBrush(Tint.Color);
+        return brush = compositor?.CreateBackdropBrush()!; //compositor.CreateColorBrush(Tint.Color);
     }
 
     protected override void OnTargetConnected(Microsoft.UI.Composition.ICompositionSupportsSystemBackdrop connectedTarget, XamlRoot xamlRoot)
@@ -52,11 +52,11 @@ public partial class BlurBackdrop : CompositionBrushBackdrop
 
     protected override void OnTargetDisconnected(Microsoft.UI.Composition.ICompositionSupportsSystemBackdrop disconnectedTarget)
     {
-        Windows.UI.Composition.CompositionBrush systemBackdrop = disconnectedTarget.SystemBackdrop;
-        disconnectedTarget.SystemBackdrop = null;
+        Windows.UI.Composition.CompositionBrush? systemBackdrop = disconnectedTarget?.SystemBackdrop;
+        disconnectedTarget?.SystemBackdrop = null;
         systemBackdrop?.Dispose();
         brush?.Dispose();
         brush = null;
-        base.OnTargetDisconnected(disconnectedTarget);
+        base.OnTargetDisconnected(disconnectedTarget!);
     }
 }

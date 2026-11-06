@@ -17,7 +17,7 @@ public static class RegistrySettingsEngine
     }
 
     public static T? GetValue<T>(RegistryHive hive, RegistrySetting registrySetting, T? defaultValue = default)
-        => GetValue(hive, registrySetting.KeyPath, registrySetting.ValueName, defaultValue);
+        => GetValue(hive, registrySetting?.KeyPath!, registrySetting?.ValueName!, defaultValue);
 
     public static bool SetValue<T>(
         RegistryHive hive,
@@ -37,7 +37,7 @@ public static class RegistrySettingsEngine
     }
 
     public static bool DeleteValue(RegistryHive hive, RegistrySetting registrySetting)
-        => DeleteValue(hive, registrySetting.KeyPath, registrySetting.ValueName);
+        => DeleteValue(hive, registrySetting?.KeyPath!, registrySetting?.ValueName!);
 
     public static bool DeleteValue(RegistryHive hive, string keyPath, string valueName)
     {
@@ -48,10 +48,10 @@ public static class RegistrySettingsEngine
     }
 
     public static bool SetValue<T>(RegistryHive hive, RegistrySetting registrySetting, T value, RegistryValueKind kind = RegistryValueKind.DWord)
-        => SetValue(hive, registrySetting.KeyPath, registrySetting.ValueName, value, kind);
+        => SetValue(hive, registrySetting?.KeyPath!, registrySetting?.ValueName!, value, kind);
 
     public static bool SetString(RegistryHive hive, RegistrySetting registrySetting, string value, RegistryValueKind kind = RegistryValueKind.String)
-        => SetValue(hive, registrySetting.KeyPath, registrySetting.ValueName, value, kind);
+        => SetValue(hive, registrySetting?.KeyPath!, registrySetting?.ValueName!, value, kind);
 
     public static bool GetBool(RegistryHive hive, string keyPath, string valueName, bool defaultValue = false)
         => (GetValue(hive, keyPath, valueName, defaultValue ? 1 : 0)) != 0;

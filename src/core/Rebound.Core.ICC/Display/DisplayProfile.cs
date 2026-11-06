@@ -41,12 +41,8 @@ public static class DisplayProfile
     /// <param name="profilePath">The location on disk of the color profile.</param>
     public static (double gamma, double redGain, double greenGain, double blueGain)? ReadCalibrationValues(string profilePath)
     {
-        try
-        {
-            var bytes = File.ReadAllBytes(profilePath);
-            return ReadMs10ValuesFromBytes(bytes);
-        }
-        catch { return null; }
+        var bytes = File.ReadAllBytes(profilePath);
+        return ReadMs10ValuesFromBytes(bytes);
     }
 
     private static unsafe (double gamma, double redGain, double greenGain, double blueGain)? ReadMs10ValuesFromBytes(byte[] bytes)

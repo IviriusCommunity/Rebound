@@ -4,6 +4,8 @@
 using System.Globalization;
 using System.Xml;
 
+#pragma warning disable CA1031 // Do not catch general exception types
+
 namespace Rebound.Core.Settings;
 
 public static class SettingsManager
@@ -40,6 +42,11 @@ public static class SettingsManager
         }
         catch (Exception ex)
         {
+            ReboundLogger.WriteToLog(
+                "Settings GetValue", 
+                $"Error retrieving setting value {key} for {appName}",
+                LogMessageSeverity.Error, 
+                ex);
             return defaultValue;
         }
     }
@@ -96,9 +103,13 @@ public static class SettingsManager
             // Save the document to file
             doc.Save(filePath);
         }
-        catch
+        catch (Exception ex)
         {
-
+            ReboundLogger.WriteToLog(
+                "Settings SetValue",
+                $"Error setting value {key} for {appName}",
+                LogMessageSeverity.Error,
+                ex);
         }
     }
 }

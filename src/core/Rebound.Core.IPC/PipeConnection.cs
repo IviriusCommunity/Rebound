@@ -4,6 +4,8 @@
 using System.IO.Pipes;
 using System.Text;
 
+#pragma warning disable CA1031 // Do not catch general exception types
+
 namespace Rebound.Core.IPC;
 
 public enum AccessLevel
@@ -20,7 +22,7 @@ public interface IPipeConnection
     string? ReadMessage();
 }
 
-public class PipeConnection : IPipeConnection, IDisposable
+public sealed class PipeConnection : IPipeConnection, IDisposable
 {
     internal NamedPipeServerStream Stream { get; }
     internal int ProcessId { get; }
@@ -59,8 +61,8 @@ public class PipeConnection : IPipeConnection, IDisposable
     /// <exception cref="ArgumentNullException">Thrown if <paramref name="message"/> is null.</exception>
     public void WriteMessage(string message)
     {
-        if (_disposed) throw new ObjectDisposedException(nameof(PipeConnection));
-        if (message is null) throw new ArgumentNullException(nameof(message));
+        ObjectDisposedException.ThrowIf(_disposed, this);
+        ArgumentNullException.ThrowIfNull(message);
 
         var payload = Encoding.UTF8.GetBytes(message + "\n");
         lock (_writeLock)
@@ -82,7 +84,7 @@ public class PipeConnection : IPipeConnection, IDisposable
     /// <exception cref="ObjectDisposedException">Thrown if the connection has been disposed.</exception>
     public string? ReadMessage()
     {
-        if (_disposed) throw new ObjectDisposedException(nameof(PipeConnection));
+        ObjectDisposedException.ThrowIf(_disposed, this);
 
         var sb = new StringBuilder();
         var buffer = new byte[1];
@@ -102,7 +104,7 @@ public class PipeConnection : IPipeConnection, IDisposable
             var message = sb.ToString();
             return message;
         }
-        catch (IOException ex)
+        catch
         {
             return null;
         }

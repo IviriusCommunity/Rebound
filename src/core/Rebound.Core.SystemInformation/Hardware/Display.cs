@@ -3,6 +3,8 @@
 
 using TerraFX.Interop.Windows;
 
+#pragma warning disable CA1724
+
 namespace Rebound.Core.SystemInformation.Hardware;
 
 public static class Display

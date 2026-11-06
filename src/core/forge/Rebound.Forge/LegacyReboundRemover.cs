@@ -3,6 +3,8 @@
 
 using System.Diagnostics;
 
+#pragma warning disable CA1031 // Do not catch general exception types
+
 namespace Rebound.Forge;
 
 public static class LegacyReboundRemover

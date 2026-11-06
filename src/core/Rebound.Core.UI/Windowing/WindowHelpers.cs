@@ -6,7 +6,7 @@ using WinUIEx;
 
 namespace Rebound.Core.UI.Windowing;
 
-public static class Helpers
+public static class WindowHelpers
 {
     public static void SetMica(this Window window)
     {

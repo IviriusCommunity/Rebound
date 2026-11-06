@@ -1,6 +1,8 @@
 ﻿// Copyright (C) Ivirius(TM) Community 2020 - 2026. All Rights Reserved.
 // Licensed under the MIT License.
 
+#pragma warning disable CA1716 // Rename namespace Rebound.Core.DLLInjection.Structure so that it no longer conflicts with the reserved language keyword 'Structure'.
+
 namespace Rebound.Core.DLLInjection.Structure;
 
 /// <summary>

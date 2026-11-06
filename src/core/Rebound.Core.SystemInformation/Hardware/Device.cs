@@ -5,6 +5,8 @@ using Microsoft.Win32;
 using Rebound.Core.Native.Windows;
 using TerraFX.Interop.Windows;
 
+#pragma warning disable CA1031 // Do not catch general exception types
+
 namespace Rebound.Core.SystemInformation.Hardware;
 
 public static class Device

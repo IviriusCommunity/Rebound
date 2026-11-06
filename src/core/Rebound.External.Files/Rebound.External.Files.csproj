@@ -7,6 +7,11 @@
 		<Platforms>x64;ARM64</Platforms>
 	</PropertyGroup>
 
+	<!-- Architecture -->
+	<PropertyGroup>
+		<PlatformTarget Condition="'$(Platform)' == 'x64'">x64</PlatformTarget>
+		<PlatformTarget Condition="'$(Platform)' == 'ARM64' or $(RuntimeIdentifier.EndsWith('-arm64'))">arm64</PlatformTarget>
+	</PropertyGroup>
 	<ItemGroup>
 		<AdditionalFiles Include="NativeMethods.json" />
 		<AdditionalFiles Include="NativeMethods.txt" />

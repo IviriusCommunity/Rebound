@@ -44,9 +44,6 @@
 
 	<!-- Project content -->
 	<ItemGroup>
-		<Page Include="Themes\Generic.xaml">
-		  <Generator>MSBuild:Compile</Generator>
-		</Page>
 		<Page Include="UserControls\HomePageHeaderImage.xaml" />
 		<Page Include="UserControls\LightSceneHeader.xaml">
 		  <Generator>MSBuild:Compile</Generator>
@@ -57,6 +54,7 @@
 	<ItemGroup>
 		<PackageReference Include="TerraFX.Interop.Windows" Version="10.0.26100.6" />
 		<PackageReference Include="Microsoft.WindowsAppSDK.WinUI" Version="2.3.9" />
+		<PackageReference Include="Microsoft.WindowsAppSDK.InteractiveExperiences" Version="2.1.9" />
 		<PackageReference Include="Microsoft.Graphics.Win2D" Version="1.4.0" />
 		<PackageReference Include="WinUIEx" Version="2.9.3" />
 		<PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.2" />

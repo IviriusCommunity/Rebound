@@ -2,28 +2,48 @@
 // Licensed under the MIT License.
 
 using System.Collections.Concurrent;
+using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.IO.Pipes;
 using System.Security.AccessControl;
 using System.Security.Principal;
 using System.Text;
 
+#pragma warning disable CA1031 // Do not catch general exception types
+
 namespace Rebound.Core.IPC;
+
+public sealed class HostMessageReceivedEventArgs(string message) : EventArgs
+{
+    public string Message { get; } = message;
+}
 
 public interface IPipeHost
 {
-    event Action<PipeConnection, string>? MessageReceived;
+    event EventHandler<HostMessageReceivedEventArgs>? MessageReceived;
+
     Task StartAsync();
-    void Stop();
+
+    void StopHost();
+
     void Broadcast(string message);
 }
 
-public class PipeHost : IPipeHost, IDisposable
+/// <summary>
+/// Initializes a new instance of the PipeHost class with the specified pipe name and access level.
+/// </summary>
+/// <param name="pipeName">The name of the pipe to host. This value cannot be null.</param>
+/// <param name="accessLevel">The access level that determines which clients are permitted to connect. Defaults to ModWhitelist if not
+/// specified.</param>
+/// <exception cref="ArgumentNullException">Thrown if <paramref name="pipeName"/> is null.</exception>
+public sealed class PipeHost(string pipeName, AccessLevel accessLevel = AccessLevel.ModWhitelist) : IPipeHost, IDisposable
 {
-    private readonly string _pipeName;
-    private readonly AccessLevel _accessLevel;
+    private readonly string _pipeName = pipeName ?? throw new ArgumentNullException(nameof(pipeName));
+#pragma warning disable CA1823 // Avoid unused private fields
+    private readonly AccessLevel _accessLevel = accessLevel;
+#pragma warning restore CA1823 // Avoid unused private fields
     private readonly ConcurrentDictionary<string, PipeConnection> _connections = new();
-    private readonly ConcurrentBag<NamedPipeServerStream> _listeners = new();
+    private readonly ConcurrentBag<NamedPipeServerStream> _listeners = [];
     private volatile bool _running;
     private int _connectionCounter;
 
@@ -34,7 +54,7 @@ public class PipeHost : IPipeHost, IDisposable
     /// string. Subscribers can use this event to process incoming messages in real time. This event is typically raised
     /// on the thread that receives the message; ensure thread safety when handling the event if accessing shared
     /// resources.</remarks>
-    public event Action<PipeConnection, string>? MessageReceived;
+    public event EventHandler<HostMessageReceivedEventArgs>? MessageReceived;
 
     /// <summary>
     /// Gets the collection of file system paths that are permitted for access or operations.
@@ -42,20 +62,7 @@ public class PipeHost : IPipeHost, IDisposable
     /// <remarks>The returned list contains absolute or relative paths that are considered safe or allowed by
     /// the application. Modifying the contents of this list affects which paths are treated as whitelisted. This
     /// property is read-only; to change the set of whitelisted paths, modify the list directly.</remarks>
-    public List<string> WhitelistedPaths { get; } = [];
-
-    /// <summary>
-    /// Initializes a new instance of the PipeHost class with the specified pipe name and access level.
-    /// </summary>
-    /// <param name="pipeName">The name of the pipe to host. This value cannot be null.</param>
-    /// <param name="accessLevel">The access level that determines which clients are permitted to connect. Defaults to ModWhitelist if not
-    /// specified.</param>
-    /// <exception cref="ArgumentNullException">Thrown if <paramref name="pipeName"/> is null.</exception>
-    public PipeHost(string pipeName, AccessLevel accessLevel = AccessLevel.ModWhitelist)
-    {
-        _pipeName = pipeName ?? throw new ArgumentNullException(nameof(pipeName));
-        _accessLevel = accessLevel;
-    }
+    public Collection<string> WhitelistedPaths { get; } = [];
 
     /// <summary>
     /// Starts the host asynchronously, enabling it to begin accepting incoming connections.
@@ -70,7 +77,7 @@ public class PipeHost : IPipeHost, IDisposable
     {
         if (_running) throw new InvalidOperationException("Host already started");
         _running = true;
-        await AcceptLoopAsync(); // fire-and-forget
+        await AcceptLoopAsync().ConfigureAwait(true);
     }
 
     /// <summary>
@@ -79,7 +86,7 @@ public class PipeHost : IPipeHost, IDisposable
     /// <remarks>After calling this method, the instance will no longer process events or notify listeners.
     /// This method disposes all registered listeners and suppresses any exceptions thrown during disposal. It is safe
     /// to call this method multiple times; subsequent calls have no effect.</remarks>
-    public void Stop()
+    public void StopHost()
     {
         _running = false;
         foreach (var listener in _listeners)
@@ -88,10 +95,7 @@ public class PipeHost : IPipeHost, IDisposable
             {
                 listener.Dispose();
             }
-            catch (Exception ex)
-            {
-
-            }
+            catch { }
         }
     }
 
@@ -122,25 +126,25 @@ public class PipeHost : IPipeHost, IDisposable
 
                 _listeners.Add(server);
 
-                await server.WaitForConnectionAsync();
+                await server.WaitForConnectionAsync().ConfigureAwait(true);
 
                 if (!_running)
                 {
-                    server.Dispose();
+                    await server.DisposeAsync().ConfigureAwait(true);
                     break;
                 }
 
                 _ = HandleClientAsync(server); // fire-and-forget per client
                 server = null; // ownership passed
             }
-            catch (Exception ex)
+            catch
             {
-                server?.Dispose();
+                await server!.DisposeAsync().ConfigureAwait(true);
             }
 
             if (_running)
             {
-                await Task.Delay(50); // avoid tight loop if errors
+                await Task.Delay(50).ConfigureAwait(true); // avoid tight loop if errors
             }
         }
     }
@@ -153,7 +157,7 @@ public class PipeHost : IPipeHost, IDisposable
     /// other processes require access to the named pipe. Ensure that granting access to everyone aligns with your
     /// application's security requirements.</remarks>
     /// <returns>A PipeSecurity instance configured with access rules for the current user and for everyone.</returns>
-    private PipeSecurity CreatePipeSecurity()
+    private static PipeSecurity CreatePipeSecurity()
     {
         var pipeSecurity = new PipeSecurity();
 
@@ -260,7 +264,7 @@ public class PipeHost : IPipeHost, IDisposable
 
             while (_running && server.IsConnected)
             {
-                int n = await server.ReadAsync(buffer, 0, 1);
+                int n = await server.ReadAsync(buffer.AsMemory(), CancellationToken.None).ConfigureAwait(true);
                 if (n == 0)
                 {
                     break;
@@ -273,17 +277,14 @@ public class PipeHost : IPipeHost, IDisposable
 
                     try
                     {
-                        MessageReceived?.Invoke(connection, message);
+                        MessageReceived?.Invoke(connection, new(message));
                     }
-                    catch (Exception ex)
-                    {
-
-                    }
+                    catch { }
                 }
                 else sb.Append((char)buffer[0]);
             }
         }
-        catch (IOException ex)
+        catch (IOException)
         {
 
         }
@@ -304,7 +305,7 @@ public class PipeHost : IPipeHost, IDisposable
     /// <param name="process">When this method returns, contains the client process associated with the pipe if successful; otherwise, <see
     /// langword="null"/>.</param>
     /// <returns>true if the client process was successfully retrieved; otherwise, false.</returns>
-    private unsafe bool TryGetClientProcess(NamedPipeServerStream pipe, out Process? process)
+    private static unsafe bool TryGetClientProcess(NamedPipeServerStream pipe, out Process? process)
     {
         process = null;
         uint pid;
@@ -319,7 +320,7 @@ public class PipeHost : IPipeHost, IDisposable
             process = Process.GetProcessById((int)pid);
             return true;
         }
-        catch (Exception ex)
+        catch
         {
             return false;
         }
@@ -339,10 +340,7 @@ public class PipeHost : IPipeHost, IDisposable
             {
                 kvp.Value.WriteMessage(message);
             }
-            catch (Exception ex)
-            {
-
-            }
+            catch { }
         }
     }
 
@@ -354,7 +352,7 @@ public class PipeHost : IPipeHost, IDisposable
     /// instance should not be used further.</remarks>
     public void Dispose()
     {
-        Stop();
+        StopHost();
         foreach (var kvp in _connections)
         {
             kvp.Value.Dispose();

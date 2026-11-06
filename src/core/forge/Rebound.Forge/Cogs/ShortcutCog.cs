@@ -61,14 +61,14 @@ public class ShortcutCog : ICog
 
             // Create IShellLink instance
             using ComPtr<IShellLinkW> shellLink = default;
-            using ManagedPtr<Guid> iid = IID.IID_IShellLinkW;
-            using ManagedPtr<Guid> clsid = CLSID.CLSID_ShellLink;
+            using ObjectPtr<Guid> iid = IID.IID_IShellLinkW;
+            using ObjectPtr<Guid> clsid = CLSID.CLSID_ShellLink;
 
             var hr = CoCreateInstance(
-                clsid,
+                clsid.Get(),
                 null,
                 (uint)CLSCTX.CLSCTX_INPROC_SERVER,
-                iid,
+                iid.Get(),
                 (void**)shellLink.GetAddressOf());
 
             if (hr.FAILED || shellLink.Get() is null)
@@ -81,25 +81,25 @@ public class ShortcutCog : ICog
             }
 
             // Set executable path
-            using ManagedPtr<char> exePath = ExePath;
-            shellLink.Get()->SetPath(exePath);
+            using StringPtr exePath = ExePath;
+            shellLink.Get()->SetPath(exePath.GetChars());
 
             // Set working directory
-            using ManagedPtr<char> workingDir = Path.GetDirectoryName(ExePath)!;
-            shellLink.Get()->SetWorkingDirectory(workingDir);
+            using StringPtr workingDir = Path.GetDirectoryName(ExePath)!;
+            shellLink.Get()->SetWorkingDirectory(workingDir.GetChars());
 
             // Set icon if provided
             if (!string.IsNullOrEmpty(IconLocation))
             {
-                using ManagedPtr<char> iconLocation = IconLocation;
-                shellLink.Get()->SetIconLocation(iconLocation, 0);
+                using StringPtr iconLocation = IconLocation;
+                shellLink.Get()->SetIconLocation(iconLocation.GetChars(), 0);
             }
 
             // Query IPersistFile and save
             using ComPtr<IPersistFile> persistFile = default;
-            using ManagedPtr<Guid> iid2 = IID.IID_IPersistFile;
+            using ObjectPtr<Guid> iid2 = IID.IID_IPersistFile;
 
-            hr = ((IUnknown*)shellLink.Get())->QueryInterface(iid2, (void**)&persistFile);
+            hr = ((IUnknown*)shellLink.Get())->QueryInterface(iid2.Get(), (void**)&persistFile);
 
             if (hr.FAILED || persistFile.Get() is null)
             {
@@ -110,8 +110,8 @@ public class ShortcutCog : ICog
                 return Task.FromResult(new CogOperationResult(false, "COM_EXCEPTION", false));
             }
 
-            using ManagedPtr<char> shortcutPathPtr = shortcutPath;
-            persistFile.Get()->Save(shortcutPathPtr, true);
+            using StringPtr shortcutPathPtr = shortcutPath;
+            persistFile.Get()->Save(shortcutPathPtr.GetChars(), true);
 
             return Task.FromResult(new CogOperationResult(true, null, true));
         }

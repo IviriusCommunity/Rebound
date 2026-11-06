@@ -8,6 +8,8 @@ using static TerraFX.Interop.Windows.STORAGE_PROPERTY_ID;
 using static TerraFX.Interop.Windows.STORAGE_QUERY_TYPE;
 using static TerraFX.Interop.Windows.Windows;
 
+#pragma warning disable CA1724
+
 namespace Rebound.Core.SystemInformation.Hardware;
 
 public static class Storage
@@ -53,10 +55,10 @@ public static class Storage
         if (physicalDriveNumber < 0)
             return false;
 
-        ManagedPtr<char> devicePath = $@"\\.\PhysicalDrive{physicalDriveNumber}";
+        using StringPtr devicePath = $@"\\.\PhysicalDrive{physicalDriveNumber}";
 
         HANDLE hDevice = CreateFileW(
-            devicePath,
+            devicePath.GetChars(),
             GENERIC_READ | GENERIC_WRITE,
             FILE.FILE_SHARE_READ | FILE.FILE_SHARE_WRITE,
             null,
@@ -197,10 +199,10 @@ public static class Storage
     {
         // Normalise to "C:" form
         char letter = driveLetterOrPath.Trim().TrimEnd('\\', '/').TrimEnd(':')[0];
-        ManagedPtr<char> volumePath = $@"\\.\{letter}:";
+        using StringPtr volumePath = $@"\\.\{letter}:";
 
         HANDLE hVolume = CreateFileW(
-            volumePath,
+            volumePath.GetChars(),
             0,                                       // no read/write needed for IOCTL
             FILE.FILE_SHARE_READ | FILE.FILE_SHARE_WRITE,
             null,

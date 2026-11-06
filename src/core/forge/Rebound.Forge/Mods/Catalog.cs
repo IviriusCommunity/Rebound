@@ -7,6 +7,8 @@ using Rebound.Forge.Cogs;
 using Rebound.Forge.Launchers;
 using System.Collections.ObjectModel;
 
+#pragma warning disable CA1724
+
 namespace Rebound.Forge.Mods;
 
 /// <summary>

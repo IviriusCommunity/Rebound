@@ -1,6 +1,8 @@
 ﻿// Copyright (C) Ivirius(TM) Community 2020 - 2026. All Rights Reserved.
 // Licensed under the MIT License.
 
+#pragma warning disable CA1031 // Do not catch general exception types
+
 namespace Rebound.Core.Threading;
 
 public static class STAThread

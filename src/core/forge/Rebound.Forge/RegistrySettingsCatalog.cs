@@ -1,24 +1,22 @@
 ﻿// Copyright (C) Ivirius(TM) Community 2020 - 2026. All Rights Reserved.
 // Licensed under the MIT License.
 
-using Microsoft.Win32;
-
 namespace Rebound.Forge
 {
     /// <summary>
     /// A registry setting mapping.
     /// </summary>
-    public struct RegistrySetting
+    public record RegistrySetting
     {
         /// <summary>
         /// Path to the registry key.
         /// </summary>
-        public string KeyPath { get; set; }
+        public string? KeyPath { get; set; }
 
         /// <summary>
         /// The name of the registry value.
         /// </summary>
-        public string ValueName { get; set; }
+        public string? ValueName { get; set; }
     }
 
     /// <summary>

@@ -288,14 +288,14 @@ public class ProcessLaunchCog : IConfirmationPromptCog
 
     private static unsafe bool TryShellExecute(string path, bool elevate)
     {
-        using ManagedPtr<char> pathPtr = path;
-        using ManagedPtr<char> runasPtr = "runas";
+        using StringPtr pathPtr = path;
+        using StringPtr runasPtr = "runas";
 
         var sei = new SHELLEXECUTEINFOW
         {
             cbSize = (uint)sizeof(SHELLEXECUTEINFOW),
-            lpFile = pathPtr,
-            lpVerb = elevate ? runasPtr : (char*)null,
+            lpFile = pathPtr.GetChars(),
+            lpVerb = elevate ? runasPtr.GetChars() : (char*)null,
             nShow = SW.SW_SHOWNORMAL,
             fMask = SEE_MASK_NOCLOSEPROCESS | SEE_MASK_FLAG_NO_UI
         };

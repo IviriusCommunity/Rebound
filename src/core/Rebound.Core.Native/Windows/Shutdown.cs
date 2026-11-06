@@ -122,9 +122,9 @@ public static class Shutdown
     /// </returns>
     public static unsafe bool ShutdownAdvanced(string? machineName = null, string? message = null, uint timeout = 0, bool forceCloseApps = false, bool restart = false, ShutdownReason? reason = null)
     {
-        using ManagedPtr<char> seShutdownPrivilege = "SeShutdownPrivilege";
-        using ManagedPtr<char> pMachineName = machineName ?? string.Empty;
-        using ManagedPtr<char> pMessage = message ?? string.Empty;
+        using StringPtr seShutdownPrivilege = "SeShutdownPrivilege";
+        using StringPtr pMachineName = machineName ?? string.Empty;
+        using StringPtr pMessage = message ?? string.Empty;
 
         HANDLE hToken = HANDLE.NULL;
 
@@ -137,7 +137,7 @@ public static class Shutdown
         TOKEN_PRIVILEGES tp = default;
         LUID luid;
 
-        if (LookupPrivilegeValueW(null, seShutdownPrivilege, &luid) == BOOL.FALSE)
+        if (LookupPrivilegeValueW(null, seShutdownPrivilege.GetChars(), &luid) == BOOL.FALSE)
         {
             CloseHandle(hToken);
             return false;
@@ -151,8 +151,8 @@ public static class Shutdown
         CloseHandle(hToken);
 
         return InitiateSystemShutdownExW(
-            machineName == null ? (char*)null : pMachineName,
-            message == null ? (char*)null : pMessage,
+            machineName == null ? (char*)null : pMachineName.GetChars(),
+            message == null ? (char*)null : pMessage.GetChars(),
             timeout,
             forceCloseApps,
             restart,

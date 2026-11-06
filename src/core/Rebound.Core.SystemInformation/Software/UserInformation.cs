@@ -10,6 +10,8 @@ using System.Security.Principal;
 using TerraFX.Interop.Windows;
 using static TerraFX.Interop.Windows.Windows;
 
+#pragma warning disable CA1031 // Do not catch general exception types
+
 namespace Rebound.Core.SystemInformation.Software;
 
 public static class UserInformation
@@ -55,9 +57,9 @@ public static class UserInformation
     /// </summary>
     public static unsafe string GetPasswordLastSet()
     {
-        using var userName = new ManagedPtr<char>(Environment.UserName);
+        using var userName = new StringPtr(Environment.UserName);
         USER_INFO_2* info;
-        HRESULT hr = NetApi.NetUserGetInfo(null, userName, 2, (byte**)&info);
+        HRESULT hr = NetApi.NetUserGetInfo(null, userName.GetChars(), 2, (byte**)&info);
 
         if (hr != S.S_OK) return "Never";
 
@@ -78,9 +80,9 @@ public static class UserInformation
     /// </summary>
     public static unsafe string GetPasswordExpiry()
     {
-        using var userName = new ManagedPtr<char>(Environment.UserName);
+        using var userName = new StringPtr(Environment.UserName);
         USER_INFO_2* info;
-        HRESULT hr = NetApi.NetUserGetInfo(null, userName, 2, (byte**)&info);
+        HRESULT hr = NetApi.NetUserGetInfo(null, userName.GetChars(), 2, (byte**)&info);
 
         if (hr != S.S_OK) return "Never";
 
@@ -153,15 +155,15 @@ public static class UserInformation
     {
         unsafe
         {
-            using var clsid = new ManagedPtr<Guid>(CLSID.CLSID_DesktopWallpaper);
-            using var iid = new ManagedPtr<Guid>(IID.IID_IDesktopWallpaper);
+            using var clsid = new ObjectPtr<Guid>(CLSID.CLSID_DesktopWallpaper);
+            using var iid = new ObjectPtr<Guid>(IID.IID_IDesktopWallpaper);
             using ComPtr<IDesktopWallpaper> desktopWallpaper = default;
 
             var hr = CoCreateInstance(
-                clsid,
+                clsid.Get(),
                 null,
                 (uint)CLSCTX.CLSCTX_LOCAL_SERVER,
-                iid,
+                iid.Get(),
                 (void**)desktopWallpaper.GetAddressOf());
 
             if (FAILED(hr)) return null;
@@ -169,7 +171,7 @@ public static class UserInformation
             char* wallpaperPtr = null;
             hr = desktopWallpaper.Get()->GetWallpaper(null, &wallpaperPtr);
 
-            if (FAILED(hr) || wallpaperPtr == null) return null;
+            if (FAILED(hr)) return null;
 
             var wallpaperPath = new string(wallpaperPtr);
             CoTaskMemFree(wallpaperPtr);
@@ -229,13 +231,13 @@ public static class UserInformation
         try
         {
             HRESULT hr;
-            using var userName = new ManagedPtr<char>(Environment.UserName);
+            using var userName = new StringPtr(Environment.UserName);
             byte* bufPtr;
 
             // Query full user info (level 2) via NetUserGetInfo
             hr = NetApi.NetUserGetInfo(
                 null,
-                userName,
+                userName.GetChars(),
                 2,
                 &bufPtr);
 

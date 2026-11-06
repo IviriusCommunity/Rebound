@@ -134,7 +134,7 @@ public partial class ModEnumSetting : ObservableObject, IModSetting
     [ObservableProperty] public partial string IconGlyph { get; set; } = "";
 
     [ObservableProperty] public partial int Value { get; set; }
-    public ObservableCollection<string> Options { get; set; } = [];
+    public ObservableCollection<string> Options { get; } = [];
 
     /// <summary>
     /// Creates an instance of the <see cref="ModBoolSetting"/> class.

@@ -89,9 +89,11 @@ function Build-MsixPackage {
     # Build the project
     $msbuildArgs = @(
         $ProjectPath
-        "/t:Build"
+        "/t:Restore;Build"
         "/p:Configuration=$Configuration"
+        "/p:Platform=x64"
         "/p:AppxBundle=Always"
+        "/p:AppxBundlePlatforms=x64|ARM64"
         "/p:UapAppxPackageBuildMode=SideloadOnly"
         "/p:GenerateAppxPackageOnBuild=true"
         "/p:SolutionDir=$SolutionDir"

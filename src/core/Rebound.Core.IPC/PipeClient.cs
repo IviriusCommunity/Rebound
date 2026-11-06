@@ -4,21 +4,35 @@
 using System.IO.Pipes;
 using System.Text;
 
+#pragma warning disable CA1031 // Do not catch general exception types
+
 namespace Rebound.Core.IPC;
+
+public sealed class ClientMessageReceivedEventArgs(string message) : EventArgs
+{
+    public string Message { get; } = message;
+}
 
 public interface IPipeClient
 {
-    event Action<string>? MessageReceived;
+    event EventHandler<ClientMessageReceivedEventArgs>? MessageReceived; 
+    
     Task ConnectAsync();
+
     Task SendAsync(string message);
-    void Stop();
+
+    void StopClient();
 }
 
-public class PipeClient : IPipeClient, IDisposable
+/// <summary>
+/// Initializes a new instance of the PipeClient class using the specified named pipe.
+/// </summary>
+/// <param name="pipeName">The name of the pipe to connect to. If not specified, defaults to "REBOUND_SERVICE_HOST".</param>
+public sealed class PipeClient(string pipeName) : IPipeClient, IDisposable
 {
-    private readonly string _pipeName;
+    private readonly string _pipeName = pipeName;
     private NamedPipeClientStream? _pipe;
-    private readonly object _sendLock = new();
+    private readonly Lock _sendLock = new();
     private volatile bool _running;
 
     /// <summary>
@@ -26,16 +40,7 @@ public class PipeClient : IPipeClient, IDisposable
     /// </summary>
     /// <remarks>Subscribers can handle this event to process incoming messages. The event argument contains
     /// the full message text. If no handlers are attached, messages will be ignored.</remarks>
-    public event Action<string>? MessageReceived;
-
-    /// <summary>
-    /// Initializes a new instance of the PipeClient class using the specified named pipe.
-    /// </summary>
-    /// <param name="pipeName">The name of the pipe to connect to. If not specified, defaults to "REBOUND_SERVICE_HOST".</param>
-    public PipeClient(string pipeName)
-    {
-        _pipeName = pipeName;
-    }
+    public event EventHandler<ClientMessageReceivedEventArgs>? MessageReceived;
 
     /// <summary>
     /// Stops the current operation and releases associated resources.
@@ -44,10 +49,10 @@ public class PipeClient : IPipeClient, IDisposable
     /// After calling <see cref="Stop"/>, the instance cannot be restarted unless explicitly supported by the class.
     /// This method is safe to call multiple times; subsequent calls have no effect if the operation is already
     /// stopped.</remarks>
-    public void Stop()
+    public void StopClient()
     {
         _running = false;
-        try { _pipe?.Dispose(); } catch (Exception ex) { }
+        try { _pipe?.Dispose(); } catch { }
     }
 
     /// <summary>
@@ -64,14 +69,14 @@ public class PipeClient : IPipeClient, IDisposable
             return;
         }
 
-        _pipe?.Dispose();
+        await _pipe!.DisposeAsync().ConfigureAwait(true);
         _pipe = new NamedPipeClientStream(".", _pipeName, PipeDirection.InOut, PipeOptions.Asynchronous);
 
         try
         {
-            await _pipe.ConnectAsync(1000); // wait for connection
+            await _pipe.ConnectAsync(1000).ConfigureAwait(true); // wait for connection
         }
-        catch (Exception ex)
+        catch
         {
             throw;
         }
@@ -80,12 +85,9 @@ public class PipeClient : IPipeClient, IDisposable
         {
             try
             {
-                await EnsureConnectedAsync();
+                await EnsureConnectedAsync().ConfigureAwait(true);
             }
-            catch (Exception ex)
-            {
-
-            }
+            catch { }
         })
         {
             IsBackground = true
@@ -98,12 +100,9 @@ public class PipeClient : IPipeClient, IDisposable
             _running = true;
             try
             {
-                await ReadLoopAsync();
+                await ReadLoopAsync().ConfigureAwait(true);
             }
-            catch (Exception ex)
-            {
-
-            }
+            catch { }
         })
         {
             IsBackground = true
@@ -134,7 +133,7 @@ public class PipeClient : IPipeClient, IDisposable
         {
             while (_running && _pipe.IsConnected)
             {
-                int n = await _pipe.ReadAsync(buffer, 0, 1);
+                int n = await _pipe.ReadAsync(buffer.AsMemory(), CancellationToken.None).ConfigureAwait(true);
                 if (n == 0)
                 {
                     break;
@@ -146,9 +145,9 @@ public class PipeClient : IPipeClient, IDisposable
                     sb.Clear();
                     try
                     {
-                        MessageReceived?.Invoke(msg);
+                        MessageReceived?.Invoke(this, new(msg));
                     }
-                    catch (Exception ex)
+                    catch
                     {
 
                     }
@@ -156,13 +155,13 @@ public class PipeClient : IPipeClient, IDisposable
                 else sb.Append((char)buffer[0]);
             }
         }
-        catch (IOException ex)
+        catch (IOException)
         {
 
         }
         finally
         {
-            _pipe?.Dispose();
+            await _pipe!.DisposeAsync().ConfigureAwait(true);
             _pipe = null;
         }
     }
@@ -184,27 +183,24 @@ public class PipeClient : IPipeClient, IDisposable
             return;
         }
 
-        _pipe?.Dispose();
+        await _pipe!.DisposeAsync().ConfigureAwait(true);
         _pipe = new NamedPipeClientStream(".", _pipeName, PipeDirection.InOut, PipeOptions.Asynchronous);
 
         while (_running)
         {
             try
             {
-                await _pipe.ConnectAsync(2000);
+                await _pipe.ConnectAsync(2000).ConfigureAwait(true);
                 if (_pipe.IsConnected)
                 {
                     return;
                 }
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                if (!_running)
-                {
-                    throw new ObjectDisposedException("Client stopped");
-                }
+                ObjectDisposedException.ThrowIf(_running, "Client stopped");
             }
-            await Task.Delay(250);
+            await Task.Delay(250).ConfigureAwait(true);
         }
 
         throw new ObjectDisposedException("Client stopped");
@@ -222,7 +218,7 @@ public class PipeClient : IPipeClient, IDisposable
     public async Task SendAsync(string message)
     {
         if (!_running) throw new InvalidOperationException("Client not started");
-        if (message == null) throw new ArgumentNullException(nameof(message));
+        ArgumentNullException.ThrowIfNull(message);
 
         var payload = Encoding.UTF8.GetBytes(message + "\n");
 
@@ -241,7 +237,7 @@ public class PipeClient : IPipeClient, IDisposable
     /// resources are properly released. After calling <see cref="Dispose"/>, the instance should not be used.</remarks>
     public void Dispose()
     {
-        Stop();
+        StopClient();
         _pipe?.Dispose();
     }
 }
