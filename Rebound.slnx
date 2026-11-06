@@ -11,11 +11,6 @@
     <File Path="build/Build.ps1" />
     <File Path="build/Update-Versions.ps1" />
   </Folder>
-  <Folder Name="/docs/">
-    <File Path="docs/getting-started.md" />
-    <File Path="docs/introduction.md" />
-    <File Path="docs/toc.yml" />
-  </Folder>
   <Folder Name="/eng/">
     <Project Path="eng/Rebound.Installer/Rebound.Installer.csproj">
       <Platform Project="x64" />
