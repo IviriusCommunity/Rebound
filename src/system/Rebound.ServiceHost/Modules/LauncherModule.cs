@@ -22,15 +22,13 @@ internal partial class LauncherModule : IDisposable
 
     public void Start() => _ = LauncherPipeServer?.StartAsync();
 
-    private void LauncherPipeServer_MessageReceived(
-        PipeConnection connection,
-        string message)
+    private void LauncherPipeServer_MessageReceived(object sender, HostMessageReceivedEventArgs args)
     {
-        if (!message.StartsWith("LAUNCH:",
+        if (!args.Message.StartsWith("LAUNCH:",
             StringComparison.OrdinalIgnoreCase))
             return;
 
-        string[] parts = message[7..].Split(
+        string[] parts = args.Message[7..].Split(
             @"\lnbrk\",
             2,
             StringSplitOptions.None);

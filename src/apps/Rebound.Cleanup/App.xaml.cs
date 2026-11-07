@@ -2,8 +2,10 @@
 // Licensed under the MIT License.
 
 using Microsoft.UI;
+using Microsoft.UI.Dispatching;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
+
 using Rebound.Core;
 using Rebound.Core.IPC;
 using Rebound.Core.UI;
@@ -11,6 +13,7 @@ using Rebound.Core.UI.Localizer;
 using Rebound.Core.UI.Windowing;
 using Rebound.Forge;
 using Rebound.Forge.Engines;
+
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -18,7 +21,11 @@ using System.IO;
 using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
+
+using TerraFX.Interop.Windows;
+
 using Windows.UI;
+
 using WinUIEx;
 
 namespace Rebound.Cleanup;
@@ -33,6 +40,8 @@ public partial class App : Application
     public static SingleInstanceAppService SingleInstanceAppService { get; } = new("Rebound.Cleanup");
 
     public string LegacyExecutableName { get; } = "cleanmgr.exe";
+
+    public static DispatcherQueue? UIDispatcher { get; private set; }
 
     public App() => InitializeComponent();
 
@@ -65,8 +74,10 @@ public partial class App : Application
             // Set locale
             Windows.Globalization.ApplicationLanguages.PrimaryLanguageOverride = string.Empty;
 
+            var isReboundInstalled = await ReboundPresenceEngine.IsReboundInstalledAsync().ConfigureAwait(true);
+
             // Check if Rebound is installed or not
-            if (!ReboundPresenceEngine.IsReboundInstalled())
+            if (!isReboundInstalled)
             {
                 ReboundLogger.WriteToLog(
                     "Rebound Installation Check",
@@ -79,18 +90,21 @@ public partial class App : Application
             // If this is the application's initial launch, handle the required environment
             if (e.IsFirstLaunch)
             {
+                UIDispatcher = DispatcherQueue.GetForCurrentThread()
+                    ?? throw new InvalidOperationException(
+                        "The WinUI UI DispatcherQueue is unavailable.");
+
                 ReboundLogger.WriteToLog(
                     "Rebound Environment Initialization",
                     "Initializing the Rebound environment for the current app...",
                     LogMessageSeverity.Message);
 
-                // Pipe server thread
-                var pipeThread = new Thread(async () =>
+                var ipcThread = new Thread(async () =>
                 {
                     try
                     {
                         // Initialize pipe client if not already initialized
-                        ReboundPipeClient ??= new();
+                        ReboundPipeClient ??= new("REBOUND_LAUNCHER");
 
                         // Make sure Rebound Service Host exists
                         var started = ServiceHostEngine.StartServiceHost();
@@ -104,7 +118,7 @@ public partial class App : Application
                         }
 
                         // Connect to it
-                        await ReboundPipeClient.ConnectAsync().ConfigureAwait(false);
+                        await ReboundPipeClient.ConnectAsync().ConfigureAwait(true);
                     }
                     catch
                     {
@@ -112,32 +126,19 @@ public partial class App : Application
                             "Rebound Environment Initialization",
                             "Notifying the user of Rebound Service Host failure.",
                             LogMessageSeverity.Message);
-
-                        // Rebound Service Host doesn't exist, fall back to UI solutions
-                        RunServiceHostFailedToLaunchFallback();
                     }
                 })
                 {
-                    IsBackground = true,
-                    Name = "Pipe Server Thread"
+                    Name = "IPC Thread",
+                    IsBackground = true
                 };
-                pipeThread.SetApartmentState(ApartmentState.STA);
-                pipeThread.Start();
+                ipcThread.SetApartmentState(ApartmentState.STA);
+                ipcThread.Start();
 
                 ReboundLogger.WriteToLog(
                     "Rebound Environment Initialization",
                     "Initializing the Rebound Service Host watchdog...",
                     LogMessageSeverity.Message);
-
-                // Service host watchdog thread
-                // This ensures Rebound Service Host can't die randomly
-                var watchdogThread = new Thread(ServiceHostEngine.StartWatchdog)
-                {
-                    IsBackground = true,
-                    Name = "Service Host Watchdog Thread"
-                };
-                watchdogThread.SetApartmentState(ApartmentState.STA);
-                watchdogThread.Start();
             }
 
             // Legacy launch

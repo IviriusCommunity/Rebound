@@ -52,7 +52,7 @@ internal partial class DLLInjectionModule : IDisposable
         _ = StartPipeServerAsync();
     }
 
-    private async void DLLPipeServer_MessageReceived(PipeConnection arg1, string arg2)
+    private async void DLLPipeServer_MessageReceived(object sender, HostMessageReceivedEventArgs args)
     {
 
     }
