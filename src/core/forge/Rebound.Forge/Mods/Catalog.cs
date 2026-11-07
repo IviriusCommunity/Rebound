@@ -800,5 +800,7 @@ public partial class Catalog : ObservableObject
     /// <summary>
     /// Custom mods that are loaded from a folder at runtime.
     /// </summary>
-    public static ObservableCollection<Mod> SideloadedMods => [with(ModParser.ParseMods())];
+#pragma warning disable CA2211 // Non-constant fields should not be visible
+    public static ObservableCollection<Mod> SideloadedMods = []; // => [with(ModParser.ParseMods())];
+#pragma warning restore CA2211 // Non-constant fields should not be visible
 }
