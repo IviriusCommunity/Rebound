@@ -128,6 +128,8 @@ public static class ModParser
         // Parse cogs — any failure here throws and rejects the whole mod
         var cogs = ParseCogs(modElement, path, declarationFile);
 
+        var settings = ParseSettings(modElement, path, declarationFile);
+
         var mod = new Mod
         {
             Id = modId,
@@ -142,7 +144,8 @@ public static class ModParser
                 {
                     Name = modName,
                     Id = modId,
-                    Cogs = cogs
+                    Cogs = cogs,
+                    Settings = settings
                 }
             ]
         };
@@ -153,10 +156,6 @@ public static class ModParser
 
         return mod;
     }
-
-    // -------------------------------------------------------------------------
-    // Cog parsing
-    // -------------------------------------------------------------------------
 
     private static ObservableCollection<ICog> ParseCogs(XElement modElement, string path, string declarationFile)
     {
@@ -191,8 +190,9 @@ public static class ModParser
                     CogName = cogName,
                     SettingsFileName = GetString(cogElem, "SettingsFileName", path),
                     Key = GetString(cogElem, "Key", path),
-                    AppliedValue = GetBool(cogElem, "AppliedValue")
+                    AppliedValue = GetRequiredBool(cogElem, "AppliedValue", declarationFile)
                 },
+
                 "DLLInjectionCog" => new DLLInjectionCog
                 {
                     CogId = cogId,
@@ -213,24 +213,17 @@ public static class ModParser
                     RequiresElevation = GetBool(cogElem, "RequiresElevation")
                 },
 
-                /*"FolderCog" => new FolderCog
+                "FolderCog" => new FolderCog
                 {
                     CogId = cogId,
                     CogName = cogName,
                     Path = GetString(cogElem, "Path", path),
                     PersistAfterRemoving = GetBool(cogElem, "PersistAfterRemoving"),
-                    RequiresElevation = GetBool(cogElem, "RequiresElevation")
-                },*/
-
-                "PackageCog" => new PackageCog
-                {
-                    CogId = cogId,
-                    CogName = cogName,
-                    Target = new PackageTarget(
-                        TargetType: PackageTargetType.Local,
-                        TargetPath: GetString(cogElem, "PackageURI", path),
-                        PackageFamilyName: GetString(cogElem, "PackageFamilyName", path))
+                    RequiresElevation = GetBool(cogElem, "RequiresElevation"),
+                    LockBehindAdmin = GetBool(cogElem, "LockBehindAdmin")
                 },
+
+                "PackageCog" => ParsePackageCog(cogElem, path, declarationFile),
 
                 "ProcessKillCog" => new ProcessKillCog
                 {
@@ -257,6 +250,9 @@ public static class ModParser
                                 $"<ProcessLaunchCog> has no <Executable> or <Package> child in '{declarationFile}'.")
                 },
 
+                "ProgramAssociationCog" => ParseProgramAssociationCog(
+                    cogElem, cogId, cogName, path, declarationFile),
+
                 "ShortcutCog" => new ShortcutCog
                 {
                     CogId = cogId,
@@ -264,6 +260,16 @@ public static class ModParser
                     ShortcutName = GetString(cogElem, "ShortcutName", path),
                     ExePath = GetString(cogElem, "ExePath", path),
                     RequiresElevation = GetBool(cogElem, "RequiresElevation")
+                },
+
+                "StartupTaskCog" => ParseStartupTaskCog(
+                    cogElem, cogId, cogName, path, declarationFile),
+
+                "TaskFolderCog" => new TaskFolderCog
+                {
+                    CogId = cogId,
+                    CogName = cogName,
+                    TaskFolderName = GetString(cogElem, "TaskFolderName", path)
                 },
 
                 var unknown => throw new InvalidOperationException(
@@ -280,9 +286,246 @@ public static class ModParser
         return cogs;
     }
 
-    // -------------------------------------------------------------------------
-    // XML helpers
-    // -------------------------------------------------------------------------
+    private static ObservableCollection<IModItem> ParseSettings(
+        XElement parent,
+        string path,
+        string declarationFile)
+    {
+        XElement? settingsElement = parent.Element("Settings");
+
+        if (settingsElement is null)
+            return [];
+
+        ObservableCollection<IModItem> settings = [];
+
+        foreach (XElement element in settingsElement.Elements())
+        {
+            IModSetting setting = element.Name.LocalName switch
+            {
+                "ModBoolSetting" => ParseBoolSetting(element, path),
+                "ModStringSetting" => ParseStringSetting(element, path),
+                "ModEnumSetting" => ParseEnumSetting(element, path, declarationFile),
+
+                _ => throw new InvalidOperationException(
+                    $"Unknown setting type '{element.Name.LocalName}' in '{declarationFile}'.")
+            };
+
+            settings.Add(setting);
+        }
+
+        return settings;
+    }
+
+    private static ModBoolSetting ParseBoolSetting(
+        XElement element,
+        string path)
+    {
+        var setting = new ModBoolSetting(
+            GetBool(element, "DefaultValue"))
+        {
+            Name = GetString(element, "Name", path),
+            Description = GetString(element, "Description", path),
+            Identifier = GetString(element, "Identifier", path),
+            AppName = GetString(element, "AppName", path),
+            IconGlyph = GetString(element, "IconGlyph", path)
+        };
+
+        return setting;
+    }
+
+    private static ModBoolSetting ParseStringSetting(
+        XElement element,
+        string path)
+    {
+        var setting = new ModBoolSetting(
+            GetBool(element, "DefaultValue"))
+        {
+            Name = GetString(element, "Name", path),
+            Description = GetString(element, "Description", path),
+            Identifier = GetString(element, "Identifier", path),
+            AppName = GetString(element, "AppName", path),
+            IconGlyph = GetString(element, "IconGlyph", path)
+        };
+
+        return setting;
+    }
+
+    private static ModEnumSetting ParseEnumSetting(
+        XElement element,
+        string path,
+        string declarationFile)
+    {
+        var setting = new ModEnumSetting(
+            GetInt(element, "DefaultValue"))
+        {
+            Name = GetString(element, "Name", path),
+            Description = GetString(element, "Description", path),
+            Identifier = GetString(element, "Identifier", path),
+            AppName = GetString(element, "AppName", path),
+            IconGlyph = GetString(element, "IconGlyph", path)
+        };
+
+        XElement? optionsElement = element.Element("Options");
+
+        if (optionsElement is null)
+            throw new InvalidOperationException(
+                $"Missing <Options> in '{declarationFile}'.");
+
+        foreach (XElement option in optionsElement.Elements("Option"))
+        {
+            string value = option.Value.Trim();
+
+            if (string.IsNullOrWhiteSpace(value))
+                throw new InvalidOperationException(
+                    $"Empty <Option> in '{declarationFile}'.");
+
+            setting.Options.Add(value);
+        }
+
+        if (setting.Options.Count == 0)
+            throw new InvalidOperationException(
+                $"<Options> must contain at least one <Option> in '{declarationFile}'.");
+
+        return setting;
+    }
+
+    private static StartupTaskCog ParseStartupTaskCog(
+        XElement cogElem,
+        Guid cogId,
+        string cogName,
+        string path,
+        string declarationFile)
+    {
+        string target = GetString(cogElem, "Target", path);
+        string rawTargetType = GetString(cogElem, "TargetType", path);
+
+        if (string.IsNullOrWhiteSpace(target))
+            throw new InvalidOperationException(
+                $"<Target> cannot be empty in '{declarationFile}'.");
+
+        if (!Enum.TryParse<StartupTaskTargetType>(
+                rawTargetType, ignoreCase: false, out var targetType)
+            || !Enum.IsDefined(targetType))
+        {
+            throw new InvalidOperationException(
+                $"Invalid <TargetType> '{rawTargetType}' in '{declarationFile}'.");
+        }
+
+        string taskName = GetString(cogElem, "TaskName", path);
+        string taskDescription = GetString(cogElem, "TaskDescription", path);
+
+        if (string.IsNullOrWhiteSpace(taskName))
+            throw new InvalidOperationException(
+                $"<TaskName> cannot be empty in '{declarationFile}'.");
+
+        if (string.IsNullOrWhiteSpace(taskDescription))
+            throw new InvalidOperationException(
+                $"<TaskDescription> cannot be empty in '{declarationFile}'.");
+
+        return new StartupTaskCog
+        {
+            CogId = cogId,
+            CogName = cogName,
+            StartupTarget = new StartupTaskTarget(target, targetType),
+            TaskName = taskName,
+            TaskDescription = taskDescription,
+            TaskRequiresElevation = GetRequiredBool(
+                cogElem, "TaskRequiresElevation", declarationFile)
+        };
+    }
+
+    private static ProgramAssociationCog ParseProgramAssociationCog(
+        XElement cogElem,
+        Guid cogId,
+        string cogName,
+        string path,
+        string declarationFile)
+    {
+        string originalExecutable = GetString(
+            cogElem, "OriginalExecutable", path);
+
+        if (string.IsNullOrWhiteSpace(originalExecutable))
+            throw new InvalidOperationException(
+                $"<OriginalExecutable> cannot be empty in '{declarationFile}'.");
+
+        string destination = GetString(cogElem, "Destination", path);
+
+        if (string.IsNullOrWhiteSpace(destination))
+            throw new InvalidOperationException(
+                $"<Destination> cannot be empty in '{declarationFile}'.");
+
+        string rawType = GetString(cogElem, "TargetType", path);
+
+        if (!Enum.TryParse<ProgramAssociationType>(
+                rawType, ignoreCase: false, out var targetType)
+            || !Enum.IsDefined(targetType))
+        {
+            throw new InvalidOperationException(
+                $"Invalid <TargetType> '{rawType}' in '{declarationFile}'.");
+        }
+
+        return new ProgramAssociationCog
+        {
+            CogId = cogId,
+            CogName = cogName,
+            OriginalExecutable = originalExecutable,
+            Target = new ProgramAssociationTarget(targetType, destination)
+        };
+    }
+
+    private static PackageCog ParsePackageCog(
+        XElement cogElem,
+        string path,
+        string declarationFile)
+    {
+        var packageUri = GetNullString(cogElem, "PackageURI", path);
+        var storeProductId = GetNullString(cogElem, "StoreProductId", path);
+
+        if ((packageUri is null) == (storeProductId is null))
+        {
+            throw new InvalidOperationException(
+                $"<PackageCog> must contain exactly one of <PackageURI> or <StoreProductId> in '{declarationFile}'.");
+        }
+
+        var packageFamilyName = GetString(cogElem, "PackageFamilyName", path);
+
+        if (string.IsNullOrWhiteSpace(packageFamilyName))
+        {
+            throw new InvalidOperationException(
+                $"<PackageFamilyName> is missing or empty on <PackageCog> in '{declarationFile}'.");
+        }
+
+        var managementMode = PackageManagementTriggeredOn.FollowConfiguration;
+        var managementElement = cogElem.Element("DoPackageManagementOn");
+
+        if (managementElement is not null)
+        {
+            var raw = managementElement.Value.Trim();
+
+            if (!Enum.TryParse<PackageManagementTriggeredOn>(
+                    raw, ignoreCase: false, out managementMode)
+                || !Enum.IsDefined(managementMode))
+            {
+                throw new InvalidOperationException(
+                    $"Invalid <DoPackageManagementOn> value '{raw}' in '{declarationFile}'.");
+            }
+        }
+
+        return new PackageCog
+        {
+            CogId = RequireGuid(cogElem, "Id", declarationFile),
+            CogName = cogElem.Element("CogName")?.Value
+                ?? throw new InvalidOperationException("<CogName> is missing."),
+            Target = new PackageTarget(
+                TargetType: packageUri is not null
+                    ? PackageTargetType.Local
+                    : PackageTargetType.Store,
+                TargetPath: packageUri,
+                StoreProductId: storeProductId,
+                PackageFamilyName: packageFamilyName),
+            DoPackageManagementOn = managementMode
+        };
+    }
 
     /// <summary>
     /// Reads a required <see cref="Guid"/> child element. Throws if missing or unparseable.
@@ -309,11 +552,28 @@ public static class ModParser
     private static string GetString(XElement parent, string name, string path)
         => Expand(parent.Element(name)?.Value ?? string.Empty, path);
 
+    private static string? GetNullString(XElement parent, string name, string path)
+        => string.IsNullOrEmpty(Expand(parent.Element(name)?.Value ?? string.Empty, path)) ? null : Expand(parent.Element(name)?.Value ?? string.Empty, path);
+
     /// <summary>
     /// Reads a boolean child element. Returns <see langword="false"/> if absent or unparseable.
     /// </summary>
     private static bool GetBool(XElement parent, string name)
         => bool.TryParse(parent.Element(name)?.Value, out var val) && val;
+
+    private static int GetInt(XElement parent, string name)
+        => int.TryParse(parent.Element(name)?.Value, out var val) ? val : 0;
+
+    private static bool GetRequiredBool(XElement parent, string name, string declarationFile)
+    {
+        var raw = parent.Element(name)?.Value;
+
+        if (!bool.TryParse(raw, out var value))
+            throw new InvalidOperationException(
+                $"<{name}> is missing or contains an invalid boolean on <{parent.Name.LocalName}> in '{declarationFile}'.");
+
+        return value;
+    }
 
     /// <summary>
     /// Reads a list of string values from a named container element and a repeated child element name.
@@ -326,16 +586,11 @@ public static class ModParser
         if (container is null)
             return [];
 
-        return container
+        return [.. container
             .Elements(itemName)
             .Select(e => e.Value)
-            .Where(v => !string.IsNullOrWhiteSpace(v))
-            .ToList();
+            .Where(v => !string.IsNullOrWhiteSpace(v))];
     }
-
-    // -------------------------------------------------------------------------
-    // Path variable expansion
-    // -------------------------------------------------------------------------
 
     /// <summary>
     /// Expands sideloaded mod XML path variables to their runtime equivalents.
@@ -352,6 +607,10 @@ public static class ModParser
             .Replace("$(System32)", Environment.GetFolderPath(Environment.SpecialFolder.SystemX86), StringComparison.InvariantCulture)
             .Replace("$(UserProfile)", Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), StringComparison.InvariantCulture)
             .Replace("$(Dependencies)", Path.Combine(currentPath, "dependencies"), StringComparison.InvariantCulture)
-            .Replace("$(ReboundDataFolder)", Variables.ReboundDataFolder, StringComparison.InvariantCulture);
+            .Replace("$(ReboundDataFolder)", Variables.ReboundDataFolder, StringComparison.InvariantCulture)
+            .Replace("$(ReboundInjectedDLLsFolder)", Variables.ReboundInjectedDLLsFolder, StringComparison.InvariantCulture)
+            .Replace("$(ReboundLibsFolder)", Variables.ReboundLibsFolder, StringComparison.InvariantCulture)
+            .Replace("$(ReboundStartMenuFolder)", Variables.ReboundStartMenuFolder, StringComparison.InvariantCulture)
+            .Replace("$(ReboundProgramAssociationsFolder)", Variables.ReboundProgramAssociationsFolder, StringComparison.InvariantCulture);
     }
 }
