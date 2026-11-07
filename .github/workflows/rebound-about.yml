@@ -56,6 +56,10 @@ jobs:
             -FilePath "$env:GITHUB_WORKSPACE\ci-signing.pfx" `
             -Password $securePassword
 
+          Export-Certificate `
+              -Cert $cert `
+              -FilePath "$env:GITHUB_WORKSPACE\ci-signing.cer"
+
           "CI_CERT_PASSWORD=$password" >> $env:GITHUB_ENV
 
       - name: Build MSIX
@@ -84,3 +88,9 @@ jobs:
           path: src/apps/Rebound.About/AppPackages/**/*.msixbundle
           if-no-files-found: error
           retention-days: 14
+
+      - name: Upload signing certificate
+        uses: actions/upload-artifact@v4
+        with:
+          name: Rebound.About-Certificate
+          path: ci-signing.cer
