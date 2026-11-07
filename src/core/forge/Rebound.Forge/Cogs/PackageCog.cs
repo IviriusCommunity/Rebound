@@ -176,6 +176,15 @@ public partial class PackageCog : ObservableObject, ICog
         // We always want to know whether the package is actually present on the system.
         try
         {
+            if (SettingsManager.GetValue("ManageStoreApps", "rebound", true) == false
+                && Target.TargetType == PackageTargetType.Store)
+            {
+                ReboundLogger.WriteToLog(
+                    "PackageCog GetStatus",
+                    $"Store package management is disabled in configuration. Skipping status check for {Target.PackageFamilyName}.");
+                return new(CogState.Ignorable, "Store package management disabled.");
+            }
+
             var pm = new PackageManager();
             var sid = WindowsIdentity.GetCurrent().User?.Value;
 
@@ -447,6 +456,14 @@ public partial class PackageCog : ObservableObject, ICog
     {
         try
         {
+            if (SettingsManager.GetValue("ManageStoreApps", "rebound", true) == false)
+            {
+                ReboundLogger.WriteToLog(
+                    "PackageCog RemoveStore",
+                    $"Store package management is disabled in configuration. Skipping uninstall for {Target.StoreProductId}.");
+                return new(true, null, true, true);
+            }
+
             ReboundLogger.WriteToLog(
                 "PackageCog RemoveStore",
                 $"Starting Store uninstall for product ID: {Target.StoreProductId}.");
