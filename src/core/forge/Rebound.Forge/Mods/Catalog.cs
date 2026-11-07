@@ -105,7 +105,7 @@ public partial class Catalog : ObservableObject
             },*/
             
             // Rebound Shell
-            /*new()
+            new()
             {
                 Name = "Rebound Shell",
                 Id = new("5545cc21-f12c-4ce2-b36d-b4b0127a462b"),
@@ -154,7 +154,7 @@ public partial class Catalog : ObservableObject
                         ],
                     }
                 ]
-            },*/
+            },
             
             /*// Run
             new()

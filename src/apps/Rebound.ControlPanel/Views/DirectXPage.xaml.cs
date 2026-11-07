@@ -3,13 +3,19 @@
 
 using CommunityToolkit.Mvvm.Input;
 using CommunityToolkit.WinUI;
+
 using Microsoft.UI.Xaml.Controls;
+using Microsoft.Windows.Storage.Pickers;
+
 using Rebound.ControlPanel.ViewModels;
-using Rebound.Core.Native.Storage;
 using Rebound.Core.UI;
+
 using System;
 using System.Diagnostics;
 using System.Threading.Tasks;
+
+using WinRT.Interop;
+
 using WinUIEx;
 
 namespace Rebound.ControlPanel.Views;
@@ -24,43 +30,39 @@ internal sealed partial class DirectXPage : Page
     }
 
     [RelayCommand]
-    public void AddD3DScopeAppFromFiles()
+    public async Task AddD3DScopeAppFromFilesAsync()
     {
-        var result = FilePickers.PickOpenFile(
-            App.MainWindow!.GetWindowHandle(),
-            "Select an app or program",
-            [
-                new("Executable", ".exe;.com" ),
-                    new("All files", "*" )
-            ]);
-
-        if (result.IsCancelled == true) 
-            return;
-
-        if (!string.IsNullOrWhiteSpace(result.Path))
+        var picker = new FileOpenPicker(App.MainWindow!.AppWindow.Id)
         {
-            ViewModel.AddD3DScopeAppImpl(result.Path);
-        }
+            SuggestedStartLocation = PickerLocationId.ComputerFolder
+        };
+
+        picker.FileTypeFilter.Add(".exe");
+        picker.FileTypeFilter.Add(".com");
+        picker.FileTypeFilter.Add("*");
+
+        var file = await picker.PickSingleFileAsync();
+
+        if (file is not null)
+            ViewModel.AddD3DScopeAppImpl(file.Path);
     }
 
     [RelayCommand]
-    public void AddD2DScopeAppFromFiles()
+    public async Task AddD2DScopeAppFromFilesAsync()
     {
-        var result = FilePickers.PickOpenFile(
-            App.MainWindow!.GetWindowHandle(),
-            "Select an app or program",
-            [
-                new("Executable", ".exe;.com" ),
-                    new("All files", "*" )
-            ]);
-
-        if (result.IsCancelled == true)
-            return;
-
-        if (!string.IsNullOrWhiteSpace(result.Path))
+        var picker = new FileOpenPicker(App.MainWindow!.AppWindow.Id)
         {
-            ViewModel.AddD2DScopeAppImpl(result.Path);
-        }
+            SuggestedStartLocation = PickerLocationId.ComputerFolder
+        };
+
+        picker.FileTypeFilter.Add(".exe");
+        picker.FileTypeFilter.Add(".com");
+        picker.FileTypeFilter.Add("*");
+
+        var file = await picker.PickSingleFileAsync();
+
+        if (file is not null)
+            ViewModel.AddD2DScopeAppImpl(file.Path);
     }
 
     [RelayCommand]

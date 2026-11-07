@@ -89,8 +89,8 @@ internal sealed partial class HomePage : Page
             ViewModel.IsReboundShellInstalled = shellInstalled;
             ViewModel.IsWintoysInstalled = wintoysInstalled;
             ViewModel.IsPowerToysInstalled = File.Exists(userPath) || File.Exists(machinePath);
-            ViewModel.HasReboundApps = hubInstalled && shellInstalled;
-            ViewModel.Has3rdPartyApps = wintoysInstalled && (File.Exists(userPath) || File.Exists(machinePath));
+            ViewModel.HasReboundApps = hubInstalled || shellInstalled;
+            ViewModel.Has3rdPartyApps = wintoysInstalled || (File.Exists(userPath) || File.Exists(machinePath));
         }).ConfigureAwait(true);
     }
 

@@ -6,8 +6,6 @@ using Microsoft.UI.Windowing;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Rebound.ControlPanel.ViewModels;
-using Rebound.ControlPanel.Views.Secondary;
-using Rebound.Core.Native.Storage;
 using System;
 using System.Runtime.InteropServices;
 using WinUIEx;

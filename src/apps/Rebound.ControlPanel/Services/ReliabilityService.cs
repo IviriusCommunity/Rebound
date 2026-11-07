@@ -236,25 +236,28 @@ internal static partial class ReliabilityService
 
         try
         {
-            using var buffer = new ManagedArrayPtr<nint>(64);
+            var buffer = new nint[64];
             uint returned = 0;
 
             // Interesting how this API is designed...
-            while (EvtNext(hQuery, (uint)buffer.Length, buffer, uint.MaxValue, 0, &returned))
+            fixed (nint* bufferPtr = buffer)
             {
-                for (var i = 0; i < returned; i++)
+                while (EvtNext(hQuery, (uint)buffer.Length, bufferPtr, uint.MaxValue, 0, &returned))
                 {
-                    var hEvent = buffer[i];
-                    if (hEvent == 0) 
-                        continue;
+                    for (var i = 0; i < returned; i++)
+                    {
+                        var hEvent = buffer[i];
+                        if (hEvent == 0)
+                            continue;
 
-                    try
-                    {
-                        ProcessEvent(hEvent, source, dayMap);
-                    }
-                    finally
-                    {
-                        EvtClose(hEvent);
+                        try
+                        {
+                            ProcessEvent(hEvent, source, dayMap);
+                        }
+                        finally
+                        {
+                            EvtClose(hEvent);
+                        }
                     }
                 }
             }
@@ -531,17 +534,19 @@ internal static partial class ReliabilityService
     private static unsafe IconPixels? TryExtractWithExtractIconEx(string path)
     {
         HICON smallIcon = default;
-        using ManagedPtr<char> pathPtr = path;
 
-        var count = ExtractIconExW(
-            pathPtr, 
-            0, 
-            null, 
-            &smallIcon, 
-            1);
+        fixed (char* pathPtr = path)
+        {
+            var count = ExtractIconExW(
+                pathPtr,
+                0,
+                null,
+                &smallIcon,
+                1);
 
-        if (count == 0 || smallIcon == 0)
-            return null;
+            if (count == 0 || smallIcon == 0)
+                return null;
+        }
 
         try
         {
@@ -571,7 +576,7 @@ internal static partial class ReliabilityService
             var height = bmp.bmHeight;
             var stride = checked(width * 4);
 
-            using var pixels = new ManagedArrayPtr<byte>(checked(stride * height));
+            var pixels = new byte[checked(stride * height)];
 
             var bmi = new BITMAPINFO();
             bmi.bmiHeader.biSize = (uint)sizeof(BITMAPINFOHEADER);
@@ -585,16 +590,19 @@ internal static partial class ReliabilityService
 
             try
             {
-                if (GetDIBits(
-                    hdc,
-                    new((void*)iconInfo.hbmColor),
-                    0,
-                    (uint)height,
-                    pixels,
-                    &bmi,
-                    DIB_RGB_COLORS) == 0)
+                fixed (byte* pixelsPtr = pixels)
                 {
-                    return null;
+                    if (GetDIBits(
+                        hdc,
+                        new((void*)iconInfo.hbmColor),
+                        0,
+                        (uint)height,
+                        pixelsPtr,
+                        &bmi,
+                        DIB_RGB_COLORS) == 0)
+                    {
+                        return null;
+                    }
                 }
             }
             finally
@@ -620,7 +628,7 @@ internal static partial class ReliabilityService
                     span[i] = 255;
             }
 
-            return new IconPixels(span.ToArray(), width, height);
+            return new IconPixels(pixels, width, height);
         }
         finally
         {
@@ -862,33 +870,41 @@ internal static partial class ReliabilityService
         const int ErrorInsufficientBuffer = 122;
         const uint InitialSizeBytes = 4096;
 
-        using (var buffer = new ManagedArrayPtr<char>((int)(InitialSizeBytes / sizeof(char))))
-        {
-            uint used;
+        var buffer = new char[InitialSizeBytes / sizeof(char)];
+        uint used;
 
-            if (EvtRender(0, hEvent, EvtRenderEventXml, InitialSizeBytes, buffer, &used, null))
+        fixed (char* pBuffer = buffer)
+        {
+            if (EvtRender(0, hEvent, EvtRenderEventXml,
+                InitialSizeBytes, pBuffer, &used, null))
+            {
                 return Utf16BufferToString(buffer, used);
+            }
 
             if (Marshal.GetLastPInvokeError() != ErrorInsufficientBuffer)
                 return null;
+        }
 
-            using var retryBuffer = new ManagedArrayPtr<char>(
-                checked((int)((used + sizeof(char) - 1) / sizeof(char))));
+        var retryBuffer = new char[checked((int)(
+            (used + sizeof(char) - 1) / sizeof(char)))];
 
-            return EvtRender(0, hEvent, EvtRenderEventXml, used, retryBuffer, &used, null)
+        fixed (char* pRetryBuffer = retryBuffer)
+        {
+            return EvtRender(0, hEvent, EvtRenderEventXml,
+                used, pRetryBuffer, &used, null)
                 ? Utf16BufferToString(retryBuffer, used)
                 : null;
         }
     }
 
-    private static unsafe string Utf16BufferToString(ManagedArrayPtr<char> buffer, uint usedBytes)
+    private static string Utf16BufferToString(char[] buffer, uint usedBytes)
     {
         var charCount = checked((int)(usedBytes / sizeof(char)));
 
         if (charCount > 0 && buffer[charCount - 1] == '\0')
             charCount--;
 
-        return new string((char*)buffer, 0, charCount);
+        return new string(buffer, 0, charCount);
     }
 
     private const uint BI_RGB = 0;
