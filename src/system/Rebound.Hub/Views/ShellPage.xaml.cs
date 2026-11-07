@@ -210,7 +210,11 @@ internal sealed partial class ShellPage : Page
         }
         catch (Exception ex)
         {
-            ReboundLogger.Log("[ShellPage] Failed to check for updates.", ex);
+            ReboundLogger.WriteToLog(
+                "ShellPage Check For Updates",
+                "Failed to check for updates.",
+                LogMessageSeverity.Error,
+                ex);
         }
     }
 
