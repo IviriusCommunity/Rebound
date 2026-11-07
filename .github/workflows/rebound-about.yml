@@ -28,15 +28,6 @@ jobs:
       - name: Generate signing certificate
         shell: pwsh
         run: |
-          $password = [Convert]::ToHexString(
-              [System.Security.Cryptography.RandomNumberGenerator]::GetBytes(32)
-          )
-          
-          $securePassword = ConvertTo-SecureString `
-              -String $password `
-              -Force `
-              -AsPlainText
-          
           $cert = New-SelfSignedCertificate `
               -Type Custom `
               -Subject "CN=Ivirius Community" `
@@ -52,16 +43,11 @@ jobs:
                   "2.5.29.19={text}"
               )
           
-          Export-PfxCertificate `
-              -Cert $cert `
-              -FilePath "$env:GITHUB_WORKSPACE\ci-signing.pfx" `
-              -Password $securePassword
-          
           Export-Certificate `
               -Cert $cert `
               -FilePath "$env:GITHUB_WORKSPACE\ci-signing.cer"
           
-          "CI_CERT_PASSWORD=$password" >> $env:GITHUB_ENV
+          "CI_CERT_THUMBPRINT=$($cert.Thumbprint)" >> $env:GITHUB_ENV
 
       - name: Build MSIX
         shell: cmd
@@ -78,8 +64,7 @@ jobs:
           -p:GenerateAppInstallerFile=false
           -p:SolutionDir=%GITHUB_WORKSPACE%\
           -p:AppxPackageSigningEnabled=true
-          -p:PackageCertificateKeyFile=%GITHUB_WORKSPACE%\ci-signing.pfx
-          -p:PackageCertificatePassword=%CI_CERT_PASSWORD%
+          -p:PackageCertificateThumbprint=%CI_CERT_THUMBPRINT%
           -verbosity:minimal
 
       - name: Upload MSIX Bundle
