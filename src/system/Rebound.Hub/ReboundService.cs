@@ -3,12 +3,16 @@
 
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+
 using Microsoft.UI.Xaml.Controls;
+using Microsoft.Windows.BadgeNotifications;
+
 using Rebound.Core;
 using Rebound.Forge;
 using Rebound.Forge.Engines;
 using Rebound.Forge.Mods;
 using Rebound.Hub.Cards;
+
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -16,6 +20,8 @@ using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+
+using Windows.ApplicationModel.DataTransfer;
 using Windows.System;
 
 #pragma warning disable CA1031 // Do not catch general exception types
@@ -170,9 +176,12 @@ internal partial class ReboundService : ObservableObject
                 var updateAvailable = Variables.ReboundVersion != version;
                 var versionText = $"Current version: {version}  -  New version: {Variables.ReboundVersion}";
 
-                CurrentVersion = version;
-                IsUpdateAvailable = updateAvailable;
-                VersionText = versionText;
+                App.MainWindow?.DispatcherQueue.TryEnqueue(async () =>
+                {
+                    CurrentVersion = version;
+                    IsUpdateAvailable = updateAvailable;
+                    VersionText = versionText;
+                });
 
                 if (updateAvailable)
                 {
@@ -195,8 +204,11 @@ internal partial class ReboundService : ObservableObject
 
                 await File.WriteAllTextAsync(Variables.ReboundCurrentVersionFile, Variables.ReboundVersion).ConfigureAwait(true);
 
-                CurrentVersion = Variables.ReboundVersion;
-                IsUpdateAvailable = false;
+                App.MainWindow?.DispatcherQueue.TryEnqueue(async () =>
+                {
+                    CurrentVersion = Variables.ReboundVersion;
+                    IsUpdateAvailable = false;
+                });
 
                 ReboundLogger.WriteToLog(
                     "Rebound Service",
@@ -227,6 +239,35 @@ internal partial class ReboundService : ObservableObject
             ReboundLogger.WriteToLog(
                 "Rebound Service",
                 "Set IsUpdateAvailable to false due to error.");
+        }
+
+        App.MainWindow?.DispatcherQueue.TryEnqueue(async () =>
+        {
+            if (IsUpdateAvailable)
+                BadgeNotificationManager.Current.SetBadgeAsGlyph(BadgeNotificationGlyph.Away);
+            else
+                BadgeNotificationManager.Current.ClearBadge();
+        });
+    }
+
+    [RelayCommand]
+    public static void CopyReboundHubVersion()
+    {
+        var package = new DataPackage();
+        package.SetText(Variables.ReboundVersion);
+        Clipboard.SetContent(package);
+    }
+
+    [RelayCommand]
+    public static async Task CopyInstalledReboundVersionAsync()
+    {
+        if (File.Exists(Variables.ReboundCurrentVersionFile))
+        {
+            var version = await File.ReadAllTextAsync(Variables.ReboundCurrentVersionFile).ConfigureAwait(true);
+
+            var package = new DataPackage();
+            package.SetText(version);
+            Clipboard.SetContent(package);
         }
     }
 
@@ -328,7 +369,7 @@ internal partial class ReboundService : ObservableObject
             await File.WriteAllTextAsync(Variables.ReboundCurrentVersionFile, Variables.ReboundVersion).ConfigureAwait(true);
             await CheckForUpdatesAsync().ConfigureAwait(true);
 
-            DispatcherQueue.GetForCurrentThread().TryEnqueue(async () =>
+            App.MainWindow?.DispatcherQueue.TryEnqueue(async () =>
             {
                 IsReboundEnabled = true;
                 IsLoading = false;
