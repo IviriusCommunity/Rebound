@@ -141,10 +141,8 @@ try {
         "src/apps/Rebound.Cleanup/Rebound.Cleanup.csproj",
         "src/apps/Rebound.ControlPanel/Rebound.ControlPanel.csproj",
         "src/platforms/shell/Rebound.Shell/Rebound.Shell.csproj",
-        "src/platforms/management/Rebound.ManagementConsole/Rebound.ManagementConsole.csproj",
         "src/system/Rebound.Hub/Rebound.Hub.csproj",
-        "src/system/Rebound.ServiceHost/Rebound.ServiceHost.csproj",
-        "eng/Rebound.Installer/Rebound.Installer.csproj"
+        "src/system/Rebound.ServiceHost/Rebound.ServiceHost.csproj"
     )
 
     foreach ($file in $csprojFiles) {
@@ -160,7 +158,6 @@ try {
         "src/apps/Rebound.Cleanup/Package.appxmanifest",
         "src/apps/Rebound.ControlPanel/Package.appxmanifest",
         "src/platforms/shell/Rebound.Shell/Package.appxmanifest",
-        "src/platforms/management/Rebound.ManagementConsole/Package.appxmanifest",
         "src/system/Rebound.Hub/Package.appxmanifest",
         "src/system/Rebound.ServiceHost/Package.appxmanifest"
     )
