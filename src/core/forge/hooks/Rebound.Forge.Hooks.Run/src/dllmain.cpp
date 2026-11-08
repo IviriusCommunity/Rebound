@@ -16,7 +16,7 @@ typedef int (WINAPI* RunFileDlg_t)(HWND, HICON, LPCWSTR, LPCWSTR, LPCWSTR, UINT)
 
 static const wchar_t* REBOUND_SERVICE_HOST_EXE = L"Rebound.ServiceHost.exe";
 static const wchar_t* REBOUND_SHELL_EXE = L"Rebound.Shell.exe";
-static const wchar_t* REBOUND_SHELL_PIPE = L"\\\\.\\pipe\\REBOUND_SHELL";
+static const wchar_t* REBOUND_SHELL_PIPE = L"\\\\.\\pipe\\REBOUND_SHELL_ACTIONS";
 static const wchar_t* REBOUND_DLL_INJECTION_PIPE = L"\\\\.\\pipe\\REBOUND_DLL_INJECTION";
 
 enum class LifecycleState
@@ -250,7 +250,7 @@ static int WINAPI RunFileDlg_Hook(
 
     if (IsReboundShellRunning())
     {
-        SendMessageToApp(REBOUND_SHELL_PIPE, L"Shell::SpawnRunWindow##" + std::wstring(title ? title : L""));
+        SendMessageToApp(REBOUND_SHELL_PIPE, L"RUN_DIALOG");
         return 0;
     }
     else

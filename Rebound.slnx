@@ -11,12 +11,6 @@
     <File Path="build/Build.ps1" />
     <File Path="build/Update-Versions.ps1" />
   </Folder>
-  <Folder Name="/eng/">
-    <Project Path="eng/Rebound.Installer/Rebound.Installer.csproj">
-      <Platform Project="x64" />
-      <Deploy />
-    </Project>
-  </Folder>
   <Folder Name="/src/" Id="02ea681e-c7d8-13c7-8484-4ac65e1b71e8">
     <File Path="src/Rebound.Hub_TemporaryKey.pfx" />
   </Folder>
@@ -82,40 +76,13 @@
       <Platform Solution="*|x64" Project="x64" />
     </Project>
   </Folder>
-  <Folder Name="/src/core/forge/hooks/">
-    <Project Path="src/core/forge/hooks/Rebound.Forge.Hooks.ActionCenter/Rebound.Forge.Hooks.ActionCenter.vcxproj" Id="bec2c8d3-2d92-4f8a-a388-adcea0254973">
-      <Platform Project="x64" />
-    </Project>
-    <Project Path="src/core/forge/hooks/Rebound.Forge.Hooks.AltTab/Rebound.Forge.Hooks.AltTab.vcxproj" Id="ced3195e-5c7b-41aa-a77f-4c2d515960db">
-      <Platform Project="x64" />
-    </Project>
-    <Project Path="src/core/forge/hooks/Rebound.Forge.Hooks.ShutdownWindow/Rebound.Forge.Hooks.ShutdownWindow.vcxproj" Id="6b18fe88-a000-4d5d-9674-c6927847e1ae">
-      <Platform Project="x64" />
-    </Project>
-    <Project Path="src/core/forge/hooks/Rebound.Forge.Hooks.Start/Rebound.Forge.Hooks.Start.vcxproj" Id="bed05205-d2b8-43f3-b63f-5d2c6fbb9a79">
-      <Platform Project="x64" />
-    </Project>
-  </Folder>
   <Folder Name="/src/platforms/" Id="cbff53eb-5ead-4b57-8ed6-53491d4790e6" />
-  <Folder Name="/src/platforms/management/">
-    <Project Path="src/platforms/management/Rebound.ManagementConsole/Rebound.ManagementConsole.csproj">
-      <Platform Solution="*|ARM64" Project="ARM64" />
-      <Platform Solution="*|x64" Project="x64" />
-    </Project>
-  </Folder>
   <Folder Name="/src/platforms/shell/">
     <Project Path="src/platforms/shell/Rebound.Shell/Rebound.Shell.csproj">
       <Platform Solution="*|ARM64" Project="ARM64" />
       <Platform Solution="*|x64" Project="x64" />
       <Deploy />
     </Project>
-  </Folder>
-  <Folder Name="/src/platforms/shell/lib/">
-    <Project Path="src/platforms/shell/lib/Rebound.Shell.CantRunDialog/Rebound.Shell.CantRunDialog.shproj" Id="95b0c01e-7c08-4d55-ac88-7ae5b3b6fbd5" />
-    <Project Path="src/platforms/shell/lib/Rebound.Shell.Desktop/Rebound.Shell.Desktop.shproj" Id="a1c1fd83-2e2a-4f68-b4b6-97b5c8deb90f" />
-    <Project Path="src/platforms/shell/lib/Rebound.Shell.ExperiencePack/Rebound.Shell.ExperiencePack.shproj" Id="5b0a4266-1527-467a-abc7-8aaae38eb5fa" />
-    <Project Path="src/platforms/shell/lib/Rebound.Shell.Run/Rebound.Shell.Run.shproj" Id="a8e65968-8e9a-4b64-b1c3-d69fc4e605b3" />
-    <Project Path="src/platforms/shell/lib/Rebound.Shell.ShutdownDialog/Rebound.Shell.ShutdownDialog.shproj" Id="79e065d5-90a9-4f75-bf5c-10daf62dcb66" />
   </Folder>
   <Folder Name="/src/system/">
     <Project Path="src/system/Rebound.Hub/Rebound.Hub.csproj">

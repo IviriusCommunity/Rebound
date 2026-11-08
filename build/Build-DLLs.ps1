@@ -105,7 +105,8 @@ try {
 
     foreach ($hook in @(
         "Rebound.Forge.Hooks.About",
-        "Rebound.Forge.Hooks.Launcher"
+        "Rebound.Forge.Hooks.Launcher",
+        "Rebound.Forge.Hooks.Run"
     )) {
         Build-Hook -HookName $hook -Root $root
     }

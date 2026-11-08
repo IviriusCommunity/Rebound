@@ -137,6 +137,17 @@ public partial class Catalog : ObservableObject
                                     Path.Combine(AppContext.BaseDirectory, "Modding", "Packages", "Rebound.Shell.msixbundle"), 
                                     PackageFamilyName: "Rebound.Shell_rcz2tbwv5qzb8")
                             },
+                            new StartupTaskCog()
+                            {
+                                CogName = "Rebound Shell Startup Task",
+                                CogId = new("4f6e025e-e237-4f36-85b4-2eeac9a06bdd"),
+                                StartupTarget = new StartupTaskTarget(
+                                    "Rebound.Shell_rcz2tbwv5qzb8",
+                                    StartupTaskTargetType.PackageFamilyName),
+                                TaskRequiresElevation = true,
+                                TaskDescription = "Rebound Shell application.",
+                                TaskName = "Rebound Shell"
+                            },
                             new ProcessLaunchCog()
                             {
                                 CogName = "Rebound Shell Launcher",
@@ -156,7 +167,7 @@ public partial class Catalog : ObservableObject
                 ]
             },
             
-            /*// Run
+            // Run
             new()
             {
                 Name = "Run",
@@ -172,42 +183,22 @@ public partial class Catalog : ObservableObject
                         Id = new("8F76268C-BAE4-4753-829A-53801C856062"),
                         Cogs =
                         [
-                            new BoolSettingCog()
+                            new DLLInjectionCog()
                             {
-                                CogName = "Run Box Installation Setting",
-                                CogId = new("15433605-3609-4658-bab0-fc33beb37812"),
-                                AppliedValue = true,
-                                SettingsFileName = "rebound",
-                                Key = "InstallRun"
+                                CogName = "RunFileDlg Redirection DLL",
+                                CogId = new("199e9acb-fda0-4c19-bb08-c796053ba2c3"),
+                                DLLPathARM64 = Path.Combine(AppContext.BaseDirectory, "Modding", "DLLs", "Rebound.Forge.Hooks.Run.ARM64.dll"),
+                                DLLPathx64 = Path.Combine(AppContext.BaseDirectory, "Modding", "DLLs", "Rebound.Forge.Hooks.Run.x64.dll"),
+                                TargetProcesses = [ "*" ],
+                                ExcludedProcesses = [ "Rebound.Shell.exe" ]
                             }
-                        ],
-                        Settings =
-                        [
-                            new ModLabel()
-                            {
-                                Text = "Behavior"
-                            },
-                            new ModBoolSetting()
-                            {
-                                AppName = "rshell",
-                                Description = "Launch PowerToys Command Palette when opening the Run box.",
-                                IconGlyph = "\uE945",
-                                Identifier = "RunBoxUseCommandPalette",
-                                Name = "Use PowerToys Command Palette"
-                            },
-                            new ModInfoBar()
-                            {
-                                IsClosable = false,
-                                Title = "PowerToys must be installed for this setting to work.",
-                                Severity = ModInfoBarSeverity.Warning
-                             }
                         ],
                         Dependencies = [ new("5545cc21-f12c-4ce2-b36d-b4b0127a462b") ] // Rebound Shell
                     },
                 ]
             },
 
-            // Shutdown Dialog
+            /*// Shutdown Dialog
             new()
             {
                 Name = "Shutdown Dialog",

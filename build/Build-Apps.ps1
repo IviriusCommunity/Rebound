@@ -181,6 +181,11 @@ try {
             Name = "Rebound.ServiceHost"
             Project = Join-Path $root "src\system\Rebound.ServiceHost\Rebound.ServiceHost.csproj"
             Destination = Join-Path $root "src\core\forge\Rebound.Forge.Assets\Modding\Packages\Rebound.ServiceHost.msixbundle"
+        },
+        @{
+            Name = "Rebound.Shell"
+            Project = Join-Path $root "src\platforms\shell\Rebound.Shell\Rebound.Shell.csproj"
+            Destination = Join-Path $root "src\core\forge\Rebound.Forge.Assets\Modding\Packages\Rebound.Shell.msixbundle"
         }
     )
 
