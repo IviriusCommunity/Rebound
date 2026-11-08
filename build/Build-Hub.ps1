@@ -186,7 +186,7 @@ try {
 
     $hubPath = Join-Path $root "src\system\Rebound.Hub\Rebound.Hub.csproj"
 
-    $hubDestinationDirectory = Join-Path $root "eng\Rebound.Installer\Hub"
+    $hubDestinationDirectory = [Environment]::GetFolderPath('Desktop')
 
     $solutionDir = $root + "\"
 

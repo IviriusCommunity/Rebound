@@ -37,8 +37,7 @@ try {
         "Update-Versions.ps1",
         "Build-DLLs.ps1",
         "Build-Apps.ps1",
-        "Build-Hub.ps1",
-        "Build-Installer.ps1"
+        "Build-Hub.ps1"
     )
 
     $completedCount = 0

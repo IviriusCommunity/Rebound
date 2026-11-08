@@ -7,7 +7,6 @@
     <File Path="build/Build-Apps.ps1" />
     <File Path="build/Build-DLLs.ps1" />
     <File Path="build/Build-Hub.ps1" />
-    <File Path="build/Build-Installer.ps1" />
     <File Path="build/Build.ps1" />
     <File Path="build/Update-Versions.ps1" />
   </Folder>
