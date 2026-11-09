@@ -74,6 +74,12 @@
     <Content Include="$(MSBuildThisFileDirectory)Modding\DLLs\Rebound.Forge.Hooks.Launcher.x64.dll">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
+    <Content Include="$(MSBuildThisFileDirectory)Modding\DLLs\Rebound.Forge.Hooks.Run.ARM64.dll">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="$(MSBuildThisFileDirectory)Modding\DLLs\Rebound.Forge.Hooks.Run.x64.dll">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
     <None Include="$(MSBuildThisFileDirectory)Modding\Packages\Rebound.About.msixbundle" />
     <None Include="$(MSBuildThisFileDirectory)Modding\Packages\Rebound.ServiceHost.msixbundle" />
   </ItemGroup>

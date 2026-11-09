@@ -48,12 +48,9 @@
             VerticalAlignment="Top"
             AutoMaximizeSuggestionArea="False"
             Header="Type the name of a program, file, or URL."
-            ItemsSource="{x:Bind ViewModel.RunHistory, Mode=OneWay}"
-            KeyDown="InputBox_KeyDown"
-            Loaded="InputBox_Loaded"
             QuerySubmitted="InputBox_QuerySubmitted"
             SuggestionChosen="InputBox_SuggestionChosen"
-            Text="{x:Bind ViewModel.Path, Mode=TwoWay}"
+            Text="{x:Bind ViewModel.Path, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
             TextChanged="InputBox_TextChanged">
             <AutoSuggestBox.QueryIcon>
                 <FontIcon FontSize="12" Glyph="&#xE64D;" />

@@ -2,31 +2,29 @@
 // Licensed under the MIT License.
 
 using CommunityToolkit.Mvvm.ComponentModel;
-
 using Rebound.Core.Settings;
-
 using System.Collections.ObjectModel;
 
-namespace Rebound.Shell.Run
+namespace Rebound.Shell.Run;
+
+internal partial class RunViewModel : ObservableObject
 {
-    public partial class RunViewModel : ObservableObject
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(IsRunButtonEnabled))]
+    public partial string Path { get; set; } = string.Empty;
+
+    [ObservableProperty]
+    public partial bool RunAsAdmin { get; set; }
+
+    public bool IsRunButtonEnabled => !string.IsNullOrEmpty(Path) && !string.IsNullOrWhiteSpace(Path); 
+
+    public RunViewModel()
     {
-        [ObservableProperty]
-        public partial string Path { get; set; }
-
-        [ObservableProperty]
-        public partial bool RunAsAdmin { get; set; }
-
-        [ObservableProperty]
-        public partial bool IsRunButtonEnabled { get; set; }
-
-        public RunViewModel()
-        {
-            RunAsAdmin = SettingsManager.GetValue("RunAsAdmin", "rshell.run", false);
-        }
-
-        partial void OnRunAsAdminChanged(bool value) => SettingsManager.SetValue("RunAsAdmin", "rshell.run", value);
-
-        public ObservableCollection<string> RunHistory { get; set; } = new();
+        RunAsAdmin = SettingsManager.GetValue("RunAsAdmin", "rshell.run", false);
     }
+
+    partial void OnRunAsAdminChanged(bool value) 
+        => SettingsManager.SetValue("RunAsAdmin", "rshell.run", value);
+
+    public ObservableCollection<string> RunHistory { get; } = [];
 }

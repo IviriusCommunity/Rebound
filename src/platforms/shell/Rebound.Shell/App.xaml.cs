@@ -11,6 +11,7 @@ using Rebound.Core.UI;
 using Rebound.Shell.Run;
 using System;
 using System.Diagnostics;
+using System.Threading;
 using Windows.Graphics;
 using WinUIEx;
 
@@ -52,10 +53,21 @@ public partial class App : Application
             BackgroundWindow.ToggleWindowStyle(false, WindowStyle.Visible);
             BackgroundWindow.ToggleExtendedWindowStyle(true, ExtendedWindowStyle.ToolWindow);
             BackgroundWindow.Show();
-            ShellActionsPipeServer = new PipeHost(
-                "REBOUND_SHELL_ACTIONS",
-                AccessLevel.Everyone);
-            ShellActionsPipeServer.MessageReceived += ShellActionsPipeServer_MessageReceived;
+
+            var ipcThread = new Thread(async () =>
+            {
+                ShellActionsPipeServer = new PipeHost(
+                    "REBOUND_SHELL_ACTIONS",
+                    AccessLevel.Everyone);
+                ShellActionsPipeServer.MessageReceived += ShellActionsPipeServer_MessageReceived;
+                await ShellActionsPipeServer.StartAsync().ConfigureAwait(true);
+            })
+            {
+                Name = "IPC Thread",
+                IsBackground = true
+            };
+            ipcThread.SetApartmentState(ApartmentState.STA);
+            ipcThread.Start();
         }
         else Process.GetCurrentProcess().Kill();
     }
@@ -63,53 +75,53 @@ public partial class App : Application
     private void ShellActionsPipeServer_MessageReceived(object? sender, HostMessageReceivedEventArgs args)
     {
         if (args.Message.StartsWith("RUN_DIALOG",
-            StringComparison.OrdinalIgnoreCase)) 
+            StringComparison.OrdinalIgnoreCase))
             ShowRunWindow();
     }
 
     public static unsafe void ShowRunWindow()
     {
-        if (RunWindow != null)
-            RunWindow.BringToFront();
-        else
+        BackgroundWindow?.DispatcherQueue.TryEnqueue(() =>
         {
-            RunWindow = new()
+            if (RunWindow != null)
+                RunWindow.BringToFront();
+            else
             {
-                Title = "Run",
-                IsMaximizable = false,
-                IsMinimizable = false,
-                IsResizable = false
-            };
+                RunWindow = new()
+                {
+                    Title = "Run",
+                    IsMaximizable = false,
+                    IsMinimizable = false,
+                    IsResizable = false
+                };
 
-            var hwnd = RunWindow.GetWindowHandle();
-            var workArea = Display.GetDisplayWorkArea(new((void*)hwnd));
+                var hwnd = RunWindow.GetWindowHandle();
+                var workArea = Display.GetDisplayWorkArea(new((void*)hwnd));
 
-            float scale = HwndExtensions.GetDpiForWindow(hwnd) / 96f;
+                float scale = HwndExtensions.GetDpiForWindow(hwnd) / 96f;
 
-            const int width = 450;
-            const int height = 240;
-            const int margin = 25;
+                const int width = 450;
+                const int height = 240;
+                const int margin = 25;
 
-            RunWindow.AppWindow?.MoveAndResize(
-                new RectInt32(
-                    (int)((workArea.left / scale + margin) * scale),
-                    (int)((workArea.bottom / scale - height - margin) * scale),
-                    (int)(width * scale),
-                    (int)(height * scale)));
+                RunWindow.AppWindow?.MoveAndResize(
+                    new RectInt32(
+                        (int)((workArea.left / scale + margin) * scale),
+                        (int)((workArea.bottom / scale - height - margin) * scale),
+                        (int)(width * scale),
+                        (int)(height * scale)));
 
-            RunWindow.AppWindow?.SetIcon($"{AppContext.BaseDirectory}\\Assets\\Applets\\RunBox.ico");
-            RunWindow.AppWindow?.TitleBar.ExtendsContentIntoTitleBar = true;
-            RunWindow.AppWindow?.TitleBar.ButtonBackgroundColor = Colors.Transparent;
-            RunWindow.AppWindow?.TitleBar.ButtonInactiveBackgroundColor = Colors.Transparent;
-            RunWindow.AppWindow?.Closing += (sender, args) =>
-            {
-                RunWindow = null;
-            };
-            var frame = new Frame();
-            frame.Navigate(typeof(RunWindow));
-            RunWindow.Content = frame;
-            RunWindow.Show();
-        }
+                RunWindow.AppWindow?.SetIcon($"{AppContext.BaseDirectory}\\Assets\\Applets\\RunBox.ico");
+                RunWindow.AppWindow?.TitleBar.ExtendsContentIntoTitleBar = true;
+                RunWindow.AppWindow?.TitleBar.ButtonBackgroundColor = Colors.Transparent;
+                RunWindow.AppWindow?.TitleBar.ButtonInactiveBackgroundColor = Colors.Transparent;
+                var frame = new Frame();
+                frame.Navigate(typeof(RunWindow));
+                RunWindow.Content = frame;
+                RunWindow.Closed += (s, e) => RunWindow = null;
+                RunWindow.Show();
+            }
+        });
     }
 
     public static void CloseRunWindow()

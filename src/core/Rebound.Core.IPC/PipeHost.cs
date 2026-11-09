@@ -108,13 +108,13 @@ public sealed class PipeHost(string pipeName, AccessLevel accessLevel = AccessLe
     /// <returns>A task that represents the asynchronous accept loop operation.</returns>
     private async Task AcceptLoopAsync()
     {
+        var pipeSecurity = CreatePipeSecurity();
+
         while (_running)
         {
             NamedPipeServerStream? server = null;
             try
             {
-                var pipeSecurity = CreatePipeSecurity();
-
                 server = NamedPipeServerStreamAcl.Create(
                     _pipeName,
                     PipeDirection.InOut,
@@ -259,29 +259,36 @@ public sealed class PipeHost(string pipeName, AccessLevel accessLevel = AccessLe
 
         try
         {
-            var buffer = new byte[1];
+            var buffer = new byte[4096];
             var sb = new StringBuilder();
 
             while (_running && server.IsConnected)
             {
-                int n = await server.ReadAsync(buffer.AsMemory(), CancellationToken.None).ConfigureAwait(true);
+                int n = await server.ReadAsync(buffer.AsMemory()).ConfigureAwait(true);
+
                 if (n == 0)
-                {
                     break;
-                }
 
-                if (buffer[0] == (byte)'\n')
+                for (int i = 0; i < n; i++)
                 {
-                    var message = sb.ToString();
-                    sb.Clear();
+                    byte b = buffer[i];
 
-                    try
+                    if (b == (byte)'\n')
                     {
-                        MessageReceived?.Invoke(connection, new(message));
+                        var message = sb.ToString();
+                        sb.Clear();
+
+                        try
+                        {
+                            MessageReceived?.Invoke(connection, new(message));
+                        }
+                        catch { }
                     }
-                    catch { }
+                    else
+                    {
+                        sb.Append((char)b);
+                    }
                 }
-                else sb.Append((char)buffer[0]);
             }
         }
         catch (IOException)
@@ -314,7 +321,6 @@ public sealed class PipeHost(string pipeName, AccessLevel accessLevel = AccessLe
             return false;
         }
 
-        Debug.WriteLine($"[PipeHost] Client process ID: {pid}");
         try
         {
             process = Process.GetProcessById((int)pid);
@@ -334,11 +340,11 @@ public sealed class PipeHost(string pipeName, AccessLevel accessLevel = AccessLe
     /// <param name="message">The message to broadcast to all connected clients. Cannot be null.</param>
     public void Broadcast(string message)
     {
-        foreach (var kvp in _connections.ToArray())
+        foreach (var connection in _connections.Values)
         {
             try
             {
-                kvp.Value.WriteMessage(message);
+                connection.WriteMessage(message);
             }
             catch { }
         }
