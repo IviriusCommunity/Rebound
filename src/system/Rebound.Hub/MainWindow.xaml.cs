@@ -15,8 +15,5 @@ internal sealed partial class MainWindow : WindowEx
     private async void RootFrame_Loaded(object sender, RoutedEventArgs e)
     {
         RootFrame.Navigate(typeof(Views.ShellPage));
-        await App.ReboundService.LoadModsStatesAsync().ConfigureAwait(false);
-        await App.ReboundService.InitializeAsync().ConfigureAwait(false);
-        await App.ReboundService.CheckForUpdatesAsync().ConfigureAwait(false);
     }
 }

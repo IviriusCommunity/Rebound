@@ -208,4 +208,11 @@ internal sealed partial class HomePage : Page
     ];
 
     public HomePage() => InitializeComponent();
+
+    private async void Page_Loaded(object sender, Microsoft.UI.Xaml.RoutedEventArgs e)
+    {
+        await App.ReboundService.LoadModsStatesAsync().ConfigureAwait(false);
+        await App.ReboundService.InitializeAsync().ConfigureAwait(false);
+        await App.ReboundService.CheckForUpdatesAsync().ConfigureAwait(false);
+    }
 }
