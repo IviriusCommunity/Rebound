@@ -1,10 +1,12 @@
 ﻿// Copyright (C) Ivirius(TM) Community 2020 - 2026. All Rights Reserved.
 // Licensed under the MIT License.
 
+using System;
 using System.Collections.ObjectModel;
 using Rebound.Cleanup.Items;
 using Rebound.Core.Native.Wrappers;
-using static TerraFX.Interop.Windows.Windows;
+
+using Windows.Win32;
 
 namespace Rebound.Cleanup.Helpers;
 
@@ -12,8 +14,7 @@ internal static partial class DriveHelper
 {
     public static unsafe string GetDriveTypeDescription(string driveRoot)
     {
-        using ManagedPtr<char> driveRootPtr = new(driveRoot);
-        var driveType = GetDriveTypeW(driveRootPtr);
+        var driveType = PInvoke.GetDriveType(driveRoot);
 
         return driveType switch
         {
@@ -27,13 +28,13 @@ internal static partial class DriveHelper
         };
     }
 
-    public static unsafe ObservableCollection<DriveComboBoxItem> GetDriveItems()
+    public static ObservableCollection<DriveComboBoxItem> GetDriveItems()
     {
         // Initialize the collection of drive items to return
         ObservableCollection<DriveComboBoxItem> items = [];
 
         // Get a bitmask representing all logical drives
-        var drivesBitMask = GetLogicalDrives();
+        var drivesBitMask = PInvoke.GetLogicalDrives();
         if (drivesBitMask == 0)
         {
             // No drives found, return empty list
@@ -41,10 +42,8 @@ internal static partial class DriveHelper
         }
 
         // Allocate stack space for volume and file system names
-        using ManagedArrayPtr<char> volumeName = new(261);
-        using ManagedArrayPtr<char> fileSystemName = new(261);
-
-        uint serialNumber, maxComponentLength, fsFlags;
+        Span<char> volumeName = stackalloc char[261];
+        Span<char> fileSystemName = stackalloc char[261];
 
         // Iterate over all possible drive letters (A-Z)
         for (var letter = 'A'; letter <= 'Z'; letter++)
@@ -59,18 +58,13 @@ internal static partial class DriveHelper
 
             // Format the full drive path (e.g., "C:\")
             var drivePath = $"{letter}:\\";
-            using ManagedPtr<char> drivePathPtr = new(drivePath);
+            using StringPtr drivePathPtr = new(drivePath);
 
             // Attempt to retrieve volume information for the drive
-            if (!GetVolumeInformationW(
-                drivePathPtr,
+            if (!PInvoke.GetVolumeInformation(
+                drivePath,
                 volumeName,
-                (uint)volumeName.Length,
-                &serialNumber,
-                &maxComponentLength,
-                &fsFlags,
-                fileSystemName,
-                (uint)fileSystemName.Length))
+                fileSystemName))
             {
                 continue;
             }
@@ -82,7 +76,7 @@ internal static partial class DriveHelper
             var mediaType = GetDriveTypeDescription(drivePath);
 
             // Create the display name for the drive
-            var volumeNameString = volumeName.ToString();
+            var volumeNameString = string.Join("", volumeName.ToArray());
             var name = string.IsNullOrEmpty(volumeNameString)
                 ? $"({driveLetter})"
                 : $"{volumeNameString} ({driveLetter})";

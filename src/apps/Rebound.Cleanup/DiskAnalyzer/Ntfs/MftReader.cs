@@ -18,7 +18,7 @@ internal sealed unsafe class ParallelMftScanner
     private const uint FSCTL_GET_NTFS_VOLUME_DATA = 0x00090064;
     private const uint FSCTL_GET_NTFS_FILE_RECORD = 0x00090068;
 
-    public static void Execute()
+    /*public static void Execute()
     {
         using var volume = NtfsVolume.Open('C');
         HANDLE hVolume = volume._handle; // Assuming NtfsVolume exposes raw native HANDLE
@@ -179,5 +179,5 @@ internal sealed unsafe class ParallelMftScanner
         {
             NativeMemory.Free(flatTree);
         }
-    }
+    }*/
 }

@@ -80,6 +80,10 @@
 		<PlatformTarget Condition="'$(PlatformTarget)' == ''">x64</PlatformTarget>
 	</PropertyGroup>
 
+	<ItemGroup>
+	  <AdditionalFiles Remove="NativeMethods.json" />
+	</ItemGroup>
+
 	<!-- Package references -->
 	<ItemGroup>
 
@@ -137,6 +141,9 @@
 		<PackageCertificateKeyFile>$(SolutionDir)\src\Rebound.Hub_TemporaryKey.pfx</PackageCertificateKeyFile>
 		<AppxBundlePlatforms>x64|arm64</AppxBundlePlatforms>
 	</PropertyGroup>
+	<ItemGroup>
+	  <Content Include="NativeMethods.json" />
+	</ItemGroup>
 
 	<!-- Project references -->
 
@@ -148,6 +155,11 @@
 		<ProjectReference Include="..\..\core\Rebound.Core.SystemInformation\Rebound.Core.SystemInformation.csproj" />
 		<ProjectReference Include="..\..\core\Rebound.Core.UI\Rebound.Core.UI.csproj" />
 		<ProjectReference Include="..\..\core\Rebound.Core\Rebound.Core.csproj" />
+	</ItemGroup>
+	<ItemGroup>
+	  <AdditionalFiles Update="NativeMethods.txt">
+	    <Generator>MSBuild:Compile</Generator>
+	  </AdditionalFiles>
 	</ItemGroup>
 	<ItemGroup>
 	  <Content Update="Assets\Administrator.png">

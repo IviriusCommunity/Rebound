@@ -1,0 +1,11 @@
+GetDriveTypeW
+GetLogicalDrives
+GetVolumeInformationW
+SetFileAttributesW
+OpenProcessToken
+LookupPrivilegeValueW
+AdjustTokenPrivileges
+SHQueryRecycleBinW
+SHEmptyRecycleBinW
+SHGetKnownFolderPath
+SHAddToRecentDocs

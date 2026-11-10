@@ -104,7 +104,7 @@ internal sealed partial class MainPage : Page
         });
     }
 
-    private unsafe void Stuff()
+    /*private unsafe void Stuff()
     {
         using var volume = NtfsVolume.Open('C');
         HANDLE hVolume = volume._handle;
@@ -272,7 +272,7 @@ internal sealed partial class MainPage : Page
         {
             NativeMemory.Free(flatTree);
         }
-    }
+    }*/
 
     private async void CheckBox_Checked(object sender, RoutedEventArgs e)
     {

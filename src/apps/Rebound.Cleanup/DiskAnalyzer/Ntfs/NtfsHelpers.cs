@@ -11,7 +11,7 @@ namespace Rebound.Cleanup.DiskAnalyzer.Ntfs;
 
 internal static unsafe class NtfsHelpers
 {
-    public static void ApplyUsaFixup(
+    /*public static void ApplyUsaFixup(
         ManagedArrayPtr<byte> record,
         ushort bytesPerSector)
     {
@@ -39,5 +39,5 @@ internal static unsafe class NtfsHelpers
 
             *sectorTrailer = usa[i + 1];
         }
-    }
+    }*/
 }

@@ -1,6 +1,8 @@
 ﻿// Copyright (C) Ivirius(TM) Community 2020 - 2026. All Rights Reserved.
 // Licensed under the MIT License.
 
+using Microsoft.Win32.SafeHandles;
+
 using Rebound.Cleanup.Items;
 using Rebound.Core.Native.Wrappers;
 using System;
@@ -12,10 +14,10 @@ using System.Security.AccessControl;
 using System.Security.Principal;
 using System.Threading;
 using System.Threading.Tasks;
-using TerraFX.Interop.Windows;
-using static TerraFX.Interop.Windows.SE;
-using static TerraFX.Interop.Windows.TOKEN;
-using static TerraFX.Interop.Windows.Windows;
+
+using Windows.Win32;
+using Windows.Win32.Security;
+using Windows.Win32.Storage.FileSystem;
 
 #pragma warning disable CA1031 // Do not catch general exception types
 
@@ -345,10 +347,10 @@ internal class WindowsOldCleanTarget : CleanTarget
             // FIXED: Inverted string guard error corrected
             if (!string.IsNullOrEmpty(path))
             {
-                using ManagedPtr<char> pathPtr = path;
+                using StringPtr pathPtr = path;
 
                 // Force strip system, hidden, and read-only flags
-                SetFileAttributesW(pathPtr, FILE.FILE_ATTRIBUTE_NORMAL);
+                PInvoke.SetFileAttributes(path, FILE_FLAGS_AND_ATTRIBUTES.FILE_ATTRIBUTE_NORMAL);
 
                 var adminSid = new SecurityIdentifier(WellKnownSidType.BuiltinAdministratorsSid, null);
 
@@ -393,33 +395,21 @@ internal class WindowsOldCleanTarget : CleanTarget
     public static unsafe bool EnablePrivilege(string privilegeName)
     {
         // Obtain current process token wrapper
-        var hProcess = new HANDLE((void*)Process.GetCurrentProcess().Handle);
-        var hToken = new HANDLE();
+        using var hProcess = new SafeProcessHandle(Process.GetCurrentProcess().Handle, true);
 
-        if (!OpenProcessToken(hProcess, TOKEN_ADJUST_PRIVILEGES | TOKEN_QUERY, &hToken))
+        if (!PInvoke.OpenProcessToken(hProcess, TOKEN_ACCESS_MASK.TOKEN_ADJUST_PRIVILEGES | TOKEN_ACCESS_MASK.TOKEN_QUERY, out var hToken))
             return false;
 
-        try
-        {
-            using ManagedPtr<char> privilegeNamePtr = privilegeName;
-            using ManagedPtr<LUID> luid = default;
+        using StringPtr privilegeNamePtr = privilegeName;
 
-            if (!LookupPrivilegeValueW(null!, privilegeNamePtr, luid))
-                return false;
+        if (!PInvoke.LookupPrivilegeValue(null!, privilegeName, out var luid))
+            return false;
 
-            TOKEN_PRIVILEGES tp = default;
-            tp.PrivilegeCount = 1;
-            tp.Privileges.e0.Luid = luid;
-            tp.Privileges.e0.Attributes = SE_PRIVILEGE_ENABLED;
+        TOKEN_PRIVILEGES tp = default;
+        tp.PrivilegeCount = 1;
+        tp.Privileges.e0.Luid = luid;
+        tp.Privileges.e0.Attributes = TOKEN_PRIVILEGES_ATTRIBUTES.SE_PRIVILEGE_ENABLED;
 
-            return AdjustTokenPrivileges(hToken, false, &tp, (uint)sizeof(TOKEN_PRIVILEGES), null, null);
-        }
-        finally
-        {
-            if (hToken != HANDLE.NULL)
-                CloseHandle(hToken);
-
-            // FIXED: Do NOT close the process pseudo-handle context!
-        }
+        return PInvoke.AdjustTokenPrivileges(hToken, false, &tp);
     }
 }

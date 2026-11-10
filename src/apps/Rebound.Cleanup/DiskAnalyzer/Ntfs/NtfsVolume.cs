@@ -196,7 +196,7 @@ internal sealed unsafe class NtfsVolume : IDisposable
         Buffer.MemoryCopy(srcRecordPayload, destinationBuffer, BootSector.FileRecordSize, outputHeader->FileRecordLength);
     }
 
-    public static NtfsVolume Open(char driveLetter)
+    /*public static NtfsVolume Open(char driveLetter)
     {
         using ManagedPtr<char> path = $"\\\\.\\{driveLetter}:";
 
@@ -238,7 +238,7 @@ internal sealed unsafe class NtfsVolume : IDisposable
         }
 
         return new NtfsVolume(handle, bootSector);
-    }
+    }*/
 
     public void Dispose()
     {
@@ -249,7 +249,7 @@ internal sealed unsafe class NtfsVolume : IDisposable
         }
     }
 
-    public ManagedArrayPtr<byte> ReadRecord(ulong recordNumber)
+    /*public ManagedArrayPtr<byte> ReadRecord(ulong recordNumber)
     {
         ulong offset = BootSector.MftOffset + (recordNumber * (ulong)BootSector.FileRecordSize);
 
@@ -297,5 +297,5 @@ internal sealed unsafe class NtfsVolume : IDisposable
 
         if (read != buffer.ByteLength)
             throw new EndOfStreamException();
-    }
+    }*/
 }

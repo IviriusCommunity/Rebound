@@ -22,12 +22,13 @@ using System.Linq;
 using System.Runtime.InteropServices;
 using System.Threading;
 using System.Threading.Tasks;
-using TerraFX.Interop.Windows;
 using Windows.Foundation;
 using Windows.System;
+using Windows.Win32;
+using Windows.Win32.Foundation;
+using Windows.Win32.UI.Shell;
+
 using WinUIEx;
-using static TerraFX.Interop.Windows.S;
-using static TerraFX.Interop.Windows.Windows;
 
 namespace Rebound.Cleanup.ViewModels;
 
@@ -203,77 +204,178 @@ internal partial class MainViewModel : ObservableObject
                         {
                             await Task.Run(() =>
                             {
-                                var recycleBinRootPath = Path.Combine(selectedItem.DrivePath, "$Recycle.Bin");
+                                var recycleBinRootPath = Path.Combine(
+                                    selectedItem.DrivePath,
+                                    "$Recycle.Bin");
+
                                 if (!Directory.Exists(recycleBinRootPath))
                                     return;
-
-                                var rootDirectory = new DirectoryInfo(recycleBinRootPath);
-
-                                // Safe enumeration options to avoid system loops/junction blocks
-                                var options = new EnumerationOptions
-                                {
-                                    IgnoreInaccessible = true,
-                                    RecurseSubdirectories = true,
-                                    AttributesToSkip = FileAttributes.ReparsePoint // Prevents escaping the Recycle Bin via junctions
-                                };
 
                                 long batchSize = 0;
                                 int batchCount = 0;
                                 string lastReportedFilePath = string.Empty;
+
                                 var stopwatch = System.Diagnostics.Stopwatch.StartNew();
+                                var failures = new List<Exception>();
 
-                                // Loop through all SID folders (e.g., S-1-5-21-...) belonging to different users
-                                foreach (var subDirectory in rootDirectory.EnumerateDirectories())
+                                var options = new EnumerationOptions
                                 {
-                                    try
+                                    RecurseSubdirectories = false,
+                                    IgnoreInaccessible = false,
+                                    AttributesToSkip = 0
+                                };
+
+                                foreach (string sidPath in Directory.EnumerateDirectories(recycleBinRootPath))
+                                {
+                                    cancellationToken.ThrowIfCancellationRequested();
+
+                                    var blockedDirectories = new HashSet<string>(
+                                        StringComparer.OrdinalIgnoreCase);
+
+                                    var stack = new Stack<(string Path, bool Expanded)>();
+                                    stack.Push((sidPath, false));
+
+                                    while (stack.Count > 0)
                                     {
-                                        // Strip hidden/system flags so Windows allows the deletion loop
-                                        subDirectory.Attributes = FileAttributes.Normal;
+                                        cancellationToken.ThrowIfCancellationRequested();
 
-                                        // Clear out all deleted file fragments and metadata indexes inside safely
-                                        foreach (FileInfo file in subDirectory.EnumerateFiles("*", options))
+                                        var (path, expanded) = stack.Pop();
+
+                                        FileAttributes attributes;
+
+                                        try
                                         {
-                                            cancellationToken.ThrowIfCancellationRequested();
+                                            attributes = File.GetAttributes(path);
+                                        }
+                                        catch (FileNotFoundException) { continue; }
+                                        catch (DirectoryNotFoundException) { continue; }
+                                        catch (Exception ex)
+                                        {
+                                            failures.Add(ex);
+                                            continue;
+                                        }
 
-                                            try
+                                        bool isDirectory =
+                                            (attributes & FileAttributes.Directory) != 0;
+
+                                        bool isReparsePoint =
+                                            (attributes & FileAttributes.ReparsePoint) != 0;
+
+                                        try
+                                        {
+                                            // Never traverse a reparse point.
+                                            // Delete the link itself instead.
+                                            if (isReparsePoint)
                                             {
-                                                long fileSize = file.Length;
+                                                if (isDirectory)
+                                                    Directory.Delete(path, false);
+                                                else
+                                                    File.Delete(path);
 
-                                                file.Attributes = FileAttributes.Normal;
-                                                file.Delete();
+                                                continue;
+                                            }
 
-                                                // Only accumulate progress metrics on successful execution
+                                            if (isDirectory)
+                                            {
+                                                if (!expanded)
+                                                {
+                                                    stack.Push((path, true));
+
+                                                    try
+                                                    {
+                                                        foreach (string child in
+                                                            Directory.EnumerateFileSystemEntries(
+                                                                path, "*", options))
+                                                        {
+                                                            stack.Push((child, false));
+                                                        }
+                                                    }
+                                                    catch (FileNotFoundException) { }
+                                                    catch (DirectoryNotFoundException) { }
+                                                    catch (Exception ex)
+                                                    {
+                                                        blockedDirectories.Add(path);
+                                                        failures.Add(ex);
+                                                    }
+
+                                                    continue;
+                                                }
+
+                                                // Don't remove a directory whose contents
+                                                // couldn't be completely enumerated.
+                                                if (blockedDirectories.Contains(path))
+                                                    continue;
+
+                                                // Remove hidden, system and read-only flags.
+                                                File.SetAttributes(
+                                                    path,
+                                                    attributes & ~(
+                                                        FileAttributes.Hidden |
+                                                        FileAttributes.System |
+                                                        FileAttributes.ReadOnly));
+
+                                                // Post-order deletion: contents are already gone.
+                                                Directory.Delete(path, false);
+                                            }
+                                            else
+                                            {
+                                                long fileSize = 0;
+
+                                                try
+                                                {
+                                                    fileSize = new FileInfo(path).Length;
+                                                }
+                                                catch (FileNotFoundException) { }
+                                                catch (IOException) { }
+
+                                                File.SetAttributes(
+                                                    path,
+                                                    attributes & ~(
+                                                        FileAttributes.Hidden |
+                                                        FileAttributes.System |
+                                                        FileAttributes.ReadOnly));
+
+                                                File.Delete(path);
+
                                                 batchSize += fileSize;
                                                 batchCount++;
-                                                lastReportedFilePath = file.FullName;
+                                                lastReportedFilePath = path;
 
-                                                if (stopwatch.ElapsedMilliseconds > 100)
+                                                if (stopwatch.ElapsedMilliseconds >= 100)
                                                 {
-                                                    progressReporter?.Report((batchSize, batchCount, lastReportedFilePath));
+                                                    progressReporter?.Report((
+                                                        batchSize,
+                                                        batchCount,
+                                                        lastReportedFilePath));
 
                                                     batchSize = 0;
                                                     batchCount = 0;
                                                     stopwatch.Restart();
                                                 }
                                             }
-                                            catch (IOException) { /* File is currently locked/active */ }
-                                            catch (UnauthorizedAccessException) { /* Bad permissions */ }
                                         }
-
-                                        // Delete the user's specific subfolder container
-                                        subDirectory.Delete(recursive: true);
-                                    }
-                                    catch (Exception)
-                                    {
-                                        // If a specific user's trash folder is totally locked, skip it and keep moving
+                                        catch (FileNotFoundException) { }
+                                        catch (DirectoryNotFoundException) { }
+                                        catch (Exception ex)
+                                        {
+                                            failures.Add(ex);
+                                        }
                                     }
                                 }
 
-                                // Flush any remaining completed deletions left in the final batch window
                                 if (batchCount > 0)
                                 {
-                                    progressReporter?.Report((batchSize, batchCount, lastReportedFilePath));
+                                    progressReporter?.Report((
+                                        batchSize,
+                                        batchCount,
+                                        lastReportedFilePath));
                                 }
+
+                                if (failures.Count > 0)
+                                {
+
+                                }
+
                             }, cancellationToken).ConfigureAwait(false);
                         },
 
@@ -282,60 +384,113 @@ internal partial class MainViewModel : ObservableObject
                         {
                             return await Task.Run(() =>
                             {
-                                var recycleBinRootPath = Path.Combine(selectedItem.DrivePath, "$Recycle.Bin");
-                                if (!Directory.Exists(recycleBinRootPath)) return (0L, 0);
+                                var recycleBinRootPath = Path.Combine(
+                                    selectedItem.DrivePath,
+                                    "$Recycle.Bin");
+
+                                if (!Directory.Exists(recycleBinRootPath))
+                                    return (0L, 0);
 
                                 long totalSizeBytes = 0;
                                 int totalFiles = 0;
 
-                                // Trackers for our throttled batching
                                 long batchSize = 0;
                                 int batchCount = 0;
+
                                 var stopwatch = System.Diagnostics.Stopwatch.StartNew();
 
-                                var rootDirectory = new DirectoryInfo(recycleBinRootPath);
+                                var options = new EnumerationOptions
+                                {
+                                    RecurseSubdirectories = false,
+                                    IgnoreInaccessible = true,
+                                    AttributesToSkip = 0
+                                };
 
-                                foreach (var subDirectory in rootDirectory.EnumerateDirectories())
+                                foreach (string sidPath in
+                                    Directory.EnumerateDirectories(recycleBinRootPath))
                                 {
                                     cancellationToken.ThrowIfCancellationRequested();
-                                    try
+
+                                    var stack = new Stack<string>();
+                                    stack.Push(sidPath);
+
+                                    while (stack.Count > 0)
                                     {
-                                        foreach (var file in subDirectory.EnumerateFiles("*", SearchOption.AllDirectories))
+                                        cancellationToken.ThrowIfCancellationRequested();
+
+                                        string path = stack.Pop();
+
+                                        IEnumerable<string> entries;
+
+                                        try
                                         {
-                                            cancellationToken.ThrowIfCancellationRequested(); // Check inside the inner file loops too
+                                            entries = Directory.EnumerateFileSystemEntries(
+                                                path, "*", options);
+                                        }
+                                        catch (IOException) { continue; }
+                                        catch (UnauthorizedAccessException) { continue; }
+
+                                        foreach (string entry in entries)
+                                        {
+                                            cancellationToken.ThrowIfCancellationRequested();
+
                                             try
                                             {
-                                                totalSizeBytes += file.Length;
+                                                var attributes = File.GetAttributes(entry);
+
+                                                bool isDirectory =
+                                                    (attributes & FileAttributes.Directory) != 0;
+
+                                                bool isReparsePoint =
+                                                    (attributes & FileAttributes.ReparsePoint) != 0;
+
+                                                // Never traverse junctions or symbolic links.
+                                                if (isDirectory)
+                                                {
+                                                    if (!isReparsePoint)
+                                                        stack.Push(entry);
+
+                                                    continue;
+                                                }
+
+                                                long fileSize = new FileInfo(entry).Length;
+
+                                                totalSizeBytes += fileSize;
                                                 totalFiles++;
 
-                                                // Accumulate current batch
-                                                batchSize += file.Length;
+                                                batchSize += fileSize;
                                                 batchCount++;
 
-                                                // Push updates to UI every 100ms
-                                                if (stopwatch.ElapsedMilliseconds > 100)
+                                                if (stopwatch.ElapsedMilliseconds >= 100)
                                                 {
-                                                    progressReporter?.Report((batchSize, batchCount, file.FullName));
+                                                    progressReporter?.Report((
+                                                        batchSize,
+                                                        batchCount,
+                                                        entry));
 
                                                     batchSize = 0;
                                                     batchCount = 0;
                                                     stopwatch.Restart();
                                                 }
                                             }
-                                            catch (FileNotFoundException) { /* Gone during scan */ }
-                                            catch (UnauthorizedAccessException) { /* Hidden system file lock */ }
+                                            catch (FileNotFoundException) { }
+                                            catch (DirectoryNotFoundException) { }
+                                            catch (IOException) { }
+                                            catch (UnauthorizedAccessException) { }
                                         }
                                     }
-                                    catch (Exception) { /* Skip unreadable user SID directories */ }
                                 }
 
-                                // Flush any remaining items in the batch at the finish line
                                 if (batchCount > 0)
                                 {
-                                    progressReporter?.Report((batchSize, batchCount, rootDirectory.FullName));
+                                    progressReporter?.Report((
+                                        batchSize,
+                                        batchCount,
+                                        recycleBinRootPath));
                                 }
 
                                 return (totalSizeBytes, totalFiles);
+
                             }, cancellationToken).ConfigureAwait(false);
                         }
                     }],
@@ -369,19 +524,16 @@ internal partial class MainViewModel : ObservableObject
                                 {
                                     cancellationToken.ThrowIfCancellationRequested();
 
-                                    uint flags = SHERB_NOCONFIRMATION | SHERB_NOPROGRESSUI | SHERB_NOSOUND;
+                                    uint flags = 0x00000007;
         
-                                    // drivePath must be formatted like "C:\"
-                                    using ManagedPtr<char> drivePathPtr = selectedItem.DrivePath;
-
                                     var rbInfo = new SHQUERYRBINFO { cbSize = (uint)sizeof(SHQUERYRBINFO) };
-                                    int queryResult = SHQueryRecycleBinW(drivePathPtr, &rbInfo);
+                                    int queryResult = PInvoke.SHQueryRecycleBin(selectedItem.DrivePath, ref rbInfo);
 
                                     long totalSizeToFree = rbInfo.i64Size;
                                     int totalCountToFree = (int)rbInfo.i64NumItems;
 
                                     // This clears the current user's partition on that specific drive
-                                    int result = SHEmptyRecycleBinW(HWND.NULL, drivePathPtr, flags); 
+                                    int result = PInvoke.SHEmptyRecycleBin(HWND.Null, selectedItem.DrivePath, flags); 
             
                                     // If the native call succeeds (S_OK is 0), report completion to the UI
                                     if (result == 0 && totalCountToFree > 0)
@@ -404,11 +556,9 @@ internal partial class MainViewModel : ObservableObject
                                     // Setup the info structure sizes
                                     var rbInfo = new SHQUERYRBINFO { cbSize = (uint)sizeof(SHQUERYRBINFO) };
 
-                                    using ManagedPtr<char> drivePathPtr = selectedItem.DrivePath;
-
                                     // Native query invoke
-                                    int result = SHQueryRecycleBinW(drivePathPtr, &rbInfo);
-                                    if (result == S_OK)
+                                    int result = PInvoke.SHQueryRecycleBin(selectedItem.DrivePath, ref rbInfo);
+                                    if (result == 0)
                                     {
                                         // We got the data instantly! Report it as a single batch to update the UI
                                         progressReporter?.Report((rbInfo.i64Size, (int)rbInfo.i64NumItems, selectedItem.DrivePath));
@@ -464,9 +614,36 @@ internal partial class MainViewModel : ObservableObject
 
                 await AddItem(
                     "Recent Files (Current User)",
-                    [new() { Path = recentFilesPath, Depth = SearchDepth.AllDirectories }],
+                    [
+                        new()
+                        {
+                            Path = recentFilesPath,
+                            Depth = SearchDepth.TopDirectoryOnly,
+                            FileFilter = file =>
+                                file.Extension.Equals(
+                                    ".lnk",
+                                    StringComparison.OrdinalIgnoreCase),
+                            CustomDeleteAction = async (target, progressReporter, cancellationToken) =>
+                            {
+                                await Task.Run(() =>
+                                {
+                                    cancellationToken.ThrowIfCancellationRequested();
+
+                                    unsafe
+                                    {
+                                        // Clear Shell usage history globally.
+                                        PInvoke.SHAddToRecentDocs(0, null);
+                                    }
+
+                                    // The API returns void; no actual deletion count is available.
+                                    progressReporter?.Report((0L, 0, target.Path));
+
+                                }, cancellationToken).ConfigureAwait(false);
+                            }
+                        }
+                    ],
                     "ms-appx:///Assets/CleanupItems/RecentFiles.ico",
-                    "Shortcuts to recently opened files and documents used by File Explorer and applications to display recent activity. Clearing this list removes the shortcuts without affecting the original files.",
+                    "Shortcuts to recently opened files and documents used by File Explorer and applications. Clearing this list removes the shortcuts without affecting original files or Quick Access items.",
                     "APPDATA_MS_WIN_RECENT",
                     recentFilesPath).ConfigureAwait(false);
 
@@ -610,26 +787,15 @@ internal partial class MainViewModel : ObservableObject
 
                 unsafe
                 {
-                    ManagedPtr<char> pNativePath = default;
-
-                    int hresult = SHGetKnownFolderPath(
-#pragma warning disable CS9123 // The '&' operator should not be used on parameters or local variables in async methods.
-                        &downloadsGuid,
-#pragma warning restore CS9123 // The '&' operator should not be used on parameters or local variables in async methods.
+                    int hresult = PInvoke.SHGetKnownFolderPath(
+                        downloadsGuid,
                         0, 
-                        HANDLE.NULL, 
-                        (char**)pNativePath.ObjectPointerPointer);
+                        null, 
+                        out var path);
 
-                    if (hresult == 0 && pNativePath != NULL)
+                    if (hresult == 0)
                     {
-                        try
-                        {
-                            downloadsPath = pNativePath.ToStringValue();
-                        }
-                        finally
-                        {
-                            Marshal.FreeCoTaskMem(pNativePath);
-                        }
+                        downloadsPath = path.ToString();
                     }
                     else
                     {
