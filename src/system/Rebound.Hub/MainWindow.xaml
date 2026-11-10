@@ -9,7 +9,9 @@
     xmlns:winuiex="using:WinUIEx"
     Title="MainWindow"
     mc:Ignorable="d">
-
+    <winuiex:WindowEx.SystemBackdrop>
+        <winuiex:TransparentTintBackdrop />
+    </winuiex:WindowEx.SystemBackdrop>
     <Grid>
         <SystemBackdropElement>
             <SystemBackdropElement.SystemBackdrop>

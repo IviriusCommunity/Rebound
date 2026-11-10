@@ -8,6 +8,7 @@ using Rebound.Core;
 using Rebound.Core.IPC;
 using Rebound.Core.SystemInformation.Hardware;
 using Rebound.Core.UI;
+using Rebound.Core.UI.Windowing;
 using Rebound.Shell.Run;
 using System;
 using System.Diagnostics;
@@ -119,7 +120,11 @@ public partial class App : Application
                 frame.Navigate(typeof(RunWindow));
                 RunWindow.Content = frame;
                 RunWindow.Closed += (s, e) => RunWindow = null;
+                RunWindow.SystemBackdrop = new TransparentTintBackdrop();
                 RunWindow.Show();
+
+                ReboundWindowBackdrop.Register(RunWindow);
+                ReboundWindowTheme.Register(RunWindow);
             }
         });
     }

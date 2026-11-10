@@ -65,9 +65,6 @@ public partial class App : Application
             MainWindow.Height = 800;
         }
 
-        // Spawn the window
-        MainWindow.Activate();
-
         // Window properties
         MainWindow.AppWindow.TitleBar.ExtendsContentIntoTitleBar = true;
         MainWindow.AppWindow.TitleBar.PreferredHeightOption = TitleBarHeightOption.Tall;
@@ -76,6 +73,7 @@ public partial class App : Application
         MainWindow.AppWindow.TitleBar.ButtonHoverBackgroundColor = Color.FromArgb(80, 120, 120, 120);
         MainWindow.AppWindow.TitleBar.ButtonPressedBackgroundColor = Color.FromArgb(40, 120, 120, 120);
         MainWindow.AppWindow.SetIcon(Path.Combine(AppContext.BaseDirectory, "Assets", "AppIcons", "ReboundHub.ico"));
+        MainWindow.Show();
 
         ReboundWindowBackdrop.Register(MainWindow);
         ReboundWindowTheme.Register(MainWindow);
