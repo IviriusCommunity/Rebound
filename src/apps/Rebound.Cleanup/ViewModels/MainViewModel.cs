@@ -4,15 +4,18 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using CommunityToolkit.WinUI;
+
 using Microsoft.UI.Windowing;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
+
 using Rebound.Cleanup.Helpers;
 using Rebound.Cleanup.Items;
 using Rebound.Core.Environment;
 using Rebound.Core.Native.Wrappers;
 using Rebound.Core.Settings;
 using Rebound.Core.SystemInformation.Software;
+
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -22,10 +25,13 @@ using System.Linq;
 using System.Runtime.InteropServices;
 using System.Threading;
 using System.Threading.Tasks;
+
 using Windows.Foundation;
 using Windows.System;
+using Windows.UI.Shell;
 using Windows.Win32;
 using Windows.Win32.Foundation;
+using Windows.Win32.System.Com;
 using Windows.Win32.UI.Shell;
 
 using WinUIEx;
@@ -1137,6 +1143,10 @@ internal partial class MainViewModel : ObservableObject
         }))!.ConfigureAwait(false);
     }
 
+    private static readonly Guid CLSID_TaskbarList =
+        new(0x56fdf344, 0xfd6d, 0x11d0,
+            0x95, 0x8a, 0x00, 0x60, 0x97, 0xc9, 0xa0, 0x90);
+
     [RelayCommand]
     public async Task DeleteAsync()
     {
@@ -1202,6 +1212,13 @@ internal partial class MainViewModel : ObservableObject
         long aggregatedBytesFreed = 0;
         int aggregatedFilesFreed = 0;
 
+        PInvoke.CoCreateInstance<ITaskbarList3>(
+            CLSID_TaskbarList,
+            null,
+            CLSCTX.CLSCTX_INPROC_SERVER,
+            out var taskbarList
+        );
+
         var progressReporter = new Progress<(long size, int count, string itemPath)>(data =>
         {
             aggregatedBytesFreed += data.size;
@@ -1209,6 +1226,15 @@ internal partial class MainViewModel : ObservableObject
 
             // Keep progress bar bounded in case file discrepancies happen mid-run
             progressBar.Value = Math.Min(aggregatedFilesFreed, progressBar.Maximum);
+
+            var hwnd = new HWND(App.MainWindow!.GetWindowHandle());
+            taskbarList.SetProgressState(hwnd, TBPFLAG.TBPF_NORMAL);
+            taskbarList.SetProgressValue(
+                hwnd,
+                (ulong)aggregatedFilesFreed,
+                (ulong)progressBar.Maximum
+            );
+
             statusText.Text = data.itemPath;
             ToolTipService.SetToolTip(statusText, data.itemPath);
         });
@@ -1247,6 +1273,9 @@ internal partial class MainViewModel : ObservableObject
         }
         finally
         {
+            var hwnd = new HWND(App.MainWindow!.GetWindowHandle());
+            taskbarList.SetProgressState(hwnd, TBPFLAG.TBPF_NOPROGRESS);
+
             await (App.MainWindow?.DispatcherQueue.EnqueueAsync(async () =>
             {
                 // 6. Clean up hooks and dismiss live tracking UI

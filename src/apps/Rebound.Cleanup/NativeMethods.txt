@@ -9,3 +9,6 @@ SHQueryRecycleBinW
 SHEmptyRecycleBinW
 SHGetKnownFolderPath
 SHAddToRecentDocs
+ITaskbarList3
+CoCreateInstance
+TBPFLAG
