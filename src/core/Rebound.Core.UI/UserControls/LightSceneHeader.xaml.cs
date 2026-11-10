@@ -116,6 +116,13 @@ public sealed partial class LightSceneHeader : UserControl
 
     private CubicBezierEasingFunction? _easing;
 
+    /// <summary>
+    /// Visuals with a looping Opacity animation. The loops are paused while the
+    /// pointer is outside the header: a running animation forces the compositor
+    /// to redraw (including every backdrop blur over the scene) on every frame.
+    /// </summary>
+    private readonly List<Visual> _loopingVisuals = [];
+
     private readonly List<SpriteVisual> _beamLayers = [];
     private ContainerVisual? _centerStar;
     private ContainerVisual? _flare;
@@ -199,6 +206,8 @@ public sealed partial class LightSceneHeader : UserControl
         AddOpacitySmoothing(_flare!, 300);
         AddOpacitySmoothing(_dim!, 450);
         AddOpacitySmoothing(_cursorGlow!, 160);
+
+        SetLoopsRunning(_hasPointer);
     }
 
     private void OnUnloaded(object sender, RoutedEventArgs e)
@@ -212,6 +221,7 @@ public sealed partial class LightSceneHeader : UserControl
             _resources[i].Dispose();
 
         _resources.Clear();
+        _loopingVisuals.Clear();
         _beamLayers.Clear();
         _ghosts.Clear();
 
@@ -308,6 +318,7 @@ public sealed partial class LightSceneHeader : UserControl
             shimmer.Duration = TimeSpan.FromSeconds(layer.ShimmerSeconds);
             shimmer.IterationBehavior = AnimationIterationBehavior.Forever;
             visual.StartAnimation("Opacity", shimmer);
+            _loopingVisuals.Add(visual);
 
             _sceneRoot!.Children.InsertAtTop(visual);
             _beamLayers.Add(visual);
@@ -354,6 +365,7 @@ public sealed partial class LightSceneHeader : UserControl
         pulse.Duration = TimeSpan.FromSeconds(4);
         pulse.IterationBehavior = AnimationIterationBehavior.Forever;
         star.StartAnimation("Opacity", pulse);
+        _loopingVisuals.Add(star);
 
         _sceneRoot!.Children.InsertAtTop(star);
         _centerStar = star;
@@ -558,6 +570,22 @@ public sealed partial class LightSceneHeader : UserControl
         }
     }
 
+    // Pause/Resume keep each loop's position, so resuming doesn't jump.
+    private void SetLoopsRunning(bool running)
+    {
+        foreach (var visual in _loopingVisuals)
+        {
+            var controller = visual.TryGetAnimationController("Opacity");
+            if (controller is null)
+                continue;
+
+            if (running)
+                controller.Resume();
+            else
+                controller.Pause();
+        }
+    }
+
     private void HookRendering()
     {
         if (_renderingHooked)
@@ -611,6 +639,10 @@ public sealed partial class LightSceneHeader : UserControl
 
         Point p = e.GetCurrentPoint(RootGrid).Position;
         _cursor = new Vector2((float)p.X, (float)p.Y);
+
+        if (!_hasPointer)
+            SetLoopsRunning(true);
+
         _hasPointer = true;
 
         // Set directly every move: no animation sits between the pointer and the glow.
@@ -634,6 +666,7 @@ public sealed partial class LightSceneHeader : UserControl
             return;
 
         _hasPointer = false;
+        SetLoopsRunning(false);
 
         _cursorGlow.Opacity = 0f;
         _dim.Opacity = 0f;
