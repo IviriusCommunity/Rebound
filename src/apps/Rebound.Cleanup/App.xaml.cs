@@ -8,6 +8,7 @@ using Microsoft.UI.Xaml.Controls;
 
 using Rebound.Core;
 using Rebound.Core.IPC;
+using Rebound.Core.SystemInformation.Software;
 using Rebound.Core.UI;
 using Rebound.Core.UI.Localizer;
 using Rebound.Core.UI.Windowing;
@@ -15,10 +16,13 @@ using Rebound.Forge;
 using Rebound.Forge.Engines;
 
 using System;
+using System.Buffers.Text;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
+using System.Linq;
 using System.Runtime.CompilerServices;
+using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -142,10 +146,7 @@ public partial class App : Application
             }
 
             // Legacy launch
-            // with arguments
-            if (e.LaunchArguments.StartsWith(Variables.LegacyLaunchArgument, StringComparison.InvariantCultureIgnoreCase)
-                // without arguments
-                || e.LaunchArguments.StartsWith(Variables.LegacyLaunchArgument.Trim(), StringComparison.InvariantCultureIgnoreCase))
+            if (!string.IsNullOrWhiteSpace(e.LaunchArguments))
             {
                 var trimmedArgs = e.LaunchArguments.Length > Variables.LegacyLaunchArgument.Length - 1 ?
                     // with arguments
@@ -197,69 +198,36 @@ public partial class App : Application
         }
     }
 
-    public async void RunServiceHostFailedToLaunchFallback()
-    {
-    /*
-        // Request an action from the user
-        var result = await ReboundDialog.ShowAsync(
-            title: LocalizedResource.GetLocalizedString("ServiceHostNotFound"),
-            content: LocalizedResource.GetLocalizedString("ServiceHostNotFoundInfo"),
-            primaryButtonText: "Launch",
-            closeButtonText: "Ok",
-            defaultButton: ContentDialogButton.Primary).ConfigureAwait(false);
-
-        switch (result)
-        {
-            // Launch
-            case ContentDialogResult.Primary:
-                {
-                    // Make sure Rebound Service Host exists
-                    var launched = ServiceHostEngine.StartServiceHost();
-
-                    // If it still doesn't, it's possible that Rebound is corrupted - inform the user
-                    if (!launched)
-                    {
-                        await ReboundDialog.ShowAsync(
-                            title: LocalizedResource.GetLocalizedString("CouldntLaunchServiceHost"),
-                            content: LocalizedResource.GetLocalizedString("CouldntLaunchServiceHostInfo"),
-                            closeButtonText: "Ok").ConfigureAwait(false);
-                    }
-                    break;
-                }
-
-            // Ok button
-            default:
-                break;
-        }
-        */
-    }
-
     public void LaunchLegacy(string args)
     {
         Task.Run(async () =>
         {
             try
             {
-                // Disable the IFEO entry via Rebound Service Host
-                await (ReboundPipeClient?.SendAsync($"IFEOEngine::Pause#{LegacyExecutableName}"))!.ConfigureAwait(false);
-
-                // Launch the original application
-                Process.Start(new ProcessStartInfo
+                if (Process.GetProcessesByName("Rebound.ServiceHost").ToList().Count > 0)
                 {
-                    FileName = LegacyExecutableName,
-                    UseShellExecute = true,
-                    Arguments = args
-                });
-
-                // Resume the IFEO entry
-                await (ReboundPipeClient?.SendAsync($"IFEOEngine::Resume#{LegacyExecutableName}"))!.ConfigureAwait(false);
+                    await (ReboundPipeClient?.ConnectAsync())!.ConfigureAwait(true);
+                    await (ReboundPipeClient?.SendAsync($"LAUNCH:{LegacyExecutableName}\\lnbrk\\{Convert.ToBase64String(Encoding.UTF8.GetBytes(args))}"))!.ConfigureAwait(true);
+                }
+                else StartDirectly();
             }
             catch
             {
-                // Rebound Service Host doesn't exist, fall back to UI solutions
-                RunServiceHostFailedToLaunchFallback();
+                StartDirectly();
             }
         });
+
+        void StartDirectly()
+        {
+            // Rebound Service Host doesn't exist, launch directly
+            Process.Start(new ProcessStartInfo()
+            {
+                FileName = LegacyExecutableName,
+                Arguments = args,
+                UseShellExecute = true,
+                Verb = ProcessInformation.IsRunningAsAdmin() ? "runas" : string.Empty
+            });
+        }
     }
 
     public static void CreateMainWindow()
@@ -309,37 +277,4 @@ public partial class App : Application
     }
 
     public static WindowEx? MainWindow { get; set; }
-
-    //public static ReboundPipeClient ReboundPipeClient { get; set; }
-
-    /*private async void OnSingleInstanceLaunched(object? sender, Rebound.Helpers.Services.SingleInstanceLaunchEventArgs e)
-    {
-        if (e.IsFirstLaunch)
-        {
-            ReboundPipeClient = new ReboundPipeClient();
-            await ReboundPipeClient.ConnectAsync();
-        }
-
-        if (!Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.System), "cleanmgr.exe").ArgsMatchKnownEntries([string.Empty], e.Arguments))
-        {
-            await ReboundPipeClient.SendMessageAsync("IFEOEngine::Pause#cleanmgr.exe");
-            Process.Start(new ProcessStartInfo
-            {
-                FileName = "cleanmgr.exe",
-                UseShellExecute = true,
-                Arguments = e.Arguments == "legacy" ? string.Empty : e.Arguments
-            });
-            return;
-        }
-
-        if (e.IsFirstLaunch)
-        {
-            MainAppWindow = new MainWindow();
-            MainAppWindow.Activate();
-        }
-        else
-        {
-            MainAppWindow.BringToFront();
-        }
-    }*/
 }

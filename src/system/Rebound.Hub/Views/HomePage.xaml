@@ -108,10 +108,7 @@
                         <DataTemplate x:DataType="cards:LinkCard">
                             <Grid CornerRadius="8">
                                 <Grid.Background>
-                                    <media:AcrylicBrush
-                                        BlurAmount="12"
-                                        TintColor="{ThemeResource SolidBackgroundFillColorBase}"
-                                        TintOpacity="0.5" />
+                                    <AcrylicBrush TintColor="{ThemeResource SolidBackgroundFillColorBase}" TintOpacity="0.5" />
                                 </Grid.Background>
                                 <Button
                                     Width="240"

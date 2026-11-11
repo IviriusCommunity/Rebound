@@ -135,29 +135,6 @@ public partial class App : Application, IReboundLegacySupportApp, IReboundPipeCl
                     LogMessageSeverity.Message);
             }
 
-            // Legacy launch
-            // with arguments
-            if (e.LaunchArguments.StartsWith(Variables.LegacyLaunchArgument, StringComparison.InvariantCultureIgnoreCase)
-                // without arguments
-                || e.LaunchArguments.StartsWith(Variables.LegacyLaunchArgument.Trim(), StringComparison.InvariantCultureIgnoreCase))
-            {
-                var trimmedArgs = e.LaunchArguments.Length > Variables.LegacyLaunchArgument.Length - 1 ?
-                    // with arguments
-                    e.LaunchArguments[Variables.LegacyLaunchArgument.Length..] :
-                    // without arguments
-                    string.Empty;
-
-                ReboundLogger.WriteToLog(
-                    "Legacy Launch",
-                    $"Launching the legacy app with arguments (raw: {e.LaunchArguments}) (trimmed: {trimmedArgs}).",
-                    LogMessageSeverity.Message);
-
-                LaunchLegacy(trimmedArgs);
-
-                // The application itself shouldn't handle more logic from here
-                return;
-            }
-
         DirectStartup:
 
             ReboundLogger.WriteToLog(
