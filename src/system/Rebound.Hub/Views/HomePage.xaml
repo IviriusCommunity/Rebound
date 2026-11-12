@@ -32,7 +32,7 @@
         <Grid>
             <Grid.RowDefinitions>
                 <RowDefinition Height="280" />
-                <RowDefinition Height="200" />
+                <RowDefinition Height="160" />
                 <RowDefinition Height="Auto" />
                 <RowDefinition Height="Auto" />
                 <RowDefinition Height="Auto" />
@@ -112,7 +112,7 @@
                                 </Grid.Background>
                                 <Button
                                     Width="240"
-                                    Height="220"
+                                    Height="180"
                                     HorizontalContentAlignment="Stretch"
                                     VerticalContentAlignment="Stretch"
                                     Background="Transparent"
@@ -128,8 +128,8 @@
                                             HorizontalAlignment="Stretch"
                                             VerticalAlignment="Top">
                                             <Grid
-                                                Width="64"
-                                                Height="64"
+                                                Width="40"
+                                                Height="40"
                                                 HorizontalAlignment="Left"
                                                 VerticalAlignment="Top">
                                                 <Image
@@ -139,7 +139,7 @@
                                             </Grid>
                                             <TextBlock
                                                 Margin="0,16,0,0"
-                                                FontSize="20"
+                                                FontWeight="SemiBold"
                                                 Text="{x:Bind Title}" />
                                             <TextBlock
                                                 Margin="0,5,0,0"
@@ -152,8 +152,8 @@
                                             Margin="8,12"
                                             HorizontalAlignment="Right"
                                             VerticalAlignment="Bottom"
-                                            FontSize="15"
-                                            Glyph="" />
+                                            FontSize="12"
+                                            Glyph="&#xE8A7;" />
                                     </Grid>
                                 </Button>
                             </Grid>

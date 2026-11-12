@@ -441,6 +441,7 @@
                             <RowDefinition Height="Auto" />
                             <RowDefinition Height="*" />
                             <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
                         </Grid.RowDefinitions>
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="Auto" />
@@ -450,24 +451,10 @@
                             <ColumnDefinition Width="Auto" />
                         </Grid.ColumnDefinitions>
 
-                        <!--  Icon shadow background  -->
-                        <Border
-                            Width="48"
-                            Height="48"
-                            HorizontalAlignment="Left"
-                            VerticalAlignment="Top">
-                            <ui:Effects.Shadow>
-                                <media:AttachedCardShadow
-                                    BlurRadius="12"
-                                    Opacity="0.3"
-                                    Offset="0, 4"
-                                    Color="Black" />
-                            </ui:Effects.Shadow>
-                        </Border>
-
                         <!--  Icon container  -->
                         <Grid
-                            Grid.RowSpan="3"
+                            Grid.RowSpan="2"
+                            Margin="0,0,0,16"
                             HorizontalAlignment="Left"
                             VerticalAlignment="Top">
 
@@ -490,9 +477,9 @@
                             <!--  Overlay acrylic effect with smaller icon  -->
                             <Border CornerRadius="4">
                                 <Border.Background>
-                                    <media:AcrylicBrush
-                                        BlurAmount="8"
+                                    <AcrylicBrush
                                         TintColor="{ThemeResource SolidBackgroundFillColorBase}"
+                                        TintLuminosityOpacity="1"
                                         TintOpacity="0.7" />
                                 </Border.Background>
                                 <Image
@@ -506,6 +493,7 @@
                         <!--  Mod Name  -->
                         <TextBlock
                             Grid.Column="2"
+                            Grid.ColumnSpan="3"
                             VerticalAlignment="Top"
                             FontSize="16"
                             FontWeight="SemiBold"
@@ -517,7 +505,7 @@
                             Grid.Row="1"
                             Grid.Column="2"
                             Grid.ColumnSpan="3"
-                            Margin="0,-20,0,0"
+                            Margin="0,-8,0,16"
                             VerticalAlignment="Top"
                             FontSize="12"
                             Opacity="0.5"
@@ -525,27 +513,33 @@
                             TextWrapping="WrapWholeWords" />
 
                         <!--  Variant Selector (only visible if more than 1 variant)  -->
-                        <ComboBox
-                            Grid.Row="2"
-                            Grid.ColumnSpan="8"
-                            Margin="0,16,0,0"
-                            HorizontalAlignment="Stretch"
-                            Header="Mod variant"
-                            ItemsSource="{x:Bind Variants, Mode=OneWay}"
-                            SelectedIndex="{x:Bind SelectedVariantIndex, Mode=TwoWay}"
-                            Visibility="{x:Bind Variants.Count, Converter={StaticResource VariantsNumberToVisibilityConverter}}">
-                            <ComboBox.ItemTemplate>
-                                <DataTemplate x:DataType="forge:ModVariant">
-                                    <TextBlock Text="{x:Bind Name, Mode=OneWay}" />
-                                </DataTemplate>
-                            </ComboBox.ItemTemplate>
-                        </ComboBox>
-
-                        <muxc:ProgressBar
+                        <Grid
                             Grid.Row="3"
                             Grid.ColumnSpan="8"
-                            Margin="0,8"
+                            Margin="-12,0,-12,0"
+                            Padding="12"
                             VerticalAlignment="Bottom"
+                            Background="{ThemeResource CardBackgroundFillColorSecondaryBrush}"
+                            BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                            BorderThickness="0,1,0,0"
+                            Visibility="{x:Bind Variants.Count, Converter={StaticResource VariantsNumberToVisibilityConverter}}">
+                            <ComboBox
+                                HorizontalAlignment="Stretch"
+                                Header="Mod variant"
+                                ItemsSource="{x:Bind Variants, Mode=OneWay}"
+                                SelectedIndex="{x:Bind SelectedVariantIndex, Mode=TwoWay}">
+                                <ComboBox.ItemTemplate>
+                                    <DataTemplate x:DataType="forge:ModVariant">
+                                        <TextBlock Text="{x:Bind Name, Mode=OneWay}" />
+                                    </DataTemplate>
+                                </ComboBox.ItemTemplate>
+                            </ComboBox>
+                        </Grid>
+
+                        <muxc:ProgressBar
+                            Grid.ColumnSpan="8"
+                            Margin="-12,-12"
+                            VerticalAlignment="Top"
                             Background="Transparent"
                             Maximum="{x:Bind TaskCount, Mode=OneWay}"
                             Value="{x:Bind Progress, Mode=OneWay}" />
@@ -554,14 +548,20 @@
                         <Grid
                             Grid.Row="4"
                             Grid.ColumnSpan="5"
-                            ColumnSpacing="8">
+                            Margin="-12,0,-12,-12"
+                            Padding="12"
+                            Background="{ThemeResource ControlAltFillColorSecondaryBrush}"
+                            BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                            BorderThickness="0,1,0,0"
+                            ColumnSpacing="8"
+                            CornerRadius="0,0,3,3">
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="Auto" />
                                 <ColumnDefinition Width="Auto" />
                                 <ColumnDefinition Width="Auto" />
                                 <ColumnDefinition Width="*" />
                                 <ColumnDefinition Width="Auto" />
-                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="Auto" />
                             </Grid.ColumnDefinitions>
 
                             <!--  Installation steps flyout button  -->
@@ -578,20 +578,9 @@
                                 </Button.Flyout>
                             </Button>
 
-                            <!--  Sideloaded indicator (only for sideloaded mods)  -->
-                            <Grid
-                                Grid.Column="1"
-                                Padding="8"
-                                HorizontalAlignment="Left"
-                                Background="Transparent"
-                                ToolTipService.ToolTip="This mod is sideloaded. Proceed with care."
-                                Visibility="{x:Bind Category, Converter={StaticResource SideloadedVisibilityConverter}}">
-                                <FontIcon FontSize="16" Glyph="&#xE74C;" />
-                            </Grid>
-
                             <!--  Action flyout (Install/Uninstall/Repair/Open) - only for non-mandatory  -->
                             <Button
-                                Grid.Column="2"
+                                Grid.Column="1"
                                 Padding="8"
                                 Background="Transparent"
                                 BorderBrush="Transparent"
@@ -645,7 +634,7 @@
 
                             <!--  Corruption indicator  -->
                             <Grid
-                                Grid.Column="3"
+                                Grid.Column="2"
                                 Padding="8"
                                 HorizontalAlignment="Left"
                                 Background="Transparent"
@@ -660,8 +649,9 @@
 
                             <muxc:ProgressRing
                                 Grid.Column="4"
-                                Width="32"
-                                Height="32"
+                                Width="16"
+                                Height="16"
+                                Margin="0,0,8,0"
                                 IsActive="{x:Bind IsLoading, Mode=OneWay}" />
 
                             <!--  Only shows if NOT mandatory  -->
@@ -672,6 +662,7 @@
 
                                     <!--  Open button (visible if installed)  -->
                                     <Button
+                                        Width="100"
                                         HorizontalAlignment="Stretch"
                                         Command="{x:Bind OpenCommand}"
                                         Content="Open"
@@ -680,6 +671,7 @@
 
                                     <!--  Install button (visible if not installed)  -->
                                     <Button
+                                        Width="100"
                                         HorizontalAlignment="Stretch"
                                         Command="{x:Bind InstallCommand}"
                                         Content="Install"
@@ -692,6 +684,7 @@
                             <!--  Repair button (visible if mod is corrupted, only for non-mandatory)  -->
                             <Grid Grid.Column="5" Visibility="{x:Bind Category, Converter={StaticResource NonMandatoryCorruptedVisibilityConverter}}">
                                 <Button
+                                    Width="100"
                                     HorizontalAlignment="Stretch"
                                     Command="{x:Bind RepairCommand}"
                                     Content="Repair"
@@ -709,7 +702,7 @@
             <Grid>
                 <Grid.RowDefinitions>
                     <RowDefinition Height="280" />
-                    <RowDefinition Height="200" />
+                    <RowDefinition Height="160" />
                     <RowDefinition Height="Auto" />
                     <RowDefinition Height="Auto" />
                     <RowDefinition Height="Auto" />
@@ -796,7 +789,7 @@
                                     </Grid.Background>
                                     <Button
                                         Width="240"
-                                        Height="220"
+                                        Height="180"
                                         HorizontalContentAlignment="Stretch"
                                         VerticalContentAlignment="Stretch"
                                         Background="Transparent"
@@ -812,8 +805,8 @@
                                                 HorizontalAlignment="Stretch"
                                                 VerticalAlignment="Top">
                                                 <Grid
-                                                    Width="64"
-                                                    Height="64"
+                                                    Width="40"
+                                                    Height="40"
                                                     HorizontalAlignment="Left"
                                                     VerticalAlignment="Top">
                                                     <Image
@@ -823,7 +816,7 @@
                                                 </Grid>
                                                 <TextBlock
                                                     Margin="0,16,0,0"
-                                                    FontSize="20"
+                                                    FontWeight="SemiBold"
                                                     Text="{x:Bind Title}" />
                                                 <TextBlock
                                                     Margin="0,5,0,0"
@@ -836,8 +829,8 @@
                                                 Margin="8,12"
                                                 HorizontalAlignment="Right"
                                                 VerticalAlignment="Bottom"
-                                                FontSize="15"
-                                                Glyph="" />
+                                                FontSize="12"
+                                                Glyph="&#xE8A7;" />
                                         </Grid>
                                     </Button>
                                 </Grid>
