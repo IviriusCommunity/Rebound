@@ -458,36 +458,10 @@
                             HorizontalAlignment="Left"
                             VerticalAlignment="Top">
 
-                            <!--  Background rectangle with border  -->
-                            <Grid
-                                Width="48"
-                                Height="48"
-                                Background="{ThemeResource SolidBackgroundFillColorBaseBrush}"
-                                CornerRadius="4">
-                                <Image
-                                    Margin="-8"
-                                    Source="{x:Bind Icon, Mode=OneWay}"
-                                    Stretch="Fill" />
-                                <Grid
-                                    BorderBrush="{ThemeResource SolidBackgroundFillColorBaseBrush}"
-                                    BorderThickness="2"
-                                    CornerRadius="3" />
-                            </Grid>
-
-                            <!--  Overlay acrylic effect with smaller icon  -->
-                            <Border CornerRadius="4">
-                                <Border.Background>
-                                    <AcrylicBrush
-                                        TintColor="{ThemeResource SolidBackgroundFillColorBase}"
-                                        TintLuminosityOpacity="1"
-                                        TintOpacity="0.7" />
-                                </Border.Background>
-                                <Image
-                                    Width="32"
-                                    Height="32"
-                                    Margin="8"
-                                    Source="{x:Bind Icon, Mode=OneWay}" />
-                            </Border>
+                            <Image
+                                Width="40"
+                                Height="40"
+                                Source="{x:Bind Icon, Mode=OneWay}" />
                         </Grid>
 
                         <!--  Mod Name  -->
@@ -505,7 +479,7 @@
                             Grid.Row="1"
                             Grid.Column="2"
                             Grid.ColumnSpan="3"
-                            Margin="0,-8,0,16"
+                            Margin="0,-4,0,16"
                             VerticalAlignment="Top"
                             FontSize="12"
                             Opacity="0.5"

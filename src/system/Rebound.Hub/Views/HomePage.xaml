@@ -177,38 +177,16 @@
                 ItemsSource="{x:Bind AppCards}">
                 <ItemsControl.ItemsPanel>
                     <ItemsPanelTemplate>
-                        <controls:WrapPanel HorizontalSpacing="24" VerticalSpacing="24" />
+                        <controls:WrapPanel HorizontalSpacing="8" VerticalSpacing="8" />
                     </ItemsPanelTemplate>
                 </ItemsControl.ItemsPanel>
                 <ItemsControl.ItemTemplate>
                     <DataTemplate x:DataType="cards:AppCard">
                         <Grid Width="320">
-                            <ui:Effects.Shadow>
-                                <media:AttachedCardShadow
-                                    BlurRadius="24"
-                                    CornerRadius="8"
-                                    Opacity="0.4"
-                                    Offset="0, 8"
-                                    Color="Black" />
-                            </ui:Effects.Shadow>
-                            <Border CornerRadius="8" Opacity="0.2">
-                                <Border.Background>
-                                    <SolidColorBrush Color="{x:Bind AccentColor}" />
-                                </Border.Background>
-                            </Border>
-                            <Border CornerRadius="8">
-                                <Border.Background>
-                                    <AcrylicBrush
-                                        TintColor="{ThemeResource SolidBackgroundFillColorBase}"
-                                        TintLuminosityOpacity="1"
-                                        TintOpacity="0.5" />
-                                </Border.Background>
-                            </Border>
                             <Button
                                 Padding="0"
                                 HorizontalAlignment="Stretch"
                                 HorizontalContentAlignment="Stretch"
-                                BorderThickness="0"
                                 CornerRadius="8">
                                 <interactivity:Interaction.Behaviors>
                                     <interactivity:EventTriggerBehavior EventName="Tapped">
@@ -216,111 +194,85 @@
                                     </interactivity:EventTriggerBehavior>
                                 </interactivity:Interaction.Behaviors>
                                 <Grid>
-                                    <Grid
-                                        Margin="12"
-                                        ColumnSpacing="8"
-                                        RowSpacing="8">
+                                    <Grid>
                                         <Grid.RowDefinitions>
                                             <RowDefinition Height="Auto" />
                                             <RowDefinition Height="Auto" />
-                                            <RowDefinition Height="Auto" />
-                                            <RowDefinition Height="Auto" />
                                         </Grid.RowDefinitions>
-                                        <Grid.ColumnDefinitions>
-                                            <ColumnDefinition Width="Auto" />
-                                            <ColumnDefinition Width="*" />
-                                        </Grid.ColumnDefinitions>
                                         <Grid
-                                            Grid.RowSpan="2"
-                                            HorizontalAlignment="Left"
-                                            VerticalAlignment="Top">
-                                            <Grid
-                                                Width="64"
-                                                Height="64"
-                                                Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
-                                                CornerRadius="4">
-                                                <Image
-                                                    Margin="-16"
-                                                    Source="{x:Bind IconPath}"
-                                                    Stretch="Fill" />
-                                                <Border
-                                                    BorderBrush="{ThemeResource SolidBackgroundFillColorBase}"
-                                                    BorderThickness="2"
-                                                    CornerRadius="3" />
-                                                <Border CornerRadius="4">
-                                                    <Border.Background>
-                                                        <AcrylicBrush
-                                                            TintColor="{ThemeResource SolidBackgroundFillColorBase}"
-                                                            TintLuminosityOpacity="1"
-                                                            TintOpacity="0.7" />
-                                                    </Border.Background>
-                                                    <Image
-                                                        Width="40"
-                                                        Height="40"
-                                                        Margin="8"
-                                                        Source="{x:Bind IconPath}" />
-                                                </Border>
-                                                <Border
-                                                    BorderBrush="{ThemeResource CardStrokeColorDefault}"
-                                                    BorderThickness="2"
-                                                    CornerRadius="4" />
-                                            </Grid>
-                                        </Grid>
-                                        <TextBlock
-                                            Grid.Column="1"
-                                            FontSize="16"
-                                            FontWeight="SemiBold"
-                                            Text="{x:Bind Title}"
-                                            TextWrapping="Wrap" />
-                                        <TextBlock
-                                            Grid.Row="1"
-                                            Grid.Column="1"
-                                            Margin="0,-12,0,0"
-                                            FontSize="12"
-                                            Opacity="0.5"
-                                            Text="{x:Bind Description}"
-                                            TextWrapping="Wrap" />
-                                        <StackPanel
-                                            Grid.Row="2"
-                                            Grid.ColumnSpan="2"
-                                            Padding="8,2"
-                                            HorizontalAlignment="Left"
-                                            BorderBrush="{ThemeResource AccentButtonBorderBrush}"
-                                            BorderThickness="1"
-                                            CornerRadius="9"
-                                            Orientation="Horizontal"
-                                            Spacing="8">
-                                            <StackPanel.Background>
-                                                <SolidColorBrush Color="{x:Bind AccentColor}" />
-                                            </StackPanel.Background>
-                                            <TextBlock
-                                                FontSize="10"
-                                                FontWeight="SemiBold"
-                                                Text="{x:Bind Publisher}">
-                                                <TextBlock.Foreground>
-                                                    <SolidColorBrush Color="{x:Bind AccentTextColor}" />
-                                                </TextBlock.Foreground>
-                                            </TextBlock>
-                                        </StackPanel>
-                                        <Grid
-                                            Grid.Row="3"
-                                            Grid.ColumnSpan="2"
-                                            Height="160"
                                             HorizontalAlignment="Stretch"
                                             VerticalAlignment="Top"
-                                            CornerRadius="4">
+                                            Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
+                                            BorderBrush="{ThemeResource CardStrokeColorDefault}"
+                                            BorderThickness="0,0,0,1"
+                                            CornerRadius="7,7,0,0">
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="Auto" />
+                                                <ColumnDefinition Width="*" />
+                                            </Grid.ColumnDefinitions>
                                             <Image
-                                                Margin="4"
+                                                Grid.ColumnSpan="2"
+                                                Height="104"
+                                                VerticalAlignment="Top"
+                                                Opacity="0.35"
+                                                Source="{x:Bind IconPath}"
+                                                Stretch="Fill" />
+                                            <Border Grid.RowSpan="2" Grid.ColumnSpan="2">
+                                                <Border.Background>
+                                                    <AcrylicBrush
+                                                        TintColor="{ThemeResource SolidBackgroundFillColorBase}"
+                                                        TintLuminosityOpacity="0.75"
+                                                        TintOpacity="0" />
+                                                </Border.Background>
+                                            </Border>
+                                            <Image
+                                                Width="40"
+                                                Margin="16"
+                                                Source="{x:Bind IconPath}" />
+                                            <StackPanel
+                                                Grid.Column="1"
+                                                Margin="0,12,16,0"
+                                                Spacing="4">
+                                                <TextBlock
+                                                    FontSize="16"
+                                                    FontWeight="SemiBold"
+                                                    Text="{x:Bind Title}"
+                                                    TextWrapping="Wrap" />
+                                                <TextBlock
+                                                    FontSize="12"
+                                                    FontWeight="SemiBold"
+                                                    Foreground="{ThemeResource AccentTextFillColorPrimaryBrush}"
+                                                    Text="{x:Bind Publisher}" />
+                                                <TextBlock
+                                                    VerticalAlignment="Top"
+                                                    FontSize="12"
+                                                    Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                                                    Text="{x:Bind Description}"
+                                                    TextWrapping="Wrap" />
+                                            </StackPanel>
+                                        </Grid>
+                                        <Grid
+                                            Grid.Row="1"
+                                            Height="200"
+                                            HorizontalAlignment="Stretch"
+                                            VerticalAlignment="Top"
+                                            CornerRadius="0,0,7,7">
+                                            <Image
+                                                Margin="16"
+                                                Opacity="0.5"
                                                 Source="{x:Bind PicturePath}"
                                                 Stretch="Fill" />
                                             <Border>
                                                 <Border.Background>
-                                                    <media:AcrylicBrush BlurAmount="24" TintColor="{ThemeResource SolidBackgroundFillColorBase}" />
+                                                    <media:BackdropBlurBrush Amount="32" />
                                                 </Border.Background>
-                                                <Image
+                                                <Border
                                                     Margin="16"
-                                                    Source="{x:Bind PicturePath}"
-                                                    Stretch="Uniform" />
+                                                    HorizontalAlignment="Center"
+                                                    VerticalAlignment="Center"
+                                                    CornerRadius="4">
+                                                    <Image Source="{x:Bind PicturePath}" Stretch="Uniform" />
+                                                </Border>
                                             </Border>
                                         </Grid>
                                     </Grid>

@@ -178,6 +178,16 @@ try {
             Destination = Join-Path $root "src\core\forge\Rebound.Forge.Assets\Modding\Packages\Rebound.About.msixbundle"
         },
         @{
+            Name = "Rebound.ControlPanel"
+            Project = Join-Path $root "src\apps\Rebound.ControlPanel\Rebound.ControlPanel.csproj"
+            Destination = Join-Path $root "src\core\forge\Rebound.Forge.Assets\Modding\Packages\Rebound.ControlPanel.msixbundle"
+        },
+        @{
+            Name = "Rebound.Cleanup"
+            Project = Join-Path $root "src\apps\Rebound.Cleanup\Rebound.Cleanup.csproj"
+            Destination = Join-Path $root "src\core\forge\Rebound.Forge.Assets\Modding\Packages\Rebound.Cleanup.msixbundle"
+        },
+        @{
             Name = "Rebound.ServiceHost"
             Project = Join-Path $root "src\system\Rebound.ServiceHost\Rebound.ServiceHost.csproj"
             Destination = Join-Path $root "src\core\forge\Rebound.Forge.Assets\Modding\Packages\Rebound.ServiceHost.msixbundle"

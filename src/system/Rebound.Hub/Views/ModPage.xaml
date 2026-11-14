@@ -334,6 +334,7 @@
                                 <Grid Grid.Column="3" Visibility="{x:Bind IsIntact, Mode=OneWay}">
                                     <!--  Open button (visible if installed)  -->
                                     <Button
+                                        Width="120"
                                         HorizontalAlignment="Stretch"
                                         Command="{x:Bind OpenCommand}"
                                         Content="Open"
@@ -341,6 +342,7 @@
 
                                     <!--  Install button (visible if not installed)  -->
                                     <Button
+                                        Width="120"
                                         HorizontalAlignment="Stretch"
                                         Command="{x:Bind InstallCommand}"
                                         Content="Install"
@@ -351,6 +353,7 @@
                                 <!--  Repair button (visible if mod is corrupted)  -->
                                 <Button
                                     Grid.Column="3"
+                                    Width="120"
                                     HorizontalAlignment="Stretch"
                                     Command="{x:Bind RepairCommand}"
                                     Content="Repair"
