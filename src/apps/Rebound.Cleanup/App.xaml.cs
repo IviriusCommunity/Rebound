@@ -4,29 +4,21 @@
 using Microsoft.UI;
 using Microsoft.UI.Dispatching;
 using Microsoft.UI.Xaml;
-using Microsoft.UI.Xaml.Controls;
 
 using Rebound.Core;
 using Rebound.Core.IPC;
 using Rebound.Core.SystemInformation.Software;
 using Rebound.Core.UI;
-using Rebound.Core.UI.Localizer;
 using Rebound.Core.UI.Windowing;
-using Rebound.Forge;
 using Rebound.Forge.Engines;
 
 using System;
-using System.Buffers.Text;
-using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-
-using TerraFX.Interop.Windows;
 
 using Windows.UI;
 
@@ -148,18 +140,11 @@ public partial class App : Application
             // Legacy launch
             if (!string.IsNullOrWhiteSpace(e.LaunchArguments))
             {
-                var trimmedArgs = e.LaunchArguments.Length > Variables.LegacyLaunchArgument.Length - 1 ?
-                    // with arguments
-                    e.LaunchArguments[Variables.LegacyLaunchArgument.Length..] :
-                    // without arguments
-                    string.Empty;
-
-                ReboundLogger.WriteToLog(
-                    "Legacy Launch",
-                    $"Launching the legacy app with arguments (raw: {e.LaunchArguments}) (trimmed: {trimmedArgs}).",
-                    LogMessageSeverity.Message);
-
-                LaunchLegacy(trimmedArgs);
+                // This app cannot accept arguments since those are passed on to the command line
+                // interface in the original, so that behavior must be preserved for Windows'
+                // background cleaning tasks; otherwise, the app will appear for a few seconds
+                // on the screen, completely unclickable, and will vanish without a trace.
+                LaunchLegacy(e.LaunchArguments);
 
                 // The application itself shouldn't handle more logic from here
                 return;

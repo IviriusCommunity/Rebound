@@ -27,7 +27,7 @@ public interface IPipeClient
 /// <summary>
 /// Initializes a new instance of the PipeClient class using the specified named pipe.
 /// </summary>
-/// <param name="pipeName">The name of the pipe to connect to. If not specified, defaults to "REBOUND_SERVICE_HOST".</param>
+/// <param name="pipeName">The name of the pipe to connect to.</param>
 public sealed class PipeClient(string pipeName) : IPipeClient, IDisposable
 {
     private readonly string _pipeName = pipeName;
@@ -65,16 +65,13 @@ public sealed class PipeClient(string pipeName) : IPipeClient, IDisposable
     public async Task ConnectAsync()
     {
         if (_pipe != null && _pipe.IsConnected)
-        {
             return;
-        }
 
-        await _pipe!.DisposeAsync().ConfigureAwait(true);
         _pipe = new NamedPipeClientStream(".", _pipeName, PipeDirection.InOut, PipeOptions.Asynchronous);
 
         try
         {
-            await _pipe.ConnectAsync(1000).ConfigureAwait(true); // wait for connection
+            await _pipe.ConnectAsync(250).ConfigureAwait(true); // wait for connection
         }
         catch
         {
@@ -190,7 +187,7 @@ public sealed class PipeClient(string pipeName) : IPipeClient, IDisposable
         {
             try
             {
-                await _pipe.ConnectAsync(2000).ConfigureAwait(true);
+                await _pipe.ConnectAsync(250).ConfigureAwait(true);
                 if (_pipe.IsConnected)
                 {
                     return;

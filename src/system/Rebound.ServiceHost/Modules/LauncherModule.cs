@@ -22,7 +22,7 @@ internal partial class LauncherModule : IDisposable
 
     public void Start() => _ = LauncherPipeServer?.StartAsync();
 
-    private void LauncherPipeServer_MessageReceived(object sender, HostMessageReceivedEventArgs args)
+    private void LauncherPipeServer_MessageReceived(object? sender, HostMessageReceivedEventArgs args)
     {
         if (!args.Message.StartsWith("LAUNCH:",
             StringComparison.OrdinalIgnoreCase))

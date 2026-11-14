@@ -299,11 +299,12 @@
                                 Height="80"
                                 Padding="24"
                                 Background="{ThemeResource SystemControlBackgroundAltMediumLowBrush}">
-                                <Grid>
+                                <Grid ColumnSpacing="8">
                                     <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="Auto" />
+                                        <ColumnDefinition Width="Auto" />
                                         <ColumnDefinition Width="*" />
                                         <ColumnDefinition Width="Auto" />
-                                        <ColumnDefinition Width="8" />
                                         <ColumnDefinition Width="Auto" />
                                     </Grid.ColumnDefinitions>
                                     <Button
@@ -318,6 +319,16 @@
                                     </Button>
                                     <Button
                                         Grid.Column="1"
+                                        Command="{x:Bind LegacyDiskCleanupCommand}"
+                                        CommandParameter="{x:Bind ItemsListViewLarge.SelectedIndex, Mode=OneWay}"
+                                        Style="{StaticResource SubtleButtonStyle}">
+                                        <StackPanel Orientation="Horizontal" Spacing="8">
+                                            <FontIcon FontSize="16" Glyph="&#xED56;" />
+                                            <TextBlock Text="Legacy Disk Cleanup" />
+                                        </StackPanel>
+                                    </Button>
+                                    <Button
+                                        Grid.Column="3"
                                         Width="120"
                                         Command="{x:Bind ViewModel.DeleteCommand}"
                                         IsEnabled="{x:Bind ViewModel.CanItemsBeClicked, Mode=OneWay}"
@@ -328,7 +339,7 @@
                                         </StackPanel>
                                     </Button>
                                     <Button
-                                        Grid.Column="3"
+                                        Grid.Column="4"
                                         Width="120"
                                         Command="{x:Bind CloseCommand}"
                                         Content="Close"
@@ -552,6 +563,14 @@
                                         <ColumnDefinition Width="8" />
                                         <ColumnDefinition Width="Auto" />
                                     </Grid.ColumnDefinitions>
+                                    <Button
+                                        Margin="0,-8"
+                                        Padding="8"
+                                        Command="{x:Bind LegacyDiskCleanupCommand}"
+                                        Style="{StaticResource SubtleButtonStyle}"
+                                        ToolTipService.ToolTip="Legacy Disk Cleanup">
+                                        <FontIcon FontSize="16" Glyph="&#xED56;" />
+                                    </Button>
                                     <Button
                                         Grid.Column="1"
                                         Width="120"

@@ -1005,8 +1005,13 @@ static RedirectResult TryRedirectCreateW(
 
         std::wstring arguments;
 
-        if (haveToken)
-            arguments = TrimLeading(commandLine + token.spanEnd);
+        if (commandLine)
+        {
+            if (haveApplication)
+                arguments = commandLine;
+            else if (haveToken)
+                arguments = TrimLeading(commandLine + token.spanEnd);
+        }
 
         DWORD processId = 0;
 

@@ -80,6 +80,10 @@ internal sealed partial class MainPage : Page
         => await CleanupReloadItems().ConfigureAwait(false);
 
     [RelayCommand]
+    public static void LegacyDiskCleanup()
+        => (Application.Current as App)?.LaunchLegacy(string.Empty);
+
+    [RelayCommand]
     public static void Close() => App.MainWindow?.Close();
 
     private async Task CleanupReloadItems()

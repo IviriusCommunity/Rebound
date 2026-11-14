@@ -90,7 +90,8 @@ public sealed class SingleInstanceLaunchEventArgs(
     /// </summary>
     public string LaunchArguments =>
         ActivationArguments.Kind == ExtendedActivationKind.Launch
-            ? string.Join(" ", System.Environment.GetCommandLineArgs().Skip(1))
+            ? (ActivationArguments.Data as ILaunchActivatedEventArgs)?.Arguments
+                ?? string.Empty
             : string.Empty;
 }
 
