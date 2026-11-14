@@ -246,11 +246,6 @@ internal partial class ReboundPage : Page
         InitializeComponent();
     }
 
-    private async void ReboundView_Loaded(object sender, RoutedEventArgs e)
-    {
-        //App.ReboundService.CheckForUpdates();
-    }
-
     private void Button_Click(object sender, RoutedEventArgs e)
     {
         if (sender is Button button && button.DataContext is Mod mod && mod.PreferredInstallationTemplate != InstallationTemplate.Mandatory)

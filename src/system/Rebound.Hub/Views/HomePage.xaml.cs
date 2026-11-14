@@ -1,8 +1,13 @@
 ﻿// Copyright (C) Ivirius(TM) Community 2020 - 2026. All Rights Reserved.
 // Licensed under the MIT License.
 
+using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
+
+using Rebound.Forge;
 using Rebound.Hub.Cards;
+
+using System;
 using System.Collections.ObjectModel;
 using Windows.UI;
 
@@ -209,10 +214,33 @@ internal sealed partial class HomePage : Page
 
     public HomePage() => InitializeComponent();
 
-    private async void Page_Loaded(object sender, Microsoft.UI.Xaml.RoutedEventArgs e)
+    private async void Page_Loaded(object sender, RoutedEventArgs e)
     {
-        await App.ReboundService.LoadModsStatesAsync().ConfigureAwait(false);
-        await App.ReboundService.InitializeAsync().ConfigureAwait(false);
-        await App.ReboundService.CheckForUpdatesAsync().ConfigureAwait(false);
+        await App.ReboundService.LoadModsStatesAsync().ConfigureAwait(true);
+        await App.ReboundService.InitializeAsync().ConfigureAwait(true);
+        await App.ReboundService.CheckForUpdatesAsync().ConfigureAwait(true);
+
+        if (LegacyReboundRemover.OldReboundExists())
+        {
+            var dialog = new ContentDialog
+            {
+                Title = "Old Rebound Installation Detected",
+                Content = "An old installation of Rebound was detected on your system. In order to proceed, please remove the old installation.",
+                PrimaryButtonText = "Remove Old Rebound",
+                CloseButtonText = "Cancel",
+                DefaultButton = ContentDialogButton.Primary,
+                XamlRoot = XamlRoot
+            };
+            var result = await dialog.ShowAsync();
+            switch (result)
+            {
+                case ContentDialogResult.Primary:
+                    LegacyReboundRemover.DeleteOldRebound();
+                    break;
+                case ContentDialogResult.None:
+                    Application.Current.Exit();
+                    break;
+            }
+        }
     }
 }

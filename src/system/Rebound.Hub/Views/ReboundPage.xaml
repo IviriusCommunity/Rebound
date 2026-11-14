@@ -22,7 +22,6 @@
     xmlns:ui="using:CommunityToolkit.WinUI"
     xmlns:userControls="using:Rebound.Core.UI.UserControls"
     x:Name="ReboundView"
-    Loaded="ReboundView_Loaded"
     mc:Ignorable="d">
     <Page.Resources>
         <ResourceDictionary>
