@@ -1212,12 +1212,16 @@ internal partial class MainViewModel : ObservableObject
         long aggregatedBytesFreed = 0;
         int aggregatedFilesFreed = 0;
 
-        PInvoke.CoCreateInstance<ITaskbarList3>(
-            CLSID_TaskbarList,
+        using ComPtr<ITaskbarList3> taskbarList = default;
+        var clsid = CLSID_TaskbarList;
+
+        unsafe
+        {
+            taskbarList.CoCreateInstance(
+            &clsid,
             null,
-            CLSCTX.CLSCTX_INPROC_SERVER,
-            out var taskbarList
-        );
+            CLSCTX.CLSCTX_INPROC_SERVER);
+        }
 
         var progressReporter = new Progress<(long size, int count, string itemPath)>(data =>
         {
@@ -1228,12 +1232,15 @@ internal partial class MainViewModel : ObservableObject
             progressBar.Value = Math.Min(aggregatedFilesFreed, progressBar.Maximum);
 
             var hwnd = new HWND(App.MainWindow!.GetWindowHandle());
-            taskbarList.SetProgressState(hwnd, TBPFLAG.TBPF_NORMAL);
-            taskbarList.SetProgressValue(
-                hwnd,
-                (ulong)aggregatedFilesFreed,
-                (ulong)progressBar.Maximum
-            );
+            unsafe
+            {
+                taskbarList.Get()->SetProgressState(hwnd, TBPFLAG.TBPF_NORMAL);
+                taskbarList.Get()->SetProgressValue(
+                    hwnd,
+                    (ulong)aggregatedFilesFreed,
+                    (ulong)progressBar.Maximum
+                );
+            }
 
             statusText.Text = data.itemPath;
             ToolTipService.SetToolTip(statusText, data.itemPath);
@@ -1274,7 +1281,10 @@ internal partial class MainViewModel : ObservableObject
         finally
         {
             var hwnd = new HWND(App.MainWindow!.GetWindowHandle());
-            taskbarList.SetProgressState(hwnd, TBPFLAG.TBPF_NOPROGRESS);
+            unsafe
+            {
+                taskbarList.Get()->SetProgressState(hwnd, TBPFLAG.TBPF_NOPROGRESS);
+            }
 
             await (App.MainWindow?.DispatcherQueue.EnqueueAsync(async () =>
             {

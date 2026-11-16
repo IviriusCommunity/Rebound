@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
 	<!-- Application -->
 	<PropertyGroup>
@@ -128,11 +128,7 @@
 	<!-- Application content and XAML -->
 	<ItemGroup>
 		<AppxTargetDeviceFamilyItem Include="Windows.Desktop" />
-
-	  <AdditionalFiles Remove="NativeMethods.json" />		
-	  <AdditionalFiles Update="NativeMethods.txt">
-	    <Generator>MSBuild:Compile</Generator>
-	  </AdditionalFiles>
+	
 	  <Content Update="Assets\Administrator.png">
 	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
 	  </Content>

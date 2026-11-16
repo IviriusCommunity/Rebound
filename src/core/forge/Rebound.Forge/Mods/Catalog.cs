@@ -49,36 +49,10 @@ public partial class Catalog : ObservableObject
             {
                 EntryExecutable = $"{Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles)}\\Rebound\\rcontrol\\Rebound Control Panel.exe",
                 PreferredInstallationTemplate = InstallationTemplate.Basic
-            },
+            },*/
 
-            // Disk Cleanup
-            new Mod(
-                name: "Disk Cleanup",
-                description: "Replacement for the Disk Cleanup utility. Comes with more cleanup options, including Rebound temporary files and logs.",
-                icon: "ms-appx:///Assets/ReboundApps/DiskCleanup.ico",
-                installationSteps: "•   Redirect app launch\n•   Create a start menu shortcut",
-                instructions: new ObservableCollection<ICog>
-                {
-                    new IFEOCog()
-                    {
-                        OriginalExecutableName = "cleanmgr.exe",
-                        LauncherPath = $"{Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles)}\\Rebound\\rcleanmgr\\Rebound Disk Cleanup.exe"
-                    },
-                    new ShortcutCog()
-                    {
-                        ShortcutName = "Disk Cleanup",
-                        ExePath = $"{Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles)}\\Rebound\\rcleanmgr\\Rebound Disk Cleanup.exe"
-                    },
-                },
-                processName: "Rebound Disk Cleanup"
-            )
-            {
-                EntryExecutable = $"{Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles)}\\Rebound\\rcleanmgr\\Rebound Disk Cleanup.exe",
-                PreferredInstallationTemplate = InstallationTemplate.Basic
-            },
-            
             // On-Screen Keyboard
-            new Mod(
+            /*new Mod(
                 name: "On-Screen Keyboard",
 
                 description: "Launches the TabTip panel (temporarily). Will be replaced by a standalone app.",
@@ -417,7 +391,62 @@ public partial class Catalog : ObservableObject
                     }
                 ]
             },
-
+            
+            // Disk Cleanup
+            new Mod()
+            {
+                Name = "Disk Cleanup",
+                Id = new Guid("83442088-9521-47ee-86e8-49b64daa2d38"),
+                Description = "Replacement for the Disk Cleanup utility. Comes with more cleanup options, including Rebound temporary files and logs.",
+                Icon = "ms-appx:///Assets/ReboundApps/DiskCleanup.ico",
+                Category = ModCategory.General,
+                PreferredInstallationTemplate = InstallationTemplate.Basic,
+                Variants = [
+                    new()
+                    {
+                        Name = "Rebound Disk Cleanup",
+                        Id = new("a474cf05-1513-4ac3-9019-c3d0a05d6576"),
+                        Dependencies = [new("80439df9-6cca-4d5e-89f8-96c10f4e6c59")],
+                        Cogs =
+                        [
+                            new ProcessKillCog()
+                            {
+                                CogName = "Kill Rebound Disk Cleanup",
+                                CogId = new("3fd3ce71-24a6-466e-98da-875a3cf4c9cf"),
+                                ProcessName = "Rebound.Cleanup",
+                                KillOn = ProcessKillOn.Both,
+                                RequiresElevation = true
+                            },
+                            new PackageCog()
+                            {
+                                CogName = "Rebound Disk Cleanup Package Manager",
+                                CogId = new("46e0b75a-1085-46fb-8226-8fad0be74a63"),
+                                Target = new PackageTarget(
+                                    PackageTargetType.Local,
+                                    Path.Combine(AppContext.BaseDirectory, "Modding", "Packages", "Rebound.Cleanup.msixbundle"),
+                                    PackageFamilyName: "Rebound.Cleanup_rcz2tbwv5qzb8")
+                            },
+                            new ProgramAssociationCog()
+                            {
+                                CogName = "Rebound Disk Cleanup Program Association",
+                                CogId = new("e37e82aa-4d65-430b-9002-4352a08c18d4"),
+                                OriginalExecutable = "cleanmgr.exe",
+                                Target = new ProgramAssociationTarget(
+                                    ProgramAssociationType.AUMID,
+                                    "Rebound.Cleanup_rcz2tbwv5qzb8!App")
+                            }
+                        ],
+                        Launchers =
+                        [
+                            new PackageLauncher()
+                            {
+                                PackageFamilyName = "Rebound.Cleanup_rcz2tbwv5qzb8"
+                            }
+                        ],
+                    }
+                ]
+            },
+            
             // Rebound About Windows
             new()
             {
