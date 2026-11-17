@@ -108,7 +108,10 @@
                         <DataTemplate x:DataType="cards:LinkCard">
                             <Grid CornerRadius="8">
                                 <Grid.Background>
-                                    <AcrylicBrush TintColor="{ThemeResource SolidBackgroundFillColorBase}" TintOpacity="0.5" />
+                                    <AcrylicBrush
+                                        TintColor="{ThemeResource SolidBackgroundFillColorBase}"
+                                        TintLuminosityOpacity="1"
+                                        TintOpacity="0" />
                                 </Grid.Background>
                                 <Button
                                     Width="240"
@@ -203,7 +206,7 @@
                                             HorizontalAlignment="Stretch"
                                             VerticalAlignment="Top"
                                             Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
-                                            BorderBrush="{ThemeResource CardStrokeColorDefault}"
+                                            BorderBrush="{ThemeResource DividerStrokeColorDefaultBrush}"
                                             BorderThickness="0,0,0,1"
                                             CornerRadius="7,7,0,0">
                                             <Grid.ColumnDefinitions>
@@ -220,8 +223,8 @@
                                             <Border Grid.RowSpan="2" Grid.ColumnSpan="2">
                                                 <Border.Background>
                                                     <AcrylicBrush
-                                                        TintColor="{ThemeResource SolidBackgroundFillColorBase}"
-                                                        TintLuminosityOpacity="0.75"
+                                                        TintColor="{ThemeResource SolidBackgroundFillColorQuarternary}"
+                                                        TintLuminosityOpacity="1"
                                                         TintOpacity="0" />
                                                 </Border.Background>
                                             </Border>
@@ -264,7 +267,10 @@
                                                 Stretch="Fill" />
                                             <Border>
                                                 <Border.Background>
-                                                    <media:BackdropBlurBrush Amount="32" />
+                                                    <AcrylicBrush
+                                                        TintColor="{ThemeResource SolidBackgroundFillColorQuarternary}"
+                                                        TintLuminosityOpacity="1"
+                                                        TintOpacity="0" />
                                                 </Border.Background>
                                                 <Border
                                                     Margin="16"
