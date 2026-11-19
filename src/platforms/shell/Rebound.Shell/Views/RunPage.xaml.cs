@@ -82,6 +82,9 @@ internal sealed partial class RunWindow : Page
 
         var input = Environment.ExpandEnvironmentVariables(ViewModel.Path.Trim());
 
+        if (input.StartsWith('~'))
+            input = string.Concat(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), input.AsSpan(1));
+
         string exePath;
         string args;
 
@@ -180,7 +183,6 @@ internal sealed partial class RunWindow : Page
             Cancel();
         }
     }
-
 
     [RelayCommand]
     public void DeleteHistory()
