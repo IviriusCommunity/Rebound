@@ -5,11 +5,11 @@ using CommunityToolkit.Mvvm.Input;
 using Microsoft.UI.Input;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
+using Microsoft.UI.Xaml.Input;
 using Microsoft.Windows.Storage.Pickers;
 using Rebound.Core;
 using System;
 using System.Collections.ObjectModel;
-using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
@@ -74,115 +74,26 @@ internal sealed partial class RunWindow : Page
     [GeneratedRegex("^\"([^\"]+)\"(.*)")]
     private static partial Regex QuotedPathRegex();
 
+
     [RelayCommand]
-    public async Task RunAsync(bool runAsAdmin)
+    public void Run(bool runAsAdmin)
     {
-        if (string.IsNullOrWhiteSpace(ViewModel.Path))
+        string input = ViewModel.Path.Trim();
+
+        var result = RunCommandResolver.Execute(
+            input,
+            runAsAdmin);
+
+        if (!result.Success)
             return;
 
-        var input = Environment.ExpandEnvironmentVariables(ViewModel.Path.Trim());
+        ViewModel.RunHistory.Remove(input);
+        ViewModel.RunHistory.Add(input);
 
-        if (input.StartsWith('~'))
-            input = string.Concat(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), input.AsSpan(1));
-
-        string exePath;
-        string args;
-
-        var quotedMatch = QuotedPathRegex().Match(input);
-        if (quotedMatch.Success)
-        {
-            exePath = quotedMatch.Groups[1].Value.Trim();
-            args = quotedMatch.Groups[2].Value.Trim();
-        }
-        else
-        {
-            int spaceIndex = input.IndexOf(' ', StringComparison.InvariantCultureIgnoreCase);
-            if (spaceIndex == -1)
-            {
-                exePath = input;
-                args = string.Empty;
-            }
-            else
-            {
-                exePath = input[..spaceIndex];
-                args = input[(spaceIndex + 1)..];
-            }
-        }
-
-        if (Uri.IsWellFormedUriString(exePath, UriKind.Absolute))
-        {
-            try
-            {
-                Process.Start(new ProcessStartInfo
-                {
-                    FileName = exePath,
-                    UseShellExecute = true
-                });
-                ExitRunBox();
-                return;
-            }
-            catch { return; }
-        }
-
-        if (ViewModel.Path.Trim().StartsWith('%'))
-        {
-            await Launcher.LaunchUriAsync(new Uri(Environment.ExpandEnvironmentVariables(ViewModel.Path.Trim())));
-            ExitRunBox();
-            return;
-        }
-
-        if (File.Exists(exePath))
-        {
-            try
-            {
-                var psi = new ProcessStartInfo
-                {
-                    FileName = exePath,
-                    Arguments = args,
-                    UseShellExecute = true
-                };
-
-                // Only allow RunAs on executables
-                if (runAsAdmin && exePath.EndsWith(".exe", StringComparison.OrdinalIgnoreCase))
-                    psi.Verb = "runas";
-
-                Process.Start(psi);
-                ExitRunBox();
-                return;
-            }
-            catch { return; }
-        }
-
-        try
-        {
-            var psi = new ProcessStartInfo
-            {
-                FileName = exePath,
-                Arguments = args,
-                UseShellExecute = true,
-                Verb = runAsAdmin ? "runas" : null
-            };
-
-            Process.Start(psi);
-            ExitRunBox();
-            return;
-        }
-        catch
-        {
-            return;
-        }
-
-        void ExitRunBox()
-        {
-            if (ViewModel.RunHistory.Contains(ViewModel.Path.Trim()))
-            {
-                ViewModel.RunHistory.Remove(ViewModel.Path.Trim());
-            }
-            ViewModel.RunHistory.Add(ViewModel.Path.Trim());
-            SetRunHistory(ViewModel.RunHistory);
-            Cancel();
-        }
+        SetRunHistory(ViewModel.RunHistory);
+        Cancel();
     }
+
 
     [RelayCommand]
     public void DeleteHistory()
@@ -255,10 +166,7 @@ internal sealed partial class RunWindow : Page
 
         RunButton.Focus(FocusState.Programmatic);
 
-        await RunAsync(
-            ViewModel.RunAsAdmin 
-            || (altPressed && ctrlPressed))
-                .ConfigureAwait(false);
+        Run(ViewModel.RunAsAdmin || (altPressed && ctrlPressed));
     }
 
     public static Collection<string> GetRunHistory(Collection<string>? defaultValue = null)
