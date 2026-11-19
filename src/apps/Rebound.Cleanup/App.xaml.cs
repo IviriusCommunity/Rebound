@@ -137,14 +137,32 @@ public partial class App : Application
                     LogMessageSeverity.Message);
             }
 
+            var trimmedArgs = e.LaunchArguments
+                .Replace(
+                    $"\"{Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.System), "cleanmgr.exe")}\"",
+                    string.Empty,
+                    StringComparison.InvariantCultureIgnoreCase)
+                .Replace(
+                    $"\"cleanmgr.exe\"",
+                    string.Empty,
+                    StringComparison.InvariantCultureIgnoreCase)
+                .Replace(
+                    $"{Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.System), "cleanmgr.exe")}",
+                    string.Empty,
+                    StringComparison.InvariantCultureIgnoreCase)
+                .Replace(
+                    $"cleanmgr.exe",
+                    string.Empty,
+                    StringComparison.InvariantCultureIgnoreCase);
+
             // Legacy launch
-            if (!string.IsNullOrWhiteSpace(e.LaunchArguments))
+            if (!string.IsNullOrWhiteSpace(trimmedArgs))
             {
                 // This app cannot accept arguments since those are passed on to the command line
                 // interface in the original, so that behavior must be preserved for Windows'
                 // background cleaning tasks; otherwise, the app will appear for a few seconds
                 // on the screen, completely unclickable, and will vanish without a trace.
-                LaunchLegacy(e.LaunchArguments);
+                LaunchLegacy(trimmedArgs);
 
                 // The application itself shouldn't handle more logic from here
                 return;
