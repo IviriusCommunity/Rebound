@@ -37,3 +37,6 @@ SetLayeredWindowAttributes
 GetTopWindow
 CoRegisterClassObject
 CoResumeClassObjects
+SetForegroundWindow
+AllowSetForegroundWindow
+HWND

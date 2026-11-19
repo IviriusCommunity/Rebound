@@ -2,18 +2,26 @@
 // Licensed under the MIT License.
 
 using Microsoft.UI;
+using Microsoft.UI.Dispatching;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
+
 using Rebound.Core;
 using Rebound.Core.IPC;
 using Rebound.Core.SystemInformation.Hardware;
 using Rebound.Core.UI;
 using Rebound.Core.UI.Windowing;
+using Rebound.Forge.Engines;
 using Rebound.Shell.Run;
+
 using System;
-using System.Diagnostics;
 using System.Threading;
+
 using Windows.Graphics;
+using Windows.Win32;
+using Windows.Win32.Foundation;
+using Windows.Win32.UI.WindowsAndMessaging;
+
 using WinUIEx;
 
 namespace Rebound.Shell;
@@ -24,7 +32,13 @@ public partial class App : Application
 
     private PipeHost? ShellActionsPipeServer;
 
-    public App() => InitializeComponent();
+    public App()
+    {
+        InitializeComponent();
+        DispatcherShutdownMode = DispatcherShutdownMode.OnExplicitShutdown;
+    }
+
+    private DispatcherQueue? _dispatcher;
 
     protected override void OnLaunched(LaunchActivatedEventArgs args)
     {
@@ -47,21 +61,15 @@ public partial class App : Application
     {
         if (e.IsFirstLaunch)
         {
-            BackgroundWindow = new WindowEx();
-            BackgroundWindow.AppWindow.IsShownInSwitchers = false;
-            BackgroundWindow.MoveAndResize(0, 0, 0, 0);
-            BackgroundWindow.Minimize();
-            BackgroundWindow.ToggleWindowStyle(false, WindowStyle.Visible);
-            BackgroundWindow.ToggleExtendedWindowStyle(true, ExtendedWindowStyle.ToolWindow);
-            BackgroundWindow.Show();
+            _dispatcher = DispatcherQueue.GetForCurrentThread();
 
-            var ipcThread = new Thread(async () =>
+            var ipcThread = new Thread(() =>
             {
                 ShellActionsPipeServer = new PipeHost(
                     "REBOUND_SHELL_ACTIONS",
                     AccessLevel.Everyone);
                 ShellActionsPipeServer.MessageReceived += ShellActionsPipeServer_MessageReceived;
-                await ShellActionsPipeServer.StartAsync().ConfigureAwait(true);
+                _ = ShellActionsPipeServer.StartAsync();
             })
             {
                 Name = "IPC Thread",
@@ -69,8 +77,26 @@ public partial class App : Application
             };
             ipcThread.SetApartmentState(ApartmentState.STA);
             ipcThread.Start();
+            var serviceHostThread = new Thread(() =>
+            {
+                // Make sure Rebound Service Host exists
+                var started = ServiceHostEngine.StartServiceHost();
+                if (!started)
+                {
+                    ReboundLogger.WriteToLog(
+                        "Rebound Environment Initialization",
+                        "Could not initialize Rebound Service Host.",
+                        LogMessageSeverity.Error);
+                    throw new InvalidOperationException("Rebound Service Host couldn't be started.");
+                }
+            })
+            {
+                Name = "Service Host Thread",
+                IsBackground = true
+            };
+            serviceHostThread.SetApartmentState(ApartmentState.STA);
+            serviceHostThread.Start();
         }
-        else Process.GetCurrentProcess().Kill();
     }
 
     private void ShellActionsPipeServer_MessageReceived(object? sender, HostMessageReceivedEventArgs args)
@@ -80,9 +106,9 @@ public partial class App : Application
             ShowRunWindow();
     }
 
-    public static unsafe void ShowRunWindow()
+    public unsafe void ShowRunWindow()
     {
-        BackgroundWindow?.DispatcherQueue.TryEnqueue(() =>
+        _dispatcher?.TryEnqueue(() =>
         {
             if (RunWindow != null)
                 RunWindow.BringToFront();
@@ -122,6 +148,7 @@ public partial class App : Application
                 RunWindow.Closed += (s, e) => RunWindow = null;
                 RunWindow.SystemBackdrop = new TransparentTintBackdrop();
                 RunWindow.Show();
+                BringToFront(RunWindow);
 
                 ReboundWindowBackdrop.Register(RunWindow);
                 ReboundWindowTheme.Register(RunWindow);
@@ -129,11 +156,17 @@ public partial class App : Application
         });
     }
 
-    public static void CloseRunWindow()
+    private static void BringToFront(WindowEx window)
     {
-        RunWindow?.Close();
+        HWND hwnd = (HWND)window.GetWindowHandle();
+
+        PInvoke.AllowSetForegroundWindow((uint)Environment.ProcessId);
+        PInvoke.ShowWindow(hwnd, SHOW_WINDOW_CMD.SW_RESTORE);
+        PInvoke.SetForegroundWindow(hwnd);
     }
 
+    public static void CloseRunWindow()
+        => RunWindow?.Close();
+
     public static WindowEx? RunWindow { get; set; }
-    public static WindowEx? BackgroundWindow { get; set; }
 }

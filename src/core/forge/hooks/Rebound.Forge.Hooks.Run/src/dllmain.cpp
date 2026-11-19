@@ -250,6 +250,7 @@ static int WINAPI RunFileDlg_Hook(
 
     if (IsReboundShellRunning())
     {
+        AllowSetForegroundWindow(FindProcessByName(REBOUND_SHELL_EXE));
         SendMessageToApp(REBOUND_SHELL_PIPE, L"RUN_DIALOG");
         return 0;
     }
