@@ -2,12 +2,16 @@
 // Licensed under the MIT License.
 
 using CommunityToolkit.Mvvm.Input;
+
 using Microsoft.UI.Input;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Input;
 using Microsoft.Windows.Storage.Pickers;
+
 using Rebound.Core;
+using Rebound.Core.Native.Wrappers;
+
 using System;
 using System.Collections.ObjectModel;
 using System.IO;
@@ -16,9 +20,14 @@ using System.Runtime.InteropServices;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Xml;
+
 using Windows.System;
 using Windows.UI.Core;
+using Windows.Win32;
 using Windows.Win32.Foundation;
+using Windows.Win32.UI.WindowsAndMessaging;
+
+using WinUIEx;
 
 #pragma warning disable CA1031 // Do not catch general exception types
 
@@ -76,13 +85,19 @@ internal sealed partial class RunWindow : Page
 
 
     [RelayCommand]
-    public void Run(bool runAsAdmin)
+    public void Run()
     {
+        var down = CoreVirtualKeyStates.Down;
+        var shiftPressed = (InputKeyboardSource.GetKeyStateForCurrentThread(VirtualKey.Shift) & down) == down;
+        var ctrlPressed = (InputKeyboardSource.GetKeyStateForCurrentThread(VirtualKey.Control) & down) == down;
+
+        RunButton.Focus(FocusState.Programmatic);
+
         string input = ViewModel.Path.Trim();
 
         var result = RunCommandResolver.Execute(
             input,
-            runAsAdmin);
+            ViewModel.RunAsAdmin || (shiftPressed && ctrlPressed));
 
         if (!result.Success)
             return;
@@ -113,17 +128,36 @@ internal sealed partial class RunWindow : Page
         uint uFlags);
 
     [RelayCommand]
-    public unsafe void LaunchLegacy()
+    public static unsafe void LaunchLegacy()
     {
-        fixed (char* title = "Legacy Run")
+        var scale = App.RunWindow?.Content.XamlRoot.RasterizationScale;
+        using StringPtr title = "Legacy Run";
+        using StringPtr iconPath = Path.Combine(
+            AppContext.BaseDirectory,
+            "Assets",
+            "ReboundShell.ico");
+
+        HANDLE icon = PInvoke.LoadImage(
+            HINSTANCE.Null,
+            iconPath.GetChars(),
+            GDI_IMAGE_TYPE.IMAGE_ICON,
+            (int?)(32 * scale) ?? 32,
+            (int?)(32 * scale) ?? 32,
+            IMAGE_FLAGS.LR_LOADFROMFILE);
+
+        try
         {
             RunFileDlg(
-                HWND.Null,
-                default,
+                (void*)App.RunWindow!.GetWindowHandle(),
+                icon.Value,
                 null,
-                title,
+                title.GetChars(),
                 null,
                 0);
+        }
+        finally
+        {
+            PInvoke.DestroyIcon((HICON)icon.Value);
         }
     }
 
@@ -150,23 +184,12 @@ internal sealed partial class RunWindow : Page
     }
 
     private async void InputBox_QuerySubmitted(AutoSuggestBox sender, AutoSuggestBoxQuerySubmittedEventArgs args)
-        => await DoRunLogicAsync().ConfigureAwait(false);
+        => Run();
 
     private async void InputBox_SuggestionChosen(object sender, AutoSuggestBoxSuggestionChosenEventArgs e)
     {
         if (!InputBox.IsSuggestionListOpen)
-            await DoRunLogicAsync().ConfigureAwait(false);
-    }
-
-    private async Task DoRunLogicAsync()
-    {
-        var down = CoreVirtualKeyStates.Down;
-        var altPressed = (InputKeyboardSource.GetKeyStateForCurrentThread(VirtualKey.Menu) & down) == down;
-        var ctrlPressed = (InputKeyboardSource.GetKeyStateForCurrentThread(VirtualKey.Control) & down) == down;
-
-        RunButton.Focus(FocusState.Programmatic);
-
-        Run(ViewModel.RunAsAdmin || (altPressed && ctrlPressed));
+            Run();
     }
 
     public static Collection<string> GetRunHistory(Collection<string>? defaultValue = null)
@@ -253,5 +276,11 @@ internal sealed partial class RunWindow : Page
             doc.Save(filePath);
         }
         catch { }
+    }
+
+    private void Page_PreviewKeyDown(object sender, KeyRoutedEventArgs e)
+    {
+        if (e.Key == VirtualKey.Escape)
+            Cancel();
     }
 }

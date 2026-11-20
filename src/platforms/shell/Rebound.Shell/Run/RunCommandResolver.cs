@@ -31,8 +31,11 @@ internal static class RunCommandResolver
         // This handles paths, directories, URLs, shell: targets,
         // registered applications, and file associations.
 
-        if (TryExecute(input, string.Empty, runAsAdmin, out _))
+        if (TryExecute(input, string.Empty, runAsAdmin, out var ex))
             return new(true);
+
+        if (ex is Win32Exception && runAsAdmin)
+            return new(false);
 
         // The input may contain executable arguments.
         if (!TrySplitCommand(input, out string executable, out string arguments))

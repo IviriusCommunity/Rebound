@@ -8,6 +8,7 @@
     xmlns:local="using:Rebound.Shell.Run"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:muxc="using:Microsoft.UI.Xaml.Controls"
+    PreviewKeyDown="Page_PreviewKeyDown"
     mc:Ignorable="d">
     <Grid>
         <Grid.ColumnDefinitions>
@@ -83,7 +84,8 @@
             Grid.ColumnSpan="5"
             Margin="0,68,0,0"
             HorizontalAlignment="Left"
-            VerticalAlignment="Top">
+            VerticalAlignment="Top"
+            IsChecked="{x:Bind ViewModel.RunAsAdmin, Mode=TwoWay}">
             <TextBlock
                 Margin="0,2,0,0"
                 VerticalAlignment="Center"
@@ -109,7 +111,6 @@
             Grid.Column="3"
             HorizontalAlignment="Stretch"
             Command="{x:Bind RunCommand}"
-            CommandParameter="{x:Bind ViewModel.RunAsAdmin, Mode=OneWay}"
             Content="Run"
             IsEnabled="{x:Bind ViewModel.IsRunButtonEnabled, Mode=OneWay}"
             Style="{ThemeResource AccentButtonStyle}" />
@@ -118,11 +119,7 @@
             Grid.Column="5"
             HorizontalAlignment="Stretch"
             Command="{x:Bind CancelCommand}"
-            Content="Cancel">
-            <Button.KeyboardAccelerators>
-                <KeyboardAccelerator Key="Escape" />
-            </Button.KeyboardAccelerators>
-        </Button>
+            Content="Cancel" />
         <Button
             Grid.Row="3"
             Grid.Column="7"
