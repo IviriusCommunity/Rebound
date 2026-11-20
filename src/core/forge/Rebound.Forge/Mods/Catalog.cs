@@ -194,8 +194,8 @@ public partial class Catalog : ObservableObject
                                 CogId = new("e239881d-edf8-4910-abaa-361fd6af6ccb"),
                                 OriginalExecutable = "useraccountcontrolsettings.exe",
                                 Target = new ProgramAssociationTarget(
-                                    ProgramAssociationType.AUMID,
-                                    "Rebound.ControlPanel_rcz2tbwv5qzb8!App")
+                                    ProgramAssociationType.URI,
+                                    "rebound-controlpanel:useraccountcontrolsettings")
                             }
                         ],
                         Launchers =
