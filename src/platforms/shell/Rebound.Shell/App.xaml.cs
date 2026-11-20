@@ -148,7 +148,8 @@ public partial class App : Application
                 RunWindow.Closed += (s, e) => RunWindow = null;
                 RunWindow.SystemBackdrop = new TransparentTintBackdrop();
                 RunWindow.Show();
-                BringToFront(RunWindow);
+                BringToForeground(RunWindow);
+                RunWindow.BringToFront();
 
                 ReboundWindowBackdrop.Register(RunWindow);
                 ReboundWindowTheme.Register(RunWindow);
@@ -156,7 +157,7 @@ public partial class App : Application
         });
     }
 
-    private static void BringToFront(WindowEx window)
+    private static void BringToForeground(WindowEx window)
     {
         HWND hwnd = (HWND)window.GetWindowHandle();
 
