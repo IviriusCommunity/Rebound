@@ -25,59 +25,55 @@ public partial class Catalog : ObservableObject
     {
         var mods = new List<Mod>()
         {
-            /*// Control Panel
-            new Mod(
-                name: "Control Panel",
-                description: "Replacement for the legacy Control Panel. Most pages and sections redirect to the Settings app and Wintoys. Some settings for Rebound can also be found here.",
-                icon: "ms-appx:///Assets/ReboundApps/ControlPanel.ico",
-                installationSteps: "•   Redirect app launch\n•   Create a start menu shortcut",
-                instructions: new ObservableCollection<ICog>
-                {
-                    new IFEOCog()
+            // Control Panel
+            new()
+            { 
+                Name = "Control Panel",
+                Id = new Guid("d889389f-ec76-4ca6-93c8-318abe1e853c"),
+                Description = "Replacement for the legacy Control Panel. Some pages and sections redirect to the Settings app. Additional privacy and user choice options can be found here.",
+                Icon = "ms-appx:///Assets/ReboundApps/ControlPanel.ico",
+                Category = ModCategory.SystemAdministration,
+                PreferredInstallationTemplate = InstallationTemplate.Basic,
+                Variants = 
+                [
+                    new ModVariant()
                     {
-                        OriginalExecutableName = "control.exe",
-                        LauncherPath = $"{Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles)}\\Rebound\\rcontrol\\Rebound Control Panel.exe"
-                    },
-                    new ShortcutCog()
-                    {
-                        ShortcutName = "Control Panel",
-                        ExePath = $"{Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles)}\\Rebound\\rcontrol\\Rebound Control Panel.exe"
-                    },
-                },
-                processName: "Rebound Control Panel"
-            )
-            {
-                EntryExecutable = $"{Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles)}\\Rebound\\rcontrol\\Rebound Control Panel.exe",
-                PreferredInstallationTemplate = InstallationTemplate.Basic
-            },*/
+                        Name = "Default",
+                        Id = new("32cae467-aeb4-4700-84d7-53265c0c942e"),
+                        Dependencies = [new("80439df9-6cca-4d5e-89f8-96c10f4e6c59")], // Launcher
+                        Cogs =
+                        [
+                            new ProcessKillCog()
+                            {
+                                CogName = "Kill Rebound Control Panel",
+                                CogId = new("4fa8b125-f076-4285-84e1-09ae11d13a07"),
+                                ProcessName = "Rebound.ControlPanel",
+                                KillOn = ProcessKillOn.Both,
+                                RequiresElevation = true
+                            },
+                            new PackageCog()
+                            {
+                                CogName = "Rebound Control Panel Package Manager",
+                                CogId = new("be5586c6-4ac0-4567-9dfe-43df94fb706b"),
+                                Target = new PackageTarget(
+                                    PackageTargetType.Local,
+                                    Path.Combine(AppContext.BaseDirectory, "Modding", "Packages", "Rebound.ControlPanel.msixbundle"),
+                                    PackageFamilyName: "Rebound.ControlPanel_rcz2tbwv5qzb8")
+                            },
+                            new ProgramAssociationCog()
+                            {
+                                CogName = "Rebound Control Panel Program Association",
+                                CogId = new("3c1b8eaa-a4e4-4fbc-b993-dd0544814909"),
+                                OriginalExecutable = "control.exe",
+                                Target = new ProgramAssociationTarget(
+                                    ProgramAssociationType.AUMID,
+                                    "Rebound.ControlPanel_rcz2tbwv5qzb8!App")
+                            }
+                        ]
+                    }
+                ]
+            },
 
-            // On-Screen Keyboard
-            /*new Mod(
-                name: "On-Screen Keyboard",
-
-                description: "Launches the TabTip panel (temporarily). Will be replaced by a standalone app.",
-                icon: "ms-appx:///Assets/ReboundApps/OSK.ico",
-                installationSteps: "Redirect app launch",
-                instructions: new ObservableCollection<ICog>
-                {
-                    new IFEOCog()
-                    {
-                        OriginalExecutableName = "osk.exe",
-                        LauncherPath = $"{Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles)}\\Rebound\\rosk.exe"
-                    },
-                    new LauncherCog()
-                    {
-                        Path = $"{AppContext.BaseDirectory}\\Modding\\Launchers\\rosk.exe",
-                        TargetPath = $"{Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles)}\\Rebound\\rosk.exe"
-                    },
-                },
-                processName: "rosk"
-            )
-            {
-                EntryExecutable = $"{Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles)}\\Rebound\\rosk.exe",
-                PreferredInstallationTemplate = InstallationTemplate.Extras
-            },*/
-            
             // Rebound Shell
             new()
             {
@@ -87,7 +83,8 @@ public partial class Catalog : ObservableObject
                 Icon = "ms-appx:///Assets/ReboundApps/Shell.ico",
                 Category = ModCategory.Customization,
                 PreferredInstallationTemplate = InstallationTemplate.Extras,
-                Variants = [
+                Variants = 
+                [
                     new()
                     {
                         Name = "Default",
@@ -150,7 +147,8 @@ public partial class Catalog : ObservableObject
                 Icon = "ms-appx:///Assets/ReboundApps/RunBox.ico",
                 Category = ModCategory.Customization,
                 PreferredInstallationTemplate = InstallationTemplate.Extras,
-                Variants = [
+                Variants = 
+                [
                     new()
                     {
                         Name = "Default",
@@ -171,59 +169,7 @@ public partial class Catalog : ObservableObject
                     },
                 ]
             },
-
-            /*// Shutdown Dialog
-            new()
-            {
-                Name = "Shutdown Dialog",
-                Id = new("00c146cc-eae2-402a-980d-7cae86447e9f"),
-                Description = "Replacement for the Alt + F4 dialog.",
-                Icon = "ms-appx:///Assets/ReboundApps/ShutdownDialog.ico",
-                Category = ModCategory.Customization,
-                PreferredInstallationTemplate = InstallationTemplate.Extras,
-                Variants = [
-                    new()
-                    {
-                        Name = "Default",
-                        Id = new("ea1abde1-f0a6-4916-9dc8-186e133e7deb"),
-                        Cogs =
-                        [
-                            new BoolSettingCog()
-                            {
-                                CogName = "Shutdown Dialog Installation Setting",
-                                CogId = new("8956c69f-68b2-4a18-bcbf-551ff556c305"),
-                                AppliedValue = true,
-                                SettingsFileName = "rebound",
-                                Key = "InstallShutdown"
-                            }
-                        ],
-                        Dependencies = [ new("5545cc21-f12c-4ce2-b36d-b4b0127a462b") ] // Rebound Shell
-                        Settings = [
-                            new ModLabel()
-                            {
-                                Text = "Layout"
-                            },
-                            new ModBoolSetting(true)
-                            {
-                                Name = "Show user",
-                                IconGlyph = "\uE77B",
-                                Description = "Show the username alongside the user's profile picture in the bottom bar.",
-                                Identifier = "ShowUserInfo",
-                                AppName = "rshutdown"
-                            },
-                            new ModBoolSetting(false)
-                            {
-                                Name = "Use the shutdown screen",
-                                IconGlyph = "\uE740",
-                                Description = "Show the shutdown options in fullscreen instead of a dialog window.",
-                                Identifier = "UseShutdownScreen",
-                                AppName = "rshutdown"
-                            },
-                        ]
-                    },
-                ]
-            },
-
+            
             // User Account Control Settings
             new()
             {
@@ -239,58 +185,342 @@ public partial class Catalog : ObservableObject
                     {
                         Name = "Default",
                         Id = new("96654df3-6bd8-4a79-8f28-abab4d81674e"),
+                        Dependencies = [new("80439df9-6cca-4d5e-89f8-96c10f4e6c59"), new("d889389f-ec76-4ca6-93c8-318abe1e853c")], // Launcher, Rebound Control Panel
                         Cogs =
                         [
-                            new ProcessKillCog()
+                            new ProgramAssociationCog()
                             {
-                                CogName = "Rebound UAC Settings Process Killer",
-                                CogId = new("7ee06bb4-234d-4ea7-8e6c-a574c2af4737"),
-                                RequiresElevation = true,
-                                ProcessName = "Rebound User Account Control Settings"
-                            },
-                            new PackageCog()
-                            {
-                                CogName = "Rebound UAC Settings Package Manager",
-                                CogId = new("1a0efec3-bbd4-4588-9257-f86a2df1733b"),
-                                Target = new PackageTarget(
-                                    PackageTargetType.Local,
-                                    Path.Combine(AppContext.BaseDirectory, "Modding", "Packages", "Rebound.UserAccountControlSettings.msixbundle"),
-                                    "Rebound.UserAccountControlSettings_rcz2tbwv5qzb8")
-                            },
-                            new IFEOCog()
-                            {
-                                CogName = "Rebound UAC Settings IFEOCog",
-                                CogId = new("9e7c1ae3-8741-4e12-b967-4d9202fce1e2"),
-                                OriginalExecutableName = "useraccountcontrolsettings.exe",
-                                LauncherPath = Variables.ReboundLauncherPath
-                            },
-                            new LauncherAssociationCog()
-                            {
-                                CogName = "Rebound UAC Settings Launcher Association",
-                                CogId = new("9d1dd6a8-d1c7-4b92-a97c-0ea320d84041"),
-                                ConfigurationFileName = "uacsettings",
+                                CogName = "Rebound UAC Settings Program Association",
+                                CogId = new("e239881d-edf8-4910-abaa-361fd6af6ccb"),
                                 OriginalExecutable = "useraccountcontrolsettings.exe",
-                                Targets =
-                                [
-                                    new LauncherTarget("default", 
-                                        new LauncherTargetPackage()
-                                        {
-                                            FamilyName = "Rebound.UserAccountControlSettings_rcz2tbwv5qzb8"
-                                        })
-                                ]
+                                Target = new ProgramAssociationTarget(
+                                    ProgramAssociationType.AUMID,
+                                    "Rebound.ControlPanel_rcz2tbwv5qzb8!App")
                             }
                         ],
                         Launchers =
                         [
-                            new PackageLauncher()
+                            new UriLauncher()
                             {
-                                PackageFamilyName = "Rebound.UserAccountControlSettings_rcz2tbwv5qzb8"
+                                Uri = new("rebound-controlpanel:useraccountcontrolsettings")
                             }
                         ],
                     }
                 ],
-            },*/
+            },
             
+            // Advanced System Properties
+            new()
+            {
+                Name = "Advanced System Properties",
+                Id = new("a71e8c32-5f94-4b61-8d27-3c9e5a12f806"),
+                Description = "Replacement for the SystemPropertiesAdvanced.exe applet.",
+                Icon = "ms-appx:///Assets/ReboundApps/SystemConfig.ico",
+                Category = ModCategory.SystemAdministration,
+                PreferredInstallationTemplate = InstallationTemplate.Complete,
+                Variants =
+                [
+                    new()
+                    {
+                        Name = "Default",
+                        Id = new("c82f1a49-7e63-4d20-9b51-6a3f8e27d904"),
+                        Dependencies = [new("80439df9-6cca-4d5e-89f8-96c10f4e6c59"), new("d889389f-ec76-4ca6-93c8-318abe1e853c")], // Launcher, Rebound Control Panel
+                        Cogs =
+                        [
+                            new ProgramAssociationCog()
+                            {
+                                CogName = "Rebound Advanced System Properties Program Association",
+                                CogId = new("f31b7d85-2c49-4e16-a093-8b6f5d21c740"),
+                                OriginalExecutable = "SystemPropertiesAdvanced.exe",
+                                Target = new ProgramAssociationTarget(
+                                    ProgramAssociationType.AUMID,
+                                    "Rebound.ControlPanel_rcz2tbwv5qzb8!App")
+                            }
+                        ],
+                        Launchers =
+                        [
+                            new UriLauncher()
+                            {
+                                Uri = new("rebound-controlpanel:advancedsystemsettings")
+                            }
+                        ],
+                    }
+                ],
+            },
+            
+            // System Properties - Computer Name
+            new()
+            {
+                Name = "System Properties - Computer Name",
+                Id = new("d49f2b81-6c35-4e97-a120-8f53d7b26409"),
+                Description = "Replacement for the SystemPropertiesComputerName.exe applet.",
+                Icon = "ms-appx:///Assets/ReboundApps/SystemConfig.ico",
+                Category = ModCategory.SystemAdministration,
+                PreferredInstallationTemplate = InstallationTemplate.Complete,
+                Variants =
+                [
+                    new()
+                    {
+                        Name = "Default",
+                        Id = new("e72a4c93-1b58-46d0-9f34-5c81a7e263b5"),
+                        Dependencies = [new("80439df9-6cca-4d5e-89f8-96c10f4e6c59"), new("d889389f-ec76-4ca6-93c8-318abe1e853c")], // Launcher, Rebound Control Panel
+                        Cogs =
+                        [
+                            new ProgramAssociationCog()
+                            {
+                                CogName = "Rebound System Properties - Computer Name Program Association",
+                                CogId = new("b63e1d75-9a42-4f08-8c31-2d7e5a96f140"),
+                                OriginalExecutable = "SystemPropertiesComputerName.exe",
+                                Target = new ProgramAssociationTarget(
+                                    ProgramAssociationType.AUMID,
+                                    "Rebound.ControlPanel_rcz2tbwv5qzb8!App")
+                            }
+                        ],
+                        Launchers =
+                        [
+                            new UriLauncher()
+                            {
+                                Uri = new("rebound-controlpanel:sysconfig")
+                            }
+                        ],
+                    }
+                ],
+            },
+            
+            // System Properties - Hardware
+            new()
+            {
+                Name = "System Properties - Hardware",
+                Id = new("8d3f1a72-5c94-4e60-b281-7f6a9d35c042"),
+                Description = "Replacement for the SystemPropertiesHardware.exe applet.",
+                Icon = "ms-appx:///Assets/ReboundApps/SystemConfig.ico",
+                Category = ModCategory.SystemAdministration,
+                PreferredInstallationTemplate = InstallationTemplate.Complete,
+                Variants =
+                [
+                    new()
+                    {
+                        Name = "Default",
+                        Id = new("2a6e9c41-8f53-4d70-a192-5b3e7c64d805"),
+                        Dependencies = [new("80439df9-6cca-4d5e-89f8-96c10f4e6c59"), new("d889389f-ec76-4ca6-93c8-318abe1e853c")], // Launcher, Rebound Control Panel
+                        Cogs =
+                        [
+                            new ProgramAssociationCog()
+                            {
+                                CogName = "Rebound System Properties - Hardware Program Association",
+                                CogId = new("c5b8e2f1-7d49-4a63-9f20-6e3d1b85a704"),
+                                OriginalExecutable = "SystemPropertiesHardware.exe",
+                                Target = new ProgramAssociationTarget(
+                                    ProgramAssociationType.AUMID,
+                                    "Rebound.ControlPanel_rcz2tbwv5qzb8!App")
+                            }
+                        ],
+                        Launchers =
+                        [
+                            new UriLauncher()
+                            {
+                                Uri = new("rebound-controlpanel:sysconfig")
+                            }
+                        ],
+                    }
+                ],
+            },
+
+            // System Properties - Performance
+            new()
+            {
+                Name = "System Properties - Performance",
+                Id = new("f4a7c291-3e65-48b0-9d12-6c8e5f31a704"),
+                Description = "Replacement for the SystemPropertiesPerformance.exe applet.",
+                Icon = "ms-appx:///Assets/ReboundApps/SystemConfig.ico",
+                Category = ModCategory.SystemAdministration,
+                PreferredInstallationTemplate = InstallationTemplate.Complete,
+                Variants =
+                [
+                    new()
+                    {
+                        Name = "Default",
+                        Id = new("7b2d5e83-1a49-46c0-8f35-9e6a4c21d708"),
+                        Dependencies = [new("80439df9-6cca-4d5e-89f8-96c10f4e6c59"), new("d889389f-ec76-4ca6-93c8-318abe1e853c")], // Launcher, Rebound Control Panel
+                        Cogs =
+                        [
+                            new ProgramAssociationCog()
+                            {
+                                CogName = "Rebound System Properties - Performance Program Association",
+                                CogId = new("e9c3b6a1-5d72-4f08-a294-7c1e8b53d640"),
+                                OriginalExecutable = "SystemPropertiesPerformance.exe",
+                                Target = new ProgramAssociationTarget(
+                                    ProgramAssociationType.AUMID,
+                                    "Rebound.ControlPanel_rcz2tbwv5qzb8!App")
+                            }
+                        ],
+                        Launchers =
+                        [
+                            new UriLauncher()
+                            {
+                                Uri = new("rebound-controlpanel:advancedsystemsettings")
+                            }
+                        ],
+                    }
+                ],
+            },
+
+            // System Configuration
+            new()
+            {
+                Name = "System Configuration",
+                Id = new("3e8a1c72-5d94-4b60-a281-7f6c9d35e042"),
+                Description = "Replacement for the msconfig.exe application.",
+                Icon = "ms-appx:///Assets/ReboundApps/SystemConfig.ico",
+                Category = ModCategory.SystemAdministration,
+                PreferredInstallationTemplate = InstallationTemplate.Complete,
+                Variants =
+                [
+                    new()
+                    {
+                        Name = "Default",
+                        Id = new("6b2e9c41-8f53-4d70-a192-5b3e7c64d805"),
+                        Dependencies = [new("80439df9-6cca-4d5e-89f8-96c10f4e6c59"), new("d889389f-ec76-4ca6-93c8-318abe1e853c")],
+                        Cogs =
+                        [
+                            new ProgramAssociationCog()
+                            {
+                                CogName = "Rebound System Configuration Program Association",
+                                CogId = new("c5b8e2f1-7d49-4a63-9f20-6e3d1b85a704"),
+                                OriginalExecutable = "msconfig.exe",
+                                Target = new ProgramAssociationTarget(
+                                    ProgramAssociationType.AUMID,
+                                    "Rebound.ControlPanel_rcz2tbwv5qzb8!App")
+                            }
+                        ],
+                        Launchers =
+                        [
+                            new UriLauncher()
+                            {
+                                Uri = new("rebound-controlpanel:advancedsystemsettings")
+                            }
+                        ],
+                    }
+                ],
+            },
+
+            // ClearType Text Tuner
+            new()
+            {
+                Name = "ClearType Text Tuner",
+                Id = new("f4a7c291-3e65-48b0-9d12-6c8e5f31a704"),
+                Description = "Replacement for the cttune.exe application.",
+                Icon = "ms-appx:///Assets/ReboundApps/ClearType.ico",
+                Category = ModCategory.SystemAdministration,
+                PreferredInstallationTemplate = InstallationTemplate.Complete,
+                Variants =
+                [
+                    new()
+                    {
+                        Name = "Default",
+                        Id = new("7b2d5e83-1a49-46c0-8f35-9e6a4c21d708"),
+                        Dependencies = [new("80439df9-6cca-4d5e-89f8-96c10f4e6c59"), new("d889389f-ec76-4ca6-93c8-318abe1e853c")],
+                        Cogs =
+                        [
+                            new ProgramAssociationCog()
+                            {
+                                CogName = "Rebound ClearType Text Tuner Program Association",
+                                CogId = new("e9c3b6a1-5d72-4f08-a294-7c1e8b53d640"),
+                                OriginalExecutable = "cttune.exe",
+                                Target = new ProgramAssociationTarget(
+                                    ProgramAssociationType.AUMID,
+                                    "Rebound.ControlPanel_rcz2tbwv5qzb8!App")
+                            }
+                        ],
+                        Launchers =
+                        [
+                            new UriLauncher()
+                            {
+                                Uri = new("rebound-controlpanel:display")
+                            }
+                        ],
+                    }
+                ],
+            },
+
+            // Display Color Calibration
+            new()
+            {
+                Name = "Display Color Calibration",
+                Id = new("9c2f6a81-4d35-47e0-b192-8f5a3c71d604"),
+                Description = "Replacement for the dccw.exe application.",
+                Icon = "ms-appx:///Assets/ReboundApps/DisplayColorCalibration.ico",
+                Category = ModCategory.SystemAdministration,
+                PreferredInstallationTemplate = InstallationTemplate.Complete,
+                Variants =
+                [
+                    new()
+                    {
+                        Name = "Default",
+                        Id = new("1d7b4e92-6a35-48c0-9f21-5e8d3a72b604"),
+                        Dependencies = [new("80439df9-6cca-4d5e-89f8-96c10f4e6c59"), new("d889389f-ec76-4ca6-93c8-318abe1e853c")],
+                        Cogs =
+                        [
+                            new ProgramAssociationCog()
+                            {
+                                CogName = "Rebound Display Color Calibration Program Association",
+                                CogId = new("a6e3c9f2-8b51-4d70-9c24-5f1a7e83b602"),
+                                OriginalExecutable = "dccw.exe",
+                                Target = new ProgramAssociationTarget(
+                                    ProgramAssociationType.AUMID,
+                                    "Rebound.ControlPanel_rcz2tbwv5qzb8!App")
+                            }
+                        ],
+                        Launchers =
+                        [
+                            new UriLauncher()
+                            {
+                                Uri = new("rebound-controlpanel:display")
+                            }
+                        ],
+                    }
+                ],
+            },
+
+            // DirectX Control Panel
+            new()
+            {
+                Name = "DirectX Control Panel",
+                Id = new("5a8d2c71-9e43-46b0-a195-7f3c6d82e504"),
+                Description = "Replacement for the dxcpl.exe application.",
+                Icon = "ms-appx:///Assets/ReboundApps/DirectX.ico",
+                Category = ModCategory.SystemAdministration,
+                PreferredInstallationTemplate = InstallationTemplate.Complete,
+                Variants =
+                [
+                    new()
+                    {
+                        Name = "Default",
+                        Id = new("8e1c5b73-2d49-4a60-b837-6f9e1c25d402"),
+                        Dependencies = [new("80439df9-6cca-4d5e-89f8-96c10f4e6c59"), new("d889389f-ec76-4ca6-93c8-318abe1e853c")],
+                        Cogs =
+                        [
+                            new ProgramAssociationCog()
+                            {
+                                CogName = "Rebound DirectX Control Panel Program Association",
+                                CogId = new("d2f6a9c1-5b83-4e70-a294-8c1d6f35b702"),
+                                OriginalExecutable = "dxcpl.exe",
+                                Target = new ProgramAssociationTarget(
+                                    ProgramAssociationType.AUMID,
+                                    "Rebound.ControlPanel_rcz2tbwv5qzb8!App")
+                            }
+                        ],
+                        Launchers =
+                        [
+                            new UriLauncher()
+                            {
+                                Uri = new("rebound-controlpanel:directx")
+                            }
+                        ],
+                    }
+                ],
+            },
+
             // Launcher
             new()
             {
@@ -300,7 +530,8 @@ public partial class Catalog : ObservableObject
                 Icon = "ms-appx:///Assets/ReboundApps/Launcher.ico",
                 Category = ModCategory.General,
                 PreferredInstallationTemplate = InstallationTemplate.Basic,
-                Variants = [
+                Variants = 
+                [
                     new()
                     {
                         Name = "Default",
@@ -338,12 +569,13 @@ public partial class Catalog : ObservableObject
                 Icon = "ms-appx:///Assets/PartnerApps/CharacterMapUWP.png",
                 Category = ModCategory.Productivity,
                 PreferredInstallationTemplate = InstallationTemplate.Extras,
-                Variants = [
+                Variants = 
+                [
                     new()
                     {
                         Name = "Default",
                         Id = new("4dc88441-a519-4097-83f6-16c1b7b544dc"),
-                        Dependencies = [new("80439df9-6cca-4d5e-89f8-96c10f4e6c59")],
+                        Dependencies = [new("80439df9-6cca-4d5e-89f8-96c10f4e6c59")], // Launcher
                         Cogs =
                         [
                             new ProcessKillCog()
@@ -393,7 +625,7 @@ public partial class Catalog : ObservableObject
             },
             
             // Disk Cleanup
-            new Mod()
+            new()
             {
                 Name = "Disk Cleanup",
                 Id = new Guid("83442088-9521-47ee-86e8-49b64daa2d38"),
@@ -401,12 +633,13 @@ public partial class Catalog : ObservableObject
                 Icon = "ms-appx:///Assets/ReboundApps/DiskCleanup.ico",
                 Category = ModCategory.General,
                 PreferredInstallationTemplate = InstallationTemplate.Basic,
-                Variants = [
+                Variants = 
+                [
                     new()
                     {
                         Name = "Rebound Disk Cleanup",
                         Id = new("a474cf05-1513-4ac3-9019-c3d0a05d6576"),
-                        Dependencies = [new("80439df9-6cca-4d5e-89f8-96c10f4e6c59")],
+                        Dependencies = [new("80439df9-6cca-4d5e-89f8-96c10f4e6c59")], // Launcher
                         Cogs =
                         [
                             new ProcessKillCog()
@@ -456,12 +689,13 @@ public partial class Catalog : ObservableObject
                 Icon = "ms-appx:///Assets/ReboundApps/AboutWindows.ico",
                 Category = ModCategory.General,
                 PreferredInstallationTemplate = InstallationTemplate.Basic,
-                Variants = [
+                Variants = 
+                [
                     new()
                     {
                         Name = "Rebound About",
                         Id = new("2917ef5b-c290-4414-ae2e-348e0c38f3c4"),
-                        Dependencies = [new("80439df9-6cca-4d5e-89f8-96c10f4e6c59")],
+                        Dependencies = [new("80439df9-6cca-4d5e-89f8-96c10f4e6c59")], // Launcher
                         Cogs =
                         [
                             new ProcessKillCog()
@@ -565,7 +799,7 @@ public partial class Catalog : ObservableObject
                     {
                         Name = "Windows Settings - About",
                         Id = new("10044773-7031-4008-855e-accc0738899a"),
-                        Dependencies = [new("80439df9-6cca-4d5e-89f8-96c10f4e6c59")],
+                        Dependencies = [new("80439df9-6cca-4d5e-89f8-96c10f4e6c59")], // Launcher
                         Cogs =
                         [
                             new ProgramAssociationCog()
@@ -583,6 +817,31 @@ public partial class Catalog : ObservableObject
                             new UriLauncher()
                             {
                                 Uri = new("ms-settings:about")
+                            }
+                        ],
+                    },
+                    new()
+                    {
+                        Name = "Rebound Control Panel - About",
+                        Id = new("aa6bbc41-290c-4372-b875-ea51b4da16ee"),
+                        Dependencies = [new("80439df9-6cca-4d5e-89f8-96c10f4e6c59"), new("d889389f-ec76-4ca6-93c8-318abe1e853c")], // Launcher, Rebound Control Panel
+                        Cogs =
+                        [
+                            new ProgramAssociationCog()
+                            {
+                                CogName = "Rebound Control Panel winver Program Association",
+                                CogId = new("3b0a271e-bd12-44f7-8038-2bc5dd27ebc6"),
+                                OriginalExecutable = "winver.exe",
+                                Target = new ProgramAssociationTarget(
+                                    ProgramAssociationType.AUMID,
+                                    "Rebound.ControlPanel_rcz2tbwv5qzb8!App")
+                            }
+                        ],
+                        Launchers =
+                        [
+                            new UriLauncher()
+                            {
+                                Uri = new("rebound-controlpanel:about")
                             }
                         ],
                     }

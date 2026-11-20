@@ -24,6 +24,10 @@ internal sealed partial class BootAndBsodConfigurationPage : Page
     }
 
     [RelayCommand]
+    private static async Task NavigateToEnvVarAsync()
+        => await App.LaunchPageOrUriAsync(typeof(EnvironmentVariablesPage)).ConfigureAwait(true);
+
+    [RelayCommand]
     private static async Task ManageUsersAsync()
         => await Launcher.LaunchUriAsync(new Uri("ms-settings:otherusers"));
 

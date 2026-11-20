@@ -302,9 +302,7 @@ internal partial class WindowsCredential : ObservableObject
     private unsafe void UpdateWindowsCredential(string newTargetName, string? newUsername, string newPassword)
     {
         if (!PInvoke.CredRead(Name, Type, out var credential))
-        {
             return;
-        }
 
         try
         {
@@ -312,32 +310,34 @@ internal partial class WindowsCredential : ObservableObject
             using StringPtr usernamePtr = newUsername ?? string.Empty;
             using StringPtr passwordPtr = newPassword;
 
-            CREDENTIALW updatedCredential = *credential;
-
-            updatedCredential.TargetName = new(targetNamePtr.GetChars());
-            updatedCredential.UserName = new(usernamePtr.GetChars());
-            updatedCredential.CredentialBlob = (byte*)passwordPtr.GetChars();
-            updatedCredential.CredentialBlobSize = (uint)(newPassword.Length * sizeof(char));
-            updatedCredential.Persist = Persist ? CRED_PERSIST.CRED_PERSIST_LOCAL_MACHINE : CRED_PERSIST.CRED_PERSIST_SESSION;
-
-            if (Name != newTargetName)
+            CREDENTIALW updatedCredential = new()
             {
-                PInvoke.CredDelete(Name, Type);
-            }
+                TargetName = new(targetNamePtr.GetChars()),
+                UserName = new(usernamePtr.GetChars()),
+                CredentialBlob = (byte*)passwordPtr.GetChars(),
+                CredentialBlobSize = (uint)(newPassword.Length * sizeof(char)),
+                Persist = Persist
+                    ? CRED_PERSIST.CRED_PERSIST_LOCAL_MACHINE
+                    : CRED_PERSIST.CRED_PERSIST_SESSION
+            };
 
-            if (PInvoke.CredWrite(&updatedCredential, 0))
+            if (PInvoke.CredWrite(in updatedCredential, 0))
             {
+                if (Name != newTargetName)
+                    PInvoke.CredDelete(Name, Type);
+
                 Url = CredentialManagerViewModel.ExtractTargetWithRegex(newTargetName);
                 Username = newUsername;
                 Name = newTargetName;
                 LastWritten = DateTime.Now.ToString((IFormatProvider?)null);
 
-                _owner.RefreshDisplayedWindowsCredentials(_owner.WindowsCredentialSearchQuery);
+                _owner.RefreshDisplayedWindowsCredentials(
+                    _owner.WindowsCredentialSearchQuery);
             }
         }
         finally
         {
-            PInvoke.CredFree(credential);
+            credential?.Dispose();
         }
     }
 }
@@ -588,59 +588,57 @@ internal partial class CredentialManagerViewModel : ObservableObject
 
     public unsafe List<WindowsCredential> GetWindowsCredentials()
     {
-        if (!PInvoke.CredEnumerate(null, out uint count, out CREDENTIALW** creds))
+        if (!PInvoke.CredEnumerate(null, out uint count, out var creds))
             return [];
 
-        var list = new List<WindowsCredential>((int)count);
-        try
+        using (creds)
         {
+            var list = new List<WindowsCredential>((int)count);
+
             for (int i = 0; i < count; i++)
             {
-                var c = creds[i];
+                var c = (*(CREDENTIALW**)creds.DangerousGetHandle())[i];
 
                 string password = string.Empty;
                 bool isPasswordAvailable = false;
 
                 try
                 {
-                    if (c->CredentialBlob != null && c->CredentialBlobSize > 0)
+                    if (c.CredentialBlob != null && c.CredentialBlobSize > 0)
                     {
-                        password = Marshal.PtrToStringUni((nint)c->CredentialBlob, (int)c->CredentialBlobSize / sizeof(char)) ?? string.Empty;
+                        password = Marshal.PtrToStringUni(
+                            (nint)c.CredentialBlob,
+                            (int)c.CredentialBlobSize / sizeof(char))
+                            ?? string.Empty;
+
                         isPasswordAvailable = true;
                     }
                 }
                 catch
                 {
-                    // Some Windows credentials protect or restrict blob reading based on token/integrity level
                     password = string.Empty;
                     isPasswordAvailable = false;
                 }
 
                 list.Add(new WindowsCredential(this)
                 {
-                    Url = ExtractTargetWithRegex(c->TargetName.ToString()),
-                    Username = c->UserName.ToString(),
-                    Persist = c->Persist switch
-                    {
-                        CRED_PERSIST.CRED_PERSIST_NONE => false,
-                        _ => true
-                    },
-                    LastWritten = (c->LastWritten.dwHighDateTime == 0 && c->LastWritten.dwLowDateTime == 0)
-                        ? string.Empty
-                        : TryGetFileTime(c->LastWritten),
-                    Type = c->Type,
-                    Name = c->TargetName.ToString(),
+                    Url = ExtractTargetWithRegex(c.TargetName.ToString()),
+                    Username = c.UserName.ToString(),
+                    Persist = c.Persist != CRED_PERSIST.CRED_PERSIST_NONE,
+                    LastWritten =
+                        c.LastWritten.dwHighDateTime == 0 &&
+                        c.LastWritten.dwLowDateTime == 0
+                            ? string.Empty
+                            : TryGetFileTime(c.LastWritten),
+                    Type = c.Type,
+                    Name = c.TargetName.ToString(),
                     Password = password,
                     IsPasswordAvailable = isPasswordAvailable
                 });
             }
-        }
-        finally
-        {
-            PInvoke.CredFree(creds);
-        }
 
-        return list;
+            return list;
+        }
     }
 
     public static string ExtractTargetWithRegex(string input)

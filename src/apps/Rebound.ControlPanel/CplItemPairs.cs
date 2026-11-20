@@ -7,6 +7,7 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
+using System.IO;
 using System.Threading.Tasks;
 using Windows.System;
 
@@ -22,7 +23,13 @@ internal static partial class CplItemPairs
             Tag = "home",
             Icon = "img:ms-appx:///Assets/Glyphs/Home.ico",
             Page = typeof(HomePage), 
-            Args = ["control", ""],
+            Args = 
+            [
+                "control", 
+                string.Empty,
+                Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.System), "control.exe"),
+                $"\"{Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.System), "control.exe")}\""
+            ],
             PageOpenUri = "home",
             PageOpenIconPath = "Assets/Glyphs/Home.ico",
             LegacyLaunchItems =
@@ -46,7 +53,14 @@ internal static partial class CplItemPairs
                     Tag = "configuration", 
                     Icon = "glyph:\uE9E9",
                     Page = typeof(SystemConfigurationPage),
-                    Args = [CplArgs.SystemPropertiesComputerNameExePath],
+                    Args = 
+                    [
+                        CplArgs.SystemPropertiesComputerNameExePath,
+                        Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.System), "SystemPropertiesComputerName.exe"),
+                        $"\"{Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.System), "SystemPropertiesComputerName.exe")}\"",
+                        Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.System), "SystemPropertiesHardware.exe"),
+                        $"\"{Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.System), "SystemPropertiesHardware.exe")}\""
+                    ],
                     PageOpenUri = "sysconfig",
                     PageOpenIconPath = "Assets/Glyphs/Configuration.ico",
                     LegacyLaunchItems =
@@ -70,7 +84,15 @@ internal static partial class CplItemPairs
                     Tag = "display",
                     Icon = "glyph:\uE7F4",
                     Page = typeof(DisplaySettingsPage),
-                    Args = [CplArgs.DisplayColorCalibrationExePath, CplArgs.ClearTypeTunerExePath],
+                    Args = 
+                    [
+                        CplArgs.DisplayColorCalibrationExePath,
+                        CplArgs.ClearTypeTunerExePath,
+                        Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.System), "dccw.exe"),
+                        $"\"{Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.System), "dccw.exe")}\"",
+                        Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.System), "cttune.exe"),
+                        $"\"{Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.System), "cttune.exe")}\""
+                    ],
                     PageOpenUri = "display",
                     PageOpenIconPath = "Assets/Glyphs/Display.ico",
                     LegacyLaunchItems =
@@ -99,7 +121,12 @@ internal static partial class CplItemPairs
                     Tag = "directx",
                     Icon = "glyph:\uF211",
                     Page = typeof(DirectXPage),
-                    Args = [CplArgs.DirectXControlPanelExePath, CplArgs.DirectXDiagExePath],
+                    Args = 
+                    [
+                        CplArgs.DirectXControlPanelExePath, 
+                        Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.System), "dxcpl.exe"),
+                        $"\"{Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.System), "dxcpl.exe")}\""
+                    ],
                     PageOpenUri = "directx",
                     PageOpenIconPath = "Assets/Glyphs/DirectX.ico",
                     LegacyLaunchItems =
@@ -108,11 +135,6 @@ internal static partial class CplItemPairs
                         {
                             Name = "DirectX Properties",
                             Executable = CplArgs.DirectXControlPanelExePath
-                        },
-                        new()
-                        {
-                            Name = "DirectX Diagnostic Tool",
-                            Executable = CplArgs.DirectXDiagExePath
                         }
                     ],
                 },
@@ -123,7 +145,10 @@ internal static partial class CplItemPairs
                     Tag = "environmentvariables",
                     Icon = "path:F1 M 2 0 C 1 0 0 1 0 2 L 0 14 C 0 15 1 16 2 16 L 14 16 C 15 16 16 15 16 14 L 16 10 L 12 10 L 12 2 C 12 1 11 0 10 0 M 10 1 C 10.5 1 11 1.5 11 2 L 11 15 L 2 15 C 1.5 15 1 14.5 1 14 L 1 2 C 1 1.5 1.5 1 2 1 M 12 11 L 15 11 L 15 14 C 15 14.5 14.5 15 14 15 L 12 15 M 3 4 L 9 4 L 9 5 L 3 5 M 3 7 L 9 7 L 9 8 L 3 8 M 3 10 L 6 10 L 6 11 L 3 11",
                     Page = typeof(EnvironmentVariablesPage), 
-                    Args = [CplArgs.ENVIRONMENT_VARIABLES],
+                    Args = 
+                    [
+                        CplArgs.ENVIRONMENT_VARIABLES
+                    ],
                     PageOpenUri = "environmentvariables",
                     PageOpenIconPath = "Assets/Glyphs/EnvironmentVariables.ico",
                     LegacyLaunchItems =
@@ -161,7 +186,16 @@ internal static partial class CplItemPairs
                     Tag = "advancedsystemsettings",
                     Icon = "glyph:\uEC7A",
                     Page = typeof(BootAndBsodConfigurationPage), 
-                    Args = [CplArgs.BOOT_AND_BSOD_CONFIGURATION],
+                    Args = 
+                    [
+                        CplArgs.BOOT_AND_BSOD_CONFIGURATION,
+                        Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.System), "msconfig.exe"),
+                        $"\"{Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.System), "msconfig.exe")}\"",
+                        Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.System), "SystemPropertiesAdvanced.exe"),
+                        $"\"{Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.System), "SystemPropertiesAdvanced.exe")}\"",
+                        Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.System), "SystemPropertiesPerformance.exe"),
+                        $"\"{Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.System), "SystemPropertiesPerformance.exe")}\"",
+                    ],
                     PageOpenUri = "advancedsystemsettings",
                     PageOpenIconPath = "Assets/Glyphs/Advanced.ico",
                     LegacyLaunchItems =
@@ -189,7 +223,12 @@ internal static partial class CplItemPairs
                     Tag = "about", 
                     Icon = "glyph:\uE946",
                     Page = typeof(AboutWindowsPage),
-                    Args = [CplArgs.ABOUT],
+                    Args = 
+                    [
+                        CplArgs.ABOUT,
+                        Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.System), "winver.exe"),
+                        $"\"{Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.System), "winver.exe")}\""
+                    ],
                     PageOpenUri = "about",
                     PageOpenIconPath = "Assets/Glyphs/About.ico",
                     LegacyLaunchItems =
@@ -271,7 +310,12 @@ internal static partial class CplItemPairs
                     Tag = "useraccountcontrolsettings",
                     Icon = "glyph:\uEA18",
                     Page = typeof(UserAccountControlSettingsPage),
-                    Args = [ CplArgs.UAC_SETTINGS ],
+                    Args = 
+                    [ 
+                        CplArgs.UAC_SETTINGS,
+                        Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.System), "UserAccountControlSettings.exe"),
+                        $"\"{Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.System), "UserAccountControlSettings.exe")}\""
+                    ],
                     PageOpenUri = "useraccountcontrolsettings",
                     PageOpenIconPath = "Assets/Glyphs/UserAccountControlSettings.ico",
                     LegacyLaunchItems =
@@ -327,7 +371,12 @@ internal static partial class CplItemPairs
             Tag = "windowstools",
             Icon = "img:ms-appx:///Assets/Glyphs/WindowsTools.ico",
             Page = typeof(WindowsToolsPage),
-            Args = [CplArgs.ADMINISTRATIVE_TOOLS, CplArgs.ADMINISTRATIVE_TOOLS_UTIL],
+            Args = 
+            [
+                CplArgs.ADMINISTRATIVE_TOOLS,
+                CplArgs.ADMINISTRATIVE_TOOLS_UTIL,
+                $"\"{Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.System), "control.exe")}\" {CplArgs.ADMINISTRATIVE_TOOLS_UTIL}"
+            ],
             PageOpenUri = "windowstools",
             PageOpenIconPath = "Assets/Glyphs/WindowsTools.ico",
             LegacyLaunchItems =

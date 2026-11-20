@@ -49,6 +49,19 @@
                 Spacing="8">
                 <TextBlock FontWeight="SemiBold" Text="Performance" />
                 <InfoBar
+                    Title="Are you looking for Environment Variables?"
+                    IsOpen="True"
+                    Message="The option you're looking for isn't here, but we can take you there.">
+                    <InfoBar.ActionButton>
+                        <Button Command="{x:Bind NavigateToEnvVarCommand}" Style="{StaticResource AccentButtonStyle}">
+                            <StackPanel Orientation="Horizontal" Spacing="8">
+                                <FontIcon FontSize="16" Glyph="&#xE72A;" />
+                                <TextBlock Text="Edit Environment Variables" />
+                            </StackPanel>
+                        </Button>
+                    </InfoBar.ActionButton>
+                </InfoBar>
+                <InfoBar
                     Title="You must restart your PC for changes to take effect."
                     IsClosable="False"
                     IsOpen="True"

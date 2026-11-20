@@ -4,6 +4,7 @@
 using Microsoft.UI;
 using Microsoft.UI.Xaml;
 using Microsoft.Windows.AppLifecycle;
+
 using Rebound.ControlPanel.Views;
 using Rebound.Core;
 using Rebound.Core.IPC;
@@ -11,15 +12,20 @@ using Rebound.Core.UI;
 using Rebound.Core.UI.Application;
 using Rebound.Core.UI.Windowing;
 using Rebound.Forge.Engines;
+
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.IO;
 using System.Linq;
+using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+
 using Windows.ApplicationModel.Activation;
 using Windows.System;
 using Windows.UI;
+
 using WinUIEx;
 
 #pragma warning disable CA1031
@@ -75,6 +81,8 @@ public partial class App : Application, IReboundLegacySupportApp, IReboundPipeCl
     {
         try
         {
+            Debug.WriteLine(e.LaunchArguments);
+
             // Extract the raw argument string from the activation payload
             var arguments = e.LaunchArguments;
 
@@ -277,7 +285,7 @@ public partial class App : Application, IReboundLegacySupportApp, IReboundPipeCl
         return null;
     }
 
-    private static async Task LaunchPageOrUriAsync(object? target)
+    public static async Task LaunchPageOrUriAsync(object? target)
     {
         // Wait asynchronously until the window is marked ready
         await _windowReadyTcs.Task.ConfigureAwait(true);
@@ -312,6 +320,14 @@ public partial class App : Application, IReboundLegacySupportApp, IReboundPipeCl
 
     public void LaunchLegacy(string executable, string args)
     {
+        var trimmedArgs = args?
+            .Replace(
+                $"\"{Path.Combine(
+                    Environment.GetFolderPath(Environment.SpecialFolder.System),
+                    "control.exe")}\"",
+                string.Empty,
+                StringComparison.InvariantCultureIgnoreCase);
+
         Task.Run(async () =>
         {
             try
@@ -319,7 +335,7 @@ public partial class App : Application, IReboundLegacySupportApp, IReboundPipeCl
                 if (Process.GetProcessesByName("Rebound.ServiceHost").ToList().Count > 0)
                 {
                     await (ReboundPipeClient?.ConnectAsync())!.ConfigureAwait(true);
-                    await (ReboundPipeClient?.SendAsync($"LAUNCH:{executable}"))!.ConfigureAwait(true);
+                    await (ReboundPipeClient?.SendAsync($"LAUNCH:{LegacyExecutableName}\\lnbrk\\{Convert.ToBase64String(Encoding.UTF8.GetBytes(trimmedArgs ?? string.Empty))}"))!.ConfigureAwait(true);
                 }
                 else StartDirectly();
             }
@@ -335,7 +351,7 @@ public partial class App : Application, IReboundLegacySupportApp, IReboundPipeCl
             Process.Start(new ProcessStartInfo()
             {
                 FileName = executable,
-                Arguments = args,
+                Arguments = trimmedArgs,
                 UseShellExecute = true
             });
         }
