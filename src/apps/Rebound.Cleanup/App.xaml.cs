@@ -51,7 +51,7 @@ public partial class App : Application
                 LogMessageSeverity.Error,
                 e.Exception);
             // The environment is too unstable for execution to continue
-            //Current.Exit();
+            Current.Exit();
         };
 
         SingleInstanceAppService.Launched += OnSingleInstanceLaunched;
