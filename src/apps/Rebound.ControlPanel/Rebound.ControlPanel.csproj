@@ -78,13 +78,14 @@
 		<GenerateAppInstallerFile>false</GenerateAppInstallerFile>
 
 		<PackageCertificateKeyFile>$(SolutionDir)\src\Rebound.Hub_TemporaryKey.pfx</PackageCertificateKeyFile>
+
+		<HoursBetweenUpdateChecks>0</HoursBetweenUpdateChecks>
 	</PropertyGroup>
 
 	<!-- NuGet dependencies -->
 	<ItemGroup>
 		<!-- Windows interop -->
-		<PackageReference Include="Microsoft.Windows.CsWin32"
-						  Version="0.3.369">
+		<PackageReference Include="Microsoft.Windows.CsWin32" Version="0.3.369">
 			<PrivateAssets>all</PrivateAssets>
 			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
 		</PackageReference>
@@ -94,21 +95,11 @@
 		<PackageReference Include="WinUIEx" Version="2.9.3" />
 
 		<!-- Excluded runtime and compile assets -->
-		<PackageReference Include="Microsoft.WindowsAppSDK.AI"
-						  Version="2.6.5"
-						  ExcludeAssets="all" />
-		<PackageReference Include="Microsoft.WindowsAppSDK.ML"
-						  Version="2.6.5"
-						  ExcludeAssets="all" />
-		<PackageReference Include="Microsoft.Windows.AI.MachineLearning"
-						  Version="2.5.96"
-						  ExcludeAssets="all" />
-		<PackageReference Include="Microsoft.ML.OnnxRuntime"
-						  Version="1.31.1"
-						  ExcludeAssets="all" />
-		<PackageReference Include="Microsoft.Web.WebView2"
-						  Version="1.0.4314.35"
-						  ExcludeAssets="all" />
+		<PackageReference Include="Microsoft.WindowsAppSDK.AI" Version="2.6.5" ExcludeAssets="all" />
+		<PackageReference Include="Microsoft.WindowsAppSDK.ML" Version="2.6.5" ExcludeAssets="all" />
+		<PackageReference Include="Microsoft.Windows.AI.MachineLearning" Version="2.5.96" ExcludeAssets="all" />
+		<PackageReference Include="Microsoft.ML.OnnxRuntime" Version="1.31.1" ExcludeAssets="all" />
+		<PackageReference Include="Microsoft.Web.WebView2" Version="1.0.4314.35" ExcludeAssets="all" />
 
 		<!-- CommunityToolkit -->
 		<PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.2" />
