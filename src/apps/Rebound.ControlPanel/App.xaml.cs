@@ -335,7 +335,7 @@ public partial class App : Application, IReboundLegacySupportApp, IReboundPipeCl
                 if (Process.GetProcessesByName("Rebound.ServiceHost").ToList().Count > 0)
                 {
                     await (ReboundPipeClient?.ConnectAsync())!.ConfigureAwait(true);
-                    await (ReboundPipeClient?.SendAsync($"LAUNCH:{LegacyExecutableName}\\lnbrk\\{Convert.ToBase64String(Encoding.UTF8.GetBytes(trimmedArgs ?? string.Empty))}"))!.ConfigureAwait(true);
+                    await (ReboundPipeClient?.SendAsync($"LAUNCH:{executable}\\lnbrk\\{Convert.ToBase64String(Encoding.UTF8.GetBytes(trimmedArgs ?? string.Empty))}"))!.ConfigureAwait(true);
                 }
                 else StartDirectly();
             }
