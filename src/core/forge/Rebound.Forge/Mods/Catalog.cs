@@ -233,8 +233,8 @@ public partial class Catalog : ObservableObject
                                 CogId = new("f31b7d85-2c49-4e16-a093-8b6f5d21c740"),
                                 OriginalExecutable = "SystemPropertiesAdvanced.exe",
                                 Target = new ProgramAssociationTarget(
-                                    ProgramAssociationType.AUMID,
-                                    "Rebound.ControlPanel_rcz2tbwv5qzb8!App")
+                                    ProgramAssociationType.URI,
+                                    "rebound-controlpanel:advancedsystemsettings")
                             }
                         ],
                         Launchers =
@@ -272,8 +272,8 @@ public partial class Catalog : ObservableObject
                                 CogId = new("b63e1d75-9a42-4f08-8c31-2d7e5a96f140"),
                                 OriginalExecutable = "SystemPropertiesComputerName.exe",
                                 Target = new ProgramAssociationTarget(
-                                    ProgramAssociationType.AUMID,
-                                    "Rebound.ControlPanel_rcz2tbwv5qzb8!App")
+                                    ProgramAssociationType.URI,
+                                    "rebound-controlpanel:sysconfig")
                             }
                         ],
                         Launchers =
@@ -311,8 +311,8 @@ public partial class Catalog : ObservableObject
                                 CogId = new("c5b8e2f1-7d49-4a63-9f20-6e3d1b85a704"),
                                 OriginalExecutable = "SystemPropertiesHardware.exe",
                                 Target = new ProgramAssociationTarget(
-                                    ProgramAssociationType.AUMID,
-                                    "Rebound.ControlPanel_rcz2tbwv5qzb8!App")
+                                    ProgramAssociationType.URI,
+                                    "rebound-controlpanel:sysconfig")
                             }
                         ],
                         Launchers =
@@ -350,8 +350,8 @@ public partial class Catalog : ObservableObject
                                 CogId = new("e9c3b6a1-5d72-4f08-a294-7c1e8b53d640"),
                                 OriginalExecutable = "SystemPropertiesPerformance.exe",
                                 Target = new ProgramAssociationTarget(
-                                    ProgramAssociationType.AUMID,
-                                    "Rebound.ControlPanel_rcz2tbwv5qzb8!App")
+                                    ProgramAssociationType.URI,
+                                    "rebound-controlpanel:advancedsystemsettings")
                             }
                         ],
                         Launchers =
@@ -389,8 +389,8 @@ public partial class Catalog : ObservableObject
                                 CogId = new("c5b8e2f1-7d49-4a63-9f20-6e3d1b85a704"),
                                 OriginalExecutable = "msconfig.exe",
                                 Target = new ProgramAssociationTarget(
-                                    ProgramAssociationType.AUMID,
-                                    "Rebound.ControlPanel_rcz2tbwv5qzb8!App")
+                                    ProgramAssociationType.URI,
+                                    "rebound-controlpanel:advancedsystemsettings")
                             }
                         ],
                         Launchers =
@@ -428,8 +428,8 @@ public partial class Catalog : ObservableObject
                                 CogId = new("e9c3b6a1-5d72-4f08-a294-7c1e8b53d640"),
                                 OriginalExecutable = "cttune.exe",
                                 Target = new ProgramAssociationTarget(
-                                    ProgramAssociationType.AUMID,
-                                    "Rebound.ControlPanel_rcz2tbwv5qzb8!App")
+                                    ProgramAssociationType.URI,
+                                    "rebound-controlpanel:display")
                             }
                         ],
                         Launchers =
@@ -467,8 +467,8 @@ public partial class Catalog : ObservableObject
                                 CogId = new("a6e3c9f2-8b51-4d70-9c24-5f1a7e83b602"),
                                 OriginalExecutable = "dccw.exe",
                                 Target = new ProgramAssociationTarget(
-                                    ProgramAssociationType.AUMID,
-                                    "Rebound.ControlPanel_rcz2tbwv5qzb8!App")
+                                    ProgramAssociationType.URI,
+                                    "rebound-controlpanel:display")
                             }
                         ],
                         Launchers =
@@ -506,8 +506,8 @@ public partial class Catalog : ObservableObject
                                 CogId = new("d2f6a9c1-5b83-4e70-a294-8c1d6f35b702"),
                                 OriginalExecutable = "dxcpl.exe",
                                 Target = new ProgramAssociationTarget(
-                                    ProgramAssociationType.AUMID,
-                                    "Rebound.ControlPanel_rcz2tbwv5qzb8!App")
+                                    ProgramAssociationType.URI,
+                                    "rebound-controlpanel:directx")
                             }
                         ],
                         Launchers =
@@ -833,8 +833,8 @@ public partial class Catalog : ObservableObject
                                 CogId = new("3b0a271e-bd12-44f7-8038-2bc5dd27ebc6"),
                                 OriginalExecutable = "winver.exe",
                                 Target = new ProgramAssociationTarget(
-                                    ProgramAssociationType.AUMID,
-                                    "Rebound.ControlPanel_rcz2tbwv5qzb8!App")
+                                    ProgramAssociationType.URI,
+                                    "rebound-controlpanel:about")
                             }
                         ],
                         Launchers =
