@@ -23,12 +23,15 @@
             <ColumnDefinition Width="24" />
         </Grid.ColumnDefinitions>
         <Grid.RowDefinitions>
-            <RowDefinition Height="32" />
+            <RowDefinition x:Name="HeaderRow" Height="32" />
             <RowDefinition Height="4" />
             <RowDefinition Height="*" />
             <RowDefinition Height="80" />
         </Grid.RowDefinitions>
-        <SystemBackdropElement Grid.RowSpan="4" Grid.ColumnSpan="9">
+        <SystemBackdropElement
+            x:Name="BackdropElem"
+            Grid.RowSpan="4"
+            Grid.ColumnSpan="9">
             <SystemBackdropElement.SystemBackdrop>
                 <MicaBackdrop />
             </SystemBackdropElement.SystemBackdrop>
@@ -47,6 +50,7 @@
             Grid.ColumnSpan="5"
             HorizontalAlignment="Stretch"
             VerticalAlignment="Top"
+            x:FieldModifier="public"
             AutoMaximizeSuggestionArea="False"
             Header="Type the name of a program, file, or URL."
             QuerySubmitted="InputBox_QuerySubmitted"
@@ -131,6 +135,7 @@
             </Button.KeyboardAccelerators>
         </Button>
         <TitleBar
+            x:Name="TitleBarElem"
             Title="Run"
             Grid.ColumnSpan="9"
             Subtitle="BETA" />

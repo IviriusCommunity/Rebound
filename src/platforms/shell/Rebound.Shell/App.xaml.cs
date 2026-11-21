@@ -1,21 +1,27 @@
 ﻿// Copyright (C) Ivirius(TM) Community 2020 - 2026. All Rights Reserved.
 // Licensed under the MIT License.
 
+using DesktopFlyouts;
+
 using Microsoft.UI;
 using Microsoft.UI.Dispatching;
+using Microsoft.UI.Windowing;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 
 using Rebound.Core;
 using Rebound.Core.IPC;
+using Rebound.Core.Settings;
 using Rebound.Core.SystemInformation.Hardware;
 using Rebound.Core.UI;
 using Rebound.Core.UI.Windowing;
 using Rebound.Forge.Engines;
 using Rebound.Shell.Run;
+using Rebound.Shell.Views;
 
 using System;
 using System.Threading;
+using System.Threading.Tasks;
 
 using Windows.Graphics;
 using Windows.Win32;
@@ -62,6 +68,11 @@ public partial class App : Application
         if (e.IsFirstLaunch)
         {
             _dispatcher = DispatcherQueue.GetForCurrentThread();
+            RunFlyout = new()
+            {
+                ActivationMode = DesktopFlyoutActivationMode.Activate,
+                IsSwipeToDismissEnabled = true
+            };
 
             var ipcThread = new Thread(() =>
             {
@@ -106,68 +117,88 @@ public partial class App : Application
             ShowRunWindow();
     }
 
-    public unsafe void ShowRunWindow()
+    public void ShowRunWindow()
     {
-        _dispatcher?.TryEnqueue(() =>
+        _dispatcher?.TryEnqueue(async () =>
         {
-            if (RunWindow != null)
-                RunWindow.BringToFront();
-            else
+            if (SettingsManager.GetValue("UseRunFlyout", "rshell", true))
             {
-                RunWindow = new()
+                RunFlyout?.Show(
+                    DesktopFlyoutPosition.InWorkArea(
+                        DesktopFlyoutWorkAreaPosition.BottomLeft,
+                        DesktopFlyoutMonitorSelection.Cursor,
+                        DesktopFlyoutPopupDirection.LeftToRight));
+                var appWindow = AppWindow.GetFromWindowId(RunFlyout!.XamlRoot.ContentIslandEnvironment.AppWindowId);
+                BringToForeground(new(Win32Interop.GetWindowFromWindowId(appWindow.Id)));
+                appWindow.MoveInZOrderAtTop();
+                await Task.Delay(300).ConfigureAwait(true);
+                ((RunFlyout.Islands[0].Content as Frame)?.Content as RunWindow)?.InputBox.Focus(FocusState.Keyboard);
+            }
+            else unsafe
+            {
+                if (RunWindow != null)
+                    RunWindow.BringToFront();
+                else
                 {
-                    Title = "Run",
-                    IsMaximizable = false,
-                    IsMinimizable = false,
-                    IsResizable = false
-                };
+                    RunWindow = new()
+                    {
+                        Title = "Run",
+                        IsMaximizable = false,
+                        IsMinimizable = false,
+                        IsResizable = false
+                    };
 
-                var hwnd = RunWindow.GetWindowHandle();
-                var workArea = Display.GetDisplayWorkArea(new((void*)hwnd));
+                    var hwnd = RunWindow.GetWindowHandle();
+                    var workArea = Display.GetDisplayWorkArea(new((void*)hwnd));
 
-                float scale = HwndExtensions.GetDpiForWindow(hwnd) / 96f;
+                    float scale = HwndExtensions.GetDpiForWindow(hwnd) / 96f;
 
-                const int width = 450;
-                const int height = 240;
-                const int margin = 25;
+                    const int width = 450;
+                    const int height = 240;
+                    const int margin = 25;
 
-                RunWindow.AppWindow?.MoveAndResize(
-                    new RectInt32(
-                        (int)((workArea.left / scale + margin) * scale),
-                        (int)((workArea.bottom / scale - height - margin) * scale),
-                        (int)(width * scale),
-                        (int)(height * scale)));
+                    RunWindow.AppWindow?.MoveAndResize(
+                        new RectInt32(
+                            (int)((workArea.left / scale + margin) * scale),
+                            (int)((workArea.bottom / scale - height - margin) * scale),
+                            (int)(width * scale),
+                            (int)(height * scale)));
 
-                RunWindow.AppWindow?.SetIcon($"{AppContext.BaseDirectory}\\Assets\\Applets\\RunBox.ico");
-                RunWindow.AppWindow?.TitleBar.ExtendsContentIntoTitleBar = true;
-                RunWindow.AppWindow?.TitleBar.ButtonBackgroundColor = Colors.Transparent;
-                RunWindow.AppWindow?.TitleBar.ButtonInactiveBackgroundColor = Colors.Transparent;
-                var frame = new Frame();
-                frame.Navigate(typeof(RunWindow));
-                RunWindow.Content = frame;
-                RunWindow.Closed += (s, e) => RunWindow = null;
-                RunWindow.SystemBackdrop = new TransparentTintBackdrop();
-                RunWindow.Show();
-                BringToForeground(RunWindow);
-                RunWindow.BringToFront();
+                    RunWindow.AppWindow?.SetIcon($"{AppContext.BaseDirectory}\\Assets\\Applets\\RunBox.ico");
+                    RunWindow.AppWindow?.TitleBar.ExtendsContentIntoTitleBar = true;
+                    RunWindow.AppWindow?.TitleBar.ButtonBackgroundColor = Colors.Transparent;
+                    RunWindow.AppWindow?.TitleBar.ButtonInactiveBackgroundColor = Colors.Transparent;
+                    var frame = new Frame();
+                    frame.Navigate(typeof(RunWindow));
+                    RunWindow.Content = frame;
+                    RunWindow.Closed += (s, e) => RunWindow = null;
+                    RunWindow.SystemBackdrop = new TransparentTintBackdrop();
+                    RunWindow.Show();
+                    BringToForeground(new(RunWindow.GetWindowHandle()));
+                    RunWindow.BringToFront();
 
-                ReboundWindowBackdrop.Register(RunWindow);
-                ReboundWindowTheme.Register(RunWindow);
+                    ReboundWindowBackdrop.Register(RunWindow);
+                    ReboundWindowTheme.Register(RunWindow);
+                }
             }
         });
     }
 
-    private static void BringToForeground(WindowEx window)
+    private static void BringToForeground(HWND hwnd)
     {
-        HWND hwnd = (HWND)window.GetWindowHandle();
-
         PInvoke.AllowSetForegroundWindow((uint)Environment.ProcessId);
         PInvoke.ShowWindow(hwnd, SHOW_WINDOW_CMD.SW_RESTORE);
         PInvoke.SetForegroundWindow(hwnd);
     }
 
     public static void CloseRunWindow()
-        => RunWindow?.Close();
+    {
+        if (SettingsManager.GetValue("UseRunFlyout", "rshell", true))
+            RunFlyout?.Hide();
+        else RunWindow?.Close();
+    }
 
     public static WindowEx? RunWindow { get; set; }
+
+    public static RunFlyout? RunFlyout { get; set; }
 }

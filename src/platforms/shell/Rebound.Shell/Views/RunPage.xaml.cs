@@ -3,6 +3,7 @@
 
 using CommunityToolkit.Mvvm.Input;
 
+using Microsoft.UI;
 using Microsoft.UI.Input;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
@@ -52,6 +53,17 @@ internal sealed partial class RunWindow : Page
                 ViewModel.Path = ViewModel.RunHistory[^1];
             InputBox.IsSuggestionListOpen = false;
         };
+    }
+
+    protected override async void OnNavigatedTo(Microsoft.UI.Xaml.Navigation.NavigationEventArgs e)
+    {
+        base.OnNavigatedTo(e);
+        if (e.Parameter is bool isFlyout && isFlyout)
+        {
+            BackdropElem.Visibility = Visibility.Collapsed;
+            HeaderRow.Height = new(16);
+            TitleBarElem.Visibility = Visibility.Collapsed;
+        }
     }
 
     [RelayCommand]
@@ -130,7 +142,22 @@ internal sealed partial class RunWindow : Page
     [RelayCommand]
     public static unsafe void LaunchLegacy()
     {
-        var scale = App.RunWindow?.Content.XamlRoot.RasterizationScale;
+        double? scale;
+
+        if (App.RunWindow != null)
+            scale = App.RunWindow.Content.XamlRoot.RasterizationScale;
+        else if (App.RunFlyout != null)
+            scale = App.RunFlyout.XamlRoot.RasterizationScale;
+        else scale = 1;
+
+        HWND handle;
+
+        if (App.RunWindow != null)
+            handle = new(App.RunWindow.GetWindowHandle());
+        else if (App.RunFlyout != null)
+            handle = new(Win32Interop.GetWindowFromWindowId(App.RunFlyout.XamlRoot.ContentIslandEnvironment.AppWindowId));
+        else handle = HWND.Null;
+
         using StringPtr title = "Legacy Run";
         using StringPtr iconPath = Path.Combine(
             AppContext.BaseDirectory,
@@ -148,7 +175,7 @@ internal sealed partial class RunWindow : Page
         try
         {
             RunFileDlg(
-                (void*)App.RunWindow!.GetWindowHandle(),
+                handle.Value,
                 icon.Value,
                 null,
                 title.GetChars(),
